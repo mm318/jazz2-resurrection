@@ -28,9 +28,10 @@ zig build -Doptimize=fast run
 ```
 
 The executable is `zig-out/bin/Jazz2` (`Jazz2.exe` on Windows). Keep its
-`Content` directory beside it. Copy your original game files, including
+`assets` directory beside it. Copy your original game files, including
 `Anims.j2a`, levels, tilesets, and music, into `zig-out/bin/Source/`.
 The game converts them into a local cache when needed.
+The default desktop window is 1440 × 810.
 
 `debug`, `safe`, `fast`, and `small` are the optimization modes. The editor,
 AngelScript support, and online multiplayer are enabled by default and can be
@@ -57,11 +58,11 @@ and `coi-serviceworker.js`. Serve over localhost or HTTPS; the service worker
 supplies the cross-origin isolation needed by pthreads. Original game data is
 not included in the browser bundle.
 
-To play with your own game data in the browser, prepare a Content directory and
+To play with your own game data in the browser, prepare an assets directory and
 select it when building:
 
 ```sh
-zig build pack-assets -- convert /path/to/original-game /tmp/jazz2-content --content=Content --target=emscripten
+zig build pack-assets -- convert /path/to/original-game /tmp/jazz2-content --content=assets --target=emscripten
 zig build -Dtarget=wasm32-emscripten -Doptimize=fast -Dcontent=/tmp/jazz2-content
 zig build -Dtarget=wasm32-emscripten -Doptimize=fast -Dcontent=/tmp/jazz2-content run
 ```
@@ -78,7 +79,7 @@ zig build shaders               # Generate shader headers in the build cache
 zig build test                  # Shared-library regression checks
 ```
 
-Normal game builds generate shader headers automatically from `Sources/Shaders`.
+Normal game builds generate shader headers automatically from `src/Shaders`.
 Edits to shaders or their includes invalidate the cached output. The generator
 runs on the build host, including when cross-compiling the game. It emits GLSL
 and reflection metadata; the driver or browser compiles the GLSL for the GPU at
@@ -87,7 +88,7 @@ runtime. No separate shader SDK is required.
 Asset conversion is explicit. For example:
 
 ```sh
-zig build pack-assets -- convert /path/to/original-game /path/to/converted --content=Content --target=desktop
+zig build pack-assets -- convert /path/to/original-game /path/to/converted --content=assets --target=desktop
 ```
 
 The build compiles separate Shared, nCine, and Jazz2 game libraries, with

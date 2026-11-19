@@ -18,5 +18,17 @@
             .hash = "N-V-__8AAFtICgCVOQFfkjwy7ir3VqTXKBIfbrfoKDuqstpy",
         },
     },
-    .paths = .{ "build.zig", "build.zig.zon", "build", "deps", "Sources", "Content", "web_assets", "tests", "README.md", "LICENSE" },
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "build",
+        "deps",
+        "doc",
+        "src",
+        "assets",
+        "web_assets",
+        "tests",
+        "README.md",
+        "LICENSE",
+    },
 }

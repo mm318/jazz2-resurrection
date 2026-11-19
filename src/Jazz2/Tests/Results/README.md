@@ -1,0 +1,380 @@
+﻿# Captured runs
+
+Committed so a later change can be checked against the original game's measured behaviour without needing
+the original game to hand. Regenerate with `Tools/ExtractTrace.ps1`, compare with `Tools/CompareTraces.ps1`.
+
+**They are gzipped** — about 2.8 MB together instead of 21 MB, and still exact, since a trace is only
+useful if it is the real thing. Both tools read `.csv` and `.csv.gz` interchangeably and will accept a path
+written as `.csv` when only the `.gz` is present, so nothing needs to know which form is on disk. See
+`Tools/TraceIO.ps1`.
+
+| Path | Captured from | Settings |
+|---|---|---|
+| `original/` | Original Jazz Jackrabbit 2 with JJ2+ Beta v6.6h, driven by `Level/_pt.j2as` | Its own fixed tick rate, measured at 70.021 Hz. 601 scenarios, 357 350 rows across 24 category files (counted 2026-10-27). |
+| `engine/` | This engine, driven by `PhysicsProbe.cpp` | **`/max-fps:60`**, Debug x64, original-style camera pinned with `/config` (see below). 610 scenarios, 312 684 rows across 25 category files, one whole sweep (2026-11-11, the last of that day). |
+| `diam3-original.csv.gz`, `diam3-engine.csv.gz` | The same two probes in a **different level** — the original game's own Diamondus 3 — for the single `dm_chain` scenario | Kept apart from the pair above on purpose: a trace holds one level's geometry, and merging two would make the level-version caveat below meaningless. See *Running it in another level* in `../README.md`. |
+
+**Split by category, one file per category on each side.** A full sweep is about eighty minutes a side, so
+keeping the whole suite in one file meant adding a single scenario cost both of those. Each category is
+under ten minutes, so a change re-runs only what it touched and replaces only those two files. The split
+costs nothing in size — 7839 KB across 22 files against about 7843 KB as one, because gzip has as much to
+work with either way.
+
+**The trade-off is that a category file reflects whichever build produced it**, so the set as a whole can be
+a mix. That is exactly what makes iteration cheap and it is only sound while a change is confined to the
+categories re-run with it — a change to something shared, the movement model itself or anything in
+`Player.cpp` that is not gated to one mechanic, needs the whole set swept again. When in doubt, sweep. `Tools/Categories.ps1` defines the categories and prints the probe filter that reproduces
+one; `../README.md` has the workflow. Both tools take a directory wherever they take a file, and the
+comparison joins on the scenario **name**, so it does not matter which file a scenario came out of nor
+whether the categories are redrawn later.
+
+Both sides were re-swept whole on 2026-09-18, after the movement rework described in
+`doc/MovementAccuracyReference.dox`. The engine run is the reference for that document's "Now" column.
+
+**The engine side was re-swept whole on 2026-11-10**, in five parallel sections of one build, after the keys moved
+ahead of the move, the footing, the frame-rate-exact horizontal move, the original-style camera model, the crouch
+carried into a buttstomp and the buttstomp's 39-tick hover. Three
+things differ from every capture before it. It carries an `ftick` column (the tick counter before it is floored),
+so the files cannot be merged with older ones; the extractor refuses to. The probe rounds its tick for input
+instead of flooring it. And the camera columns are the **original-style** camera for the first time: all earlier
+engine captures took whatever `x64\Debug\Jazz2.config` said and had the Reforged camera, so their `camx`/`camy`
+compare nothing. Scores against the original: median 0.1 px/s; 346 / 454 / 514 / 537 of 599 within 1 / 5 / 10 / 25
+px/s. Interpolated on `ftick`, 130 scenarios hold a median position error of at most 0.5 px, 160 of at most 1 px and
+213 of at most 2 px.
+
+**Re-swept again later on 2026-11-10** (60 FPS, 599 scenarios, 311,984 rows) after the air floor snap, gravity
+before the move, the spring rise hold, the applied fall cap and the copter's press-time read. The probe now also
+undoes the setup frame's gravity for a mid-air start. Scores: 348 / 485 / 524 / 541 of 599 within 1 / 5 / 10 / 25
+px/s; 133 / 166 / 218 scenarios within 0.5 / 1 / 2 px median position error (median 4.16 px). The same build at
+70 FPS, where a frame is a tick, reads 445 / 498 / 531 / 540 and a 2.97 px median, so most of the gap at 60 FPS is
+input landing on frame starts rather than physics. At 144 FPS: 372 / 497 / 519 / 539, 2.94 px.
+
+**Re-swept whole on 2026-11-11** (60 FPS, five parallel sections of one build) after the paddle's four-tick drift
+hold, the water entry and exit depths without the push out, the buttstomp hop and the air floor snap from
+1 px/tick. Scores: 347 / 491 / 529 / 545 of 599 within 1 / 5 / 10 / 25 px/s; 135 / 167 / 220 scenarios within
+0.5 / 1 / 2 px median position error (median 4.09 px). Against the previous sweep 471 scenarios hold within 1 px
+of median position error, 66 improve by more and 62 worsen by more. The improvements are the paddle and water
+families (`pb_pad_hold` 105 → 13 px, `pb_pad_xm16` 138 → 57, `wt_swim_up_run` 16 → 5). The largest regressions
+are not the change: `sp_chain` (0.75 → 760 px) starts 0.09 px apart in `x` after its settle and both sweeps carry
+identical speeds until the chain amplifies it, and the `sp_dj_*` family sits 0.2 ticks apart in input phase. The
+one real regression is `sp_butt_high`, `sp_butt_hold_r` and `sp_butt_tap_r`, which now hop where the original
+lands 0.19 px inside the no-hop band (see the buttstomp row in the reference's gaps section).
+
+**Re-swept whole a second time on 2026-11-11**, after the landing stall (a landing made by the air floor snap loses
+the next tick's move when the fall is faster than the step height) and the jump out of the water. Scores:
+346 / 487 / 531 / 546 of 599 within 1 / 5 / 10 / 25 px/s; 132 / 167 / 223 scenarios within 0.5 / 1 / 2 px median
+position error (median 4.16 px). Against the first sweep of the day 516 scenarios hold within 1 px, 34 improve by
+more and 49 worsen by more. The change shows in the walking gaps: `lh_g5_walk` 3.9 → 0.3 px, `lh_g6_walk`
+3.9 → 0.2, `lh_g4_walk` 8.8 → 4.8. The three largest regressions are input phase, not the change:
+`wb_dash_j164` (2 → 1008 px) presses Jump 0.04 ticks earlier against its wall contact and launches before the
+speed is zeroed, `fu_jump_right_rel` (0.2 → 480) meets its float-up tiles a frame apart, and `wb_rf_g5` flips
+between 0.4 and 260 px from sweep to sweep (it read 260 two sweeps ago).
+
+**Re-swept whole once more on 2026-11-11**, with the game windows minimized, after the weapon, enemy, boss, pickup
+and player-mechanics rounds and three changes to shared movement code: the floor-following search now steps in
+whole check steps (a flat floor no longer wobbles by up to 0.5 px with the frame time), the original-style camera
+moves halfway to its target every tick instead of trailing by a fixed tick, and airborne slope climbing became a
+per-actor switch. Scores: 347 / 488 / 530 / 543 of 599 within 1 / 5 / 10 / 25 px/s; 134 / 166 / 225 scenarios
+within 0.5 / 1 / 2 px median position error (median 4.12 px). Against the previous sweep 526 scenarios hold
+within 1 px, 38 improve by more and 35 worsen by more, which is the run-to-run spread: `sp_chain` is back at
+0.5 px (760 two sweeps ago), `fu_jump_right_rel` back at 480 (0.2 last time), and the `sp_dj_*` family moves by
+3 to 9 px in both directions. **Run the probe minimized**: a window that opens focused takes real keyboard and
+gamepad input, which is mixed with the scripted input - one run made while the machine was in use had every
+scenario off by hundreds of pixels, with the player walking through the settle.
+
+**The last sweep of 2026-11-11** followed the boss and enemy rounds and two changes that reach the probe: airborne
+slope climbing became a per-actor switch, and a copter placed in a level flies its fixed time again whatever
+time the level gives it (the original ignores that value: every ride is 280 ticks; honouring it had made the
+rides 630 ticks). Scores: 347 / 489 / 530 / 546 of 599 within 1 / 5 / 10 / 25 px/s, median position error
+4.16 px. 523 scenarios hold within 1 px of the sweep before it; the `cp_mod_*` family is back where it was before
+the copter change, and the rest is the usual spread (`sp_chain` at 759 px again, the `sp_dj_*` family by a few
+pixels either way).
+
+**Re-swept on 2026-11-12** after a round that unified rules between the two modes, moved shared code into helpers
+and narrowed fields, none of which is meant to move the player. Scores: 348 / 489 / 529 / 548 of 599 within
+1 / 5 / 10 / 25 px/s, median 0.1 px/s. The `cp_mod_*` family changed on purpose: a copter now exists for the whole
+ride as in the original, so its generator starts waiting when the ride ends, and each scenario has to hop for a
+fresh copter (in `cp_mod_get` it is caught at tick 232 against 234, the ride ends at 511 against 513).
+
+**Re-swept again the same day** after three changes found by scripted runs through the tubes of a stock level: the
+air floor snap reaches `max(8, 4 + whole pixels of sideways speed per tick)` whether the player dashes or not (a
+horizontal spring's 16 px/tick therefore lands a player 18 px above the floor on the next tick, which is what lets
+it catch a pole behind the spring), a tube holds the player at pixel 15 of the tile on both axes, and a player in
+a tube too low for its standing hitbox is curled up. Scores: 349 / 487 / 531 / 548 of 599, median 0.1 px/s.
+
+**Blank the level's own script before a sweep.** `_pt` carries the probe script of the original game, and left in
+`Cache/Episodes/unknown/_pt.j2as` it runs in this engine too and presses keys of its own: every scenario starts
+displaced at tick 0 and about 125 scenarios instead of 347 land within 1 px/s. It is deterministic, so it reads as
+a regression. A contaminated log has `_pt_trace.csv` lines in it; a clean one has none.
+
+**The `bird` category (`bd_*`, `b2_*`, 43 scenarios) was added on 2026-10-18** from one filtered capture a side,
+with the category's own filter, so both files hold the whole category. It was taken at **60 FPS**, the rate every
+other engine category turned out to be at by then (see below), and it touches nothing else: both birds are gated
+on their own player type, and a 60 FPS re-run of `g_*` and `a_*` from the same build matched the committed
+`ground` and `air` files.
+
+**The beak charge set (`bd_ch_*`, 31 scenarios) was added to it later the same day.** The original's side came from
+three short filtered captures merged scenario by scenario, so its 43 older bird scenarios are still the first capture's;
+the engine's side is one capture of the **whole** category (`bd_,b2_`) at 60 FPS, because the charge change reaches every
+`bd_*` scenario on this side. Against the previous engine file the 43 older scenarios kept a speed-distribution error of
+0 px/s each. Their `AnimSame` drops are the renumbered bird poses (the charge was `0x20000048` and is `0x20900000`) and
+the charge now carrying the wing frame over, not a change of movement.
+
+**The `freeze` category (`fz_*`, 62 scenarios) was added on 2026-10-26**, at 60 FPS. The original's file is nine
+filtered captures merged scenario by scenario, latest last: the first 29, the `fz_b_*` again after the probe learned
+to thaw the pushable it puts back (a box thaws four times slower than anything else, so the previous scenario's
+freeze was still on), the crates, the `*_away` ones again with the freeze moved to tick 60, the three crate
+shots, the seven Fire/Jump-while-frozen ones in two runs, and the eight `fz_r_*` rams in two runs (2026-10-27; a
+`fz_r_drop` from the second was left out - the player landed on a ledge above the turtle and never reached it). The engine's is one capture of the whole category from the build where frozen actors follow the original.
+
+Six scenarios were added after that sweep — `an_crouch_hold`, `an_crouch_hold_walk`, `an_crouch_carry`,
+`an_crouch_spring`, `an_crouch_pole_e` and `an_crouch_spring_l` — and the pole, spring and rev-up families
+were re-measured behind the carry-exit clamp and the spring carry's refusal of the crouch. All of them were merged into the affected category file of each
+side from their own captures rather than by re-sweeping, the engine's at the same `/max-fps:144` as the sweep
+— which is the one thing that has to be kept true when a category is topped up instead of re-run.
+
+**Since 2026-09-29 the whole engine set is a 60 FPS capture again** — every category file's `ms` column steps
+16.5–16.8 ms, read on 2026-10-18 — so the 144 FPS figures in the next three paragraphs describe the set as it was
+on 2026-09-17 and are kept for the reasoning. Check the rate of a file the same way before topping it up.
+
+**The engine side was captured at 144 FPS, not the 60 this file claimed until 2026-09-17, and the difference
+is not cosmetic.** It was found by re-running four categories with `/max-fps:60` as documented and having
+eleven scenarios drop out of the 25 px/s band with no physics change capable of reaching them — nine of them
+moving from *exactly* 12.5 to *exactly* 29.9, which is a sampling artefact rather than a movement one. The
+row density says it plainly: every committed category holds about **2.06 rows per original tick** and a true
+60 FPS capture holds **0.86**, and the `ms` column gives 7.00 ms a frame against 16.70. So the whole set,
+all twenty-one files, is a 143-144 FPS capture.
+
+Two things follow. **Never mix frame rates within the set** --- a category re-run at a different rate is not
+comparable with the rest, and the confound is silent because it moves only the scenarios whose speed
+distribution is dominated by standing still. And **the headline scores below are 144 FPS scores**, which the
+frame-rate table further down shows is the rate that flatters the engine most (264/280 against 252/280 at
+60). Re-basing the set at 60 FPS is the right end state and has not been done, because it rewrites all
+twenty-one files and would move every figure the reference page quotes.
+
+**Both were re-swept in full on that date and the reason is worth keeping.** The pair they replace was
+assembled over 2026-09-10/11 and predated the `camx`, `camy`, `anim` and `frame` columns entirely — the
+original side carried 16 columns with no animation data at all. That is invisible until something asks an
+animation question, and when one finally did (a rev-up launch running its whole length in the skid pose)
+there was nothing to compare against for any scenario older than the column. Assembling from partial runs
+stays sound for physics; it silently freezes the *column set* of whatever was captured first.
+
+**How repeatable this engine is, measured — and it is the number you need before calling anything a
+regression.** Two full sweeps of the *same binary*, back to back: **385 of 403 scenarios end within 1 px**,
+and 18 move. The tail is what matters, because it is long:
+
+| Scenario | Moves between identical runs by |
+|---|---|
+| `sl_up45_jhold` | **1474 px** |
+| `pb_bump_fall`, `pb_bump_hold_r` | 52 px, 27 px |
+| `bl_acc_right_run`, `lh_g1_dash`, `lh_g2_dash`, `sp_dj_a_dashflip`, `tb_gap4`, `an_slide_stop` | 3–7 px |
+| eight more | 1–3 px |
+
+Nothing is random here: every scenario is scripted and the clock is the probe's own. What varies is the
+settle, which ends on real-time frame pacing and leaves the player a few hundredths of a pixel apart from run
+to run — and a few hundredths is enough to decide whether a jump clears a slope's lip, whether a bumper is
+struck on its left or its right, or whether a gap is cleared or fallen into. Those scenarios amplify it
+without limit; `sl_up45_jhold` turns 0.01 px into 1474.
+
+**So a scenario moving is not evidence of anything on its own.** This was measured because a change that
+could only reach three scenarios appeared to move twelve, and there was no way to tell which nine were noise.
+Seven of the nine are in the table above. Take this baseline before attributing a movement to a change, and
+prefer a scenario's *mechanism* over its end position when the mechanism is what is being tested.
+
+**How repeatable the original actually is, measured.** Two full runs a day apart were compared row by row
+on the physics columns alone — scenario, tick, x, y, xs, ys and the input flags. Of 203 shared scenarios
+**194 are byte-identical**; the nine that are not are:
+
+| Scenario | What differs |
+|---|---|
+| `wd_stand_r` | `y` by a flat 0.125 px for the whole run — a settle difference, `x` identical |
+| `ob_hpole_z0` | Starts its fall two ticks out of phase, converges to the same resting place |
+| `sp_pole_loop` | Diverges from tick 53 — the chaotic one, already flagged below |
+| `cl_dj_walk`, `cl_walk_j` | From tick ~200, where the traverse walks off the end of the ceiling section |
+| `wd_stand_l`, `fu_col_hold` | 12 rows each, 0.001 px |
+| `sp_dj_flip`, `sp_dj_flip_mid` | The last few ticks of an 800-tick fall into a pit |
+
+Three columns *never* repeat and must be excluded from any such check: `ms` and `gametick` are clocks, and
+`objx`/`objy` track whichever object happens to be nearby. Comparing all of them makes a quarter of the
+rows look different and says nothing.
+
+**`objx` and `objy` are not at the same index on the two sides.** The engine's header runs
+`…,sm,ms,objx,objy,ctrl,…` and the original's `…,sm,gametick,ms,objx,objy` — so `objx` is field 13 here and
+field 14 there. Read the header rather than hardcoding an index: the two columns carry different payloads
+per scenario group (ammo and weapon for the RF sweeps, the enemy's position for the stomps, the player's
+own animation for the tube and pinball ones), and reading the wrong one cost a full round of "the paddle
+pose is not being set" when it was being set correctly all along.
+
+**The caveat on assembling a trace from several runs is the level, not the game.** A run is only
+interchangeable with another if `Level/_pt.j2l` did not change between them, and it does change — the test
+level grows a new section whenever a mechanic needs one. Before merging, diff the level version the older
+rows were captured on against the current one and check that nothing moved inside the tiles those scenarios
+use. When the spring chain was added at rows 22–34 the diff came back confined to `x ≤ 36` and `x ≥ 57`
+above row 21, leaving the `cl_*` ceiling bays and their row-16 floor byte-identical, which is what made
+keeping the older rows legitimate. `git cat-file blob :<path>` gets the staged version out — pipe it
+through `cmd /c` redirection, because PowerShell re-encodes binary on `>`.
+
+## What the comparison said when these were captured
+
+```
+Compared 406 scenarios present in both traces.
+Median speed-distribution error: 0.1 px/s
+Scenarios within 25 px/s: 376 / 406
+Scenarios whose animation-segment count differs by over 25%: 70 / 397
+```
+
+The scenarios that fall outside that are listed in `../README.md` under *Scenarios that do not measure the
+same thing on both sides*. Every one of them has a known cause, and most are not physics differences at all
+— but a few are, so read the cause rather than assuming. Check that list before treating a new outlier as a
+regression.
+
+The animation line is new with this pair, since it is the first one where both sides carry the column. Its
+71 are **not** a list of known causes — nothing has been through them yet. The trajectory is matched far
+better than the pose is, which is what you would expect of work that has only ever measured trajectories.
+See *Animation structure across the two games* in the gaps table.
+
+## Other frame rates
+
+The committed engine trace is the 144 FPS one (see above), and the whole set is re-run at 24, 30 and 60
+whenever the model changes — pass `/max-fps:N` and score each against the same original. Those runs are
+deliberately **not** committed: they are a check on the model rather than a reference, and four traces of
+the same build would quadruple what the repository carries for no extra information.
+
+Re-measured 2026-09-18, four full sweeps of one build over all 413 scenarios, 406 of which the original side
+also carries. The score broadly improves with the rate but not monotonically — 24 edges 30 by two scenarios,
+which is inside the chaotic scenarios' own run-to-run swing:
+
+| | 24 FPS | 30 FPS | 60 FPS | 144 FPS |
+|---|---|---|---|---|
+| Scenarios within 25 px/s of the original | 353 / 406 | 351 / 406 | 364 / 406 | **376 / 406** |
+| Median speed-distribution error | 0.1 px/s | 0.1 px/s | 0.1 px/s | 0.1 px/s |
+
+**Run the four in parallel** — measured, they do not interfere. Four instances on an 8-core/16-thread
+machine each held their target with no jitter worth the name: over every frame of all four sweeps the median
+intervals were 41.70, 33.30, 16.70 and 7.00 ms against nominals of 41.67, 33.33, 16.67 and 6.94, the p99s
+41.80, 33.60, 16.80 and 7.30, and the single worst frame of each 41.80, 34.50, 19.20 and 14.00 — the same
+figures each produces alone, at 65% CPU. A four-rate validation is
+therefore ~70 minutes, not four and a half hours. Measure the rate *within* a scenario, though: `ms` does
+not advance across the reset between scenarios, so a naive diff reports the gap as a 300 ms frame.
+
+**Most of that spread is one artefact, and it is not movement** (gone at 60 FPS since horizontal steering
+moved before the move, see *The keys steer the tick they are read on* in the reference; the other rates were
+not re-run). Pressed against a wall the original reads
+`xs` = 0.0000 and this engine reads one acceleration step, which is `accel * timeMult` and therefore
+proportional to the frame time: **0.2081 px/frame at 144, 0.4988 at 60, 0.9973 at 30**, or 12.5, 29.9 and
+59.8 px/s. Those are exactly the scores ten of the affected scenarios move between, and the player does not
+move at all — `wb_wallfind` travels 1221.0 px at 144, 60 and 30 alike. It does not reach the jump launch
+boost either: `wb_dash_j164` jumps after the longest press into the wall and launches at −9.9970 at *every*
+rate, against the original's −10.0000. So it costs the metric and nothing else. This is the same residual
+the camera lead had to be re-keyed around, and the reason the old reading of this table — "a tail that thins
+as the frame gets shorter is what sampling error looks like" — described the right shape for the wrong
+reason.
+
+**Do the four rates agree with each other?** That is the sharper question, and `Tools/CompareFrameRates.ps1`
+answers it by comparing positions on a shared tick grid. Nothing needs converting: `x`/`y` are absolute
+pixels and `tick` is in the original's units on every capture. The control is two runs at the *same* rate:
+
+| compared | median worst per-tick difference | agree within 1 px | travel spread > 10 px |
+|---|---|---|---|
+| **same rate, two runs** | **0.28 px** | **342 / 413** | **2 / 413** |
+| 144 vs 60 | 2.71 px | 158 / 413 | 19 / 413 |
+| 60 vs 30 | 2.77 px | 154 / 413 | 49 / 413 |
+| 30 vs 24 | 3.93 px | 148 / 413 | 69 / 413 |
+| 144 vs 24 | 10.06 px | 134 / 413 | 98 / 413 |
+| all four at once | 12.08 px | 129 / 413 | 124 / 413 |
+
+**The movement model itself is frame-rate independent** — which is the result worth having, because it is
+what the per-tick constants and the velocity-Verlet integration are for. Rise heights across 24/30/60/144:
+`ap_r30` 128.0 / 128.1 / 128.0 / 128.0, `a_jump` 128.3 / 128.2 / 128.3 / 128.3, `ob_vpole` 270.4 / 271.1 /
+270.7 / 272.5, `ow_hold` 704.0 / 704.3 / 704.1 / 704.1, `sp_spaz_side` 213.6 / 213.4 / 213.4 / 213.3.
+Fractions of a pixel over hundreds.
+
+What does not survive falls into three groups, and only the third is a real defect:
+
+1.  **Scenarios that are chaotic at any rate.** `pb_bump_*`, `sl_up45_jhold`, `sp_dj_a_dashflip`, `sp_chain`
+    — all of them also move between two runs of the same build, some by over a thousand pixels. The control
+    row above is what tells them apart from a regression.
+2.  **Scenarios decided by a short input window.** A 24 FPS frame is **2.92 of the original's ticks**, so a
+    four-tick window is sampled 1.4 times. `sp_slide_*` reads 3.8 / 9.2 / 18.7 / 0.3 px of rise against the
+    original's 9.6 for exactly that reason. This is the probe's scripted input being quantised, not the
+    model — but it is also a fair warning that a *player* at 24 FPS cannot hit a four-tick window either.
+3.  **One mechanic genuinely sampled too coarsely — a real low-frame-rate gameplay bug, now fixed.**
+    `fu_jump_right_rel` climbed 495.0 / 495.2 / 503.4 px at 144/60/30 and **176.6** at 24. The float-up
+    area was evaluated once per frame at the position the player ended up in, where the trigger events
+    (poles, tubes, warps) are swept along the whole path at half-tile steps. Counting the rows the
+    assignment actually fired on settles it: **41, 34, 17 and two**. At 24 FPS a 12 px/tick fall covers
+    35 px in a frame, more than a tile, so the tile is never seen. It now walks the same samples.
+
+    Re-swept at all four rates afterwards: 24 FPS goes **176.6 → 513.8 px** with the hit count 2 → 15
+    (the original's is 18), `fu_butt` 176.6 → 200.0, and **60 FPS is untouched** — before and after agree
+    to 0.16 px median with 394/406 inside a pixel, which is better than the run-to-run noise floor. The
+    aggregate cross-rate figure does not move (9.16 → 9.17 px over 60/30/24), and that is the honest
+    reading: the fix corrects one family rather than the tail, which is chaotic scenarios and input
+    quantisation.
+
+    `ow_jump` (224.5 / 224.7 / 225.6 / **202.3**) looks identical and is *not* the same thing — its
+    launches all happen, and only their timing moves, because the jump key is sampled on a frame boundary:
+    the original launches at tick 21 and the engine at 20, 22, 23, 23. That is group 2. Worth stating
+    because the two are indistinguishable from the summary numbers alone.
+
+## Re-verifying later
+
+```powershell
+cd ../Tools
+# capture a fresh engine run first, then:
+./ExtractTrace.ps1 -Path ../../../../x64/Debug/test.log -Destination ../Results/engine-new.csv
+./CompareTraces.ps1 -Engine ../Results/engine-new.csv -Original ../Results/original-70hz.csv
+```
+
+A change that moves the median much above 0.3 px/s, or drops a scenario out of the 25 px/s band that was
+in it, has changed movement — whether or not that was the intent.
+
+One caveat on the metric: the pole scenarios are the family it is **not** a good guard for. A pole scenario
+spends ~140 ticks frozen at zero speed, and those zeros dominate the distribution. `ob_spring_vpole` scored
+a **perfect 0.0 while its chain was 265 px short** — a third of the height missing, invisible — and
+`sp_pole_loop` currently scores **2.3 while its rise is 1061 px against the original's 592**, because the
+launch speeds are identical and only the phase differs. Read the launch speed and the rise directly for
+anything involving a pole, and compare a chain launch by launch rather than by its total height.
+
+More generally: a clean sweep means *nothing changed*, not *nothing is wrong*. Most of the bugs found in
+this work were invisible to a passing sweep — a spring that only misbehaves when a flag no scenario set is
+set, a stomp descent that only runs away from a drop longer than any scenario used, a bounce off an enemy
+no scenario contained, a horizontal pole that sticks for ever at an entry speed nothing built out of props
+could produce (a prop scenario always approaches a pole by moving towards it), a horizontal spring that
+yanks the player 10 px down but only when something *falls* onto one, a float-up area lifting a third of
+what it should, and wind, belts and the slide tile — the last of which was **not implemented at all**, its
+event converted and then read by nothing. None of those four families had a single scenario until they were
+asked about. When adding a mechanic, add the scenario that would fail without it; and when a mechanic exists
+in the enum, check that something actually reads it.
+
+## Did anything change at all?
+
+A different and often more useful question, and `-Baseline` is the mode for it:
+
+```powershell
+cd ../Tools
+./ExtractTrace.ps1 -Path ../../../../x64/Debug/test.log -Destination fresh.csv.gz
+./CompareTraces.ps1 -Engine fresh.csv.gz -Original ../Results/engine-60fps.csv.gz -Baseline
+```
+
+Both sides are then converted at 60 Hz rather than one of them at the original's 70.021, and because two
+engine runs tick in step it also compares the **positions** row by row, which the cross-game metric cannot.
+
+**The speed side is the one to read**, with one exception. Two runs of the same build give a
+speed-distribution error of 0 on almost every scenario, so a non-zero figure is nearly always a real change
+— but **a scenario whose outcome hinges on a knife edge can flip on the settle alone**. `lh_g3_walk` walks a
+3-tile gap at exactly the walk cap: two runs of the same build began 0.044 px apart in `y`, one fell in and
+the other cleared, and the speed distribution came out **265 px/s** apart. So check the start position
+before believing a large single-scenario change, and be suspicious of any scenario whose measurement is a
+binary outcome rather than a trajectory. The position side is far noisier than it
+looks: the settle before each scenario ends on real-time frame pacing, so the player starts a few
+hundredths of a pixel — occasionally a few *whole* pixels — from where they started last time, and every
+row after that carries the offset. Median per-tick difference across a run is about 0.05 px in X and
+0.17 px in Y, but well over a tenth of the scenarios exceed 1 px, and one that has to *arrive* somewhere
+amplifies it without bound: a horizontal pole grabbed one tick earlier flings the player 400 px further
+along at identical speeds throughout. So read the position columns as "which scenarios to look at", never
+as a verdict, and never compare maxima or line counts.
+
+
+
+
