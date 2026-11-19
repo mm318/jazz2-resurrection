@@ -18,8 +18,7 @@
 	The software transpiler (@ref GlslToCpp.h) is NOT a consumer: it folds `uint`/matrices away and grows
 	its own lighter type-folded AST, so its model stays private to that unit.
 
-	This is a HEADER-ONLY unit on purpose: the ESSL 100 emitter is compiled into the engine's OpenGL|ES 2.0
-	profile (see cmake/ncine_sources.cmake), so the shared parser must not require a new translation unit.
+	This is a HEADER-ONLY unit shared by the shader emitters.
 */
 
 #include <cstddef>

@@ -2,7 +2,7 @@
 #if defined(DEATH_TARGET_N64)
 #	include <n64sys.h>
 #endif
-#include "../Shaders/Generated/ShadersGen.h"
+#include <Shaders/Generated/ShadersGen.h>
 #include "Compatibility/JJ2Anims.Palettes.h"
 #include "Formats/LevelFile.h"
 #include "Formats/LevelTextsChunk.h"

@@ -1,0 +1,8 @@
+.{
+    .name = .jazz_angelscript,
+    .fingerprint = 0x33b86b75b163f1cf,
+    .version = "2.39.0-dev",
+    .minimum_zig_version = "0.17.1",
+    .dependencies = .{},
+    .paths = .{""},
+}

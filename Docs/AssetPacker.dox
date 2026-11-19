@@ -19,27 +19,19 @@ editable, and re-encodes `.j2v` cinematics into the game's own @ref Jazz2::Video
 
 @section asset-packer-building Building the tool
 
--   Built by default with the desktop CMake build (`NCINE_BUILD_ASSET_PACKER`, default @cpp ON @ce),
-    skipped for cross-compiled targets except the web version below. It links only the base layer and
-    the converters --- no renderer, window backend or networking.
--   After a regular @ref building "desktop build" the binary is
-    @cpp "build/Utilities/AssetPacker/AssetPacker" @ce. `NCINE_BUILD_GAME=OFF` builds only the
-    offline tools.
--   With Emscripten it builds the web version: a WebAssembly module with the repository's `Content`
-    baked in and a page that swaps the content of a Nintendo 64, Dreamcast, PlayStation 2 or GameCube
-    image in the browser, using the user's own copy of the original game
-    (`swap-content --source=`, see @ref asset-packer-swap-content):
+Build AssetPacker explicitly for the build host:
 
 @code{.sh}
-emcmake cmake -S . -B build/assetpacker-web -G Ninja -D CMAKE_BUILD_TYPE=Release -D NCINE_BUILD_GAME=OFF
-cmake --build build/assetpacker-web
+zig build asset-packer
+zig build pack-assets -- convert /path/to/original-game /path/to/converted --content=Content --target=desktop
 @endcode
 
-@m_class{m-noindent}
+The executable is @cpp "zig-out/bin/AssetPacker" @ce (`.exe` on Windows). It links
+only the base library and converters, without SDL, a renderer or networking. Building
+it requires no original game data. `zig build tools` builds both host utilities.
 
-The build directory's `Utilities/AssetPacker` then holds the whole site. Deployment is described in
-@cpp "Sources/Utilities/AssetPacker/Web/README.md" @ce. The Emscripten workflow publishes it as the
-`Jazz2_AssetPacker_Web` artifact.
+The optional web frontend sources are in @cpp "Sources/Utilities/AssetPacker/Web" @ce;
+the Zig build supplies the host command-line tool.
 
 @section asset-packer-usage Command-line reference
 
@@ -327,7 +319,7 @@ AssetPacker convert ./build/ConsoleContentN64 --source=<original Jazz Jackrabbit
 @m_class{m-noindent}
 
 Otherwise (or with `--n64-tools=builtin`) it uses built-in encoders, the only option in the web
-version: libdragon's own codecs vendored in `Sources/Dependencies` (VADPCM, ULC, libxm, driven by
+version: libdragon's own codecs vendored in `deps` (VADPCM, ULC, libxm, driven by
 `Wav64Writer` and `Xm64Converter`) and its own `Mpeg1Encoder`. The output plays the same --- sound effects
 and pre-rendered music are byte-identical to `audioconv64`'s. The built-in encoders compile only with
 GCC, Clang and Emscripten, so an MSVC build of the tool needs libdragon's tools for this profile.
@@ -414,7 +406,7 @@ What `convert` leaves out for these consoles is never put on an image either (@r
 On a Nintendo 64 ROM the content is the DragonFS image at the end, found via the table of contents
 `n64tool` writes after the bootcode. It is rebuilt like `mkdfs` does (the same tree gives an identical ROM
 except the table's cookie) and staged like the build does @m_span{m-text m-dim}
-(`cmake/n64_stage_content.cmake`: original music formats and cinematics that have a video are left out,
+(original music formats and cinematics that have a video are left out,
 `Source.pak` becomes `Prebaked.pak`) @m_endspan. A ROM that would exceed 64 MB is refused.
 
 @subsection asset-packer-swap-content-how What it actually does

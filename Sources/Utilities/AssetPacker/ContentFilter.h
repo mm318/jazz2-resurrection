@@ -18,9 +18,7 @@ namespace Jazz2::AssetPacker
 		-   `Editor` at the top, what only the level editor reads (its font), for a build without the editor
 
 		What a single console can't use, such as the original music formats on the Nintendo 64, is decided where
-		the content is made for that console. `cmake/n64_stage_content.cmake` stages a ROM in the build by the same
-		rules, the staging of the other consoles without the editor in `cmake/ncine_extra_sources.cmake` leaves out
-		`Editor` too.
+		the content is made for that console.
 	*/
 	class ContentFilter
 	{

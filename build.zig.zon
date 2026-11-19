@@ -1,0 +1,22 @@
+.{
+    .name = .jazz2_native,
+    .fingerprint = 0xcf3326ae2250b3e5,
+    .version = "3.9.0",
+    .minimum_zig_version = "0.17.1",
+    .dependencies = .{
+        .ixwebsocket = .{ .path = "deps/ixwebsocket" },
+        .jsoncpp = .{ .path = "deps/jsoncpp" },
+        .angelscript = .{ .path = "deps/angelscript" },
+        .glew = .{ .path = "deps/glew" },
+        .openmpt = .{ .path = "deps/openmpt" },
+        .vorbis = .{ .path = "deps/vorbis" },
+        .ogg = .{ .path = "deps/ogg" },
+        .zlib = .{ .path = "deps/zlib" },
+        .sdl = .{ .path = "deps/sdl" },
+        .emsdk = .{
+            .url = "git+https://github.com/emscripten-core/emsdk?ref=7.0.0#708dcbcc9ee23bc7d2dad44fc90db377e38b771c",
+            .hash = "N-V-__8AAFtICgCVOQFfkjwy7ir3VqTXKBIfbrfoKDuqstpy",
+        },
+    },
+    .paths = .{ "build.zig", "build.zig.zon", "build", "deps", "Sources", "Content", "web_assets", "tests", "README.md", "LICENSE" },
+}

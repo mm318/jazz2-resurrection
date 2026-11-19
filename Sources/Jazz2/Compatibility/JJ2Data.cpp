@@ -106,14 +106,13 @@ namespace Jazz2::Compatibility
 
 	void JJ2Data::ConvertSfxList(const Item& item, PakWriter& pakWriter, StringView targetPath, AnimSetMapping& animMapping)
 	{
-#pragma pack(push, 1)
 		struct SoundFXList {
 			std::uint32_t Frame;
 			std::uint32_t Sample;
 			std::uint32_t Volume;
 			std::uint32_t Panning;
 		};
-#pragma pack(pop)
+		static_assert(sizeof(SoundFXList) == 16);
 
 		MemoryStream so(16384);
 

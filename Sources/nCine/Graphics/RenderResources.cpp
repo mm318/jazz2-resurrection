@@ -11,7 +11,7 @@
 #include "../ServiceLocator.h"
 #include "../../Main.h"
 
-#include "../../Shaders/Generated/ShadersGen.h"
+#include <Shaders/Generated/ShadersGen.h>
 
 #include <algorithm>
 #include <cstddef>	// for offsetof()

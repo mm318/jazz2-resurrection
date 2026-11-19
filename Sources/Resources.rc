@@ -36,6 +36,6 @@ VS_VERSION_INFO VERSIONINFO
 	}
 }
 
-GLFW_ICON				ICON		".\\Icons\\Main.ico"
-WINDOW_ICON				ICON		".\\Icons\\Window.ico"
-WINDOW_AUXILIARY_ICON	ICON		".\\Icons\\WindowAuxiliary.ico"
+GLFW_ICON				ICON		"Icons/Main.ico"
+WINDOW_ICON				ICON		"Icons/Window.ico"
+WINDOW_AUXILIARY_ICON	ICON		"Icons/WindowAuxiliary.ico"

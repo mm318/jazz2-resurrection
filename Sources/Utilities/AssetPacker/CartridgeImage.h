@@ -18,7 +18,7 @@ namespace Jazz2::AssetPacker
 		and accessories `ed64romconfig` marked in it), the bootcode, the compressed executable and its symbol
 		table --- byte for byte, so a ROM can be given new game data without the libdragon toolchain.
 
-		The directory is staged the way the build stages it (see `cmake/n64_stage_content.cmake`): files the
+		The directory is staged for the target: files the
 		console cannot play are left out, and a `Source.pak` becomes `Prebaked.pak`. Music, streamed sound
 		effects and video cinematics come from a tree prepared by `convert --target=n64`; a tree of the plain
 		`console` profile still plays, with its sound effects taken from the package, no music, and the

@@ -8,78 +8,31 @@ namespace Death {
 
 @m_class{m-noindent}
 
-ShaderCompiler (@cpp "Sources/Utilities/ShaderCompiler" @ce, dependency-free C++17) reads annotated
-`.shader` files from @cpp "Sources/Shaders" @ce, expands their variants, reflects the GLSL declarations
-offline and emits self-contained C++ headers with sources and reflection data, so the runtime needs no
-`glGetActiveUniform` introspection. It also performs every lowering the non-GL backends need: HLSL,
-Vulkan GLSL + SPIR-V, Metal, ESSL 100, Cg, GLSL-to-C++ for the software renderer, and a fixed-function
-transpiler for backends without fragment shaders @m_span{m-text m-dim} (PVR, GX, PICA, GU, GS, RDP,
-LegacyGL) @m_endspan.
+ShaderCompiler (@cpp "Sources/Utilities/ShaderCompiler" @ce) is built for the host by Zig.
+It reads annotated `.shader` files from @cpp "Sources/Shaders" @ce, expands variants,
+reflects GLSL declarations and emits C++ headers containing GLSL and reflection data.
+The OpenGL driver or WebGL implementation compiles the GLSL at runtime.
 
-A `.shader` file describes an effect on two tiers:
-
--   <b>Shader backends</b> (software renderer included, via @ref ShaderCompiler::GlslToCpp) get the
-    GLSL of @cpp void vertex() @ce / @cpp void fragment() @ce, lowered per variant and per backend.
--   <b>Fixed-function backends</b> get a @cpp void fixed_function() @ce block --- hardware passes over
-    the sprite quad, transpiled to C++. Design: @cpp "Docs/FixedFunctionShaderDesign.md" @ce. Runtime
-    contract: @cpp "Sources/nCine/Graphics/RHI/FixedFunctionPass.h" @ce.
-
-All outputs are <b>committed</b> under @cpp "Sources/Shaders/Generated" @ce. The game's build never runs
-the tool, so regenerate after every shader edit, see @ref shader-compiler-workflow.
-
-@section shader-compiler-artifacts Which artifact serves which platform
-
-One per-shader header serves GL, ES2, D3D11 and Vulkan. The other tiers get aggregate headers. The
-committed set must only be produced by @ref shader-compiler-workflow "`--generate-all`", which runs
-every mode below.
-
-Backend | Artifact | Produced by
-------- | -------- | -----------
-OpenGL 3.3, OpenGL\|ES 3.0, WebGL 2.0 | `VsSource` / `FsSource` of the per-shader header @m_span{m-text m-dim} (`#version` and platform defines injected at runtime) @m_endspan | primary mode
-OpenGL\|ES 2.0 profile (`NCINE_RHI_GL_PROFILE=ES2`) | `VsSource100` / `FsSource100` --- ESSL 100 lowering in the same header | primary mode
-Direct3D 11 | `HlslVsSource` / `HlslFsSource` --- Shader Model 4/5 HLSL in the same header | primary mode
-Vulkan | `VkVsSpirv` / `VkFsSpirv` --- SPIR-V compiled offline by `glslangValidator` | primary mode + glslang
-Metal (macOS) | `MslVsSource` / `MslFsSource` --- compiled on the device at load time (no MSL compiler outside Xcode) | primary mode
-Software renderer | @cpp "SwGeneratedShaders.h" @ce --- transpiled C++ fragment functions | `--emit-sw-generated`
-Dreamcast (PVR) | @cpp "PvrGeneratedEffects.h" @ce | `--emit-fixed-function pvr`
-Wii / GameCube (GX) | @cpp "GxGeneratedEffects.h" @ce | `--emit-fixed-function gx`
-Nintendo 3DS (PICA) | @cpp "PicaGeneratedEffects.h" @ce | `--emit-fixed-function pica`
-PlayStation Portable (GU) | @cpp "GuGeneratedEffects.h" @ce | `--emit-fixed-function gu`
-PlayStation 2 (GS) | @cpp "GsGeneratedEffects.h" @ce | `--emit-fixed-function gs`
-Nintendo 64 (RDP) | @cpp "RdpGeneratedEffects.h" @ce | `--emit-fixed-function rdp`
-Legacy OpenGL 1.x @m_span{m-text m-dim} (MorphOS' TinyGL) @m_endspan | @cpp "LegacyGlGeneratedEffects.h" @ce | `--emit-fixed-function legacygl`
-PlayStation Vita (GXM) | @cpp "CgGeneratedShaders.h" @ce --- Cg sources compiled on the console | `--emit-cg`
-PlayStation 3 (RSX) | @cpp "RsxGeneratedShaders.h" @ce --- NV40 microcode compiled offline from the same Cg | `--emit-rsx` + cgcomp
-Wii U (GX2) | @cpp "Gx2GeneratedShaders.h" @ce --- R700 shaders compiled offline from the OpenGL GLSL | `--emit-gx2` + CafeGLSL
-
-@m_class{m-noindent}
-
-The `*GeneratedEffects.h` headers hold transpiled `fixed_function` effects. Unavailable lowerings are
-null (a construct outside the HLSL/ESSL 100 subset, or no glslang for SPIR-V). A program without a
-`fixed_function` block is skipped on those backends with a one-time warning. A shader the software
-transpiler declines is absent from @cpp "SwGeneratedShaders.h" @ce.
-
-Runtime-compiled `.shader` files (@ref ShaderCompiler::RuntimeProgram, `CompileRuntimeProgram`) get
-only GLSL, reflection and, under ES2, the ESSL 100 lowering --- so they are unavailable on the
-fixed-function backends.
+Normal builds invoke `--generate-all --gl-only` automatically and track shader files and
+includes. Outputs are stored in the Zig cache. The supported rendering backends are
+OpenGL 3.3 and WebGL 2; no platform shader SDK is required.
 
 @section shader-compiler-building Building the tool
 
-The desktop CMake build adds the tool as a utility target in the `Utilities` folder. It is skipped when
-cross-compiling @m_span{m-text m-dim} (Emscripten, Nintendo Switch, Vita, UWP, Wii, GameCube,
-Dreamcast) @m_endspan, since it runs on the build machine. Standalone build:
-
 @code{.sh}
-cmake -S Sources/Utilities/ShaderCompiler -B build-shadercompiler
-cmake --build build-shadercompiler
+zig build shader-compiler
+zig build shaders
 @endcode
+
+The host executable is @cpp "zig-out/bin/ShaderCompiler" @ce (`.exe` on Windows).
+Its additional standalone transformations are documented below for shader inspection.
 
 @section shader-compiler-usage Command-line reference
 
 @code{.sh}
 ShaderCompiler <input.shader> -o <output.h> [-n <namespace>] [--glslang <path>]
 ShaderCompiler <input.shader> --check | --essl100-check | --hlsl | --cg | --vulkan | --msl
-ShaderCompiler --generate-all [--shaders-dir <dir>] [--out-dir <dir>] [--check] [--no-dxbc] [--glslang <path>]
+ShaderCompiler --generate-all [--gl-only] [--shaders-dir <dir>] [--out-dir <dir>] [--check] [--no-dxbc] [--glslang <path>]
 ShaderCompiler --emit-types <output.h>
 ShaderCompiler --emit-sw-generated <output.h> <input.shader ...>
 ShaderCompiler --emit-cg <output.h> <input.shader ...>
@@ -105,7 +58,7 @@ Mode or option | Meaning
 `--cg` | Cg transform in the PS Vita's sceGxm dialect, see @ref shader-compiler-cg "below"
 `--vulkan` | Vulkan GLSL (@cpp "#version 450" @ce) transform, needs no glslang
 `--msl` | Metal Shading Language transform
-`--generate-all` | Regenerates <b>every</b> committed artifact, see @ref shader-compiler-workflow "below". `--shaders-dir` / `--out-dir` override the auto-detected directories, `--check` compares instead of writing, `--no-dxbc` and `--glslang` are forwarded
+`--generate-all` | Generates shader artifacts, see @ref shader-compiler-workflow "below". `--shaders-dir` / `--out-dir` override the auto-detected directories, `--check` compares instead of writing, `--no-dxbc` and `--glslang` are forwarded
 `--emit-types <output.h>` | Writes only the shared reflection-types header
 `--emit-sw-generated <output.h> <in ...>` | Software-renderer header: every variant's fragment stage as C++
 `--emit-cg <output.h> <in ...>` | PS Vita header: every variant as Cg
@@ -532,64 +485,23 @@ including block defines macros before the `#include`.
 The blocks: `(pvr, gs)` bare, `gu` repeat, `rdp` repeat in pass + tint, `pica` repeat + tint and
 `(gx, legacygl)` tint.
 
-@section shader-compiler-workflow Regenerating the committed headers
+@section shader-compiler-workflow Generating shader headers
 
-`--generate-all` enumerates every `*.shader` in @cpp "Sources/Shaders" @ce and writes into
-@cpp "Sources/Shaders/Generated" @ce, in this order:
+Run `zig build` after editing `.shader` or `.inc` files. Shader headers regenerate
+automatically before the game compiles. `zig build shaders` runs generation alone.
+Commit shader sources; the generated types, per-shader headers and umbrella header
+remain in the build cache.
 
-1.  @cpp "ShaderCompilerTypes.h" @ce --- shared reflection types (`--emit-types`)
-2.  One header per `.shader` file --- `Default*.shader` into @cpp nCine::ShadersGen @ce, everything
-    else into @cpp Jazz2::ShadersGen @ce
-3.  @cpp "ShadersGen.h" @ce --- umbrella header plus the per-namespace `AllPrograms[]` arrays (a file
-    with a `batched` twin contributes two entries)
-4.  @cpp "SwGeneratedShaders.h" @ce (`--emit-sw-generated`)
-5.  @cpp "CgGeneratedShaders.h" @ce (`--emit-cg`)
-6.  @cpp "PvrGeneratedEffects.h" @ce, @cpp "GxGeneratedEffects.h" @ce,
-    @cpp "GuGeneratedEffects.h" @ce, @cpp "GsGeneratedEffects.h" @ce,
-    @cpp "RdpGeneratedEffects.h" @ce, @cpp "LegacyGlGeneratedEffects.h" @ce,
-    @cpp "PicaGeneratedEffects.h" @ce (`--emit-fixed-function`)
-7.  @cpp "RsxGeneratedShaders.h" @ce (`--emit-rsx`), <b>only on a host with `cgcomp`</b>
-8.  @cpp "Gx2GeneratedShaders.h" @ce (`--emit-gx2`), <b>only on a host with CafeGLSL</b>
+For a standalone output directory:
 
-@m_class{m-block m-info}
-
-@par The PlayStation 3 header is skipped, not emptied
-Without a runnable `cgcomp` (and NVIDIA's Cg Toolkit), `--generate-all` reports
-@cpp "skipped: RsxGeneratedShaders.h" @ce and leaves the committed file untouched. Regenerate it on a
-machine with the PS3 toolchain, or pass `--cgcomp`, see @ref shader-compiler-cg-rsx.
-
-After editing a `.shader` file:
-
-@code{.bat}
-Sources\Utilities\ShaderCompiler\x64\Release\ShaderCompiler.exe --generate-all
-git add Sources\Shaders Sources\Shaders\Generated
+@code{.sh}
+zig build shader-compiler
+zig-out/bin/ShaderCompiler --generate-all --gl-only --shaders-dir Sources/Shaders --out-dir /tmp/jazz2-shaders
 @endcode
 
-@m_class{m-noindent}
-
-The shader directory is found by walking up from the executable, then from the working directory, to a
-@cpp "Sources/Shaders" @ce. Output goes to its @cpp "Generated" @ce subdirectory. Never regenerate
-artifacts piecemeal --- it leaves the committed set inconsistent. `GenerateAll.ps1` is a thin wrapper
-forwarding `-Glslang`, `-NoDxbc` and `-Check`:
-
-@code{.bat}
-cd Sources\Utilities\ShaderCompiler
-powershell .\GenerateAll.ps1
-@endcode
-
-SPIR-V is embedded when `glslangValidator` is found: `--glslang <path>`, then `VULKAN_SDK\Bin` and
-`VULKAN_SDK\Bin32`, then `PATH`, then a Visual Studio-bundled copy, then a repo-local build-tree copy.
-Without it a warning is printed and the SPIR-V fields are null --- the headers build, but the Vulkan
-backend does not.
-
-`--generate-all --check` is the <b>staleness guard</b>: it generates into a temporary directory,
-byte-compares with the committed headers (missing and extra files count), reports stale files and exits
-non-zero without touching the tree. Without glslang or with `--no-dxbc`, every header with SPIR-V or DXBC
-reports stale. Run it after editing a shader or in CI --- the build never detects stale headers.
-
-Tests in @cpp "Sources/Utilities/ShaderCompiler/tests" @ce: `--check` dumps in @cpp "tests/expected" @ce,
-must-fail inputs in @cpp "tests/errors" @ce, ESSL 100 fixtures in @cpp "tests/essl100" @ce.
-`tests/RunTests.ps1` runs them all.
+`--generate-all --check` compares fresh results with the selected output directory.
+Tests in @cpp "Sources/Utilities/ShaderCompiler/tests" @ce include reflection dumps,
+invalid inputs, and transform fixtures. `tests/RunTests.ps1` uses the installed host tool.
 
 @section shader-compiler-editor Editor support (Visual Studio Code)
 

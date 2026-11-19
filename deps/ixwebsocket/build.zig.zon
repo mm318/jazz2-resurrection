@@ -1,0 +1,10 @@
+.{
+    .name = .jazz_ixwebsocket,
+    .fingerprint = 0x4650ad32a3562258,
+    .version = "11.4.6",
+    .minimum_zig_version = "0.17.1",
+    .dependencies = .{
+        .zlib = .{ .path = "../zlib" },
+    },
+    .paths = .{""},
+}

@@ -1,0 +1,8 @@
+.{
+    .name = .jazz_glew,
+    .fingerprint = 0x5a30c0ea312000d6,
+    .version = "2.2.0",
+    .minimum_zig_version = "0.17.1",
+    .dependencies = .{},
+    .paths = .{""},
+}

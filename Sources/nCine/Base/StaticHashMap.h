@@ -148,7 +148,7 @@ namespace nCine
 		std::uint8_t _delta1[Capacity];
 		std::uint8_t _delta2[Capacity];
 		hash_t _hashes[Capacity];
-		std::uint8_t _nodesBuffer[Capacity * sizeof(Node)];
+		alignas(Node) std::uint8_t _nodesBuffer[Capacity * sizeof(Node)];
 		Node* _nodes = reinterpret_cast<Node*>(_nodesBuffer);
 		HashFunc _hashFunc;
 

@@ -10,7 +10,7 @@
 #if defined(WITH_ZLIB) || defined(WITH_MINIZ) || defined(DOXYGEN_GENERATING_OUTPUT)
 
 #if defined(WITH_MINIZ)
-#	if !defined(CMAKE_BUILD) && defined(__has_include)
+#	if !defined(ZIG_BUILD) && defined(__has_include)
 #		if __has_include("miniz/miniz.h")
 #			define __HAS_LOCAL_MINIZ
 #		endif
@@ -21,7 +21,7 @@
 #		include <miniz.h>
 #	endif
 #else
-#	if !defined(CMAKE_BUILD) && defined(__has_include)
+#	if !defined(ZIG_BUILD) && defined(__has_include)
 #		if __has_include("zlib/zlib.h")
 #			define __HAS_LOCAL_ZLIB
 #		endif

@@ -1,323 +1,97 @@
-<div align="center">
-    <a href="https://github.com/deathkiller/jazz2-native"><img src="https://raw.githubusercontent.com/deathkiller/jazz2/master/Docs/Logo.gif" alt="Jazz² Resurrection" title="Jazz² Resurrection"></a>
-</div>
+# Jazz² Resurrection
 
-<div align="center">
-    Open-source <strong>Jazz Jackrabbit 2</strong> reimplementation
-</div>
+An open-source reimplementation of Jazz Jackrabbit 2, with local and online
+multiplayer, scripting, and a built-in level editor.
 
-<div align="center">
-  <sub>
-    Brought to you by <a href="https://github.com/deathkiller">@deathkiller</a>
-  </sub>
-</div>
-<hr/>
+You need files from your own Jazz Jackrabbit 2 installation to play. The game
+supports the original game, Shareware Demo, Holiday Hare ’98, The Secret Files,
+and Christmas Chronicles.
 
+## Build and play
 
-## Introduction
-Jazz² Resurrection is reimplementation of the game **Jazz Jackrabbit 2** released in 1998. Supports various versions of the game (Shareware Demo, Holiday Hare '98, The Secret Files and Christmas Chronicles). Also, it partially supports some features of JJ2+ extension and MLLE. This repository contains fully rewritten game in C++ with better performance and many improvements. Further information can be found [here](https://de4th.dev/jazz2/).
+Use [Zig 0.17.1](https://ziglang.org/download/). Linux, Windows, macOS, and
+WebAssembly are supported, using SDL 2.32.10 for windowing, input, and audio.
+Desktop rendering uses OpenGL 3.3; browsers use WebGL 2.
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/deathkiller/jazz2-native/linux.yml?branch=master&logo=data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PHBhdGggZmlsbD0iI2ZmZmZmZiIgZD0iTTI0IDIuNXYxOUwxOCAyNCAwIDE4LjV2LS41NjFsMTggMS41NDVWMHpNMSAxMy4xMTFMNC4zODUgMTAgMSA2Ljg4OWwxLjQxOC0uODI3TDUuODUzIDguNjUgMTIgM2wzIDEuNDU2djExLjA4OEwxMiAxN2wtNi4xNDctNS42NS0zLjQzNCAyLjU4OXpNNy42NDQgMTBMMTIgMTMuMjgzVjYuNzE3eiI+PC9wYXRoPjwvc3ZnPg==)](https://github.com/deathkiller/jazz2-native/actions)
-[![Latest Release](https://img.shields.io/github/v/tag/deathkiller/jazz2?label=release)](https://github.com/deathkiller/jazz2/releases/latest)
-[![All Downloads](https://img.shields.io/github/downloads/deathkiller/jazz2/total.svg?color=blueviolet)](https://github.com/deathkiller/jazz2/releases)
-[![Code Quality](https://img.shields.io/codacy/grade/64eb3ca12bd04c64bf3f3515744b591a.svg?logo=codacy&logoColor=ffffff)](https://app.codacy.com/gh/deathkiller/jazz2-native/dashboard)
-[![License](https://img.shields.io/github/license/deathkiller/jazz2-native.svg)](https://github.com/deathkiller/jazz2-native/blob/master/LICENSE)
-[![Discord](https://img.shields.io/discord/355651795390955520.svg?color=839ef7&label=chat&logo=discord&logoColor=ffffff&labelColor=586eb5)](https://discord.gg/Y7SBvkD)
+On Ubuntu, install the native system development libraries:
 
-
-## Preview
-<div align="center">
-    <img src="https://raw.githubusercontent.com/deathkiller/jazz2/master/Docs/Screen2.gif" alt="Preview">
-</div>
-
-<div align="center"><a href="https://www.youtube.com/playlist?list=PLfrN-pyVL7k6n2VJF197F0yVOZq4EPTsP">:tv: Watch gameplay videos</a></div>
-
-
-## Running the application
-### Windows
-* Install [Microsoft Visual C++ Redistributable](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist)
-* Download the game
-* Copy contents of original *Jazz Jackrabbit 2* directory to `‹Game›\Source\`
-* Run `‹Game›\Jazz2.exe`, `‹Game›\Jazz2_avx2.exe` or `‹Game›\Jazz2_sdl2.exe` application
-
-`‹Game›` *denotes path to Jazz² Resurrection. The game requires **Windows 7** (or newer) and GPU with **OpenGL 3.3** support. Game files should **not** be copied to* `Program Files`*. Cache is recreated during the intro cinematics on the first startup, so it can't be skipped. Also, the sound effects in the intro cinematics require the cache, so they will be missing the first time the game is started up.*
-
-### Linux
-* Download the game
-* Install dependencies: `sudo apt install libcurl4 libglew2.2 libglfw3 libsdl2-2.0-0 libopenal1 libvorbisfile3 libopenmpt0`
-  * Alternatively, install provided `.deb` or `.rpm` package and dependencies should be installed automatically
-* Copy contents of original *Jazz Jackrabbit 2* directory to `‹Game›/Source/`
-  * If packages are used, the files must be copied to `~/.local/share/jazz2/Source/` or `/usr/share/jazz2/Source/` instead, please follow instructions of specific package
-    * Installations predating this layout keep using `~/.local/share/Jazz² Resurrection/Source/`, which is still detected
-* Run `‹Game›/jazz2` or `‹Game›/jazz2_sdl2` application
-  * If packages are used, the game should be visible in application lists
-
-`‹Game›` *denotes path to Jazz² Resurrection.* `~` *denotes user's home directory. The game requires GPU with **OpenGL 3.3** or **OpenGL ES 3.0** (ARM) support. Cache is recreated during the intro cinematics on the first startup, so it can't be skipped. Also, the sound effects in the intro cinematics require the cache, so they will be missing the first time the game is started up.*
-
-<sup>Alternatively, you can use package repository for your Linux distribution:</sup><br>
-[![ArchLinux](https://img.shields.io/badge/Arch%20Linux-grey?logo=archlinux&logoColor=ffffff)](https://aur.archlinux.org/packages/jazz2-bin)
-[![Debian](https://img.shields.io/debian/v/jazz2-native/unstable?label=Debian&logo=debian&logoColor=ffffff)](https://tracker.debian.org/pkg/jazz2-native)
-[![Flathub](https://img.shields.io/flathub/v/dev.de4th.jazz2?label=Flathub&logo=flathub&logoColor=ffffff)](https://flathub.org/apps/dev.de4th.jazz2)
-[![Gentoo](https://img.shields.io/badge/Gentoo-grey?logo=gentoo&logoColor=ffffff)](https://packages.gentoo.org/packages/games-arcade/jazz2)
-[![NixOS](https://img.shields.io/badge/NixOS-grey?logo=nixos&logoColor=ffffff)](https://search.nixos.org/packages?channel=unstable&show=jazz2&from=0&size=50&sort=relevance&type=packages&query=jazz2)
-[![OpenSUSE](https://img.shields.io/obs/games/jazz2/openSUSE_Tumbleweed/x86_64?label=OpenSUSE&logo=opensuse&logoColor=ffffff)](https://build.opensuse.org/package/show/games/jazz2)
-[![Ubuntu](https://img.shields.io/ubuntu/v/jazz2-native?label=Ubuntu&logo=ubuntu&logoColor=ffffff)](https://launchpad.net/ubuntu/+source/jazz2-native)
-[![XtraDeb](https://img.shields.io/badge/XtraDeb-grey?logo=ubuntu&logoColor=ffffff)](https://xtradeb.net/play/jazz2/)
-
-### macOS
-* Download the game and install provided `.dmg` application bundle
-* Copy contents of original *Jazz Jackrabbit 2* directory to `~/Library/Application Support/Jazz² Resurrection/Source/`
-* Run the newly installed application
-
-`~` *denotes user's home directory. Cache is recreated during the intro cinematics on the first startup, so it can't be skipped. Also, the sound effects in the intro cinematics require the cache, so they will be missing the first time the game is started up.*
-
-Alternatively, you can install it using <sub><sub>[![Homebrew](https://img.shields.io/badge/brew-grey?logo=homebrew&logoColor=ffffff&label=Home&color=b56b2b)](https://formulae.brew.sh/cask/jazz2-resurrection)</sub></sub> `brew trust deathkiller/jazz2` and `brew install deathkiller/jazz2/jazz2`
-
-### iOS
-* The game is not on the App Store, build the application bundle from source and install it on the device from **Xcode**, or sideload the built `jazz2.app`
-* Copy contents of original *Jazz Jackrabbit 2* directory to `Jazz² Resurrection/Source/` in the **Files** app (under *On My iPhone* / *On My iPad*), or through file sharing in *Finder* (or *iTunes*)
-* Run the newly installed application
-
-*The game requires **iOS 14** (or newer) and runs on iPhone and iPad, in landscape orientation, with on-screen touch controls and game controllers. Cache is recreated during the intro cinematics on the first startup, so it can't be skipped. The log file* `Jazz2.log` *is written next to the* `Source` *directory.*
-
-### Android
-* Download the game
-* Install `Jazz2.apk` or `Jazz2_x64.apk` on the device
-* Copy contents of original *Jazz Jackrabbit 2* directory to `‹Storage›/Android/data/jazz2.resurrection/files/Source/`
-  * On **Android 11** or newer, you can *Allow access to external storage* in main menu, then you can use these additional paths:
-    * `‹Storage›/Games/Jazz² Resurrection/Source/`
-    * `‹Storage›/Download/Jazz² Resurrection/Source/`
-* Run the newly installed application
-
-`‹Storage›` *usually denotes internal storage on your device.* `Content` *directory is included directly in APK file, no action is needed. The game requires **Android 5.0** (or newer) and GPU with **OpenGL ES 3.0** support. Cache is recreated during the intro cinematics on the first startup. Also, the sound effects in the intro cinematics require the cache, so they will be missing the first time the game is started up.*
-
-### Nintendo Switch
-* Download the game
-* Install `Jazz2.nro` package (custom firmware is needed)
-* Copy contents of original *Jazz Jackrabbit 2* directory to `/Games/Jazz2/Source/` on SD card
-* Run the newly installed application with enabled full RAM access
-
-*Cache is recreated during the intro cinematics on the first startup, so it can't be skipped. It may take more time, so white screen could be shown longer than expected. Also, the sound effects in the intro cinematics require the cache, so they will be missing the first time the game is started up.*
-
-### Nintendo 64
-* The game plays from a cartridge ROM, which has to carry the game content converted from an original *Jazz Jackrabbit 2* installation
-  * Use [Content Swapper](https://de4th.dev/jazz2/swap/) to create your customized ROM, otherwise ROM is empty and unplayable
-* Copy the resulting `jazz2.z64` image onto an *EverDrive-64* or *SC64* flashcart
-  * The image also boots directly in *ares* or *simple64*
-* Run the ROM – the console must have an **Expansion Pak** installed
-
-### Sega Dreamcast
-* The game plays from a disc, which has to carry the game content converted from an original *Jazz Jackrabbit 2* installation
-  * Use [Content Swapper](https://de4th.dev/jazz2/swap/) to create your customized disc, otherwise disc is empty and unplayable
-* Burn the resulting `jazz2.cdi` image with a tool that understands the Dreamcast's multi-session layout, or serve it from an optical-drive emulator such as GDEMU/MODE
-  * The image also boots directly in *Flycast*, *lxdream* or *redream*
-* Run the disc
-
-### Nintendo Wii
-* Download the game
-* Copy contents of the provided `sd` directory to the root of an SD card or USB storage device
-* Copy contents of original *Jazz Jackrabbit 2* directory to `sd:/apps/Jazz2/Source/` on the same device
-  * Alternatively, prepare the content in advance as described in [the developer documentation](https://de4th.dev/jazz2/docs/consoles.html#consoles-wii) to skip the conversion
-* Run *Jazz² Resurrection* from the **Homebrew Channel**
-
-### Nintendo GameCube
-* The console can't convert the game data itself, so the content has to be prepared in advance from an original *Jazz Jackrabbit 2* installation and can't be distributed
-  * Use [Content Swapper](https://de4th.dev/jazz2/swap/) to create your customized disc, otherwise disc is empty and unplayable
-* Start `Jazz2/Jazz2.dol` from **Swiss**
-
-### Nintendo 3DS
-* The console can't convert the game data itself in any reasonable time, so the content has to be prepared in advance from an original *Jazz Jackrabbit 2* installation and can't be distributed – see [the developer documentation](https://de4th.dev/jazz2/docs/consoles.html#consoles-3ds)
-* Copy the resulting `sdmc` directory contents to the root of the SD card (custom firmware or another way to start homebrew is needed)
-  * For *Azahar*, copy them into the emulator's configured SD card directory instead
-* Start `Jazz2` from the **Homebrew Launcher**
-
-*Sound needs the DSP firmware that every console running homebrew has at `sdmc:/3ds/dspfirm.cdc` (dump it with **DSP1** once), without it the game runs silently. **New 3DS** runs the game at its full 804 MHz clock, on an **Old 3DS** the frame rate drops in busy scenes.*
-
-### PlayStation Portable
-* Download the game
-* Copy the provided `PSP/GAME/Jazz2` directory to the memory stick at exactly that path (custom firmware is needed)
-  * For *PPSSPP*, copy it into the emulator's configured memory stick instead
-* Copy contents of original *Jazz Jackrabbit 2* directory to `ms0:/PSP/GAME/Jazz2/Source/`
-  * Alternatively, prepare the content in advance as described in [the developer documentation](https://de4th.dev/jazz2/docs/consoles.html#consoles-psp) to skip the conversion
-* Run the newly installed application
-
-### PlayStation 2
-* As on the Dreamcast, the game plays from a disc that has to carry the converted game content
-  * Use [Content Swapper](https://de4th.dev/jazz2/swap/) to create your customized disc, otherwise disc is empty and unplayable
-* Burn the resulting image to a disc, or load it in *PCSX2*
-* It can equally be run from an SD card in an **MX4SIO** adapter: copy the ELF and the content tree to `mass0:/Games/Jazz2/`, and the game reads *and saves* there (a card is shared storage, so the game keeps to a directory of its own – the same layout it uses on the Switch)
-
-### PlayStation 3
-* Download the game
-* Install `Jazz2.pkg` package (custom firmware is needed)
-  * Alternatively, run the unsigned `Jazz2.self` on a CFW console or in *RPCS3*, which requires the PlayStation 3 firmware installed once
-* Copy contents of original *Jazz Jackrabbit 2* directory to `Source/` next to `EBOOT.BIN` of the installed package (`/dev_hdd0/game/JAZZ20000/USRDIR/Source/`)
-  * Alternatively, prepare the content in advance as described in [the developer documentation](https://de4th.dev/jazz2/docs/consoles.html#consoles-ps3) to skip the conversion
-* Run the newly installed application
-
-### PlayStation Vita
-* Download the game
-* Install `Jazz2.vpk` package with **VitaShell** or over FTP (custom firmware is needed)
-* Extract `libshacccg.suprx` from the console firmware to `ur0:/data/`, shaders are compiled on the console
-* Copy contents of original *Jazz Jackrabbit 2* directory to `ux0:/data/jazz2/Source/`
-* Run the newly installed application
-
-### Amiga
-* Download the game for the particular system – **AmigaOS 3.x**, **AmigaOS 4.1** or **MorphOS**
-* Copy contents of the archive – the `Jazz2` executable next to `Content/` – onto the Amiga's hard disk, or mount the directory as a hard drive in an emulator
-* Copy contents of original *Jazz Jackrabbit 2* directory to `Source/` next to the executable
-  * Alternatively, prepare the content in advance as described in [the developer documentation](https://de4th.dev/jazz2/docs/amiga.html#amiga-content) to skip the conversion, which takes far longer on these machines than on a desktop
-* Run `Jazz2`
-
-### Web (Emscripten)
-* Go to https://de4th.dev/jazz2/wasm/
-* Import episodes from original *Jazz Jackrabbit 2* directory in main menu to unlock additional content
-
-*The game requires browser with **WebAssembly** and **WebGL 2.0** support – usually any modern web browser.*
-
-### Libretro core (RetroArch)
-* Copy `jazz2_libretro.so` (and `jazz2_libretro.info`, if provided) to the frontend's *cores* directory
-* Copy the `Content/` directory next to the game files, then copy contents of original *Jazz Jackrabbit 2* directory to `Source/` beside it – `Cache/` is generated next to them
-  * Alternatively, place both in the frontend's *system* directory as `‹System›/jazz2/Content/` and `‹System›/jazz2/Source/`
-* Load any file from `Source/` (for example `Anims.j2a`) as content, or start the core without content if `‹System›/jazz2/Content/` exists
-
-### Xbox (Universal Windows Platform)
-* Download the game
-* Install `Jazz2.cer` certificate if needed (the application is self-signed)
-* Install `Jazz2.msixbundle` package
-* Run the newly installed application
-* Copy contents of original *Jazz Jackrabbit 2* directory to destination shown in the main menu
-  * Alternatively, copy the files to `\Games\Jazz² Resurrection\Source\` on an external drive to preserve settings across installations, the application must be set to `Game` type and `NTFS` is the recommended filesystem
-  * On `NTFS`, the **ALL APPLICATION PACKAGES** group must be granted full access to that directory, otherwise the application can't read the game files or write its settings there – attach the drive to a Windows PC and run in *Command Prompt* or *PowerShell* as administrator:
-
-    ```batch
-    icacls "D:\Games\Jazz² Resurrection" /grant "*S-1-15-2-1:(OI)(CI)(F)" /T
-    ```
-
-    where `D:` is the external drive. `*S-1-15-2-1` is the SID of *ALL APPLICATION PACKAGES*, so the command works regardless of system language. Filesystems that have no permissions at all, such as `exFAT`, need no such step
-* Run the application again
-
-*Cache is recreated during the intro cinematics on the first startup, so it can't be skipped. It may take more time, so white screen could be shown longer than expected. Also, the sound effects in the intro cinematics require the cache, so they will be missing the first time the game is started up.*
-
-### Dedicated server (Docker)
-* Pull the image, which is available for `amd64` and `arm64`
-  ```bash
-  docker pull ghcr.io/deathkiller/jazz2-server:latest
-  ```
-* Copy contents of original *Jazz Jackrabbit 2* directory to `./Source/`
-* Copy [`ServerConfiguration.json`](./Docs/Snippets/ServerConfiguration.json) to `./Config/Jazz2.Server.config` and adjust it, at least the playlist
-  * The directory must be writable by uid 1000, the unprivileged user the server runs as
-* Run the container
-  ```bash
-  docker run -d -i --name jazz2-server --restart unless-stopped \
-      -p 7438:7438/udp -p 7438:7438/tcp \
-      -v "$PWD/Source:/app/Source:ro" \
-      -v "$PWD/Config:/app/Config" \
-      -v jazz2-cache:/app/Cache \
-      ghcr.io/deathkiller/jazz2-server:latest
-  ```
-
-*The image contains only the headless server, contents of original **Jazz Jackrabbit 2** directory are never part of it. Besides* `latest`*, every release is tagged also as* `X.Y` *and* `X.Y.Z` *to pin a particular version, and* `edge` *tracks the current state of the* `master` *branch. Game files are converted into the* `jazz2-cache` *volume on the first start, so the first startup takes longer.* `docker attach jazz2-server` *opens the server console,* `docker stop` *shuts the server down cleanly, disconnecting the peers and delisting the server from the online server list.* `ServerAddressOverride` *has to be set for a public server, because the container sees only its own address on the Docker network. The* `docker-compose.yml` *in this repository describes the same setup declaratively, including several servers running on one host, and* `docker build -t jazz2-server .` *builds the image from sources instead of pulling it. See [the developer documentation](https://de4th.dev/jazz2/docs/building.html#building-docker) for details.*
-
-
-## Building the application
-
-This section contains only a brief explanation of the build process. For a more detailed explanation, including build configuration parameters, please refer to [the developer documentation](https://de4th.dev/jazz2/docs/).
-
-### Windows
-* Build dependencies will be downloaded automatically by *CMake*
-  * Can be disabled with `NCINE_DOWNLOAD_DEPENDENCIES` option, then download [build dependencies](https://github.com/deathkiller/jazz2-libraries) manually to `.\Libs\`
-* Build the project with *CMake*
-  * Alternatively, download [build dependencies](https://github.com/deathkiller/jazz2-libraries) to `.\Libs\`, open the solution in [Microsoft Visual Studio 2019](https://www.visualstudio.com/) (or newer) and build it
-
-### Linux
-* Build dependencies will be downloaded automatically by *CMake*
-  * Can be disabled with `NCINE_DOWNLOAD_DEPENDENCIES` option, then download [build dependencies](https://github.com/deathkiller/jazz2-libraries) manually to `./Libs/`
-  * System libraries always have higher priority, there is no need to download them separately if your system already contains all dependencies
-  * In case of build errors, install following packages (or equivalent for your distribution):<br>`libgl1-mesa-dev libglew-dev libglfw3-dev libsdl2-dev libopenal-dev libopenmpt-dev libcurl4-openssl-dev zlib1g-dev`
-* Build the project with *CMake*
-
-### macOS
-* Build dependencies will be downloaded automatically by *CMake*
-  * Can be disabled with `NCINE_DOWNLOAD_DEPENDENCIES` option, then download [build dependencies](https://github.com/deathkiller/jazz2-libraries/tree/macos) manually to `./Libs/`
-* Build the project with *CMake*
-
-### iOS
-* Install **Xcode** (the Command Line Tools alone have no iOS SDK) on a Mac
-* Build dependencies (SDL2, OpenAL Soft, Ogg/Vorbis and libcurl) will be downloaded and compiled from source automatically by *CMake*
-* Build the project with *CMake* for the `iOS` system, for example with the **Xcode** generator, which also signs and deploys the application to a device:
-```bash
-cmake -B build -G Xcode -D\
- CMAKE_SYSTEM_NAME=iOS -D\
- CMAKE_OSX_ARCHITECTURES=arm64 -D\
- CMAKE_OSX_DEPLOYMENT_TARGET=15.0 -D\
- NCINE_IOS_DEVELOPMENT_TEAM=<Apple Developer team ID> -D\
- NCINE_IOS_BUNDLE_IDENTIFIER=<CUSTOM_BUNDLE_IDENTIFIER_FOR_YOUR_INSTALLATION>
-```
-* Open Xcode and let it auto create the target schema's
-* Connect iOS device.
-* run the `ALL_BUILD` schema and then run the `jazz2` schema target, both with the iOS device selected as a target
-
-> Note: you need to set a valid Apple Developer team ID, and to set a custom Bundle id, ex: `com.myawesome.jazz2.instance`
-> Bundle ID has to be unique and will get bound to your Apple account.
-
-
-* For the iOS Simulator, use `CMAKE_OSX_SYSROOT=iphonesimulator` with the Mac's own architecture instead, see [the documentation](https://de4th.dev/jazz2/docs/building.html) for details
-
-### Android
-* Install Android SDK (preferably to `../android-sdk/`)
-* Install Android NDK (preferably to `../android-ndk/`)
-* Install Gradle (preferably to `../gradle/`)
-* Build dependencies will be downloaded automatically by *CMake*
-  * Can be disabled with `NCINE_DOWNLOAD_DEPENDENCIES` option, then download [build dependencies](https://github.com/deathkiller/jazz2-libraries/tree/android) manually to `./Libs/`
-* Build the project with *CMake* and `NCINE_BUILD_ANDROID` option
-
-### Nintendo Switch
-* Install [devkitPro toolchain](https://devkitpro.org/wiki/devkitPro_pacman)
-* Build the project with *CMake* and devkitPro toolchain
-```bash
-cmake -D CMAKE_TOOLCHAIN_FILE=${DEVKITPRO}/cmake/Switch.cmake -D NCINE_PREFERRED_BACKEND=SDL2
+```sh
+sudo apt install libxext-dev libgles-dev libglx-dev libpulse-dev libcurl4-openssl-dev libssl-dev
 ```
 
-### Other consoles
-The game runs on **Nintendo 64**, **Sega Dreamcast**, **Nintendo Wii**, **Nintendo GameCube**, **Nintendo 3DS**, **PlayStation Portable**, **PlayStation 2**, **PlayStation 3** and **PlayStation Vita** as well. Each of them is cross-compiled with its own SDK and *CMake* toolchain file, most of them have a bespoke window and rendering backend for their fixed-function graphics hardware, and on most of them the game content has to be prepared in advance with *AssetPacker* and passed to the build with `NCINE_CONTENT_DIR` option (a few, such as the Wii, PSP, PS3 and Vita, can also convert the original game data directly on the device).
+From this directory:
 
-Please refer to [the console documentation](https://de4th.dev/jazz2/docs/consoles.html) for the toolchain, build, packaging, deployment and logging steps of each console.
-
-### Amiga systems
-The game also runs on **AmigaOS 3.x** (68k), **AmigaOS 4.1** and **MorphOS** (PowerPC). Each is cross-compiled with its own *CMake* toolchain file in `cmake/toolchains/` and stages a ready-to-run directory into `build/<target>/dist/`; the two PowerPC SDKs come as container images, so only the m68k toolchain has to be installed. The classic Amiga has a window and input backend of its own (Intuition + RTG) and an AHI audio backend; the PowerPC systems use SDL2 and render through the fixed-function OpenGL each of them provides.
-
-Please refer to [the Amiga documentation](https://de4th.dev/jazz2/docs/amiga.html) for the toolchains, the hardware each build targets, the system quirks each of them works around, and how they can be run under emulation.
-
-### Web (Emscripten)
-* Install [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html) (preferably to `../emsdk/`)
-```bash
-cd ..
-git clone https://github.com/emscripten-core/emsdk.git
-cd emsdk
-./emsdk install latest
-./emsdk activate latest
-```
-* Build dependencies will be downloaded automatically by *CMake*
-  * Can be disabled with `NCINE_DOWNLOAD_DEPENDENCIES` option
-* Copy required game files to `./Content/` directory – the files must be provided in advance
-* Build the project with *CMake* and Emscripten toolchain
-
-### Libretro core (RetroArch)
-* Build the project with *CMake* and `NCINE_BUILD_LIBRETRO` option, the result is a `jazz2_libretro` shared library instead of an executable, no window backend (*GLFW*, *SDL2* or *Qt5*) is needed
-```bash
-cmake -D NCINE_BUILD_LIBRETRO=ON
-```
-* By default the core uses the software renderer, so it runs on any frontend. Add `-D NCINE_PREFERRED_RHI=OpenGL` to render on the GPU instead – such core requires **OpenGL ES 3.0** and a frontend context obtained through `SET_HW_RENDER`
-
-### Xbox (Universal Windows Platform)
-* Build dependencies will be downloaded automatically by *CMake*
-  * Can be disabled with `NCINE_DOWNLOAD_DEPENDENCIES` option, then download [build dependencies](https://github.com/deathkiller/jazz2-libraries) manually to `.\Libs\`
-* Run *CMake* to create [Microsoft Visual Studio 2019](https://www.visualstudio.com/) (or newer) solution
-```bash
-cmake -D CMAKE_SYSTEM_NAME=WindowsStore -D CMAKE_SYSTEM_VERSION="10.0"
+```sh
+zig build
+zig build -Doptimize=fast
+zig build -Doptimize=fast run
 ```
 
+The executable is `zig-out/bin/Jazz2` (`Jazz2.exe` on Windows). Keep its
+`Content` directory beside it. Copy your original game files, including
+`Anims.j2a`, levels, tilesets, and music, into `zig-out/bin/Source/`.
+The game converts them into a local cache when needed.
 
-## License
-This project is licensed under the terms of the [GNU General Public License v3.0](./LICENSE) and uses extensively modified [nCine](https://github.com/nCine/nCine) game engine.
+`debug`, `safe`, `fast`, and `small` are the optimization modes. The editor,
+AngelScript support, and online multiplayer are enabled by default and can be
+selected with `-Deditor=false`, `-Dscripting=false`, and `-Donline=false`.
+
+SDL and the compression, audio, scripting, and OpenGL loader libraries are built
+from vendored sources. Native Linux uses system libcurl and OpenSSL for HTTPS;
+macOS uses libcurl and the system Security framework; Windows uses WinHTTP and
+Schannel. See [deps/README.md](deps/README.md) for the dependency inventory.
+
+## Browser build
+
+Install the pinned Emscripten 7.0.0 SDK once:
+
+```sh
+zig build install-emsdk
+zig build -Dtarget=wasm32-emscripten -Doptimize=fast
+zig build -Dtarget=wasm32-emscripten -Doptimize=fast run
+```
+
+Append `-- --no_browser` to serve without opening a browser. Deploy the complete
+`zig-out/web` directory, including the HTML, JavaScript, WebAssembly, data file,
+and `coi-serviceworker.js`. Serve over localhost or HTTPS; the service worker
+supplies the cross-origin isolation needed by pthreads. Original game data is
+not included in the browser bundle.
+
+To play with your own game data in the browser, prepare a Content directory and
+select it when building:
+
+```sh
+zig build pack-assets -- convert /path/to/original-game /tmp/jazz2-content --content=Content --target=emscripten
+zig build -Dtarget=wasm32-emscripten -Doptimize=fast -Dcontent=/tmp/jazz2-content
+zig build -Dtarget=wasm32-emscripten -Doptimize=fast -Dcontent=/tmp/jazz2-content run
+```
+
+The prepared directory is preloaded into the WebAssembly filesystem.
+
+## Tools and shaders
+
+```sh
+zig build tools                 # Host ShaderCompiler and AssetPacker
+zig build shader-compiler
+zig build asset-packer
+zig build shaders               # Generate shader headers in the build cache
+zig build test                  # Shared-library regression checks
+```
+
+Normal game builds generate shader headers automatically from `Sources/Shaders`.
+Edits to shaders or their includes invalidate the cached output. The generator
+runs on the build host, including when cross-compiling the game. It emits GLSL
+and reflection metadata; the driver or browser compiles the GLSL for the GPU at
+runtime. No separate shader SDK is required.
+
+Asset conversion is explicit. For example:
+
+```sh
+zig build pack-assets -- convert /path/to/original-game /path/to/converted --content=Content --target=desktop
+```
+
+The build compiles separate Shared, nCine, and Jazz2 game libraries, with
+individual dependency builds under `deps/`. Generated shaders and compiler
+outputs stay outside the source tree.
+
+[Project website](https://de4th.dev/jazz2/) · [License](LICENSE)

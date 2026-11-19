@@ -20,8 +20,8 @@
 // libxm is C and declares its structures with C11 static assertions
 #define _Static_assert static_assert
 extern "C" {
-#include "../../Dependencies/libxm/xm.h"
-#include "../../Dependencies/libxm/xm_internal.h"
+#include "../../../deps/libxm/xm.h"
+#include "../../../deps/libxm/xm_internal.h"
 }
 #undef _Static_assert
 

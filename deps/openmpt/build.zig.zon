@@ -1,0 +1,12 @@
+.{
+    .name = .jazz_openmpt,
+    .fingerprint = 0xe4a56bee0ddd3f9d,
+    .version = "0.7.13",
+    .minimum_zig_version = "0.17.1",
+    .dependencies = .{
+        .zlib = .{ .path = "../zlib" },
+        .ogg = .{ .path = "../ogg" },
+        .vorbis = .{ .path = "../vorbis" },
+    },
+    .paths = .{""},
+}

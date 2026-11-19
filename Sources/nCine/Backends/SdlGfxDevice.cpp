@@ -881,8 +881,10 @@ namespace nCine::Backends
 			_contextInfo.MajorVersion, _contextInfo.MinorVersion, SDL_GetError());
 #endif
 
+#if !defined(DEATH_TARGET_EMSCRIPTEN)
 		const int interval = (_displayMode.HasVSync() ? 1 : 0);
 		SDL_GL_SetSwapInterval(interval);
+#endif
 #endif
 
 #if defined(WITH_GLEW)

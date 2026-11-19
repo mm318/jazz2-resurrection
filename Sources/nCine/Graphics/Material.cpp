@@ -3,7 +3,7 @@
 #include "RHI/Rhi.h"
 #include "Texture.h"
 #include "../../Main.h"
-#include "../../Shaders/Generated/ShaderCompilerTypes.h"
+#include <Shaders/Generated/ShaderCompilerTypes.h>
 
 #include <cstddef> // for offsetof()
 

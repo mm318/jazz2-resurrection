@@ -8,7 +8,7 @@
 #include "../../../ServiceLocator.h"
 #include "../../../Base/StaticHashMapIterator.h"
 #include "../../../tracy.h"
-#include "../../../../Shaders/Generated/ShaderCompilerTypes.h"
+#include <Shaders/Generated/ShaderCompilerTypes.h>
 
 #include <cstring>
 #include <string>

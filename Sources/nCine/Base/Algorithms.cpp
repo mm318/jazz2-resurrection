@@ -11,7 +11,7 @@
 #endif
 
 #if defined(WITH_ZLIB)
-#	if !defined(CMAKE_BUILD) && defined(__has_include)
+#	if !defined(ZIG_BUILD) && defined(__has_include)
 #		if __has_include("zlib/zlib.h")
 #			define __HAS_LOCAL_ZLIB
 #		endif

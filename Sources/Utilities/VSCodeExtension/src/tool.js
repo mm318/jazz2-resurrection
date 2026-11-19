@@ -37,66 +37,9 @@ function isExecutableFile(candidate) {
 	}
 }
 
-/** Subdirectories of @p parent, newest first, or [] when it cannot be read. */
-function subdirectories(parent) {
-	try {
-		var names = fs.readdirSync(parent);
-		var dirs = [];
-		for (var i = 0; i < names.length; i++) {
-			var full = path.join(parent, names[i]);
-			try {
-				if (fs.statSync(full).isDirectory()) {
-					dirs.push(full);
-				}
-			} catch (e) {
-				// unreadable entry - skip
-			}
-		}
-		return dirs;
-	} catch (e) {
-		return [];
-	}
-}
-
-/**
- * The places the executable normally lands, in priority order, for one workspace root:
- *   - the MSBuild output of the bundled ShaderCompiler.vcxproj (what GenerateAll.ps1 expects)
- *   - a CMake build tree at the repository root (`build`, `build-*`, ...)
- *   - the Visual Studio CMake integration's `out/build/<preset>` trees
- */
+/** The default Zig install directory for one workspace root. */
 function candidatesForRoot(root) {
-	var out = [];
-	var toolDir = path.join(root, 'Sources', 'Utilities', 'ShaderCompiler');
-	var configurations = ['Release', 'Debug'];
-	var msbuildPlatforms = ['x64', 'ARM64EC', 'Win32', ''];
-	var i, j;
-	for (i = 0; i < msbuildPlatforms.length; i++) {
-		for (j = 0; j < configurations.length; j++) {
-			out.push(path.join(toolDir, msbuildPlatforms[i], configurations[j], EXECUTABLE_NAME));
-		}
-	}
-	// A standalone `cmake -S Sources/Utilities/ShaderCompiler -B <dir>` tree, and the in-tree target
-	var buildRoots = [];
-	var rootEntries = subdirectories(root);
-	for (i = 0; i < rootEntries.length; i++) {
-		var base = path.basename(rootEntries[i]);
-		if (base === 'build' || base.indexOf('build') === 0 || base.indexOf('cmake-build') === 0) {
-			buildRoots.push(rootEntries[i]);
-		}
-	}
-	var outBuild = path.join(root, 'out', 'build');
-	var presets = subdirectories(outBuild);
-	for (i = 0; i < presets.length; i++) {
-		buildRoots.push(presets[i]);
-	}
-	for (i = 0; i < buildRoots.length; i++) {
-		out.push(path.join(buildRoots[i], 'Utilities', 'ShaderCompiler', EXECUTABLE_NAME));
-		for (j = 0; j < configurations.length; j++) {
-			out.push(path.join(buildRoots[i], 'Utilities', 'ShaderCompiler', configurations[j], EXECUTABLE_NAME));
-		}
-		out.push(path.join(buildRoots[i], EXECUTABLE_NAME));
-	}
-	return out;
+	return [path.join(root, 'zig-out', 'bin', EXECUTABLE_NAME)];
 }
 
 /** Looks @p name up in PATH (honoring PATHEXT on Windows). */

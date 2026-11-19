@@ -1,0 +1,8 @@
+.{
+    .name = .jazz_ogg,
+    .fingerprint = 0x399c68f0c2ad966d,
+    .version = "1.3.5",
+    .minimum_zig_version = "0.17.1",
+    .dependencies = .{},
+    .paths = .{""},
+}

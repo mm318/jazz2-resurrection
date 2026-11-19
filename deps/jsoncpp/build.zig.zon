@@ -1,0 +1,8 @@
+.{
+    .name = .jazz_jsoncpp,
+    .fingerprint = 0x774ac755dc0e1843,
+    .version = "1.9.7",
+    .minimum_zig_version = "0.17.1",
+    .dependencies = .{},
+    .paths = .{""},
+}

@@ -738,8 +738,9 @@ namespace nCine
 #endif
 
 #if defined(DEATH_TARGET_EMSCRIPTEN)
+		// A zero frame rate selects requestAnimationFrame. This call yields to
+		// the browser, so loop timing must not be set during graphics initialization.
 		emscripten_set_main_loop(MainApplication::EmscriptenStep, 0, 1);
-		emscripten_set_main_loop_timing(EM_TIMING_RAF, 1);
 #else
 #	if defined(DEATH_TARGET_PSP)
 		std::uint32_t pspSeenResumes = Backends::PspPower::GetResumeCount();

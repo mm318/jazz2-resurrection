@@ -10,8 +10,8 @@
 #include <Core/Logger.h>
 
 extern "C" {
-#include "../../Dependencies/vadpcm/codec/vadpcm.h"
-#include "../../Dependencies/ulc/ulcEncoder.h"
+#include "../../../deps/vadpcm/codec/vadpcm.h"
+#include "../../../deps/ulc/ulcEncoder.h"
 }
 
 using namespace Death::IO;

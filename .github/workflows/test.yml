@@ -1,0 +1,58 @@
+name: Zig build
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        optimize: [debug, fast]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: 0.17.1
+      - name: Native system libraries
+        run: |
+          sudo apt update
+          sudo apt install -y libxext-dev libgles-dev libglx-dev libpulse-dev libcurl4-openssl-dev libssl-dev
+      - run: zig build -Doptimize=${{ matrix.optimize }}
+      - run: zig build test
+      - run: zig build tools
+      - name: Build Windows executable
+        if: matrix.optimize == 'fast'
+        run: zig build -Dtarget=x86_64-windows-gnu -Doptimize=fast --prefix zig-out/windows
+
+  web:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        optimize: [debug, fast]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: 0.17.1
+      - run: zig build install-emsdk
+      - run: zig build -Dtarget=wasm32-emscripten -Doptimize=${{ matrix.optimize }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jazz2-web-${{ matrix.optimize }}
+          path: zig-out/web
+
+  desktop:
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: 0.17.1
+      - run: zig build -Doptimize=fast
+      - run: zig build test
+      - run: zig build tools

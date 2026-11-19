@@ -6,7 +6,7 @@
 #endif
 
 #include "../../../../Main.h"
-#include "../../../../Shaders/Generated/ShaderCompilerTypes.h"
+#include <Shaders/Generated/ShaderCompilerTypes.h>
 
 namespace nCine::RHI::GL
 {

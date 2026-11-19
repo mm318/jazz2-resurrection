@@ -2,7 +2,7 @@
 
 #if defined(WITH_OPENMPT)
 
-#if defined(DEATH_TARGET_WINDOWS) && !defined(CMAKE_BUILD) && !defined(WITH_OPENMPT_DYNAMIC)
+#if defined(DEATH_TARGET_WINDOWS) && !defined(ZIG_BUILD) && !defined(WITH_OPENMPT_DYNAMIC)
 #	if defined(_M_X64)
 #		pragma comment(lib, "../Libs/Windows/x64/libopenmpt.lib")
 #	elif defined(_M_IX86)

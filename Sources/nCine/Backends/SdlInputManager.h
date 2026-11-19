@@ -6,7 +6,7 @@
 
 #include <Containers/SmallVector.h>
 
-#if !defined(CMAKE_BUILD) && defined(__has_include)
+#if !defined(ZIG_BUILD) && defined(__has_include)
 #	if defined(WITH_SDL3) && __has_include("SDL3/SDL.h")
 #		define __HAS_LOCAL_SDL3
 #	elif __has_include("SDL2/SDL.h")

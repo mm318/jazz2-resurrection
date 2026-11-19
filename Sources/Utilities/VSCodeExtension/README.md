@@ -166,12 +166,9 @@ inspection-only dumps side by side. None of them writes anything:
 ## Finding the compiler
 
 In order: the `deathShader.compilerPath` setting (absolute, or relative to the workspace folder) →
-build outputs in the workspace → `ShaderCompiler` on `PATH`. The build outputs it looks at are
-
-- `Sources/Utilities/ShaderCompiler/{x64,ARM64EC,Win32}/{Release,Debug}/` — where the bundled
-  `ShaderCompiler.vcxproj` puts it, and where `GenerateAll.ps1` expects it
-- `<build*|cmake-build*>/Utilities/ShaderCompiler/` — a CMake build tree at the repo root
-- `out/build/<preset>/Utilities/ShaderCompiler/` — the Visual Studio CMake integration
+`zig-out/bin/ShaderCompiler` (`ShaderCompiler.exe` on Windows) → `ShaderCompiler` on `PATH`.
+Build the host tool with `zig build shader-compiler`. For a custom install prefix, set
+`deathShader.compilerPath` to the installed executable.
 
 The status-bar item on the right shows which executable is in use, or warns when none was found.
 

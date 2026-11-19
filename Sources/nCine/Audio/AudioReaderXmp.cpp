@@ -4,13 +4,13 @@
 
 #include <cstring>
 
-#if !defined(CMAKE_BUILD) && defined(__has_include)
+#if !defined(ZIG_BUILD) && defined(__has_include)
 #	if __has_include("../../Dependencies/libxmp/include/xmp.h")
 #		define __HAS_LOCAL_LIBXMP
 #	endif
 #endif
 #if defined(__HAS_LOCAL_LIBXMP)
-#	include "../../Dependencies/libxmp/include/xmp.h"
+#	include "../../../deps/libxmp/include/xmp.h"
 #else
 #	include <xmp.h>
 #endif

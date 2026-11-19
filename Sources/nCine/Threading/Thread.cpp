@@ -26,6 +26,7 @@
 
 #if defined(DEATH_TARGET_EMSCRIPTEN)
 #	include <emscripten/emscripten.h>
+#	include <emscripten/stack.h>
 #endif
 
 #if defined(__FreeBSD__) || defined(__DragonFly__)
@@ -652,15 +653,9 @@ namespace nCine
 			return true;
 		}
 #elif defined(DEATH_TARGET_EMSCRIPTEN)
-		// Emscripten provides __stack_high and __stack_low as linker-generated symbols (available since 3.1.x
-		// with -sSTACK_SIZE). Stack grows DOWN from __stack_high to __stack_low.
-#	if defined(__has_builtin) && __has_builtin(__builtin_wasm_memory_size)
-		extern "C" {
-			extern char __stack_high;
-			extern char __stack_low;
-		}
-		const auto high = reinterpret_cast<std::uintptr_t>(&__stack_high);
-		const auto low = reinterpret_cast<std::uintptr_t>(&__stack_low);
+		// Query the active thread's stack, including Emscripten pthread workers.
+		const auto high = emscripten_stack_get_base();
+		const auto low = emscripten_stack_get_end();
 		if (high > low) {
 			stackSize = static_cast<std::size_t>(high - low);
 			if (sp >= low && sp <= high) {
@@ -668,7 +663,6 @@ namespace nCine
 			}
 			return true;
 		}
-#	endif
 #elif defined(DEATH_TARGET_SWITCH)
 		const auto* t = threadGetSelf();
 		if (!t || !t->stack_mem || t->stack_sz == 0) {

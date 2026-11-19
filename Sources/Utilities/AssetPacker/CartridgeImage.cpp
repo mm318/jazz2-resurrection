@@ -32,7 +32,7 @@ namespace Jazz2::AssetPacker
 		constexpr std::uint32_t V64Magic = 0x37804012;
 		constexpr std::uint32_t N64Magic = 0x40123780;
 
-		/** @brief Largest ROM the cartridge address space maps (see `cmake/n64_check_rom_size.cmake`) */
+		/** @brief Largest ROM the cartridge address space maps */
 		constexpr std::size_t MaxRomSize = 64 * 1024 * 1024;
 		/** @brief `n64tool` pads the ROM to a multiple of this, and so does this */
 		constexpr std::size_t RomPadAlignment = 16 * 1024;
@@ -279,11 +279,10 @@ namespace Jazz2::AssetPacker
 		}
 
 		/**
-			@brief Decides what of the content directory goes into the ROM, mirroring `cmake/n64_stage_content.cmake`
+			@brief Decides what of the content directory goes into the ROM
 
 			What every console leaves out is decided by @ref ContentFilter (the console has no level editor), the rest
-			is what only this one can't use. Keep the two in step: a ROM made by this and one made by the build from the
-			same tree should have the same files in them.
+			is what only this one can't use.
 		*/
 		bool StageFilter(StringView contentRoot, StringView dfsPath, StringView hostItem, String& dfsName)
 		{

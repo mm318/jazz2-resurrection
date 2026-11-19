@@ -14,9 +14,11 @@
 $ErrorActionPreference = 'Stop'
 
 $testsDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-$tool = Join-Path (Split-Path -Parent $testsDir) 'x64\Release\ShaderCompiler.exe'
+$repoRoot = (Resolve-Path (Join-Path $testsDir '../../../..')).Path
+$toolName = if ($env:OS -eq 'Windows_NT') { 'ShaderCompiler.exe' } else { 'ShaderCompiler' }
+$tool = Join-Path $repoRoot "zig-out/bin/$toolName"
 if (-not (Test-Path $tool)) {
-    Write-Host "error: ShaderCompiler.exe not found at '$tool' - build Sources/Utilities/ShaderCompiler first"
+    Write-Host "error: ShaderCompiler.exe not found at '$tool' - run zig build shader-compiler first"
     exit 1
 }
 

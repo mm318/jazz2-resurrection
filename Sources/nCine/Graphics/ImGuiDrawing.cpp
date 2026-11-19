@@ -20,7 +20,7 @@
 #	include "../Backends/Android/ImGuiAndroidInput.h"
 #endif
 
-#include "../../Shaders/Generated/DefaultImGui.h"
+#include <Shaders/Generated/DefaultImGui.h>
 
 using namespace Death::Containers::Literals;
 using namespace Death::IO;

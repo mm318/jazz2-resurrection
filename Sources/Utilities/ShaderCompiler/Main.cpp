@@ -237,12 +237,13 @@ namespace
 			"  --target <t>      Selects an inspection target for the transform dump (only: essl100)\n"
 			"\n"
 			"Standalone modes:\n"
-			"  --generate-all [--shaders-dir <dir>] [--out-dir <dir>] [--check] [--no-dxbc] [--glslang <path>] [--cgcomp <path>] [--cafeglsl <path>]\n"
-			"                                                    Regenerate every committed artifact (the shared types, one\n"
+			"  --generate-all [--gl-only] [--shaders-dir <dir>] [--out-dir <dir>] [--check] [--no-dxbc] [--glslang <path>] [--cgcomp <path>] [--cafeglsl <path>]\n"
+			"                                                    Generate shader artifacts (the shared types, one\n"
 			"                                                    header per shader, the umbrella and the aggregates)\n"
 			"                                                    from one enumeration of the shader directory; --check only\n"
 			"                                                    compares and never writes into the tree. Both directories\n"
 			"                                                    are auto-detected\n"
+			"  --gl-only                                         Generate OpenGL/WebGL headers without platform shader SDKs\n"
 			"  --hlsl-check <input.shader ...>                    Emit + D3DCompile each stage as HLSL; print a pass/fail table\n"
 			"  --spirv-check [--glslang <path>] <input.shader ...> Emit + glslang-compile each stage to SPIR-V; print a pass/fail table\n"
 			"  --emit-cg <output.h> <input.shader ...>            Transform every stage to Cg into the PS Vita aggregate header\n"
@@ -3150,11 +3151,12 @@ namespace
 		const char* CafeglslPath = nullptr;	// Empty: "$CAFEGLSL/bin", then PATH
 		bool Check = false;
 		bool NoDxbc = false;
+		bool GlOnly = false;
 	};
 
 	/**
 		Finds the "Sources/Shaders" directory by walking up from the executable (the tool normally lives in
-		"Sources/Utilities/ShaderCompiler/x64/Release") and then from the working directory. Any build layout
+		"zig-out/bin") and then from the working directory. Any build layout
 		this does not cover is served by an explicit --shaders-dir.
 	*/
 	bool AutoDetectShadersDirectory(String& outPath)
@@ -3264,7 +3266,7 @@ namespace
 
 	int GenerateAllArtifacts(StringView shadersDirectory, const SmallVectorImpl<String>& shaderNames,
 		StringView outputDirectory, SpirvCompileFn& compileSpirv, DxbcCompileFn& compileDxbc,
-		StringView cgcompOption, StringView cafeglslOption, SmallVectorImpl<String>& writtenNames)
+		StringView cgcompOption, StringView cafeglslOption, SmallVectorImpl<String>& writtenNames, bool glOnly)
 	{
 		// The shared reflection types every generated header includes
 		{
@@ -3326,7 +3328,7 @@ namespace
 		// a graceful degradation - the Vulkan backend skips every draw of a program with no SPIR-V module,
 		// and Direct3D 11 falls back to compiling HLSL text at runtime. The committed file stays valid
 		// until someone who can regenerate it does, which is the same bargain RsxGeneratedShaders.h makes.
-		{
+		if (!glOnly) {
 			// Whether the compiler WORKS, not whether a callback was installed. LocateGlslang() is happy to
 			// hand back a bare "glslangValidator" for PATH to resolve, which it then does not - so every
 			// compile failed, every module came out empty, and an aggregate written on that basis would be
@@ -3386,6 +3388,10 @@ namespace
 			writtenNames.emplace_back("ShadersGen.h"_s);
 			std::fprintf(stdout, "ok: umbrella -> ShadersGen.h (%zu Jazz2 + %zu nCine programs)\n",
 				jazz2Programs.size(), ncinePrograms.size());
+		}
+
+		if (glOnly) {
+			return 0;
 		}
 
 		// The aggregates reuse the standalone modes verbatim, so both entry points stay one implementation
@@ -3503,22 +3509,24 @@ namespace
 		{
 			String glslang;
 			StringView override = (options.GlslangOverride != nullptr ? StringView{options.GlslangOverride} : StringView{});
-			if (LocateGlslang(override, glslang, fs::GetDirectoryName(fs::GetDirectoryName(shadersDirectory)))) {
+			if (!options.GlOnly && LocateGlslang(override, glslang, fs::GetDirectoryName(fs::GetDirectoryName(shadersDirectory)))) {
 				std::fprintf(stdout, "using glslang: %s\n", glslang.data());
 				compileSpirv = [glslang](StringView vulkanGlsl, bool vertexStage, SmallVectorImpl<std::uint32_t>& spirv, String& log) {
 					return CompileSpirvWithGlslang(glslang, String{vulkanGlsl}, vertexStage, spirv, log);
 				};
-			} else if (!override.empty()) {
+			} else if (!options.GlOnly && !override.empty()) {
 				std::fprintf(stderr, "warning: glslangValidator not found at \"%s\" - Vulkan SPIR-V will be omitted\n",
 					options.GlslangOverride);
-			} else {
+			} else if (!options.GlOnly) {
 				std::fprintf(stderr, "warning: glslangValidator not found - Vulkan SPIR-V will be omitted "
 					"(install the Vulkan SDK for the Vulkan backend)\n");
 			}
 		}
 
 		DxbcCompileFn compileDxbc;
-		if (options.NoDxbc) {
+		if (options.GlOnly) {
+			// OpenGL/WebGL use the generated GLSL directly.
+		} else if (options.NoDxbc) {
 			std::fprintf(stdout, "DXBC embedding disabled (--no-dxbc) - HLSL sources will be embedded instead\n");
 		} else {
 			String loadError;
@@ -3563,7 +3571,7 @@ namespace
 		SmallVector<String, 0> writtenNames;
 		int result = GenerateAllArtifacts(shadersDirectory, shaderNames, outputDirectory, compileSpirv,
 			compileDxbc, (options.CgcompPath != nullptr ? StringView{options.CgcompPath} : StringView{}),
-			(options.CafeglslPath != nullptr ? StringView{options.CafeglslPath} : StringView{}), writtenNames);
+			(options.CafeglslPath != nullptr ? StringView{options.CafeglslPath} : StringView{}), writtenNames, options.GlOnly);
 
 		if (!options.Check) {
 			if (result == 0) {
@@ -3657,6 +3665,8 @@ int main(int argc, char* argv[])
 				} else {
 					options.GlslangOverride = value;
 				}
+			} else if (arg == "--gl-only") {
+				options.GlOnly = true;
 			} else if (arg == "--check") {
 				options.Check = true;
 			} else if (arg == "--no-dxbc") {

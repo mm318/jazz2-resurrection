@@ -30,7 +30,7 @@
 #		include <OpenGL/gl3.h>
 #		include <OpenGL/gl3ext.h>
 #	else
-#		if !defined(CMAKE_BUILD) && defined(__has_include)
+#		if !defined(ZIG_BUILD) && defined(__has_include)
 #			if __has_include("GL/glew.h")
 #				define __HAS_LOCAL_GLEW
 #			endif
@@ -58,7 +58,7 @@
 #	elif defined(DEATH_TARGET_EMSCRIPTEN)
 #		include <AL/al.h>
 #	else
-#		if !defined(CMAKE_BUILD) && defined(__has_include)
+#		if !defined(ZIG_BUILD) && defined(__has_include)
 #			if __has_include("AL/al.h")
 #				define __HAS_LOCAL_OPENAL
 #			endif
@@ -89,7 +89,7 @@
 #		include <AL/alc.h>
 #		include <AL/al.h>
 #	else
-#		if !defined(CMAKE_BUILD) && defined(__has_include)
+#		if !defined(ZIG_BUILD) && defined(__has_include)
 #			if __has_include("AL/al.h")
 #				define __HAS_LOCAL_OPENALC
 #			endif

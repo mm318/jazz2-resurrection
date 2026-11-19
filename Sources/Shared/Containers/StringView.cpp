@@ -1557,7 +1557,7 @@ namespace Death { namespace Containers {
 		const std::size_t prefixSize = prefix.size();
 		if (size() < prefixSize) return false;
 
-		return std::memcmp(_data, prefix._data, prefixSize) == 0;
+		return prefixSize == 0 || std::memcmp(_data, prefix._data, prefixSize) == 0;
 	}
 
 	template<class T> bool BasicStringView<T>::hasPrefix(const char prefix) const {
@@ -1570,7 +1570,7 @@ namespace Death { namespace Containers {
 		const std::size_t suffixSize = suffix.size();
 		if (size < suffixSize) return false;
 
-		return std::memcmp(_data + size - suffixSize, suffix._data, suffixSize) == 0;
+		return suffixSize == 0 || std::memcmp(_data + size - suffixSize, suffix._data, suffixSize) == 0;
 	}
 
 	template<class T> bool BasicStringView<T>::hasSuffix(const char suffix) const {
@@ -1626,21 +1626,22 @@ namespace Death { namespace Containers {
 		// Not using the size() accessor to speed up debug builds
 		const std::size_t aSize = a._sizePlusFlags & ~Implementation::StringViewSizeMask;
 		return aSize == (b._sizePlusFlags & ~Implementation::StringViewSizeMask) &&
-			std::memcmp(a._data, b._data, aSize) == 0;
+			(aSize == 0 || std::memcmp(a._data, b._data, aSize) == 0);
 	}
 
 	bool operator!=(const StringView a, const StringView b) {
 		// Not using the size() accessor to speed up debug builds
 		const std::size_t aSize = a._sizePlusFlags & ~Implementation::StringViewSizeMask;
 		return aSize != (b._sizePlusFlags & ~Implementation::StringViewSizeMask) ||
-			std::memcmp(a._data, b._data, aSize) != 0;
+			(aSize != 0 && std::memcmp(a._data, b._data, aSize) != 0);
 	}
 
 	bool operator<(const StringView a, const StringView b) {
 		// Not using the size() accessor to speed up debug builds
 		const std::size_t aSize = a._sizePlusFlags & ~Implementation::StringViewSizeMask;
 		const std::size_t bSize = b._sizePlusFlags & ~Implementation::StringViewSizeMask;
-		const int result = std::memcmp(a._data, b._data, std::min(aSize, bSize));
+		const auto compared = std::min(aSize, bSize);
+		const int result = compared ? std::memcmp(a._data, b._data, compared) : 0;
 		if (result != 0) return result < 0;
 		if (aSize < bSize) return true;
 		return false;
@@ -1650,7 +1651,8 @@ namespace Death { namespace Containers {
 		// Not using the size() accessor to speed up debug builds
 		const std::size_t aSize = a._sizePlusFlags & ~Implementation::StringViewSizeMask;
 		const std::size_t bSize = b._sizePlusFlags & ~Implementation::StringViewSizeMask;
-		const int result = std::memcmp(a._data, b._data, std::min(aSize, bSize));
+		const auto compared = std::min(aSize, bSize);
+		const int result = compared ? std::memcmp(a._data, b._data, compared) : 0;
 		if (result != 0) return result < 0;
 		if (aSize <= bSize) return true;
 		return false;
@@ -1660,7 +1662,8 @@ namespace Death { namespace Containers {
 		// Not using the size() accessor to speed up debug builds
 		const std::size_t aSize = a._sizePlusFlags & ~Implementation::StringViewSizeMask;
 		const std::size_t bSize = b._sizePlusFlags & ~Implementation::StringViewSizeMask;
-		const int result = std::memcmp(a._data, b._data, std::min(aSize, bSize));
+		const auto compared = std::min(aSize, bSize);
+		const int result = compared ? std::memcmp(a._data, b._data, compared) : 0;
 		if (result != 0) return result > 0;
 		if (aSize >= bSize) return true;
 		return false;
@@ -1670,7 +1673,8 @@ namespace Death { namespace Containers {
 		// Not using the size() accessor to speed up debug builds
 		const std::size_t aSize = a._sizePlusFlags & ~Implementation::StringViewSizeMask;
 		const std::size_t bSize = b._sizePlusFlags & ~Implementation::StringViewSizeMask;
-		const int result = std::memcmp(a._data, b._data, std::min(aSize, bSize));
+		const auto compared = std::min(aSize, bSize);
+		const int result = compared ? std::memcmp(a._data, b._data, compared) : 0;
 		if (result != 0) return result > 0;
 		if (aSize > bSize) return true;
 		return false;

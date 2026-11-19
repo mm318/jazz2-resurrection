@@ -1,7 +1,7 @@
 /** @file
 	@brief Proxy definitions for documentation purposes
 	
-	Definitions from this package are usually supplied via a compiler flag by CMake
+	Definitions from this package are usually supplied via a compiler flag by the build configuration
 	or by including @ref CommonBase.h.
 */
 
@@ -14,7 +14,7 @@ namespace Death {
 	@brief Whether the current build is for debugging purposes
 	
 	No need to @cpp #include @ce anything for this macro to be defined,
-	it's supplied via a compiler flag by CMake. Usually present when the build
+	it's supplied via a compiler flag by the build configuration. Usually present when the build
 	configuration is set to `Debug`.
 */
 #define DEATH_DEBUG
@@ -24,7 +24,7 @@ namespace Death {
 	@brief Whether runtime event tracing is enabled
 	
 	No need to @cpp #include @ce anything for this macro to be defined,
-	it's supplied via a compiler flag by CMake.
+	it's supplied via a compiler flag by the build configuration.
 */
 #define DEATH_TRACE
 #undef DEATH_TRACE
@@ -38,7 +38,7 @@ namespace Death {
 	disabled. In this case, @cpp throw @ce is usually replaced with asserts.
 	
 	No need to @cpp #include @ce anything for this macro to be defined,
-	it's supplied via a compiler flag by CMake.
+	it's supplied via a compiler flag by the build configuration.
 */
 #define DEATH_SUPPRESS_EXCEPTIONS
 #undef DEATH_SUPPRESS_EXCEPTIONS
@@ -51,7 +51,7 @@ namespace Death {
 	disabled. In this case, the standard @cpp dynamic_cast<T>() @ce is used instead.
 	
 	No need to @cpp #include @ce anything for this macro to be defined,
-	it's supplied via a compiler flag by CMake.
+	it's supplied via a compiler flag by the build configuration.
 */
 #define DEATH_SUPPRESS_RUNTIME_CAST
 #undef DEATH_SUPPRESS_RUNTIME_CAST
@@ -71,7 +71,7 @@ namespace Death {
 	performance tradeoffs.
 	
 	No need to @cpp #include @ce anything for this macro to be defined,
-	it's supplied via a compiler flag by CMake.
+	it's supplied via a compiler flag by the build configuration.
 */
 #define DEATH_CPU_USE_RUNTIME_DISPATCH
 #undef DEATH_CPU_USE_RUNTIME_DISPATCH
@@ -86,7 +86,7 @@ namespace Death {
 	details and information about performance tradeoffs.
 	
 	No need to @cpp #include @ce anything for this macro to be defined,
-	it's supplied via a compiler flag by CMake.
+	it's supplied via a compiler flag by the build configuration.
 */
 #define DEATH_CPU_USE_IFUNC
 #undef DEATH_CPU_USE_IFUNC
@@ -320,7 +320,7 @@ namespace Death {
 	unlike other `DEATH_TARGET_*` variables, this variable, @ref DEATH_TARGET_ARM,
 	@ref DEATH_TARGET_POWERPC, @ref DEATH_TARGET_RISCV, @ref DEATH_TARGET_MIPS,
 	@ref DEATH_TARGET_WASM, @ref DEATH_TARGET_32BIT, @ref DEATH_TARGET_BIG_ENDIAN and derived
-	instruction set variables are not exposed in CMake because the meaning is unclear
+	instruction set variables are not exposed in the build configuration because the meaning is unclear
 	on platforms with multi-architecture binaries. If neither @ref DEATH_TARGET_X86,
 	@ref DEATH_TARGET_ARM, @ref DEATH_TARGET_POWERPC, @ref DEATH_TARGET_RISCV,
 	@ref DEATH_TARGET_MIPS nor @ref DEATH_TARGET_WASM is defined, the platform might
@@ -337,7 +337,7 @@ namespace Death {
 	unlike other `DEATH_TARGET_*` variables, this variable, @ref DEATH_TARGET_X86,
 	@ref DEATH_TARGET_POWERPC, @ref DEATH_TARGET_RISCV, @ref DEATH_TARGET_MIPS,
 	@ref DEATH_TARGET_WASM, @ref DEATH_TARGET_32BIT, @ref DEATH_TARGET_BIG_ENDIAN and derived
-	instruction set variables are not exposed in CMake because the meaning is unclear
+	instruction set variables are not exposed in the build configuration because the meaning is unclear
 	on platforms with multi-architecture binaries. If neither @ref DEATH_TARGET_X86,
 	@ref DEATH_TARGET_ARM, @ref DEATH_TARGET_POWERPC, @ref DEATH_TARGET_RISCV,
 	@ref DEATH_TARGET_MIPS nor @ref DEATH_TARGET_WASM is defined, the platform might
@@ -354,7 +354,7 @@ namespace Death {
 	unlike other `DEATH_TARGET_*` variables, this variable, @ref DEATH_TARGET_X86,
 	@ref DEATH_TARGET_ARM, @ref DEATH_TARGET_RISCV, @ref DEATH_TARGET_MIPS,
 	@ref DEATH_TARGET_WASM, @ref DEATH_TARGET_32BIT, @ref DEATH_TARGET_BIG_ENDIAN and derived
-	instruction set variables are not exposed in CMake because the meaning is unclear
+	instruction set variables are not exposed in the build configuration because the meaning is unclear
 	on platforms with multi-architecture binaries. If neither @ref DEATH_TARGET_X86,
 	@ref DEATH_TARGET_ARM, @ref DEATH_TARGET_POWERPC, @ref DEATH_TARGET_RISCV,
 	@ref DEATH_TARGET_MIPS nor @ref DEATH_TARGET_WASM is defined, the platform might
@@ -371,7 +371,7 @@ namespace Death {
 	unlike other `DEATH_TARGET_*` variables, this variable, @ref DEATH_TARGET_X86,
 	@ref DEATH_TARGET_ARM, @ref DEATH_TARGET_POWERPC, @ref DEATH_TARGET_MIPS,
 	@ref DEATH_TARGET_WASM, @ref DEATH_TARGET_32BIT, @ref DEATH_TARGET_BIG_ENDIAN and derived
-	instruction set variables are not exposed in CMake because the meaning is unclear
+	instruction set variables are not exposed in the build configuration because the meaning is unclear
 	on platforms with multi-architecture binaries. If neither @ref DEATH_TARGET_X86,
 	@ref DEATH_TARGET_ARM, @ref DEATH_TARGET_POWERPC, @ref DEATH_TARGET_RISCV,
 	@ref DEATH_TARGET_MIPS nor @ref DEATH_TARGET_WASM is defined, the platform might
@@ -388,7 +388,7 @@ namespace Death {
 	unlike other `DEATH_TARGET_*` variables, this variable, @ref DEATH_TARGET_X86,
 	@ref DEATH_TARGET_ARM, @ref DEATH_TARGET_POWERPC, @ref DEATH_TARGET_RISCV,
 	@ref DEATH_TARGET_WASM, @ref DEATH_TARGET_32BIT, @ref DEATH_TARGET_BIG_ENDIAN and derived
-	instruction set variables are not exposed in CMake because the meaning is unclear
+	instruction set variables are not exposed in the build configuration because the meaning is unclear
 	on platforms with multi-architecture binaries. If neither @ref DEATH_TARGET_X86,
 	@ref DEATH_TARGET_ARM, @ref DEATH_TARGET_POWERPC, @ref DEATH_TARGET_RISCV,
 	@ref DEATH_TARGET_MIPS nor @ref DEATH_TARGET_WASM is defined, the platform might
@@ -405,7 +405,7 @@ namespace Death {
 	unlike other `DEATH_TARGET_*` variables, this variable, @ref DEATH_TARGET_X86,
 	@ref DEATH_TARGET_ARM, @ref DEATH_TARGET_POWERPC, @ref DEATH_TARGET_RISCV,
 	@ref DEATH_TARGET_MIPS, @ref DEATH_TARGET_32BIT, @ref DEATH_TARGET_BIG_ENDIAN and derived
-	instruction set variables are not exposed in CMake because the meaning is unclear
+	instruction set variables are not exposed in the build configuration because the meaning is unclear
 	on platforms with multi-architecture binaries. If neither @ref DEATH_TARGET_X86,
 	@ref DEATH_TARGET_ARM, @ref DEATH_TARGET_POWERPC, @ref DEATH_TARGET_RISCV,
 	@ref DEATH_TARGET_MIPS nor @ref DEATH_TARGET_WASM is defined, the platform might
@@ -461,8 +461,8 @@ namespace Death {
 
 	Defined if the code is being compiled by GCC or GCC-compatible Clang (which is
 	@ref DEATH_TARGET_APPLE_CLANG but not @ref DEATH_TARGET_CLANG_CL, for
-	example). While this variable is exposed in CMake as well, it's not guaranteed
-	that the reported compiler is consistent between CMake and C++ --- for example,
+	example). While this variable is exposed in the build configuration as well, it's not guaranteed
+	that the reported compiler is consistent between the build configuration and C++ --- for example,
 	a library can be built with GCC and then used via Clang.
 
 	Major GCC version number can be accessed using the `__GNUC__` macro. Clang
@@ -478,8 +478,8 @@ namespace Death {
 	Defined if the code is being compiled by Clang or any of its variants
 	(@ref DEATH_TARGET_APPLE_CLANG, @ref DEATH_TARGET_CLANG_CL). If this
 	variable is defined, usually @ref DEATH_TARGET_GCC is also defined, except
-	for Clang-CL. While this variable is exposed in CMake as well, it's not
-	guaranteed that the reported compiler is consistent between CMake and C++ ---
+	for Clang-CL. While this variable is exposed in the build configuration as well, it's not
+	guaranteed that the reported compiler is consistent between the build configuration and C++ ---
 	for example, a library can be built with Clang and then used via GCC.
 
 	Major Clang version number can be accessed using the `__clang_major__` macro,
@@ -496,9 +496,9 @@ namespace Death {
 	Defined if the code is being compiled by Apple's Clang. If this variable is
 	defined, @ref DEATH_TARGET_GCC and @ref DEATH_TARGET_CLANG are also
 	defined. This is primarily useful when checking for Clang version, as Apple
-	uses a different versioning scheme. While this variable is exposed in CMake as
+	uses a different versioning scheme. While this variable is exposed in the build configuration as
 	well, it's not guaranteed that the reported compiler is consistent between
-	CMake and C++ --- for example, a library can be built with Clang and then used
+	the build configuration and C++ --- for example, a library can be built with Clang and then used
 	via GCC.
 
 	Major Apple Clang version number can be accessed using the `__clang_major__`
@@ -516,8 +516,8 @@ namespace Death {
 	Defined if the code is being compiled by Clang with a MSVC frontend. If this
 	variable is defined, @ref DEATH_TARGET_CLANG and @ref DEATH_TARGET_MSVC is
 	also defined (but @ref DEATH_TARGET_GCC not). While this variable is exposed
-	in CMake as well, it's not guaranteed that the reported compiler is consistent
-	between CMake and C++ --- for example, a library can be built with Clang-CL and
+	in the build configuration as well, it's not guaranteed that the reported compiler is consistent
+	between the build configuration and C++ --- for example, a library can be built with Clang-CL and
 	then used via MSVC.
 
 	Clang-CL uses the same versioning scheme as vanilla Clang, accessible using the
@@ -531,8 +531,8 @@ namespace Death {
 	@brief Intel LLVM compiler
 
 	Defined if the code is being compiled by Intel LLVM (oneAPI) compiler. While this
-	variable is exposed in CMake as well, it's not guaranteed that the reported compiler
-	is consistent between CMake and C++ --- for example, a library can be built with
+	variable is exposed in the build configuration as well, it's not guaranteed that the reported compiler
+	is consistent between the build configuration and C++ --- for example, a library can be built with
 	Intel LLVM and then used via Clang.
 */
 #define DEATH_TARGET_INTEL_LLVM
@@ -543,8 +543,8 @@ namespace Death {
 
 	Defined if the code is being compiled by MSVC or Clang with a MSVC frontend. If
 	this variable is defined, @ref DEATH_TARGET_CLANG might also be defined.
-	While this variable is exposed in CMake as well, it's not guaranteed that the
-	reported compiler is consistent between CMake and C++ --- for example, a
+	While this variable is exposed in the build configuration as well, it's not guaranteed that the
+	reported compiler is consistent between the build configuration and C++ --- for example, a
 	library can be built with MSVC and then used via Clang-CL.
 
 	MSVC version can be accessed using the `_MSC_VER` macro. The macro uses an
@@ -559,9 +559,9 @@ namespace Death {
 
 	Defined if the code is being compiled by Cygwin toolchain. If
 	this variable is defined, @ref DEATH_TARGET_GCC and possibly also
-	@ref DEATH_TARGET_CLANG are defined. While this variable is exposed in CMake
+	@ref DEATH_TARGET_CLANG are defined. While this variable is exposed in the build configuration
 	as well, it's not guaranteed that the reported compiler is consistent between
-	CMake and C++ --- for example, a library can be built with MSVC and then used
+	the build configuration and C++ --- for example, a library can be built with MSVC and then used
 	via Clang-CL.
 */
 #define DEATH_TARGET_CYGWIN
@@ -572,9 +572,9 @@ namespace Death {
 
 	Defined if the code is being compiled by GCC / Clang running under MinGW. If
 	this variable is defined, @ref DEATH_TARGET_GCC and possibly also
-	@ref DEATH_TARGET_CLANG are defined. While this variable is exposed in CMake
+	@ref DEATH_TARGET_CLANG are defined. While this variable is exposed in the build configuration
 	as well, it's not guaranteed that the reported compiler is consistent between
-	CMake and C++ --- for example, a library can be built with MSVC and then used
+	the build configuration and C++ --- for example, a library can be built with MSVC and then used
 	via Clang-CL.
 */
 #define DEATH_TARGET_MINGW
@@ -616,7 +616,7 @@ namespace Death {
 	STL implementation. This is most common on Apple acOS and iOS and on newer
 	Android NDKs, it's also sometimes used on Linux. Note that unlike other
 	`DEATH_TARGET_*` variables, this variable, @ref DEATH_TARGET_LIBSTDCXX and
-	@ref DEATH_TARGET_DINKUMWARE are not exposed in CMake because the detection
+	@ref DEATH_TARGET_DINKUMWARE are not exposed in the build configuration because the detection
 	is non-trivial.
 
 	Major libc++ version number can be accessed using the `_LIBCPP_VERSION` version
@@ -633,7 +633,7 @@ namespace Death {
 	STL implementation. This is most common on Linux and under MinGW, note that
 	Clang is able to use libstdc++ as well. Note that unlike other `DEATH_TARGET_*`
 	variables, this variable, @ref DEATH_TARGET_LIBCXX and
-	@ref DEATH_TARGET_DINKUMWARE are not exposed in CMake because the detection
+	@ref DEATH_TARGET_DINKUMWARE are not exposed in the build configuration because the detection
 	is non-trivial.
 
 	Major libstdc++ version number can be accessed using the `_GLIBCXX_RELEASE`
@@ -654,7 +654,7 @@ namespace Death {
 	MSVC). Note that Clang is able to use this implementation as well.  Note that
 	unlike other `DEATH_TARGET_*` variables, this variable,
 	@ref DEATH_TARGET_LIBSTDCXX and @ref DEATH_TARGET_DINKUMWARE are not
-	exposed in CMake because the detection is non-trivial.
+	exposed in the build configuration because the detection is non-trivial.
 
 	The MSVC standard library is closely tied to a compiler version, thus
 	`_MSC_VER` can be used to determine its version on both MSVC and Clang-CL.

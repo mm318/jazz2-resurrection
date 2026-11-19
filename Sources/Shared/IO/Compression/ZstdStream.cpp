@@ -7,7 +7,7 @@
 #include "../../Asserts.h"
 #include "../../Base/Move.h"
 
-#if defined(DEATH_TARGET_WINDOWS) && !defined(CMAKE_BUILD)
+#if defined(DEATH_TARGET_WINDOWS) && !defined(ZIG_BUILD)
 #	if defined(_M_X64)
 #		pragma comment(lib, "../Libs/Windows/x64/zstd.lib")
 #	elif defined(_M_IX86)

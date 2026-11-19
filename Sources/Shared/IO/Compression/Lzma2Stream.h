@@ -5,7 +5,7 @@
 
 #if defined(WITH_LZMA2) || defined(DOXYGEN_GENERATING_OUTPUT)
 
-#if !defined(CMAKE_BUILD) && defined(__has_include)
+#if !defined(ZIG_BUILD) && defined(__has_include)
 #	if __has_include("lzma/lzma.h")
 #		define __HAS_LOCAL_LZMA
 #	endif

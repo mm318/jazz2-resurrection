@@ -1,6 +1,6 @@
 ﻿#pragma once
 
-// Set default name and version if not provided by CMake
+// Set default name and version if not provided by the build
 /** @brief Application name */
 #if !defined(NCINE_APP)
 #	define NCINE_APP "jazz2"
@@ -19,7 +19,7 @@
 
 	Six characters, the game code and the maker code. The game recognizes its own disc by it and creates its memory
 	card saves under it, and AssetPacker takes it as the default of `create-image --game-id=` --- the GameCube build
-	passes it to the tool explicitly anyway (`GAMECUBE_GAME_ID` in CMake). "GJJ" is no retail game, so Dolphin
+	passes it to the tool explicitly anyway with its selected game ID. "GJJ" is no retail game, so Dolphin
 	applies no game-specific settings or patches to the disc and its saves do not mix with anything else's, "E" is
 	the region (NTSC-U, which every loader and optical drive emulator boots), and "JR" is the maker code.
 */
@@ -78,8 +78,8 @@
 #	define NCINE_LINUX_PACKAGE NCINE_APP_NAME
 #endif
 
-// Prefer local version of shared libraries in CMake build
-#if defined(CMAKE_BUILD) && defined(__has_include)
+// Prefer local version of shared libraries in the Zig build
+#if defined(ZIG_BUILD) && defined(__has_include)
 #	if __has_include("../Shared/Common.h")
 #		define __HAS_LOCAL_COMMON
 #	endif
