@@ -205,8 +205,8 @@ namespace Jazz2
 		 *
 		 * Such a tree is created by @ref asset-packer "AssetPacker" and already contains everything the
 		 * runtime needs. The game requires this packaged data and never converts original game files.
-		 * It is recognized by the package
-		 * the tool names @ref Compatibility::AssetConverter::PrebakedPackage.
+		 * Desktop and browser builds use individual files under Animations, Sounds and Cinematics.
+		 * Console profiles may use a converted package instead.
 		 */
 		bool IsContentPrebaked() const;
 
@@ -219,6 +219,8 @@ namespace Jazz2
 		void RemountPaks();
 		/** @brief Tries to find and open a file specified by the path */
 		std::unique_ptr<Stream> OpenContentFile(StringView path, std::int32_t bufferSize = 8192);
+		/** @brief Opens a converted sound effect relative to Sounds/ (or a console package) */
+		std::unique_ptr<Stream> OpenSoundFile(StringView path);
 		/** @brief Marks beginning of the loading assets */
 		void BeginLoading();
 		/** @brief Marks end of the loading assets */
@@ -847,6 +849,7 @@ namespace Jazz2
 		bool _isHeadless;
 		bool _isLoading;
 		bool _isContentPrebaked;
+		bool _hasLooseAssets;
 		std::uint32_t _palettes[PaletteCount * ColorsPerPalette];
 		// Shared palette texture (256x256: one palette per row). Rows changed since the last upload are tracked by
 		// the dirty range below and re-uploaded lazily. Dynamically allocated per-player rows are reference-counted

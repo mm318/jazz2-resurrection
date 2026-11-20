@@ -58,8 +58,8 @@ supplies the cross-origin isolation needed by pthreads. The browser bundle
 preloads the same packaged game data as the desktop build.
 
 Use `-Dcontent=/path/to/prepared-assets` to build with a different complete
-assets directory. It must include `Prebaked.pak` and the loose runtime files
-under `Episodes/`, `Tilesets/`, `Music/`, and `Cinematics/`.
+assets directory containing the converted runtime files under `Animations/`,
+`Sounds/`, `Cinematics/`, `Episodes/`, `Tilesets/`, and `Music/`.
 
 ## Tools and shaders
 
@@ -84,8 +84,11 @@ data without copying unused original files:
 zig build pack-assets -- convert /path/to/original-game /tmp/jazz2-content --target=desktop
 ```
 
-Copy the generated `Prebaked.pak`, `Episodes/`, `Tilesets/`, `Music/`, and
-`Cinematics/` into `assets/` before rebuilding. The converter selects tilesets
+Copy the generated `Animations/`, `Sounds/`, `Cinematics/`, `Episodes/`,
+`Tilesets/`, and `Music/` into `assets/` before rebuilding. `Anims.j2a` produces
+individual `.aura` sprite sheets and `.wav` sound effects; `Data.j2d` produces
+menu textures and `.j2sfx` cinematic cue lists. Desktop and browser builds load
+these files directly without `Prebaked.pak`. The converter selects tilesets
 and music used by the levels, includes menu music and the intro/ending videos,
 and leaves out installers, manuals, screenshots, and unrelated data.
 

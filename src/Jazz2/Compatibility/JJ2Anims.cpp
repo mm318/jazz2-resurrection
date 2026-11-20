@@ -280,7 +280,7 @@ namespace Jazz2::Compatibility
 		return PackRectangles(packed, border, sheetWidth, sheetHeight);
 	}
 
-	JJ2Version JJ2Anims::Convert(StringView path, PakWriter& pakWriter, bool isPlus, ConversionProgress progress)
+	JJ2Version JJ2Anims::Convert(StringView path, AssetWriter& output, bool isPlus, ConversionProgress progress)
 	{
 		// Reading the sets decompresses the whole file, but writing the sprite sheets out has to compress
 		// everything again, which is the slower direction by far - so that step is given most of the range
@@ -462,8 +462,8 @@ namespace Jazz2::Compatibility
 			LOGE("Could not determine the version, header size: {} bytes", headerLen);
 		}
 
-		ImportAnimations(pakWriter, version, anims, progress.Narrow(0.2f, 0.9f));
-		ImportAudioSamples(pakWriter, version, samples, progress.Narrow(0.9f, 1.0f));
+		ImportAnimations(output, version, anims, progress.Narrow(0.2f, 0.9f));
+		ImportAudioSamples(output, version, samples, progress.Narrow(0.9f, 1.0f));
 
 		return version;
 	}
@@ -622,7 +622,7 @@ namespace Jazz2::Compatibility
 		}
 	}
 
-	void JJ2Anims::ImportAnimations(PakWriter& pakWriter, JJ2Version version, SmallVectorImpl<AnimSection>& anims, ConversionProgress progress)
+	void JJ2Anims::ImportAnimations(AssetWriter& output, JJ2Version version, SmallVectorImpl<AnimSection>& anims, ConversionProgress progress)
 	{
 		if (anims.empty()) {
 			return;
@@ -888,9 +888,9 @@ namespace Jazz2::Compatibility
 			so.Seek(0, SeekOrigin::Begin);
 			// LZ4 content is stored as it is: compressing it again would only put an inflate in front of the
 			// decoder it was chosen for
-			bool success = pakWriter.AddFile(so, filename, PreferredImageCompression == ImageCompression::Lz4
+			bool success = output.AddFile(so, filename, PreferredImageCompression == ImageCompression::Lz4
 				? PakPreferredCompression::None : PakPreferredCompression::Deflate);
-			DEATH_ASSERT(success, "Failed to add file to .pak container", );
+			DEATH_ASSERT(success, "Failed to write converted asset", );
 
 			/*if (!string.IsNullOrEmpty(data.Name) && !data.SkipNormalMap) {
 				PngWriter normalMap = NormalMapGenerator.FromSprite(img,
@@ -1041,7 +1041,7 @@ namespace Jazz2::Compatibility
 		NormalizeAnimation(anim);
 	}
 
-	void JJ2Anims::ImportAudioSamples(PakWriter& pakWriter, JJ2Version version, SmallVectorImpl<SampleSection>& samples, ConversionProgress progress)
+	void JJ2Anims::ImportAudioSamples(AssetWriter& output, JJ2Version version, SmallVectorImpl<SampleSection>& samples, ConversionProgress progress)
 	{
 		if (samples.empty()) {
 			return;
@@ -1068,7 +1068,7 @@ namespace Jazz2::Compatibility
 				continue;
 			}
 
-			filename = fs::CombinePath({ "Animations"_s, entry->Category, String(entry->Name + ".wav"_s) });
+			filename = fs::CombinePath({ output.IsDirectory() ? "Sounds"_s : "Animations"_s, entry->Category, String(entry->Name + ".wav"_s) });
 
 			MemoryStream so(16384);
 
@@ -1109,8 +1109,8 @@ namespace Jazz2::Compatibility
 			}
 
 			so.Seek(0, SeekOrigin::Begin);
-			bool success = pakWriter.AddFile(so, filename, PakPreferredCompression::Deflate);
-			DEATH_ASSERT(success, "Failed to add file to .pak container", );
+			bool success = output.AddFile(so, filename, PakPreferredCompression::Deflate);
+			DEATH_ASSERT(success, "Failed to write converted asset", );
 		}
 	}
 

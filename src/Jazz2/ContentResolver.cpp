@@ -154,7 +154,7 @@ namespace Jazz2
 	}
 
 	ContentResolver::ContentResolver()
-		: _isHeadless(false), _isLoading(false), _isContentPrebaked(false), _cachedMetadata(64), _cachedGraphics(256),
+		: _isHeadless(false), _isLoading(false), _isContentPrebaked(false), _hasLooseAssets(false), _cachedMetadata(64), _cachedGraphics(256),
 #if defined(WITH_AUDIO)
 			_cachedSounds(192),
 #endif
@@ -633,8 +633,10 @@ namespace Jazz2
 
 	void ContentResolver::DetectPrebakedContent()
 	{
-		// The game requires the package produced ahead of time by AssetPacker.
-		_isContentPrebaked = fs::FileExists(fs::CombinePath(GetContentPath(), Compatibility::AssetConverter::PrebakedPackage));
+		// Supplemental assets alone are not enough: the converted player sheet and sound bank must exist.
+		_hasLooseAssets = fs::IsReadableFile(fs::CombinePath({ GetContentPath(), "Animations"_s, "Jazz/idle.aura"_s })) &&
+			fs::DirectoryExists(fs::CombinePath(GetContentPath(), "Sounds"_s));
+		_isContentPrebaked = _hasLooseAssets || fs::FileExists(fs::CombinePath(GetContentPath(), Compatibility::AssetConverter::PrebakedPackage));
 		if (_isContentPrebaked) {
 			LOGI("Content in \"{}\" was prepared ahead of time", GetContentPath());
 		}
@@ -722,7 +724,7 @@ namespace Jazz2
 		auto mountPaksIn = [this](StringView path) {
 			for (auto item : fs::Directory(path, fs::EnumerationOptions::SkipDirectories)) {
 				auto extension = fs::GetExtension(item);
-				if (extension != "pak"_s) {
+				if (extension != "pak"_s || (_hasLooseAssets && fs::GetFileName(item) == Compatibility::AssetConverter::PrebakedPackage)) {
 					continue;
 				}
 
@@ -793,6 +795,11 @@ namespace Jazz2
 		}
 
 		return fs::Open(fs::CombinePath(GetContentPath(), path), FileAccess::Read, bufferSize);
+	}
+
+	std::unique_ptr<Stream> ContentResolver::OpenSoundFile(StringView path)
+	{
+		return OpenContentFile(fs::CombinePath(_hasLooseAssets ? "Sounds"_s : "Animations"_s, path));
 	}
 
 	void ContentResolver::BeginLoading()
@@ -1418,7 +1425,7 @@ namespace Jazz2
 				}
 				auto resource = std::make_unique<GenericSoundResource>(nativePath);
 #	else
-				auto s = OpenContentFile(fs::CombinePath("Animations"_s, assetPath));
+				auto s = OpenSoundFile(assetPath);
 				auto resource = std::make_unique<GenericSoundResource>(Death::move(s), assetPath);
 #	endif
 				if (resource->Buffer.GetSampleCount() <= 0) {

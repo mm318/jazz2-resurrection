@@ -84,27 +84,27 @@ namespace Jazz2::Compatibility
 		}
 	}
 
-	void JJ2Data::Convert(PakWriter& pakWriter, JJ2Version version)
+	void JJ2Data::Convert(AssetWriter& output, JJ2Version version)
 	{
 		AnimSetMapping animMapping = AnimSetMapping::GetSampleMapping(version);
 		auto animationsUiPath = fs::CombinePath("Animations"_s, "UI"_s);
 
 		for (auto& item : Items) {
 			if (item.Filename == "SoundFXList.Intro"_s) {
-				ConvertSfxList(item, pakWriter, fs::CombinePath("Cinematics"_s, "intro.j2sfx"), animMapping);
+				ConvertSfxList(item, output, fs::CombinePath("Cinematics"_s, "intro.j2sfx"), animMapping);
 			} else if (item.Filename == "SoundFXList.Ending"_s) {
-				ConvertSfxList(item, pakWriter, fs::CombinePath("Cinematics"_s, "ending.j2sfx"), animMapping);
+				ConvertSfxList(item, output, fs::CombinePath("Cinematics"_s, "ending.j2sfx"), animMapping);
 			} else if (item.Filename == "Menu.Texture.16x16"_s) {
-				ConvertMenuImage(item, pakWriter, fs::CombinePath(animationsUiPath, "menu16.aura"), 16, 16);
+				ConvertMenuImage(item, output, fs::CombinePath(animationsUiPath, "menu16.aura"), 16, 16);
 			} else if (item.Filename == "Menu.Texture.32x32"_s) {
-				ConvertMenuImage(item, pakWriter, fs::CombinePath(animationsUiPath, "menu32.aura"), 32, 32);
+				ConvertMenuImage(item, output, fs::CombinePath(animationsUiPath, "menu32.aura"), 32, 32);
 			} else if (item.Filename == "Menu.Texture.128x128"_s) {
-				ConvertMenuImage(item, pakWriter, fs::CombinePath(animationsUiPath, "menu128.aura"), 128, 128);
+				ConvertMenuImage(item, output, fs::CombinePath(animationsUiPath, "menu128.aura"), 128, 128);
 			}
 		}
 	}
 
-	void JJ2Data::ConvertSfxList(const Item& item, PakWriter& pakWriter, StringView targetPath, AnimSetMapping& animMapping)
+	void JJ2Data::ConvertSfxList(const Item& item, AssetWriter& output, StringView targetPath, AnimSetMapping& animMapping)
 	{
 		struct SoundFXList {
 			std::uint32_t Frame;
@@ -175,11 +175,11 @@ namespace Jazz2::Compatibility
 		}
 
 		so.Seek(0, SeekOrigin::Begin);
-		bool success = pakWriter.AddFile(so, targetPath, PakPreferredCompression::Deflate);
+		bool success = output.AddFile(so, targetPath, PakPreferredCompression::Deflate);
 		DEATH_ASSERT(success, "Cannot add file to .pak container", );
 	}
 
-	void JJ2Data::ConvertMenuImage(const Item& item, PakWriter& pakWriter, StringView targetPath, std::int32_t width, std::int32_t height)
+	void JJ2Data::ConvertMenuImage(const Item& item, AssetWriter& output, StringView targetPath, std::int32_t width, std::int32_t height)
 	{
 		std::int32_t pixelCount = width * height;
 		DEATH_ASSERT(item.Size == pixelCount, "Image has unexpected size", );
@@ -224,7 +224,7 @@ namespace Jazz2::Compatibility
 		JJ2Anims::WriteImageContent(so, pixels.get(), width, height, 4);
 
 		so.Seek(0, SeekOrigin::Begin);
-		bool success = pakWriter.AddFile(so, targetPath, PakPreferredCompression::Deflate);
+		bool success = output.AddFile(so, targetPath, PakPreferredCompression::Deflate);
 		DEATH_ASSERT(success, "Cannot add file to .pak container", );
 	}
 }

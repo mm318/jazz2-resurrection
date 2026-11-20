@@ -463,34 +463,34 @@ namespace Jazz2::Compatibility
 	}
 
 	AssetConverter::Result AssetConverter::ConvertSourceAssets(StringView animsPath, StringView sourcePath, StringView targetPath,
-		JJ2Version& version, StringView packageName, ConversionProgress progress)
+		JJ2Version& version, ConversionProgress progress)
 	{
 		version = JJ2Version::Unknown;
 
-		PakWriter pakWriter(fs::CombinePath(targetPath, packageName), true);
-		if (!pakWriter.IsValid()) {
+		AssetWriter output(targetPath);
+		if (!output.IsValid()) {
 			return Result::CannotWriteTarget;
 		}
 
-		return ConvertSourceAssets(animsPath, sourcePath, pakWriter, version, progress);
+		return ConvertSourceAssets(animsPath, sourcePath, output, version, progress);
 	}
 
 	AssetConverter::Result AssetConverter::ConvertSourceAssets(StringView animsPath, StringView sourcePath,
-		PakWriter& pakWriter, JJ2Version& version, ConversionProgress progress)
+		AssetWriter& output, JJ2Version& version, ConversionProgress progress)
 	{
 		// `Data.j2d` is small next to the animations, so the animations get all but the last sliver of the range
-		version = JJ2Anims::Convert(animsPath, pakWriter, false, progress.Narrow(0.0f, 0.95f));
+		version = JJ2Anims::Convert(animsPath, output, false, progress.Narrow(0.0f, 0.95f));
 		if (version == JJ2Version::Unknown) {
 			return Result::UnsupportedVersion;
 		}
 
 		JJ2Data data;
 		if (data.Open(fs::CombinePath(sourcePath, "Data.j2d"_s), false)) {
-			data.Convert(pakWriter, version);
+			data.Convert(output, version);
 		}
 
 		progress.Report(1.0f);
-		return Result::Success;
+		return output.IsValid() ? Result::Success : Result::CannotWriteTarget;
 	}
 
 	void AssetConverter::ConvertLevels(StringView sourcePath, StringView targetPath, bool recreateAll, ConversionProgress progress)
@@ -906,7 +906,7 @@ namespace Jazz2::Compatibility
 					} else {
 						LOGW("Cannot copy \"{}\"", adjustedPath);
 					}
-				} else {
+				} else if (!fs::IsReadableFile(fs::CombinePath(musicPath, pair.first))) {
 					LOGW("Cannot find music file \"{}\"", pair.first);
 				}
 			}

@@ -7,7 +7,7 @@
 #include <Containers/SmallVector.h>
 #include <Containers/String.h>
 #include <Containers/StringView.h>
-#include <IO/PakFile.h>
+#include "AssetWriter.h"
 
 using namespace Death::Containers;
 using namespace Death::Containers::Literals;
@@ -17,8 +17,7 @@ namespace Jazz2::Compatibility
 	/**
 		@brief Converts original Jazz Jackrabbit 2 data into the formats the game loads
 
-		The same conversion the game performs on its first run, factored out so it can also be driven offline by
-		the AssetPacker tool. Everything is expressed in terms of an input and an output directory, so it does
+		Conversion is performed ahead of time by the AssetPacker tool. Everything is expressed in terms of an input and an output directory, so it does
 		not depend on the resource cache (and through it, on the renderer).
 	*/
 	class AssetConverter
@@ -27,7 +26,7 @@ namespace Jazz2::Compatibility
 		/** @brief Outcome of converting the source assets */
 		enum class Result {
 			Success,				/**< Everything was converted */
-			CannotWriteTarget,		/**< The output .pak file could not be opened for writing */
+			CannotWriteTarget,		/**< The converted assets could not be written */
 			UnsupportedVersion		/**< The provided Jazz Jackrabbit 2 version is not supported */
 		};
 
@@ -124,35 +123,15 @@ namespace Jazz2::Compatibility
 			SmallVector<String, 0> UsedMusic;
 		};
 
-		/** @brief Name of the package the first-run conversion writes its sprites and sounds into */
-		static constexpr StringView SourcePackage = "Source.pak"_s;
-		/**
-			@brief Name of the same package in a content tree prepared ahead of time
-
-			A tree prepared by @ref asset-packer "AssetPacker" is loaded instead of being converted, and this
-			is how the game tells one apart from a `Cache` it built itself: the name is the marker, so it is
-			what a prepared tree gets instead of @ref SourcePackage. See
-			@relativeref{Jazz2,ContentResolver::IsContentPrebaked()}.
-		*/
+		/** @brief Package used by console profiles that keep converted assets in an archive */
 		static constexpr StringView PrebakedPackage = "Prebaked.pak"_s;
 
-		/**
-		 * @brief Converts @cb{.cpp} Anims.j2a @ce (and @cb{.cpp} Data.j2d @ce, if present) into a package
-		 *
-		 * @param packageName	Which package to write, @ref SourcePackage or @ref PrebakedPackage
-		 * @param progress		Reports how far the conversion has got, see @ref ConversionProgress
-		 */
+		/** @brief Converts Anims.j2a and optional Data.j2d into individual runtime files */
 		static Result ConvertSourceAssets(StringView animsPath, StringView sourcePath, StringView targetPath,
-			JJ2Version& version, StringView packageName = SourcePackage, ConversionProgress progress = {});
-		/**
-		 * @brief Converts the same into a package that is already open, and is not finalized here
-		 *
-		 * For a caller that has more to put in the same package --- @ref asset-packer "AssetPacker" embeds the
-		 * game's own assets alongside the converted ones, after these, so that what the original data provides
-		 * is what a path present in both resolves to.
-		 */
+			JJ2Version& version, ConversionProgress progress = {});
+		/** @brief Converts the same assets using the supplied directory or package writer */
 		static Result ConvertSourceAssets(StringView animsPath, StringView sourcePath,
-			Death::IO::PakWriter& pakWriter, JJ2Version& version, ConversionProgress progress = {});
+			AssetWriter& output, JJ2Version& version, ConversionProgress progress = {});
 
 		/** @brief Converts every episode, level and used tileset into the output directory */
 		static void ConvertLevels(StringView sourcePath, StringView targetPath, bool recreateAll, ConversionProgress progress = {});

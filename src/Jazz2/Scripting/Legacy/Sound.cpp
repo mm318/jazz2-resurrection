@@ -78,7 +78,7 @@ namespace Jazz2::Scripting
 		}
 
 		// The sample mapping is the same one the content pipeline uses to convert the original sound bank, so the
-		// original sample index maps directly to the converted "Animations/{Category}/{Name}.wav" asset
+		// original sample index maps directly to the converted "Sounds/{Category}/{Name}.wav" asset
 		if (_sampleMapping == nullptr) {
 			Compatibility::JJ2Version version = (versionTSF ? Compatibility::JJ2Version::TSF : Compatibility::JJ2Version::BaseGame);
 			_sampleMapping = std::make_unique<Compatibility::AnimSetMapping>(Compatibility::AnimSetMapping::GetSampleMapping(version));
@@ -87,8 +87,8 @@ namespace Jazz2::Scripting
 		std::unique_ptr<AudioBuffer> buffer;
 		auto* entry = _sampleMapping->GetByOrdinal((std::uint32_t)sampleId);
 		if (entry != nullptr && entry->Category != Compatibility::AnimSetMapping::Discard && !entry->Name.empty()) {
-			String path = String("Animations/"_s) + entry->Category + '/' + entry->Name + ".wav"_s;
-			auto stream = ContentResolver::Get().OpenContentFile(path);
+			String path = entry->Category + "/"_s + entry->Name + ".wav"_s;
+			auto stream = ContentResolver::Get().OpenSoundFile(path);
 			if (stream->IsValid()) {
 				buffer = std::make_unique<AudioBuffer>(Death::move(stream), path);
 			}

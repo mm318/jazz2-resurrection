@@ -652,7 +652,8 @@ namespace
 		for (auto item : fs::Directory(sourcePath)) {
 			StringView itemName = fs::GetFileName(item);
 			const bool isDirectory = fs::DirectoryExists(item);
-			if (AssetPacker::ContentFilter::IsLeftOut(itemName, isDirectory, isTopLevel, hasEditor)) {
+			if (AssetPacker::ContentFilter::IsLeftOut(itemName, isDirectory, isTopLevel, hasEditor) ||
+				(isTopLevel && itemName == Compatibility::AssetConverter::PrebakedPackage)) {
 				continue;
 			}
 			bool packed = false;
@@ -672,7 +673,9 @@ namespace
 				continue;
 			}
 
-			if (!fs::Copy(item, targetItem)) {
+			// Original game files may be read-only. The staged copies must remain writable for conversion.
+			if ((fs::FileExists(targetItem) && !fs::AddPermissions(targetItem, fs::Permission::Write)) ||
+				!fs::Copy(item, targetItem) || !fs::AddPermissions(targetItem, fs::Permission::Write)) {
 				LOGW("Cannot copy \"{}\" to \"{}\"", item, targetItem);
 				success = false;
 			}
@@ -805,9 +808,8 @@ namespace
 
 		LOGI("Converting \"{}\" to \"{}\"...", layout.OriginalsPath, outputPath);
 
-		// The two directories the game reads through the package layer go inside the package instead of next to
-		// it, which is one file to open rather than a few hundred - the difference a console actually pays for.
-		// Everything else the tree carries is read as a loose file and has to stay one.
+		// Desktop and browser builds keep each converted asset as its own runtime file.
+		const bool looseAssets = (options.Profile == TargetProfile::Desktop || options.Profile == TargetProfile::Emscripten);
 		static const StringView PackedContentDirectories[] = { "Animations"_s, "Metadata"_s };
 
 		// The game's own content (fonts, animations, metadata, translations) is not derived from anything in the
@@ -815,13 +817,16 @@ namespace
 		const bool selfContained = !layout.ContentPath.empty();
 		if (selfContained) {
 			LOGI("Copying \"{}\"...", layout.ContentPath);
-			CopyContentDirectory(layout.ContentPath, outputPath, PackedContentDirectories, options.HasEditor);
+			if (!CopyContentDirectory(layout.ContentPath, outputPath,
+				looseAssets ? ArrayView<const StringView>{} : ArrayView<const StringView>{PackedContentDirectories}, options.HasEditor)) {
+				return false;
+			}
 			if (!options.HasEditor) {
 				RemoveEditorTranslations(outputPath);
 			}
 		}
 
-		// The game requires the prepared package on every target.
+		// Console profiles may retain an archive instead of individual assets.
 		StringView packageName = Compatibility::AssetConverter::PrebakedPackage;
 
 		if (options.Lz4Images) {
@@ -853,34 +858,40 @@ namespace
 			fs::CreateDirectories(n64TempPath);
 			n64TempPak = fs::CombinePath(n64TempPath, "Content.pak"_s);
 		}
-		const String pakPath = (options.N64 ? n64TempPak : String(fs::CombinePath(outputPath, packageName)));
-
-		PakWriter pakWriter(pakPath, !options.N64);
-		if (!pakWriter.IsValid()) {
-			LOGE("Cannot open \"{}\" for writing", pakPath);
+		std::unique_ptr<PakWriter> package;
+		std::unique_ptr<Compatibility::AssetWriter> output;
+		if (looseAssets) {
+			output = std::make_unique<Compatibility::AssetWriter>(outputPath);
+		} else {
+			String pakPath = (options.N64 ? n64TempPak : String(fs::CombinePath(outputPath, packageName)));
+			package = std::make_unique<PakWriter>(pakPath, !options.N64);
+			output = std::make_unique<Compatibility::AssetWriter>(*package);
+		}
+		if (!output->IsValid()) {
+			LOGE("Cannot write converted assets to \"{}\"", outputPath);
 			return false;
 		}
 
 		Compatibility::JJ2Version version;
-		if (Compatibility::AssetConverter::ConvertSourceAssets(animsPath, layout.OriginalsPath, pakWriter, version) ==
-				Compatibility::AssetConverter::Result::UnsupportedVersion) {
-			LOGE("Provided Jazz Jackrabbit 2 version is not supported");
+		auto result = Compatibility::AssetConverter::ConvertSourceAssets(animsPath, layout.OriginalsPath, *output, version);
+		if (result != Compatibility::AssetConverter::Result::Success) {
+			LOGE("{}", result == Compatibility::AssetConverter::Result::UnsupportedVersion
+				? "Provided Jazz Jackrabbit 2 version is not supported" : "Cannot write converted assets");
 			return false;
 		}
 
-		// Added after the conversion, so a path both of them have resolves to what the original data provided,
-		// which is what it does when the two are kept apart
-		if (selfContained) {
-			for (StringView packedDirectory : PackedContentDirectories) {
-				String packedPath = fs::CombinePath(layout.ContentPath, packedDirectory);
-				if (fs::DirectoryExists(packedPath)) {
-					LOGI("Packing \"{}\"...", packedPath);
-					AddDirectoryToPak(pakWriter, packedPath, packedDirectory);
+		// Archived console profiles also embed the game's supplemental animations and metadata.
+		if (package != nullptr) {
+			if (selfContained) {
+				for (StringView packedDirectory : PackedContentDirectories) {
+					String packedPath = fs::CombinePath(layout.ContentPath, packedDirectory);
+					if (fs::DirectoryExists(packedPath) && !AddDirectoryToPak(*package, packedPath, packedDirectory)) {
+						return false;
+					}
 				}
 			}
+			package->Finalize();
 		}
-
-		pakWriter.Finalize();
 
 		if (options.N64) {
 			PakWriter finalPak(fs::CombinePath(outputPath, packageName), true);
@@ -960,6 +971,14 @@ namespace
 			// After the cinematics, which mix the original music into their soundtracks
 			AssetPacker::N64Content::ConvertMusic(fs::CombinePath(outputPath, "Music"_s), n64TempPath, n64Tools);
 			fs::RemoveDirectoryRecursive(n64TempPath);
+		}
+
+		if (looseAssets) {
+			String oldPackage = fs::CombinePath(outputPath, Compatibility::AssetConverter::PrebakedPackage);
+			if (fs::FileExists(oldPackage) && !fs::RemoveFile(oldPackage)) {
+				LOGE("Cannot remove obsolete package \"{}\"", oldPackage);
+				return false;
+			}
 		}
 
 		return true;

@@ -10,7 +10,7 @@
 #include <Containers/SmallVector.h>
 #include <Containers/StringView.h>
 #include <IO/Stream.h>
-#include <IO/PakFile.h>
+#include "AssetWriter.h"
 
 using namespace Death::Containers;
 using namespace Death::IO;
@@ -25,7 +25,7 @@ namespace Jazz2::Compatibility
 		
 		Reads the original game's combined animation archive (`Anims.j2a`), decoding its animation sets,
 		frames and embedded audio samples, and writes the converted sprites and sounds into the engine's
-		`.pak` format. Asset naming and palette handling are driven by @ref AnimSetMapping.
+		runtime formats. Asset naming and palette handling are driven by @ref AnimSetMapping.
 	*/
 	class JJ2Anims
 	{
@@ -53,11 +53,11 @@ namespace Jazz2::Compatibility
 		static constexpr std::int32_t SheetPageSize = 512;
 
 		/**
-		 * @brief Converts the specified animation file and writes the result to a `.pak` file
+		 * @brief Converts the specified animation file and writes converted assets to the selected output
 		 *
 		 * @param progress	Reports how far the conversion has got, see @ref ConversionProgress
 		 */
-		static JJ2Version Convert(StringView path, PakWriter& pakWriter, bool isPlus = false, ConversionProgress progress = {});
+		static JJ2Version Convert(StringView path, AssetWriter& output, bool isPlus = false, ConversionProgress progress = {});
 
 		/** @brief Writes raw image content to the specified stream */
 		static void WriteImageContent(Stream& so, const std::uint8_t* data, std::int32_t width, std::int32_t height, std::int32_t channelCount);
@@ -289,12 +289,12 @@ namespace Jazz2::Compatibility
 		// Reads the animations of a set out of its blocks, appending them to `anims`
 		static void ReadAnimations(std::int32_t setIndex, std::uint8_t animCount, JJ2Block& infoBlock, JJ2Block& frameDataBlock,
 			JJ2Block& imageDataBlock, SmallVectorImpl<AnimSection>& anims);
-		static void ImportAnimations(PakWriter& pakWriter, JJ2Version version, SmallVectorImpl<AnimSection>& anims, ConversionProgress progress);
+		static void ImportAnimations(AssetWriter& output, JJ2Version version, SmallVectorImpl<AnimSection>& anims, ConversionProgress progress);
 		// Works out the normalized hotspot and the size of the logical cell of an animation from the spots of its frames
 		static void NormalizeAnimation(AnimSection& anim);
 		// Puts the spots the original data of the yellow bird left out or misplaced where the green bird has them
 		static void FixYellowBirdSpots(AnimSection& anim, const AnimSetMapping::Entry& entry, SmallVectorImpl<AnimSection>& anims, AnimSetMapping& animMapping);
-		static void ImportAudioSamples(PakWriter& pakWriter, JJ2Version version, SmallVectorImpl<SampleSection>& samples, ConversionProgress progress);
+		static void ImportAudioSamples(AssetWriter& output, JJ2Version version, SmallVectorImpl<SampleSection>& samples, ConversionProgress progress);
 
 		static void WriteImageToFile(StringView targetPath, const std::uint8_t* data, std::int32_t width, std::int32_t height, std::int32_t channelCount, const AnimSection& anim, AnimSetMapping::Entry* entry);
 		static void WriteImageToStream(Stream& targetStream, const std::uint8_t* data, std::int32_t width, std::int32_t height, std::int32_t channelCount, const AnimSection& anim, AnimSetMapping::Entry* entry, const PackedSheet& packedSheet);

@@ -7,7 +7,7 @@
 #include <Containers/SmallVector.h>
 #include <Containers/String.h>
 #include <Containers/StringView.h>
-#include <IO/PakFile.h>
+#include "AssetWriter.h"
 
 using namespace Death::Containers;
 using namespace Death::IO;
@@ -19,7 +19,7 @@ namespace Jazz2::Compatibility
 		
 		Opens an original game data archive (`.j2d`), exposing its embedded items, and either extracts
 		them verbatim or converts the recognized ones (such as the SFX list and menu images) into the
-		engine's `.pak` format.
+		engine's runtime formats.
 	*/
 	class JJ2Data
 	{
@@ -47,11 +47,11 @@ namespace Jazz2::Compatibility
 
 		/** @brief Extracts all items to the specified target path */
 		void Extract(StringView targetPath);
-		/** @brief Converts the data file and writes the result to a `.pak` file */
-		void Convert(PakWriter& pakWriter, JJ2Version version);
+		/** @brief Converts the data file and writes converted assets to the selected output */
+		void Convert(AssetWriter& output, JJ2Version version);
 
 	private:
-		void ConvertSfxList(const Item& item, PakWriter& pakWriter, StringView targetPath, AnimSetMapping& animMapping);
-		void ConvertMenuImage(const Item& item, PakWriter& pakWriter, StringView targetPath, std::int32_t width, std::int32_t height);
+		void ConvertSfxList(const Item& item, AssetWriter& output, StringView targetPath, AnimSetMapping& animMapping);
+		void ConvertMenuImage(const Item& item, AssetWriter& output, StringView targetPath, std::int32_t width, std::int32_t height);
 	};
 }

@@ -1062,10 +1062,9 @@ namespace Jazz2::UI
 				_sfxSamples.emplace_back(); // Sample not found
 			}
 #	else
-			String fullPath = fs::CombinePath("Animations"_s, samplePathNormalized);
-			auto sample = resolver.OpenContentFile(fullPath);
+			auto sample = resolver.OpenSoundFile(samplePathNormalized);
 			if (sample->IsValid()) {
-				_sfxSamples.emplace_back(Death::move(sample), fullPath);
+				_sfxSamples.emplace_back(Death::move(sample), samplePathNormalized);
 			} else {
 				_sfxSamples.emplace_back(); // Sample not found
 			}
