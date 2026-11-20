@@ -63,7 +63,7 @@ namespace Jazz2::UI::Menu
 			if (language.empty() || language.size() >= sizeof(PreferencesCache::Language)) {
 				return;
 			}
-			// Add each language only once (user content and cache directories take precedence over content)
+			// Add each language only once (user content takes precedence over content)
 			if (!foundLanguages.try_emplace(language, true).second) {
 				return;
 			}
@@ -80,16 +80,14 @@ namespace Jazz2::UI::Menu
 			nextIndex++;
 		};
 
-		// Search first user "assets/Translations/", then "Cache/Translations/" and "assets/Translations/"
+		// Search first user "assets/Translations/", then packaged "assets/Translations/"
 		StringView userContentPath = resolver.GetUserContentPath();
 		if (!userContentPath.empty()) {
 			for (auto item : fs::Directory(fs::CombinePath(userContentPath, "Translations"_s), fs::EnumerationOptions::SkipDirectories)) {
 				addLanguage(item, true);
 			}
 		}
-		for (auto item : fs::Directory(fs::CombinePath(resolver.GetCachePath(), "Translations"_s), fs::EnumerationOptions::SkipDirectories)) {
-			addLanguage(item, true);
-		}
+
 		for (auto item : fs::Directory(fs::CombinePath(resolver.GetContentPath(), "Translations"_s), fs::EnumerationOptions::SkipDirectories)) {
 			addLanguage(item, false);
 		}

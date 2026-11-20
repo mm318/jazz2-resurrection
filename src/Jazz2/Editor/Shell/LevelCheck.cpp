@@ -979,9 +979,6 @@ namespace Jazz2::Editor
 			if (!found) {
 				found = fs::IsReadableFile(fs::CombinePath({ resolver.GetContentPath(), "Music"_s, music }));
 			}
-			if (!found && !resolver.GetSourcePath().empty()) {
-				found = fs::IsReadableFile(fs::FindPathCaseInsensitive(fs::CombinePath(resolver.GetSourcePath(), music)));
-			}
 			if (!found) {
 				add(LevelProblemSeverity::Warning, _fx("editor", "Music \"{}\" isn't found, the level is played without it", music));
 			}
@@ -1015,7 +1012,7 @@ namespace Jazz2::Editor
 			if (weapon.Kind == WeaponKind::Script && !library.empty()) {
 				hasScriptWeapons = true;
 				StringView filePath = session.GetFilePath();
-				StringView sourcePath = ContentResolver::Get().GetSourcePath();
+				StringView sourcePath = ContentResolver::Get().GetContentPath();
 				bool found = ((!filePath.empty() && fs::IsReadableFile(fs::FindPathCaseInsensitive(fs::CombinePath(fs::GetDirectoryName(filePath), library)))) ||
 					(!sourcePath.empty() && fs::IsReadableFile(fs::FindPathCaseInsensitive(fs::CombinePath(sourcePath, library)))));
 				if (!found) {

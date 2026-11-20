@@ -3,9 +3,9 @@
 An open-source reimplementation of Jazz Jackrabbit 2, with local and online
 multiplayer, scripting, and a built-in level editor.
 
-You need files from your own Jazz Jackrabbit 2 installation to play. The game
-supports the original game, Shareware Demo, Holiday Hare ’98, The Secret Files,
-and Christmas Chronicles.
+Runtime game data is packaged in `assets/`, including converted animations,
+sounds, episodes, levels, tilesets, music, and cinematics. The game loads this
+data directly; it does not scan a `Source/` directory or convert files on startup.
 
 ## Build and play
 
@@ -28,9 +28,8 @@ zig build -Doptimize=fast run
 ```
 
 The executable is `zig-out/bin/Jazz2` (`Jazz2.exe` on Windows). Keep its
-`assets` directory beside it. Copy your original game files, including
-`Anims.j2a`, levels, tilesets, and music, into `zig-out/bin/Source/`.
-The game converts them into a local cache when needed.
+`assets` directory beside it. The build installs the packaged game data there.
+`Cache/` holds generated shader data and other temporary runtime files.
 The default desktop window is 1440 × 810.
 
 `debug`, `safe`, `fast`, and `small` are the optimization modes. The editor,
@@ -55,19 +54,12 @@ zig build -Dtarget=wasm32-emscripten -Doptimize=fast run
 Append `-- --no_browser` to serve without opening a browser. Deploy the complete
 `zig-out/web` directory, including the HTML, JavaScript, WebAssembly, data file,
 and `coi-serviceworker.js`. Serve over localhost or HTTPS; the service worker
-supplies the cross-origin isolation needed by pthreads. Original game data is
-not included in the browser bundle.
+supplies the cross-origin isolation needed by pthreads. The browser bundle
+preloads the same packaged game data as the desktop build.
 
-To play with your own game data in the browser, prepare an assets directory and
-select it when building:
-
-```sh
-zig build pack-assets -- convert /path/to/original-game /tmp/jazz2-content --content=assets --target=emscripten
-zig build -Dtarget=wasm32-emscripten -Doptimize=fast -Dcontent=/tmp/jazz2-content
-zig build -Dtarget=wasm32-emscripten -Doptimize=fast -Dcontent=/tmp/jazz2-content run
-```
-
-The prepared directory is preloaded into the WebAssembly filesystem.
+Use `-Dcontent=/path/to/prepared-assets` to build with a different complete
+assets directory. It must include `Prebaked.pak` and the loose runtime files
+under `Episodes/`, `Tilesets/`, `Music/`, and `Cinematics/`.
 
 ## Tools and shaders
 
@@ -85,11 +77,17 @@ runs on the build host, including when cross-compiling the game. It emits GLSL
 and reflection metadata; the driver or browser compiles the GLSL for the GPU at
 runtime. No separate shader SDK is required.
 
-Asset conversion is explicit. For example:
+Asset conversion is an explicit developer operation. To prepare replacement game
+data without copying unused original files:
 
 ```sh
-zig build pack-assets -- convert /path/to/original-game /path/to/converted --content=assets --target=desktop
+zig build pack-assets -- convert /path/to/original-game /tmp/jazz2-content --target=desktop
 ```
+
+Copy the generated `Prebaked.pak`, `Episodes/`, `Tilesets/`, `Music/`, and
+`Cinematics/` into `assets/` before rebuilding. The converter selects tilesets
+and music used by the levels, includes menu music and the intro/ending videos,
+and leaves out installers, manuals, screenshots, and unrelated data.
 
 The build compiles separate Shared, nCine, and Jazz2 game libraries, with
 individual dependency builds under `deps/`. Generated shaders and compiler

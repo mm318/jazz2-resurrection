@@ -3158,14 +3158,14 @@ namespace Jazz2::Editor
 				guess.Params[1].Name == "Node 2"_s, "a guess named by where the values go stops at an unknown type");
 
 			// Against the descriptions MLLE ships, where they are, only told
-			String source = fs::CombinePath({ ContentResolver::Get().GetSourcePath(), "mlleweapons"_s });
+			String source = fs::CombinePath({ ContentResolver::Get().GetContentPath(), "mlleweapons"_s });
 			String descriptions = fs::CombinePath(source, "Weapons"_s);
 			if (fs::DirectoryExists(descriptions)) {
 				templates.clear();
 				const String directories[] = { descriptions };
 				FindScriptWeaponTemplates(directories, templates);
 				String mlleWeapons;
-				String mlleWeaponsPath = fs::FindPathCaseInsensitive(fs::CombinePath(ContentResolver::Get().GetSourcePath(), "MLLE-Weapons.asc"_s));
+				String mlleWeaponsPath = fs::FindPathCaseInsensitive(fs::CombinePath(ContentResolver::Get().GetContentPath(), "MLLE-Weapons.asc"_s));
 				if (auto m = (mlleWeaponsPath.empty() ? nullptr : fs::Open(mlleWeaponsPath, FileAccess::Read)); m != nullptr && m->IsValid() && m->GetSize() > 0) {
 					mlleWeapons = String{NoInit, std::size_t(m->GetSize())};
 					m->Read(mlleWeapons.data(), std::int64_t(mlleWeapons.size()));
@@ -3393,7 +3393,7 @@ namespace Jazz2::Editor
 	{
 		String path = directory;
 		if (path.empty()) {
-			path = fs::CombinePath({ ContentResolver::Get().GetCachePath(), "Episodes"_s });
+			path = fs::CombinePath({ ContentResolver::Get().GetContentPath(), "Episodes"_s });
 		}
 		if (!fs::DirectoryExists(path)) {
 			LOGE("Directory \"{}\" doesn't exist", path);

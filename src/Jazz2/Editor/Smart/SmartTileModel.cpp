@@ -772,7 +772,6 @@ namespace Jazz2::Editor
 			job->TileSetTime = fs::GetLastModificationTime(tileSetPath).ToUnixMilliseconds();
 		}
 		auto& resolver = ContentResolver::Get();
-		job->Roots.push_back(fs::CombinePath(resolver.GetCachePath(), "Episodes"_s));
 		job->Roots.push_back(fs::CombinePath(resolver.GetContentPath(), "Episodes"_s));
 		StringView userContent = resolver.GetUserContentPath();
 		if (!userContent.empty()) {

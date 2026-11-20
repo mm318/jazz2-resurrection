@@ -145,7 +145,6 @@ namespace Jazz2
 	bool PreferencesCache::AllowCheatsUnlock = false;
 	EpisodeEndOverwriteMode PreferencesCache::OverwriteEpisodeEnd = EpisodeEndOverwriteMode::Always;
 	char PreferencesCache::Language[6]{};
-	bool PreferencesCache::BypassCache = false;
 	float PreferencesCache::MasterVolume = 0.7f;
 	float PreferencesCache::SfxVolume = 0.8f;
 	float PreferencesCache::MusicVolume = 0.4f;
@@ -1082,7 +1081,7 @@ namespace
 			} else {
 				LOGW("No memory card found, settings and progress cannot be saved");
 				auto& resolver = ContentResolver::Get();
-				_configPath = fs::CombinePath(fs::GetDirectoryName(resolver.GetSourcePath()), "Jazz2.config"_s);
+				_configPath = fs::CombinePath(fs::GetDirectoryName(resolver.GetCachePath()), "Jazz2.config"_s);
 			}
 #	elif defined(DEATH_TARGET_PS2)
 			// Removable storage - a USB stick, or an SD card in an MX4SIO adapter - if the game was booted
@@ -1142,7 +1141,7 @@ namespace
 				if (!memoryCardFound) {
 					LOGW("No usable memory card found, settings and progress cannot be saved");
 					auto& resolver = ContentResolver::Get();
-					_configPath = fs::CombinePath(fs::GetDirectoryName(resolver.GetSourcePath()), "Jazz2.config"_s);
+					_configPath = fs::CombinePath(fs::GetDirectoryName(resolver.GetCachePath()), "Jazz2.config"_s);
 				}
 			}
 #	elif defined(DEATH_TARGET_N64)
@@ -1181,7 +1180,7 @@ namespace
 			if (!eepromFound) {
 				LOGW("No usable EEPROM found, settings and progress cannot be saved");
 				auto& resolver = ContentResolver::Get();
-				_configPath = fs::CombinePath(fs::GetDirectoryName(resolver.GetSourcePath()), "Jazz2.config"_s);
+				_configPath = fs::CombinePath(fs::GetDirectoryName(resolver.GetCachePath()), "Jazz2.config"_s);
 			}
 #	elif defined(DEATH_TARGET_GAMECUBE) && defined(WITH_OGC)
 			// An SD card the content was found on is where everything is written, as on the Wii. A game read from
@@ -1200,15 +1199,15 @@ namespace
 					_configPath = "mcb:/Jazz2.config"_s;
 				} else {
 					LOGW("No usable memory card found, settings and progress cannot be saved");
-					_configPath = fs::CombinePath(fs::GetDirectoryName(resolver.GetSourcePath()), "Jazz2.config"_s);
+					_configPath = fs::CombinePath(fs::GetDirectoryName(resolver.GetCachePath()), "Jazz2.config"_s);
 				}
 			}
 #	elif defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_WIIU) || \
 				defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_VITA) || defined(DEATH_TARGET_AMIGAOS)
-			// Save config file next to `Source` directory (on the storage device the content is read from;
+			// Save config file next to the runtime cache (on the storage device the content is read from;
 			// on the Amiga that is the game's own directory, the conventional home of a program's settings)
 			auto& resolver = ContentResolver::Get();
-			_configPath = fs::CombinePath(fs::GetDirectoryName(resolver.GetSourcePath()), "Jazz2.config"_s);
+			_configPath = fs::CombinePath(fs::GetDirectoryName(resolver.GetCachePath()), "Jazz2.config"_s);
 #	elif defined(DEATH_TARGET_UNIX) && defined(NCINE_PACKAGED_CONTENT_PATH)
 			_configPath = fs::CombinePath(fs::GetSavePath(NCINE_LINUX_PACKAGE), "Jazz2.config"_s);
 #	else
@@ -1218,14 +1217,14 @@ namespace
 #	if defined(DEATH_TARGET_ANDROID)
 			// Save config file to external path if possible
 			auto& resolver = ContentResolver::Get();
-			auto externalConfigPath = fs::CombinePath(fs::GetDirectoryName(resolver.GetSourcePath()), "Jazz2.config"_s);
+			auto externalConfigPath = fs::CombinePath(fs::GetDirectoryName(resolver.GetCachePath()), "Jazz2.config"_s);
 			if (!fs::IsReadableFile(_configPath) || fs::IsReadableFile(externalConfigPath)) {
 				_configPath = externalConfigPath;
 			}
 #	elif defined(DEATH_TARGET_WINDOWS_RT)
-			// Save config file next to `Source` directory (e.g., on external drive) if possible
+			// Save config file next to the runtime cache (e.g., on external drive) if possible
 			auto& resolver = ContentResolver::Get();
-			auto localConfigPath = fs::CombinePath(fs::GetDirectoryName(resolver.GetSourcePath()), "Jazz2.config"_s);
+			auto localConfigPath = fs::CombinePath(fs::GetDirectoryName(resolver.GetCachePath()), "Jazz2.config"_s);
 			if (_configPath != localConfigPath) {
 				auto configFileWritable = fs::Open(localConfigPath, FileAccess::ReadWrite);
 				if (configFileWritable->IsValid()) {
@@ -1276,10 +1275,10 @@ namespace
 		}
 #		elif defined(DEATH_TARGET_IOS)
 		// No terminal and no command line on a phone, so the log always goes to a file - into "Documents", where
-		// the user can reach it through the Files app (next to "Source", see ContentResolver)
+		// the user can reach it through the Files app
 		{
 			auto& resolver = ContentResolver::Get();
-			String logDir = fs::GetDirectoryName(resolver.GetSourcePath());
+			String logDir = fs::CombinePath(::getenv("HOME"), "Documents"_s);
 			fs::CreateDirectories(logDir);
 			theApplication().AttachTraceTarget(fs::CombinePath(logDir, "Jazz2.log"_s));
 		}
@@ -1678,13 +1677,6 @@ namespace
 
 			fs::CreateDirectories(configDir);
 
-#if defined(NCINE_HAS_WRITABLE_CACHE)
-			// Create "Source" directory on the first launch, so there is somewhere to put the original files.
-			// A platform that cannot convert them has no use for it, prepared content is all it ever loads.
-			auto& resolver = ContentResolver::Get();
-			fs::CreateDirectories(resolver.GetSourcePath());
-#endif
-
 #if defined(DEATH_TARGET_ANDROID)
 			// Use native Back button as default on smart watches
 			UseNativeBackButton = static_cast<AndroidApplication&>(theApplication()).IsScreenRound();
@@ -1719,9 +1711,7 @@ namespace
 		// Override some settings by command-line arguments
 		for (std::int32_t i = 0; i < config.GetArgc(); i++) {
 			auto arg = config.GetArgv(i);
-			if (arg == "/bypass-cache"_s) {
-				BypassCache = true;
-			} else if (arg == "/cheats"_s) {
+			if (arg == "/cheats"_s) {
 				AllowCheats = true;
 			} else if (arg == "/cheats-lives"_s) {
 				AllowCheatsLives = true;
@@ -2360,7 +2350,6 @@ namespace
 					break;
 				}
 				if ((!userContentPath.empty() && i18n.LoadFromFile(fs::CombinePath({ userContentPath, "Translations"_s, String(language + ".mo"_s) }))) ||
-					i18n.LoadFromFile(fs::CombinePath({ resolver.GetCachePath(), "Translations"_s, String(language + ".mo"_s) })) ||
 					i18n.LoadFromFile(fs::CombinePath({ resolver.GetContentPath(), "Translations"_s, String(language + ".mo"_s) }))) {
 					std::memcpy(PreferencesCache::Language, language.data(), language.size());
 					std::memset(PreferencesCache::Language + language.size(), '\0', sizeof(PreferencesCache::Language) - language.size());
@@ -2374,7 +2363,6 @@ namespace
 					break;
 				}
 				if ((!userContentPath.empty() && i18n.LoadFromFile(fs::CombinePath({ userContentPath, "Translations"_s, String(baseLanguage + ".mo"_s) }))) ||
-					i18n.LoadFromFile(fs::CombinePath({ resolver.GetCachePath(), "Translations"_s, String(baseLanguage + ".mo"_s) })) ||
 					i18n.LoadFromFile(fs::CombinePath({ resolver.GetContentPath(), "Translations"_s, String(baseLanguage + ".mo"_s) }))) {
 					std::memcpy(PreferencesCache::Language, baseLanguage.data(), baseLanguage.size());
 					std::memset(PreferencesCache::Language + baseLanguage.size(), '\0', sizeof(PreferencesCache::Language) - baseLanguage.size());

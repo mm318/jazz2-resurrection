@@ -423,7 +423,7 @@ namespace Jazz2::LevelPacks
 		}
 
 		// A file that the original game has too is used from there, only the rest is stored
-		StringView sourcePath = resolver.GetSourcePath();
+		StringView sourcePath = resolver.GetContentPath();
 		for (LevelPackFile& file : manifest.Files) {
 			bool sameAsOriginal = false;
 			if (file.Kind == LevelPackFileKind::TileSet || file.Kind == LevelPackFileKind::Music) {
@@ -577,7 +577,7 @@ namespace Jazz2::LevelPacks
 			}
 			bool found = (!userContentPath.empty() && fs::IsReadableFile(fs::CombinePath({ userContentPath, "Music"_s, name }))) ||
 				fs::IsReadableFile(fs::CombinePath({ resolver.GetContentPath(), "Music"_s, name })) ||
-				fs::IsReadableFile(fs::FindPathCaseInsensitive(fs::CombinePath(resolver.GetSourcePath(), name)));
+				fs::IsReadableFile(fs::FindPathCaseInsensitive(fs::CombinePath(resolver.GetContentPath(), name)));
 			if (!found) {
 				manifest.MissingAssets.push_back(name);
 			}
@@ -683,7 +683,7 @@ namespace Jazz2::LevelPacks
 			BusyScope busy(_busy);
 			String storePath = resolver.GetLevelPacksPath(false);
 			String filesPath = fs::CombinePath(storePath, "Files"_s);
-			StringView sourcePath = resolver.GetSourcePath();
+			StringView sourcePath = resolver.GetContentPath();
 
 			for (std::size_t i = 0; i < stale.size(); i++) {
 				const LevelPackManifest& pack = *stale[i];
@@ -844,7 +844,7 @@ namespace Jazz2::LevelPacks
 			return {};
 		}
 		if (file->Key.empty()) {
-			return fs::FindPathCaseInsensitive(fs::CombinePath(ContentResolver::Get().GetSourcePath(), file->Name));
+			return fs::FindPathCaseInsensitive(fs::CombinePath(ContentResolver::Get().GetContentPath(), file->Name));
 		}
 		String storePath;
 		{

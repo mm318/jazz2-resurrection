@@ -47,14 +47,6 @@
 #include "Jazz2/UI/Menu/HighscoresSection.h"
 #include "Jazz2/UI/Menu/SimpleMessageSection.h"
 
-#include "Jazz2/Compatibility/AssetConverter.h"
-#include "Jazz2/Compatibility/JJ2Anims.h"
-#include "Jazz2/Compatibility/JJ2Data.h"
-#include "Jazz2/Compatibility/JJ2Episode.h"
-#include "Jazz2/Compatibility/JJ2Level.h"
-#include "Jazz2/Compatibility/JJ2Strings.h"
-#include "Jazz2/Compatibility/JJ2Tileset.h"
-#include "Jazz2/Compatibility/EventConverter.h"
 
 #if defined(WITH_EDITOR)
 #	include "Jazz2/Editor/EditorSession.h"
@@ -205,21 +197,6 @@ public:
 		return _newestVersion;
 	}
 
-	float GetInitializationProgress() const override {
-		if ((_flags & Flags::IsVerified) == Flags::IsVerified) {
-			// Nothing is being converted anymore, so the last reported value must not be shown
-			return -1.0f;
-		}
-
-		std::int32_t permille = _initializationProgress.load(std::memory_order_relaxed);
-		return (permille < 0 ? -1.0f : permille * 0.001f);
-	}
-
-#if defined(NCINE_HAS_WRITABLE_CACHE)
-	void RefreshCacheLevels(bool recreateAll, Compatibility::ConversionProgress progress) override;
-#else
-	void RefreshCacheLevels(bool recreateAll, Compatibility::ConversionProgress progress) override {}
-#endif
 
 private:
 #if defined(WITH_MULTIPLAYER)
@@ -227,9 +204,6 @@ private:
 #endif
 
 	Flags _flags = Flags::None;
-	// Written by the conversion (on the parallel initialization thread) and read by the loading screen, in
-	// per mille to avoid relying on a lock-free `std::atomic<float>`; -1 until something is reported
-	std::atomic<std::int32_t> _initializationProgress{-1};
 	std::int32_t _backInvokedTimeLeft = 0;
 	std::shared_ptr<IStateHandler> _currentHandler;
 	SmallVector<Pair<std::weak_ptr<void>, Function<void()>>> _pendingCallbacks;
@@ -262,9 +236,6 @@ private:
 	std::shared_ptr<MpLevelHandler> AcquireNetworkLevelHandler();
 #endif
 	void WaitForVerify();
-#if defined(NCINE_HAS_WRITABLE_CACHE)
-	void RefreshCache();
-#endif
 #if defined(WITH_UPDATE_CHECK)
 	void CheckUpdates();
 #endif
@@ -281,7 +252,6 @@ private:
 	void RunDedicatedServer(StringView configPath);
 	void StartProcessingStdin();
 #endif
-	static void WriteCacheDescriptor(StringView path, std::uint64_t currentVersion, std::int64_t animsModified);
 	static void SaveEpisodeEnd(const LevelInitialization& levelInit);
 	static void SaveEpisodeContinue(const LevelInitialization& levelInit);
 	static void ExtractPakFile(StringView pakFile, StringView targetPath);
@@ -292,14 +262,6 @@ private:
 };
 
 #if defined(WITH_LIBRETRO)
-/** @brief Returns whether the specified directory contains the original game files */
-static bool ContainsOriginalGameFiles(StringView path)
-{
-	// Same check as `ContentResolver`, the shareware demo ships `AnimsSw.j2a` instead
-	return !fs::FindPathCaseInsensitive(fs::CombinePath(path, "Anims.j2a"_s)).empty() ||
-		!fs::FindPathCaseInsensitive(fs::CombinePath(path, "AnimsSw.j2a"_s)).empty();
-}
-
 /** @brief Returns the game root (the directory containing `assets`) in the directories advertised by the frontend */
 static String FindGameRoot(const Backends::LibretroApplication::HostPaths& hostPaths, StringView systemBase)
 {
@@ -326,34 +288,7 @@ static String FindGameRoot(const Backends::LibretroApplication::HostPaths& hostP
 	return {};
 }
 
-/** @brief Returns the directory with the original game files, `cachePath` is moved along with it */
-static String FindSourcePath(const Backends::LibretroApplication::HostPaths& hostPaths, StringView systemBase,
-	StringView baseDir, String& cachePath)
-{
-	// Source/ next to the game content wins (portable layout)
-	String sourcePath = fs::CombinePath(baseDir, "Source/"_s);
-	if (ContainsOriginalGameFiles(sourcePath)) {
-		return sourcePath;
-	}
-	// The system directory may BE the Source folder (Recalbox: system = the rom's directory, which
-	// holds Anims.j2a); the Cache then stays next to assets/ in the game directory
-	if (!hostPaths.System.empty() && ContainsOriginalGameFiles(hostPaths.System)) {
-		return hostPaths.System;
-	}
-	// Otherwise fall back to "<system>/jazz2/Source" or ".../src", with Cache/ alongside
-	if (!systemBase.empty()) {
-		for (StringView sourceName : { "Source/"_s, "src/"_s }) {
-			String systemSource = fs::CombinePath(systemBase, sourceName);
-			if (fs::DirectoryExists(systemSource)) {
-				cachePath = fs::CombinePath(systemBase, "Cache/"_s);
-				return systemSource;
-			}
-		}
-	}
-	return sourcePath;
-}
-
-/** @brief Locates `assets`, `Source` and `Cache` in the directories advertised by the libretro frontend */
+/** @brief Locates `assets` and `Cache` in the directories advertised by the libretro frontend */
 static bool OverridePathsFromHost()
 {
 	const auto& hostPaths = Backends::theLibretroApplication().GetHostPaths();
@@ -373,11 +308,10 @@ static bool OverridePathsFromHost()
 	}
 
 	String cachePath = fs::CombinePath(baseDir, "Cache/"_s);
-	String sourcePath = FindSourcePath(hostPaths, systemBase, baseDir, cachePath);
 
 	// A libretro core shares its process with the frontend, so the working directory is not the
 	// core's to change - absolute paths are used
-	ContentResolver::Get().OverridePaths(fs::CombinePath(baseDir, "assets/"_s), sourcePath, cachePath);
+	ContentResolver::Get().OverridePaths(fs::CombinePath(baseDir, "assets/"_s), cachePath);
 	return true;
 }
 #endif
@@ -1995,8 +1929,8 @@ void GameEventHandler::OnBeginInitialize()
 		_flags |= Flags::HasExternalStoragePermission;
 	}
 
-	// Try to load gamepad mappings from parent directory of `Source` on Android
-	String mappingsPath = fs::CombinePath(fs::GetDirectoryName(resolver.GetSourcePath()), "gamecontrollerdb.txt"_s);
+	// Try to load gamepad mappings from the writable data directory on Android
+	String mappingsPath = fs::CombinePath(fs::GetDirectoryName(resolver.GetCachePath()), "gamecontrollerdb.txt"_s);
 	if (fs::IsReadableFile(mappingsPath)) {
 		theApplication().GetInputManager().AddJoyMappingsFromFile(mappingsPath);
 	}
@@ -2054,19 +1988,18 @@ void GameEventHandler::OnAfterInitialize()
 		auto& resolver = ContentResolver::Get();
 		auto& i18n = I18n::Get();
 		StringView userContentPath = resolver.GetUserContentPath();
-		if ((userContentPath.empty() || !i18n.LoadFromFile(fs::CombinePath({ userContentPath, "Translations"_s, String(PreferencesCache::Language + ".mo"_s) }))) &&
-			!i18n.LoadFromFile(fs::CombinePath({ resolver.GetCachePath(), "Translations"_s, String(PreferencesCache::Language + ".mo"_s) }))) {
+		if (userContentPath.empty() || !i18n.LoadFromFile(fs::CombinePath({ userContentPath, "Translations"_s, String(PreferencesCache::Language + ".mo"_s) }))) {
 			i18n.LoadFromFile(fs::CombinePath({ resolver.GetContentPath(), "Translations"_s, String(PreferencesCache::Language + ".mo"_s) }));
 		}
 	}
 
-#if defined(NCINE_HAS_WRITABLE_CACHE)
-	RefreshCache();
-#else
-	// These platforms cannot write a cache at all, so their "assets" directory is always prebaked and
-	// there is nothing to verify
-	_flags |= Flags::IsVerified | Flags::IsPlayable;
-#endif
+	auto& resolver = ContentResolver::Get();
+	if (resolver.IsContentPrebaked()) {
+		_flags |= Flags::IsVerified | Flags::IsPlayable;
+	} else {
+		LOGE("Packaged game data is missing from \"{}\". Reinstall the complete assets directory.", resolver.GetContentPath());
+		_flags |= Flags::IsVerified;
+	}
 }
 
 void GameEventHandler::ReleasePreviousHandler()
@@ -2156,195 +2089,6 @@ void GameEventHandler::WaitForVerify()
 		}
 	}
 }
-
-#if defined(NCINE_HAS_WRITABLE_CACHE)
-void GameEventHandler::RefreshCache()
-{
-	ZoneScopedC(0x888888);
-
-	if (PreferencesCache::BypassCache) {
-		LOGI("Cache is bypassed by command-line parameter");
-		_flags |= Flags::IsVerified | Flags::IsPlayable;
-		return;
-	}
-
-	// Kept alive for the whole conversion, every reporter handed out below only points at it
-	Function<void(float)> reportProgress = [this](float value) {
-		_initializationProgress.store((std::int32_t)(value * 1000.0f), std::memory_order_relaxed);
-	};
-	Compatibility::ConversionProgress progress(&reportProgress);
-
-	auto& resolver = ContentResolver::Get();
-	if (resolver.IsContentPrebaked()) {
-		// The content tree already holds everything the conversion would produce, so there is nothing to
-		// convert - and no original game files to ask for, they are not deployed with such a tree
-		_flags |= Flags::IsVerified | Flags::IsPlayable;
-		return;
-	}
-
-	constexpr std::uint64_t currentVersion = parseVersion(NCINE_VERSION_s);
-
-	auto cachePath = fs::CombinePath(resolver.GetCachePath(), "Source.idx"_s);
-
-	// Check cache state
-	{
-		auto s = fs::Open(cachePath, FileAccess::Read);
-		if (s->GetSize() < 16) {
-			LOGI("Cache not found, recreating it");
-			goto RecreateCache;
-		}
-
-		std::uint64_t signature = s->ReadValueAsLE<std::uint64_t>();
-		std::uint8_t fileType = s->ReadValue<std::uint8_t>();
-		std::uint16_t version = s->ReadValueAsLE<std::uint16_t>();
-		if (signature != 0x2095A59FF0BFBBEF || fileType != ContentFileType::CacheIndex || version != Compatibility::JJ2Anims::CacheVersion) {
-			if (version > 0) {
-				LOGI("Cache is outdated, recreating it (version changed from {} to {})", version, Compatibility::JJ2Anims::CacheVersion);
-			} else {
-				LOGI("Cache is outdated, recreating it (signature or version mismatch)");
-			}
-			goto RecreateCache;
-		}
-
-		std::uint8_t flags = s->ReadValue<std::uint8_t>();
-		if ((flags & 0x01) == 0x01) {
-			// Don't overwrite cache
-			LOGI("Cache is protected");
-			_flags |= Flags::IsVerified | Flags::IsPlayable;
-			return;
-		}
-
-		String animsPath = fs::FindPathCaseInsensitive(fs::CombinePath(resolver.GetSourcePath(), "Anims.j2a"_s));
-		if (!fs::IsReadableFile(animsPath)) {
-			animsPath = fs::FindPathCaseInsensitive(fs::CombinePath(resolver.GetSourcePath(), "AnimsSw.j2a"_s));
-		}
-		std::int64_t animsCached = s->ReadValueAsLE<std::int64_t>();
-		std::int64_t animsModified = fs::GetLastModificationTime(animsPath).ToUnixMilliseconds();
-		if (animsModified != 0 && animsCached != animsModified) {
-			LOGI("Cache is outdated, recreating it (animations file modified)");
-			goto RecreateCache;
-		}
-
-		// If some events were added, recreate cache
-		std::uint16_t eventTypeCount = s->ReadValueAsLE<std::uint16_t>();
-		if (eventTypeCount != (std::uint16_t)EventType::Count) {
-			LOGI("Cache is outdated, recreating it (event type count changed from {} to {})", eventTypeCount, (std::uint16_t)EventType::Count);
-			goto RecreateCache;
-		}
-
-		// Cache is up-to-date
-		std::uint64_t lastVersion = s->ReadValueAsLE<std::uint64_t>();
-
-		// Close the file, so it can be writable for possible update
-		s = nullptr;
-
-		// Only the levels that aren't converted yet are left to do here, so they get the whole range
-		RefreshCacheLevels(false, progress);
-
-		if (currentVersion != lastVersion) {
-			if ((lastVersion & 0xFFFFFFFFULL) == 0x0FFFFFFFULL) {
-				LOGI("Cache is already up-to-date, but created in experimental build v{}.{}.0", (lastVersion >> 48) & 0xFFFFULL, (lastVersion >> 32) & 0xFFFFULL);
-			} else {
-				LOGI("Cache is already up-to-date, but created in different build v{}.{}.{}", (lastVersion >> 48) & 0xFFFFULL, (lastVersion >> 32) & 0xFFFFULL, lastVersion & 0xFFFFFFFFULL);
-			}
-
-			WriteCacheDescriptor(cachePath, currentVersion, animsModified);
-
-			if (!resolver.IsHeadless()) {
-				std::uint32_t filesRemoved = RenderResources::GetBinaryShaderCache().Prune();
-				LOGI("Pruning binary shader cache (removed {} directories)...", filesRemoved);
-			}
-		} else {
-			LOGI("Cache is already up-to-date");
-		}
-
-		_flags |= Flags::IsVerified | Flags::IsPlayable;
-		return;
-	}
-
-RecreateCache:
-	// "Source" directory must be case in-sensitive
-	String animsPath = fs::FindPathCaseInsensitive(fs::CombinePath(resolver.GetSourcePath(), "Anims.j2a"_s));
-	if (!fs::IsReadableFile(animsPath)) {
-		animsPath = fs::FindPathCaseInsensitive(fs::CombinePath(resolver.GetSourcePath(), "AnimsSw.j2a"_s));
-		if (!fs::IsReadableFile(animsPath)) {
-			String sourcePath = fs::GetAbsolutePath(resolver.GetSourcePath());
-			if (sourcePath.empty()) {
-				// If `Source` directory doesn't exist, GetAbsolutePath() will fail
-				sourcePath = fs::CombinePath(fs::GetWorkingDirectory(), resolver.GetSourcePath());
-			}
-
-			LOGE("Cannot open \"…{}Source{}Anims.j2a\" file! Make sure Jazz Jackrabbit 2 files are present in \"{}\" directory.", fs::PathSeparator, fs::PathSeparator, sourcePath);
-			_flags |= Flags::IsVerified;
-			return;
-		}
-	}
-
-	fs::CreateDirectories(resolver.GetCachePath());
-
-	// Delete cache from previous versions
-	String animationsPath = fs::CombinePath(resolver.GetCachePath(), "Animations"_s);
-	fs::RemoveDirectoryRecursive(animationsPath);
-	fs::RemoveDirectoryRecursive(fs::CombinePath(resolver.GetCachePath(), "Downloads"_s));
-
-	// Create .pak file, retrying a few times in case it is still held by something
-	{
-		Compatibility::JJ2Version version;
-		Compatibility::AssetConverter::Result result = Compatibility::AssetConverter::Result::CannotWriteTarget;
-		for (std::int32_t t = 1; t <= 5 && result == Compatibility::AssetConverter::Result::CannotWriteTarget; t++) {
-			if (t > 1) {
-				Thread::Sleep(t * 100);
-			}
-			result = Compatibility::AssetConverter::ConvertSourceAssets(animsPath, resolver.GetSourcePath(), resolver.GetCachePath(),
-				version, Compatibility::AssetConverter::SourcePackage, progress.Narrow(0.0f, 0.25f));
-		}
-
-		if (result == Compatibility::AssetConverter::Result::CannotWriteTarget) {
-			LOGE("Cannot open \"…{}Cache{}Source.pak\" file for writing! Please check if this file is accessible and try again.", fs::PathSeparator, fs::PathSeparator);
-			_flags |= Flags::IsVerified;
-			return;
-		} else if (result == Compatibility::AssetConverter::Result::UnsupportedVersion) {
-			LOGE("Provided Jazz Jackrabbit 2 version is not supported. Make sure supported Jazz Jackrabbit 2 version is present in \"{}\" directory.", resolver.GetSourcePath());
-			_flags |= Flags::IsVerified;
-			return;
-		}
-	}
-
-	// A source directory that has collected levels from everywhere has far more of them than the original game
-	// came with, so the levels get most of the range and the sprites and sounds only its beginning
-	RefreshCacheLevels(true, progress.Narrow(0.25f, 1.0f));
-
-	LOGI("Cache was recreated");
-	std::int64_t animsModified = fs::GetLastModificationTime(animsPath).ToUnixMilliseconds();
-	WriteCacheDescriptor(cachePath, currentVersion, animsModified);
-
-	if (!resolver.IsHeadless()) {
-		std::uint32_t filesRemoved = RenderResources::GetBinaryShaderCache().Prune();
-		LOGI("Pruning binary shader cache (removed {} directories)...", filesRemoved);
-	}
-
-	resolver.RemountPaks();
-
-	_flags |= Flags::IsVerified | Flags::IsPlayable;
-}
-
-void GameEventHandler::RefreshCacheLevels(bool recreateAll, Compatibility::ConversionProgress progress)
-{
-	ZoneScopedC(0x888888);
-
-	auto& resolver = ContentResolver::Get();
-#if defined(WITH_LEVEL_PACKS)
-	Compatibility::AssetConverter::ConvertLevels(resolver.GetSourcePath(), resolver.GetCachePath(), recreateAll, progress.Narrow(0.0f, 0.9f));
-
-	// Installed level packs are converted again by a new version of the converter
-	auto& levelPacks = LevelPacks::LevelPackLibrary::Get();
-	levelPacks.CleanUp();
-	levelPacks.ReconvertStale(progress.Narrow(0.9f, 1.0f));
-#else
-	Compatibility::AssetConverter::ConvertLevels(resolver.GetSourcePath(), resolver.GetCachePath(), recreateAll, progress);
-#endif
-}
-#endif
 
 #if defined(WITH_UPDATE_CHECK)
 void GameEventHandler::CheckUpdates()
@@ -2484,18 +2228,6 @@ void GameEventHandler::HandleEndOfGame(const LevelInitialization& levelInit, boo
 	}
 
 	SetStateHandler(Death::move(mainMenu));
-}
-
-void GameEventHandler::WriteCacheDescriptor(StringView path, std::uint64_t currentVersion, std::int64_t animsModified)
-{
-	auto so = fs::Open(path, FileAccess::Write);
-	so->WriteValueAsLE<std::uint64_t>(0x2095A59FF0BFBBEF);	// Signature
-	so->WriteValue<std::uint8_t>(ContentFileType::CacheIndex);
-	so->WriteValueAsLE<std::uint16_t>(Compatibility::JJ2Anims::CacheVersion);
-	so->WriteValue<std::uint8_t>(0x00);	// Flags
-	so->WriteValueAsLE<std::int64_t>(animsModified);
-	so->WriteValueAsLE<std::uint16_t>(std::uint16_t(EventType::Count));
-	so->WriteValueAsLE<std::uint64_t>(currentVersion);
 }
 
 void GameEventHandler::SaveEpisodeEnd(const LevelInitialization& levelInit)

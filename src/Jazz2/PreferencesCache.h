@@ -448,8 +448,6 @@ namespace Jazz2
 		static EpisodeEndOverwriteMode OverwriteEpisodeEnd;
 		/** @brief Current language */
 		static char Language[6];
-		/** @brief Whether the cache should be bypassed */
-		static bool BypassCache;
 
 		// Sounds
 		/** @brief Master sound volume */

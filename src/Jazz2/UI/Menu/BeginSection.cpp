@@ -14,10 +14,6 @@
 
 #include "../../PreferencesCache.h"
 
-#if defined(SHAREWARE_DEMO_ONLY) && defined(DEATH_TARGET_EMSCRIPTEN)
-#	include "ImportSection.h"
-#endif
-
 #include "../../../nCine/Application.h"
 #include "../../../nCine/I18n.h"
 
@@ -46,11 +42,10 @@ namespace Jazz2::UI::Menu
 
 #if defined(DEATH_TARGET_EMSCRIPTEN)
 		_isEmbedded = Environment::IsEmbedded();
-#else
+#endif
 		if (auto* mainMenu = runtime_cast<MainMenu>(_root)) {
 			_isPlayable = ((mainMenu->_root->GetFlags() & IRootController::Flags::IsPlayable) == IRootController::Flags::IsPlayable);
 		}
-#endif
 
 		_animation = 0.0f;
 		_items.clear();
@@ -84,10 +79,6 @@ namespace Jazz2::UI::Menu
 		}
 #	endif
 
-#	if defined(DEATH_TARGET_EMSCRIPTEN)
-		// TRANSLATORS: Menu item in main menu (Emscripten only)
-		_items.emplace_back(Item::Import, _("Import Episodes"));
-#	endif
 #else
 		if (_isPlayable && root->HasResumableState()) {
 			// TRANSLATORS: Menu item in main menu
@@ -134,10 +125,10 @@ namespace Jazz2::UI::Menu
 #if !defined(DEATH_TARGET_EMSCRIPTEN)
 		if (!_isPlayable) {
 			auto& resolver = ContentResolver::Get();
-			_sourcePath = fs::GetAbsolutePath(resolver.GetSourcePath());
-			if (_sourcePath.empty()) {
-				// If `Source` directory doesn't exist, GetAbsolutePath() will fail
-				_sourcePath = fs::CombinePath(fs::GetWorkingDirectory(), resolver.GetSourcePath());
+			_contentPath = fs::GetAbsolutePath(resolver.GetContentPath());
+			if (_contentPath.empty()) {
+				// Resolve a missing packaged-content path for display
+				_contentPath = fs::CombinePath(fs::GetWorkingDirectory(), resolver.GetContentPath());
 			}
 #	if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
 			String homeDirectory = fs::GetHomeDirectory();
@@ -146,8 +137,8 @@ namespace Jazz2::UI::Menu
 				if (!homeDirectory.hasSuffix(pathSeparator)) {
 					homeDirectory += pathSeparator;
 				}
-				if (_sourcePath.hasPrefix(homeDirectory)) {
-					_sourcePath = "~"_s + _sourcePath.exceptPrefix(homeDirectory.size() - pathSeparator.size());
+				if (_contentPath.hasPrefix(homeDirectory)) {
+					_contentPath = "~"_s + _contentPath.exceptPrefix(homeDirectory.size() - pathSeparator.size());
 				}
 			}
 #	endif
@@ -268,11 +259,11 @@ namespace Jazz2::UI::Menu
 				}
 
 				// TRANSLATORS: Label in main menu when the files of the original game are missing, keep the color tags \f[c:...] as they are
-				_root->DrawStringShadow(_("\f[c:#704a4a]This game requires original \f[c:#9e7056]Jazz Jackrabbit 2\f[c:#704a4a] files!"), charOffset, center.X, center.Y - 40.0f, IMenuContainer::FontLayer,
+				_root->DrawStringShadow(_("\f[c:#704a4a]The packaged \f[c:#9e7056]game data\f[c:#704a4a] is missing!"), charOffset, center.X, center.Y - 40.0f, IMenuContainer::FontLayer,
 					Alignment::Bottom, Font::DefaultColor, 1.0f, 0.7f, 0.4f, 0.4f, 0.4f, 0.8f, 1.2f);
-				_root->DrawStringShadow(_("Make sure Jazz Jackrabbit 2 files are present in following path:"), charOffset, center.X, center.Y - 20.0f, IMenuContainer::FontLayer,
+				_root->DrawStringShadow(_("Reinstall the complete assets directory at:"), charOffset, center.X, center.Y - 20.0f, IMenuContainer::FontLayer,
 					Alignment::Center, Colorf(0.44f, 0.29f, 0.29f, 0.5f), 0.8f, 0.7f, 0.4f, 0.4f, 0.4f, 0.8f, 1.2f);
-				_root->DrawStringShadow(_sourcePath.data(), charOffset, center.X, center.Y - 10.0f, IMenuContainer::FontLayer,
+				_root->DrawStringShadow(_contentPath.data(), charOffset, center.X, center.Y - 10.0f, IMenuContainer::FontLayer,
 					Alignment::Top, Colorf(0.44f, 0.44f, 0.44f, 0.5f), 0.8f, 0.7f, 0.4f, 0.4f, 0.4f, 0.8f, 1.2f);
 
 #	if defined(DEATH_TARGET_ANDROID)
@@ -417,15 +408,14 @@ namespace Jazz2::UI::Menu
 					// Show `ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION` intent on Android
 					Backends::AndroidJniWrap_Activity::RequestExternalStoragePermission();
 #	else
-					// `_sourcePath` contains adjusted path for display purposes
+					// `_contentPath` contains adjusted path for display purposes
 					auto& resolver = ContentResolver::Get();
-					String sourcePath = fs::GetAbsolutePath(resolver.GetSourcePath());
-					if (sourcePath.empty()) {
-						// If `Source` directory doesn't exist, GetAbsolutePath() will fail
-						sourcePath = resolver.GetSourcePath();
+					String contentPath = fs::GetAbsolutePath(resolver.GetContentPath());
+					if (contentPath.empty()) {
+						// Resolve a missing packaged-content path for display
+						contentPath = resolver.GetContentPath();
 					}
-					fs::CreateDirectories(sourcePath);
-					if (fs::LaunchDirectoryAsync(sourcePath)) {
+					if (fs::LaunchDirectoryAsync(contentPath)) {
 						_root->PlaySfx("MenuSelect"_s, 0.6f);
 					}
 #	endif
@@ -448,12 +438,6 @@ namespace Jazz2::UI::Menu
 					_root->SwitchToSection<EpisodeSelectSection>(EpisodeSelectMode::LocalMultiplayer);
 #	endif
 				}
-				break;
-#endif
-#if defined(SHAREWARE_DEMO_ONLY) && defined(DEATH_TARGET_EMSCRIPTEN)
-			case Item::Import:
-				_root->PlaySfx("MenuSelect"_s, 0.6f);
-				_root->SwitchToSection<ImportSection>();
 				break;
 #endif
 #if defined(WITH_EDITOR)

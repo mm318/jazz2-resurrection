@@ -122,7 +122,7 @@ namespace Jazz2::Editor
 				if (!filePath.empty()) {
 					directories.push_back(fs::GetDirectoryName(filePath));
 				}
-				directories.push_back(ContentResolver::Get().GetSourcePath());
+				directories.push_back(ContentResolver::Get().GetContentPath());
 				FindScriptWeapons(directories, ScriptWeapons);
 			}
 
@@ -152,7 +152,7 @@ namespace Jazz2::Editor
 					// What the weapons of MLLE pop into may be declared in its include of weapons
 					if (!_includesRead) {
 						_includesRead = true;
-						String path = fs::FindPathCaseInsensitive(fs::CombinePath(ContentResolver::Get().GetSourcePath(), "MLLE-Weapons.asc"_s));
+						String path = fs::FindPathCaseInsensitive(fs::CombinePath(ContentResolver::Get().GetContentPath(), "MLLE-Weapons.asc"_s));
 						_mlleWeaponsText = (path.empty() ? String() : ReadText(path));
 					}
 					const StringView includes[] = { _mlleWeaponsText };
@@ -401,7 +401,7 @@ namespace Jazz2::Editor
 				if (!filePath.empty()) {
 					directories.push_back(fs::GetDirectoryName(filePath));
 				}
-				directories.push_back(ContentResolver::Get().GetSourcePath());
+				directories.push_back(ContentResolver::Get().GetContentPath());
 				for (const String& directory : directories) {
 					String path = fs::FindPathCaseInsensitive(fs::CombinePath(directory, library));
 					if (!path.empty() && fs::IsReadableFile(path)) {

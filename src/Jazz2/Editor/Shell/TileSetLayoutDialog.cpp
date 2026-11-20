@@ -213,7 +213,6 @@ namespace Jazz2::Editor
 			ScanInput input;
 			input.TileSet = tileSet;
 			auto& resolver = ContentResolver::Get();
-			input.Roots.push_back(fs::CombinePath(resolver.GetCachePath(), "Episodes"_s));
 			input.Roots.push_back(fs::CombinePath(resolver.GetContentPath(), "Episodes"_s));
 			StringView userContent = resolver.GetUserContentPath();
 			if (!userContent.empty()) {
@@ -512,7 +511,6 @@ namespace Jazz2::Editor
 				roots.push_back(fs::CombinePath(userContent, "Tilesets"_s));
 			}
 			roots.push_back(fs::CombinePath(resolver.GetContentPath(), "Tilesets"_s));
-			roots.push_back(fs::CombinePath(resolver.GetCachePath(), "Tilesets"_s));
 			for (const String& root : roots) {
 				SmallVector<String, 0> files;
 				CollectFiles(root, "rules"_s, true, files);

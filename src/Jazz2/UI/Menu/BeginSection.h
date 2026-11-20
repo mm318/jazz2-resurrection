@@ -33,9 +33,6 @@ namespace Jazz2::UI::Menu
 #if defined(WITH_MULTIPLAYER)
 			PlayMultiplayer,
 #endif
-#if defined(SHAREWARE_DEMO_ONLY) && defined(DEATH_TARGET_EMSCRIPTEN)
-			Import,
-#endif
 #if defined(WITH_EDITOR)
 			LevelEditor,
 #endif
@@ -69,7 +66,7 @@ namespace Jazz2::UI::Menu
 #if defined(DEATH_TARGET_EMSCRIPTEN)
 		bool _isEmbedded;
 #else
-		String _sourcePath;
+		String _contentPath;
 #endif
 
 		void ExecuteSelected();

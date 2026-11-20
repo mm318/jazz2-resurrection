@@ -44,8 +44,7 @@ namespace Jazz2::Scripting
 		}
 	}
 
-	// Opens a file requested by a script: tries the converted content first, then the original "Source" directory
-	// (where a level's custom/original files live), so scripts can load files by their original name
+	// Opens a packaged file requested by a script
 	std::unique_ptr<Stream> OpenScriptFile(StringView path)
 	{
 		auto& resolver = ContentResolver::Get();
@@ -60,16 +59,7 @@ namespace Jazz2::Scripting
 			}
 		}
 #endif
-		// A file that's only in "Source" isn't looked for in the content, the last place of it is opened without looking
-		// and that logs an error for every file
-		if (resolver.FindContentFile(path).empty() && fs::IsReadableFile(fs::FindPathCaseInsensitive(fs::CombinePath(resolver.GetSourcePath(), path)))) {
-			return resolver.OpenSourceFile(path);
-		}
-		auto s = resolver.OpenContentFile(path);
-		if (s != nullptr && s->IsValid()) {
-			return s;
-		}
-		return resolver.OpenSourceFile(path);
+		return resolver.OpenContentFile(path);
 	}
 
 	// A filename that came from a script has to stay inside the game's own data directory. `fs::CombinePath()`

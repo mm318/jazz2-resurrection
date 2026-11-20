@@ -1663,7 +1663,7 @@ namespace Jazz2::Scripting
 		path = LevelPacks::LevelPackLibrary::Get().FindOriginalFile(_levelHandler->GetLevelName(), fileName);
 #endif
 		if (path.empty() || !fs::IsReadableFile(path)) {
-			path = fs::FindPathCaseInsensitive(fs::CombinePath(ContentResolver::Get().GetSourcePath(), fileName));
+			path = fs::FindPathCaseInsensitive(fs::CombinePath(ContentResolver::Get().GetContentPath(), fileName));
 		}
 		if (!fs::IsReadableFile(path)) {
 			LOGW("Cannot find level \"{}\" to take layers of", fileName);
@@ -1765,7 +1765,7 @@ namespace Jazz2::Scripting
 			_plusTexturesLoaded = true;
 			// As the converter takes them for the layers of the levels (see Compatibility::AssetConverter), only the textures
 			// are kept of the file
-			String path = fs::FindPathCaseInsensitive(fs::CombinePath(ContentResolver::Get().GetSourcePath(), "Plus.j2d"_s));
+			String path = fs::FindPathCaseInsensitive(fs::CombinePath(ContentResolver::Get().GetContentPath(), "Plus.j2d"_s));
 			Compatibility::JJ2Data data;
 			if (fs::IsReadableFile(path) && data.Open(path, false)) {
 				for (Compatibility::JJ2Data::Item& item : data.Items) {

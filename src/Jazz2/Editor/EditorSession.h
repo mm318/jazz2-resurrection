@@ -335,8 +335,6 @@ namespace Jazz2::Editor
 		void OpenEditor(EditorInitialization&& editorInit) override;
 		Flags GetFlags() const override;
 		StringView GetNewestVersion() const override;
-		float GetInitializationProgress() const override;
-		void RefreshCacheLevels(bool recreateAll, Compatibility::ConversionProgress progress = {}) override;
 
 	private:
 		IRootController* _root;

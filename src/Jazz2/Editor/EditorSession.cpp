@@ -966,15 +966,6 @@ namespace Jazz2::Editor
 		return _root->GetNewestVersion();
 	}
 
-	float EditorSession::GetInitializationProgress() const
-	{
-		return _root->GetInitializationProgress();
-	}
-
-	void EditorSession::RefreshCacheLevels(bool recreateAll, Compatibility::ConversionProgress progress)
-	{
-	}
-
 	void EditorSession::UpdateTileLod()
 	{
 		Tiles::TileMap* tileMap = GetTileMap();

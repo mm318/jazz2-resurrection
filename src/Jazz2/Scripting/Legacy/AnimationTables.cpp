@@ -153,7 +153,7 @@ namespace Jazz2::Scripting::Legacy
 		// Reads a set of `plus.j2a` of the original by its index from `mZZAMMO`, from either version of the file
 		bool ReadPlusAnimationSet(std::uint32_t plusSet, SmallVectorImpl<Compatibility::JJ2Anims::AnimSection>& anims)
 		{
-			String path = fs::FindPathCaseInsensitive(fs::CombinePath(ContentResolver::Get().GetSourcePath(), "plus.j2a"_s));
+			String path = fs::FindPathCaseInsensitive(fs::CombinePath(ContentResolver::Get().GetContentPath(), "plus.j2a"_s));
 			if (plusSet >= arraySize(OlderPlusSets) || !fs::IsReadableFile(path)) {
 				return false;
 			}
@@ -172,7 +172,7 @@ namespace Jazz2::Scripting::Legacy
 		// Reads a set of the animation file of the original by its set ID in the file
 		bool ReadOriginalAnimationSet(std::uint32_t fileSet, SmallVectorImpl<Compatibility::JJ2Anims::AnimSection>& anims)
 		{
-			String path = fs::FindPathCaseInsensitive(fs::CombinePath(ContentResolver::Get().GetSourcePath(), "Anims.j2a"_s));
+			String path = fs::FindPathCaseInsensitive(fs::CombinePath(ContentResolver::Get().GetContentPath(), "Anims.j2a"_s));
 			if (!fs::IsReadableFile(path)) {
 				return false;
 			}

@@ -575,17 +575,10 @@ namespace Jazz2::UI
 
 	bool Cinematics::LoadCinematicsFromFile(StringView path)
 	{
-		// Try "assets" directory first, then "Source" directory
+		// Cinematics are deployed in the packaged content tree
 		auto& resolver = ContentResolver::Get();
 		String contentPath = fs::CombinePath("Cinematics"_s, String(path + ".j2v"_s));
-		String alternativePath;
 		auto s = resolver.OpenContentFile(contentPath, 64 * 1024);
-		if (!s->IsValid()) {
-			alternativePath = fs::FindPathCaseInsensitive(fs::CombinePath(resolver.GetSourcePath(), String(path + ".j2v"_s)));
-			if (!alternativePath.empty()) {
-				s = fs::Open(alternativePath, FileAccess::Read, 64 * 1024);
-			}
-		}
 
 		if (!s->IsValid()) {
 			LOGW("Cannot load \"{}.j2v\" - Cinematics skipped", path);
@@ -611,9 +604,7 @@ namespace Jazz2::UI
 				// than the buffer goes through it - which would turn every few pieces into one read of the whole
 				// buffer, exactly the long stall the small pieces are there to avoid. Opened again with a buffer
 				// no larger than a piece, every piece goes to the drive as it is.
-				auto reopened = (alternativePath.empty()
-					? resolver.OpenContentFile(contentPath, std::int32_t(VideoReadPieceSize))
-					: fs::Open(alternativePath, FileAccess::Read, std::int32_t(VideoReadPieceSize)));
+				auto reopened = resolver.OpenContentFile(contentPath, std::int32_t(VideoReadPieceSize));
 				if (reopened->IsValid()) {
 					s = Death::move(reopened);
 				}

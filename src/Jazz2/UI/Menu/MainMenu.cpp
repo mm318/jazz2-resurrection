@@ -349,7 +349,7 @@ namespace Jazz2::UI::Menu
 
 #if defined(DEATH_TARGET_WINDOWS_RT)
 			// Show active external drive indicator on Xbox
-			StringView sourcePath = ContentResolver::Get().GetSourcePath();
+			StringView sourcePath = ContentResolver::Get().GetContentPath();
 			if (!sourcePath.empty() && sourcePath.hasPrefix("\\\\?\\"_s) && sourcePath.exceptPrefix(5).hasPrefix(":\\Games\\"_s)) {
 				_owner->DrawStringShadow("·"_s, charOffset, bottomLeft.X + 116.0f, bottomLeft.Y, IMenuContainer::FontLayer,
 					Alignment::BottomLeft, Font::DefaultColor, 0.7f, 0.4f, 0.0f, 0.8f, 0.46f, 0.8f);

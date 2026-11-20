@@ -265,9 +265,7 @@ namespace Jazz2::UI::Menu
 			AddTranslator(item, textPtr, textSize);
 		}
 
-		for (auto item : fs::Directory(fs::CombinePath(resolver.GetCachePath(), "Translations"_s), fs::EnumerationOptions::SkipDirectories)) {
-			AddTranslator(item, textPtr, textSize);
-		}
+
 
 		length = formatInto({ textPtr, textSize }, "\n\n{}{}", footerText, ADDITIONAL_INFO);
 		textPtr += length;

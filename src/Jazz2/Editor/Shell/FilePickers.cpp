@@ -564,8 +564,6 @@ namespace Jazz2::Editor
 			}
 			// TRANSLATORS: Name of a place tile sets are picked from, the folder of the content of the game
 			roots.push_back({ _x("editor", "Content"), fs::CombinePath(resolver.GetContentPath(), "Tilesets"_s), false });
-			// TRANSLATORS: Name of a place tile sets are picked from, the folder of the files converted from the original game
-			roots.push_back({ _x("editor", "Cache"), fs::CombinePath(resolver.GetCachePath(), "Tilesets"_s), false });
 #if defined(WITH_LEVEL_PACKS)
 			// TRANSLATORS: Name of a place tile sets are picked from, the tile sets of the installed level packs
 			FileRoot levelPacks{ _x("editor", "Level packs"), fs::CombinePath(resolver.GetLevelPacksCachePath(), "Tilesets"_s), false };
@@ -701,12 +699,7 @@ namespace Jazz2::Editor
 			// TRANSLATORS: Place in the file dialog choosing the music of the level, the folder of content of the game
 			roots.push_back({ _x("editor", "Content"), fs::CombinePath(content, "Music"_s), false });
 		}
-		StringView source = resolver.GetSourcePath();
-		if (!source.empty()) {
-			// Without the trailing separator, so the paths of files in it can be made relative to it
-			// TRANSLATORS: Place in the file dialog choosing the music of the level, the folder of the original game
-			roots.push_back({ _x("editor", "Original game"), String(source.trimmedSuffix("/\\"_s)), false });
-		}
+
 #if defined(WITH_LEVEL_PACKS)
 		String levelPacksPath = resolver.GetLevelPacksPath(false);
 		if (!levelPacksPath.empty()) {

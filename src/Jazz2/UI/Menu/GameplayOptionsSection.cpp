@@ -2,7 +2,6 @@
 #include "InGameMenu.h"
 #include "GameplayEnhancementsSection.h"
 #include "LanguageSelectSection.h"
-#include "RefreshCacheSection.h"
 #include "MenuResources.h"
 #include "../Font.h"
 #include "../../Input/RgbLights.h"
@@ -117,25 +116,6 @@ namespace Jazz2::UI::Menu
 				}
 				_isDirty = true;
 			});
-#endif
-#if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_WINDOWS) || defined(DEATH_TARGET_UNIX)
-		// TRANSLATORS: Menu item in Options > Gameplay section
-		list->Add<ListItem>(_("Browse \"Source\" Directory"), []() {
-			auto& resolver = ContentResolver::Get();
-			String sourcePath = fs::GetAbsolutePath(resolver.GetSourcePath());
-			if (sourcePath.empty()) {
-				sourcePath = resolver.GetSourcePath();
-			}
-			fs::CreateDirectories(sourcePath);
-			fs::LaunchDirectoryAsync(sourcePath);
-		});
-#endif
-#if defined(NCINE_HAS_WRITABLE_CACHE)
-		// A prepared content tree is loaded as it is, so there is no cache of converted files to refresh
-		if (!isInGame && !ContentResolver::Get().IsContentPrebaked()) {
-			// TRANSLATORS: Menu item in Options > Gameplay section
-			list->Add<ListItem>(_("Refresh Cache"), [root]() { root->SwitchToSection<RefreshCacheSection>(); });
-		}
 #endif
 
 		SetContent(Death::move(list));

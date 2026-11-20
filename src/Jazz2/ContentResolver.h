@@ -153,7 +153,7 @@ namespace Jazz2
 		 *
 		 * On the platforms where `"assets"` is a part of the read-only application package (Android, Apple, AppImage
 		 * and installed Linux packages, UWP, Switch, Vita), custom content can be placed into another `"assets"`
-		 * directory next to `"Cache"` instead (next to `"Source"` on iOS, because `"Cache"` isn't reachable there).
+		 * directory next to `"Cache"` instead (in `"Documents"` on iOS, because `"Cache"` isn't reachable there).
 		 * It's searched before everything else, so it can also replace any shipped file. Only assets streamed from
 		 * a multiplayer server take precedence over it. The view is empty if the directory didn't exist at startup
 		 * or if it's the packaged one.
@@ -185,7 +185,7 @@ namespace Jazz2
 		String GetLevelPacksCachePath() const;
 #endif
 		/**
-		 * @brief Returns full path to a file in the user `"assets"`, `"assets"` or `"Cache"` directory
+		 * @brief Returns full path to a file in the user `"assets"` or packaged `"assets"` directory
 		 *
 		 * The directories are searched in this order, @p path is relative to them. Returns an empty string if the
 		 * file wasn't found in any of them. Files in mounted `.pak` files aren't considered. Levels and episodes of
@@ -194,8 +194,6 @@ namespace Jazz2
 		String FindContentFile(StringView path) const;
 		/** @brief Returns path to `"Cache"` directory */
 		StringView GetCachePath() const;
-		/** @brief Returns path to `"Source"` directory */
-		StringView GetSourcePath() const;
 
 		/** @brief Returns `true` if the application is running in headless mode (i.e., without any display) */
 		bool IsHeadless() const;
@@ -206,28 +204,21 @@ namespace Jazz2
 		 * @brief Returns `true` if the `"assets"` directory was prepared ahead of time
 		 *
 		 * Such a tree is created by @ref asset-packer "AssetPacker" and already contains everything the
-		 * first-run conversion would produce, so the game has nothing to convert, never looks for the
-		 * original game files and leaves the `"Cache"` directory alone. It is recognized by the package
+		 * runtime needs. The game requires this packaged data and never converts original game files.
+		 * It is recognized by the package
 		 * the tool names @ref Compatibility::AssetConverter::PrebakedPackage.
 		 */
 		bool IsContentPrebaked() const;
 
 #if defined(WITH_LIBRETRO)
-		/** @brief Overrides `"assets"`, `"Source"` and `"Cache"` directories (used by the libretro core, which cannot rely on the working directory of the frontend process) */
-		void OverridePaths(StringView contentPath, StringView sourcePath, StringView cachePath);
+		/** @brief Overrides `"assets"` and `"Cache"` directories (used by the libretro core, which cannot rely on the working directory of the frontend process) */
+		void OverridePaths(StringView contentPath, StringView cachePath);
 #endif
 
-		/** @brief Scans the user `"assets"`, `"assets"` and `"Cache"` directories for `.pak` files and mounts them  */
+		/** @brief Scans the user and packaged `"assets"` directories for `.pak` files and mounts them  */
 		void RemountPaks();
 		/** @brief Tries to find and open a file specified by the path */
 		std::unique_ptr<Stream> OpenContentFile(StringView path, std::int32_t bufferSize = 8192);
-		/**
-		 * @brief Tries to open a file from the `"Source"` directory (case-insensitive)
-		 *
-		 * Used for original/custom game files. The returned stream is invalid if the file wasn't found.
-		 */
-		std::unique_ptr<Stream> OpenSourceFile(StringView path, std::int32_t bufferSize = 8192);
-		
 		/** @brief Marks beginning of the loading assets */
 		void BeginLoading();
 		/** @brief Marks end of the loading assets */
@@ -911,7 +902,6 @@ namespace Jazz2
 #if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_WINDOWS_RT) || \
 		defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_GAMECUBE)
 		String _cachePath;
-		String _sourcePath;
 #endif
 #if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_WINDOWS_RT) || \
 		defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_VITA)

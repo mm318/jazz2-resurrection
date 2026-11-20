@@ -729,12 +729,12 @@ namespace Jazz2::Editor
 		if (surface == nullptr) {
 			return;
 		}
-		// The original game is where its tile sets are, any other place can be browsed too
+		// Begin with the packaged tile sets; other files can be selected explicitly
 		SmallVector<FileRoot, 4> roots;
-		String sourcePath = String(ContentResolver::Get().GetSourcePath().trimmedSuffix("/\\"_s));
+		String sourcePath = fs::CombinePath(ContentResolver::Get().GetContentPath(), "Tilesets"_s);
 		if (!sourcePath.empty() && fs::DirectoryExists(sourcePath)) {
 			// TRANSLATORS: Name of a place in the file dialog, the folder of the original game
-			roots.push_back({ _x("editor", "Original game"), sourcePath, false });
+			roots.push_back({ _x("editor", "Content"), sourcePath, false });
 		}
 		IEditorContext* s = &session;
 		// TRANSLATORS: Title of the file dialog that picks a tile set file of the original game, or of this game, to import

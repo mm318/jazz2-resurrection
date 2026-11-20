@@ -472,7 +472,7 @@ namespace Jazz2::Editor
 		if (_filePath.empty()) {
 			return false;
 		}
-		// The cache is rebuilt from the original levels, nothing saved there would last
+		// Downloaded and generated cache files are not editable in place
 		StringView cachePath = ContentResolver::Get().GetCachePath();
 		if (!cachePath.empty() && _filePath.hasPrefix(cachePath)) {
 			return false;
@@ -496,11 +496,6 @@ namespace Jazz2::Editor
 				// TRANSLATORS: Name of a place in the file dialog, the folder of the content of the game
 				roots.push_back({ _x("editor", "Content"), fs::CombinePath(content, "Episodes"_s), writable });
 			}
-		}
-		StringView cache = resolver.GetCachePath();
-		if (!cache.empty() && !forSaving) {
-			// TRANSLATORS: Name of a place in the file dialog, the folder of the converted content of the original game
-			roots.push_back({ _x("editor", "Cache"), fs::CombinePath(cache, "Episodes"_s), false });
 		}
 #if defined(WITH_LEVEL_PACKS)
 		String levelPacks = fs::CombinePath(resolver.GetLevelPacksCachePath(), "Episodes"_s);
@@ -623,7 +618,7 @@ namespace Jazz2::Editor
 			return "castle1"_s;
 		}
 		auto& resolver = ContentResolver::Get();
-		for (StringView root : { resolver.GetCachePath(), resolver.GetContentPath() }) {
+		for (StringView root : { resolver.GetContentPath() }) {
 			String directory = fs::CombinePath(root, "Tilesets"_s);
 			for (auto item : fs::Directory(directory, fs::EnumerationOptions::SkipDirectories)) {
 				if (fs::GetExtension(item) == "j2t"_s) {

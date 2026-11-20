@@ -1,8 +1,7 @@
 // AssetPacker - converts original Jazz Jackrabbit 2 data into the layout a given platform loads.
 //
-// The game performs the same conversion on its first run (see GameEventHandler::RefreshCache), which stays
-// the second, in-game way of doing it. This tool exists so the data can be prepared ahead of time - for the
-// platforms that cannot convert anything themselves, and for build pipelines.
+// Conversion is performed ahead of time. Every target loads the resulting packaged assets.
+// This tool is also used by build pipelines to prepare data for deployment.
 
 #include "CartridgeImage.h"
 #include "ContentFilter.h"
@@ -387,9 +386,9 @@ namespace
 		LOGI("                         converters are installed");
 		LOGI("    --video-downscale=N  Downscale cinematics by N (1-4); 1 keeps them at their original size.");
 		LOGI("                         Cinematics are re-encoded for dreamcast, gamecube and ps2 (or any N > 1) and");
-		LOGI("                         otherwise copied unchanged; desktop gets none, as the game reads the");
-		LOGI("                         originals. A smaller video is filtered down and gets palettes of its");
-		LOGI("                         own. Defaults to what the profile asks for - 2 for ps2, which draws it");
+		LOGI("                         otherwise copied unchanged. A smaller video is filtered down and gets");
+		LOGI("                         its own palettes. Defaults to what the profile asks for - 2 for ps2,");
+		LOGI("                         which draws it");
 		LOGI("                         smoothly upscaled - and to 1 everywhere else");
 		LOGI("    --originals-only     Convert only the episodes and levels the original game shipped");
 		LOGI("    --shareware-only     Convert only what the Shareware Demo shipped (implies --originals-only)");
@@ -469,8 +468,7 @@ namespace
 			options.VideoDownscale = profileVideoDownscale;
 		}
 
-		// The desktop game finds the originals on its own, so nothing has to be done for it unless a downscale
-		// was asked for; every other target needs them in the output tree
+		// Every target needs cinematics in its packaged output tree
 		if (options.N64) {
 			// Where a cinematic cannot be encoded as video, it falls back to the engine's container at the size the
 			// console displays (see the conversion below)
@@ -480,10 +478,8 @@ namespace
 			}
 		} else if (options.VideoDownscale > 1 || profileVideoDownscale > 0) {
 			options.Videos = VideoHandling::Recompress;
-		} else if (options.Profile != TargetProfile::Desktop) {
-			options.Videos = VideoHandling::Copy;
-		} else if (options.VideoDownscaleSet) {
-			options.Videos = VideoHandling::Recompress;
+		} else {
+			options.Videos = (options.VideoDownscaleSet ? VideoHandling::Recompress : VideoHandling::Copy);
 		}
 		return true;
 	}
@@ -761,28 +757,6 @@ namespace
 		}
 		return success;
 	}
-
-	/**
-		@brief Writes the index the desktop game checks before deciding to reconvert
-
-		Deliberately not written for the other profiles: the consoles and the web build never rewrite their
-		data, and an index there would only invite the game to try.
-	*/
-	void WriteCacheDescriptor(StringView path, std::int64_t animsModified)
-	{
-		// Must stay identical to GameEventHandler::WriteCacheDescriptor - the game compares every field and
-		// reconverts everything if any of them disagrees, including the event count and the build version
-		constexpr std::uint64_t currentVersion = nCine::parseVersion(NCINE_VERSION_s);
-
-		auto so = fs::Open(path, FileAccess::Write);
-		so->WriteValueAsLE<std::uint64_t>(0x2095A59FF0BFBBEF);	// Signature
-		so->WriteValue<std::uint8_t>(ContentFileType::CacheIndex);
-		so->WriteValueAsLE<std::uint16_t>(Compatibility::JJ2Anims::CacheVersion);
-		so->WriteValue<std::uint8_t>(0x00);	// Flags
-		so->WriteValueAsLE<std::int64_t>(animsModified);
-		so->WriteValueAsLE<std::uint16_t>(std::uint16_t(EventType::Count));
-		so->WriteValueAsLE<std::uint64_t>(currentVersion);
-	}
 }
 
 namespace
@@ -820,16 +794,13 @@ namespace
 		// Producing a tree that is loaded as it is and has none of the game's own content is not an error
 		// anywhere downstream - it converts, it writes, and the result cannot draw so much as a menu - so it is
 		// worth saying out loud here, which is the only place that knows both halves were expected
-		if (layout.ContentPath.empty() && options.Profile != TargetProfile::Desktop) {
+		if (layout.ContentPath.empty()) {
 			LOGW("No game content directory was found beside the original files, so the output will have no fonts, "
 				"no \"Metadata\" and no translations. Pass \"--content=<dir>\" to point at the game's own \"assets\".");
 		}
 
-		// The desktop game keeps the converted data in a "Cache" subdirectory and looks for it there; the other
-		// profiles are consumed as a prepared content tree, so they are written directly into the target
-		String outputPath = (options.Profile == TargetProfile::Desktop
-			? String(fs::CombinePath(options.TargetPath, "Cache"_s))
-			: options.TargetPath);
+		// All profiles produce the packaged tree loaded directly by the game.
+		String outputPath = options.TargetPath;
 		fs::CreateDirectories(outputPath);
 
 		LOGI("Converting \"{}\" to \"{}\"...", layout.OriginalsPath, outputPath);
@@ -841,7 +812,7 @@ namespace
 
 		// The game's own content (fonts, animations, metadata, translations) is not derived from anything in the
 		// original data, so a target that has to be self-contained needs it carried over alongside
-		const bool selfContained = (!layout.ContentPath.empty() && options.Profile != TargetProfile::Desktop);
+		const bool selfContained = !layout.ContentPath.empty();
 		if (selfContained) {
 			LOGI("Copying \"{}\"...", layout.ContentPath);
 			CopyContentDirectory(layout.ContentPath, outputPath, PackedContentDirectories, options.HasEditor);
@@ -850,11 +821,8 @@ namespace
 			}
 		}
 
-		// A tree that is loaded as it is gets the package name the game recognizes as "already converted", so it
-		// never tries to rebuild a cache of its own from original files that are not deployed with it
-		StringView packageName = (options.Profile == TargetProfile::Desktop
-			? Compatibility::AssetConverter::SourcePackage
-			: Compatibility::AssetConverter::PrebakedPackage);
+		// The game requires the prepared package on every target.
+		StringView packageName = Compatibility::AssetConverter::PrebakedPackage;
 
 		if (options.Lz4Images) {
 #if defined(WITH_LZ4)
@@ -928,8 +896,8 @@ namespace
 		conversionOptions.OriginalsOnly = options.OriginalsOnly;
 		conversionOptions.SharewareOnly = options.SharewareOnly;
 		conversionOptions.SkipNonEpisodeLevels = options.SkipNonEpisodeLevels;
-		// The desktop game reads music from its own content directory, not from the cache this writes
-		conversionOptions.CopyUsedMusic = (options.Profile != TargetProfile::Desktop);
+		// Only music used by the selected levels, menus and cinematics is deployed.
+		conversionOptions.CopyUsedMusic = true;
 		conversionOptions.SkippedLevels = &skippedLevels;
 		Compatibility::AssetConverter::ConvertLevels(layout.OriginalsPath, outputPath, true, conversionOptions);
 
@@ -992,11 +960,6 @@ namespace
 			// After the cinematics, which mix the original music into their soundtracks
 			AssetPacker::N64Content::ConvertMusic(fs::CombinePath(outputPath, "Music"_s), n64TempPath, n64Tools);
 			fs::RemoveDirectoryRecursive(n64TempPath);
-		}
-
-		if (options.Profile == TargetProfile::Desktop) {
-			WriteCacheDescriptor(fs::CombinePath(outputPath, "Source.idx"_s),
-				fs::GetLastModificationTime(animsPath).ToUnixMilliseconds());
 		}
 
 		return true;

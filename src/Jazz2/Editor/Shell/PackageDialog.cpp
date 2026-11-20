@@ -128,7 +128,7 @@ namespace Jazz2::Editor
 			if (IsPathInside(path, userContent)) {
 				return false;
 			}
-			return (IsPathInside(path, resolver.GetContentPath()) || IsPathInside(path, resolver.GetCachePath()) || IsPathInside(path, resolver.GetSourcePath()));
+			return (IsPathInside(path, resolver.GetContentPath()) || IsPathInside(path, resolver.GetCachePath()));
 		}
 
 		void AddItem(PackageState& state, const String& archivePath, StringView sourcePath, StringView problem = {})
@@ -191,11 +191,6 @@ namespace Jazz2::Editor
 					}
 					return;
 				}
-			}
-			// The original game has its music elsewhere, a music the package doesn't need to have
-			StringView source = resolver.GetSourcePath();
-			if (!source.empty() && fs::IsReadableFile(fs::FindPathCaseInsensitive(fs::CombinePath(source, String(fs::ToNativeSeparators(music)))))) {
-				return;
 			}
 			AddItem(state, archivePath, {}, _x("editor", "not found"));
 		}

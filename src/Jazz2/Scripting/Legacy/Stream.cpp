@@ -2,6 +2,7 @@
 
 #include "Stream.h"
 #include "Internal.h"
+#include "../../PreferencesCache.h"
 
 #include "../../../nCine/Base/Algorithms.h"
 
@@ -42,8 +43,9 @@ namespace Jazz2::Scripting
 				return result;
 			}
 
-			auto s = fs::Open(fs::CombinePath(ContentResolver::Get().GetSourcePath(), filename), FileAccess::Read);
-			if (s->IsValid()) {
+			String savePath = fs::CombinePath({ PreferencesCache::GetDirectory(), "ScriptData"_s, filename });
+			auto s = (fs::IsReadableFile(savePath) ? fs::Open(savePath, FileAccess::Read) : OpenScriptFile(filename));
+			if (s != nullptr && s->IsValid()) {
 				std::int64_t size = s->GetSize();
 				if (size > 0 && size < std::numeric_limits<std::int32_t>::max()) {
 					result->_data.resize_for_overwrite((std::size_t)size);
@@ -140,8 +142,8 @@ namespace Jazz2::Scripting
 		}
 
 		bool jjSTREAM::save(const String& filename) const {
-			// Written next to the game's other data, which is where the original puts it, so a script that
-			// saves and reloads its own file finds it again - but only there, see IsScriptFileNameSafe()
+			// Save mutable script state separately from the packaged assets.
+			// Paths are confined to this data directory, see IsScriptFileNameSafe()
 			if (!IsScriptFileNameSafe(filename)) {
 				LOGW("Script tried to write \"{}\", which is outside the game's data directory", filename);
 				return false;
@@ -152,7 +154,10 @@ namespace Jazz2::Scripting
 				return false;
 			}
 
-			auto s = fs::Open(fs::CombinePath(ContentResolver::Get().GetSourcePath(), filename), FileAccess::Write);
+			String saveDir = fs::CombinePath(PreferencesCache::GetDirectory(), "ScriptData"_s);
+			String savePath = fs::CombinePath(saveDir, filename);
+			fs::CreateDirectories(fs::GetDirectoryName(savePath));
+			auto s = fs::Open(savePath, FileAccess::Write);
 			if (!s->IsValid()) {
 				return false;
 			}

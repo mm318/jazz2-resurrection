@@ -7762,11 +7762,7 @@ namespace Jazz2::Multiplayer
 						fullPath = fs::CombinePath({ resolver.GetContentPath(), "Music"_s, path });
 					}
 					if (!fs::IsReadableFile(fullPath)) {
-						// "Source" directory must be case in-sensitive
-						fullPath = fs::FindPathCaseInsensitive(fs::CombinePath(resolver.GetSourcePath(), path));
-						if (!fs::IsReadableFile(fullPath)) {
-							fullPath = {};
-						}
+						fullPath = {};
 					}
 				}
 				return fullPath;

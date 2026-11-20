@@ -290,11 +290,6 @@ namespace Jazz2
 			return fullPath;
 		}
 
-		fullPath = fs::CombinePath(GetCachePath(), path);
-		if (fs::IsReadableFile(fullPath)) {
-			return fullPath;
-		}
-
 #if defined(WITH_LEVEL_PACKS)
 		fullPath = fs::CombinePath(GetLevelPacksCachePath(), path);
 		if (fs::IsReadableFile(fullPath)) {
@@ -343,9 +338,6 @@ namespace Jazz2
 			}
 		}
 		if (auto s = tryOpen(GetContentPath())) {
-			return s;
-		}
-		if (auto s = tryOpen(GetCachePath())) {
 			return s;
 		}
 #if defined(WITH_LEVEL_PACKS)
@@ -447,40 +439,6 @@ namespace Jazz2
 #endif
 	}
 
-	StringView ContentResolver::GetSourcePath() const
-	{
-#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_WINDOWS_RT)
-		return _sourcePath;
-#elif defined(DEATH_TARGET_SWITCH)
-		// Switch has some issues with UTF-8 characters, so use "Jazz2" instead
-		return "sdmc:/Games/Jazz2/Source/"_s;
-#elif defined(DEATH_TARGET_N64)
-		return "rom:/Source/"_s;
-#elif defined(DEATH_TARGET_WIIU)
-		return "fs:/vol/external01/wiiu/apps/Jazz2/Source/"_s;
-#elif defined(DEATH_TARGET_WII)
-		return "sd:/apps/Jazz2/Source/"_s;
-#elif defined(DEATH_TARGET_GAMECUBE)
-		return (_sourcePath.empty() ? "carda:/Jazz2/Source/"_s : StringView(_sourcePath));
-#elif defined(DEATH_TARGET_3DS)
-		return "sdmc:/3ds/Jazz2/Source/"_s;
-#elif defined(DEATH_TARGET_DREAMCAST)
-		return "/cd/Source/"_s;
-#elif defined(DEATH_TARGET_PS2)
-		return (_sourcePath.empty() ? "cdfs:/Source/"_s : StringView(_sourcePath));
-#elif defined(DEATH_TARGET_PS3)
-		return "/app_home/Source/"_s;
-#elif defined(DEATH_TARGET_PSP)
-		return "ms0:/PSP/GAME/Jazz2/Source/"_s;
-#elif defined(DEATH_TARGET_VITA)
-		return "ux0:/data/jazz2/Source/"_s;
-#elif defined(DEATH_TARGET_WINDOWS)
-		return "Source\\"_s;
-#else
-		return "Source/"_s;
-#endif
-	}
-
 	bool ContentResolver::IsHeadless() const
 	{
 		return _isHeadless;
@@ -497,10 +455,9 @@ namespace Jazz2
 	}
 
 #if defined(WITH_LIBRETRO)
-	void ContentResolver::OverridePaths(StringView contentPath, StringView sourcePath, StringView cachePath)
+	void ContentResolver::OverridePaths(StringView contentPath, StringView cachePath)
 	{
 		_contentPath = contentPath;
-		_sourcePath = sourcePath;
 		_cachePath = cachePath;
 		DetectPrebakedContent();
 		DetectUserContent();
@@ -512,74 +469,14 @@ namespace Jazz2
 	void ContentResolver::InitializePaths()
 	{
 #if defined(DEATH_TARGET_ANDROID)
-		// If `MANAGE_EXTERNAL_STORAGE` permission is granted, try to use also alternative paths
-		if (Backends::AndroidJniWrap_Activity::HasExternalStoragePermission()) {
-			constexpr StringView ExternalPaths[] = {
-				"Games/Jazz² Resurrection/"_s,
-				"Games/Jazz2 Resurrection/"_s,
-				"Download/Jazz² Resurrection/"_s,
-				"Download/Jazz2 Resurrection/"_s
-			};
-
-			bool found = false;
-			String externalStorage = fs::GetExternalStorage();
-			for (std::size_t i = 0; i < arraySize(ExternalPaths); i++) {
-				String externalPath = fs::CombinePath(externalStorage, ExternalPaths[i]);
-				_sourcePath = fs::CombinePath(externalPath, "Source/"_s);
-				if (fs::DirectoryExists(_sourcePath)) {
-					_cachePath = fs::CombinePath(externalPath, "Cache/"_s);
-					found = true;
-					break;
-				}
-			}
-
-			if (!found) {
-				String deviceBrand = Backends::AndroidJniClass_Version::GetDeviceBrand();
-				String deviceModel = Backends::AndroidJniClass_Version::GetDeviceModel();
-				if (deviceBrand == "Windows"_s && deviceModel == "Subsystem for Android(TM)"_s) {
-					// Set special paths if Windows Subsystem for Android™ is used
-					String externalStorageWindows = fs::CombinePath(externalStorage, "Windows/Saved Games/"_s);
-					if (fs::DirectoryExists(externalStorageWindows)) {
-						if (fs::DirectoryExists(fs::CombinePath(externalStorageWindows, "Jazz2 Resurrection/Source/"_s)) &&
-							!fs::DirectoryExists(fs::CombinePath(externalStorageWindows, "Jazz² Resurrection/Source/"_s))) {
-							_sourcePath = fs::CombinePath(externalStorageWindows, "Jazz2 Resurrection/Source/"_s);
-							_cachePath = fs::CombinePath(externalStorageWindows, "Jazz2 Resurrection/Cache/"_s);
-						} else {
-							_sourcePath = fs::CombinePath(externalStorageWindows, "Jazz² Resurrection/Source/"_s);
-							_cachePath = fs::CombinePath(externalStorageWindows, "Jazz² Resurrection/Cache/"_s);
-						}
-						found = true;
-					}
-				}
-
-				if (!found) {
-					String externalPath = fs::CombinePath(externalStorage, ExternalPaths[0]);
-					_sourcePath = fs::CombinePath(externalPath, "Source/"_s);
-					_cachePath = fs::CombinePath(externalPath, "Cache/"_s);
-				}
-			}
-		} else {
-			StringView dataPath = AndroidAssetStream::GetExternalDataPath();
-			_sourcePath = fs::CombinePath(dataPath, "Source/"_s);
-			_cachePath = fs::CombinePath(dataPath, "Cache/"_s);
-		}
+		_cachePath = fs::CombinePath(AndroidAssetStream::GetExternalDataPath(), "Cache/"_s);
 #elif defined(DEATH_TARGET_IOS)
-		// The application bundle is flat (no "Contents/Resources" as on macOS), so the content the build copied into
-		// it sits next to the executable. The original game files go to the app's "Documents" directory, the one
-		// place the user can reach: the Info.plist exposes it in the Files app (and in Finder/iTunes) through
-		// UIFileSharingEnabled, so "Source" is where the files are copied to, and the log is written next to it (see
-		// PreferencesCache). The cache is regenerable and large, so it goes to "Library/Caches", which iCloud backups
-		// skip and the system may purge under storage pressure - it is rebuilt on the next start then.
 		String executablePath = fs::GetExecutablePath();
 		_contentPath = fs::CombinePath(fs::GetDirectoryName(executablePath), "assets/"_s);
 		StringView home = ::getenv("HOME");
-		_sourcePath = fs::CombinePath({ home, "Documents"_s, "Source/"_s });
 		_cachePath = fs::CombinePath({ home, "Library/Caches"_s, "Cache/"_s });
 #elif defined(DEATH_TARGET_APPLE)
-		// Returns local application data directory on Apple
-		const String& appData = fs::GetSavePath("Jazz² Resurrection"_s);
-		_sourcePath = fs::CombinePath(appData, "Source/"_s);
-		_cachePath = fs::CombinePath(appData, "Cache/"_s);
+		_cachePath = fs::CombinePath(fs::GetSavePath("Jazz² Resurrection"_s), "Cache/"_s);
 #elif defined(DEATH_TARGET_UNIX)
 #	if defined(NCINE_PACKAGED_CONTENT_PATH)
 		_contentPath = "assets/"_s;
@@ -588,107 +485,22 @@ namespace Jazz2
 #	else
 		_contentPath = NCINE_INSTALL_PREFIX "/share/" NCINE_LINUX_PACKAGE "/assets/";
 #	endif
-#	if defined(NCINE_PACKAGED_CONTENT_PATH)
-		// If Content is packaged with binaries, prefer a local Source/ for portable use and
-		// fall back to standard XDG paths otherwise.
-		// AppRun cds into the AppImage mount point before launching, so CWD is useless —
-		// use dirname($APPIMAGE) to resolve paths relative to the .AppImage file itself.
-		String localBase;
-		StringView appImageEnv = ::getenv("APPIMAGE");
-		if (!appImageEnv.empty()) {
-			localBase = fs::GetDirectoryName(appImageEnv);
-		}
-
-		String localSourcePath = fs::CombinePath(localBase, "Source/"_s);
-		if (fs::FindPathCaseInsensitive(fs::CombinePath(localSourcePath, "Anims.j2a"_s)) ||
-			fs::FindPathCaseInsensitive(fs::CombinePath(localSourcePath, "AnimsSw.j2a"_s))) {
-			_sourcePath = Death::move(localSourcePath);
-			_cachePath = fs::CombinePath(localBase, "Cache/"_s);
-		} else {
-			auto localStorage = fs::GetLocalStorage();
-			if (!localStorage.empty()) {
-				auto appData = fs::CombinePath(localStorage, NCINE_LINUX_PACKAGE);
-				_sourcePath = fs::CombinePath(appData, "Source/"_s);
-				_cachePath = fs::CombinePath(appData, "Cache/"_s);
-			} else {
-				_sourcePath = "Source/"_s;
-				_cachePath = "Cache/"_s;
-			}
-		}
-#	else
-		// The portable build and the DEB/RPM ship the very same executable, so the layout has to be told apart at run
-		// time: a `assets` directory next to it means an extracted portable copy, an installed package lives in
-		// "<prefix>/bin" and has none. Must be tested first, or a portable copy would use installed content instead.
 		String executablePath = fs::GetExecutablePath();
 		StringView localBase = fs::GetDirectoryName(executablePath);
 		String localContentPath = fs::CombinePath(localBase, "assets/"_s);
 		if (fs::DirectoryExists(localContentPath)) {
 			_contentPath = Death::move(localContentPath);
-			_sourcePath = fs::CombinePath(localBase, "Source/"_s);
 			_cachePath = fs::CombinePath(localBase, "Cache/"_s);
-		} else if (fs::DirectoryExists(_contentPath)) {
-			// Shared Content exists, try to use standard XDG paths
-			auto localStorage = fs::GetLocalStorage();
-			if (!localStorage.empty()) {
-				// Use "$XDG_DATA_HOME/Jazz² Resurrection/" if exists (for backward compatibility), otherwise "$XDG_DATA_HOME/{NCINE_LINUX_PACKAGE}/"
-				_cachePath = fs::CombinePath(localStorage, "Jazz² Resurrection/Cache/"_s);
-				if (!fs::DirectoryExists(_cachePath)) {
-					auto appData = fs::CombinePath(localStorage, NCINE_LINUX_PACKAGE);
-					_cachePath = fs::CombinePath(appData, "Cache/"_s);
-				}
-			} else {
-				_cachePath = "Cache/"_s;
-			}
-
-			// Prefer system-wide Source only if it exists and the local one doesn't exist
-			_sourcePath = fs::CombinePath(fs::GetDirectoryName(_cachePath), "Source/"_s);
-			if (!fs::FindPathCaseInsensitive(fs::CombinePath(_sourcePath, "Anims.j2a"_s)) &&
-				!fs::FindPathCaseInsensitive(fs::CombinePath(_sourcePath, "AnimsSw.j2a"_s))) {
-				auto systemWideSource = NCINE_INSTALL_PREFIX "/share/" NCINE_LINUX_PACKAGE "/Source/";
-				if (fs::FindPathCaseInsensitive(fs::CombinePath(systemWideSource, "Anims.j2a"_s)) ||
-					fs::FindPathCaseInsensitive(fs::CombinePath(systemWideSource, "AnimsSw.j2a"_s))) {
-					_sourcePath = systemWideSource;
-				}
-			}
 		} else {
-			// Fallback to relative paths
-			_contentPath = "assets/"_s;
-			_sourcePath = "Source/"_s;
-			_cachePath = "Cache/"_s;
-		}
-#	endif
-#elif defined(DEATH_TARGET_WINDOWS_RT)
-		bool found = false;
-		if (Environment::CurrentDeviceType == DeviceType::Xbox) {
-			// Try to use external drives (D:, E:, F:) on Xbox, "\\?\" path prefix is required on Xbox
-			String PathTemplate1 = "\\\\?\\X:\\Games\\Jazz² Resurrection\\"_s;
-			String PathTemplate2 = "\\\\?\\X:\\Games\\Jazz2 Resurrection\\"_s;
-
-			for (char letter = 'D'; letter <= 'G'; letter++) {
-				PathTemplate1[4] = letter;
-				_sourcePath = fs::CombinePath(PathTemplate1, "Source\\"_s);
-				if (fs::DirectoryExists(_sourcePath)) {
-					_cachePath = fs::CombinePath(PathTemplate1, "Cache\\"_s);
-					found = true;
-					break;
-				}
-
-				PathTemplate2[4] = letter;
-				_sourcePath = fs::CombinePath(PathTemplate2, "Source\\"_s);
-				if (fs::DirectoryExists(_sourcePath)) {
-					_cachePath = fs::CombinePath(PathTemplate2, "Cache\\"_s);
-					found = true;
-					break;
-				}
+			if (!fs::DirectoryExists(_contentPath)) {
+				_contentPath = "assets/"_s;
 			}
+			auto localStorage = fs::GetLocalStorage();
+			_cachePath = (localStorage.empty() ? String("Cache/"_s)
+				: fs::CombinePath({ localStorage, NCINE_LINUX_PACKAGE, "Cache/"_s }));
 		}
-
-		if (!found) {
-			// Returns local application data directory on Windows RT
-			const String& appData = fs::GetSavePath("Jazz² Resurrection"_s);
-			_sourcePath = fs::CombinePath(appData, "Source\\"_s);
-			_cachePath = fs::CombinePath(appData, "Cache\\"_s);
-		}
+#elif defined(DEATH_TARGET_WINDOWS_RT)
+		_cachePath = fs::CombinePath(fs::GetSavePath("Jazz² Resurrection"_s), "Cache/"_s);
 		_contentPath = "assets\\"_s;
 #elif defined(WITH_PS2)
 		// The game boots either from a disc or from removable storage - a USB stick, or an SD card in an
@@ -698,7 +510,7 @@ namespace Jazz2
 		// silently picks up a stale tree from a card somebody left in the adapter. To run from removable
 		// storage, run the executable from removable storage.
 		//
-		// Leaving the three members empty is what selects the "cdfs:/" literals in the accessors above.
+		// Leaving the path members empty is what selects the "cdfs:/" literals in the accessors above.
 		if (!fs::DirectoryExists("cdfs:/assets"_s)) {
 			nCine::Backends::Ps2Storage::Initialize();
 
@@ -716,7 +528,6 @@ namespace Jazz2
 				if (nCine::Backends::Ps2Storage::DirectoryExists(contentPath)) {
 					_contentPath = Death::move(contentPath);
 					_cachePath = bootDirectory + "Cache/"_s;
-					_sourcePath = bootDirectory + "Source/"_s;
 					// Unlike a disc, this is somewhere the game can write - the level cache has somewhere
 					// to live, and PreferencesCache saves here instead of on a memory card
 					_writablePath = bootDirectory;
@@ -727,7 +538,7 @@ namespace Jazz2
 			// Otherwise the fixed layout on each mounted unit. Such a device is shared storage - the whole
 			// point of one is that it holds everything the console runs, next to a loader's own "APPS",
 			// "DVD" and "CFG" - so the game lives under "Games/Jazz2/" rather than at the root, where
-			// "assets", "Cache" and "Source" would collide with whatever else is there. That is also the
+			// "assets" and "Cache" would collide with whatever else is there. That is also the
 			// layout it already uses on the other machine where it is a guest on shared storage (the
 			// Switch, see GetContentPath()). The units are walked in order because a card partitioned more
 			// than once mounts as more than one, and the game may be on any of them.
@@ -738,7 +549,6 @@ namespace Jazz2
 					if (nCine::Backends::Ps2Storage::DirectoryExists(contentPath)) {
 						_contentPath = Death::move(contentPath);
 						_cachePath = root + "Cache/"_s;
-						_sourcePath = root + "Source/"_s;
 						_writablePath = Death::move(root);
 						LOGI("Reading content from \"{}\" (removable storage), which is also writable", _writablePath);
 						break;
@@ -773,7 +583,6 @@ namespace Jazz2
 			auto useWritableRoot = [this](StringView root, const char* where) {
 				_contentPath = root + "assets/"_s;
 				_cachePath = root + "Cache/"_s;
-				_sourcePath = root + "Source/"_s;
 				_writablePath = root;
 				LOGI("Reading content from \"{}\" ({}), which is also writable", _writablePath, where);
 			};
@@ -784,7 +593,6 @@ namespace Jazz2
 				}
 				_contentPath = "dvd:/assets/"_s;
 				_cachePath = "dvd:/Cache/"_s;
-				_sourcePath = "dvd:/Source/"_s;
 				LOGI("Reading content from the disc");
 				return true;
 			};
@@ -825,8 +633,7 @@ namespace Jazz2
 
 	void ContentResolver::DetectPrebakedContent()
 	{
-		// The package of a prepared tree is named differently from the one the first-run conversion writes
-		// into `Cache` precisely so the two can be told apart --- see `AssetConverter::PrebakedPackage`
+		// The game requires the package produced ahead of time by AssetPacker.
 		_isContentPrebaked = fs::FileExists(fs::CombinePath(GetContentPath(), Compatibility::AssetConverter::PrebakedPackage));
 		if (_isContentPrebaked) {
 			LOGI("Content in \"{}\" was prepared ahead of time", GetContentPath());
@@ -840,10 +647,10 @@ namespace Jazz2
 		// "assets" is packed inside the application on these platforms (APK assets, app bundle, AppImage mount, system
 		// prefix, UWP package, RomFS, VPK), so nothing can be added to it or replaced in it. The directory with "Cache"
 		// is the one place the user can always reach, so custom content goes to "assets" next to it, which then has
-		// priority over everything. Except on iOS, where "Cache" is in "Library/Caches", and "Documents" with "Source"
+		// priority over everything. Except on iOS, where "Cache" is in "Library/Caches", and "Documents"
 		// is what the Files app exposes instead.
 #	if defined(DEATH_TARGET_IOS)
-		StringView userBase = fs::GetDirectoryName(GetSourcePath());
+		String userBase = fs::CombinePath(::getenv("HOME"), "Documents"_s);
 #	else
 		StringView userBase = fs::GetDirectoryName(GetCachePath());
 #	endif
@@ -911,7 +718,7 @@ namespace Jazz2
 		// Unload all already loaded .paks
 		_mountedPaks.clear();
 
-		// Load all .paks from user `assets`, `assets` and `Cache` directory, in order of priority
+		// Load .paks from user and packaged assets directories, in order of priority
 		auto mountPaksIn = [this](StringView path) {
 			for (auto item : fs::Directory(path, fs::EnumerationOptions::SkipDirectories)) {
 				auto extension = fs::GetExtension(item);
@@ -935,13 +742,12 @@ namespace Jazz2
 		}
 		_userPakCount = _mountedPaks.size();
 		mountPaksIn(GetContentPath());
-		mountPaksIn(GetCachePath());
 	}
 
 	std::unique_ptr<Stream> ContentResolver::OpenContentFile(StringView path, std::int32_t bufferSize)
 	{
 		// The user Content directory (its .paks, then its files) has priority over everything, so it can replace
-		// any shipped file. Then the remaining .paks are searched, then Content directory and Cache directory.
+		// any shipped file. Then the remaining .paks are searched, then Content directory.
 		auto openFromPaks = [&](std::size_t from, std::size_t to) -> std::unique_ptr<Stream> {
 			for (std::size_t i = from; i < to; i++) {
 				auto mountPoint = _mountedPaks[i]->GetMountPoint();
@@ -986,13 +792,7 @@ namespace Jazz2
 			return realFile;
 		}
 
-		return fs::Open(fs::CombinePath(GetCachePath(), path), FileAccess::Read, bufferSize);
-	}
-
-	std::unique_ptr<Stream> ContentResolver::OpenSourceFile(StringView path, std::int32_t bufferSize)
-	{
-		String fullPath = fs::FindPathCaseInsensitive(fs::CombinePath(GetSourcePath(), path));
-		return fs::Open(fullPath, FileAccess::Read, bufferSize);
+		return fs::Open(fs::CombinePath(GetContentPath(), path), FileAccess::Read, bufferSize);
 	}
 
 	void ContentResolver::BeginLoading()
@@ -2370,7 +2170,7 @@ namespace Jazz2
 
 	std::unique_ptr<Stream> ContentResolver::OpenTileSetFile(StringView path)
 	{
-		// Try user "assets" directory first, then "assets" directory and "Cache" directory
+		// Try user "assets" directory first, then packaged "assets" directory
 		String fullPath;
 		if (_pathHandler) {
 			fullPath = _pathHandler(String(path + ".j2t"_s));
@@ -3035,7 +2835,7 @@ namespace Jazz2
 
 	bool ContentResolver::LevelExists(StringView levelName)
 	{
-		// Try user "assets" directory first, then "assets" directory and "Cache" directory
+		// Try user "assets" directory first, then packaged "assets" directory
 		auto pathNormalized = fs::ToNativeSeparators(levelName);
 		return !FindContentFile(fs::CombinePath("Episodes"_s, String(pathNormalized + ".j2l"_s))).empty();
 	}
@@ -3063,7 +2863,7 @@ namespace Jazz2
 
 	bool ContentResolver::TryGetNextLevelName(StringView path, String& nextLevel)
 	{
-		// Try user "assets" directory first, then "assets" directory and "Cache" directory, the same way as TryLoadLevel()
+		// Try user "assets" directory first, then packaged "assets" directory, the same way as TryLoadLevel()
 		auto pathNormalized = fs::ToNativeSeparators(path);
 		String fullPath;
 		if (_pathHandler) {
@@ -3098,7 +2898,7 @@ namespace Jazz2
 
 	bool ContentResolver::TryLoadLevel(StringView path, const LevelLoadOptions& options, LevelDescriptor& descriptor)
 	{
-		// Try user "assets" directory first, then "assets" directory and "Cache" directory
+		// Try user "assets" directory first, then packaged "assets" directory
 		auto pathNormalized = fs::ToNativeSeparators(path);
 		String fullPath;
 		if (_pathHandler) {
@@ -3572,11 +3372,6 @@ namespace Jazz2
 				}
 			}
 #		endif
-			if (!found) {
-				// "Source" directory must be case in-sensitive
-				fullPath = fs::FindPathCaseInsensitive(fs::CombinePath(GetSourcePath(), path));
-				found = fs::IsReadableFile(fullPath);
-			}
 #	endif
 		} else {
 			found = fs::IsReadableFile(fullPath);

@@ -62,7 +62,6 @@ namespace Jazz2::UI::Menu
 			addEpisodesIn(userContentPath);
 		}
 		addEpisodesIn(resolver.GetContentPath());
-		addEpisodesIn(resolver.GetCachePath());
 
 #if defined(WITH_LEVEL_PACKS)
 		// Episodes of level packs are named with "+", so they never take the place of another episode

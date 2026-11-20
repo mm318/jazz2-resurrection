@@ -634,7 +634,7 @@ namespace Jazz2::UI::Menu
 		if (!userContentPath.empty() && !addLevelsIn(userContentPath)) {
 			return;
 		}
-		if (!addLevelsIn(resolver.GetContentPath()) || !addLevelsIn(resolver.GetCachePath())) {
+		if (!addLevelsIn(resolver.GetContentPath())) {
 			return;
 		}
 

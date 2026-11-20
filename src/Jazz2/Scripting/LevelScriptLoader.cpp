@@ -435,7 +435,7 @@ shared interface MLLEWeaponApply { bool Apply(uint, se::WeaponHook@ = null, jjST
 			if (includePath.hasSuffix("w.asc"_s) && !_mlleWeaponsAdded) {
 				_mlleWeaponsAdded = true;
 				AddScriptSection("MLLE-Weapons", MlleWeaponsSetup);
-				return fs::FindPathCaseInsensitive(fs::CombinePath(ContentResolver::Get().GetSourcePath(), "SEweapon.asc"_s));
+				return fs::FindPathCaseInsensitive(fs::CombinePath(ContentResolver::Get().GetContentPath(), "SEweapon.asc"_s));
 			}
 			return {};
 		}
@@ -456,7 +456,7 @@ shared interface MLLEWeaponApply { bool Apply(uint, se::WeaponHook@ = null, jjST
 			}
 		}
 #endif
-		auto sourcePath = ContentResolver::Get().GetSourcePath();
+		auto sourcePath = ContentResolver::Get().GetContentPath();
 		return fs::FindPathCaseInsensitive(fs::CombinePath(sourcePath, includePath));
 	}
 

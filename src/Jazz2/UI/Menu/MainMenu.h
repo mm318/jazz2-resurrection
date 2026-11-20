@@ -15,7 +15,6 @@ using namespace Jazz2::Tiles;
 namespace Jazz2::UI::Menu
 {
 	class BeginSection;
-	class RefreshCacheSection;
 	class StartGameOptionsSection;
 #if defined(WITH_MULTIPLAYER)
 	class CreateServerOptionsSection;
@@ -33,7 +32,6 @@ namespace Jazz2::UI::Menu
 		DEATH_RUNTIME_OBJECT(IStateHandler, MenuContainerBase);
 
 		friend class BeginSection;
-		friend class RefreshCacheSection;
 		friend class StartGameOptionsSection;
 #if defined(WITH_MULTIPLAYER)
 		friend class CreateServerOptionsSection;
