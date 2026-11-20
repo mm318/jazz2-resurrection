@@ -69,14 +69,14 @@ namespace Jazz2
 	// carries something out of range - a hardcoded `High` there would quietly undo the console default
 	// above on exactly the machines it exists for, and survive every later Save()
 	ParticleQuality PreferencesCache::Particles = DefaultParticleQuality;
-	bool PreferencesCache::EnableReforgedGameplay = false;
-	bool PreferencesCache::EnableReforgedCamera = false;
-	bool PreferencesCache::EnableReforgedHUD = false;
-	bool PreferencesCache::EnableReforgedMainMenu = false;
+	bool PreferencesCache::EnableReforgedGameplay = true;
+	bool PreferencesCache::EnableReforgedCamera = true;
+	bool PreferencesCache::EnableReforgedHUD = true;
+	bool PreferencesCache::EnableReforgedMainMenu = true;
 	bool PreferencesCache::EnableContinuousJump = true;
 	bool PreferencesCache::EnableLedgeClimb = true;
-	WeaponWheelStyle PreferencesCache::WeaponWheel = WeaponWheelStyle::Enabled;
-	bool PreferencesCache::ShowAllWeaponWheelSlots = false;
+	WeaponWheelStyle PreferencesCache::WeaponWheel = WeaponWheelStyle::EnabledWithAmmoCount;
+	bool PreferencesCache::ShowAllWeaponWheelSlots = true;
 	bool PreferencesCache::SwitchToNewWeapon = true;
 	// The web build has a backend but needs a local bridge running, so it stays off until asked for
 #if defined(NCINE_HAS_RGB_LIGHTS) && !defined(DEATH_TARGET_EMSCRIPTEN)

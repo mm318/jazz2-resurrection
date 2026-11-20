@@ -15,157 +15,57 @@ namespace Jazz2::Input
 			mapping.Targets.clear();
 		}
 
-		// Fire and Run also take a shoulder control - the trigger, or the bumper on pads without usable triggers
+		constexpr PlayerAction actions[] = {
+			PlayerAction::Left, PlayerAction::Right, PlayerAction::Down, PlayerAction::Up,
+			PlayerAction::Fire, PlayerAction::Jump, PlayerAction::Run, PlayerAction::ChangeWeapon
+		};
+		constexpr Keys keyboardLayouts[][8] = {
+			{ Keys::F, Keys::H, Keys::G, Keys::T, Keys::A, Keys::S, Keys::D, Keys::Q },
+			{ Keys::Left, Keys::Right, Keys::Down, Keys::Up, Keys::Comma, Keys::Period, Keys::Slash, Keys::RShift },
+			{ Keys::NumPad4, Keys::NumPad6, Keys::NumPad5, Keys::NumPad8, Keys::LeftBracket, Keys::RightBracket, Keys::Backslash, Keys::Minus }
+		};
+		for (std::int32_t player = 0; player < MaxSupportedPlayers && player < 3; player++) {
+			auto mappings = GetMappings(player);
+			for (std::size_t action = 0; action < 8; action++) {
+				mappings[(std::int32_t)actions[action]].Targets.push_back(CreateTarget(keyboardLayouts[player][action]));
+			}
+			// Buttstomp always uses this player's Down key.
+			mappings[(std::int32_t)PlayerAction::Buttstomp].Targets = mappings[(std::int32_t)PlayerAction::Down].Targets;
+		}
+		auto first = GetMappings(0);
+		first[(std::int32_t)PlayerAction::Menu].Targets.push_back(CreateTarget(Keys::Escape));
+		first[(std::int32_t)PlayerAction::Console].Targets.push_back(CreateTarget(Keys::Backquote));
+
 		constexpr AxisName FireShoulder = AxisName::RightTrigger;
 		constexpr AxisName RunShoulder = AxisName::LeftTrigger;
 		constexpr ButtonName FireButton = ButtonName::X;
 		constexpr ButtonName RunButton = ButtonName::B;
 		constexpr ButtonName ChangeWeaponButton = ButtonName::Y;
 		constexpr bool HasAnalogStick = true;
-
-		// Set default mappings for 1st player
-		auto first = GetMappings(0);
-#if defined(NCINE_HAS_KEYBOARD)
-		first[(std::int32_t)PlayerAction::Left].Targets.push_back(CreateTarget(Keys::Left));
-#endif
-		first[(std::int32_t)PlayerAction::Left].Targets.push_back(CreateTarget(0, ButtonName::Left));
-#if defined(NCINE_HAS_KEYBOARD)
-		first[(std::int32_t)PlayerAction::Right].Targets.push_back(CreateTarget(Keys::Right));
-#endif
-		first[(std::int32_t)PlayerAction::Right].Targets.push_back(CreateTarget(0, ButtonName::Right));
-#if defined(NCINE_HAS_KEYBOARD)
-		first[(std::int32_t)PlayerAction::Up].Targets.push_back(CreateTarget(Keys::Up));
-#endif
-		first[(std::int32_t)PlayerAction::Up].Targets.push_back(CreateTarget(0, ButtonName::Up));
-#if defined(NCINE_HAS_KEYBOARD)
-		first[(std::int32_t)PlayerAction::Down].Targets.push_back(CreateTarget(Keys::Down));
-#endif
-		first[(std::int32_t)PlayerAction::Down].Targets.push_back(CreateTarget(0, ButtonName::Down));
-#if defined(NCINE_HAS_KEYBOARD)
-		first[(std::int32_t)PlayerAction::Buttstomp].Targets.push_back(CreateTarget(Keys::Down));
-#endif
-		first[(std::int32_t)PlayerAction::Buttstomp].Targets.push_back(CreateTarget(0, ButtonName::Down));
-		if constexpr (HasAnalogStick) {
-			first[(std::int32_t)PlayerAction::Left].Targets.push_back(CreateTarget(0, AxisName::LeftX, true));
-			first[(std::int32_t)PlayerAction::Right].Targets.push_back(CreateTarget(0, AxisName::LeftX));
-			first[(std::int32_t)PlayerAction::Up].Targets.push_back(CreateTarget(0, AxisName::LeftY, true));
-			first[(std::int32_t)PlayerAction::Down].Targets.push_back(CreateTarget(0, AxisName::LeftY));
-			first[(std::int32_t)PlayerAction::Buttstomp].Targets.push_back(CreateTarget(0, AxisName::LeftY));
-		}
-
-#if defined(NCINE_HAS_KEYBOARD)
-		first[(std::int32_t)PlayerAction::Fire].Targets.push_back(CreateTarget(Keys::Space));
-#endif
-		first[(std::int32_t)PlayerAction::Fire].Targets.push_back(CreateTarget(0, FireButton));
-		first[(std::int32_t)PlayerAction::Fire].Targets.push_back(CreateTarget(0, FireShoulder));
-#if defined(NCINE_HAS_KEYBOARD)
-		first[(std::int32_t)PlayerAction::Jump].Targets.push_back(CreateTarget(Keys::V));
-#endif
-		first[(std::int32_t)PlayerAction::Jump].Targets.push_back(CreateTarget(0, ButtonName::A));
-#if defined(NCINE_HAS_KEYBOARD)
-		first[(std::int32_t)PlayerAction::Run].Targets.push_back(CreateTarget(Keys::C));
-#endif
-		if constexpr (RunButton != ButtonName::Unknown) {
-			first[(std::int32_t)PlayerAction::Run].Targets.push_back(CreateTarget(0, RunButton));
-		}
-		first[(std::int32_t)PlayerAction::Run].Targets.push_back(CreateTarget(0, RunShoulder));
-#if defined(NCINE_HAS_KEYBOARD)
-		first[(std::int32_t)PlayerAction::ChangeWeapon].Targets.push_back(CreateTarget(Keys::X));
-#endif
-		first[(std::int32_t)PlayerAction::ChangeWeapon].Targets.push_back(CreateTarget(0, ChangeWeaponButton));
-#if defined(NCINE_HAS_KEYBOARD)
-		first[(std::int32_t)PlayerAction::Menu].Targets.push_back(CreateTarget(Keys::Escape));
-#endif
-		first[(std::int32_t)PlayerAction::Menu].Targets.push_back(CreateTarget(0, ButtonName::Start));
-#if defined(NCINE_HAS_KEYBOARD)
-		first[(std::int32_t)PlayerAction::Console].Targets.push_back(CreateTarget(Keys::Backquote));
-		first[(std::int32_t)PlayerAction::Console].Targets.push_back(CreateTarget(Keys::T));
-
-		first[(std::int32_t)PlayerAction::SwitchToBlaster].Targets.push_back(CreateTarget(Keys::D1));
-		first[(std::int32_t)PlayerAction::SwitchToBouncer].Targets.push_back(CreateTarget(Keys::D2));
-		first[(std::int32_t)PlayerAction::SwitchToFreezer].Targets.push_back(CreateTarget(Keys::D3));
-		first[(std::int32_t)PlayerAction::SwitchToSeeker].Targets.push_back(CreateTarget(Keys::D4));
-		first[(std::int32_t)PlayerAction::SwitchToRF].Targets.push_back(CreateTarget(Keys::D5));
-		first[(std::int32_t)PlayerAction::SwitchToToaster].Targets.push_back(CreateTarget(Keys::D6));
-		first[(std::int32_t)PlayerAction::SwitchToTNT].Targets.push_back(CreateTarget(Keys::D7));
-		first[(std::int32_t)PlayerAction::SwitchToPepper].Targets.push_back(CreateTarget(Keys::D8));
-		first[(std::int32_t)PlayerAction::SwitchToElectro].Targets.push_back(CreateTarget(Keys::D9));
-		first[(std::int32_t)PlayerAction::SwitchToThunderbolt].Targets.push_back(CreateTarget(Keys::D0));
-#endif
-
-		// Set default mappings for 2nd player
-		if constexpr (MaxSupportedPlayers >= 2) {
-#if defined(NCINE_HAS_KEYBOARD)
-			auto second = GetMappings(1);
-			second[(std::int32_t)PlayerAction::Left].Targets.push_back(CreateTarget(Keys::A));
-			second[(std::int32_t)PlayerAction::Right].Targets.push_back(CreateTarget(Keys::D));
-			second[(std::int32_t)PlayerAction::Up].Targets.push_back(CreateTarget(Keys::W));
-			second[(std::int32_t)PlayerAction::Down].Targets.push_back(CreateTarget(Keys::S));
-			second[(std::int32_t)PlayerAction::Buttstomp].Targets.push_back(CreateTarget(Keys::S));
-
-			second[(std::int32_t)PlayerAction::Fire].Targets.push_back(CreateTarget(Keys::R));
-			second[(std::int32_t)PlayerAction::Jump].Targets.push_back(CreateTarget(Keys::F));
-			second[(std::int32_t)PlayerAction::Run].Targets.push_back(CreateTarget(Keys::G));
-			second[(std::int32_t)PlayerAction::ChangeWeapon].Targets.push_back(CreateTarget(Keys::Q));
-#endif
-
-			if constexpr (MaxSupportedPlayers >= 3) {
-#if defined(NCINE_HAS_KEYBOARD)
-				auto third = GetMappings(2);
-				third[(std::int32_t)PlayerAction::Left].Targets.push_back(CreateTarget(Keys::NumPad4));
-				third[(std::int32_t)PlayerAction::Right].Targets.push_back(CreateTarget(Keys::NumPad6));
-				third[(std::int32_t)PlayerAction::Up].Targets.push_back(CreateTarget(Keys::NumPad8));
-				third[(std::int32_t)PlayerAction::Down].Targets.push_back(CreateTarget(Keys::NumPad5));
-				third[(std::int32_t)PlayerAction::Buttstomp].Targets.push_back(CreateTarget(Keys::NumPad5));
-
-				third[(std::int32_t)PlayerAction::Fire].Targets.push_back(CreateTarget(Keys::NumPadEnter));
-				third[(std::int32_t)PlayerAction::Jump].Targets.push_back(CreateTarget(Keys::NumPadPlus));
-				third[(std::int32_t)PlayerAction::Run].Targets.push_back(CreateTarget(Keys::NumPadMinus));
-				third[(std::int32_t)PlayerAction::ChangeWeapon].Targets.push_back(CreateTarget(Keys::NumPad7));
-#endif
-
-				if constexpr (MaxSupportedPlayers >= 4) {
-#if defined(NCINE_HAS_KEYBOARD)
-					auto fourth = GetMappings(3);
-					fourth[(std::int32_t)PlayerAction::Left].Targets.push_back(CreateTarget(Keys::H));
-					fourth[(std::int32_t)PlayerAction::Right].Targets.push_back(CreateTarget(Keys::K));
-					fourth[(std::int32_t)PlayerAction::Up].Targets.push_back(CreateTarget(Keys::U));
-					fourth[(std::int32_t)PlayerAction::Down].Targets.push_back(CreateTarget(Keys::J));
-					fourth[(std::int32_t)PlayerAction::Buttstomp].Targets.push_back(CreateTarget(Keys::J));
-
-					fourth[(std::int32_t)PlayerAction::Fire].Targets.push_back(CreateTarget(Keys::O));
-					fourth[(std::int32_t)PlayerAction::Jump].Targets.push_back(CreateTarget(Keys::L));
-					fourth[(std::int32_t)PlayerAction::Run].Targets.push_back(CreateTarget(Keys::Semicolon));
-					fourth[(std::int32_t)PlayerAction::ChangeWeapon].Targets.push_back(CreateTarget(Keys::Y));
-#endif
-				}
+		for (std::int32_t i = 0; i < MaxSupportedPlayers; i++) {
+			auto current = GetMappings(i);
+			current[(std::int32_t)PlayerAction::Left].Targets.push_back(CreateTarget(i, ButtonName::Left));
+			current[(std::int32_t)PlayerAction::Right].Targets.push_back(CreateTarget(i, ButtonName::Right));
+			current[(std::int32_t)PlayerAction::Up].Targets.push_back(CreateTarget(i, ButtonName::Up));
+			current[(std::int32_t)PlayerAction::Down].Targets.push_back(CreateTarget(i, ButtonName::Down));
+			current[(std::int32_t)PlayerAction::Buttstomp].Targets.push_back(CreateTarget(i, ButtonName::Down));
+			if constexpr (HasAnalogStick) {
+				current[(std::int32_t)PlayerAction::Left].Targets.push_back(CreateTarget(i, AxisName::LeftX, true));
+				current[(std::int32_t)PlayerAction::Right].Targets.push_back(CreateTarget(i, AxisName::LeftX));
+				current[(std::int32_t)PlayerAction::Up].Targets.push_back(CreateTarget(i, AxisName::LeftY, true));
+				current[(std::int32_t)PlayerAction::Down].Targets.push_back(CreateTarget(i, AxisName::LeftY));
+				current[(std::int32_t)PlayerAction::Buttstomp].Targets.push_back(CreateTarget(i, AxisName::LeftY));
 			}
 
-			for (std::int32_t i = 1; i < MaxSupportedPlayers; i++) {
-				auto current = GetMappings(i);
-				current[(std::int32_t)PlayerAction::Left].Targets.push_back(CreateTarget(i, ButtonName::Left));
-				current[(std::int32_t)PlayerAction::Right].Targets.push_back(CreateTarget(i, ButtonName::Right));
-				current[(std::int32_t)PlayerAction::Up].Targets.push_back(CreateTarget(i, ButtonName::Up));
-				current[(std::int32_t)PlayerAction::Down].Targets.push_back(CreateTarget(i, ButtonName::Down));
-				current[(std::int32_t)PlayerAction::Buttstomp].Targets.push_back(CreateTarget(i, ButtonName::Down));
-				if constexpr (HasAnalogStick) {
-					current[(std::int32_t)PlayerAction::Left].Targets.push_back(CreateTarget(i, AxisName::LeftX, true));
-					current[(std::int32_t)PlayerAction::Right].Targets.push_back(CreateTarget(i, AxisName::LeftX));
-					current[(std::int32_t)PlayerAction::Up].Targets.push_back(CreateTarget(i, AxisName::LeftY, true));
-					current[(std::int32_t)PlayerAction::Down].Targets.push_back(CreateTarget(i, AxisName::LeftY));
-					current[(std::int32_t)PlayerAction::Buttstomp].Targets.push_back(CreateTarget(i, AxisName::LeftY));
-				}
-
-				current[(std::int32_t)PlayerAction::Fire].Targets.push_back(CreateTarget(i, FireButton));
-				current[(std::int32_t)PlayerAction::Fire].Targets.push_back(CreateTarget(i, FireShoulder));
-				current[(std::int32_t)PlayerAction::Jump].Targets.push_back(CreateTarget(i, ButtonName::A));
-				if constexpr (RunButton != ButtonName::Unknown) {
-					current[(std::int32_t)PlayerAction::Run].Targets.push_back(CreateTarget(i, RunButton));
-				}
-				current[(std::int32_t)PlayerAction::Run].Targets.push_back(CreateTarget(i, RunShoulder));
-				current[(std::int32_t)PlayerAction::ChangeWeapon].Targets.push_back(CreateTarget(i, ChangeWeaponButton));
-				current[(std::int32_t)PlayerAction::Menu].Targets.push_back(CreateTarget(i, ButtonName::Start));
+			current[(std::int32_t)PlayerAction::Fire].Targets.push_back(CreateTarget(i, FireButton));
+			current[(std::int32_t)PlayerAction::Fire].Targets.push_back(CreateTarget(i, FireShoulder));
+			current[(std::int32_t)PlayerAction::Jump].Targets.push_back(CreateTarget(i, ButtonName::A));
+			if constexpr (RunButton != ButtonName::Unknown) {
+				current[(std::int32_t)PlayerAction::Run].Targets.push_back(CreateTarget(i, RunButton));
 			}
+			current[(std::int32_t)PlayerAction::Run].Targets.push_back(CreateTarget(i, RunShoulder));
+			current[(std::int32_t)PlayerAction::ChangeWeapon].Targets.push_back(CreateTarget(i, ChangeWeaponButton));
+			current[(std::int32_t)PlayerAction::Menu].Targets.push_back(CreateTarget(i, ButtonName::Start));
 		}
 	}
 

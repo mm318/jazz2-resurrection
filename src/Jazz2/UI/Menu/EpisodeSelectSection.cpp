@@ -386,66 +386,37 @@ namespace Jazz2::UI::Menu
 		} else if (isSelected) {
 			float size = 0.5f + Easing::OutElastic(_animation) * 0.6f;
 
-			if ((item.Flags & EpisodeDataFlags::IsAvailable) == EpisodeDataFlags::IsAvailable || PreferencesCache::AllowCheatsUnlock) {
-				float expandedAnimation2 = std::min(_expandedAnimation * 6.0f, 1.0f);
-				float expandedAnimation3 = (expandedAnimation2 * expandedAnimation2 * (3.0f - 2.0f * expandedAnimation2));
+			float expandedAnimation2 = std::min(_expandedAnimation * 6.0f, 1.0f);
+			float expandedAnimation3 = (expandedAnimation2 * expandedAnimation2 * (3.0f - 2.0f * expandedAnimation2));
 
-				if (item.Description.TitleImage != nullptr) {
-					Vector2i titleSize = item.Description.TitleImage->GetSize() / 2;
-					root->DrawTexture(*item.Description.TitleImage, centerX, itemY + 2.2f, IMenuContainer::FontLayer + 8, Alignment::Center, Vector2f(titleSize.X, titleSize.Y) * size * (1.0f - expandedAnimation3 * 0.2f) * 1.02f, Colorf(0.0f, 0.0f, 0.0f, 0.26f - expandedAnimation3 * 0.1f), true);
-					float alpha = 1.0f - expandedAnimation3 * 0.4f;
-					root->DrawTexture(*item.Description.TitleImage, centerX, itemY, IMenuContainer::FontLayer + 10, Alignment::Center, Vector2f(titleSize.X, titleSize.Y) * size * (1.0f - expandedAnimation3 * 0.2f), Colorf(alpha, alpha, alpha, 1.0f), true);
-				} else {
-					Colorf nameColor = Font::RandomColor;
-					nameColor.SetAlpha(0.5f - expandedAnimation3 * 0.15f);
-					root->DrawStringGlow(item.Description.DisplayName, charOffset, centerX, itemY, IMenuContainer::FontLayer + 10,
-						Alignment::Center, nameColor, size, 0.7f, 1.1f, 1.1f, 0.4f, 0.9f);
-				}
-
-				if (_mode != EpisodeSelectMode::OnlineMultiplayer && (item.Flags & EpisodeDataFlags::CanContinue) == EpisodeDataFlags::CanContinue) {
-					float expandX = centerX + (item.Description.DisplayName.size() + 3) * 2.8f * size + (canvas->ViewSize.X >= 400 ? 40.0f : 0.0f);
-					float moveX = expandedAnimation3 * -12.0f;
-					root->DrawStringShadow(">"_s, charOffset, expandX + moveX, itemY, IMenuContainer::FontLayer + 20,
-						Alignment::Right, Colorf(0.5f, 0.5f, 0.5f, 0.5f * std::min(1.0f, 0.6f + _animation)), 0.8f, 1.1f, 1.1f, 0.4f, 0.4f);
-
-					if (_expanded) {
-						float expandedAnimation4 = Easing::OutElastic(_expandedAnimation) * 0.8f;
-
-						// TRANSLATORS: Menu subitem in Play Story section
-						Vector2f textSize = root->MeasureString(_("Restart episode"), 0.8f, 0.8f);
-						root->DrawStringShadow(_("Restart episode"), charOffset, expandX + textSize.X * 0.5f - 2.0f, itemY, IMenuContainer::FontLayer + 22,
-							Alignment::Center, Colorf(0.62f, 0.44f, 0.34f, 0.5f * std::min(1.0f, 0.4f + expandedAnimation3)), expandedAnimation4, 0.4f, 0.6f, 0.6f, 0.6f, 0.8f);
-					}
-				}
+			if (item.Description.TitleImage != nullptr) {
+				Vector2i titleSize = item.Description.TitleImage->GetSize() / 2;
+				root->DrawTexture(*item.Description.TitleImage, centerX, itemY + 2.2f, IMenuContainer::FontLayer + 8, Alignment::Center, Vector2f(titleSize.X, titleSize.Y) * size * (1.0f - expandedAnimation3 * 0.2f) * 1.02f, Colorf(0.0f, 0.0f, 0.0f, 0.26f - expandedAnimation3 * 0.1f), true);
+				float alpha = 1.0f - expandedAnimation3 * 0.4f;
+				root->DrawTexture(*item.Description.TitleImage, centerX, itemY, IMenuContainer::FontLayer + 10, Alignment::Center, Vector2f(titleSize.X, titleSize.Y) * size * (1.0f - expandedAnimation3 * 0.2f), Colorf(alpha, alpha, alpha, 1.0f), true);
 			} else {
-				std::int32_t prevEpisodeIndex = -1;
-				if (!item.Description.PreviousEpisode.empty()) {
-					for (std::int32_t j = 0; j < (std::int32_t)_episodes.size(); j++) {
-						// The two sides of this comparison do not come from the same place: the name of an episode is
-						// its file name, while the episode it names as its predecessor is a string stored inside the
-						// file - and a file system is free to report a name in a case of its own (a bare ISO 9660 disc,
-						// which is how the game ships on the PlayStation 2, reports every name upper-cased). Episode
-						// names are identifiers, so they are compared as such, without case.
-						if (StringUtils::equalsIgnoreCase(item.Description.PreviousEpisode, _episodes[j].Description.Name)) {
-							prevEpisodeIndex = j;
-							break;
-						}
-					}
-				}
-
+				Colorf nameColor = Font::RandomColor;
+				nameColor.SetAlpha(0.5f - expandedAnimation3 * 0.15f);
 				root->DrawStringGlow(item.Description.DisplayName, charOffset, centerX, itemY, IMenuContainer::FontLayer + 10,
-					Alignment::Center, Font::TransparentRandomColor, size, 0.7f, 1.1f, 1.1f, 0.4f, 0.9f);
+					Alignment::Center, nameColor, size, 0.7f, 1.1f, 1.1f, 0.4f, 0.9f);
+			}
 
-				if (prevEpisodeIndex != -1) {
-					// TRANSLATORS: Information in Play Story section that episode is locked because the previous episode is not complete
-					root->DrawStringShadow(_f("You must complete \"{}\" first!", _episodes[prevEpisodeIndex].Description.DisplayName), charOffset, centerX, itemY, IMenuContainer::FontLayer + 20,
-						Alignment::Center, Colorf(0.66f, 0.42f, 0.32f, std::min(0.5f, 0.2f + 2.0f * _animation)), 0.7f * size, 0.7f, 1.1f, 1.1f, 0.4f, 0.9f);
-				} else {
-					// TRANSLATORS: Information in Play Story section that episode is locked
-					root->DrawStringShadow(_("Episode is locked!"), charOffset, centerX, itemY, IMenuContainer::FontLayer + 20,
-						Alignment::Center, Colorf(0.66f, 0.42f, 0.32f, std::min(0.5f, 0.2f + 2.0f * _animation)), 0.7f * size, 0.7f, 1.1f, 1.1f, 0.4f, 0.9f);
+			if (_mode != EpisodeSelectMode::OnlineMultiplayer && (item.Flags & EpisodeDataFlags::CanContinue) == EpisodeDataFlags::CanContinue) {
+				float expandX = centerX + (item.Description.DisplayName.size() + 3) * 2.8f * size + (canvas->ViewSize.X >= 400 ? 40.0f : 0.0f);
+				float moveX = expandedAnimation3 * -12.0f;
+				root->DrawStringShadow(">"_s, charOffset, expandX + moveX, itemY, IMenuContainer::FontLayer + 20,
+					Alignment::Right, Colorf(0.5f, 0.5f, 0.5f, 0.5f * std::min(1.0f, 0.6f + _animation)), 0.8f, 1.1f, 1.1f, 0.4f, 0.4f);
+
+				if (_expanded) {
+					float expandedAnimation4 = Easing::OutElastic(_expandedAnimation) * 0.8f;
+
+					// TRANSLATORS: Menu subitem in Play Story section
+					Vector2f textSize = root->MeasureString(_("Restart episode"), 0.8f, 0.8f);
+					root->DrawStringShadow(_("Restart episode"), charOffset, expandX + textSize.X * 0.5f - 2.0f, itemY, IMenuContainer::FontLayer + 22,
+						Alignment::Center, Colorf(0.62f, 0.44f, 0.34f, 0.5f * std::min(1.0f, 0.4f + expandedAnimation3)), expandedAnimation4, 0.4f, 0.6f, 0.6f, 0.6f, 0.8f);
 				}
 			}
+
 		} else {
 			root->DrawStringShadow(item.Description.DisplayName, charOffset, centerX, itemY, IMenuContainer::FontLayer,
 				Alignment::Center, Font::DefaultColor, 0.9f);
@@ -481,81 +452,79 @@ namespace Jazz2::UI::Menu
 			return;
 		}
 
-		if ((selectedItem.Flags & EpisodeDataFlags::IsAvailable) == EpisodeDataFlags::IsAvailable || PreferencesCache::AllowCheatsUnlock) {
-			_root->PlaySfx("MenuSelect"_s, 0.6f);
+		_root->PlaySfx("MenuSelect"_s, 0.6f);
 
-			bool redirectToCustomLevels = ((selectedItem.Flags & EpisodeDataFlags::RedirectToCustomLevels) == EpisodeDataFlags::RedirectToCustomLevels);
+		bool redirectToCustomLevels = ((selectedItem.Flags & EpisodeDataFlags::RedirectToCustomLevels) == EpisodeDataFlags::RedirectToCustomLevels);
 #if defined(WITH_LEVEL_PACKS)
-			if ((selectedItem.Flags & EpisodeDataFlags::RedirectToLevelPacks) == EpisodeDataFlags::RedirectToLevelPacks) {
-				_root->SwitchToSection<LevelPacksSection>(_mode, _privateServer);
-				return;
-			}
+		if ((selectedItem.Flags & EpisodeDataFlags::RedirectToLevelPacks) == EpisodeDataFlags::RedirectToLevelPacks) {
+			_root->SwitchToSection<LevelPacksSection>(_mode, _privateServer);
+			return;
+		}
 #endif
 
 #if defined(WITH_MULTIPLAYER)
-			if (_mode == EpisodeSelectMode::OnlineMultiplayer) {
-				// Online server hosting doesn't use the episode-continue feature; always start a fresh episode
-				if (redirectToCustomLevels) {
-					_root->SwitchToSection<CustomLevelSelectSection>(true, _privateServer, false);
-				} else {
-					_root->SwitchToSection<CreateServerOptionsSection>(String(selectedItem.Description.Name + '/' + selectedItem.Description.FirstLevel),
-						selectedItem.Description.PreviousEpisode, _privateServer);
-				}
-				return;
-			}
-#endif
-
+		if (_mode == EpisodeSelectMode::OnlineMultiplayer) {
+			// Online server hosting doesn't use the episode-continue feature; always start a fresh episode
 			if (redirectToCustomLevels) {
-#if defined(WITH_MULTIPLAYER)
-				if (_mode == EpisodeSelectMode::LocalMultiplayer) {
-					_root->SwitchToSection<CustomLevelSelectSection>(true, false, true);
-					return;
-				}
-#endif
-				_root->SwitchToSection<CustomLevelSelectSection>();
-				return;
+				_root->SwitchToSection<CustomLevelSelectSection>(true, _privateServer, false);
+			} else {
+				_root->SwitchToSection<CreateServerOptionsSection>(String(selectedItem.Description.Name + '/' + selectedItem.Description.FirstLevel),
+					selectedItem.Description.PreviousEpisode, _privateServer);
 			}
-
-			// Both single-player and local splitscreen support continuing a saved episode
-			if ((selectedItem.Flags & EpisodeDataFlags::CanContinue) == EpisodeDataFlags::CanContinue) {
-				if (_expanded) {
-					// Remove saved progress and restart the episode (falls through to the fresh-start routing below)
-					PreferencesCache::RemoveEpisodeContinue(selectedItem.Description.Name);
-
-					selectedItem.Flags &= ~EpisodeDataFlags::CanContinue;
-					_expandedAnimation = 0.0f;
-					_expanded = false;
-				} else {
-#if defined(WITH_MULTIPLAYER)
-					if (_mode == EpisodeSelectMode::LocalMultiplayer) {
-						// Resume the saved level as a local splitscreen game; the player setup (count/characters)
-						// happens in the options section, which loads the saved progress for the first player
-						auto* episodeContinue = PreferencesCache::GetEpisodeContinue(selectedItem.Description.Name);
-						if (episodeContinue != nullptr) {
-							_root->SwitchToSection<CreateLocalGameOptionsSection>(String(selectedItem.Description.Name + '/' + episodeContinue->LevelName),
-								selectedItem.Description.PreviousEpisode, selectedItem.Description.Name);
-							return;
-						}
-					}
+			return;
+		}
 #endif
-					// Continue from the last level (single-player; resumes directly through OnAfterTransition)
-					_shouldStart = true;
-					_transitionTime = 1.0f;
-					return;
-				}
-			}
 
-			// Start the episode from its first level
+		if (redirectToCustomLevels) {
 #if defined(WITH_MULTIPLAYER)
 			if (_mode == EpisodeSelectMode::LocalMultiplayer) {
-				_root->SwitchToSection<CreateLocalGameOptionsSection>(String(selectedItem.Description.Name + '/' + selectedItem.Description.FirstLevel),
-					selectedItem.Description.PreviousEpisode);
+				_root->SwitchToSection<CustomLevelSelectSection>(true, false, true);
 				return;
 			}
 #endif
-			_root->SwitchToSection<StartGameOptionsSection>(String(selectedItem.Description.Name + '/' + selectedItem.Description.FirstLevel),
-				selectedItem.Description.PreviousEpisode);
+			_root->SwitchToSection<CustomLevelSelectSection>();
+			return;
 		}
+
+		// Both single-player and local splitscreen support continuing a saved episode
+		if ((selectedItem.Flags & EpisodeDataFlags::CanContinue) == EpisodeDataFlags::CanContinue) {
+			if (_expanded) {
+				// Remove saved progress and restart the episode (falls through to the fresh-start routing below)
+				PreferencesCache::RemoveEpisodeContinue(selectedItem.Description.Name);
+
+				selectedItem.Flags &= ~EpisodeDataFlags::CanContinue;
+				_expandedAnimation = 0.0f;
+				_expanded = false;
+			} else {
+#if defined(WITH_MULTIPLAYER)
+				if (_mode == EpisodeSelectMode::LocalMultiplayer) {
+					// Resume the saved level as a local splitscreen game; the player setup (count/characters)
+					// happens in the options section, which loads the saved progress for the first player
+					auto* episodeContinue = PreferencesCache::GetEpisodeContinue(selectedItem.Description.Name);
+					if (episodeContinue != nullptr) {
+						_root->SwitchToSection<CreateLocalGameOptionsSection>(String(selectedItem.Description.Name + '/' + episodeContinue->LevelName),
+							selectedItem.Description.PreviousEpisode, selectedItem.Description.Name);
+						return;
+					}
+				}
+#endif
+				// Continue from the last level (single-player; resumes directly through OnAfterTransition)
+				_shouldStart = true;
+				_transitionTime = 1.0f;
+				return;
+			}
+		}
+
+		// Start the episode from its first level
+#if defined(WITH_MULTIPLAYER)
+		if (_mode == EpisodeSelectMode::LocalMultiplayer) {
+			_root->SwitchToSection<CreateLocalGameOptionsSection>(String(selectedItem.Description.Name + '/' + selectedItem.Description.FirstLevel),
+				selectedItem.Description.PreviousEpisode);
+			return;
+		}
+#endif
+		_root->SwitchToSection<StartGameOptionsSection>(String(selectedItem.Description.Name + '/' + selectedItem.Description.FirstLevel),
+			selectedItem.Description.PreviousEpisode);
 	}
 
 	void EpisodeSelectSection::HandleTap(std::int32_t newIndex, Vector2i touchPos)
@@ -637,11 +606,6 @@ namespace Jazz2::UI::Menu
 		auto& resolver = ContentResolver::Get();
 		std::optional<Episode> description = resolver.GetEpisodeByPath(episodeFile, true);
 		if (description) {
-#if defined(SHAREWARE_DEMO_ONLY)
-			// Check if specified episode is unlocked, used only if compiled with SHAREWARE_DEMO_ONLY
-			if (!PreferencesCache::IsEpisodeUnlocked(description->Name))
-				return;
-#endif
 
 			auto& episode = _episodes.emplace_back();
 			episode.Description = Death::move(*description);
@@ -662,14 +626,7 @@ namespace Jazz2::UI::Menu
 				}
 
 				if ((episode.Flags & EpisodeDataFlags::IsMissing) != EpisodeDataFlags::IsMissing) {
-					if (!episode.Description.PreviousEpisode.empty()) {
-						auto previousEpisodeEnd = PreferencesCache::GetEpisodeEnd(episode.Description.PreviousEpisode);
-						if (previousEpisodeEnd != nullptr && (previousEpisodeEnd->Flags & EpisodeContinuationFlags::IsCompleted) == EpisodeContinuationFlags::IsCompleted) {
-							episode.Flags |= EpisodeDataFlags::IsAvailable;
-						}
-					} else {
-						episode.Flags |= EpisodeDataFlags::IsAvailable;
-					}
+					episode.Flags |= EpisodeDataFlags::IsAvailable;
 
 					if ((episode.Flags & EpisodeDataFlags::IsAvailable) == EpisodeDataFlags::IsAvailable) {
 						auto currentEpisodeEnd = PreferencesCache::GetEpisodeEnd(episode.Description.Name);

@@ -464,9 +464,8 @@ namespace Jazz2::UI::Menu
 			if (!_previousEpisodeName.empty()) {
 				auto previousEpisodeEnd = PreferencesCache::GetEpisodeEnd(_previousEpisodeName);
 				if (previousEpisodeEnd != nullptr) {
-					// Set CheatsUsed to true if cheats were used in the previous episode or the previous episode is not completed
-					if ((previousEpisodeEnd->Flags & EpisodeContinuationFlags::CheatsUsed) == EpisodeContinuationFlags::CheatsUsed ||
-						(previousEpisodeEnd->Flags & EpisodeContinuationFlags::IsCompleted) != EpisodeContinuationFlags::IsCompleted) {
+					// Preserve the cheat status of carried-over progress.
+					if ((previousEpisodeEnd->Flags & EpisodeContinuationFlags::CheatsUsed) == EpisodeContinuationFlags::CheatsUsed) {
 						serverInit.InitialLevel.CheatsUsed = true;
 					}
 
@@ -478,9 +477,6 @@ namespace Jazz2::UI::Menu
 					std::memcpy(firstPlayer.Gems, previousEpisodeEnd->Gems, sizeof(firstPlayer.Gems));
 					std::memcpy(firstPlayer.Ammo, previousEpisodeEnd->Ammo, sizeof(firstPlayer.Ammo));
 					std::memcpy(firstPlayer.WeaponUpgrades, previousEpisodeEnd->WeaponUpgrades, sizeof(firstPlayer.WeaponUpgrades));
-				} else {
-					// Set CheatsUsed to true if the previous episode is not completed
-					serverInit.InitialLevel.CheatsUsed = true;
 				}
 			}
 
