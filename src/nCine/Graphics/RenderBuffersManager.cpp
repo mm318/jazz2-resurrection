@@ -28,13 +28,6 @@ using namespace Death::Containers::Literals;
 // renames them. Unlike the RSX's, the CPU's data cache is not coherent with the GPU there, so the written part of
 // a section still has to be flushed (GX2Invalidate) before the frame's draws, which FlushUnmap() does when
 // NCINE_PERSISTENT_MAPPING_NEEDS_FLUSH is defined. Its fences are real, see Gx2Device::InsertFence().
-#if defined(WITH_RHI_RSX) || defined(WITH_RHI_GX2)
-#define NCINE_HAS_PERSISTENT_MAPPING
-#define NCINE_ALWAYS_PERSISTENT_MAPPING
-#endif
-#if defined(WITH_RHI_GX2)
-#define NCINE_PERSISTENT_MAPPING_NEEDS_FLUSH
-#endif
 
 namespace nCine
 {

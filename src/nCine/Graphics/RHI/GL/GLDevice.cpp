@@ -17,7 +17,7 @@
 // OpenGL|ES 3.0, whose core query entry points then accept it. Left out on the ES 2.0 profile (it has no query objects
 // at all), on the web (WebGL names the extension differently and browsers coarsen the timer anyway) and under libretro,
 // where the frontend owns the context and may have a query of its own running.
-#if (defined(RHI_GL_PROFILE_CORE) || defined(RHI_GL_PROFILE_ES3)) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(WITH_LIBRETRO)
+#if (defined(RHI_GL_PROFILE_CORE) || defined(RHI_GL_PROFILE_ES3)) && !(defined(DEATH_TARGET_EMSCRIPTEN))
 #define GL_DEVICE_HAS_TIMER_QUERIES
 #endif
 
@@ -126,13 +126,11 @@ namespace nCine::RHI::GL
 	static_assert(static_cast<GLenum>(BlendingFactor::DstColor) == GL_DST_COLOR);
 	static_assert(static_cast<GLenum>(BlendingFactor::OneMinusDstColor) == GL_ONE_MINUS_DST_COLOR);
 	static_assert(static_cast<GLenum>(BlendingFactor::SrcAlphaSaturate) == GL_SRC_ALPHA_SATURATE);
-#if !defined(DEATH_TARGET_VITA)
 	// vitaGL declares none of the constant-colour blend factors, ConstantColor/-Alpha blending is unused there
 	static_assert(static_cast<GLenum>(BlendingFactor::ConstantColor) == GL_CONSTANT_COLOR);
 	static_assert(static_cast<GLenum>(BlendingFactor::OneMinusConstantColor) == GL_ONE_MINUS_CONSTANT_COLOR);
 	static_assert(static_cast<GLenum>(BlendingFactor::ConstantAlpha) == GL_CONSTANT_ALPHA);
 	static_assert(static_cast<GLenum>(BlendingFactor::OneMinusConstantAlpha) == GL_ONE_MINUS_CONSTANT_ALPHA);
-#endif
 	static_assert(static_cast<GLenum>(BufferTarget::Vertex) == GL_ARRAY_BUFFER);
 	static_assert(static_cast<GLenum>(BufferTarget::Index) == GL_ELEMENT_ARRAY_BUFFER);
 	static_assert(static_cast<GLenum>(BufferTarget::Uniform) == GL_UNIFORM_BUFFER);
@@ -411,10 +409,8 @@ namespace nCine::RHI::GL
 
 	void GLDevice::SetupInitialState()
 	{
-#if !defined(DEATH_TARGET_VITA)
 		// vitaGL does not declare GL_DITHER, dithering is not part of its fixed-function state
 		glDisable(GL_DITHER);
-#endif
 		GLBlending::SetBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		GLDepthTest::Enable();
 	}

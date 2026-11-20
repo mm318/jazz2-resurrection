@@ -52,13 +52,8 @@ namespace Jazz2::Rendering
 		 * every remaining console already has a panel shorter than 405 lines - the Nintendo 64, the 3DS and
 		 * the PSP all render 1:1 as they are.
 		 */
-#if defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_GAMECUBE)
-		static constexpr std::int32_t DefaultViewWidth = 640;
-		static constexpr std::int32_t DefaultViewHeight = 480;
-#else
 		static constexpr std::int32_t DefaultViewWidth = 720;
 		static constexpr std::int32_t DefaultViewHeight = 405;
-#endif
 
 		/**
 		 * @brief Height of the 16:9 view every screen in the game was laid out against

@@ -1,9 +1,7 @@
 #pragma once
 
 #include "../../Main.h"
-#if !defined(NCINE_HAS_NATIVE_AUDIO)
 #include "IAudioReader.h"
-#endif
 #include "../Primitives/Vector3.h"
 #include "../Base/FrameTimer.h"
 
@@ -16,7 +14,6 @@ namespace nCine
 {
 	class IAudioPlayer;
 
-#if !defined(NCINE_HAS_NATIVE_AUDIO) || defined(DOXYGEN_GENERATING_OUTPUT)
 	/**
 		@brief Request to decode one buffer of audio stream data, usually on the decoding thread
 
@@ -86,7 +83,6 @@ namespace nCine
 			return true;
 		}
 	};
-#endif
 
 	/**
 		@brief Interface for an audio device backend
@@ -94,12 +90,10 @@ namespace nCine
 		Owns the listener, sources, buffers and active players. Exactly one backend from `nCine/Audio/Backends/`
 		is compiled in, players refer to its buffers and sources only by opaque ids.
 
-		Where `NCINE_HAS_NATIVE_AUDIO` is defined, the device plays files by itself and nothing is decoded.
 	*/
 	class IAudioDevice
 	{
 	public:
-#if !defined(NCINE_HAS_NATIVE_AUDIO) || defined(DOXYGEN_GENERATING_OUTPUT)
 		/** @brief Sample format of an audio buffer */
 		enum class BufferFormat
 		{
@@ -108,13 +102,7 @@ namespace nCine
 			Mono16, /**< 16-bit signed, single channel */
 			Stereo16 /**< 16-bit signed, two channels */
 		};
-#endif
 
-		/**
-		 * @brief What a buffer is going to be used for
-		 *
-		 * Most backends ignore it, it matters where sample memory isn't uniform (e.g. Dreamcast sound RAM).
-		 */
 		enum class BufferUsage
 		{
 			Static, /**< Loaded once and played as a whole, by @ref AudioBuffer */
@@ -187,7 +175,6 @@ namespace nCine
 		/** @brief Updates the state of every registered player, including the buffer queue of stream players */
 		virtual void UpdatePlayers() = 0;
 
-#if !defined(NCINE_HAS_NATIVE_AUDIO) || defined(DOXYGEN_GENERATING_OUTPUT)
 		/**
 		 * @brief Submits a decode request to be executed asynchronously on the decoding thread
 		 *
@@ -202,7 +189,6 @@ namespace nCine
 		 * @ref StreamDecodeRequest::State::Idle, a running one is waited for.
 		 */
 		virtual void DrainStreamDecode(const std::shared_ptr<StreamDecodeRequest>& request) = 0;
-#endif
 
 		/**
 		 * @brief Does one short step of background work in time the caller would otherwise spend waiting
@@ -227,7 +213,7 @@ namespace nCine
 		/**
 		 * @brief Changes the rate the device mixes at, if the backend has one to change
 		 *
-		 * Honoured only by software mixers (PSP, Amiga), @ref GetNativeFrequency() then reports the new rate.
+		 * Honoured only by software mixers, @ref GetNativeFrequency() then reports the new rate.
 		 * An unsupported rate or `0` is ignored, a no-op on other backends.
 		 */
 		virtual void SetMixingFrequency(std::int32_t frequency)
@@ -241,53 +227,10 @@ namespace nCine
 		virtual std::uint32_t CreateBuffer(BufferUsage usage) = 0;
 		/** @brief Destroys a buffer previously returned by @ref CreateBuffer() */
 		virtual void DeleteBuffer(std::uint32_t bufferId) = 0;
-#if !defined(NCINE_HAS_NATIVE_AUDIO) || defined(DOXYGEN_GENERATING_OUTPUT)
 		/** @brief Replaces the contents of a buffer with the specified samples */
 		virtual bool UploadBuffer(std::uint32_t bufferId, BufferFormat format, const void* data, std::int32_t size, std::int32_t frequency) = 0;
-#endif
 
 		/** @} */
-
-#if defined(NCINE_HAS_NATIVE_AUDIO) || defined(DOXYGEN_GENERATING_OUTPUT)
-		/** @{ @name Native playback */
-
-		/**
-		 * @brief Properties of audio the device plays in a format of its own
-		 *
-		 * Filled in by @ref LoadNativeBuffer() and @ref OpenNativeStream().
-		 */
-		struct NativeAudioInfo
-		{
-			/** @brief Bytes per decoded sample, or `0` where the content is not a waveform (a tracker module) */
-			std::int32_t BytesPerSample = 0;
-			/** @brief Number of channels */
-			std::int32_t NumChannels = 0;
-			/** @brief Sample frequency, or `0` if not known */
-			std::int32_t Frequency = 0;
-			/** @brief Total number of samples, or `-1` if not known */
-			std::int32_t NumSamples = -1;
-		};
-
-		/**
-		 * @brief Makes a buffer play a file the device reads by itself instead of holding its decoded samples
-		 *
-		 * Used e.g. on Nintendo 64 to stream sounds from the cartridge. Returns `false` if the file can't be played.
-		 */
-		virtual bool LoadNativeBuffer(std::uint32_t bufferId, Death::Containers::StringView path, NativeAudioInfo& info) = 0;
-		/** @brief Opens a file the device streams by itself, returning its id or `0` if it can't be played */
-		virtual std::uint32_t OpenNativeStream(Death::Containers::StringView path, NativeAudioInfo& info) = 0;
-		/** @brief Closes a stream returned by @ref OpenNativeStream(), stopping it if it is playing */
-		virtual void CloseNativeStream(std::uint32_t streamId) = 0;
-		/**
-		 * @brief Binds a native stream to a source
-		 *
-		 * The source controls then drive the stream (@ref StopSource() also rewinds it).
-		 * The binding lasts until the source is handed out again.
-		 */
-		virtual void SetSourceNativeStream(std::uint32_t sourceId, std::uint32_t streamId) = 0;
-
-		/** @} */
-#endif
 
 		/** @{ @name Sources */
 
@@ -322,7 +265,6 @@ namespace nCine
 
 		/** @} */
 
-#if !defined(NCINE_HAS_NATIVE_AUDIO) || defined(DOXYGEN_GENERATING_OUTPUT)
 		/** @{ @name Streaming */
 
 		/** @brief Appends a buffer to the streaming queue of a source */
@@ -337,22 +279,11 @@ namespace nCine
 		virtual void UnqueueBuffers(std::uint32_t sourceId, std::int32_t count, std::uint32_t* bufferIds) = 0;
 
 		/** @} */
-#endif
-
-#if defined(WITH_LIBRETRO)
-		/**
-		 * @brief Renders the next block of mixed audio into the caller's buffer (16-bit interleaved stereo)
-		 *
-		 * @return `false` when the device cannot render on demand and the caller has to supply silence
-		 */
-		virtual bool RenderSamples(std::int16_t* buffer, std::int32_t numFrames) = 0;
-#endif
 
 		/**
 		 * @brief Tells the device the caller is about to stop feeding it for a long time
 		 *
-		 * For devices mixing on the main thread, which would starve during e.g. a level load (PS2 `audsrv`
-		 * repeats its last buffer). No-op for devices with their own mixing thread.
+		 * For devices mixing on the main thread. No-op for devices with their own mixing thread.
 		 */
 		virtual void BeginBlockingOperation()
 		{
@@ -442,7 +373,6 @@ namespace nCine
 		void UpdatePlayers() override
 		{
 		}
-#if !defined(NCINE_HAS_NATIVE_AUDIO)
 		bool SubmitStreamDecode(const std::shared_ptr<StreamDecodeRequest>& request) override
 		{
 			return false;
@@ -450,7 +380,6 @@ namespace nCine
 		void DrainStreamDecode(const std::shared_ptr<StreamDecodeRequest>& request) override
 		{
 		}
-#endif
 		const Vector3f& GetListenerPosition() const override
 		{
 			return Vector3f::Zero;
@@ -470,27 +399,10 @@ namespace nCine
 		void DeleteBuffer(std::uint32_t bufferId) override
 		{
 		}
-#if defined(NCINE_HAS_NATIVE_AUDIO)
-		bool LoadNativeBuffer(std::uint32_t bufferId, Death::Containers::StringView path, NativeAudioInfo& info) override
-		{
-			return false;
-		}
-		std::uint32_t OpenNativeStream(Death::Containers::StringView path, NativeAudioInfo& info) override
-		{
-			return 0;
-		}
-		void CloseNativeStream(std::uint32_t streamId) override
-		{
-		}
-		void SetSourceNativeStream(std::uint32_t sourceId, std::uint32_t streamId) override
-		{
-		}
-#else
 		bool UploadBuffer(std::uint32_t bufferId, BufferFormat format, const void* data, std::int32_t size, std::int32_t frequency) override
 		{
 			return false;
 		}
-#endif
 
 		void SetSourceBuffer(std::uint32_t sourceId, std::uint32_t bufferId) override
 		{
@@ -534,7 +446,6 @@ namespace nCine
 			return false;
 		}
 
-#if !defined(NCINE_HAS_NATIVE_AUDIO)
 		void QueueBuffer(std::uint32_t sourceId, std::uint32_t bufferId) override
 		{
 		}
@@ -545,14 +456,6 @@ namespace nCine
 		void UnqueueBuffers(std::uint32_t sourceId, std::int32_t count, std::uint32_t* bufferIds) override
 		{
 		}
-#endif
-
-#if defined(WITH_LIBRETRO)
-		bool RenderSamples(std::int16_t* buffer, std::int32_t numFrames) override
-		{
-			return false;
-		}
-#endif
 
 		void SuspendDevice() override
 		{

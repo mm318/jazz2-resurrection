@@ -42,14 +42,7 @@ namespace Jazz2::UI
 		constexpr Texture::Format TargetFormat = Texture::Format::RGBA8;
 		constexpr Colorf TargetClearColor = Colorf(0.0f, 0.0f, 0.0f, 0.0f);
 
-#if defined(RHI_CAP_TRANSPARENT_RENDER_TARGETS)
 		constexpr bool UseTexture = true;
-#else
-		// A render target without an alpha channel - the PowerVR and the GE render into RGB565 - would bring an
-		// opaque background back, so the rows are drawn onto the canvas directly instead. That costs a render
-		// command per character every frame rather than a single quad.
-		constexpr bool UseTexture = false;
-#endif
 
 		// Taken as arrays, because an array converts to a string view through strlen()
 		template <std::size_t Size>

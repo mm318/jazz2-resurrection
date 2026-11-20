@@ -234,7 +234,6 @@ namespace nCine
 		/** @brief Sets the debug object label for the viewport's render target */
 		void SetRenderTargetLabel(const char* label);
 
-#if defined(RHI_CAP_POSTPROCESSING) || defined(DOXYGEN_GENERATING_OUTPUT)
 		/**
 			@brief Adds a pass drawn in the middle of this viewport's queue when it is split
 
@@ -275,7 +274,6 @@ namespace nCine
 
 		/** @brief Number of passes a viewport can be split with */
 		static constexpr std::uint32_t MaxSplitPasses = 32;
-#endif
 
 	protected:
 #ifndef DOXYGEN_GENERATING_OUTPUT
@@ -337,7 +335,6 @@ namespace nCine
 	private:
 		std::uint32_t _numColorAttachments;
 
-#if defined(RHI_CAP_POSTPROCESSING)
 		/** @brief Passes drawn in the middle of the queue when it is split by their bits, `nullptr` for a pass that's gone, see @ref AddSplitPass() */
 		SmallVector<Viewport*, 0> _splitPasses;
 		/** @brief Viewport this one is a split pass of, which draws it instead of the chain */
@@ -345,14 +342,11 @@ namespace nCine
 		/** @brief Layer sort keys the queue of the current frame is split at in ascending order, and the passes of each, see @ref RequestSplitAtKey() */
 		SmallVector<std::uint32_t, 4> _splitLayers;
 		SmallVector<std::uint32_t, 4> _splitLayerPasses;
-#endif
 
 		void UpdateCulling(SceneNode* node);
 		/** @brief Binds the target, clears it and draws the queue, everything @ref Draw() does past the chain */
 		void DrawContents(Viewport* nextViewport, std::uint32_t nextIndex);
-#if defined(RHI_CAP_POSTPROCESSING)
 		bool IsSplit() const;
 		void DrawSplitPasses(std::uint32_t passes);
-#endif
 	};
 }

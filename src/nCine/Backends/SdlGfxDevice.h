@@ -143,10 +143,6 @@ namespace nCine::Backends
 		static SDL_Window* _windowHandle;
 		/** @brief SDL2 OpenGL context handle */
 		static SDL_GLContext _glContextHandle;
-#if defined(DEATH_TARGET_IOS)
-		/** @brief Color renderbuffer of SDL's GL view, which must be bound when a frame is presented (see @ref update()) */
-		static unsigned int _iosColorRenderbuffer;
-#endif
 		/** @brief Fullscreen state of the main window as the window system last reported it (see @ref SyncFullscreenState()) */
 		bool _isWindowFullscreen = false;
 
@@ -159,24 +155,6 @@ namespace nCine::Backends
 		void InitGraphics(bool enableWindowScaling);
 		/** @brief Initializes the OpenGL graphics context */
 		void InitDevice(int windowPosX, int windowPosY, bool isResizable);
-
-#if defined(WITH_RHI_SOFTWARE)
-		/** @brief SDL2 renderer used to present the CPU framebuffer (software backend, no GL context) */
-		SDL_Renderer* _softwareRenderer = nullptr;
-		/** @brief Streaming texture the software backend's screen framebuffer is uploaded into each frame */
-		SDL_Texture* _softwareTexture = nullptr;
-		/** @brief Current width of @ref _softwareTexture and the backend screen framebuffer */
-		std::int32_t _softwareTextureWidth = 0;
-		/** @brief Current height of @ref _softwareTexture and the backend screen framebuffer */
-		std::int32_t _softwareTextureHeight = 0;
-
-		/** @brief Creates the SDL2 renderer and the initial streaming target for the software present path */
-		void InitSoftwarePresent(bool hasVSync);
-		/** @brief (Re)creates the streaming texture and resizes the backend screen framebuffer to match */
-		void ResizeSoftwareTarget(int width, int height);
-		/** @brief Uploads and blits the backend screen framebuffer to the window (replaces the GL buffer swap) */
-		void PresentSoftware();
-#endif
 
 		void ConvertVideoModeInfo(const SDL_DisplayMode& sdlVideoMode, IGfxDevice::VideoMode& videoMode) const;
 

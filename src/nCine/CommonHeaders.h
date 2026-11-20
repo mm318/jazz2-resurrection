@@ -1,9 +1,7 @@
 #include <CommonBase.h>
 
 #if defined(NCINE_INCLUDE_OPENGL)
-#if defined(DEATH_TARGET_VITA)
-#include <vitaGL.h>
-#elif defined(RHI_GL_PROFILE_ES)
+#if defined(RHI_GL_PROFILE_ES)
 #define GL_GLEXT_PROTOTYPES
 #if defined(RHI_GL_PROFILE_ES2)
 // The true OpenGL|ES 2.0 profile compiles against the real ES 2.0 headers (exactly as a PlayStation
@@ -12,12 +10,6 @@
 #include <GLES2/gl2.h>
 #include <GLES2/gl2ext.h>
 #include "Graphics/RHI/GL/GLEs2HeaderShims.h"
-#elif defined(DEATH_TARGET_IOS)
-// Apple ships the ES headers inside the OpenGLES framework rather than under the Khronos paths, and its
-// glext.h declares only what iOS GPUs implement; see the shim for the few enums the engine still names
-#include <OpenGLES/ES3/gl.h>
-#include <OpenGLES/ES3/glext.h>
-#include "Graphics/RHI/GL/GLEsAppleHeaderShims.h"
 #else
 #include <GLES3/gl3.h>
 #include <GLES2/gl2ext.h>
@@ -49,11 +41,7 @@
 #if !defined(AL_ALEXT_PROTOTYPES)
 #define AL_ALEXT_PROTOTYPES
 #endif
-#if defined(DEATH_TARGET_IOS)
-// OpenAL Soft compiled from source (static, see cmake/ncine_ios_dependencies.cmake), with its own header layout
-#include <AL/al.h>
-#include <AL/alext.h>
-#elif defined(DEATH_TARGET_APPLE)
+#if defined(DEATH_TARGET_APPLE)
 #include <OpenAL/al.h>
 #elif defined(DEATH_TARGET_EMSCRIPTEN)
 #include <AL/al.h>
@@ -77,12 +65,7 @@
 #if !defined(AL_ALEXT_PROTOTYPES)
 #define AL_ALEXT_PROTOTYPES
 #endif
-#if defined(DEATH_TARGET_IOS)
-#include <AL/alc.h>
-#include <AL/al.h>
-#include <AL/alext.h>
-#include <AL/efx.h>
-#elif defined(DEATH_TARGET_APPLE)
+#if defined(DEATH_TARGET_APPLE)
 #include <OpenAL/alc.h>
 #include <OpenAL/al.h>
 #elif defined(DEATH_TARGET_EMSCRIPTEN)
@@ -127,7 +110,6 @@
 // ALAudioDevice::SetSourceLowPass() has anything to call. The PSP's OpenAL is an early OpenAL Soft
 // that predates EFX being a header: the library exports alGenFilters() but ships no efx.h, so the
 // enums the low-pass path needs do not exist there and sounds are simply not muffled underwater.
-#if (defined(NCINE_INCLUDE_OPENAL) || defined(NCINE_INCLUDE_OPENALC)) && \
-	!defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_PSP)
+#if (defined(NCINE_INCLUDE_OPENAL) || defined(NCINE_INCLUDE_OPENALC)) && !(defined(DEATH_TARGET_APPLE)) && !(defined(DEATH_TARGET_EMSCRIPTEN))
 #define OPENAL_FILTERS_SUPPORTED
 #endif

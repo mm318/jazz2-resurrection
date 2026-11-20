@@ -71,7 +71,6 @@ namespace nCine
 				UpdateFilters();
 
 				_state = PlayerState::Playing;
-#if !defined(NCINE_HAS_NATIVE_AUDIO)
 				// SetModulePosition() dropped the queue while paused, Enqueue() fills it again and starts the source
 				if (_audioStream._nextAvailableBufferIndex == 0) {
 					if (!IsSilent() && !_audioStream.Enqueue(_sourceId, GetFlags(PlayerFlags::Looping))) {
@@ -82,7 +81,6 @@ namespace nCine
 					}
 					break;
 				}
-#endif
 				device.PlaySource(_sourceId);
 				break;
 			}

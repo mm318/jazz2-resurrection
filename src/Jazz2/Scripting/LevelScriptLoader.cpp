@@ -240,22 +240,12 @@ shared interface MLLEWeaponApply { bool Apply(uint, se::WeaponHook@ = null, jjST
 
 		// Try to load the script
 		HashMap<String, bool> DefinedSymbols = {
-#if defined(DEATH_TARGET_ANDROID)
-			{ "TARGET_ANDROID"_s, true },
-#elif defined(DEATH_TARGET_APPLE)
+#if defined(DEATH_TARGET_APPLE)
 			{ "TARGET_APPLE"_s, true },
-#if defined(DEATH_TARGET_IOS)
-			{ "TARGET_IOS"_s, true },
-#endif
 #elif defined(DEATH_TARGET_EMSCRIPTEN)
 			{ "TARGET_EMSCRIPTEN"_s, true },
 #elif defined(DEATH_TARGET_WINDOWS)
 			{ "TARGET_WINDOWS"_s, true },
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			{ "TARGET_WINDOWS_RT"_s, true },
-#endif
-#elif defined(DEATH_TARGET_SWITCH)
-			{ "TARGET_SWITCH"_s, true },
 #elif defined(DEATH_TARGET_UNIX)
 			{ "TARGET_UNIX"_s, true },
 #endif

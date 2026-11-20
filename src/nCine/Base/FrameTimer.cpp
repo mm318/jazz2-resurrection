@@ -5,9 +5,6 @@
 
 namespace nCine
 {
-#if defined(WITH_LIBRETRO)
-	float FrameTimer::FixedFrameDuration = FrameTimer::SecondsPerFrame;
-#endif
 
 	FrameTimer::FrameTimer(float logInterval, float avgInterval)
 		: _averageInterval(avgInterval), _loggingInterval(logInterval), _frameDuration(0.0f), _lastAvgUpdate(TimeStamp::Now()),
@@ -18,12 +15,6 @@ namespace nCine
 	void FrameTimer::AddFrame()
 	{
 		_frameDuration = _frameStart.GetSecondsSince();
-#if defined(WITH_LIBRETRO)
-		// libretro: the frontend paces retro_run at exactly one frame of its announced rate, so use
-		// a fixed timestep — wall-clock jitter would otherwise leak into game speed and cause
-		// scrolling judder. The game speed stays correct at any rate through GetTimeMult().
-		_frameDuration = FixedFrameDuration;
-#endif
 
 		// Start counting for the next frame interval
 		_frameStart = TimeStamp::Now();

@@ -211,14 +211,6 @@ namespace Jazz2::Multiplayer
 		/** @brief Attempts to split the specified endpoint into address and port */
 		static bool TrySplitAddressAndPort(StringView input, StringView& address, std::uint16_t& port);
 
-		/**
-		 * @brief Switches the transport between Wi-Fi (infrastructure) and ad hoc (local wireless) mode
-		 *
-		 * @partialsupport Available only on @ref DEATH_TARGET_PSP "PlayStation Portable" platform.
-		 */
-		static bool SetAdhocMode(bool enabled);
-		/** @brief Whether the transport is in ad hoc mode (see @ref SetAdhocMode()) */
-		static bool IsAdhocMode();
 		/** @brief Converts the specified reason to the string representation */
 		static const char* ReasonToString(Reason reason);
 
@@ -341,8 +333,6 @@ namespace Jazz2::Multiplayer
 		std::int32_t AddResolvedEndpoints(StringView host, std::uint16_t port, std::int32_t ifidx);
 #endif
 
-		/** @brief Whether the transport is in ad hoc mode (only ever `true` on the PSP), see @ref SetAdhocMode() */
-		static bool _adhocMode;
 		/** @brief Ad hoc group a client joins before connecting (see @ref CreateClient()) */
 		String _adhocGroup;
 

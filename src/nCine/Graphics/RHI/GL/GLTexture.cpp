@@ -187,13 +187,11 @@ namespace nCine::RHI::GL
 		TracyGpuZone("glCompressedTexSubImage2D");
 		GLTextureFormat::CheckSupport(format);
 		Bind();
-#if !defined(DEATH_TARGET_VITA)
 		// vitaGL provides no glCompressedTexSubImage2D(), compressed-texture sub-uploads are unsupported there
 		GLint internalFormat;
 		GLenum externalFormat, dataType;
 		GLTextureFormat::Resolve(format, false, internalFormat, externalFormat, dataType);
 		glCompressedTexSubImage2D(_target, level, xoffset, yoffset, width, height, internalFormat, imageSize, data);
-#endif
 		GL_LOG_ERRORS();
 	}
 

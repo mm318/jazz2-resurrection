@@ -32,7 +32,6 @@ namespace Jazz2::Rendering
 	private:
 		PlayerViewport* _owner;
 		SmallVector<LightEmitter, 0> _emittedLightsCache;
-#if defined(RHI_CAP_SHADERS) && defined(RHI_CAP_FRAMEBUFFERS)
 		// Only the shader render path renders lights into a buffer; backends without cheap shaders skip lighting
 		// entirely (see RhiFwd.h). Every visible light of the viewport is accumulated into one vertex stream and
 		// submitted as a single indexed draw - lights need no sorting and no texture, so unlike a tile layer they
@@ -43,6 +42,5 @@ namespace Jazz2::Rendering
 		void AppendLightQuad(const LightEmitter& light);
 		void AppendRingQuads(const LightEmitter& light, const Rectf& cullingRect);
 		RenderCommand* RentRenderCommand(std::int32_t index);
-#endif
 	};
 }

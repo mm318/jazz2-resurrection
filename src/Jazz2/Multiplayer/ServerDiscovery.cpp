@@ -26,25 +26,12 @@
 #endif
 #endif
 
-#if defined(DEATH_TARGET_ANDROID)
-#include <enet/ifaddrs-android.h>
-#elif defined(DEATH_TARGET_SWITCH) && ENET_IPV6
-// `ipv6_mreq` is not defined in Switch SDK, but it doesn't work well anyway
-struct ipv6_mreq
-{
-	struct in6_addr ipv6mr_multiaddr; /* IPv6 multicast address */
-	unsigned int ipv6mr_interface; /* Interface index */
-};
-#elif (defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)) && !defined(DEATH_TARGET_EMSCRIPTEN)
+#if (defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)) && !defined(DEATH_TARGET_EMSCRIPTEN)
 #include <ifaddrs.h>
 #include <net/if.h>
 #elif defined(DEATH_TARGET_WINDOWS)
 #include <iphlpapi.h>
 #include <Utf8.h>
-#endif
-
-#if defined(DEATH_TARGET_PSP) && defined(WITH_ONLINE_MULTIPLAYER)
-#include "../../nCine/Backends/Psp/PspNetwork.h"
 #endif
 
 #include <jsoncpp/json.h>
@@ -68,7 +55,7 @@ namespace Jazz2::Multiplayer
 #if ENET_IPV6
 	static std::int32_t GetDefaultIPv6MulticastIfIndex()
 	{
-#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
+#if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
 		std::int32_t ifidx = 0;
 		struct ifaddrs* ifaddr;
 		struct ifaddrs* ifa;
@@ -426,14 +413,6 @@ namespace Jazz2::Multiplayer
 		// address families find each other. The multicast address the caller names is an IPv6 literal with no
 		// IPv4 equivalent to parse, hence it is unused.
 		static_cast<void>(multicastAddress);
-
-#if defined(DEATH_TARGET_PSP)
-		if (Backends::PspNetwork::IsAdhocActive()) {
-			// In ad hoc mode the group is the announcement - a scan is what finds it (see AdhocScan) - and
-			// every socket is a PDP socket addressed by MAC, so there is no broadcast address to send to
-			return ENET_SOCKET_NULL;
-		}
-#endif
 
 		ENetSocket socket = enet_socket_create(ENET_SOCKET_TYPE_DATAGRAM);
 		if (socket == ENET_SOCKET_NULL) {
@@ -1103,41 +1082,6 @@ namespace Jazz2::Multiplayer
 			}
 		} finishedGuard { _this->_finished };
 
-#if defined(DEATH_TARGET_PSP)
-		if (NetworkManagerBase::IsAdhocMode()) {
-			// In ad hoc mode there is no network to broadcast into and no internet to ask: the servers in reach
-			// are the ad hoc groups the consoles hosting them created, and a scan of the air finds them. Each
-			// group is listed as a server whose endpoint names the group and the host's MAC address (see
-			// NetworkManagerBase::SetAdhocMode() for the form); the scan is a few seconds of radio work, so it
-			// repeats at a leisurely pace.
-			IServerObserver* adhocObserver = _this->_observer;
-			while (_this->_observer != nullptr) {
-				Backends::PspNetwork::AdhocGroup groups[16];
-				std::int32_t count = Backends::PspNetwork::AdhocScan(groups, std::int32_t(arraySize(groups)));
-				for (std::int32_t i = 0; i < count && _this->_observer != nullptr; i++) {
-					char mac[Backends::PspNetwork::MacAddressStringLength + 1];
-					Backends::PspNetwork::FormatMacAddress(groups[i].Mac, mac, sizeof(mac));
-
-					ServerDescription desc {};
-					desc.Name = groups[i].Name;
-					desc.EndpointString = String(groups[i].Name) + "/"_s + mac;
-					desc.Flags = 0x80000000u; // Local
-					desc.IsCompatible = true;
-					adhocObserver->OnServerFound(Death::move(desc));
-				}
-				for (std::int32_t waited = 0; waited < 5000 && _this->_observer != nullptr; waited += 250) {
-					Thread::Sleep(250);
-				}
-			}
-			return;
-		}
-
-		// Nothing on this console has joined an access point yet, and the wait for one belongs on a thread
-		// that is not the main one - which is this one. Held for as long as this thread looks for servers,
-		// so the radio is up while the server list is open and goes down again when it is closed.
-		Backends::PspNetwork::ScopedConnection connection;
-#endif
-
 		IServerObserver* observer = _this->_observer;
 
 		NetworkManagerBase::InitializeBackend();
@@ -1210,12 +1154,6 @@ namespace Jazz2::Multiplayer
 				Finished.store(true, std::memory_order_release);
 			}
 		} finishedGuard { _this->_finished };
-
-#if defined(DEATH_TARGET_PSP)
-		// Nothing on this console has joined an access point yet, and the wait for one belongs on a thread
-		// that is not the main one - which is this one. Held for as long as this server is announced.
-		Backends::PspNetwork::ScopedConnection connection;
-#endif
 
 		NetworkManager* server = _this->_server;
 		std::int32_t delayCount = 30; // Delay for 15 seconds before starting to send discovery responses

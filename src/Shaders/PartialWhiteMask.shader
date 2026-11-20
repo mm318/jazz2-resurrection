@@ -26,18 +26,3 @@ void fragment() {
 	float color = min((0.299 * tex.r + 0.587 * tex.g + 0.114 * tex.b) * 2.5, 1.0);
 	COLOR = vec4(color, color, color, tex.a) * COLOR;
 }
-
-void fixed_function(pvr, gu, gs, rdp) {
-	// The shader's luma x2.5 brightening, approximated by adding a constant offset color to the sprite
-	pass p;
-	p.color = COLOR;
-	p.offset_color = vec3(96.0 / 255.0);
-	submit_quad(p);
-}
-void fixed_function(gx, pica, legacygl) {
-	// No post-texture add here, so the clamped x2 output scale stands in for the boost
-	pass p;
-	p.tev = MODULATE_X2;
-	p.color = COLOR;
-	submit_quad(p);
-}

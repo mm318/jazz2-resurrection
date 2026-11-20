@@ -311,9 +311,7 @@ namespace Jazz2::Resources
 		
 		Loaded, cached audio buffer for a single sound file, decoded on construction from a stream (the file name is
 		used to detect the format), together with its resource flags. Owned by @ref ContentResolver and referenced by
-		the @ref SoundResource entries that group the buffers belonging to one named metadata sound. Where the audio
-		device plays sound in a format of its own (`NCINE_HAS_NATIVE_AUDIO`), it is created from the path of such
-		a file instead, and nothing is decoded.
+		the @ref SoundResource entries that group the buffers belonging to one named metadata sound.
 	*/
 	struct GenericSoundResource
 	{
@@ -322,7 +320,6 @@ namespace Jazz2::Resources
 		/** @brief Resource flags */
 		GenericSoundResourceFlags Flags;
 
-#if !defined(NCINE_HAS_NATIVE_AUDIO) || defined(DOXYGEN_GENERATING_OUTPUT)
 		/**
 		 * @brief Creates a new instance from a stream
 		 *
@@ -330,7 +327,6 @@ namespace Jazz2::Resources
 		 * @param filename	File name used to detect the audio format
 		 */
 		GenericSoundResource(std::unique_ptr<Stream> stream, StringView filename) noexcept;
-#endif
 
 		/**
 		 * @brief Creates a new instance from a file the audio device may play natively

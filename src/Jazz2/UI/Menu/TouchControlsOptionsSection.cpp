@@ -153,18 +153,6 @@ namespace Jazz2::UI::Menu
 			DrawToggle(btnCenterX + ToggleGap, Row2Y, ToggleW, ToggleH, on);
 		}
 
-#if defined(NCINE_HAS_VIBRATIONS)
-		// Row 3: Vibration label + sliding toggle
-		{
-			bool on = PreferencesCache::EnableTouchVibration;
-			// TRANSLATORS: Toggle in the touch controls layout editor to vibrate when a touch button is pressed, keep it short
-			_root->DrawStringShadow(_("Vibration"), charOffset, btnCenterX - ToggleGap,
-				Row3Y + ToggleH * 0.5f + 1.0f, IMenuContainer::FontLayer + 245, Alignment::Right,
-				Colorf(0.46f, 0.46f, 0.46f, 0.5f), 0.80f, 0.0f, 0.0f, 0.0f, 0.0f, 0.9f);
-			DrawToggle(btnCenterX + ToggleGap, Row3Y, ToggleW, ToggleH, on);
-		}
-#endif
-
 		// Hint (just below top bar)
 		// TRANSLATORS: Hint in the touch controls layout editor how to move and resize the on-screen buttons
 		_root->DrawStringShadow(_("Drag to move · Pinch or corner to resize"), charOffset,
@@ -461,11 +449,6 @@ namespace Jazz2::UI::Menu
 						_tapDownX = px;
 						_tapDownY = py;
 
-#if defined(NCINE_HAS_VIBRATIONS)
-						if (PreferencesCache::EnableTouchVibration) {
-							theApplication().Vibrate(12);
-						}
-#endif
 						break;
 					}
 				}
@@ -506,19 +489,6 @@ namespace Jazz2::UI::Menu
 					break;
 				}
 
-#if defined(NCINE_HAS_VIBRATIONS)
-				// Vibration toggle (Row 3) — tapping anywhere across the row toggles it
-				if (py >= Row3Y && py <= Row3Y + ToggleH + 4.0f &&
-					px >= saveLeft && px <= resetLeft + BtnW) {
-					PreferencesCache::EnableTouchVibration = !PreferencesCache::EnableTouchVibration;
-					_isDirty = true;
-					_root->PlaySfx("MenuSelect"_s, 0.6f);
-					if (PreferencesCache::EnableTouchVibration) {
-						theApplication().Vibrate(12);
-					}
-					break;
-				}
-#endif
 				break;
 			}
 
@@ -618,11 +588,6 @@ namespace Jazz2::UI::Menu
 				_resizingViaCorner = false;
 				_tapDownTime = -1.0f;
 
-#if defined(NCINE_HAS_VIBRATIONS)
-				if (PreferencesCache::EnableTouchVibration) {
-					theApplication().Vibrate(6);
-				}
-#endif
 				break;
 			}
 
@@ -641,12 +606,6 @@ namespace Jazz2::UI::Menu
 					_resizingViaCorner = false;
 					_editMode = EditMode::None;
 					_tapDownTime = -1.0f;
-
-#if defined(NCINE_HAS_VIBRATIONS)
-					if (PreferencesCache::EnableTouchVibration) {
-						theApplication().Vibrate(6);
-					}
-#endif
 				}
 				break;
 			}

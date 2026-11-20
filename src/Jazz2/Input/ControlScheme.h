@@ -110,18 +110,13 @@ namespace Jazz2::Input
 		static constexpr std::int32_t MaxSupportedPlayers = 1;
 #endif
 		/** @brief Maximum number of supported connected gamepads */
-#if defined(DEATH_TARGET_EMSCRIPTEN) || defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_EMSCRIPTEN)
 		static constexpr std::int32_t MaxConnectedGamepads = 4;
 #else
 		static constexpr std::int32_t MaxConnectedGamepads = 6;
 #endif
 		/** @brief Gamepad button that works as @ref PlayerAction::ChangeWeapon in menus, e.g. to remove an assignment */
-#if defined(DEATH_TARGET_N64)
-		// The Nintendo 64 pad has no Y, and R is what changes weapons on it (see Reset())
-		static constexpr ButtonName ChangeWeaponMenuButton = ButtonName::RightBumper;
-#else
 		static constexpr ButtonName ChangeWeaponMenuButton = ButtonName::Y;
-#endif
 
 		/** @} */
 

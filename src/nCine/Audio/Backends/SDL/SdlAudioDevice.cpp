@@ -355,7 +355,7 @@ namespace nCine
 
 	void SdlAudioDevice::SetSourceLowPass(std::uint32_t sourceId, float value)
 	{
-		// No per-voice DSP in this mixer (see the N64 backend for why the branch is not worth it)
+		// No per-voice DSP in this mixer
 		static_cast<void>(sourceId);
 		static_cast<void>(value);
 	}
@@ -534,7 +534,7 @@ namespace nCine
 
 	void SdlAudioDevice::MixInto(std::int16_t* output, std::int32_t frames)
 	{
-		// Silence is the common case and skips the accumulator entirely (see the N64 backend)
+		// Silence is the common case and skips the accumulator entirely
 		bool anyPlaying = false;
 		for (const Source& source : _sources) {
 			if (source.Playing && !source.Paused) {

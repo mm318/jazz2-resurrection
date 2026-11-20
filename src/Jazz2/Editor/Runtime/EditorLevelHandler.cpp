@@ -253,7 +253,6 @@ namespace Jazz2::Editor
 
 	void EditorLevelHandler::SetFrameBlur(bool below, bool whole, bool windows)
 	{
-#if defined(RHI_CAP_POSTPROCESSING)
 		Texture* frame = _upscalePass.GetTargetTexture();
 		Viewport* frameView = _upscalePass.GetView();
 		Rendering::PlayerViewport* viewport = GetViewport();
@@ -299,17 +298,14 @@ namespace Jazz2::Editor
 		if (below) {
 			_belowBlur.InsertIntoChain();
 		}
-#endif
 	}
 
 	Texture* EditorLevelHandler::RequestFrameBlurBelow(std::uint16_t layer)
 	{
-#if defined(RHI_CAP_POSTPROCESSING)
 		if (CanBlurFrameBelow()) {
 			_upscalePass.GetView()->RequestSplit(layer, _belowBlurBits);
 			return _belowBlur.GetTarget();
 		}
-#endif
 		return nullptr;
 	}
 
@@ -320,12 +316,10 @@ namespace Jazz2::Editor
 
 	Texture* EditorLevelHandler::RequestFrameBlurBelowWindows(std::uint16_t layer)
 	{
-#if defined(RHI_CAP_POSTPROCESSING)
 		if (_windowsBlurBits != 0 && CanBlurFrameBelow() && _windowsBlur.IsInChain()) {
 			_upscalePass.GetView()->RequestSplit(layer, _windowsBlurBits);
 			return _windowsBlur.GetTarget();
 		}
-#endif
 		return nullptr;
 	}
 

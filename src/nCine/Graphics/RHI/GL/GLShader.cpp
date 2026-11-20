@@ -27,8 +27,6 @@ namespace nCine::RHI::GL
 
 #if defined(DEATH_TARGET_EMSCRIPTEN)
 		static constexpr StringView CommonShaderDefines = "#define DEATH_TARGET_EMSCRIPTEN\n#line 0\n"_s;
-#elif defined(DEATH_TARGET_ANDROID)
-		static constexpr StringView CommonShaderDefines = "#define DEATH_TARGET_ANDROID\n#line 0\n"_s;
 #elif defined(WITH_ANGLE)
 		static constexpr StringView CommonShaderDefines = "#define WITH_ANGLE\n#line 0\n"_s;
 #else

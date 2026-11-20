@@ -392,14 +392,13 @@ namespace Jazz2
 		 * The most the scene is rendered at, as a fraction of the default view size (see
 		 * @ref Rendering::UpscaleRenderPass::CalculateViewSize()); a display smaller than that keeps getting a
 		 * view of its own size. On PS Vita it sizes the frame surface itself instead, see
-		 * @ref ApplyRenderingResolution().
+		 * @ref Rendering::UpscaleRenderPass.
 		 */
 		static std::uint8_t RenderingResolutionPercent;
 		/**
 		 * @brief Particle quality
 		 *
-		 * @ref ParticleQuality::High everywhere but the consoles that cannot spare the fill rate for it -
-		 * the PlayStation 2, Dreamcast, GameCube and Nintendo 64 start at @ref ParticleQuality::Low.
+		 * Defaults to @ref ParticleQuality::High.
 		 */
 		static ParticleQuality Particles;
 		/**
@@ -427,10 +426,6 @@ namespace Jazz2
 		static bool EnableReforgedHUD;
 		/** @brief Whether reforged main menu is enabled */
 		static bool EnableReforgedMainMenu;
-#if defined(DEATH_TARGET_ANDROID)
-		// Used to swap Android activity icons on exit/suspend
-		static bool EnableReforgedMainMenuInitial;
-#endif
 		/** @brief Whether continuous jump is enabled */
 		static bool EnableContinuousJump;
 		/** @brief Whether ledge climbing is enabled */
@@ -491,16 +486,8 @@ namespace Jazz2
 		static std::uint8_t GamepadRumble;
 		/** @brief Whether PlayStation controller extended support is enabled */
 		static bool PlayStationExtendedSupport;
-		/**
-		 * @brief Whether native Back button should be used
-		 * 
-		 * @partialsupport Available only on @ref DEATH_TARGET_ANDROID "Android" platform.
-		 */
-		static bool UseNativeBackButton;
 		/** @brief Whether D-pad is replaced by a floating analog joystick */
 		static bool EnableTouchJoystick;
-		/** @brief Whether device vibration is used for touch button press feedback */
-		static bool EnableTouchVibration;
 		/** @brief Per-button layout configuration for all configurable touch buttons */
 		static TouchButtonLayout TouchButtons[(std::size_t)TouchButtonSlot::Count];
 
@@ -527,39 +514,8 @@ namespace Jazz2
 		static void Initialize(AppConfiguration& config);
 		/** @brief Serializes current preferences to file */
 		static void Save();
-#if defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_GAMECUBE) || defined(DOXYGEN_GENERATING_OUTPUT)
-		/**
-		 * @brief Describes the next file written to a memory card to the console's file manager
-		 *
-		 * A file on a VMU is more than its contents: in front of them sits a header that names the save, describes it and
-		 * carries the 32×32 icon the file manager lists it with. A file without one is shown as unusable data that can
-		 * only be deleted, so both files this game saves - the settings and the resumable state - get one.
-		 *
-		 * KallistiOS attaches the header itself when the file handle closes, taking the one set here for any file that
-		 * doesn't already carry its own (which a file opened for writing never does), so this has to be called before the
-		 * file is opened and what it sets stays in force until the next call. @p shortDescription is what the file manager
-		 * lists the save as and is limited to 16 characters, @p longDescription is shown beside it and is limited to 32.
-		 *
-		 * A GameCube memory card lists a file with an icon and two lines of up to 32 characters, the name of the game
-		 * and what the file is, which are @p shortDescription and @p longDescription there; they apply to the next file
-		 * written only (see @relativeref{nCine::Backends,OgcMemoryCard}). Nothing happens if the settings are not on
-		 * a memory card at all.
-		 *
-		 * @partialsupport Available only on @ref DEATH_TARGET_DREAMCAST "Dreamcast" and @ref DEATH_TARGET_GAMECUBE "GameCube"
-		 *		platforms.
-		 */
-		static void DescribeNextMemoryCardFile(StringView shortDescription, StringView longDescription);
-#endif
 		/** @brief Returns directory path of the preferences file */
 		static StringView GetDirectory();
-		/**
-		 * @brief Applies @ref RenderingResolutionPercent to the graphics device
-		 *
-		 * A no-op everywhere but on the PS Vita's native backend, where the whole frame is rendered into a surface smaller than
-		 * the panel and stretched at present time (see @ref IGfxDevice::SetDrawableSize()): the preference
-		 * sizes that surface, and the logical view then follows the drawable size as on any other display.
-		 */
-		static void ApplyRenderingResolution();
 		/** @brief Collects the frame statistics exactly while @ref PerformanceMetrics is at the level that shows them */
 		static void ApplyPerformanceMetrics();
 
@@ -618,7 +574,6 @@ namespace Jazz2
 			EnableWeaponWheel = 0x400,
 			EnableRgbLights = 0x800,
 			AllowUnsignedScripts = 0x1000,
-			UseNativeBackButton = 0x2000,
 			EnableDiscordIntegration = 0x4000,
 			ShowWeaponWheelAmmoCount = 0x8000,
 
@@ -639,7 +594,6 @@ namespace Jazz2
 
 			BlurEffects = 0x20000000,
 			EnableTouchJoystick = 0x40000000,
-			EnableTouchVibration = 0x80000000,
 
 			ShowMinimap = 0x100000000,
 			EnableReforgedCamera = 0x200000000,

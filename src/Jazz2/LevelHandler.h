@@ -132,12 +132,7 @@ namespace Jazz2
 		 * so it cannot eat into the margin. The Wii is deliberately not in the list - it is the fastest
 		 * machine here and renders the same 640 columns - but it would be safe if it ever needs the room.
 		 */
-#if defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_PS2) || \
-	defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_3DS)
-		static constexpr std::int32_t ActivateTileRange = 18;
-#else
 		static constexpr std::int32_t ActivateTileRange = 26;
-#endif
 		/** @brief Color of the water unless a script gives it its own, see @ref Rendering::CombineRenderer */
 		static constexpr Vector3f DefaultWaterColor = Vector3f(0.4f, 0.6f, 0.8f);
 		/** @brief Speed the water level moves to a new level at, in px per frame (1 px per tick of the original) */
@@ -384,20 +379,12 @@ namespace Jazz2
 		// Hide these members from documentation before refactoring
 		IRootController* _root;
 
-#if defined(RHI_CAP_SHADERS) && defined(RHI_CAP_FRAMEBUFFERS)
 		// Post-processing shaders (bloom + lighting compositing). Only backends with cheap programmable shaders
 		// run the full-screen post-process chain, so these are absent on the software backend (see RhiFwd.h)
 		Shader* _lightingMeshShader;
 		Shader* _blurShader;
 		Shader* _downsampleShader;
 		Shader* _combineShader;
-#else
-		// Software renderer and the console fixed-function tiers: the bloom/lighting chain is gated out, but the
-		// viewport compositor still needs the Combine programs so the device recognizes the draw (object label
-		// "Combine" -> SwEffect::Combine, or the generated fixed-function entry's LightingCombine stage) and runs
-		// the CPU dynamic-lighting combine in its place.
-		Shader* _combineShader;
-#endif
 		// Acquired on EVERY tier: the water variant's own program is what carries the water description. On the
 		// shader path that is its fragment stage, on the console tiers the fixed_function block that draws the
 		// tint band over whatever the lighting stage produced (see CombineWithWater.shader)

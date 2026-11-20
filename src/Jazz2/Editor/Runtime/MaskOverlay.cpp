@@ -30,11 +30,7 @@ namespace Jazz2::Editor
 		constexpr std::int32_t MaxBuildsPerFrame = 2;
 		constexpr float MaxBuildMilliseconds = 2.0f;
 #else
-#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_IOS) || defined(DEATH_TARGET_WINDOWS_RT)
-		constexpr std::size_t MaxBytes = 8 * 1024 * 1024;
-#else
 		constexpr std::size_t MaxBytes = 32 * 1024 * 1024;
-#endif
 		constexpr std::int32_t MaxBuildsPerFrame = 128;
 		constexpr float MaxBuildMilliseconds = 4.0f;
 #endif

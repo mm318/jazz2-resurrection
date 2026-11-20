@@ -21,11 +21,3 @@ void fragment() {
 #endif
 	COLOR = vec4(COLOR.r, COLOR.g, COLOR.b, alpha * COLOR.a);
 }
-
-void fixed_function() {
-	// Black-modulated sprite plus the instance color as offset gives a flat color wherever the texture has alpha
-	pass p;
-	p.color = vec4(0.0, 0.0, 0.0, COLOR.a);
-	p.offset_color = COLOR.rgb;
-	submit_quad(p);
-}

@@ -35,13 +35,8 @@ namespace Jazz2::Editor
 		constexpr float MaxMissingBuildMilliseconds = 4.0f;
 #else
 		// Phones, tablets and the Xbox have the memory a desktop has, but share it with much more
-#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_IOS) || defined(DEATH_TARGET_WINDOWS_RT)
-		constexpr std::size_t MaxBytes = 96 * 1024 * 1024;
-		constexpr std::size_t MaxPooledBytes = 8 * 1024 * 1024;
-#else
 		constexpr std::size_t MaxBytes = 384 * 1024 * 1024;
 		constexpr std::size_t MaxPooledBytes = 32 * 1024 * 1024;
-#endif
 		constexpr std::int32_t MaxBuildsPerFrame = 48;
 		constexpr float MaxBuildMilliseconds = 4.0f;
 		// The tiles of a chunk missing are drawn, which takes much longer from far away than making the chunk, so the

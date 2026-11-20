@@ -101,22 +101,18 @@ DEATH_ALWAYS_INLINE HANDLE WINAPI CreateNamedPipe(LPCWSTR lpName, DWORD dwOpenMo
 
 #if defined(CreateWindow)
 #undef CreateWindow
-#if !defined(DEATH_TARGET_WINDOWS_RT)
 DEATH_ALWAYS_INLINE HWND WINAPI CreateWindow(LPCTSTR lpClassName, LPCTSTR lpWndClass, DWORD dwStyle, int x, int y, int w, int h, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
 {
 	return ::CreateWindowW(lpClassName, lpWndClass, dwStyle, x, y, w, h, hWndParent, hMenu, hInstance, lpParam);
 }
 #endif
-#endif
 
 #if defined(CreateWindowEx)
 #undef CreateWindowEx
-#if !defined(DEATH_TARGET_WINDOWS_RT)
 DEATH_ALWAYS_INLINE HWND WINAPI CreateWindowEx(DWORD dwExStyle, LPCWSTR lpClassName, LPCWSTR lpWindowName, DWORD dwStyle, int X, int Y, int nWidth, int nHeight, HWND hWndParent, HMENU hMenu, HINSTANCE hInstance, LPVOID lpParam)
 {
 	return ::CreateWindowExW(dwExStyle, lpClassName, lpWindowName, dwStyle, X, Y, nWidth, nHeight, hWndParent, hMenu, hInstance, lpParam);
 }
-#endif
 #endif
 
 #if defined(DeleteFile)

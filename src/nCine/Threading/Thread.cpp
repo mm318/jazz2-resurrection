@@ -33,18 +33,6 @@
 #include <pthread_np.h>
 #endif
 
-#if defined(DEATH_TARGET_SWITCH)
-#include <switch.h>
-#elif defined(DEATH_TARGET_N64)
-#include <n64sys.h> // for wait_ms()
-#elif defined(DEATH_TARGET_VITA)
-#include <vitasdk.h>
-#elif defined(DEATH_TARGET_PSP)
-#include <pspthreadman.h> // for sceKernelReferThreadStatus()
-#elif defined(DEATH_TARGET_WIIU)
-#include <coreinit/core.h> // for OSGetCoreCount()
-#endif
-
 #if defined(WITH_TRACY)
 #include "common/TracySystem.hpp"
 #endif
@@ -96,64 +84,13 @@ namespace nCine
 	{
 #if defined(DEATH_TARGET_EMSCRIPTEN)
 		emscripten_sleep(milliseconds);
-#elif defined(DEATH_TARGET_SWITCH)
-		std::int64_t nanoseconds = static_cast<std::int64_t>(milliseconds) * 1000000;
-		svcSleepThread(nanoseconds);
-#elif defined(DEATH_TARGET_VITA)
-		std::uint32_t microseconds = static_cast<std::uint32_t>(milliseconds) * 1000;
-		sceKernelDelayThread(microseconds);
 #elif defined(DEATH_TARGET_WINDOWS)
 		::SleepEx(static_cast<DWORD>(milliseconds), FALSE);
-#elif defined(DEATH_TARGET_N64)
-		// libdragon's newlib has no usleep(), and with its kernel not started there is no scheduler to
-		// give the time back to anyway, so the wait is its own spin-wait
-		wait_ms(milliseconds);
 #else
 		std::uint32_t microseconds = static_cast<std::uint32_t>(milliseconds) * 1000;
 		::usleep(microseconds);
 #endif
 	}
-
-#if defined(DEATH_TARGET_PSP)
-
-	/**
-		@brief Stops the FPU trapping on IEEE exceptions, the way every other platform behaves
-
-		The Allegrex takes a floating-point exception when the FCSR enable bits are set, and an unhandled
-		one on this console ends the process instantly - every thread with it, nothing written to the log,
-		and a firmware error code ten seconds later. That is not a theoretical concern: drawing a static
-		sprite computed its frame as `animTime * FrameCount / AnimDuration`, `AnimDuration` is legitimately
-		zero for something that does not animate, and the division alone killed the game. The *value* was
-		harmless (the `% FrameCount` that followed made it zero either way, which is exactly how the same
-		code has always been fine everywhere else) - it was the operation that was fatal.
-
-		C and C++ default to exceptions being non-trapping: `1.0f / 0.0f` is infinity and execution
-		continues. Nothing in the engine installs a handler or reads `fetestexcept()`, so nothing wants the
-		traps, and leaving them armed makes every division in the codebase a place the console can die for
-		reasons that are invisible on any other target. So they are cleared here, and the flags and cause
-		bits with them.
-
-		FCSR (coprocessor 1 control register 31) bits 7-11 are the enables for Inexact, Underflow, Overflow,
-		Divide-by-zero and Invalid; bits 12-17 are the cause bits and 2-6 the sticky flags. The register is
-		per-thread context, so this runs on the main thread at startup and again on every thread started
-		through this class.
-	*/
-	void Thread::DisableFpuTraps(bool trace)
-	{
-		std::uint32_t fcsr = 0;
-		__asm__ __volatile__("cfc1 %0, $31" : "=r"(fcsr));
-		const std::uint32_t before = fcsr;
-		fcsr &= ~std::uint32_t(0x0003FF7C); // enables (7-11), cause (12-17) and flags (2-6)
-		__asm__ __volatile__("ctc1 %0, $31" ::"r"(fcsr));
-		if (trace) {
-			std::uint32_t after = 0;
-			__asm__ __volatile__("cfc1 %0, $31" : "=r"(after));
-			LOGI("FPU traps disabled: FCSR 0x{:.8x} -> 0x{:.8x} (enables were 0x{:.2x})",
-				before, after, (before >> 7) & 0x1F);
-		}
-	}
-
-#endif
 
 #if defined(WITH_THREADS)
 
@@ -205,10 +142,7 @@ namespace nCine
 #endif
 	}
 
-#if !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) &&                                                           \
-	!defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && !defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && \
-	!defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_PS2) && !defined(DEATH_TARGET_AMIGAOS4) &&                                                                    \
-	!defined(DEATH_TARGET_MORPHOS)
+#if !(defined(DEATH_TARGET_EMSCRIPTEN))
 
 	void ThreadAffinityMask::Zero()
 	{
@@ -339,15 +273,7 @@ namespace nCine
 		return (exitCode == STILL_ACTIVE);
 #else
 		pthread_t handle = _sharedBlock->_handle;
-#if defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_AMIGAOS4) || \
-	defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE)
-		// pthread_kill() is available neither in KOS, in AmigaOS 4's newlib nor in libnx (which has
-		// no signals at all, so the function is declared but never defined); the 3DS shim over libctru
-		// and the one over libogc's threads have no signals to deliver either
-		return (handle != 0);
-#else
 		return (handle != 0 && pthread_kill(handle, 0) == 0);
-#endif
 #endif
 	}
 
@@ -357,19 +283,6 @@ namespace nCine
 		SYSTEM_INFO si;
 		::GetSystemInfo(&si);
 		return si.dwNumberOfProcessors;
-#elif defined(DEATH_TARGET_SWITCH)
-		return svcGetCurrentProcessorNumber();
-#elif defined(DEATH_TARGET_WIIU)
-		// Espresso has three cores, and threads created through newlib's pthreads may run on any of them
-		return static_cast<std::uint32_t>(OSGetCoreCount());
-#elif defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_PSP)
-		return 1;
-#elif defined(DEATH_TARGET_3DS)
-		// What a homebrew application can actually run threads on: the ARM11 MPCore has two cores (four on the
-		// New 3DS), but the system reserves the second one for itself and hands an application only a slice
-		// of it (APT_SetAppCpuTimeLimit, at most 80%), so every thread the engine starts shares core 0 with
-		// the game and runs when it yields - reported as one processor so the pools stay small
-		return 1;
 #else
 		long int confRet = -1;
 #if defined(_SC_NPROCESSORS_ONLN)
@@ -402,38 +315,7 @@ namespace nCine
 			return false;
 		}
 #else
-#if defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_VITA)
-		// Both handhelds default to a stack smaller than the engine wants on a thread that decodes audio or
-		// runs the update check's TLS handshake - 32 KB from pspdev's pthread-embedded.
-		//
-		// On the PSP it cannot simply be raised to the 256 KB the main thread has: the executable takes the
-		// whole user partition as its heap (PSP_HEAP_SIZE_KB(-1) in MainApplication.cpp) while thread stacks
-		// come out of what the firmware kept back, and that pool holds one 256 KB stack but not two - the
-		// second sceKernelCreateThread() fails with NO_MEMORY, which on this console means silently losing
-		// the audio decode thread. 64 KB doubles what pthread-embedded gives and leaves the pool room to
-		// spare for every thread the engine starts.
-		//
-		// It cannot be raised to 128 KB either, whatever an emulator allows: on hardware that comes back as
-		// EAGAIN from pthread_create() for the second and third thread, which loses the audio decoder and
-		// the asset conversion worker and leaves the game sitting on the loading screen forever. What has to
-		// fit in 64 KB instead is the conversion call chain, so keep an eye on -fstack-usage there.
-		pthread_attr_t attr;
-		pthread_attr_init(&attr);
-#if defined(DEATH_TARGET_PSP)
-		pthread_attr_setstacksize(&attr, 64 * 1024);
-#elif defined(DEATH_TARGET_3DS)
-		// devkitARM's pthreads (libsysbase over libctru's threads) default to a stack meant for small workers;
-		// 128 KB fits the asset conversion chain with room to spare and there are only a handful of threads, so
-		// the 64 KB ceiling the PSP's memory forced is not needed here
-		pthread_attr_setstacksize(&attr, 128 * 1024);
-#else
-		pthread_attr_setstacksize(&attr, 256 * 1024);
-#endif
-		const int error = pthread_create(&_sharedBlock->_handle, &attr, Thread::Process, _sharedBlock);
-		pthread_attr_destroy(&attr);
-#else
 		const int error = pthread_create(&_sharedBlock->_handle, nullptr, Thread::Process, _sharedBlock);
-#endif
 		if (error != 0) {
 			delete _sharedBlock;
 			_sharedBlock = nullptr;
@@ -504,10 +386,7 @@ namespace nCine
 
 #if defined(DEATH_TARGET_WINDOWS)
 		SetThreadName(_sharedBlock->_handle, name);
-#elif !defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) &&                        \
-	!defined(DEATH_TARGET_VITA) && !defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && \
-	!defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_PS2) &&  \
-	!defined(DEATH_TARGET_AMIGAOS4) && !defined(DEATH_TARGET_MORPHOS)
+#elif !(defined(DEATH_TARGET_APPLE)) && !(defined(DEATH_TARGET_EMSCRIPTEN))
 		const auto nameLength = strnlen(name, MaxThreadNameLength);
 		if (nameLength <= MaxThreadNameLength - 1) {
 			pthread_setname_np(_sharedBlock->_handle, name);
@@ -526,10 +405,7 @@ namespace nCine
 		tracy::SetThreadName(name);
 #elif defined(DEATH_TARGET_WINDOWS)
 		SetThreadName(reinterpret_cast<HANDLE>(-1), name);
-#elif !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_VITA) &&                                                            \
-	!defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && !defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && \
-	!defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_PS2) && !defined(DEATH_TARGET_AMIGAOS4) &&                                                                    \
-	!defined(DEATH_TARGET_MORPHOS)
+#elif !(defined(DEATH_TARGET_EMSCRIPTEN))
 		const auto nameLength = strnlen(name, MaxThreadNameLength);
 		if (nameLength <= MaxThreadNameLength - 1) {
 #if !defined(DEATH_TARGET_APPLE)
@@ -550,8 +426,6 @@ namespace nCine
 #endif
 	}
 
-#if !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && \
-	!defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_PS2)
 	std::int32_t Thread::GetPriority() const
 	{
 		if (_sharedBlock == nullptr || _sharedBlock->_handle == 0) {
@@ -585,15 +459,12 @@ namespace nCine
 		pthread_setschedparam(_sharedBlock->_handle, policy, &param);
 #endif
 	}
-#endif
 
 	std::uintptr_t Thread::GetCurrentId() noexcept
 	{
 #if defined(DEATH_TARGET_WINDOWS)
 		return static_cast<std::uintptr_t>(::GetCurrentThreadId());
-#elif defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || \
-	defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_PS2) ||    \
-	defined(__FreeBSD__) || defined(__DragonFly__)
+#elif defined(DEATH_TARGET_APPLE) || defined(__FreeBSD__) || defined(__DragonFly__)
 		return reinterpret_cast<std::uintptr_t>(pthread_self());
 #else
 		return static_cast<std::uintptr_t>(pthread_self());
@@ -665,42 +536,6 @@ namespace nCine
 			}
 			return true;
 		}
-#elif defined(DEATH_TARGET_SWITCH)
-		const auto* t = threadGetSelf();
-		if (!t || !t->stack_mem || t->stack_sz == 0) {
-			return false;
-		}
-
-		stackSize = t->stack_sz;
-		const std::uintptr_t low = reinterpret_cast<std::uintptr_t>(t->stack_mem);
-		if (sp >= low && sp <= low + t->stack_sz) {
-			stackRemaining = static_cast<std::size_t>(sp - low);
-		}
-		return true;
-#elif defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_VITA)
-		SceUID thid = sceKernelGetThreadId();
-		if (thid >= 0) {
-			SceKernelThreadInfo tinfo {};
-			tinfo.size = sizeof(SceKernelThreadInfo);
-			// The query carries the same name on both handhelds only in spirit - the struct and its two
-			// interesting members are identical, the entry point is not
-#if defined(DEATH_TARGET_PSP)
-			if (sceKernelReferThreadStatus(thid, &tinfo) == 0 && tinfo.stackSize > 0) {
-#else
-			if (sceKernelGetThreadInfo(thid, &tinfo) == 0 && tinfo.stackSize > 0) {
-#endif
-				stackSize = static_cast<std::size_t>(tinfo.stackSize);
-				const std::uintptr_t low = reinterpret_cast<std::uintptr_t>(tinfo.stack);
-				if (sp > low && sp <= low + tinfo.stackSize) {
-					stackRemaining = static_cast<std::size_t>(sp - low);
-				}
-				return true;
-			}
-		}
-#elif defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_DREAMCAST) || \
-	defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_AMIGAOS4) || defined(DEATH_TARGET_MORPHOS)
-		// Stack information is not available on these platforms
-		return false;
 #else
 		pthread_t self = pthread_self();
 		pthread_attr_t attr;
@@ -751,9 +586,6 @@ namespace nCine
 	{
 #if defined(DEATH_TARGET_WINDOWS)
 		::Sleep(0);
-#elif defined(DEATH_TARGET_DREAMCAST)
-		// sched_yield() is not available in KOS
-		pthread_yield();
 #else
 		sched_yield();
 #endif
@@ -761,21 +593,14 @@ namespace nCine
 
 	bool Thread::Abort()
 	{
-#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_WINDOWS_RT) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_DREAMCAST)
-		// TerminateThread() is not supported on WinRT and Android doesn't have any similar function (and
-		// the 3DS kernel has no way to end another thread)
-		return false;
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 		return (_sharedBlock != nullptr && ::TerminateThread(_sharedBlock->_handle, 1));
 #else
 		return (_sharedBlock != nullptr && _sharedBlock->_handle != 0 && pthread_cancel(_sharedBlock->_handle) == 0);
 #endif
 	}
 
-#if !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) &&                                                           \
-	!defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && !defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && \
-	!defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_PS2) && !defined(DEATH_TARGET_AMIGAOS4) &&                                                                    \
-	!defined(DEATH_TARGET_MORPHOS)
+#if !(defined(DEATH_TARGET_EMSCRIPTEN))
 	ThreadAffinityMask Thread::GetAffinityMask() const
 	{
 		ThreadAffinityMask affinityMask;
@@ -827,11 +652,6 @@ namespace nCine
 	void* Thread::Process(void* arg)
 #endif
 	{
-#if defined(DEATH_TARGET_PSP)
-		// FCSR is per-thread context, so a new thread starts with the firmware's enables again - and an
-		// IEEE exception it traps on ends the whole process (see DisableFpuTraps())
-		DisableFpuTraps(false);
-#endif
 
 		Thread t(static_cast<SharedBlock*>(arg));
 		auto threadFunc = t._sharedBlock->_threadFunc;

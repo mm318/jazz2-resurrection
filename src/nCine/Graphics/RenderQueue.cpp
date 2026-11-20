@@ -13,9 +13,7 @@
 namespace nCine
 {
 	RenderQueue::RenderQueue()
-#if defined(RHI_CAP_POSTPROCESSING)
 		: _drawCallsCounted(false)
-#endif
 	{
 		_opaqueQueue.reserve(16);
 		_opaqueBatchedQueue.reserve(16);
@@ -85,19 +83,13 @@ namespace nCine
 #endif
 	}
 
-#if defined(RHI_CAP_POSTPROCESSING)
 	void RenderQueue::SortAndCommit(ArrayView<const std::uint32_t> splitKeys)
-#else
-	void RenderQueue::SortAndCommit()
-#endif
 	{
 #if defined(DEATH_DEBUG)
 		static char debugString[128];
 #endif
 		const bool batchingEnabled = theApplication().GetRenderingSettings().BatchingEnabled;
-#if defined(RHI_CAP_POSTPROCESSING)
 		_drawCallsCounted = false;
-#endif
 
 		// Sorting the queues with the relevant orders
 		sort(_opaqueQueue.begin(), _opaqueQueue.end(), descendingOrder);
@@ -109,13 +101,8 @@ namespace nCine
 		if (batchingEnabled) {
 			ZoneScopedNC("Batching", 0x81A861);
 			// Always create batches after sorting
-#if defined(RHI_CAP_POSTPROCESSING)
 			RenderResources::GetRenderBatcher().CreateBatches(_opaqueQueue, _opaqueBatchedQueue, splitKeys);
 			RenderResources::GetRenderBatcher().CreateBatches(_transparentQueue, _transparentBatchedQueue, splitKeys);
-#else
-			RenderResources::GetRenderBatcher().CreateBatches(_opaqueQueue, _opaqueBatchedQueue);
-			RenderResources::GetRenderBatcher().CreateBatches(_transparentQueue, _transparentBatchedQueue);
-#endif
 		}
 
 		// Avoid GPU stalls by uploading to VBOs, IBOs and UBOs before drawing
@@ -142,7 +129,6 @@ namespace nCine
 		}
 	}
 
-#if defined(RHI_CAP_POSTPROCESSING)
 	RenderQueue::Part RenderQueue::StartPart() const
 	{
 		// The opaque queue is drawn front to back, so it's the end of it where the first part ends
@@ -188,7 +174,6 @@ namespace nCine
 		DrawCommands(GetOpaques().slice(part.OpaqueBegin, part.OpaqueEnd),
 			GetTransparents().slice(part.TransparentBegin, part.TransparentEnd));
 	}
-#endif
 
 	void RenderQueue::Draw()
 	{
@@ -295,13 +280,6 @@ namespace nCine
 #endif
 			RHI::Device::SetBlendingFactors(transparentRenderCommand->GetMaterial().GetSrcBlendingFactor(), transparentRenderCommand->GetMaterial().GetDestBlendingFactor(),
 				transparentRenderCommand->GetMaterial().GetSrcAlphaBlendingFactor(), transparentRenderCommand->GetMaterial().GetDestAlphaBlendingFactor());
-#if defined(WITH_RHI_SOFTWARE)
-			// An opaque-content hint (see Material::SetOpaqueContentHint()) keeps the command in this queue -
-			// its painter's-order position is what makes the content correct - but runs the draw with
-			// blending off, which is identical output for opaque content and lets the software rasterizer
-			// overwrite instead of blend and occlusion-cull the draws the content hides
-			RHI::Device::SetBlendingEnabled(!transparentRenderCommand->GetMaterial().GetOpaqueContentHint());
-#endif
 			const RHI::ShaderProgram* shaderProgram = transparentRenderCommand->GetMaterial().GetShaderProgram();
 			if (shaderProgram != lastCommittedShader) {
 				transparentRenderCommand->CommitCameraTransformation();

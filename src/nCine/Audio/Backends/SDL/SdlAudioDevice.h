@@ -9,7 +9,7 @@ namespace nCine
 	/**
 		@brief Implementation of @ref IAudioDevice on top of SDL2's audio queue
 
-		For platforms with SDL2 but no OpenAL (AmigaOS 4, MorphOS). Sources are mixed in software on the main
+		Sources are mixed in software on the main
 		thread and handed to `SDL_QueueAudio()` rather than an audio callback, so no lock is needed; latency
 		is bounded by @ref TargetQueuedFrames.
 	*/
@@ -76,7 +76,7 @@ namespace nCine
 		/** @brief Entries the buffer table starts with */
 		static constexpr std::int32_t InitialBufferCapacity = 64;
 
-		/** @brief One uploaded PCM buffer, interleaved (see the N64 backend for the rationale) */
+		/** @brief One uploaded PCM buffer, interleaved */
 		struct Buffer
 		{
 			bool Used = false;
@@ -88,7 +88,7 @@ namespace nCine
 			std::int32_t FrameCount = 0;
 		};
 
-		/** @brief One mixer voice (see N64AudioDevice::Source - the design notes apply verbatim) */
+		/** @brief One mixer voice */
 		struct Source
 		{
 			bool Playing = false;

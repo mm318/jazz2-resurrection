@@ -10,13 +10,6 @@
 #include <algorithm>
 #include <cmath>
 
-#if !defined(RHI_CAP_POSTPROCESSING)
-// The direct tier (no shaders or no framebuffers - the software backend today, fixed-function console
-// backends later) renders straight into the backend screen framebuffer, whose size the pass drives via
-// Device::ResizeScreenFramebuffer (part of the no-shader presentation contract, see RhiFwd.h)
-#include "../../nCine/Graphics/RHI/Rhi.h"
-#endif
-
 namespace Jazz2::Rendering
 {
 	// Layer assigned to an overlay layer's composite command so it is drawn on top of the scene composite (layer 0)
@@ -24,15 +17,8 @@ namespace Jazz2::Rendering
 
 	Vector2i UpscaleRenderPass::CalculateViewSize(std::int32_t targetWidth, std::int32_t targetHeight, std::int32_t defaultWidth, std::int32_t defaultHeight)
 	{
-#if defined(WITH_RHI_GXM)
-		// The preference sizes the frame surface itself on the Vita's native backend (see PreferencesCache::
-		// ApplyRenderingResolution()), which the target size already reflects, so it is not applied twice
-		const std::int32_t maxWidth = defaultWidth;
-		const std::int32_t maxHeight = defaultHeight;
-#else
 		const std::int32_t maxWidth = std::max<std::int32_t>(defaultWidth * PreferencesCache::RenderingResolutionPercent / 100, 1);
 		const std::int32_t maxHeight = std::max<std::int32_t>(defaultHeight * PreferencesCache::RenderingResolutionPercent / 100, 1);
-#endif
 
 		// The view is fitted to the ratio the drawable is DISPLAYED at, which is not always the ratio of its
 		// own pixel counts: the PlayStation 2 renders 640x448 (1.43) and a television shows it as 4:3, so
@@ -77,44 +63,9 @@ namespace Jazz2::Rendering
 	{
 		_logicalSize = Vector2i(width, height);
 
-#if defined(DEATH_TARGET_VITA)
-		// Supersampling is a GPU-only quality mode too costly for the Vita, and its resolve step would need the
-		// antialiasing shader that vitaGL cannot compile at runtime (not precompiled there - see ContentResolver).
-		// Forcing it to 1, together with the disabled AA option below, keeps the AA subpass from ever being created.
-		_supersample = 1;
-#else
 		// An overlay layer (the HUD) is always at native resolution, only the scene is supersampled
 		_supersample = (overlay ? 1 : (supersample > 1 ? supersample : 1));
-#endif
 
-#if !defined(RHI_CAP_POSTPROCESSING)
-		// Direct tier: render at the internal/logical resolution directly into the screen framebuffer
-		// through a textureless viewport; the backend's presentation stretches it to the display. This
-		// bypasses the intermediate scene FBO and the rescale/antialiasing shader passes entirely (there
-		// is nothing to blit). Supersampling is a full-tier quality mode, so it is forced off here.
-		_supersample = 1;
-		_targetSize = Vector2f((float)targetWidth, (float)targetHeight);
-
-		// Size the backend screen framebuffer to the logical resolution; the presentation layer follows this size
-		RHI::Device::ResizeScreenFramebuffer(width, height);
-
-		_camera.SetOrthoProjection(0.0f, static_cast<float>(width), 0.0f, static_cast<float>(height));
-		_camera.SetView(0, 0, 0, 1);
-
-		if (_view == nullptr) {
-			_node = std::make_unique<SceneNode>();
-			_node->SetVisitOrderState(SceneNode::VisitOrderState::Disabled);
-
-			_view = std::make_unique<Viewport>();
-			_view->SetRootNode(_node.get());
-			_view->SetCamera(&_camera);
-			_view->SetClearMode(Viewport::ClearMode::Never);
-		}
-		_view->SetViewportRect(Recti(0, 0, width, height));
-
-		// No rescale/antialiasing subpass on the direct tier; OnDraw is a no-op (nothing to blit)
-		_antialiasing._view = nullptr;
-#else
 		// The scene is always drawn in [0, width]x[0, height] coordinates (the ortho projection below), but the target
 		// texture may be rendered at a higher resolution. This is used for splitscreen zoom-out, where each player's
 		// composite would otherwise be minified into a small region of a native-resolution framebuffer (effectively
@@ -134,11 +85,6 @@ namespace Jazz2::Rendering
 		// shimmers as the camera moves; the subpass turns it into a clean integer upscale followed by a smooth
 		// downsample. The integer multiple is computed from the actual (supersampled) texture size. Never for the overlay.
 		bool useAntialiasing = ((PreferencesCache::ActiveRescaleMode & RescaleMode::UseAntialiasing) == RescaleMode::UseAntialiasing);
-#if defined(DEATH_TARGET_VITA)
-		// The antialiasing resolve shader is unavailable on Vita, so the subpass is always off here - supersampling
-		// is likewise forced to 1 above, making this condition false.
-		useAntialiasing = false;
-#endif
 		if (nativeOutput) {
 			// Already at the size it's shown at, there is nothing to resolve
 			useAntialiasing = false;
@@ -317,7 +263,6 @@ namespace Jazz2::Rendering
 			_renderCommand.GetMaterial().SetBlendingFactors(BlendingFactor::One, BlendingFactor::OneMinusSrcAlpha);
 			_renderCommand.SetLayer(OverlayCompositeLayer);
 		}
-#endif
 	}
 
 	void UpscaleRenderPass::Register()
@@ -335,10 +280,6 @@ namespace Jazz2::Rendering
 
 	bool UpscaleRenderPass::OnDraw(RenderQueue& renderQueue)
 	{
-#if !defined(RHI_CAP_POSTPROCESSING)
-		// The direct tier draws the scene straight into the screen framebuffer, so there is no target to blit
-		return false;
-#else
 		auto instanceBlock = _renderCommand.GetMaterial().UniformBlock(Material::InstanceBlockName);
 #if !defined(DISABLE_RESCALE_SHADERS)
 		if (_resizeShader != nullptr) {
@@ -361,7 +302,6 @@ namespace Jazz2::Rendering
 		renderQueue.AddCommand(&_renderCommand);
 
 		return true;
-#endif
 	}
 
 	UpscaleRenderPass::AntialiasingSubpass::AntialiasingSubpass()
@@ -398,42 +338,15 @@ namespace Jazz2::Rendering
 
 	void UpscaleRenderPassWithClipping::Initialize(std::int32_t width, std::int32_t height, std::int32_t targetWidth, std::int32_t targetHeight, std::int32_t supersample, bool overlay, bool nativeOutput)
 	{
-#if defined(RHI_CAP_POSTPROCESSING)
 		if (_clippedView != nullptr) {
 			_clippedView->RemoveAllTextures();
 		}
 		if (_overlayView != nullptr) {
 			_overlayView->RemoveAllTextures();
 		}
-#endif
 
 		UpscaleRenderPass::Initialize(width, height, targetWidth, targetHeight, supersample, overlay, nativeOutput);
 
-#if !defined(RHI_CAP_POSTPROCESSING)
-		// Direct tier: the clipped and overlay layers are textureless viewports rendering directly into the
-		// screen framebuffer (like the base scene view), so they carry no FBO target
-		if (_clippedView == nullptr) {
-			_clippedNode = std::make_unique<SceneNode>();
-			_clippedNode->SetVisitOrderState(SceneNode::VisitOrderState::Disabled);
-
-			_clippedView = std::make_unique<Viewport>();
-			_clippedView->SetRootNode(_clippedNode.get());
-			_clippedView->SetCamera(&_camera);
-			_clippedView->SetClearMode(Viewport::ClearMode::Never);
-		}
-		_clippedView->SetViewportRect(Recti(0, 0, width, height));
-
-		if (_overlayView == nullptr) {
-			_overlayNode = std::make_unique<SceneNode>();
-			_overlayNode->SetVisitOrderState(SceneNode::VisitOrderState::Disabled);
-
-			_overlayView = std::make_unique<Viewport>();
-			_overlayView->SetRootNode(_overlayNode.get());
-			_overlayView->SetCamera(&_camera);
-			_overlayView->SetClearMode(Viewport::ClearMode::Never);
-		}
-		_overlayView->SetViewportRect(Recti(0, 0, width, height));
-#else
 		if (_clippedView == nullptr) {
 			_clippedNode = std::make_unique<SceneNode>();
 			_clippedNode->SetVisitOrderState(SceneNode::VisitOrderState::Disabled);
@@ -457,7 +370,6 @@ namespace Jazz2::Rendering
 		} else {
 			_overlayView->SetTexture(_target.get());
 		}
-#endif
 	}
 
 	void UpscaleRenderPassWithClipping::Register()

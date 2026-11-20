@@ -3,7 +3,7 @@
 #include "IAudioDevice.h"
 #include "../Base/TimeStamp.h"
 
-#if defined(WITH_THREADS) && !defined(NCINE_HAS_NATIVE_AUDIO)
+#if defined(WITH_THREADS)
 #include "../Threading/Thread.h"
 #include "../Threading/ThreadSync.h"
 #endif
@@ -58,10 +58,8 @@ namespace nCine
 		void UnregisterPlayer(IAudioPlayer* player) override;
 		void UpdatePlayers() override;
 
-#if !defined(NCINE_HAS_NATIVE_AUDIO)
 		bool SubmitStreamDecode(const std::shared_ptr<StreamDecodeRequest>& request) override;
 		void DrainStreamDecode(const std::shared_ptr<StreamDecodeRequest>& request) override;
-#endif
 
 		const Vector3f& GetListenerPosition() const override;
 
@@ -121,14 +119,12 @@ namespace nCine
 		 */
 		void CheckForStalledSources();
 
-#if !defined(NCINE_HAS_NATIVE_AUDIO)
 		/**
 		 * @brief Stops the decoding thread and releases every request still queued
 		 *
 		 * Must be called from the backend destructor, the base destructor is too late.
 		 */
 		void ShutdownDecodeThread();
-#endif
 
 	private:
 		// Since when every source has been in use without any of them advancing, the sum of the playback
@@ -143,7 +139,7 @@ namespace nCine
 		TimeStamp _lastSourceWarningTime;
 		std::uint32_t _suppressedSourceWarnings;
 #endif
-#if defined(WITH_THREADS) && !defined(NCINE_HAS_NATIVE_AUDIO)
+#if defined(WITH_THREADS)
 		// Decoding thread that executes stream decode requests ahead of time
 		Thread _decodeThread;
 		// Protects the request queue, the active request and the quit flag

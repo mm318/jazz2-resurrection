@@ -877,10 +877,7 @@ namespace Jazz2::Compatibility
 		}
 
 		if (options.CopyUsedMusic) {
-			// Not every track the game plays is named by a level. The main menu picks one of three, and each
-			// cinematic plays the file beside its own name, and none of those appear in any ".j2l" - so a
-			// tree built only from what the levels ask for left the menu and both cinematics silent on every
-			// console.
+			// Menu and cinematic music are not referenced by level files.
 			static const StringView musicOutsideLevels[] = {
 				"menu.j2b"_s, "bonus2.j2b"_s, "bonus3.j2b"_s, // See MainMenu::PlayMenuMusic()
 				"intro.j2b"_s, "ending.j2b"_s // See Cinematics::Initialize()

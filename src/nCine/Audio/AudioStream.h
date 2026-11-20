@@ -16,12 +16,7 @@ namespace nCine
 	class IAudioReader;
 	class IAudioLoader;
 
-	/**
-		@brief Streams audio decoded on the fly into a rotating set of backend buffers
-		
-		Used for long sounds such as music, owned by @ref AudioStreamPlayer. Where `NCINE_HAS_NATIVE_AUDIO`
-		is defined, the device plays the file by itself (see @ref IAudioDevice::OpenNativeStream()).
-	*/
+	/** @brief Decoded audio loaded from runtime assets */
 	class AudioStream
 	{
 		friend class AudioStreamPlayer;
@@ -32,12 +27,7 @@ namespace nCine
 		/** @brief Returns the backend id of the currently playing buffer, or `0` if none */
 		inline std::uint32_t GetBufferId() const
 		{
-#if defined(NCINE_HAS_NATIVE_AUDIO)
-			// A native stream plays through no buffer of the engine's
-			return 0;
-#else
 			return _currentBufferId;
-#endif
 		}
 
 		/** @brief Returns the number of bytes per sample */
@@ -73,7 +63,6 @@ namespace nCine
 			return (_numSamples == -1 ? -1 : (_numSamples * _numChannels * _bytesPerSample));
 		}
 
-#if !defined(NCINE_HAS_NATIVE_AUDIO) || defined(DOXYGEN_GENERATING_OUTPUT)
 		/** @brief Returns the number of samples held by a single streaming buffer */
 		std::int32_t GetStreamSampleCount() const;
 		/** @brief Returns the size of a single streaming buffer in bytes */
@@ -81,7 +70,6 @@ namespace nCine
 		{
 			return BufferSize;
 		}
-#endif
 
 		/**
 		 * @brief Decodes and enqueues new buffers and unqueues processed ones
@@ -100,77 +88,18 @@ namespace nCine
 		/** @brief Sets whether the stream should loop */
 		void SetLooping(bool value);
 
-		/**
-		 * @brief Returns the state of a tracker module at the position being heard, `false` if the stream isn't a module
-		 *
-		 * @partialsupport Not every decoder supports it, always returns `false` where `NCINE_HAS_NATIVE_AUDIO` is defined.
-		 */
+		/** @brief Decoded audio loaded from runtime assets */
 		bool GetModuleState(AudioModuleState& state) const;
-		/**
-		 * @brief Jumps to a row of a position in the order list of a tracker module
-		 *
-		 * The queued audio is dropped. With @p restart, the queue is filled again from the new position and the source
-		 * plays at once, otherwise it stays stopped until @ref Enqueue() is called.
-		 *
-		 * @partialsupport Not every decoder supports it, has no effect where `NCINE_HAS_NATIVE_AUDIO` is defined.
-		 */
+		/** @brief Decoded audio loaded from runtime assets */
 		bool SetModulePosition(std::uint32_t source, std::int32_t order, std::int32_t row, bool restart, bool looping);
-		/**
-		 * @brief Sets the ticks per row of a tracker module until the module changes them
-		 *
-		 * @partialsupport Not every decoder supports it, has no effect where `NCINE_HAS_NATIVE_AUDIO` is defined.
-		 */
+		/** @brief Decoded audio loaded from runtime assets */
 		bool SetModuleSpeed(std::int32_t speed);
-		/**
-		 * @brief Sets the tempo of a tracker module until the module changes it
-		 *
-		 * @partialsupport Not every decoder supports it, has no effect where `NCINE_HAS_NATIVE_AUDIO` is defined.
-		 */
+		/** @brief Decoded audio loaded from runtime assets */
 		bool SetModuleTempo(std::int32_t tempo);
-		/**
-		 * @brief Changes the volume of a channel of a tracker module gradually, @p volume is in `0.0` to `1.0`
-		 *
-		 * @partialsupport Not every decoder supports it, has no effect where `NCINE_HAS_NATIVE_AUDIO` is defined.
-		 */
+		/** @brief Decoded audio loaded from runtime assets */
 		bool SlideModuleChannelVolume(std::int32_t channel, float volume, std::int32_t milliseconds);
 
 	private:
-#if defined(NCINE_HAS_NATIVE_AUDIO)
-		/** @brief Stream the device plays by itself (see @ref IAudioDevice::OpenNativeStream()), closed with the handle */
-		struct NativeStreamHandle
-		{
-			/** @brief Id returned by @ref IAudioDevice::OpenNativeStream(), `0` if none */
-			std::uint32_t Id = 0;
-			/** @brief Whether the stream has been bound to the source and started */
-			bool Started = false;
-
-			NativeStreamHandle() = default;
-			explicit NativeStreamHandle(std::uint32_t id)
-				: Id(id)
-			{
-			}
-			~NativeStreamHandle();
-			NativeStreamHandle(const NativeStreamHandle&) = delete;
-			NativeStreamHandle& operator=(const NativeStreamHandle&) = delete;
-			// A moved-from stream must not close what it no longer owns; the assignment hands the previous
-			// stream to the moved-from object, whose destructor then closes it
-			NativeStreamHandle(NativeStreamHandle&& other) noexcept
-				: Id(other.Id), Started(other.Started)
-			{
-				other.Id = 0;
-			}
-			NativeStreamHandle& operator=(NativeStreamHandle&& other) noexcept
-			{
-				std::uint32_t id = Id;
-				Id = other.Id;
-				other.Id = id;
-				Started = other.Started;
-				return *this;
-			}
-		};
-		/** @brief Stream being played */
-		NativeStreamHandle _nativeStream;
-#else
 		/** @brief Number of buffers used for streaming */
 		static const std::int32_t NumBuffers = 3;
 		/** @brief Backend buffer queue used for streaming */
@@ -218,7 +147,6 @@ namespace nCine
 
 		void PushQueuedChunk(std::int32_t bytes);
 		void PopQueuedChunks(std::int32_t count);
-#endif
 
 		/** @brief Number of bytes per sample */
 		std::int32_t _bytesPerSample;
@@ -246,8 +174,6 @@ namespace nCine
 
 		bool LoadFromFile(StringView filename);
 
-#if !defined(NCINE_HAS_NATIVE_AUDIO)
 		void CreateReader(IAudioLoader& audioLoader);
-#endif
 	};
 }

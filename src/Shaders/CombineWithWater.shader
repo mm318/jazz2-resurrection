@@ -132,26 +132,3 @@ void fragment() {
 	COLOR.rgb = reduceColors(COLOR.rgb, mod(gl_FragCoord.xy, 4.0));
 #endif
 }
-
-void fixed_function(gx, pica, gu, gs, legacygl) {
-	// Water built from geometry over the composited scene
-	pipeline lighting_combine;
-#include "Include/CombineWaterFixedFunction.inc"
-}
-
-void fixed_function(rdp) {
-	// Lite variant with fewer triangles, they are expensive to set up here
-	pipeline lighting_combine;
-#define WATER_STRIP_SEGMENTS 5
-#define WATER_STRIPS 2
-#define WATER_LITE
-#include "Include/CombineWaterFixedFunction.inc"
-}
-
-void fixed_function(pvr) {
-	// Shorter strips to fit the 8-vertex buffer
-	pipeline lighting_combine;
-#define WATER_STRIP_SEGMENTS 3
-#define WATER_STRIPS 9
-#include "Include/CombineWaterFixedFunction.inc"
-}

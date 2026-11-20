@@ -727,7 +727,6 @@ namespace ShaderCompiler
 			SmallVector<SourceLine, 0> Globals;
 			SmallVector<SourceLine, 0> VertexBody;
 			SmallVector<SourceLine, 0> FragmentBody;
-			SmallVector<FixedFunctionBlock, 0> FixedFunctionBlocks;
 			std::int32_t BatchedLine = 0;
 			bool CanvasItem = false; // "shader_type canvas_item;" seen ("custom" is the default)
 			bool HasVertexBody = false;
@@ -1090,14 +1089,13 @@ out highp float vPaletteOffset;
 			bool seenShaderType = false;
 			bool seenPrecision = false;
 			std::int32_t globalDepth = 0;
-			std::int32_t capturing = 0; // 0 = none, 1 = vertex(), 2 = fragment(), 3 = fixed_function(...)
+			std::int32_t capturing = 0; // 0 = none, 1 = vertex(), 2 = fragment()
 			std::int32_t captureDepth = 0;
 			std::int32_t captureStartLine = 0;
 			bool awaitingBrace = false;
 			// Human-readable label of the entry being captured, for diagnostics only
 			auto captureLabel = [&capturing]() {
-				return (capturing == 1 ? "vertex()" : capturing == 2 ? "fragment()"
-																	 : "fixed_function(...)");
+				return (capturing == 1 ? "vertex()" : "fragment()");
 			};
 			// Global-scope "#ifdef/#ifndef SOFTWARE_RENDERER" (or LOW_POWER_GPU) conditional around varying
 			// declarations: the macro of the conditional being parsed (empty outside one), which side of it
@@ -1115,10 +1113,9 @@ out highp float vPaletteOffset;
 				const String& text = line.Text;
 				const String& bare = stripped[index].Text;
 
-				// Inside a vertex()/fragment()/fixed_function() body — capture verbatim until the matching brace
+				// Inside a vertex()/fragment() body — capture verbatim until the matching brace
 				if (capturing != 0) {
-					SmallVectorImpl<SourceLine>& body = (capturing == 1 ? src.VertexBody : capturing == 2 ? src.FragmentBody
-																										  : src.FixedFunctionBlocks.back().Lines);
+					SmallVectorImpl<SourceLine>& body = (capturing == 1 ? src.VertexBody : src.FragmentBody);
 					std::size_t bodyBegin = 0;
 					if (awaitingBrace) {
 						std::size_t open = FindFirstNotOf(bare, " \t");
@@ -1344,136 +1341,6 @@ out highp float vPaletteOffset;
 					attribute.Declaration = Death::move(decl);
 					attribute.Line = line.Line;
 					src.Attributes.push_back(Death::move(attribute));
-					continue;
-				}
-
-				if (word == "fixed_function") {
-					// The old standalone spelling — the block is an entry point like vertex()/fragment()
-					// and is written the same way since the "void" spelling landed
-					return Fail(diag, "fixed_function blocks are spelled \"void fixed_function([pvr|gx|gu]) { ... }\" now (like \"void vertex()\")", line.Line);
-				}
-
-				// "void fixed_function([<target>[, <target>...]]) { ... }" — the body is captured
-				// verbatim (like the vertex()/fragment() entries) and transpiled to C++ separately by
-				// the offline fixed-function emitter. It never joins the lowered GLSL stages, so a
-				// shader carrying a block still emits a byte-identical per-shader header. Empty
-				// parentheses mark the generic implementation, used by every backend that has
-				// no more specific block in the file; a comma-separated list of backends declares ONE
-				// implementation shared by all of them, which is what a shader whose description for
-				// two consoles is literally the same code writes instead of two identical copies. The
-				// spelling matches the other entry points; unlike them the parentheses may name
-				// backends, which is why the branch below does not share their parsing.
-				std::size_t ffCursor = cursor;
-				if (word == "void" && WordAt(bare, ffCursor) == "fixed_function") {
-					if (!seenProgram) {
-						return Fail(diag, "the first directive must be \"program <Name>;\"", line.Line);
-					}
-					// WordAt() consumed the "fixed_function" word into ffCursor; continue from there
-					cursor = ffCursor;
-					while (cursor < bare.size() && IsSpace(bare[cursor])) {
-						cursor++;
-					}
-					if (cursor >= bare.size() || bare[cursor] != '(') {
-						return Fail(diag, "usage: void fixed_function([<target>[, <target>...]]) { ... }", line.Line);
-					}
-					cursor++;
-					// The target list, whitespace-tolerant in every position ("(pvr,gu)" and
-					// "( pvr , gu )" are the same declaration). A comma commits to another entry, so
-					// a trailing one is rejected rather than silently dropped.
-					SmallVector<FixedFunctionTarget, 0> targets;
-					bool afterComma = false;
-					while (true) {
-						while (cursor < bare.size() && IsSpace(bare[cursor])) {
-							cursor++;
-						}
-						if (!afterComma && cursor < bare.size() && bare[cursor] == ')') {
-							break; // Empty parentheses — the generic block
-						}
-						String target = WordAt(bare, cursor);
-						if (target.empty()) {
-							return Fail(diag, "empty fixed_function target list entry", line.Line);
-						}
-						FixedFunctionTarget targetKind;
-						if (target == "pvr") {
-							targetKind = FixedFunctionTarget::Pvr;
-						} else if (target == "gx") {
-							targetKind = FixedFunctionTarget::Gx;
-						} else if (target == "pica") {
-							targetKind = FixedFunctionTarget::Pica;
-						} else if (target == "gu") {
-							targetKind = FixedFunctionTarget::Gu;
-						} else if (target == "gs") {
-							targetKind = FixedFunctionTarget::Gs;
-						} else if (target == "rdp") {
-							targetKind = FixedFunctionTarget::Rdp;
-						} else if (target == "legacygl") {
-							targetKind = FixedFunctionTarget::LegacyGl;
-						} else {
-							return Fail(diag, "unknown fixed_function target \""_s + target + "\" (expected pvr, gx, pica, gu, gs, rdp, legacygl, a comma-separated list of them, or empty parentheses for the generic block)"_s, line.Line);
-						}
-						for (FixedFunctionTarget listed : targets) {
-							if (listed == targetKind) {
-								return Fail(diag, "duplicate target \""_s + target + "\" in the fixed_function target list"_s, line.Line);
-							}
-						}
-						targets.push_back(targetKind);
-						afterComma = false;
-						while (cursor < bare.size() && IsSpace(bare[cursor])) {
-							cursor++;
-						}
-						if (cursor < bare.size() && bare[cursor] == ',') {
-							cursor++;
-							afterComma = true;
-							continue;
-						}
-						break;
-					}
-					String targetList = FixedFunctionTargetList(targets);
-					if (cursor >= bare.size() || bare[cursor] != ')') {
-						return Fail(diag, "expected ')' after the fixed_function target list", line.Line);
-					}
-					cursor++;
-					// Every target belongs to exactly one block, no matter whether it was spelled on
-					// its own or inside a list: two blocks claiming the same backend would both be its
-					// implementation, and which one won would depend on declaration order.
-					for (const FixedFunctionBlock& block : src.FixedFunctionBlocks) {
-						if (targets.empty() && block.Targets.empty()) {
-							return Fail(diag, "duplicate \"void fixed_function()\" block - the generic block is already declared on line "_s + Death::format("{}", block.Line), line.Line);
-						}
-						for (FixedFunctionTarget claimed : block.Targets) {
-							for (FixedFunctionTarget listed : targets) {
-								if (claimed == listed) {
-									return Fail(diag, "duplicate \"void fixed_function("_s + FixedFunctionTargetName(listed) + ")\" block - the "_s + FixedFunctionTargetName(listed) + " target is already claimed by the block on line "_s + Death::format("{}", block.Line), line.Line);
-								}
-							}
-						}
-					}
-					{
-						FixedFunctionBlock block;
-						block.Targets = Death::move(targets);
-						block.Line = line.Line;
-						src.FixedFunctionBlocks.push_back(Death::move(block));
-					}
-					while (cursor < bare.size() && IsSpace(bare[cursor])) {
-						cursor++;
-					}
-					capturing = 3;
-					captureStartLine = line.Line;
-					if (cursor >= bare.size()) {
-						awaitingBrace = true;
-					} else if (bare[cursor] == '{') {
-						awaitingBrace = false;
-						captureDepth = 1;
-						bool done = false;
-						if (!CaptureBodyLine(text, bare, cursor + 1, line.Line, src.FixedFunctionBlocks.back().Lines, captureDepth, done, diag)) {
-							return false;
-						}
-						if (done) {
-							capturing = 0;
-						}
-					} else {
-						return Fail(diag, "expected '{' after \"void fixed_function("_s + targetList + ")\""_s, line.Line);
-					}
 					continue;
 				}
 
@@ -4667,7 +4534,6 @@ out highp float vPaletteOffset;
 			document.Variants = src.Variants;
 			document.Textures = src.Textures;
 			// The batched twin shares the fragment stage, so it shares the fixed-function description too
-			document.FixedFunctionBlocks = src.FixedFunctionBlocks;
 			document.RenderModes = src.RenderModes;
 			document.HasVertexStage = true;
 			document.HasFragmentStage = true;
@@ -4759,7 +4625,6 @@ out highp float vPaletteOffset;
 			document.ProgramName = src.ProgramName;
 			document.Variants = src.Variants;
 			document.Textures = src.Textures;
-			document.FixedFunctionBlocks = src.FixedFunctionBlocks;
 			document.RenderModes = src.RenderModes;
 			document.HasVertexStage = true;
 			document.HasFragmentStage = true;

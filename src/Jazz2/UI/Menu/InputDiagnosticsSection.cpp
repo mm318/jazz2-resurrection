@@ -17,11 +17,7 @@ namespace Jazz2::UI::Menu
 		// Every button can be tested here, so leaving takes a pair of them, Start and this one. The pads of these consoles
 		// have no Back (the Dreamcast's is the C button, which only a few controllers have), so B takes its place - the
 		// button that goes back everywhere else in the menus
-#if defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_GAMECUBE)
-		constexpr ButtonName ExitButton = ButtonName::B;
-#else
 		constexpr ButtonName ExitButton = ButtonName::Back;
-#endif
 	}
 
 	InputDiagnosticsSection::InputDiagnosticsSection()

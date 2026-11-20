@@ -8,11 +8,6 @@
 #include "../../../nCine/Application.h"
 #include "../../../nCine/I18n.h"
 
-#if defined(DEATH_TARGET_ANDROID)
-#include "../../../nCine/Backends/Android/AndroidApplication.h"
-#include "../../../nCine/Backends/Android/AndroidJniHelper.h"
-#endif
-
 #include <algorithm>
 #include <cmath>
 #include <Containers/DateTime.h>
@@ -32,19 +27,9 @@ namespace Jazz2::UI::Menu
 	HighscoresSection::HighscoresSection()
 		: _selectedSeries(0), _notValidPos(-1), _notValidSeries(-1), _pendingFocus(0), _textCursor(0), _carretAnim(0.0f),
 		  _animation(0.0f), _waitForInput(false), _list(nullptr)
-#if defined(DEATH_TARGET_ANDROID)
-		  ,
-		  _recalcVisibleBoundsTimeLeft(30.0f)
-#endif
 	{
 		DeserializeFromFile();
 		FillDefaultsIfEmpty();
-
-#if defined(DEATH_TARGET_ANDROID)
-		_currentVisibleBounds = Backends::AndroidJniWrap_Activity::GetVisibleBounds();
-		_initialVisibleSize.X = _currentVisibleBounds.W;
-		_initialVisibleSize.Y = _currentVisibleBounds.H;
-#endif
 	}
 
 	HighscoresSection::HighscoresSection(std::int32_t seriesIndex, GameDifficulty difficulty, bool isReforged, bool cheatsUsed, std::uint64_t elapsedMilliseconds, const PlayerCarryOver& itemToAdd)
@@ -54,7 +39,7 @@ namespace Jazz2::UI::Menu
 			_selectedSeries = seriesIndex;
 
 			std::uint64_t userId = 0;
-#if (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || defined(DEATH_TARGET_UNIX)
+#if defined(DEATH_TARGET_WINDOWS) || defined(DEATH_TARGET_UNIX)
 			if (PreferencesCache::EnableDiscordIntegration && DiscordRpcClient::Get().IsSupported()) {
 				userId = DiscordRpcClient::Get().GetUserId();
 			}
@@ -105,13 +90,6 @@ namespace Jazz2::UI::Menu
 		}
 
 		if (_waitForInput) {
-#if defined(DEATH_TARGET_ANDROID)
-			_recalcVisibleBoundsTimeLeft -= timeMult;
-			if (_recalcVisibleBoundsTimeLeft <= 0.0f) {
-				_recalcVisibleBoundsTimeLeft = 60.0f;
-				_currentVisibleBounds = Backends::AndroidJniWrap_Activity::GetVisibleBounds();
-			}
-#endif
 			std::int32_t row = GetSelectedRow();
 			if (_root->ActionHit(PlayerAction::ChangeWeapon) && theApplication().CanShowScreenKeyboard()) {
 				_root->PlaySfx("MenuSelect"_s, 0.5f);
@@ -222,28 +200,6 @@ namespace Jazz2::UI::Menu
 
 			_root->DrawElement(ShowKeyboard, -1, 72.0f, titleY - 2.0f + 2.0f, IMenuContainer::MainLayer - 10, Alignment::Center, Colorf(0.0f, 0.0f, 0.0f, 0.2f));
 			_root->DrawElement(ShowKeyboard, -1, 72.0f, titleY - 2.0f, IMenuContainer::MainLayer, Alignment::Center, Colorf::White);
-
-#if defined(DEATH_TARGET_ANDROID)
-			if (_currentVisibleBounds.W < _initialVisibleSize.X || _currentVisibleBounds.H < _initialVisibleSize.Y) {
-				Vector2i viewSize = _root->GetViewSize();
-				if (_currentVisibleBounds.Y * viewSize.Y / _initialVisibleSize.Y < 32.0f) {
-					_root->DrawSolid(0.0f, 0.0f, IMenuContainer::MainLayer - 10, Alignment::TopLeft, Vector2f(viewSize.X, viewSize.Y), Colorf(0.0f, 0.0f, 0.0f, 0.6f));
-
-					std::int32_t row = GetSelectedRow();
-					if (row >= 0) {
-						auto& entry = _series[_selectedSeries].Items[row];
-
-						std::int32_t charOffset = 0;
-						_root->DrawStringShadow(entry.PlayerName, charOffset, 120.0f, titleY, IMenuContainer::MainLayer,
-							Alignment::Left, Colorf(0.62f, 0.44f, 0.34f, 0.5f), 1.0f);
-
-						Vector2f textToCursorSize = _root->MeasureString(entry.PlayerName.prefix(_textCursor), 1.0f);
-						_root->DrawSolid(120.0f + textToCursorSize.X + 1.0f, titleY - 1.0f, IMenuContainer::MainLayer + 10, Alignment::Left, Vector2f(1.0f, 14.0f),
-							Colorf(1.0f, 1.0f, 1.0f, std::clamp(sinApprox(_carretAnim * 0.1f) * 1.4f, 0.0f, 0.8f)), BlendMode::Additive);
-					}
-				}
-			}
-#endif
 		}
 	}
 
@@ -716,12 +672,5 @@ namespace Jazz2::UI::Menu
 
 	void HighscoresSection::RecalcLayoutForScreenKeyboard()
 	{
-#if defined(DEATH_TARGET_ANDROID)
-		_currentVisibleBounds = Backends::AndroidJniWrap_Activity::GetVisibleBounds();
-
-		if (_recalcVisibleBoundsTimeLeft > 30.0f) {
-			_recalcVisibleBoundsTimeLeft = 30.0f;
-		}
-#endif
 	}
 }

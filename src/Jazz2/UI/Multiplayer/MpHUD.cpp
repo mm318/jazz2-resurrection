@@ -932,23 +932,6 @@ namespace Jazz2::UI::Multiplayer
 
 		const Colorf trackColor(0.95f, 0.96f, 1.0f, 0.9f);
 		const Colorf shadowColor(0.0f, 0.0f, 0.0f, 0.45f);
-#if !defined(RHI_CAP_SHADERS)
-		// The direct tier draws the track from textures rasterized once (see RefreshMinimapTrackTextures()): two
-		// sprites a frame, the line and its thicker, offset shadow - the same thicknesses as the mesh strip uses,
-		// so the shadow shows as the dark rim around the line here too. The textures are in box coordinates, so a
-		// box that merely moves (the touch pause button pushing it aside) keeps them.
-		{
-			const std::int32_t texWidth = (std::int32_t)std::ceil(boxW);
-			const std::int32_t texHeight = (std::int32_t)std::ceil(boxH);
-			RefreshMinimapTrackTextures(texWidth, texHeight, origin - Vector2f(boxX, boxY), mn, scale, 1.8f, 2.6f);
-			if (_minimapTrackTexture != nullptr && _minimapTrackShadowTexture != nullptr) {
-				Vector2f boxPos(boxX, boxY);
-				Vector2f texSize((float)texWidth, (float)texHeight);
-				DrawTexture(*_minimapTrackShadowTexture, boxPos + Vector2f(0.8f, 1.0f), ShadowLayer, texSize, Vector4f(1.0f, 0.0f, 1.0f, 0.0f), shadowColor);
-				DrawTexture(*_minimapTrackTexture, boxPos, MainLayer, texSize, Vector4f(1.0f, 0.0f, 1.0f, 0.0f), trackColor);
-			}
-		}
-#else
 		SmallVector<Vector2f, 0> screenPts;
 		for (std::int32_t r = 0; r + 1 < (std::int32_t)_minimapRunOffsets.size(); r++) {
 			std::int32_t a = _minimapRunOffsets[r], b = _minimapRunOffsets[r + 1];
@@ -962,7 +945,6 @@ namespace Jazz2::UI::Multiplayer
 			DrawMinimapTrackLine(&screenPts[0], (std::int32_t)screenPts.size(), Vector2f(0.8f, 1.0f), 2.6f, ShadowLayer, shadowColor);
 			DrawMinimapTrackLine(&screenPts[0], (std::int32_t)screenPts.size(), Vector2f(0.0f, 0.0f), 1.8f, MainLayer, trackColor);
 		}
-#endif
 
 		// Start/finish markers (warp "Set Lap" tiles)
 		for (const auto& m : mpLevelHandler->_raceStartMarkers) {

@@ -49,34 +49,3 @@ void fragment() {
 	float grey = min((0.299 * color.r + 0.587 * color.g + 0.114 * color.b) * 2.6, 1.0);
 	COLOR = mix(tex, vec4(0.2 * grey, 0.2 + grey * 0.62, 0.6 + 0.2 * grey, outline * 0.95), COLOR.a);
 }
-
-void fixed_function(pvr, pica, gu, gs, rdp, legacygl) {
-	// The sprite as is, then an ice silhouette over it at alpha 0.8 * t (t = COLOR.a, the transition)
-	// These consoles can't pick a tone per texel, so the ice uses the ramp's midpoint (grey = 0.5)
-	// Alpha is below the shader's 0.95 so the sprite stays visible inside the ice
-	float t = clamp(COLOR.a, 0.0, 1.0);
-	pass sprite;
-	submit_quad(sprite);
-	if (t > 0.0) {
-		pass ice;
-		ice.color = vec4(0.0, 0.0, 0.0, 0.8 * t);
-		ice.offset_color = vec3(0.1, 0.51, 0.7);
-		submit_quad(ice);
-	}
-}
-void fixed_function(gx) {
-	// Same two passes, but LUMA_RAMP picks the tone per pixel from luma * 2.6 like the shader:
-	// grey 0 -> (0.0, 0.2, 0.6) = color.rgb, grey 1 -> (0.2, 0.82, 0.8) = offset_color
-	// Alpha matches the block above so the effect looks the same on all consoles
-	pass sprite;
-	submit_quad(sprite);
-	float t = clamp(COLOR.a, 0.0, 1.0);
-	if (t > 0.0) {
-		pass ice;
-		ice.tev = LUMA_RAMP;
-		ice.luma_gain = 2.6;
-		ice.color = vec4(0.0, 0.2, 0.6, 0.8 * t);
-		ice.offset_color = vec3(0.2, 0.82, 0.8);
-		submit_quad(ice);
-	}
-}

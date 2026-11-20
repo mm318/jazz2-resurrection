@@ -10,17 +10,12 @@
 
 #if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_MINGW)
 #include <io.h>
-#if defined(DEATH_TARGET_WINDOWS_RT)
-#include <fcntl.h>
-#endif
 #else
 #include <cerrno>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#if !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_VITA)
 #include <sys/file.h> // For flock()
-#endif
 #endif
 
 using namespace Death::Containers;
@@ -33,23 +28,11 @@ namespace Death
 
 		namespace
 		{
-#if defined(DEATH_TARGET_DREAMCAST)
-			// The Dreamcast's storage drivers transfer straight into memory only when the destination is
-			// 32-byte aligned and otherwise fall back to a copy loop that is orders of magnitude slower, so
-			// reads with an unsuitable destination are routed through the stream's own aligned buffer
-			constexpr std::uintptr_t DmaAlignment = 32;
-
-			DEATH_ALWAYS_INLINE bool IsDmaFriendly(const void* ptr)
-			{
-				return ((std::uintptr_t(ptr) & (DmaAlignment - 1)) == 0);
-			}
-#else
 			// Every other platform copies through the kernel, so any destination performs the same
 			DEATH_ALWAYS_INLINE bool IsDmaFriendly(const void*)
 			{
 				return true;
 			}
-#endif
 		}
 
 #if defined(DEATH_TARGET_WINDOWS)
@@ -212,9 +195,6 @@ namespace Death
 #endif
 
 			_buffer = nullptr;
-#if defined(DEATH_TARGET_DREAMCAST)
-			_bufferAligned = nullptr;
-#endif
 		}
 
 		std::int64_t FileStream::Seek(std::int64_t offset, SeekOrigin origin)
@@ -344,15 +324,6 @@ namespace Death
 						// Unsuitable destination: read into the aligned buffer and copy across
 						InitializeBuffer();
 						std::int32_t partialBytesToRead = (bytesToRead < _bufferSize ? std::int32_t(bytesToRead) : _bufferSize);
-#if defined(DEATH_TARGET_DREAMCAST)
-						// Bounce only up to the next aligned destination address: the buffer size is a multiple
-						// of the alignment, so a full-buffer bounce would keep the destination misaligned - and
-						// every remaining chunk on this slow path - for the whole rest of the read
-						const std::int32_t alignPrefix = std::int32_t(DmaAlignment - (std::uintptr_t(&typedBuffer[n]) & (DmaAlignment - 1)));
-						if (partialBytesToRead > alignPrefix) {
-							partialBytesToRead = alignPrefix;
-						}
-#endif
 						bytesRead = ReadInternal(BufferForIo(), partialBytesToRead);
 						if (bytesRead > 0) {
 							std::memcpy(&typedBuffer[n], BufferForIo(), std::size_t(bytesRead));
@@ -459,19 +430,8 @@ namespace Death
 				result = false;
 			}
 			return result;
-#elif defined(DEATH_TARGET_N64)
-			// libdragon's newlib advertises _POSIX_SYNCHRONIZED_IO but implements neither fdatasync() nor
-			// fsync() - there is nothing to synchronize anyway, the one writable target commits on close
-			return result;
-#elif defined(DEATH_TARGET_3DS)
-			// devkitARM's newlib advertises _POSIX_SYNCHRONIZED_IO as well, but libctru's SD card driver only
-			// implements fsync() (fdatasync() has nothing behind it)
-			return (::fsync(_fileDescriptor) == 0 && result);
 #elif defined(_POSIX_SYNCHRONIZED_IO) && _POSIX_SYNCHRONIZED_IO > 0
 			return (::fdatasync(_fileDescriptor) == 0 && result);
-#elif defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_MORPHOS)
-			// fsync() is not implemented in KOS, and MorphOS's C library only declares it
-			return result;
 #else
 			return (::fsync(_fileDescriptor) == 0 && result);
 #endif
@@ -526,7 +486,7 @@ namespace Death
 #endif
 				return (error == ERROR_INVALID_PARAMETER ? Stream::OutOfRange : Stream::Invalid);
 			}
-#elif !defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_VITA) && !defined(DEATH_TARGET_DREAMCAST) // TODO: ftruncate() is not defined on PSPSDK, VITA and KOS
+#else
 			if (::ftruncate(_fileDescriptor, size) < 0) {
 				std::int32_t error = errno;
 #if defined(DEATH_TRACE_VERBOSE_IO)
@@ -536,9 +496,6 @@ namespace Death
 #endif
 				return (error == EINVAL ? Stream::OutOfRange : Stream::Invalid);
 			}
-#else
-			// The file size cannot be changed on this platform
-			return Stream::Invalid;
 #endif
 
 			// Neither of the calls above moves the file pointer, so it has to be clamped explicitly - otherwise
@@ -573,24 +530,13 @@ namespace Death
 			FlushReadBuffer();
 			_bufferSize = bufferSize;
 			_buffer = nullptr;
-#if defined(DEATH_TARGET_DREAMCAST)
-			_bufferAligned = nullptr;
-#endif
 			return true;
 		}
 
 		void FileStream::InitializeBuffer()
 		{
 			if DEATH_UNLIKELY (_buffer == nullptr) {
-#if defined(DEATH_TARGET_DREAMCAST)
-				// The buffer is the destination of every read, so it has to satisfy the alignment the storage
-				// driver needs for its fast path (see IsDmaFriendly), the padding leaves room to align it
-				_buffer = std::make_unique<char[]>(_bufferSize + DmaAlignment);
-				const std::uintptr_t address = std::uintptr_t(_buffer.get());
-				_bufferAligned = _buffer.get() + ((DmaAlignment - (address & (DmaAlignment - 1))) & (DmaAlignment - 1));
-#else
 				_buffer = std::make_unique<char[]>(_bufferSize);
-#endif
 			}
 		}
 
@@ -660,17 +606,6 @@ namespace Death
 			SECURITY_ATTRIBUTES securityAttribs = { sizeof(SECURITY_ATTRIBUTES) };
 			securityAttribs.bInheritHandle = (mode & FileAccess::InheritHandle) == FileAccess::InheritHandle;
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			CREATEFILE2_EXTENDED_PARAMETERS params = { sizeof(CREATEFILE2_EXTENDED_PARAMETERS), FILE_ATTRIBUTE_NORMAL };
-			if ((mode & FileAccess::Sequential) == FileAccess::Sequential) {
-				params.dwFileFlags = FILE_FLAG_SEQUENTIAL_SCAN;
-			}
-			params.lpSecurityAttributes = &securityAttribs;
-
-			SmallVector<wchar_t, MAX_PATH> pathW(DefaultInit, _path.size() + 1);
-			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), _path.data(), std::int32_t(_path.size()));
-			_fileHandle = ::CreateFile2FromAppW(pathW.data(), desireAccess, shareMode, creationDisposition, &params);
-#else
 			DWORD fileFlags = FILE_ATTRIBUTE_NORMAL;
 			if ((mode & FileAccess::Sequential) == FileAccess::Sequential) {
 				fileFlags |= FILE_FLAG_SEQUENTIAL_SCAN;
@@ -679,7 +614,6 @@ namespace Death
 			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, _path.size() + 1);
 			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), _path.data(), std::int32_t(_path.size()));
 			_fileHandle = ::CreateFile(pathW.data(), desireAccess, shareMode, &securityAttribs, creationDisposition, fileFlags, NULL);
-#endif
 			if (_fileHandle == INVALID_HANDLE_VALUE) {
 #if defined(DEATH_TRACE_VERBOSE_IO)
 				DWORD error = ::GetLastError();
@@ -714,26 +648,17 @@ namespace Death
 #endif
 					return;
 			}
-#if !defined(DEATH_TARGET_VITA) && !defined(DEATH_TARGET_PS3) && !defined(DEATH_TARGET_AMIGAOS) && \
-	!defined(DEATH_TARGET_AMIGAOS4) && !defined(DEATH_TARGET_MORPHOS)
 			// The PS3's newlib declares no O_CLOEXEC, and the flag would have nothing to do there anyway:
 			// lv2 has no exec, so a descriptor cannot outlive this process into another one (neither Amiga
 			// runtime declares it either, and AmigaOS has no exec at all)
 			if ((mode & FileAccess::InheritHandle) != FileAccess::InheritHandle) {
 				openFlags |= O_CLOEXEC;
 			}
-#endif
 
 			int defaultPermissions = (S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH); // 0666
-#if defined(DEATH_TARGET_PS2)
-			// No EINTR retry: the PS2 has no signals, and its newlib port negates the IOP's error into `errno`,
-			// so MCMAN's -4 ("no such file") arrives as EINTR (4) and the loop below would spin forever
-			_fileDescriptor = ::open(_path.data(), openFlags, defaultPermissions);
-#else
 			do {
 				_fileDescriptor = ::open(_path.data(), openFlags, defaultPermissions);
 			} while (_fileDescriptor < 0 && errno == EINTR);
-#endif
 			if (_fileDescriptor < 0) {
 #if defined(DEATH_TRACE_VERBOSE_IO)
 				std::int32_t error = errno;
@@ -744,10 +669,6 @@ namespace Death
 				return;
 			}
 
-#if !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_PS2) && !defined(DEATH_TARGET_PSP) &&                              \
-	!defined(DEATH_TARGET_VITA) && !defined(DEATH_TARGET_N64) && !defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && \
-	!defined(DEATH_TARGET_GAMECUBE) && !defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) &&                      \
-	!defined(DEATH_TARGET_PS3) && !defined(DEATH_TARGET_AMIGAOS4) && !defined(DEATH_TARGET_MORPHOS)
 			if ((mode & FileAccess::Exclusive) == FileAccess::Exclusive) {
 				// Windows opens exclusive files with a share mode of 0, denying any other opener. Modern Linux has no
 				// usable mandatory locking, so emulate it with an advisory whole-file lock bound to the open file
@@ -765,9 +686,8 @@ namespace Death
 					return;
 				}
 			}
-#endif
 
-#if defined(POSIX_FADV_SEQUENTIAL) && (!defined(__ANDROID__) || __ANDROID_API__ >= 21) && !defined(DEATH_TARGET_SWITCH)
+#if defined(POSIX_FADV_SEQUENTIAL)
 			if ((mode & FileAccess::Sequential) == FileAccess::Sequential) {
 				// As noted in https://eklitzke.org/efficient-file-copying-on-linux, might make the file reading faster
 				::posix_fadvise(_fileDescriptor, 0, 0, POSIX_FADV_SEQUENTIAL);
@@ -780,18 +700,6 @@ namespace Death
 			if (::fstat(_fileDescriptor, &sb) == 0 && S_ISREG(sb.st_mode)) {
 				_size = std::int64_t(sb.st_size);
 			}
-#if defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_DREAMCAST) || \
-	defined(DEATH_TARGET_PS2)
-			else {
-				// fstat() is not fully supported by some libfat/KOS filesystems (e.g., iso9660), measure the size
-				// by seeking instead - a successful seek also proves the file behaves like a regular one.
-				off_t seekEnd = ::lseek(_fileDescriptor, 0, SEEK_END);
-				if (seekEnd >= 0) {
-					_size = std::int64_t(seekEnd);
-					::lseek(_fileDescriptor, 0, SEEK_SET);
-				}
-			}
-#endif
 #endif
 
 #if defined(DEATH_TRACE_VERBOSE_IO)

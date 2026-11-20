@@ -37,8 +37,7 @@ namespace Jazz2::Compatibility
 			Which levels are wanted
 
 			A source directory is usually an installation that has collected levels from everywhere, and most of
-			them are of no use to a build that only has to carry the game itself - a console disc especially,
-			where they cost space that is not there. Both of these are off by default, so the whole directory is
+			them are not needed for the packaged game. Both of these are off by default, so the whole directory is
 			converted unless something asks otherwise.
 		*/
 		struct ConversionOptions
@@ -69,8 +68,7 @@ namespace Jazz2::Compatibility
 				@brief Copy the music the converted levels ask for into a `Music` subdirectory
 
 				For a target whose output *is* the content tree the game loads, which is where it looks for music.
-				The desktop game instead reads it from its own content directory, falling back to the original
-				files, and never looks in the cache - so copying it there would only take up space.
+
 			*/
 			bool CopyUsedMusic = false;
 			/** @brief Receives the name of every level that was skipped, so a caller can report them */
@@ -123,9 +121,6 @@ namespace Jazz2::Compatibility
 			/** @brief Original names of the music files the levels use */
 			SmallVector<String, 0> UsedMusic;
 		};
-
-		/** @brief Package used by console profiles that keep converted assets in an archive */
-		static constexpr StringView PrebakedPackage = "Prebaked.pak"_s;
 
 		/** @brief Converts Anims.j2a and optional Data.j2d into individual runtime files */
 		static Result ConvertSourceAssets(StringView animsPath, StringView sourcePath, StringView targetPath,

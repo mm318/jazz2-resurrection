@@ -8,7 +8,7 @@
 #define KEYBOARD_WIDTH 22
 #define KEYBOARD_HEIGHT 6
 
-#if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS)
 // Remapping from Razer to Aura™ indices
 static const std::uint8_t KeyLayout[] = {
 	0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
@@ -40,7 +40,7 @@ namespace Jazz2::Input
 
 	RgbLights::RgbLights()
 	{
-#if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS)
 #if defined(DEATH_TARGET_32BIT)
 		_hLib = ::LoadLibrary(L"RzChromaSDK.dll");
 #else
@@ -81,7 +81,7 @@ namespace Jazz2::Input
 
 	RgbLights::~RgbLights()
 	{
-#if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS)
 		if (_UnInit != nullptr) {
 			_UnInit();
 		}
@@ -100,7 +100,7 @@ namespace Jazz2::Input
 
 	bool RgbLights::IsSupported() const
 	{
-#if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS)
 		return (_CreateKeyboardEffect != nullptr);
 #elif defined(DEATH_TARGET_EMSCRIPTEN)
 		return _isConnected;
@@ -111,7 +111,7 @@ namespace Jazz2::Input
 
 	void RgbLights::Update(Color colors[ColorsSize])
 	{
-#if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS)
 		if (_CreateKeyboardEffect == nullptr) {
 			return;
 		}
@@ -180,7 +180,7 @@ namespace Jazz2::Input
 
 	void RgbLights::Clear()
 	{
-#if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS)
 		if (_CreateKeyboardEffect == nullptr) {
 			return;
 		}

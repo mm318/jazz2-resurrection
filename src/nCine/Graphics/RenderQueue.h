@@ -30,7 +30,6 @@ namespace nCine
 		/** @brief Adds a draw command to the queue */
 		void AddCommand(RenderCommand* command);
 
-#if defined(RHI_CAP_POSTPROCESSING) || defined(DOXYGEN_GENERATING_OUTPUT)
 		/** @brief Commands of a range of layers, a part of a queue drawn in parts (see @ref NextPart()) */
 		struct Part
 		{
@@ -65,9 +64,6 @@ namespace nCine
 		Part NextPart(const Part& previous, std::uint32_t endKey) const;
 		/** @brief Issues the render commands of the given part in order */
 		void Draw(const Part& part);
-#else
-		void SortAndCommit();
-#endif
 		/** @brief Issues all the render commands in order */
 		void Draw();
 
@@ -83,10 +79,8 @@ namespace nCine
 		SmallVector<RenderCommand*, 0> _transparentQueue;
 		/** @brief Array of transparent batched render command pointers */
 		SmallVector<RenderCommand*, 0> _transparentBatchedQueue;
-#if defined(RHI_CAP_POSTPROCESSING)
 		// A queue drawn in parts counts its draw calls only once, set by the first part drawn in a frame
 		bool _drawCallsCounted;
-#endif
 
 		// The queues that are drawn, the batched ones if batching is enabled
 		ArrayView<RenderCommand* const> GetOpaques() const;

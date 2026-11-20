@@ -18,11 +18,7 @@
 
 namespace nCine
 {
-#if (defined(WITH_THREADS) && !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_EMSCRIPTEN) &&                                 \
-	!defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && \
-	!defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_PS2) &&    \
-	!defined(DEATH_TARGET_AMIGAOS4) && !defined(DEATH_TARGET_MORPHOS)) ||                                                            \
-	defined(DOXYGEN_GENERATING_OUTPUT)
+#if defined(WITH_THREADS) && !(defined(DEATH_TARGET_EMSCRIPTEN)) || defined(DOXYGEN_GENERATING_OUTPUT)
 
 	/**
 		@brief CPU affinity mask for a thread
@@ -82,11 +78,6 @@ namespace nCine
 		/** @brief Puts the calling thread to sleep for the given number of milliseconds */
 		static void Sleep(std::uint32_t milliseconds) noexcept;
 
-#if defined(DEATH_TARGET_PSP) || defined(DOXYGEN_GENERATING_OUTPUT)
-		/** @brief Stops the Allegrex FPU trapping on IEEE exceptions; must run on every thread (PSP only) */
-		static void DisableFpuTraps(bool trace);
-#endif
-
 #if defined(WITH_THREADS) || defined(DOXYGEN_GENERATING_OUTPUT)
 		/** @brief Plain function pointer used as a thread entry point */
 		using ThreadFuncDelegate = void (*)(void*);
@@ -129,13 +120,10 @@ namespace nCine
 		/** @brief Sets the calling thread name (not supported on Emscripten and Switch) */
 		static void SetCurrentName(const char* name);
 
-#if !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && \
-	!defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_PS2)
 		/** @brief Gets the thread priority */
 		std::int32_t GetPriority() const;
 		/** @brief Sets the thread priority */
 		void SetPriority(std::int32_t priority);
-#endif
 
 		/** @brief Returns the calling thread ID */
 		static std::uintptr_t GetCurrentId() noexcept;
@@ -149,10 +137,7 @@ namespace nCine
 		/** @brief Tries to cancel or terminate the thread (depending on operating system) */
 		bool Abort();
 
-#if !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) &&                                                           \
-	!defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && !defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && \
-	!defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_PS2) && !defined(DEATH_TARGET_AMIGAOS4) &&                                                                    \
-	!defined(DEATH_TARGET_MORPHOS)
+#if !(defined(DEATH_TARGET_EMSCRIPTEN))
 		/** @brief Gets the thread affinity mask */
 		ThreadAffinityMask GetAffinityMask() const;
 		/** @brief Sets the thread affinity mask */

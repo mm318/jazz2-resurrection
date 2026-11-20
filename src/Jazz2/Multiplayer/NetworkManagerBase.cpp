@@ -23,25 +23,8 @@
 #include <IO/FileSystem.h>
 
 #if defined(WITH_ONLINE_MULTIPLAYER)
-#if defined(DEATH_TARGET_ANDROID)
-#include <enet/ifaddrs-android.h>
-#elif defined(DEATH_TARGET_SWITCH)
-#include <net/if.h>
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 #include <iphlpapi.h>
-#elif defined(DEATH_TARGET_PSP)
-#include <pspnet_apctl.h>
-#include <cerrno>
-#include <pspnet_inet.h> // sceNetInetGetErrno()
-#include <pspthreadman.h> // sceKernelChangeThreadPriority()
-#include "../../nCine/Backends/Psp/PspNetwork.h"
-#elif defined(DEATH_TARGET_VITA)
-#include <cerrno>
-#include <psp2/net/net.h> // sceNetErrnoLoc()
-#include <psp2/net/netctl.h>
-#elif defined(DEATH_TARGET_3DS)
-#include <unistd.h> // gethostid()
-#include <arpa/inet.h>
 #elif !defined(DEATH_TARGET_EMSCRIPTEN)
 #include <ifaddrs.h>
 #endif
@@ -84,7 +67,6 @@ using namespace Death::Containers::Literals;
 
 namespace Jazz2::Multiplayer
 {
-	bool NetworkManagerBase::_adhocMode = false;
 
 	static std::atomic_int32_t _initializeCount { 0 };
 
@@ -299,52 +281,7 @@ namespace Jazz2::Multiplayer
 
 		_desiredEndpoints.clear();
 
-#if defined(DEATH_TARGET_PSP)
-		if (_adhocMode) {
-			// An ad hoc endpoint is "GROUP/MAC": the group is joined by the client thread before it connects
-			// (see OnClientThread), the MAC address is the host's, which the ad hoc arm of the transport
-			// resolves into an ENetAddress of its own (see enet_psp_set_adhoc)
-			StringView firstEndpoint = endpoints.prefix(endpoints.findOr('|', endpoints.end()).begin());
-			auto parts = firstEndpoint.partition('/');
-			StringView group = (parts[1].empty() ? StringView {} : parts[0]);
-			StringView mac = (parts[1].empty() ? parts[0] : parts[2]);
-			_adhocGroup = group;
-			ENetAddress addr = {};
-			String nullTerminatedMac = String::nullTerminatedView(mac);
-			if (enet_address_set_host(&addr, nullTerminatedMac.data()) == 0) {
-				addr.port = defaultPort;
-				_desiredEndpoints.push_back(Death::move(addr));
-			} else {
-				LOGW("Failed to parse specified ad hoc endpoint \"{}\"", firstEndpoint);
-			}
-			endpoints = {};
-		}
-#endif
-
-#if defined(DEATH_TARGET_ANDROID)
 		std::int32_t ifidx = 0;
-		struct ifaddrs* ifaddr;
-		struct ifaddrs* ifa;
-		if (getifaddrs(&ifaddr) == 0) {
-			for (ifa = ifaddr; ifa != nullptr; ifa = ifa->ifa_next) {
-				if (ifa->ifa_addr != nullptr && (ifa->ifa_addr->sa_family == AF_INET || ifa->ifa_addr->sa_family == AF_INET6) &&
-					(ifa->ifa_flags & IFF_UP)) {
-					ifidx = if_nametoindex(ifa->ifa_name);
-					if (ifidx > 0) {
-						LOGI("Using {} interface \"{}\" ({})", ifa->ifa_addr->sa_family == AF_INET6 ? "IPv6" : "IPv4", ifa->ifa_name, ifidx);
-						break;
-					}
-				}
-			}
-			freeifaddrs(ifaddr);
-		}
-		if (ifidx == 0) {
-			LOGI("No suitable network interface found");
-			ifidx = if_nametoindex("wlan0");
-		}
-#else
-		std::int32_t ifidx = 0;
-#endif
 
 		while (endpoints) {
 			auto p = endpoints.partition('|');
@@ -563,43 +500,10 @@ namespace Jazz2::Multiplayer
 		_thread.Join();
 
 		_host = nullptr;
-#if defined(DEATH_TARGET_PSP)
-		if (_adhocMode) {
-			// The group ends with the session it carried; the WLAN stays in ad hoc mode until the mode is switched
-			Backends::PspNetwork::AdhocLeaveGroup();
-		}
-#endif
 #endif
 #endif
 
 		_handler = nullptr;
-	}
-
-	bool NetworkManagerBase::SetAdhocMode(bool enabled)
-	{
-#if defined(DEATH_TARGET_PSP) && defined(WITH_ONLINE_MULTIPLAYER)
-		if (enabled == _adhocMode) {
-			return true;
-		}
-		if (enabled) {
-			if (!Backends::PspNetwork::AdhocBegin()) {
-				return false;
-			}
-		} else {
-			Backends::PspNetwork::AdhocEnd();
-		}
-		_adhocMode = enabled;
-		// Sockets created from now on are PDP sockets (or BSD ones again); the existing ones are unaffected
-		enet_psp_set_adhoc(enabled ? 1 : 0);
-		return true;
-#else
-		return !enabled;
-#endif
-	}
-
-	bool NetworkManagerBase::IsAdhocMode()
-	{
-		return _adhocMode;
 	}
 
 	NetworkState NetworkManagerBase::GetState() const
@@ -690,40 +594,7 @@ namespace Jazz2::Multiplayer
 		std::unique_lock lock(_lock);
 
 		if (_state == NetworkState::Listening && _host != nullptr) {
-#if defined(DEATH_TARGET_SWITCH)
-			struct ifconf ifc;
-			struct ifreq ifr[8];
-			ifc.ifc_len = sizeof(ifr);
-			ifc.ifc_req = ifr;
-
-			if (ioctl(_host->socket, SIOCGIFCONF, &ifc) >= 0) {
-				std::int32_t count = ifc.ifc_len / sizeof(struct ifreq);
-				LOGI("Found {} interfaces:", count);
-				for (std::int32_t i = 0; i < count; i++) {
-					if (ifr[i].ifr_addr.sa_family == AF_INET) { // IPv4
-						auto* addrPtr = &((struct sockaddr_in*)&ifr[i].ifr_addr)->sin_addr;
-						String addressString = AddressToString(*addrPtr, _host->address.port);
-						LOGI(" -\t{}: {}", ifr[i].ifr_name, addressString);
-						if (!addressString.empty() && !addressString.hasPrefix("127.0.0.1:"_s)) {
-							arrayAppend(result, Death::move(addressString));
-						}
-					}
-#if ENET_IPV6
-					else if (ifr[i].ifr_addr.sa_family == AF_INET6) { // IPv6
-						auto* addrPtr = &((struct sockaddr_in6*)&ifr[i].ifr_addr)->sin6_addr;
-						//auto scopeId = ((struct sockaddr_in6*)&ifr[i].ifr_addr)->sin6_scope_id;
-						String addressString = AddressToString(*addrPtr, /*scopeId*/ 0, _host->address.port);
-						LOGI(" -\t{}: {}", ifr[i].ifr_name, addressString);
-						if (!addressString.empty() && !addressString.hasPrefix("[::1]:"_s)) {
-							arrayAppend(result, Death::move(addressString));
-						}
-					}
-#endif
-				}
-			} else {
-				LOGW("Failed to get server endpoints");
-			}
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			ULONG bufferSize = 0;
 			::GetAdaptersAddresses(AF_UNSPEC, GAA_FLAG_INCLUDE_PREFIX, NULL, NULL, &bufferSize);
 			std::unique_ptr<std::uint8_t[]> buffer = std::make_unique<std::uint8_t[]>(bufferSize);
@@ -754,67 +625,6 @@ namespace Jazz2::Multiplayer
 							// Unsupported address family
 						}
 					}
-				}
-			} else {
-				LOGW("Failed to get server endpoints");
-			}
-#elif defined(DEATH_TARGET_VITA)
-			// Same as on the PSP below - there is no interface list to walk, and the one address the stack
-			// has is reported already formatted, here by sceNetCtlInetGetInfo()
-			SceNetCtlInfo info;
-			struct in_addr vitaAddr;
-			if (sceNetCtlInetGetInfo(SCE_NETCTL_INFO_GET_IP_ADDRESS, &info) == 0 &&
-				inet_aton(info.ip_address, &vitaAddr) == 1) {
-				String addressString = AddressToString(vitaAddr, _host->address.port);
-				LOGI("Found 1 interface:");
-				LOGI(" -\t{}", addressString);
-				if (!addressString.empty() && !addressString.hasPrefix("127.0.0.1:"_s)) {
-					arrayAppend(result, Death::move(addressString));
-				}
-			} else {
-				LOGW("Failed to get server endpoints");
-			}
-#elif defined(DEATH_TARGET_3DS)
-			// The same single address as on the two Sony handhelds - libctru has no interface list either, and
-			// reports the one address the WLAN got as gethostid() (0.0.0.0 while the console is offline)
-			struct in_addr ctrAddr;
-			ctrAddr.s_addr = std::uint32_t(::gethostid());
-			if (ctrAddr.s_addr != 0) {
-				String addressString = AddressToString(ctrAddr, _host->address.port);
-				LOGI("Found 1 interface:");
-				LOGI(" -\t{}", addressString);
-				if (!addressString.empty() && !addressString.hasPrefix("127.0.0.1:"_s)) {
-					arrayAppend(result, Death::move(addressString));
-				}
-			} else {
-				LOGW("Failed to get server endpoints");
-			}
-#elif defined(DEATH_TARGET_PSP)
-			if (_adhocMode) {
-				// In ad hoc mode the console is reached by its MAC address, in the group named after the server
-				std::uint8_t mac[6];
-				char macString[Backends::PspNetwork::MacAddressStringLength + 1];
-				if (Backends::PspNetwork::GetMacAddress(mac)) {
-					Backends::PspNetwork::FormatMacAddress(mac, macString, sizeof(macString));
-					String addressString = format("{}:{}", macString, _host->address.port);
-					LOGI("Found 1 interface (ad hoc):");
-					LOGI(" -\t{}", addressString);
-					arrayAppend(result, Death::move(addressString));
-				} else {
-					LOGW("Failed to get server endpoints");
-				}
-				return result;
-			}
-			// There is no interface list to walk on this console: the stack has exactly one address, the one
-			// the access point handed out, and sceNetApctlGetInfo() reports it already formatted
-			union SceNetApctlInfo info;
-			struct in_addr addr;
-			if (sceNetApctlGetInfo(PSP_NET_APCTL_INFO_IP, &info) == 0 && inet_aton(info.ip, &addr) == 1) {
-				String addressString = AddressToString(addr, _host->address.port);
-				LOGI("Found 1 interface:");
-				LOGI(" -\t{}", addressString);
-				if (!addressString.empty() && !addressString.hasPrefix("127.0.0.1:"_s)) {
-					arrayAppend(result, Death::move(addressString));
 				}
 			} else {
 				LOGW("Failed to get server endpoints");
@@ -1273,16 +1083,6 @@ namespace Jazz2::Multiplayer
 #if !defined(DEATH_TARGET_EMSCRIPTEN) && defined(WITH_ONLINE_MULTIPLAYER)
 	String NetworkManagerBase::AddressToString(const ENetAddress& address, bool includePort)
 	{
-#if defined(DEATH_TARGET_PSP)
-		if (_adhocMode) {
-			// An ad hoc address is a MAC address behind the ENetAddress, which only the transport can spell out
-			char name[Backends::PspNetwork::MacAddressStringLength + 1];
-			if (enet_address_get_host_ip(&address, name, sizeof(name)) == 0) {
-				return (includePort && address.port != 0 ? format("{}:{}", name, address.port) : String(name));
-			}
-			return {};
-		}
-#endif
 #if ENET_IPV6
 		return AddressToString(address.host, address.sin6_scope_id, includePort ? address.port : 0);
 #else
@@ -1956,30 +1756,6 @@ namespace Jazz2::Multiplayer
 	{
 		Thread::SetCurrentName("Multiplayer client");
 
-#if defined(DEATH_TARGET_PSP)
-		// Nothing on this console has joined an access point yet, and the wait for one belongs on a thread
-		// that is not the main one - which is this one. Held for as long as this connection lives, so the
-		// radio goes down again when the player leaves the game. Ad hoc mode joins a group instead and needs
-		// no access point at all, hence the condition.
-		Backends::PspNetwork::ScopedConnection connection(!_adhocMode);
-		if (_adhocMode) {
-			// The ad hoc group takes the place of the access point: it is joined here, on this thread, for
-			// the same reason - it is seconds of work. A group that cannot be joined leaves nothing to
-			// connect to, and the connection then fails the way an unreachable server does.
-			NetworkManagerBase* self = static_cast<NetworkManagerBase*>(param);
-			String group = String::nullTerminatedView(self->_adhocGroup);
-			if (group.empty() || !Backends::PspNetwork::AdhocJoinGroup(group.data())) {
-				self->_desiredEndpoints.clear();
-			}
-		}
-		// Above the main thread (32): the kernel never preempts a running thread for one of equal or lower
-		// priority, so at the default this thread only ran while the main one waited for the vblank - the
-		// packets queued during a frame went out a frame late and the acknowledgements came back later still,
-		// which measured as a 200-300 ms ping where every other platform sees 20. It sleeps between polls
-		// (ProcessingIntervalMs) and in every wait, so the higher priority takes nothing from the game.
-		sceKernelChangeThreadPriority(0, 24);
-#endif
-
 		NetworkManagerBase* _this = static_cast<NetworkManagerBase*>(param);
 		INetworkHandler* handler = _this->_handler;
 
@@ -2055,18 +1831,7 @@ namespace Jazz2::Multiplayer
 
 					if DEATH_UNLIKELY (result <= 0) {
 						if DEATH_UNLIKELY (result < 0) {
-#if defined(DEATH_TARGET_PSP)
-							// The socket error behind it, which the firmware keeps separately from the C library's errno
-							LOGE("[MP] enet_host_service() returned {} (socket error {}, errno {})", result, sceNetInetGetErrno(), errno);
-#elif defined(DEATH_TARGET_VITA)
-							// The firmware's own error code (SCE_NET_ERROR_*), which newlib's wrappers map onto errno
-							LOGE("[MP] enet_host_service() returned {} (socket error 0x{:.8x}, errno {})", result, std::uint32_t(*sceNetErrnoLoc()), errno);
-#elif defined(DEATH_TARGET_3DS)
-							// The socket call that failed logs its own errno (see enet_socket_send/receive in enet.h)
-							LOGE("[MP] enet_host_service() returned {} (errno {})", result, errno);
-#else
 							LOGE("[MP] enet_host_service() returned {}", result);
-#endif
 							reason = Reason::ConnectionLost;
 							break;
 						}
@@ -2127,13 +1892,6 @@ namespace Jazz2::Multiplayer
 	void NetworkManagerBase::OnServerThread(void* param)
 	{
 		Thread::SetCurrentName("Multiplayer server");
-
-#if defined(DEATH_TARGET_PSP)
-		// Nothing on this console has joined an access point yet, and the wait for one belongs on a thread
-		// that is not the main one - which is this one. Held for as long as this server is hosted; an ad hoc
-		// server created its group before it started and needs no access point.
-		Backends::PspNetwork::ScopedConnection connection(!_adhocMode);
-#endif
 
 		NetworkManagerBase* _this = static_cast<NetworkManagerBase*>(param);
 		INetworkHandler* handler = _this->_handler;

@@ -82,7 +82,7 @@ namespace nCine
 	// Barrier CLASS
 	///////////////////////////////////////////////////////////
 
-#if !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_AMIGAOS4)
+#if !(defined(DEATH_TARGET_APPLE))
 
 	Barrier::Barrier(std::uint32_t count)
 	{

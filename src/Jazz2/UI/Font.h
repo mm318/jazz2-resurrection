@@ -56,11 +56,7 @@ namespace Jazz2::UI
 			first-run screen, 38 to 28 ms on the main menu). Every shadow draw is guarded by this, so where
 			it is off none of that work is done at all.
 		*/
-#if defined(DEATH_TARGET_N64)
-		static constexpr bool ShadowsEnabled = false;
-#else
 		static constexpr bool ShadowsEnabled = true;
-#endif
 
 		/** @} */
 

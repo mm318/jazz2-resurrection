@@ -54,11 +54,6 @@ namespace nCine
 		}
 		_playerStarted = true;
 
-#if defined(DEATH_TARGET_PSP)
-		// Nearest-neighbour and no lowpass, both are per-sample costs that slow platforms can't afford
-		xmp_set_player(context, XMP_PLAYER_INTERP, XMP_INTERP_NEAREST);
-		xmp_set_player(context, XMP_PLAYER_DSP, 0);
-#endif
 		_context = context;
 	}
 

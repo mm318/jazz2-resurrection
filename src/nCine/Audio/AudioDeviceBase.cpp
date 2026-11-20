@@ -10,7 +10,7 @@ namespace nCine
 		  ,
 		  _suppressedSourceWarnings(0)
 #endif
-#if defined(WITH_THREADS) && !defined(NCINE_HAS_NATIVE_AUDIO)
+#if defined(WITH_THREADS)
 		  ,
 		  _decodeThreadCreated(false), _decodeThreadShouldQuit(false)
 #endif
@@ -19,11 +19,9 @@ namespace nCine
 
 	AudioDeviceBase::~AudioDeviceBase()
 	{
-#if !defined(NCINE_HAS_NATIVE_AUDIO)
 		// The backend destructor is expected to have done this already, it runs first and the
 		// decoding thread must not outlive the readers it touches
 		ShutdownDecodeThread();
-#endif
 	}
 
 	void AudioDeviceBase::SetSourcePool(ArrayView<const std::uint32_t> sourceIds)
@@ -273,7 +271,6 @@ namespace nCine
 		_stalledSince = TimeStamp {};
 	}
 
-#if !defined(NCINE_HAS_NATIVE_AUDIO)
 	bool AudioDeviceBase::SubmitStreamDecode(const std::shared_ptr<StreamDecodeRequest>& request)
 	{
 #if defined(WITH_THREADS)
@@ -369,7 +366,6 @@ namespace nCine
 		}
 		device->_decodeMutex.Unlock();
 	}
-#endif
 #endif
 
 	const Vector3f& AudioDeviceBase::GetListenerPosition() const

@@ -41,8 +41,6 @@ namespace nCine
 #if defined(WITH_QT5)
 		// Qt5 cannot query the list of supported video modes of a monitor
 		static constexpr std::uint32_t MaxVideoModes = 1;
-#elif defined(DEATH_TARGET_ANDROID)
-		static constexpr std::uint32_t MaxVideoModes = 16;
 #else
 		static constexpr std::uint32_t MaxVideoModes = 128;
 #endif

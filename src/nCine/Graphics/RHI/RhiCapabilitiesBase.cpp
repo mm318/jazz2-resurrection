@@ -126,15 +126,7 @@ namespace nCine::RHI
 		}
 
 		// The tier the pipeline runs on this backend, which is what most of the guarded rendering code keys on
-#if defined(RHI_CAP_POSTPROCESSING)
 		const char* tier = "post-processing (shaders, render targets)";
-#elif defined(RHI_CAP_SHADERS)
-		const char* tier = "direct (shaders, no render targets)";
-#elif defined(RHI_CAP_FRAMEBUFFERS)
-		const char* tier = "direct (render targets, no shaders)";
-#else
-		const char* tier = "direct (no shaders, no render targets)";
-#endif
 #if defined(RHI_CAP_PALETTED_TEXTURES)
 		const char* palettedTextures = ", paletted textures";
 #else

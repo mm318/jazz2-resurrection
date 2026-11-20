@@ -1,7 +1,7 @@
 #include "GLVertexArrayObject.h"
 #include "GLDebug.h"
 
-#if defined(RHI_GL_PROFILE_ES2) && !defined(DEATH_TARGET_VITA)
+#if defined(RHI_GL_PROFILE_ES2)
 // Vertex array objects are not ES 2.0 core - this profile relies on GL_OES_vertex_array_object, whose entry
 // points carry the OES suffix on a true ES2 context. Being extension functions, they are not necessarily
 // *exported* by the client library either (ANGLE exports them, Mesa's libGLESv2 does not), so they are
@@ -46,7 +46,7 @@ namespace nCine::RHI::GL
 	GLVertexArrayObject::GLVertexArrayObject()
 		: _glHandle(0)
 	{
-#if defined(RHI_GL_PROFILE_ES2) && !defined(DEATH_TARGET_VITA)
+#if defined(RHI_GL_PROFILE_ES2)
 		ResolveVertexArrayEntryPoints();
 #endif
 		glGenVertexArrays(1, &_glHandle);

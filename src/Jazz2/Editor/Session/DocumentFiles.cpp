@@ -47,10 +47,10 @@
 
 #include <cstdio>
 
-#if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS)
 #include <shellapi.h>
 #endif
-#if (defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_APPLE)) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_EMSCRIPTEN)
+#if (defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_APPLE)) && !(defined(DEATH_TARGET_EMSCRIPTEN))
 #include <cerrno>
 #include <fcntl.h>
 #include <signal.h>
@@ -86,9 +86,9 @@ namespace Jazz2::Editor
 		// (killed or crashed) isn't taken for an open one
 		std::uint32_t GetOwnProcessId()
 		{
-#if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS)
 			return std::uint32_t(::GetCurrentProcessId());
-#elif (defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_APPLE)) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_EMSCRIPTEN)
+#elif (defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_APPLE)) && !(defined(DEATH_TARGET_EMSCRIPTEN))
 			return std::uint32_t(::getpid());
 #else
 			return 0;
@@ -98,7 +98,7 @@ namespace Jazz2::Editor
 		// Unknown means running, the lock is then only a warning that can be dismissed
 		bool IsProcessRunning(std::uint32_t processId)
 		{
-#if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS)
 			HANDLE process = ::OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, DWORD(processId));
 			if (process == NULL) {
 				return (::GetLastError() == ERROR_ACCESS_DENIED);
@@ -107,7 +107,7 @@ namespace Jazz2::Editor
 			bool running = (::GetExitCodeProcess(process, &exitCode) && exitCode == STILL_ACTIVE);
 			::CloseHandle(process);
 			return running;
-#elif (defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_APPLE)) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_EMSCRIPTEN)
+#elif (defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_APPLE)) && !(defined(DEATH_TARGET_EMSCRIPTEN))
 			return (::kill(pid_t(processId), 0) == 0 || errno == EPERM);
 #else
 			static_cast<void>(processId);
@@ -204,7 +204,7 @@ namespace Jazz2::Editor
 		// Starts a program with arguments without waiting for it, returns false if it couldn't be started
 		bool StartProgram(StringView program, ArrayView<const String> arguments)
 		{
-#if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS)
 			// Through the shell, as a file is opened, a name found in PATH or in the registered applications is enough
 			String parameters;
 			for (const String& argument : arguments) {
@@ -228,8 +228,7 @@ namespace Jazz2::Editor
 			info.lpParameters = parametersW.data();
 			info.nShow = SW_SHOWNORMAL;
 			return (::ShellExecuteExW(&info) != FALSE);
-#elif (defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_APPLE)) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_EMSCRIPTEN) && \
-	!defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_IOS)
+#elif (defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_APPLE)) && !(defined(DEATH_TARGET_EMSCRIPTEN))
 			SmallVector<String, 8> owned;
 			owned.push_back(String(program));
 			for (const String& argument : arguments) {
@@ -603,8 +602,7 @@ namespace Jazz2::Editor
 				roots.push_back({ _x("editor", "Level folder"), Death::move(levelDirectory), writable });
 			}
 		}
-#if (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || (defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_IOS)) || \
-	((defined(__linux__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)) && !defined(DEATH_TARGET_ANDROID))
+#if defined(DEATH_TARGET_WINDOWS) || defined(DEATH_TARGET_APPLE) || defined(__linux__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
 		// Only a desktop has a home folder, the consoles don't even link what looks it up (getpwuid() isn't in libnx or libogc)
 		String home = fs::GetHomeDirectory();
 		if (!home.empty() && fs::DirectoryExists(home)) {

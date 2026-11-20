@@ -13,11 +13,6 @@
 #include "../../../nCine/I18n.h"
 #include "../../../nCine/Base/FrameTimer.h"
 
-#if defined(DEATH_TARGET_ANDROID)
-#include "../../../nCine/Backends/Android/AndroidApplication.h"
-#include "../../../nCine/Backends/Android/AndroidJniHelper.h"
-#endif
-
 #include <Containers/StringConcatenable.h>
 
 using namespace Death::IO;
@@ -34,20 +29,8 @@ namespace Jazz2::UI::Menu
 		: _selectedIndex(0), _animation(0.0f), _y(0.0f), _height(0.0f), _availableHeight(0.0f), _pressedCount(0),
 		  _touchTime(0.0f), _touchSpeed(0.0f), _noiseCooldown(0.0f), _discovery(std::make_unique<Jazz2::Multiplayer::ServerDiscovery>(this)),
 		  _touchDirection(0), _transitionTime(0.0f), _shouldStart(false), _isConnecting(false),
-#if defined(DEATH_TARGET_PSP)
-		  _switchingMode(false),
-#endif
 		  _waitForIpInput(false), _keyboardVisible(false), _ipInput(64)
-#if defined(DEATH_TARGET_ANDROID)
-		  ,
-		  _recalcVisibleBoundsTimeLeft(30.0f)
-#endif
 	{
-#if defined(DEATH_TARGET_ANDROID)
-		_currentVisibleBounds = Backends::AndroidJniWrap_Activity::GetVisibleBounds();
-		_initialVisibleSize.X = _currentVisibleBounds.W;
-		_initialVisibleSize.Y = _currentVisibleBounds.H;
-#endif
 	}
 
 	ServerSelectSection::~ServerSelectSection()
@@ -86,38 +69,6 @@ namespace Jazz2::UI::Menu
 			_animation = std::min(_animation + timeMult * 0.016f, 1.0f);
 		}
 
-#if defined(DEATH_TARGET_PSP)
-		if (_switchingMode) {
-			// The second half of ToggleAdhocMode(): the old discovery thread was asked to end and has to be gone
-			// before the WLAN changes mode (its sockets and its access point belong to the old one). Waiting
-			// for it here would stall the menu for as long as an association or a download takes, so each
-			// frame only looks whether it is done; the input is ignored until the new discovery runs.
-			if (_discovery == nullptr || _discovery->HasFinished()) {
-				if (_discovery != nullptr) {
-					_discovery->Stop();
-					_discovery = nullptr;
-				}
-				{
-					// Whatever the old discovery found and the list didn't take yet belongs to the old mode
-					std::unique_lock<Death::Threading::Spinlock> lock(_pendingServersLock);
-					_pendingServers.clear();
-				}
-				bool adhoc = !Jazz2::Multiplayer::NetworkManagerBase::IsAdhocMode();
-				if (!Jazz2::Multiplayer::NetworkManagerBase::SetAdhocMode(adhoc)) {
-					LOGW("Cannot switch to {} mode", adhoc ? "ad hoc"_s : "Wi-Fi"_s);
-				}
-				_discovery = std::make_unique<Jazz2::Multiplayer::ServerDiscovery>(this);
-				_switchingMode = false;
-			} else if (_root->ActionHit(PlayerAction::Menu)) {
-				// Leaving is the one thing that must not wait for the switch: the section's destructor
-				// joins the thread, which is what the user asked for by leaving
-				_root->PlaySfx("MenuSelect"_s, 0.5f);
-				_root->LeaveSection();
-			}
-			return;
-		}
-#endif
-
 		ProcessPendingServers();
 
 		if (_touchSpeed > 0.0f) {
@@ -145,18 +96,6 @@ namespace Jazz2::UI::Menu
 		if (!_shouldStart) {
 			if (_waitForIpInput) {
 				_ipInput.Update(timeMult);
-
-#if defined(DEATH_TARGET_ANDROID)
-				// The on-screen keyboard can also be dismissed by the user, so follow the reported state
-				// instead of assuming it stays shown until the game hides it
-				_keyboardVisible = theApplication().IsScreenKeyboardVisible();
-
-				_recalcVisibleBoundsTimeLeft -= timeMult;
-				if (_recalcVisibleBoundsTimeLeft <= 0.0f) {
-					_recalcVisibleBoundsTimeLeft = 60.0f;
-					_currentVisibleBounds = Backends::AndroidJniWrap_Activity::GetVisibleBounds();
-				}
-#endif
 
 				if (_root->ActionHit(PlayerAction::ChangeWeapon) && theApplication().CanShowScreenKeyboard()) {
 					_root->PlaySfx("MenuSelect"_s, 0.5f);
@@ -192,20 +131,7 @@ namespace Jazz2::UI::Menu
 				return;
 			}
 
-#if defined(DEATH_TARGET_PSP)
-			if (_root->ActionHit(PlayerAction::Left) || _root->ActionHit(PlayerAction::Right)) {
-				_root->PlaySfx("MenuSelect"_s, 0.5f);
-				ToggleAdhocMode();
-				return;
-			}
-#endif
 			if (_root->ActionHit(PlayerAction::ChangeWeapon)) {
-#if defined(DEATH_TARGET_PSP)
-				if (Jazz2::Multiplayer::NetworkManagerBase::IsAdhocMode()) {
-					// There are no addresses to type in ad hoc mode, the groups in reach are all there is
-					return;
-				}
-#endif
 				_root->PlaySfx("MenuSelect"_s, 0.5f);
 				_waitForIpInput = true;
 				_ipInput.Activate({});
@@ -295,14 +221,6 @@ namespace Jazz2::UI::Menu
 		std::int32_t charOffset = 0;
 
 		if (_items.empty()) {
-#if defined(DEATH_TARGET_PSP)
-			if (_switchingMode) {
-				// TRANSLATORS: Shown in Connect To Server section on PSP while the console switches between Wi-Fi and ad hoc mode
-				_root->DrawStringShadow(_("Switching connection mode…"), charOffset, centerX, contentBounds.Y + contentBounds.H * 0.33f, IMenuContainer::FontLayer,
-					Alignment::Center, Colorf(0.62f, 0.44f, 0.34f, 0.5f), 0.9f, 0.4f, 0.6f, 0.6f, 0.8f, 0.88f);
-				return;
-			}
-#endif
 			// TRANSLATORS: Shown in Connect To Server section while no server has been found yet, the search goes on, casual tone
 			_root->DrawStringShadow(_("No servers found, but still searchin'!"), charOffset, centerX, contentBounds.Y + contentBounds.H * 0.33f, IMenuContainer::FontLayer,
 				Alignment::Center, Colorf(0.62f, 0.44f, 0.34f, 0.5f), 0.9f, 0.4f, 0.6f, 0.6f, 0.8f, 0.88f);
@@ -468,21 +386,6 @@ namespace Jazz2::UI::Menu
 			_root->DrawStringShadow(_("to show keyboard"), charOffset, centerX + 32.0f, hintY, IMenuContainer::FontLayer + 110,
 				Alignment::Left, Font::DefaultColor, 0.7f, 0.4f, 0.0f, 0.0f, 0.0f, 0.9f);
 		} else {
-#if defined(DEATH_TARGET_PSP)
-			// The console can also play over its ad hoc (local wireless) mode, switched with Left/Right here;
-			// the current mode is shown in the same line, and the IP address hint gives way to it in ad hoc
-			// mode, where there is nothing to type
-			bool adhoc = Jazz2::Multiplayer::NetworkManagerBase::IsAdhocMode();
-			// TRANSLATORS: Transport mode in Connect To Server section on PSP, local wireless connection between consoles
-			StringView modeName = (adhoc ? _("Ad hoc") : _("Wi-Fi"));
-			std::size_t modeLength = formatInto(stringBuffer, "< {} >", modeName);
-			_root->DrawStringShadow({ stringBuffer, modeLength }, charOffset, centerX + (adhoc ? 0.0f : 120.0f), hintY, IMenuContainer::FontLayer,
-				Alignment::Center, Font::DefaultColor, 0.7f, 0.4f, 0.0f, 0.0f, 0.0f, 0.9f);
-			if (adhoc) {
-				return;
-			}
-			centerX -= 60.0f;
-#endif
 			// TRANSLATORS: Bottom hint in Connect To Server section, the action whose key/button is shown after it
 			std::size_t length = formatInto(stringBuffer, "\f[c:#d0705d]{}\f[/c] │", _("Change Weapon"));
 
@@ -502,7 +405,6 @@ namespace Jazz2::UI::Menu
 				Alignment::Left, Font::DefaultColor, 0.7f, 0.4f, 0.0f, 0.0f, 0.0f, 0.9f);
 		}
 
-#if !defined(DEATH_TARGET_ANDROID)
 		if (_waitForIpInput && _keyboardVisible) {
 			auto contentBounds2 = _root->GetContentBounds();
 			float titleY = contentBounds2.Y - MenuLayout::GetTitleOffset(canvas->ViewSize) - 2.0f;
@@ -522,29 +424,6 @@ namespace Jazz2::UI::Menu
 					Colorf(1.0f, 1.0f, 1.0f, std::clamp(sinApprox(_ipInput.GetCaretAnim() * 0.1f) * 1.4f, 0.0f, 0.8f)), BlendMode::Additive);
 			}
 		}
-#endif
-
-#if defined(DEATH_TARGET_ANDROID)
-		if (_waitForIpInput && (_currentVisibleBounds.W < _initialVisibleSize.X || _currentVisibleBounds.H < _initialVisibleSize.Y)) {
-			Vector2i viewSizeLocal = _root->GetViewSize();
-			if (_currentVisibleBounds.Y * viewSizeLocal.Y / _initialVisibleSize.Y < 32.0f) {
-				float titleY = contentBounds.Y - MenuLayout::GetTitleOffset(canvas->ViewSize) - 2.0f;
-
-				_root->DrawSolid(0.0f, 0.0f, IMenuContainer::MainLayer - 10, Alignment::TopLeft,
-					Vector2f(canvas->ViewSize.X, canvas->ViewSize.Y), Colorf(0.0f, 0.0f, 0.0f, 0.6f));
-
-				StringView ipText2 = _ipInput.GetText();
-				_root->DrawStringShadow(ipText2.empty() ? StringView("<ip> or <ip>:<port>"_s) : ipText2, charOffset, 120.0f, titleY, IMenuContainer::MainLayer,
-					Alignment::Left, ipText2.empty() ? Colorf(0.5f, 0.5f, 0.5f, 0.3f) : Colorf(0.62f, 0.44f, 0.34f, 0.5f), 1.0f);
-
-				if (!ipText2.empty()) {
-					Vector2f textToCursorSize = _root->MeasureString(ipText2.prefix(_ipInput.GetCursor()), 1.0f);
-					_root->DrawSolid(120.0f + textToCursorSize.X + 1.0f, titleY - 1.0f, IMenuContainer::MainLayer + 10, Alignment::Left, Vector2f(1.0f, 14.0f),
-						Colorf(1.0f, 1.0f, 1.0f, std::clamp(sinApprox(_ipInput.GetCaretAnim() * 0.1f) * 1.4f, 0.0f, 0.8f)), BlendMode::Additive);
-				}
-			}
-		}
-#endif
 
 		if (_shouldStart) {
 			auto command = canvas->RentRenderCommand();
@@ -730,26 +609,6 @@ namespace Jazz2::UI::Menu
 			}
 		}
 	}
-
-#if defined(DEATH_TARGET_PSP)
-	void ServerSelectSection::ToggleAdhocMode()
-	{
-		// The discovery is bound to the mode it was started in (broadcast and the public list, or the ad hoc
-		// scan), so it is stopped before the WLAN changes mode and started over afterwards - in OnUpdate(),
-		// once its thread has ended on its own (see _switchingMode). The list starts empty, as the servers of
-		// one mode are not reachable in the other; nothing is added to it from here on, RequestStop() sees to that.
-		if (_switchingMode) {
-			return;
-		}
-		if (_discovery != nullptr) {
-			_discovery->RequestStop();
-		}
-		_items.clear();
-		_selectedIndex = 0;
-		_y = 0.0f;
-		_switchingMode = true;
-	}
-#endif
 
 	void ServerSelectSection::OnServerFound(Jazz2::Multiplayer::ServerDescription&& desc)
 	{
@@ -1011,13 +870,6 @@ namespace Jazz2::UI::Menu
 
 	void ServerSelectSection::RecalcLayoutForScreenKeyboard()
 	{
-#if defined(DEATH_TARGET_ANDROID)
-		_currentVisibleBounds = Backends::AndroidJniWrap_Activity::GetVisibleBounds();
-
-		if (_recalcVisibleBoundsTimeLeft > 30.0f) {
-			_recalcVisibleBoundsTimeLeft = 30.0f;
-		}
-#endif
 	}
 }
 

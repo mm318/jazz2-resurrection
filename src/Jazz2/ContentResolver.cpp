@@ -1,7 +1,4 @@
 #include "ContentResolver.h"
-#if defined(DEATH_TARGET_N64)
-#include <n64sys.h>
-#endif
 #include <Shaders/Generated/ShadersGen.h>
 #include "Compatibility/JJ2Anims.Palettes.h"
 #include "Formats/LevelFile.h"
@@ -10,7 +7,6 @@
 #include "Formats/WeaponsChunk.h"
 #include "LevelHandler.h"
 #include "Tiles/TileSet.h"
-#include "Compatibility/AssetConverter.h"
 #include "Compatibility/JJ2Anims.h"
 
 #include "../nCine/Application.h"
@@ -21,23 +17,6 @@
 #include "../nCine/Graphics/RenderResources.h"
 #include "../nCine/Graphics/RenderCommand.h"
 #include "../nCine/Base/Random.h"
-#if defined(WITH_OGC) && defined(DEATH_TARGET_GAMECUBE)
-#include "../nCine/Backends/Ogc/OgcDvd.h"
-#include "../nCine/Backends/Ogc/OgcStorage.h"
-#endif
-#if defined(WITH_PS2)
-// Brings removable storage up, so InitializePaths() below can look for the content on it.
-// Guarded on WITH_PS2, not DEATH_TARGET_PS2: the header's own contents are, and it is the narrower of
-// the two (a dedicated-server or libretro configure targets the PS2 without building its backend)
-#include "../nCine/Backends/Ps2/Ps2Storage.h"
-#endif
-
-#if defined(DEATH_TARGET_ANDROID)
-#include "../nCine/Backends/Android/AndroidJniHelper.h"
-#include <IO/AndroidAssetStream.h>
-#elif defined(DEATH_TARGET_WINDOWS_RT)
-#include <Environment.h>
-#endif
 
 #include <cmath>
 #include <cstdlib>
@@ -69,77 +48,7 @@ namespace Jazz2
 {
 	namespace
 	{
-		/**
-			@brief Whether a metadata's sound samples are read on demand rather than when it is parsed
 
-			A level declares far more sounds than it plays. On the Nintendo 64 each of them is a `.wav64` file the
-			audio device opens on the cartridge - a directory lookup and a few small reads - and holds open for as
-			long as it is kept, at a few hundred bytes of heap each (the samples themselves stay on the cartridge,
-			see `NCINE_HAS_NATIVE_AUDIO`). Opening a sound when something first plays it - and closing it again
-			at every load boundary - keeps both the level load and the heap to the sounds a level actually uses.
-			The cost is a cartridge read in the frame that first plays each sound, which is why the platforms that
-			decode their samples into memory keep doing that up front.
-		*/
-#if defined(DEATH_TARGET_N64)
-		constexpr bool DeferSounds = true;
-#else
-		constexpr bool DeferSounds = false;
-#endif
-
-		/**
-			@brief Whether a level's caption tile is cut out of its tileset
-
-			The caption tile only feeds the RGB keyboard lighting on PC (HUD::UpdateRgbLights); the consoles
-			never read it, so they do not spend the decode and the 3 KB per level on it.
-		*/
-#if defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || \
-	defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_AMIGA) ||                              \
-	defined(DEATH_TARGET_MORPHOS) || defined(DEATH_TARGET_AMIGAOS4)
-		constexpr bool KeepCaptionTiles = false;
-#else
-		constexpr bool KeepCaptionTiles = true;
-#endif
-
-#if defined(DEATH_TARGET_N64)
-		/**
-			@brief Bytes of heap that must remain free for a deferred resource to be read in
-
-			Resolving an animation is a fresh allocation of tens of kilobytes made while the game is running,
-			and this platform builds without exceptions: an allocation that cannot be satisfied does not
-			throw, it aborts the process. So the ceiling is enforced before the allocation rather than
-			discovered by it - below this floor the resource is simply not loaded, which costs a sprite that
-			does not appear. That is recoverable; a halt is not. Sounds need no such floor here, the device
-			streams them from the cartridge and nothing of them is held decoded.
-		*/
-		constexpr std::int32_t MinFreeHeapToResolve = 192 * 1024;
-
-		/**
-			@brief Returns whether there is room to read another deferred resource
-
-			Also traces the low-water mark, in 64 KB steps, because a halt with no diagnosis is the worst
-			failure mode this platform has: the last line before a freeze names how close it was running.
-		*/
-		bool HasHeadroomToResolve(const char* what, StringView path)
-		{
-			heap_stats_t stats;
-			sys_get_heap_stats(&stats);
-
-			static std::int32_t lowWaterStep = INT32_MAX;
-			const std::int32_t step = stats.free / (64 * 1024);
-			if (step < lowWaterStep) {
-				lowWaterStep = step;
-				LOGW("Heap low-water mark: {} bytes free ({} of them in holes)", stats.free, stats.fragmented);
-			}
-
-			if (stats.free >= MinFreeHeapToResolve) {
-				return true;
-			}
-
-			LOGE("Not enough memory to load {} \"{}\": {} bytes free, {} have to remain", what, path,
-				stats.free, MinFreeHeapToResolve);
-			return false;
-		}
-#endif
 	}
 
 	// Cache-busting version of the precompiled shader set - bump whenever any ".shader" source in
@@ -154,7 +63,7 @@ namespace Jazz2
 	}
 
 	ContentResolver::ContentResolver()
-		: _isHeadless(false), _isLoading(false), _isContentPrebaked(false), _hasLooseAssets(false), _cachedMetadata(64), _cachedGraphics(256),
+		: _isHeadless(false), _isLoading(false), _hasGameData(false), _cachedMetadata(64), _cachedGraphics(256),
 #if defined(WITH_AUDIO)
 		  _cachedSounds(192),
 #endif
@@ -187,63 +96,10 @@ namespace Jazz2
 		}
 	}
 
-#if defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_GAMECUBE)
-	StringView ContentResolver::GetWritablePath() const
-	{
-		return StringView(_writablePath);
-	}
-#endif
-
 	StringView ContentResolver::GetContentPath() const
 	{
-#if defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_IOS) || defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_UNIX)
 		return _contentPath;
-#elif defined(DEATH_TARGET_ANDROID)
-		return "assets:/"_s;
-#elif defined(DEATH_TARGET_SWITCH)
-		return "romfs:/"_s;
-#elif defined(DEATH_TARGET_N64)
-		// DragonFS image appended to the ROM, mounted read-only at "rom:/", the packaging
-		// stages the tree under "assets/" inside it
-		return "rom:/assets/"_s;
-#elif defined(DEATH_TARGET_WIIU)
-		// Packed inside the .wuhb bundle, which the Aroma environment mounts read-only at "/vol/content"
-		return "fs:/vol/content/"_s;
-#elif defined(DEATH_TARGET_WII)
-		return "sd:/apps/Jazz2/assets/"_s;
-#elif defined(DEATH_TARGET_GAMECUBE)
-		// Not a constant on this console either: the disc or an SD card, decided in InitializePaths() below
-		return (_contentPath.empty() ? "carda:/Jazz2/assets/"_s : StringView(_contentPath));
-#elif defined(DEATH_TARGET_3DS)
-		// Next to the .3dsx in the standard Homebrew Launcher layout ("sdmc:/3ds/<application>/"). The SD card is
-		// mounted as "sdmc:" by libctru before main() runs, so ContentResolver can open files while the application
-		// is still being constructed; the absolute form is what shows up in the trace log when a file is missing
-		return "sdmc:/3ds/Jazz2/assets/"_s;
-#elif defined(DEATH_TARGET_DREAMCAST)
-		return "/cd/assets/"_s;
-#elif defined(DEATH_TARGET_PS2)
-		// Not a constant on this console: the game boots either from a disc, where the content is under
-		// "cdfs:/" (see SYSTEM.CNF in the PS2 packaging), or from an SD card in an MX4SIO adapter. Which of
-		// the two it was is decided once, in InitializePaths() below.
-		return (_contentPath.empty() ? "cdfs:/assets/"_s : StringView(_contentPath));
-#elif defined(DEATH_TARGET_PS3)
-		// Next to the EBOOT inside the package. "/app_home" is the alias the loader maps the running
-		// executable's OWN directory to - which is USRDIR, not the package root - so the content sits
-		// directly under it rather than under a second "USRDIR". That one path covers both ways the game
-		// is started: an installed package under "/dev_hdd0/game/<APPID>/USRDIR/", and the staged package
-		// directory booted straight from disk during development (which is how RPCS3 runs the build tree).
-		// Going through the alias rather than the title's real path also means the APPID can change without
-		// this string following it.
-		return "/app_home/assets/"_s;
-#elif defined(DEATH_TARGET_PSP)
-		// Next to the EBOOT in the standard homebrew layout. Relative paths would work as well (the
-		// firmware makes the EBOOT's directory the current one), but the absolute form is what shows up in
-		// the trace log when a file is missing, and it also survives a loader that does not set it.
-		return "ms0:/PSP/GAME/Jazz2/assets/"_s;
-#elif defined(DEATH_TARGET_VITA)
-		// Packed inside the VPK, so it's part of the application's own read-only directory
-		// ("ux0:/app/<titleid>/", which the firmware mounts as "app0:")
-		return "app0:/assets/"_s;
 #elif defined(DEATH_TARGET_WINDOWS)
 		return "assets\\"_s;
 #else
@@ -253,8 +109,7 @@ namespace Jazz2
 
 	StringView ContentResolver::GetUserContentPath() const
 	{
-#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_WINDOWS_RT) || \
-	defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_VITA)
+#if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
 		return _userContentPath;
 #else
 		// "assets" is already where the user can reach it, or nothing next to it is writable
@@ -263,11 +118,7 @@ namespace Jazz2
 	}
 
 	// No usable stat() there, a check would be an extra open
-#if defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_PS2)
-	static constexpr bool CheckContentFileFirst = false;
-#else
 	static constexpr bool CheckContentFileFirst = true;
-#endif
 
 	String ContentResolver::FindContentFile(StringView path) const
 	{
@@ -398,40 +249,8 @@ namespace Jazz2
 
 	StringView ContentResolver::GetCachePath() const
 	{
-#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
 		return _cachePath;
-#elif defined(DEATH_TARGET_SWITCH)
-		// Switch has some issues with UTF-8 characters, so use "Jazz2" instead
-		return "sdmc:/Games/Jazz2/Cache/"_s;
-#elif defined(DEATH_TARGET_N64)
-		// Read-only like the content path - the cache is prebaked into the DragonFS image
-		return "rom:/Cache/"_s;
-#elif defined(DEATH_TARGET_WIIU)
-		// Next to the .wuhb in the standard Aroma layout ("sd:/wiiu/apps/"), the SD card is "fs:/vol/external01"
-		return "fs:/vol/external01/wiiu/apps/Jazz2/Cache/"_s;
-#elif defined(DEATH_TARGET_WII)
-		return "sd:/apps/Jazz2/Cache/"_s;
-#elif defined(DEATH_TARGET_GAMECUBE)
-		// Read-only on the disc, writable on an SD card
-		return (_cachePath.empty() ? "carda:/Jazz2/Cache/"_s : StringView(_cachePath));
-#elif defined(DEATH_TARGET_3DS)
-		return "sdmc:/3ds/Jazz2/Cache/"_s;
-#elif defined(DEATH_TARGET_DREAMCAST)
-		return "/cd/Cache/"_s;
-#elif defined(DEATH_TARGET_PS2)
-		// Read-only on a disc, writable when the game runs from an SD card
-		return (_cachePath.empty() ? "cdfs:/Cache/"_s : StringView(_cachePath));
-#elif defined(DEATH_TARGET_PS3)
-		// Unlike the read-only trees the other consoles ship, the PS3 has a writable hard disk, so the cache
-		// goes to the title's own game-data directory rather than next to the (read-only) package content.
-		// "/dev_hdd0/game/<APPID>/USRDIR" is the one location a title may write to without a save-data API,
-		// so unlike the content path this one cannot avoid naming the ID - the build passes it in, because
-		// a copy that disagreed with the package would send the cache to a directory no title owns.
-		return "/dev_hdd0/game/" PS3_APPID "/USRDIR/Cache/"_s;
-#elif defined(DEATH_TARGET_PSP)
-		return "ms0:/PSP/GAME/Jazz2/Cache/"_s;
-#elif defined(DEATH_TARGET_VITA)
-		return "ux0:/data/jazz2/Cache/"_s;
 #elif defined(DEATH_TARGET_WINDOWS)
 		return "Cache\\"_s;
 #else
@@ -449,33 +268,14 @@ namespace Jazz2
 		_isHeadless = value;
 	}
 
-	bool ContentResolver::IsContentPrebaked() const
+	bool ContentResolver::HasGameData() const
 	{
-		return _isContentPrebaked;
+		return _hasGameData;
 	}
-
-#if defined(WITH_LIBRETRO)
-	void ContentResolver::OverridePaths(StringView contentPath, StringView cachePath)
-	{
-		_contentPath = contentPath;
-		_cachePath = cachePath;
-		DetectPrebakedContent();
-		DetectUserContent();
-		// The constructor already mounted .paks from the default paths, remount from the new ones
-		RemountPaks();
-	}
-#endif
 
 	void ContentResolver::InitializePaths()
 	{
-#if defined(DEATH_TARGET_ANDROID)
-		_cachePath = fs::CombinePath(AndroidAssetStream::GetExternalDataPath(), "Cache/"_s);
-#elif defined(DEATH_TARGET_IOS)
-		String executablePath = fs::GetExecutablePath();
-		_contentPath = fs::CombinePath(fs::GetDirectoryName(executablePath), "assets/"_s);
-		StringView home = ::getenv("HOME");
-		_cachePath = fs::CombinePath({ home, "Library/Caches"_s, "Cache/"_s });
-#elif defined(DEATH_TARGET_APPLE)
+#if defined(DEATH_TARGET_APPLE)
 		_cachePath = fs::CombinePath(fs::GetSavePath("Jazz² Resurrection"_s), "Cache/"_s);
 #elif defined(DEATH_TARGET_UNIX)
 #if defined(NCINE_PACKAGED_CONTENT_PATH)
@@ -499,168 +299,34 @@ namespace Jazz2
 			_cachePath = (localStorage.empty() ? String("Cache/"_s)
 											   : fs::CombinePath({ localStorage, NCINE_LINUX_PACKAGE, "Cache/"_s }));
 		}
-#elif defined(DEATH_TARGET_WINDOWS_RT)
-		_cachePath = fs::CombinePath(fs::GetSavePath("Jazz² Resurrection"_s), "Cache/"_s);
-		_contentPath = "assets\\"_s;
-#elif defined(WITH_PS2)
-		// The game boots either from a disc or from removable storage - a USB stick, or an SD card in an
-		// MX4SIO adapter - which is how most of these consoles are loaded today. The disc is preferred and
-		// settles the question outright: looking anywhere else costs IOP module loads and a wait on hardware
-		// that may not be there, so a disc build pays nothing at all for a path it is not taking - and never
-		// silently picks up a stale tree from a card somebody left in the adapter. To run from removable
-		// storage, run the executable from removable storage.
-		//
-		// Leaving the path members empty is what selects the "cdfs:/" literals in the accessors above.
-		if (!fs::DirectoryExists("cdfs:/assets"_s)) {
-			nCine::Backends::Ps2Storage::Initialize();
-
-			// A "assets" directory next to the executable wins, because that is where the person who
-			// copied it there will have put it. It is also the only layout that works wherever the
-			// executable happens to live: a loader reads it off a device of its own choosing into a
-			// directory of the user's choosing, and the fixed path below can only ever guess at both.
-			// (Through Ps2Storage, because fs::DirectoryExists() cannot see a directory on a FAT volume at
-			// all and would report every device as carrying nothing - see the note on that function. The
-			// boot directory is not necessarily one of those volumes, but its `fioDopen()` answers for a
-			// memory card as readily as for a mounted unit.)
-			StringView bootDirectory = nCine::Backends::Ps2Storage::GetBootDirectory();
-			if (!bootDirectory.empty()) {
-				String contentPath = bootDirectory + "assets/"_s;
-				if (nCine::Backends::Ps2Storage::DirectoryExists(contentPath)) {
-					_contentPath = Death::move(contentPath);
-					_cachePath = bootDirectory + "Cache/"_s;
-					// Unlike a disc, this is somewhere the game can write - the level cache has somewhere
-					// to live, and PreferencesCache saves here instead of on a memory card
-					_writablePath = bootDirectory;
-					LOGI("Reading content from \"{}\" (next to the executable), which is also writable", _writablePath);
-				}
-			}
-
-			// Otherwise the fixed layout on each mounted unit. Such a device is shared storage - the whole
-			// point of one is that it holds everything the console runs, next to a loader's own "APPS",
-			// "DVD" and "CFG" - so the game lives under "Games/Jazz2/" rather than at the root, where
-			// "assets" and "Cache" would collide with whatever else is there. That is also the
-			// layout it already uses on the other machine where it is a guest on shared storage (the
-			// Switch, see GetContentPath()). The units are walked in order because a card partitioned more
-			// than once mounts as more than one, and the game may be on any of them.
-			if (_contentPath.empty()) {
-				for (StringView device : nCine::Backends::Ps2Storage::GetMountedDevices()) {
-					String root = device + "Games/Jazz2/"_s;
-					String contentPath = root + "assets/"_s;
-					if (nCine::Backends::Ps2Storage::DirectoryExists(contentPath)) {
-						_contentPath = Death::move(contentPath);
-						_cachePath = root + "Cache/"_s;
-						_writablePath = Death::move(root);
-						LOGI("Reading content from \"{}\" (removable storage), which is also writable", _writablePath);
-						break;
-					}
-				}
-			}
-			if (_contentPath.empty()) {
-				LOGW("No \"assets\" directory next to the executable, none under \"Games/Jazz2\" on any "
-					 "removable storage, and no disc carrying one either");
-			}
-		}
-#elif defined(WITH_OGC) && defined(DEATH_TARGET_GAMECUBE)
-		// The game runs from the disc made for it (see AssetPacker's DiscImage::CreateGameCubeImage()) or from an
-		// SD card - in an SD Gecko in a memory-card slot or an SD2SP2 adapter under the console - which is how
-		// most of these consoles start anything today. Unlike the PlayStation 2, asking for the disc costs
-		// nothing when the console booted from it: the drive is spun up and the disc authenticated, so its
-		// header is simply read, and without a disc that read fails at once. So the order follows what the
-		// person who started the game most likely meant:
-		//
-		// - a "assets" directory next to the executable, where a loader that started it from an SD card says
-		//   it is, because that is where whoever copied it there put the content;
-		// - the disc, if it is this game's - never a stale tree from a card somebody left in the adapter;
-		// - "Jazz2/assets" on each SD card, the layout the build stages ("sd/" in the build directory);
-		// - the disc again, this time resetting and spinning up the drive, which takes more than a second and
-		//   is only worth it to a console that booted from something else and has its content on the disc.
-		//
-		// The disc is read-only, so a game read from it saves to a memory card (see PreferencesCache); an SD
-		// card is also where the settings go, and the level cache, as on the Wii.
-		{
-			using namespace nCine::Backends;
-
-			auto useWritableRoot = [this](StringView root, const char* where) {
-				_contentPath = root + "assets/"_s;
-				_cachePath = root + "Cache/"_s;
-				_writablePath = root;
-				LOGI("Reading content from \"{}\" ({}), which is also writable", _writablePath, where);
-			};
-			auto useDisc = [this]() {
-				if (!fs::DirectoryExists("dvd:/assets"_s)) {
-					LOGW("The disc carries no \"assets\" directory");
-					return false;
-				}
-				_contentPath = "dvd:/assets/"_s;
-				_cachePath = "dvd:/Cache/"_s;
-				LOGI("Reading content from the disc");
-				return true;
-			};
-
-			StringView bootDirectory = OgcStorage::GetBootDirectory();
-			if (!bootDirectory.empty() && fs::DirectoryExists(String(bootDirectory + "assets"_s))) {
-				useWritableRoot(bootDirectory, "next to the executable");
-			}
-			if (_contentPath.empty() && OgcDvd::Mount(OgcStorage::GetGameId(), false)) {
-				useDisc();
-			}
-			if (_contentPath.empty()) {
-				for (StringView device : OgcStorage::GetMountedDevices()) {
-					String root = device + "Jazz2/"_s;
-					if (fs::DirectoryExists(String(root + "assets"_s))) {
-						useWritableRoot(root, "SD card");
-						break;
-					}
-				}
-			}
-			if (_contentPath.empty() && OgcDvd::Mount(OgcStorage::GetGameId(), true)) {
-				useDisc();
-			}
-			if (_contentPath.empty()) {
-				// The boot console is still on the screen, the renderer does not exist yet
-				OgcStorage::HaltWithMessage("  Cannot find the game files!\n\n"
-											"  Insert the game disc, or an SD card with the \"Jazz2\" folder\n"
-											"  into an SD Gecko or an SD2SP2 adapter.");
-			}
-		}
 #endif
 
-		DetectPrebakedContent();
+		DetectGameData();
 		DetectUserContent();
 
 		RemountPaks();
 	}
 
-	void ContentResolver::DetectPrebakedContent()
+	void ContentResolver::DetectGameData()
 	{
 		// Supplemental assets alone are not enough: the converted player sheet and sound bank must exist.
-		_hasLooseAssets = fs::IsReadableFile(fs::CombinePath({ GetContentPath(), "Animations"_s, "Jazz/idle.aura"_s })) &&
+		_hasGameData = fs::IsReadableFile(fs::CombinePath({ GetContentPath(), "Animations"_s, "Jazz/idle.aura"_s })) &&
 			fs::DirectoryExists(fs::CombinePath(GetContentPath(), "Sounds"_s));
-		_isContentPrebaked = _hasLooseAssets || fs::FileExists(fs::CombinePath(GetContentPath(), Compatibility::AssetConverter::PrebakedPackage));
-		if (_isContentPrebaked) {
+		if (_hasGameData) {
 			LOGI("Content in \"{}\" was prepared ahead of time", GetContentPath());
 		}
 	}
 
 	String ContentResolver::GetUserContentCandidate() const
 	{
-#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_WINDOWS_RT) || \
-	defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_VITA)
+#if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
 		// "assets" is packed inside the application on these platforms (APK assets, app bundle, AppImage mount, system
 		// prefix, UWP package, RomFS, VPK), so nothing can be added to it or replaced in it. The directory with "Cache"
 		// is the one place the user can always reach, so custom content goes to "assets" next to it, which then has
 		// priority over everything. Except on iOS, where "Cache" is in "Library/Caches", and "Documents"
 		// is what the Files app exposes instead.
-#if defined(DEATH_TARGET_IOS)
-		String userBase = fs::CombinePath(::getenv("HOME"), "Documents"_s);
-#else
 		StringView userBase = fs::GetDirectoryName(GetCachePath());
-#endif
-#if defined(DEATH_TARGET_WINDOWS_RT)
-		String userContentPath = fs::CombinePath(userBase, "assets\\"_s);
-#else
 		String userContentPath = fs::CombinePath(userBase, "assets/"_s);
-#endif
 		// A portable Linux copy (or relative fallback paths) already has "assets" next to "Cache", so it's the same one
 		if (userContentPath != GetContentPath()) {
 			return userContentPath;
@@ -671,8 +337,7 @@ namespace Jazz2
 
 	void ContentResolver::DetectUserContent()
 	{
-#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_WINDOWS_RT) || \
-	defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_VITA)
+#if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
 		String userContentPath = GetUserContentCandidate();
 		if (!userContentPath.empty() && fs::DirectoryExists(userContentPath)) {
 			LOGI("Using also user content from \"{}\"", userContentPath);
@@ -690,8 +355,7 @@ namespace Jazz2
 		static_cast<void>(create);
 		return {};
 #else
-#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_WINDOWS_RT) || \
-	defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_VITA)
+#if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
 		if (!_userContentPath.empty()) {
 			return _userContentPath;
 		}
@@ -724,7 +388,7 @@ namespace Jazz2
 		auto mountPaksIn = [this](StringView path) {
 			for (auto item : fs::Directory(path, fs::EnumerationOptions::SkipDirectories)) {
 				auto extension = fs::GetExtension(item);
-				if (extension != "pak"_s || (_hasLooseAssets && fs::GetFileName(item) == Compatibility::AssetConverter::PrebakedPackage)) {
+				if (extension != "pak"_s) {
 					continue;
 				}
 
@@ -802,7 +466,7 @@ namespace Jazz2
 		// Metadata and cinematic cue lists use stable logical .wav names. The
 		// shared prepared tree stores Vorbis, while older packages retain PCM.
 		resolvedPath = path;
-		if (_hasLooseAssets && fs::GetExtension(path) == "wav"_s) {
+		if (fs::GetExtension(path) == "wav"_s) {
 			resolvedPath = path.exceptSuffix(4) + ".ogg"_s;
 			auto sound = OpenContentFile(fs::CombinePath("Sounds"_s, resolvedPath));
 			if (sound->IsValid()) {
@@ -810,7 +474,7 @@ namespace Jazz2
 			}
 			resolvedPath = path;
 		}
-		return OpenContentFile(fs::CombinePath(_hasLooseAssets ? "Sounds"_s : "Animations"_s, resolvedPath));
+		return OpenContentFile(fs::CombinePath("Sounds"_s, resolvedPath));
 	}
 
 	void ContentResolver::BeginLoading()
@@ -818,10 +482,6 @@ namespace Jazz2
 		_isLoading = true;
 
 #if defined(WITH_AUDIO)
-		// Loading blocks the thread that feeds the audio device on the platforms that have no mixer thread,
-		// for much longer than any of them queues ahead. Most devices have nothing to do about that and this
-		// is a no-op for them; the one that does is the PlayStation 2, whose sound module repeats its last
-		// buffer while it is starved instead of falling silent.
 		theServiceLocator().GetAudioDevice().BeginBlockingOperation();
 #endif
 
@@ -831,13 +491,6 @@ namespace Jazz2
 		// this load. The paths stay, so anything still wanted is read back the first time it plays. Without
 		// this the set of resident samples only ever grows - a level that has been visited once keeps every
 		// sound it declared for the rest of the session.
-		if (DeferSounds) {
-			for (auto& resource : _cachedMetadata) {
-				for (auto& [key, sound] : resource.second->Sounds) {
-					sound.Buffers.clear();
-				}
-			}
-		}
 #endif
 
 		// Reset Referenced flag
@@ -856,7 +509,7 @@ namespace Jazz2
 
 	void ContentResolver::EndLoading()
 	{
-#if defined(DEATH_DEBUG) || defined(DEATH_TARGET_N64)
+#if defined(DEATH_DEBUG)
 		std::int32_t metadataKept = 0, metadataReleased = 0;
 		std::int32_t animationsKept = 0, animationsReleased = 0;
 		std::int32_t soundsKept = 0, soundsReleased = 0;
@@ -890,12 +543,12 @@ namespace Jazz2
 			while (it != _cachedMetadata.end()) {
 				if ((it->second->Flags & MetadataFlags::Referenced) != MetadataFlags::Referenced) {
 					it = _cachedMetadata.erase(it);
-#if defined(DEATH_DEBUG) || defined(DEATH_TARGET_N64)
+#if defined(DEATH_DEBUG)
 					metadataReleased++;
 #endif
 				} else {
 					++it;
-#if defined(DEATH_DEBUG) || defined(DEATH_TARGET_N64)
+#if defined(DEATH_DEBUG)
 					metadataKept++;
 #endif
 				}
@@ -908,12 +561,12 @@ namespace Jazz2
 			while (it != _cachedGraphics.end()) {
 				if ((it->second->Flags & GenericGraphicResourceFlags::Referenced) != GenericGraphicResourceFlags::Referenced) {
 					it = _cachedGraphics.erase(it);
-#if defined(DEATH_DEBUG) || defined(DEATH_TARGET_N64)
+#if defined(DEATH_DEBUG)
 					animationsReleased++;
 #endif
 				} else {
 					++it;
-#if defined(DEATH_DEBUG) || defined(DEATH_TARGET_N64)
+#if defined(DEATH_DEBUG)
 					animationsKept++;
 #endif
 				}
@@ -927,12 +580,12 @@ namespace Jazz2
 			while (it != _cachedSounds.end()) {
 				if ((it->second->Flags & GenericSoundResourceFlags::Referenced) != GenericSoundResourceFlags::Referenced) {
 					it = _cachedSounds.erase(it);
-#if defined(DEATH_DEBUG) || defined(DEATH_TARGET_N64)
+#if defined(DEATH_DEBUG)
 					soundsReleased++;
 #endif
 				} else {
 					++it;
-#if defined(DEATH_DEBUG) || defined(DEATH_TARGET_N64)
+#if defined(DEATH_DEBUG)
 					soundsKept++;
 #endif
 				}
@@ -943,15 +596,6 @@ namespace Jazz2
 #if defined(DEATH_DEBUG)
 		LOGW("Metadata: {}|{}, Animations: {}|{}, Sounds: {}|{}", metadataKept, metadataReleased,
 			animationsKept, animationsReleased, soundsKept, soundsReleased);
-#elif defined(DEATH_TARGET_N64)
-		// Every load boundary states what survived it and what the heap looks like afterwards: with 8 MB in
-		// total the resident set is the number that decides whether the next level fits, and a freeze with
-		// no diagnosis is this platform's worst failure mode
-		heap_stats_t stats;
-		sys_get_heap_stats(&stats);
-		LOGI("Load boundary: metadata {}|{}, animations {}|{}, sounds {}|{} (kept|released); heap {} bytes used, {} free, {} of them in holes",
-			metadataKept, metadataReleased, animationsKept, animationsReleased, soundsKept, soundsReleased,
-			stats.used, stats.free, stats.fragmented);
 #endif
 
 		_isLoading = false;
@@ -1112,7 +756,7 @@ namespace Jazz2
 
 		auto entry = std::make_unique<WeaponSoundEntry>();
 		entry->References = 1;
-#if defined(WITH_AUDIO) && !defined(NCINE_HAS_NATIVE_AUDIO)
+#if defined(WITH_AUDIO)
 		// Decoded from the contents of the file, its name tells the format
 		if (!_isHeadless && !sound.Data.empty()) {
 			auto s = std::make_unique<MemoryStream>(InPlaceInit, arrayView(sound.Data));
@@ -1211,24 +855,8 @@ namespace Jazz2
 		if (reader->parse(buffer.get(), buffer.get() + fileSize, &doc, &errors)) {
 			metadata->BoundingBox = GetVector2iFromJson(doc["BoundingBox"], Vector2i(InvalidValue, InvalidValue));
 
-			// A file can declare all of its animations deferred at once, and any single entry can opt in or out
-			// of it (see the deferred animations section of `Metadata`)
-			// Whether a metadata's sheets are read now or the first time each animation is actually looked up.
-			// The content decides per file, except where there is not enough memory for the choice to be the
-			// content's: a Nintendo 64 has 8 MB of RDRAM in total, and one player's metadata alone describes
-			// enough animations to hold about 2 MB of sheets and collision masks resident - which, on top of
-			// the level's own tileset and layers, is what put the level load past the end of memory. Deferring
-			// everything there costs a sheet read from the cartridge the first time an animation is used (a PI
-			// DMA out of the ROM, not a seek on a disc) and keeps only what a level actually animates resident.
-#if defined(DEATH_TARGET_N64)
-			// The document's own "Deferred" key is deliberately NOT read here: a file declaring false would
-			// load its whole sheet set eagerly at parse time, and with exceptions disabled the allocation
-			// that does not fit aborts the process instead of degrading per animation
-			constexpr bool deferredByDefault = true;
-#else
 			bool deferredByDefault = false;
 			doc["Deferred"].get(deferredByDefault);
-#endif
 
 			const auto& animations = doc["Animations"];
 			if (animations.isObject()) {
@@ -1305,12 +933,6 @@ namespace Jazz2
 						deferredGraphics.HasAnimDuration = hasAnimDuration;
 						deferredGraphics.HasFrameCount = hasFrameCount;
 
-						// The same rule as the eager branch below - the first sheet's frame size - but taken from
-						// the sheet's header alone, without decoding it. Left at InvalidValue, the box became
-						// UpdateHitbox(INT_MAX, INT_MAX): every actor whose metadata was deferred as a whole (all
-						// of them on the Nintendo 64) had a hitbox a billion pixels wide, so bullets collided
-						// with whatever solid object existed anywhere in the level and a player two tiles from
-						// a bird cage was "lifting" it, frozen in place.
 						if (metadata->BoundingBox == Vector2i(InvalidValue, InvalidValue)) {
 							auto cached = _cachedGraphics.find(Pair(String::nullTerminatedView(deferredGraphics.Path),
 								std::uint16_t(keepIndexed ? IndexedGraphicsCacheKey : paletteOffset)));
@@ -1394,9 +1016,8 @@ namespace Jazz2
 						}
 						// A level describes far more sounds than it plays - one player's metadata alone lists
 						// over thirty - and every sample is resident for as long as the metadata is. Where sounds
-						// are deferred (see DeferSounds), only the paths are kept here and the samples are read
 						// the first time something plays them (see ResolveSound()).
-						if (!DeferSounds) {
+						{
 							ResolveSound(sound);
 						}
 					}
@@ -1428,19 +1049,9 @@ namespace Jazz2
 				it->second->Flags |= GenericSoundResourceFlags::Referenced;
 				sound.Buffers.push_back(it->second.get());
 			} else {
-#if defined(NCINE_HAS_NATIVE_AUDIO)
-				// The console plays only its own copy, which streams from the cartridge while it plays and holds
-				// nothing decoded (the prepared tree does not carry the originals at all)
-				String nativePath = GetNativeSoundPath(assetPath);
-				if (nativePath.empty()) {
-					continue;
-				}
-				auto resource = std::make_unique<GenericSoundResource>(nativePath);
-#else
 				String resolvedPath;
 				auto s = OpenSoundFile(assetPath, resolvedPath);
 				auto resource = std::make_unique<GenericSoundResource>(Death::move(s), resolvedPath);
-#endif
 				if (resource->Buffer.GetSampleCount() <= 0) {
 					// The file was missing or could not be decoded (AudioBuffer already logged it).
 					// Keeping the dead resource cached would hold it for the rest of the level and
@@ -1474,12 +1085,6 @@ namespace Jazz2
 		}
 
 		const DeferredGraphicResource& deferred = metadata.DeferredAnimations[animation.DeferredIndex];
-#if defined(DEATH_TARGET_N64)
-		if (!HasHeadroomToResolve("animation", deferred.Path)) {
-			// Deliberately leaves DeferredIndex alone, so it is retried once there is room again
-			return false;
-		}
-#endif
 		GenericGraphicResource* base = RequestGraphics(deferred.Path, animation.PaletteOffset, deferred.KeepIndexed);
 		if (base == nullptr) {
 			// An eagerly loaded entry would have been dropped during parsing, this is the deferred equivalent.
@@ -1499,53 +1104,6 @@ namespace Jazz2
 
 	void ContentResolver::PreloadDeferredAnimations()
 	{
-#if defined(DEATH_TARGET_N64)
-		/*
-			A deferred sheet is read and decoded the first time an animation is used, in the middle of a
-			frame: 50-120 ms for a 256x256 or 256x512 sheet even with the in-memory decoder, a visible hitch.
-			The loading screen is where that time is free - but not for everything a metadata declares: the
-			player alone declares ~160 animations, and reading them all took a megabyte of a heap that has
-			about two to spare in a level, most of it for sheets the level never shows (the airboard, the
-			swimming set, ...). What is read here is the set the trace showed hitching in ordinary play, and
-			the largest sheets there are: the player's idle flavors, which trigger whenever the player just
-			stands still. Everything else stays deferred. The floor keeps a level that is already tight from
-			losing its working room to this.
-		*/
-		constexpr std::int32_t MinFreeHeapAfterPreload = 1800 * 1024;
-
-		std::int32_t preloaded = 0, skipped = 0;
-		for (auto& [key, metadata] : _cachedMetadata) {
-			if (!metadata->Path.hasPrefix("Interactive/Player"_s)) {
-				continue;
-			}
-			for (GraphicResource& animation : metadata->Animations) {
-				if (animation.Base != nullptr || animation.DeferredIndex == GraphicResource::NotDeferred) {
-					continue;
-				}
-				const DeferredGraphicResource& deferred = metadata->DeferredAnimations[animation.DeferredIndex];
-				// The idle flavors (the hitch), and the end-of-level animation: read at the very end of a
-				// level, when the heap is at its lowest and most fragmented, it is the one sheet whose
-				// absence is not a missing flourish but a player who vanishes without the exit animation
-				if (deferred.Path.find("idle_flavor"_s) == nullptr && deferred.Path.find("/eol."_s) == nullptr) {
-					continue;
-				}
-				heap_stats_t stats;
-				sys_get_heap_stats(&stats);
-				if (stats.free < MinFreeHeapAfterPreload) {
-					skipped++;
-					continue;
-				}
-				if (ResolveAnimation(*metadata, animation)) {
-					preloaded++;
-				}
-			}
-		}
-		if (preloaded > 0 || skipped > 0) {
-			heap_stats_t stats;
-			sys_get_heap_stats(&stats);
-			LOGI("Preloaded {} deferred animations ({} left deferred for room), {} bytes of heap free", preloaded, skipped, stats.free);
-		}
-#endif
 	}
 
 	bool ContentResolver::IsGraphicsCached(const GenericGraphicResource* graphics, StringView path, std::uint16_t paletteOffset, bool keepIndexed) const
@@ -1754,8 +1312,6 @@ namespace Jazz2
 		if (fileSize < 16 || fileSize > 64 * 1024 * 1024) {
 			// 64 MB file size limit, also if not found try to use cache
 			if (!s->IsValid()) {
-				// Said out loud on the consoles, whose content trees are prepared ahead of time: a sheet that
-				// is missing there shows as an animation that never appears, with nothing else to explain it
 				LOGW("Cannot load graphics \"{}\": File not found", path);
 			}
 			return nullptr;
@@ -1781,11 +1337,6 @@ namespace Jazz2
 		// one that sets GenericGraphicResourceFlags::Indexed below.
 		const bool willStayIndexed = (keepIndexed && (flags & 0x01) != 0x01);
 		const std::uint32_t sourceStride = (willStayIndexed ? channelCount : PixelSize);
-		// A sheet is read in mid-level on the platforms that defer animations, when the heap is at its most
-		// fragmented, and a sheet is one contiguous block of up to a few hundred KB: this is the allocation
-		// that failed on the Nintendo 64 with 900 KB free but none of it in one piece. The failure has a
-		// recoverable answer - the animation stays missing, and the deferred entry retries when there is
-		// room - so it is asked for without the abort the throwing form ends in on a console
 		std::unique_ptr<std::uint8_t[]> pixels(new (std::nothrow) std::uint8_t[width * height * sourceStride + 3]);
 		if (pixels == nullptr) {
 			LOGE("Cannot load graphics \"{}\": Out of memory for a {}x{} sheet ({} bytes)", path, width, height,
@@ -2042,18 +1593,6 @@ namespace Jazz2
 #endif
 		}
 
-		// When the image content runs to the end of the file, it is read into memory in one go and decoded
-		// from there: the decoder works a byte at a time, and a byte through the stream is a virtual call
-		// (through a buffer, but a call all the same) where a byte from memory is a load. A sheet of a few
-		// hundred thousand pixels took hundreds of milliseconds through the stream on the Nintendo 64, in
-		// the middle of a frame when a deferred animation was first used. Falls back to the stream when
-		// the copy cannot be placed - a level in progress may not have the contiguous room.
-		//
-		// The encoded length of the image is not known in advance, so the copy runs to the end of the stream
-		// and the surplus cannot be given back - a compressed stream out of a .pak cannot seek backwards at
-		// all. So when something follows the image it is decoded through the stream instead, which is the
-		// only way to leave the position exactly at its end. That surplus silently cost the episode
-		// background images, which are read right after the title one.
 		if (contentEndsStream) {
 			const std::int64_t remaining = s->GetSize() - s->GetPosition();
 			if (remaining > 0 && remaining <= 2 * 1024 * 1024) {
@@ -2436,20 +1975,6 @@ namespace Jazz2
 		const std::uint32_t srcTilesPerColumn = height / TileSet::DefaultTileSize;
 		const std::uint32_t paddedTileSizeSrc = TileSet::PaddedTileSize;
 
-		// The source pixels are laid out `channelCount` bytes per pixel (1 = index only, 4 = RGBA / index-in-red;
-		// an 8-bit tile keeps its palette index in the first byte either way).
-		//
-		// The sheet is never held whole. It is decoded one tile row (a "band" of 32 rows) at a time into a
-		// single band buffer, in step with the atlas build below: atlas slots are assigned in ascending tile
-		// order - both with and without the used-tile pruning - so the tiles of every chunk, and of every slot
-		// within it, come from non-decreasing source rows, and the band that holds the current tile is always
-		// either the one already decoded or one further down the sheet. The decoder keeps its state between
-		// bands (the format is a sequential run-length/index scheme), so nothing is decoded twice.
-		//
-		// The whole sheet was 660-900 KB for the retail tilesets even at one byte per pixel, the largest
-		// allocation a level load made and the one that failed on the Nintendo 64: after a level had been
-		// played and torn down the main menu had 2.2 MB free but no contiguous 900 KB left, and the third level
-		// loaded from the menu aborted in that read. A band of a 960 px wide sheet is 30 KB.
 		const std::uint32_t sheetBandRows = TileSet::DefaultTileSize;
 		static_assert(Compatibility::JJ2Anims::TilesetLz4BandRows == TileSet::DefaultTileSize, "LZ4 blocks of a tileset have to be one band each");
 		bool lz4Failed = false;
@@ -2550,45 +2075,8 @@ namespace Jazz2
 		// The atlas gets 1px padding around each tile (so sampling never bleeds across tiles). Indexed output
 		// is a single index channel (-> R8), baked output is RGBA.
 
-		// The atlas does not have to keep the source sheet's row width - a tile is found by its index, and
-		// TileSet reads the row width back from the texture. The consoles round every texture up to a power
-		// of two, so a sheet laid out 22 tiles wide became a 748 px atlas padded to 1024: a quarter of the
-		// video memory wasted, in megabyte-sized blocks. Fifteen tiles is 510 px, which pads to 512 with two
-		// pixels to spare, so a 15-row chunk is an exactly-filled 512x512 texture.
-		//
-		// The PSP wants the same number for a second reason: 512 is not just what its textures pad to, it is
-		// the largest dimension the GE can address at all. A wider atlas has to be split into side-by-side
-		// pages and drawn one page at a time, which puts a per-tile page lookup into the tilemap's hot loop,
-		// keeping every atlas 510 px wide means the paged path is never taken by a tileset.
-		//
-		// The PlayStation 2 has the same hard ceiling one octave up: `TEX0.TW`/`TH` are log2 fields capped
-		// at 10, so 1024 texels per axis is all the GS can ADDRESS. Keeping the source sheet's row width
-		// broke on the wider tilesets - secretf/haunted1 is laid out 32 tiles across, which is 1088 px
-		// padded, and the sampled extent silently clamped to 1024 while the texture coordinates still ran
-		// to 1088. That is not a dropped tileset, it is a wrapped one: every tile past the clamp sampled
-		// somebody else's pixels.
-		//
-		// The Nintendo 64's RDP never addresses the atlas as a whole - each primitive loads its own tile's
-		// texels into TMEM - so there is no sampler limit to stay under. The 15-tile row is kept anyway to
-		// match what the RDP backend advertises as its texture-size limit, so the chunking below behaves
-		// the same as on the other fixed-function consoles.
-		//
-		// The legacy OpenGL backend joins them for both reasons at once, which is why this is keyed on the
-		// BACKEND there rather than on a platform: what it runs on is a GL that may well sample only
-		// power-of-two textures (TinyGL on MorphOS), and the source sheet's own row width is exactly what
-		// broke on the PlayStation 2 above - secretf/haunted1's 32-tile row is 1088 px padded, which no
-		// limit that is a power of two can hold.
-#if defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || \
-	defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_PSP) ||                                \
-	defined(DEATH_TARGET_3DS) || defined(WITH_RHI_LEGACYGL)
-		constexpr std::uint32_t PreferredAtlasTilesPerRow = 15;
-#else
-		constexpr std::uint32_t PreferredAtlasTilesPerRow = 0;
-#endif
 		const std::uint32_t totalTiles = srcTilesPerRow * srcTilesPerColumn;
-		const std::uint32_t tilesPerRow = (PreferredAtlasTilesPerRow > 0 && totalTiles > PreferredAtlasTilesPerRow
-				? PreferredAtlasTilesPerRow
-				: srcTilesPerRow);
+		const std::uint32_t tilesPerRow = srcTilesPerRow;
 		// Where the caller knows which tiles the level actually references, only those go into the atlas.
 		// Slot 0 is reserved and left blank, so a tile that was pruned but turns up later - a script placing
 		// one, an id outside the set - maps there and draws as empty instead of sampling a neighbour.
@@ -2624,7 +2112,7 @@ namespace Jazz2
 
 		// Caption tile (level-select thumbnail): downscale one tile 1:3 vertically, averaging 3 source rows. Resolve
 		// 8-bit indices through the palette here (32-bit tiles already hold RGB).
-		if (KeepCaptionTiles && captionTileId > 0 && captionTileId < tileCount) {
+		if (captionTileId > 0 && captionTileId < tileCount) {
 			const std::uint32_t tileX = (captionTileId % srcTilesPerRow) * TileSet::DefaultTileSize;
 			const std::uint32_t tileY = (captionTileId / srcTilesPerRow) * TileSet::DefaultTileSize;
 			if (tileX + TileSet::DefaultTileSize <= width && tileY + TileSet::DefaultTileSize <= height) {
@@ -2639,35 +2127,7 @@ namespace Jazz2
 		const std::int32_t maxTextureSize = theServiceLocator().GetRhiCapabilities().GetValue(RHI::IRhiCapabilities::IntValues::MaxTextureSize);
 		const std::uint32_t paddedTileSize = TileSet::PaddedTileSize;
 
-		// The fixed-function consoles round every texture up to a power of two, so chunking right at their
-		// 1024 limit makes each chunk ask video memory for a single megabyte-sized contiguous block. That is
-		// the first allocation to fail once the heap is fragmented: the tileset lost its store as soon as the
-		// pause menu's textures arrived and could never get it back, leaving the tilemap to flicker out.
-		// Halving the chunk height costs the same total memory - two 512-tall chunks instead of one 1024-tall
-		// one, both exactly filling their power-of-two height - but asks for it in half-sized pieces.
-		//
-		// On the PSP this coincides with the device limit rather than halving it (the GE cannot address more
-		// than 512 texels per axis anyway), so it changes nothing there today - it is stated explicitly all
-		// the same, because the pairing with PreferredAtlasTilesPerRow above is what makes a chunk exactly one
-		// GE texture, and that should not silently depend on what the backend happens to report.
-		//
-		// The PlayStation 2 does not round its storage up to a power of two (GsVram places the exact pages a
-		// buffer needs), so the argument there is only about the SIZE of the run: a 510x1020 8-bit chunk is
-		// 64 contiguous pages out of a 352-page cache, which is the first thing to fail once the window is
-		// broken up. Half-height chunks are 32 pages each for the same total.
-#if defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || \
-	defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_PSP) ||                                \
-	defined(DEATH_TARGET_3DS) || defined(WITH_RHI_LEGACYGL)
-#if defined(DEATH_TARGET_N64)
-		// 256 KB at most per chunk of a 1024-wide CI8 atlas: a taller chunk is one block of half a
-		// megabyte, which a heap that has been through a few level loads no longer holds in one piece
-		constexpr std::int32_t PreferredChunkHeight = 256;
-#else
-		constexpr std::int32_t PreferredChunkHeight = 512;
-#endif
-#else
 		constexpr std::int32_t PreferredChunkHeight = 0;
-#endif
 		const std::int32_t chunkHeightLimit = (PreferredChunkHeight > 0 &&
 					(maxTextureSize <= 0 || PreferredChunkHeight < maxTextureSize)
 				? PreferredChunkHeight
@@ -3294,28 +2754,7 @@ namespace Jazz2
 		s->Read(episode.NextEpisode.data(), nameLength);
 
 		if (withImages && !_isHeadless) {
-			// Every episode carries a full-colour backdrop of around half a megabyte of video memory once
-			// padded, and the episode list keeps all of them loaded at once. That does not fit next to the
-			// rest of the menu on a console with a few megabytes of it, where they would either fail to
-			// allocate or evict each other on every scroll; the section draws without them when they are
-			// absent, which looks better than the flicker.
-			//
-			// The PSP is in the same position for a different reason: its textures live in main memory rather
-			// than in a separate video pool, so the eleven 320x200 backdrops (512x256 once padded, half a
-			// megabyte each) come to over five megabytes of it - to show one at a time, on a 480x272 screen.
-			// The original model only hands a user application around twenty of those megabytes in total (the
-			// later ones with PSP_LARGE_MEMORY do give roughly fifty), and it is the smaller one that has to
-			// fit.
-			//
-			// The Nintendo 64's textures also live in main memory, and even with the Expansion Pak there is
-			// only 8 MB of RDRAM in total - half the Dreamcast's heap - so the backdrops are skipped there too.
-			// So do the GameCube's, in its 24 MB, where the thirteen backdrops of a full installation ran it out
-			// of memory the moment the episode list opened.
-#if defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_GAMECUBE)
-			constexpr bool LoadEpisodeBackgrounds = false;
-#else
 			constexpr bool LoadEpisodeBackgrounds = true;
-#endif
 
 			std::uint16_t titleWidth = s->ReadValueAsLE<std::uint16_t>();
 			std::uint16_t titleHeight = s->ReadValueAsLE<std::uint16_t>();
@@ -3353,17 +2792,6 @@ namespace Jazz2
 		return Death::move(episode);
 	}
 
-#if defined(NCINE_HAS_NATIVE_AUDIO)
-	String ContentResolver::GetNativeSoundPath(StringView assetPath) const
-	{
-		if (fs::GetExtension(assetPath) != "wav"_s) {
-			return {};
-		}
-		String nativePath = fs::CombinePath({ GetContentPath(), "Animations"_s, String(assetPath + "64"_s) });
-		return (fs::IsReadableFile(nativePath) ? nativePath : String());
-	}
-#endif
-
 	std::unique_ptr<AudioStreamPlayer> ContentResolver::GetMusic(StringView path)
 	{
 #if defined(WITH_AUDIO)
@@ -3378,19 +2806,6 @@ namespace Jazz2
 			fullPath = _pathHandler(path);
 		}
 		if (fullPath.empty()) {
-#if defined(NCINE_HAS_NATIVE_AUDIO)
-			// The console cannot decode any of the original module formats; the asset packer converts every track
-			// it can into a ".xm64" module, which the audio device plays with its instruments streamed from the
-			// cartridge, and pre-renders the rest into a compressed ".wav64" recording
-			StringView stem = fs::GetFileNameWithoutExtension(path);
-			for (StringView extension : { "xm64"_s, "wav64"_s }) {
-				fullPath = fs::CombinePath({ GetContentPath(), "Music"_s, String(stem + "."_s + extension) });
-				if (fs::IsReadableFile(fullPath)) {
-					found = true;
-					break;
-				}
-			}
-#else
 			StringView userContentPath = GetUserContentPath();
 			if (!userContentPath.empty()) {
 				fullPath = fs::CombinePath({ userContentPath, "Music"_s, path });
@@ -3409,7 +2824,6 @@ namespace Jazz2
 					found = fs::IsReadableFile(fullPath);
 				}
 			}
-#endif
 #endif
 		} else {
 			found = fs::IsReadableFile(fullPath);
@@ -3489,7 +2903,6 @@ namespace Jazz2
 
 		ZoneScoped;
 
-#if defined(RHI_CAP_SHADERS) && defined(RHI_CAP_FRAMEBUFFERS)
 		// Lighting only exists on the shader render path - the direct tier composites it on the CPU in the combine
 		// pass and never asks for this (see LevelHandler::OnInitialized). All lights of a viewport go out as one
 		// mesh, so there is no per-light program and no batched twin of one: a batch would still be one instance
@@ -3503,7 +2916,6 @@ namespace Jazz2
 			shader->SetAttribute(Material::TexCoordsAttributeName, Stride, reinterpret_cast<void*>(2 * sizeof(float)));
 			shader->SetAttribute(Material::ColorAttributeName, Stride, reinterpret_cast<void*>(4 * sizeof(float)));
 		}
-#endif
 
 		_precompiledShaders[(std::int32_t)PrecompiledShader::Blur] = CompileShader("Blur", ShadersGen::Blur);
 		_precompiledShaders[(std::int32_t)PrecompiledShader::Downsample] = CompileShader("Downsample", ShadersGen::Downsample);
@@ -3550,8 +2962,6 @@ namespace Jazz2
 			}
 		}
 		{
-			// The cylinder may be newer than the offline tables of some backends (a table like the PlayStation 3's has no
-			// microcode of it until it's generated again), its layers are drawn as tiles where either variant is missing (see TileMap)
 			auto& cylinderShader = _precompiledShaders[(std::int32_t)PrecompiledShader::TexturedBackgroundCylinder];
 			auto& cylinderDitherShader = _precompiledShaders[(std::int32_t)PrecompiledShader::TexturedBackgroundCylinderDither];
 			cylinderShader = CompileShader("TexturedBackgroundCylinder", ShadersGen::TexturedBackgroundCylinder);
@@ -3713,7 +3123,6 @@ namespace Jazz2
 		_precompiledShaders[(std::int32_t)PrecompiledShader::ResizeCrtScanlines] = CompileShader("ResizeCrtScanlines", ShadersGen::ResizeCrtScanlines);
 		_precompiledShaders[(std::int32_t)PrecompiledShader::ResizeCrtShadowMask] = CompileShader("ResizeCrtShadowMask", ShadersGen::ResizeCrtShadowMask);
 		_precompiledShaders[(std::int32_t)PrecompiledShader::ResizeCrtApertureGrille] = CompileShader("ResizeCrtApertureGrille", ShadersGen::ResizeCrtApertureGrille);
-#if defined(RHI_CAP_HEAVY_RESCALE_SHADERS)
 		// These three are skipped where the backend's offline shader profile rejected them (see
 		// RHI_CAP_HEAVY_RESCALE_SHADERS): the menu does not offer their modes there, so compiling them
 		// would only produce a program with nothing to bind - and one error line each, every launch
@@ -3721,12 +3130,7 @@ namespace Jazz2
 		_precompiledShaders[(std::int32_t)PrecompiledShader::ResizeSabr] = CompileShader("ResizeSabr", ShadersGen::ResizeSabr);
 		_precompiledShaders[(std::int32_t)PrecompiledShader::ResizeCleanEdge] = CompileShader("ResizeCleanEdge", ShadersGen::ResizeCleanEdge);
 #endif
-#endif
-#if !defined(DEATH_TARGET_VITA)
-		// vitaGL's runtime shader compiler (SceShaccCg) crashes while building the antialiasing resolve shader,
-		// and the AA subpass is force-disabled on Vita anyway (see UpscaleRenderPass), so it is not compiled there
 		_precompiledShaders[(std::int32_t)PrecompiledShader::Antialiasing] = CompileShader("Antialiasing", ShadersGen::Antialiasing);
-#endif
 
 		_precompiledShaders[(std::int32_t)PrecompiledShader::Transition] = CompileShader("Transition", ShadersGen::Transition);
 		_precompiledShaders[(std::int32_t)PrecompiledShader::TouchCircle] = CompileShader("TouchCircle", ShadersGen::TouchCircle);
@@ -3897,9 +3301,7 @@ namespace Jazz2
 			return shader;
 		}
 #endif
-		// The program name + the variant's own name are the true identity the fixed-function console
-		// backends resolve their generated effect tables from - the shaderName label is only a label
-		if (shader->LoadFromCache(shaderName, ShadersVersion, introspection, *variant, program.Name)) {
+		if (shader->LoadFromCache(shaderName, ShadersVersion, introspection, *variant)) {
 			return shader;
 		}
 
@@ -3962,7 +3364,7 @@ namespace Jazz2
 
 		bool hasLinked;
 		while (true) {
-			hasLinked = shader->LoadFromMemory(shaderName, introspection, *variant, batchSize, program.Name);
+			hasLinked = shader->LoadFromMemory(shaderName, introspection, *variant, batchSize);
 			if (hasLinked || !batchSizeComputed || batchSize <= 1) {
 				break;
 			}

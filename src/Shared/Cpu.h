@@ -1696,7 +1696,7 @@ namespace Death
 			return T { Implementation::Init };
 		}
 
-#if defined(DEATH_TARGET_ARM) && ((defined(__linux__) && !(defined(DEATH_TARGET_ANDROID) && __ANDROID_API__ < 18)) || defined(__FreeBSD__))
+#if defined(DEATH_TARGET_ARM) && (defined(__linux__) || defined(__FreeBSD__))
 		namespace Implementation
 		{
 			// Needed for a friend declaration, implementation is at the very end of the header
@@ -1851,7 +1851,7 @@ namespace Death
 #if (defined(DEATH_TARGET_X86) && (defined(DEATH_TARGET_MSVC) || defined(DEATH_TARGET_GCC))) || (defined(DEATH_TARGET_ARM) && defined(DEATH_TARGET_APPLE))
 			friend Features runtimeFeatures();
 #endif
-#if defined(DEATH_TARGET_ARM) && ((defined(__linux__) && !(defined(DEATH_TARGET_ANDROID) && __ANDROID_API__ < 18)) || defined(__FreeBSD__))
+#if defined(DEATH_TARGET_ARM) && (defined(__linux__) || defined(__FreeBSD__))
 			friend Features Implementation::runtimeFeatures(unsigned long);
 #endif
 
@@ -2159,7 +2159,7 @@ namespace Death
 		value is equal to @ref Scalar, which in turn is equivalent to empty (or
 		default-constructed) @ref Features.
 	*/
-#if (defined(DEATH_TARGET_X86) && (defined(DEATH_TARGET_MSVC) || defined(DEATH_TARGET_GCC))) || (defined(DEATH_TARGET_ARM) && ((defined(__linux__) && !(defined(DEATH_TARGET_ANDROID) && __ANDROID_API__ < 18)) || defined(DEATH_TARGET_APPLE) || defined(__FreeBSD__)))
+#if defined(DEATH_TARGET_X86) && (defined(DEATH_TARGET_MSVC) || defined(DEATH_TARGET_GCC)) || defined(DEATH_TARGET_ARM) && (defined(__linux__) || defined(DEATH_TARGET_APPLE) || defined(__FreeBSD__))
 		Features runtimeFeatures();
 #else
 		constexpr Features runtimeFeatures()
@@ -3525,7 +3525,7 @@ namespace Death
 		// then used inside such resolvers. A nice consequence of that is that we don't need any other headers.
 
 		// The public Cpu::runtimeFeatures() is deinlined, calls getauxval() and passes it into this function.
-#if defined(DEATH_TARGET_ARM) && ((defined(__linux__) && !(defined(DEATH_TARGET_ANDROID) && __ANDROID_API__ < 18)) || defined(__FreeBSD__))
+#if defined(DEATH_TARGET_ARM) && (defined(__linux__) || defined(__FreeBSD__))
 		namespace Implementation
 		{
 			inline Features runtimeFeatures(const unsigned long caps)

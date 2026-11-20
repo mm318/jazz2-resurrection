@@ -8,6 +8,10 @@
 	the rest of them also requires this header file to work properly.
 */
 
+#if defined(__ANDROID__)
+#error Supported platforms are Linux, Windows, macOS, and Emscripten
+#endif
+
 #if defined(__EMSCRIPTEN__)
 #define DEATH_TARGET_EMSCRIPTEN
 // Since Emscripten 3.1.4 the version macros are no longer predefined by the compiler driver but declared in this header
@@ -18,20 +22,16 @@
 #endif
 #elif defined(_WIN32)
 #define DEATH_TARGET_WINDOWS
-#elif defined(__ANDROID__)
-#define DEATH_TARGET_ANDROID
 #elif defined(__APPLE__)
 #include <TargetConditionals.h>
-#define DEATH_TARGET_APPLE
 #if TARGET_OS_IPHONE
-#define DEATH_TARGET_IOS
+#error Only macOS desktop builds are supported on Apple platforms
 #endif
-#if TARGET_IPHONE_SIMULATOR
-#define DEATH_TARGET_IOS
-#define DEATH_TARGET_IOS_SIMULATOR
-#endif
-#elif defined(__unix__) || defined(__linux__)
+#define DEATH_TARGET_APPLE
+#elif defined(__linux__)
 #define DEATH_TARGET_UNIX
+#else
+#error Supported platforms are Linux, Windows, macOS, and Emscripten
 #endif
 
 // First two is GCC/Clang for 32/64-bit, second two is MSVC 32/64-bit, last one is for ARM64 Emulation Compatible.
@@ -70,10 +70,8 @@
 #define DEATH_TARGET_32BIT
 #endif
 
-// Platforms with little memory and small thread stacks (the consoles and the web), where buffers embedded in objects have compact size
-#if defined(DEATH_TARGET_EMSCRIPTEN) || defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_GAMECUBE) ||                                                   \
-	defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_PS3) || \
-	defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_VITA) || defined(DEATH_TARGET_AMIGAOS)
+// Use compact embedded buffers for the web build.
+#if defined(DEATH_TARGET_EMSCRIPTEN)
 #define DEATH_TARGET_CONSTRAINED_MEMORY
 #endif
 
@@ -184,11 +182,7 @@
 #elif __BYTE_ORDER__ != __ORDER_LITTLE_ENDIAN__
 #error What kind of endianness is this?
 #endif
-#elif defined(__hppa__) ||                                         \
-	defined(__m68k__) || defined(mc68000) || defined(_M_M68K) ||   \
-	(defined(__MIPS__) && defined(__MIPSEB__)) ||                  \
-	defined(__ppc__) || defined(__POWERPC__) || defined(_M_PPC) || \
-	defined(__sparc__)
+#elif defined(__hppa__) || defined(__m68k__) || defined(mc68000) || defined(_M_M68K) || (defined(__MIPS__) && defined(__MIPSEB__)) || defined(__ppc__) || defined(__POWERPC__) || defined(_M_PPC) || defined(__sparc__)
 #define DEATH_TARGET_BIG_ENDIAN
 #endif
 
@@ -367,7 +361,7 @@
 	Note that even though the type size and precision may be the same, these are still two distinct types,
 	similarly to how @cpp int @ce and @cpp signed int @ce behave the same but are treated as different types.
 */
-#if defined(DEATH_TARGET_MSVC) || (defined(DEATH_TARGET_ANDROID) && !__LP64__) || defined(DEATH_TARGET_EMSCRIPTEN) || (defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_IOS) && defined(DEATH_TARGET_ARM)) || defined(DOXYGEN_GENERATING_OUTPUT)
+#if defined(DEATH_TARGET_MSVC) || defined(DEATH_TARGET_EMSCRIPTEN) || defined(DEATH_TARGET_APPLE) && defined(DEATH_TARGET_ARM) || defined(DOXYGEN_GENERATING_OUTPUT)
 #define DEATH_LONG_DOUBLE_SAME_AS_DOUBLE
 #endif
 

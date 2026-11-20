@@ -12,7 +12,7 @@
 #include <memory>
 #include <new>
 
-#if !defined(DEATH_TARGET_ANDROID) && !defined(_WIN32_WCE) && !defined(__psp2__)
+#if !(defined(_WIN32_WCE)) && !(defined(__psp2__))
 #include <locale.h> // setlocale()
 #endif
 
@@ -757,7 +757,7 @@ namespace Jazz2::Scripting
 
 		// WinCE doesn't have setlocale. Some quick testing on my current platform still manages to parse the numbers
 		// such as "3.14" even if the decimal for the locale is ",".
-#if !defined(DEATH_TARGET_ANDROID) && !defined(_WIN32_WCE) && !defined(__psp2__)
+#if !(defined(_WIN32_WCE)) && !(defined(__psp2__))
 		// Set the locale to C so that we are guaranteed to parse the float value correctly
 		char* tmp = setlocale(LC_NUMERIC, nullptr);
 		String orig = (tmp ? tmp : "C"_s);
@@ -766,7 +766,7 @@ namespace Jazz2::Scripting
 
 		double res = strtod(val.data(), &end);
 
-#if !defined(DEATH_TARGET_ANDROID) && !defined(_WIN32_WCE) && !defined(__psp2__)
+#if !(defined(_WIN32_WCE)) && !(defined(__psp2__))
 		// Restore the locale
 		setlocale(LC_NUMERIC, orig.data());
 #endif

@@ -72,7 +72,7 @@ namespace nCine::RHI::GL
 		}
 		// Dead code when the software backend is selected: `RHI::BufferRange::object` is then a `SwBuffer*`
 		// whose definition this GL translation unit does not include, and the pipeline never calls this here
-#elif !defined(WITH_RHI_SOFTWARE)
+#else
 #if defined(DEATH_DEBUG)
 		static const std::int32_t offsetAlignment = theServiceLocator().GetRhiCapabilities().GetValue(IRhiCapabilities::IntValues::UniformBufferOffsetAlignment);
 #endif

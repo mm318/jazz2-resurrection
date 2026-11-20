@@ -153,7 +153,7 @@
 #define SDLK_BACKQUOTE SDLK_GRAVE
 #endif
 
-#if SDL_VERSION_ATLEAST(2, 0, 4) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_ANDROID) && !(defined(DEATH_TARGET_APPLE) && TARGET_OS_IOS)
+#if SDL_VERSION_ATLEAST(2, 0, 4) && !(defined(DEATH_TARGET_EMSCRIPTEN))
 #define SDL_HAS_CAPTURE_AND_GLOBAL_MOUSE 1
 #else
 #define SDL_HAS_CAPTURE_AND_GLOBAL_MOUSE 0
@@ -1092,7 +1092,7 @@ namespace nCine::Backends
 		return (contentScale > 0.0f ? contentScale : 1.0f);
 #else
 #if SDL_HAS_PER_MONITOR_DPI
-#if !defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_ANDROID)
+#if !(defined(DEATH_TARGET_APPLE)) && !(defined(DEATH_TARGET_EMSCRIPTEN))
 		float dpi = 0.0f;
 		if (SDL_GetDisplayDPI(displayIndex, &dpi, nullptr, nullptr) == 0) {
 			return dpi / 96.0f;

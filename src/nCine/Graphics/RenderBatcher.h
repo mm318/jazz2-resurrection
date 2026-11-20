@@ -49,12 +49,8 @@ namespace nCine
 		 * @param destQueue    Destination queue that receives batched and pass-through commands
 		 * @param splitKeys    Layer sort keys no batch may span, in ascending order (see @ref RenderCommand::GetLayerSortKey())
 		 */
-#if defined(RHI_CAP_POSTPROCESSING) || defined(DOXYGEN_GENERATING_OUTPUT)
 		void CreateBatches(const SmallVectorImpl<RenderCommand*>& srcQueue, SmallVectorImpl<RenderCommand*>& destQueue,
 			ArrayView<const std::uint32_t> splitKeys = {});
-#else
-		void CreateBatches(const SmallVectorImpl<RenderCommand*>& srcQueue, SmallVectorImpl<RenderCommand*>& destQueue);
-#endif
 		/** @brief Marks all managed buffers as free for reuse in the next frame */
 		void Reset();
 

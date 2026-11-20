@@ -20,7 +20,7 @@ namespace Jazz2::Rendering::SoftwareLighting
 	 * its own). The lightmap is quantized to 8 bits per channel before anything sees it, so a relative
 	 * error of that size cannot change a single output value except at a quantization boundary.
 	 */
-#if defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_GAMECUBE) || defined(JAZZ2_SPLAT_TEST_RSQRTE)
+#if defined(JAZZ2_SPLAT_TEST_RSQRTE)
 	inline float RsqrtEstimate(float x)
 	{
 #if defined(JAZZ2_SPLAT_TEST_RSQRTE)
@@ -37,27 +37,7 @@ namespace Jazz2::Rendering::SoftwareLighting
 	/** @brief Returns @f$ \sqrt{d2} @f$ for a squared distance, as cheaply as the platform allows */
 	inline float Distance(float d2)
 	{
-#if defined(DEATH_TARGET_N64)
-		// `sqrt.s` is ~58 unpipelined cycles on the VR4300 and this runs once per lit texel; a table over
-		// the [0, 1] range the callers stay in (they clamp the result) is a convert and a load. 1024 steps
-		// put the error under 1/2048 of the radius, far below what the bilinear stretch of the map shows.
-		static float table[1026];
-		static bool tableReady = false;
-		if (!tableReady) {
-			for (std::int32_t i = 0; i < 1026; i++) {
-				table[i] = std::sqrt(float(i) / 1024.0f);
-			}
-			tableReady = true;
-		}
-		const std::int32_t index = std::min<std::int32_t>(std::max<std::int32_t>(std::int32_t(d2 * 1024.0f), 0), 1025);
-		return table[index];
-#elif defined(DEATH_TARGET_DREAMCAST)
-		// `fsrra` of zero is infinity and `0 * inf` is NaN; a squared distance this small is the light's own
-		// texel, where `d2 * r` then comes out as ~1e-6 and the strength as 1, exactly as it should
-		float r = std::max(d2, 1.0e-12f);
-		asm("fsrra %0" : "+f"(r));
-		return d2 * r;
-#elif defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_GAMECUBE) || defined(JAZZ2_SPLAT_TEST_RSQRTE)
+#if defined(JAZZ2_SPLAT_TEST_RSQRTE)
 		const float x = std::max(d2, 1.0e-12f);
 		float r = RsqrtEstimate(x);
 		r = r * (1.5f - 0.5f * x * r * r);
@@ -79,11 +59,7 @@ namespace Jazz2::Rendering::SoftwareLighting
 	 */
 	inline float ClampFalloff(float t)
 	{
-#if defined(DEATH_TARGET_PS2)
-		return std::fmin(std::fmax(t, 0.0f), 1.0f);
-#else
 		return std::min(std::max(t, 0.0f), 1.0f);
-#endif
 	}
 
 	/** @brief The falloff of `LightingFs.inc` at distance @p dist (in units of the far radius), see @ref SplatLight() */
@@ -92,35 +68,6 @@ namespace Jazz2::Rendering::SoftwareLighting
 		const float t = ClampFalloff((1.0f - dist) * invDenom);
 		return t * t * t;
 	}
-
-#if defined(DEATH_TARGET_N64)
-	/** @brief Steps of the squared distance, from the centre of a light to its far radius, in @ref CorelessFalloffTable() */
-	constexpr std::int32_t CorelessFalloffSteps = 256;
-
-	/**
-	 * @brief Returns the falloff of a light with no flat core over @ref CorelessFalloffSteps steps of the squared distance
-	 *
-	 * A light with no core (a near radius of zero, most lights of a level) falls off by the squared distance
-	 * alone, the same for every light, so a table lookup replaces a square root, two compares and two
-	 * multiplies per texel.
-	 *
-	 * The table is small because the lightmap already takes over half of the 8 KB data cache, at 4 KB the
-	 * two kept evicting each other. The index is rounded to the nearest step, which keeps the error under
-	 * 1/100 of a light's strength everywhere but in the texel of its centre.
-	 */
-	inline const float* CorelessFalloffTable()
-	{
-		static float table[CorelessFalloffSteps + 2];
-		static bool tableReady = false;
-		if (!tableReady) {
-			for (std::int32_t i = 0; i < CorelessFalloffSteps + 2; i++) {
-				table[i] = FalloffStrength(std::sqrt(std::min(float(i) / float(CorelessFalloffSteps), 1.0f)), 1.0f);
-			}
-			tableReady = true;
-		}
-		return table;
-	}
-#endif
 
 	/** @brief The row loop of @ref SplatLight(), for a light with a flat core or (if @p Coreless) without one */
 	template <bool Coreless>
@@ -139,11 +86,7 @@ namespace Jazz2::Rendering::SoftwareLighting
 	 */
 	inline float RowHalfWidth(float v)
 	{
-#if defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_GAMECUBE)
-		return Distance(v);
-#else
 		return std::sqrt(v);
-#endif
 	}
 
 	/**
@@ -177,12 +120,6 @@ namespace Jazz2::Rendering::SoftwareLighting
 	inline void SplatLight(float* lightmap, std::int32_t lmW, std::int32_t lmH, float cx, float cy, float rLm,
 		float radiusNearNorm, float intensity, float brightness)
 	{
-#if defined(DEATH_TARGET_N64)
-		if (radiusNearNorm == 0.0f) {
-			SplatLightRows<true>(lightmap, lmW, lmH, cx, cy, rLm, radiusNearNorm, intensity, brightness);
-			return;
-		}
-#endif
 		SplatLightRows<false>(lightmap, lmW, lmH, cx, cy, rLm, radiusNearNorm, intensity, brightness);
 	}
 
@@ -222,11 +159,6 @@ namespace Jazz2::Rendering::SoftwareLighting
 		const float outerSq = outer * outer;
 		// A ring narrower than its band has no hole
 		const float innerSq = (inner > 0.0f ? inner * inner : 0.0f);
-#if defined(DEATH_TARGET_N64)
-		// Distance() is a table over [0, 1] there, so the squared distance is looked up in units of the outer
-		// radius, which the band never leaves, and scaled back
-		const float invOuterSq = 1.0f / outerSq;
-#endif
 
 		const float outerLm = ringLm + rLm;
 		const std::int32_t y0 = std::max<std::int32_t>(0, (std::int32_t)(cy - outerLm));
@@ -272,11 +204,7 @@ namespace Jazz2::Rendering::SoftwareLighting
 #pragma GCC unroll 4
 				for (; x < end; x++, row += 2, fx += 1.0f) {
 					const float dx = (fx - cx) * invRLm;
-#if defined(DEATH_TARGET_N64)
-					const float dist = Distance((dx * dx + dySq) * invOuterSq) * outer;
-#else
 					const float dist = Distance(dx * dx + dySq);
-#endif
 					const float strength = FalloffStrength(std::fabs(dist - ring), invDenom);
 					row[0] += strength * intensity;
 					row[1] += strength * brightness;
@@ -297,12 +225,6 @@ namespace Jazz2::Rendering::SoftwareLighting
 		float radiusNearNorm, float intensity, float brightness)
 	{
 		const float invRLm = 1.0f / rLm;
-#if defined(DEATH_TARGET_N64)
-		const float* corelessFalloff = (Coreless ? CorelessFalloffTable() : nullptr);
-		// The square of this is the table's steps to a unit of the squared distance (see below)
-		const float invRLmScaled = invRLm * 16.0f;
-		static_assert(CorelessFalloffSteps == 16 * 16, "The column terms are scaled to the table's steps");
-#endif
 		const float denom = (1.0f - radiusNearNorm);
 		// A light without falloff (near >= far) has no annulus at all: the core test below covers the whole disc
 		const float invDenom = (denom > 0.0f ? 1.0f / denom : 0.0f);
@@ -313,24 +235,6 @@ namespace Jazz2::Rendering::SoftwareLighting
 		const std::int32_t bx0 = std::max<std::int32_t>(0, (std::int32_t)(cx - rLm));
 		const std::int32_t bx1 = std::min(lmW - 1, (std::int32_t)(cx + rLm));
 
-#if defined(DEATH_TARGET_N64)
-		// The horizontal half of a texel's squared distance depends on its column alone, so it is computed once per
-		// column of the light rather than in every row of it: three float operations a texel fewer, in loops that
-		// are chains of dependent ones. It is the same product of the same two floats - the column's coordinate,
-		// a whole number the texel loops count up to exactly, and the same scale - and the VR4300 has no fused
-		// multiply-add that could round the sum differently, so every texel comes out bit-identical.
-		constexpr std::int32_t MaxColumnTerms = 64;
-		float columnTerms[MaxColumnTerms];
-		const bool hasColumnTerms = (bx1 - bx0 < MaxColumnTerms);
-		if (hasColumnTerms) {
-			const float columnScale = (Coreless ? invRLmScaled : invRLm);
-			for (std::int32_t x = bx0; x <= bx1; x++) {
-				const float dx = (float(x) - cx) * columnScale;
-				columnTerms[x - bx0] = dx * dx;
-			}
-		}
-#endif
-
 		for (std::int32_t y = y0; y <= y1; y++) {
 			const float dy = (y - cy) * invRLm;
 			const float dySq = dy * dy;
@@ -338,34 +242,6 @@ namespace Jazz2::Rendering::SoftwareLighting
 			if (outerSq <= 0.0f) {
 				continue;
 			}
-
-#if defined(DEATH_TARGET_N64)
-			if (Coreless && hasColumnTerms) {
-				// No core, so the squared distance only indexes the falloff table, with the scale of the table folded
-				// into both terms: (16 dx)^2 + 256 dy^2. The texels of the row inside the disc are found by scanning
-				// from both ends of the light's columns, cheaper than a square root for every row. Two texels an
-				// iteration, the second one fills the waits of the first one's dependent float operations.
-				const float dySqScaled = dySq * float(CorelessFalloffSteps);
-				const float limit = float(CorelessFalloffSteps) - dySqScaled;
-				std::int32_t first = 0, last = bx1 - bx0;
-				while (first <= last && columnTerms[first] > limit) {
-					first++;
-				}
-				while (last >= first && columnTerms[last] > limit) {
-					last--;
-				}
-				float* row = &lightmap[((std::size_t)y * lmW + bx0 + first) * 2];
-				// Rounded to the nearest step
-				const float bias = dySqScaled + 0.5f;
-#pragma GCC unroll 2
-				for (std::int32_t i = first; i <= last; i++, row += 2) {
-					const float strength = corelessFalloff[std::int32_t(columnTerms[i] + bias)];
-					row[0] += strength * intensity;
-					row[1] += strength * brightness;
-				}
-				continue;
-			}
-#endif
 
 			// Texels inside the disc on this row (the ceil/floor of the two real bounds). The fast forms, because
 			// `std::ceil` and `std::floor` are library calls on most of the consoles this runs on, four a row.
@@ -392,27 +268,6 @@ namespace Jazz2::Rendering::SoftwareLighting
 
 			// Left annulus segment [xs, cs), the core [cs, ce], the right segment (ce, xe]
 			std::int32_t x = xs;
-#if defined(DEATH_TARGET_N64)
-			if (hasColumnTerms) {
-#pragma GCC unroll 4
-				for (; x < cs; x++, row += 2) {
-					const float strength = FalloffStrength(Distance(columnTerms[x - bx0] + dySq), invDenom);
-					row[0] += strength * intensity;
-					row[1] += strength * brightness;
-				}
-				for (; x <= ce; x++, row += 2) {
-					row[0] += intensity;
-					row[1] += brightness;
-				}
-#pragma GCC unroll 4
-				for (; x <= xe; x++, row += 2) {
-					const float strength = FalloffStrength(Distance(columnTerms[x - bx0] + dySq), invDenom);
-					row[0] += strength * intensity;
-					row[1] += strength * brightness;
-				}
-				continue;
-			}
-#endif
 			float fx = (float)x;
 #pragma GCC unroll 4
 			for (; x < cs; x++, row += 2, fx += 1.0f) {

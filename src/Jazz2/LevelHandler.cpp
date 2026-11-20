@@ -18,9 +18,6 @@
 #include "../nCine/MainApplication.h"
 #include "../nCine/ServiceLocator.h"
 #include "../nCine/tracy.h"
-#if defined(DEATH_TARGET_DREAMCAST)
-#include "../nCine/Backends/Dc/DcPlatform.h"
-#endif
 #include "../nCine/Base/Random.h"
 #include "../nCine/Graphics/Camera.h"
 #include "../nCine/Graphics/Texture.h"
@@ -215,9 +212,7 @@ namespace Jazz2
 
 	LevelHandler::LevelHandler(IRootController* root)
 		: _root(root),
-#if defined(RHI_CAP_SHADERS) && defined(RHI_CAP_FRAMEBUFFERS)
 		  _lightingMeshShader(nullptr), _blurShader(nullptr), _downsampleShader(nullptr),
-#endif
 		  _combineShader(nullptr), _combineWithWaterShader(nullptr), _waterShader(nullptr), _hudOverlayActive(false),
 		  _difficulty(GameDifficulty::Default), _weatherType(WeatherType::None), _nextLevelType(ExitType::None),
 		  _nextLevelTime(0.0f), _isReforged(false), _cheatsUsed(false), _checkpointCreated(false),
@@ -301,11 +296,9 @@ namespace Jazz2
 		// Scoped, because both overloads return early when the level cannot be loaded - see LoadingScope
 		ContentResolver::LoadingScope loadingScope(resolver);
 
-#if defined(RHI_CAP_POSTPROCESSING)
 		// Only the post-processing combine samples it (see CombineRenderer); the direct tier never binds it,
 		// so an RGBA8 64x64 would sit there for the whole level without ever being read
 		_noiseTexture = resolver.GetNoiseTexture();
-#endif
 
 		_rootNode = CreateRootNode();
 		_rootNode->SetVisitOrderState(SceneNode::VisitOrderState::Disabled);
@@ -363,11 +356,9 @@ namespace Jazz2
 		// Scoped, because both overloads return early when the level cannot be loaded - see LoadingScope
 		ContentResolver::LoadingScope loadingScope(resolver);
 
-#if defined(RHI_CAP_POSTPROCESSING)
 		// Only the post-processing combine samples it (see CombineRenderer); the direct tier never binds it,
 		// so an RGBA8 64x64 would sit there for the whole level without ever being read
 		_noiseTexture = resolver.GetNoiseTexture();
-#endif
 
 		_rootNode = CreateRootNode();
 		_rootNode->SetVisitOrderState(SceneNode::VisitOrderState::Disabled);
@@ -925,12 +916,6 @@ namespace Jazz2
 			_spriteRecolors = {};
 		}
 #endif
-
-#if defined(DEATH_TARGET_DREAMCAST)
-		// The heap window is the binding constraint of this console and a level is the largest thing that
-		// is ever loaded into it, so what one costs is worth a line in the log every time
-		nCine::Backends::DcPlatform::LogMemoryStatus("level loaded");
-#endif
 	}
 
 	void LevelHandler::LoadLevelScripts(StringView fullPath)
@@ -1365,7 +1350,6 @@ namespace Jazz2
 			_hudUpscalePass.SetParent(nullptr);
 		}
 
-#if defined(RHI_CAP_SHADERS) && defined(RHI_CAP_FRAMEBUFFERS)
 		// The bloom + lighting post-processing shaders are only used by the shader render path; the software
 		// backend skips the whole chain and renders the scene directly to the screen (see RhiFwd.h)
 		bool notInitialized = (_combineShader == nullptr);
@@ -1395,18 +1379,6 @@ namespace Jazz2
 		// whenever the preferences change
 		Shader* combineDither = resolver.GetShader(PrecompiledShader::CombineDither);
 		_combineShader = (IsScreenDithered() && combineDither != nullptr ? combineDither : resolver.GetShader(PrecompiledShader::Combine));
-#endif
-#endif
-#if !defined(RHI_CAP_SHADERS) || !defined(RHI_CAP_FRAMEBUFFERS)
-		// Software renderer: the bloom + shader-lighting chain is capability-gated out, but the viewport compositor
-		// still needs the Combine program so the software device recognizes the draw (object label "Combine" ->
-		// SwEffect::Combine) and runs the CPU dynamic-lighting combine in its place instead of a fragment.
-		if (_combineShader == nullptr) {
-			_combineShader = resolver.GetShader(PrecompiledShader::Combine);
-			if (_combineShader == nullptr) {
-				LOGW("PrecompiledShader::Combine failed");
-			}
-		}
 #endif
 
 		// Attach the HUD and console to the active overlay/scene node (re-evaluated every time, as the overlay can be
@@ -2775,9 +2747,7 @@ namespace Jazz2
 		// Scoped, because it returns early when the level cannot be loaded - see LoadingScope
 		ContentResolver::LoadingScope loadingScope(resolver);
 
-#if defined(RHI_CAP_POSTPROCESSING)
 		_noiseTexture = resolver.GetNoiseTexture();
-#endif
 
 		_rootNode = CreateRootNode();
 		_rootNode->SetVisitOrderState(SceneNode::VisitOrderState::Disabled);
@@ -3663,7 +3633,7 @@ namespace Jazz2
 
 	void LevelHandler::UpdateRichPresence()
 	{
-#if (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || defined(DEATH_TARGET_UNIX)
+#if defined(DEATH_TARGET_WINDOWS) || defined(DEATH_TARGET_UNIX)
 		if (!PreferencesCache::EnableDiscordIntegration || !UI::DiscordRpcClient::Get().IsSupported()) {
 			return;
 		}

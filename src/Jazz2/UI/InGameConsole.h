@@ -87,11 +87,6 @@ namespace Jazz2::UI
 		std::int32_t _scrollPos;
 		bool _isVisible;
 		bool _keyboardVisible;
-#if defined(DEATH_TARGET_ANDROID)
-		Recti _currentVisibleBounds;
-		Vector2i _initialVisibleSize;
-		float _recalcVisibleBoundsTimeLeft;
-#endif
 
 		void ProcessCurrentLine();
 		void PruneLogHistory();

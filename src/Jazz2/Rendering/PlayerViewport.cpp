@@ -41,15 +41,11 @@ namespace Jazz2::Rendering
 
 	PlayerViewport::PlayerViewport(LevelHandler* levelHandler, Actors::ActorBase* targetActor)
 		: _levelHandler(levelHandler), _targetActor(targetActor),
-#if defined(RHI_CAP_POSTPROCESSING)
 		  _downsamplePass(this), _blurPass1(this), _blurPass2(this), _blurPass3(this), _blurPass4(this),
-#endif
 #if defined(TILEMAP_LAYER_EFFECTS)
 		  _behindCopyPass(this), _behindDownsamplePass(this), _behindBlurPass1(this), _behindBlurPass2(this),
 #endif
-#if defined(RHI_CAP_POSTPROCESSING)
 		  _waterCopyPass(this), _waterCopyPasses(0),
-#endif
 		  _cameraViewCenterY(0.0f), _lookAheadDirectionX(1.0f), _lookAheadTurnTime(0.0f), _legacyCameraSpeed(0.0f),
 		  _legacyCameraDrop(0.0f), _legacyCameraDirection(0), _legacyLookOffset(0.0f), _legacyQuakeTicks(0.0f),
 		  _legacyQuakeOffset(Vector2f::Zero), _legacyQuakeShown(Vector2f::Zero), _legacyQuakeAccum(1.0f), _centerOnTargetProgress(0.0f),
@@ -72,43 +68,22 @@ namespace Jazz2::Rendering
 		}
 
 		if (notInitialized) {
-#if !defined(RHI_CAP_POSTPROCESSING)
-			// Direct tier (no shaders or no framebuffers): the scene is rasterized straight into the screen
-			// buffer via a textureless viewport (no intermediate FBO); the combine and rescale shader passes
-			// are skipped downstream. The viewport rect keeps the on-screen position so splitscreen players
-			// land in their own region (on the shader tier the position comes from the CombineRenderer quad
-			// instead), and the scissor clips sprites overhanging the region into a neighbouring player's view
-			_view = std::make_unique<Viewport>();
-			_view->SetViewportRect(bounds);
-			_view->SetScissorRect(bounds);
-			// The device clear of a screen pass covers the whole screen, which would wipe the other
-			// players' already-drawn regions in splitscreen; the screen buffer is cleared once per frame
-			// by the backend instead
-			_view->SetClearMode(Viewport::ClearMode::Never);
-#else
 			_viewTexture = std::make_unique<Texture>(nullptr, Texture::ColorTargetFormat, w, h);
 			_view = std::make_unique<Viewport>(_viewTexture.get(), Viewport::DepthStencilFormat::None);
-#endif
 
 			_camera = std::make_unique<Camera>();
 
 			_view->SetCamera(_camera.get());
 			_view->SetRootNode(sceneNode);
 		} else {
-#if !defined(RHI_CAP_POSTPROCESSING)
-			_view->SetViewportRect(bounds);
-			_view->SetScissorRect(bounds);
-#else
 			_view->RemoveAllTextures();
 			_viewTexture->Init(nullptr, Texture::ColorTargetFormat, w, h);
 			_view->SetTexture(_viewTexture.get());
-#endif
 		}
 
 		// Y down like the screen - every pass, a render target's included, is top-down (see RhiFwd.h)
 		_camera->SetOrthoProjection(0.0f, (float)w, 0.0f, (float)h);
 
-#if defined(RHI_CAP_POSTPROCESSING)
 		_viewTexture->SetMagFiltering(SamplerFilter::Nearest);
 		_viewTexture->SetWrap(SamplerWrapping::ClampToEdge);
 		// Drawn into and read every frame by each player, so worth fast memory where the backend has it
@@ -178,11 +153,9 @@ namespace Jazz2::Rendering
 			_blurPass3.Dispose();
 			_blurPass4.Dispose();
 		}
-#endif
 #if defined(TILEMAP_LAYER_EFFECTS)
 		InitializeLayerEffects(w, h);
 #endif
-#if defined(RHI_CAP_POSTPROCESSING)
 		if (_levelHandler->MayDrawWaterInScene() && _levelHandler->_waterShader != nullptr) {
 			// Read 1:1 at the pixel the water is drawn at, nearest as the scene itself is by the combine pass
 			_waterCopyPass.InitializeCopy(_viewTexture.get(), w, h);
@@ -190,7 +163,6 @@ namespace Jazz2::Rendering
 		} else {
 			_waterCopyPass.Dispose();
 		}
-#endif
 		// On the direct tier no lighting render target exists at all: lighting is composited on the CPU by
 		// CombineRenderer (the former inert _lightingView stub is gone)
 
@@ -206,7 +178,6 @@ namespace Jazz2::Rendering
 
 	void PlayerViewport::Register()
 	{
-#if defined(RHI_CAP_POSTPROCESSING)
 		if (PreferencesCache::BlurEffects) {
 			// A pass the chain was shortened by (see Initialize()) is disposed and registers nothing
 			_blurPass4.Register();
@@ -215,9 +186,7 @@ namespace Jazz2::Rendering
 			_blurPass1.Register();
 			_downsamplePass.Register();
 		}
-#endif
 
-#if defined(RHI_CAP_POSTPROCESSING)
 		// The water copy goes first, a layer effect in front of the water samples the scene with the water in it
 		_view->RemoveSplitPasses();
 		_waterCopyPasses = 0;
@@ -225,7 +194,6 @@ namespace Jazz2::Rendering
 			_waterCopyPass.Register();
 			_waterCopyPasses = _view->AddSplitPass(_waterCopyPass.GetView());
 		}
-#endif
 #if defined(TILEMAP_LAYER_EFFECTS)
 		// The passes that blur what is behind the blur layers are drawn by the scene view itself, in the middle of its
 		// queue, so they are only in the chain to be visited and committed with the rest
@@ -244,14 +212,8 @@ namespace Jazz2::Rendering
 #endif
 
 		auto& chain = Viewport::GetChain();
-#if !defined(RHI_CAP_POSTPROCESSING)
-		// Direct tier: only the scene view exists (no lighting render target; the CPU lightmap composite
-		// runs inside the draw phase instead), rendering straight into the screen buffer
-		chain.push_back(_view.get());
-#else
 		chain.push_back(_lightingView.get());
 		chain.push_back(_view.get());
-#endif
 #if defined(TILEMAP_LAYER_EFFECTS)
 		// Registered after the scene, so it's drawn before it - the x-ray layers sample it
 		if (_xrayMaskView != nullptr) {
@@ -268,15 +230,9 @@ namespace Jazz2::Rendering
 
 	Vector2i PlayerViewport::GetViewportSize() const
 	{
-#if !defined(RHI_CAP_POSTPROCESSING)
-		Recti viewportRect = _view->GetViewportRect();
-		return Vector2i(viewportRect.W, viewportRect.H);
-#else
 		return _viewTexture->GetSize();
-#endif
 	}
 
-#if defined(RHI_CAP_POSTPROCESSING)
 	Texture* PlayerViewport::GetBlurredTarget() const
 	{
 		// The quarter-size level does not exist at a low lighting resolution (see Initialize()), and the half-size
@@ -284,7 +240,6 @@ namespace Jazz2::Rendering
 		Texture* blurQuarter = _blurPass4.GetTarget();
 		return (blurQuarter != nullptr ? blurQuarter : _blurPass2.GetTarget());
 	}
-#endif
 
 #if defined(TILEMAP_LAYER_EFFECTS)
 	void PlayerViewport::InitializeLayerEffects(std::int32_t width, std::int32_t height)
@@ -428,20 +383,12 @@ namespace Jazz2::Rendering
 			// Nothing of the view is under the water
 			return false;
 		}
-#if defined(RHI_CAP_POSTPROCESSING)
 		return (_waterCopyPasses != 0);
-#else
-		return true;
-#endif
 	}
 
 	bool PlayerViewport::HasWaterPasses() const
 	{
-#if defined(RHI_CAP_POSTPROCESSING)
 		return (_levelHandler->_waterShader == nullptr || _waterCopyPass.GetView() != nullptr);
-#else
-		return true;
-#endif
 	}
 
 	void PlayerViewport::DrawWater(RenderQueue& renderQueue)
@@ -471,7 +418,6 @@ namespace Jazz2::Rendering
 		const Rectf cullingRect = _view->GetCullingRect();
 		const float invScale = 1.0f / _cameraScale;
 
-#if defined(RHI_CAP_POSTPROCESSING)
 		// From just above the crests down, the copy also covers the rows the surface reflects
 		const float waveMax = 0.0092f * bounds.H;
 		const float top = std::clamp(water.Level - waveMax - 4.0f, 0.0f, bounds.H);
@@ -479,10 +425,6 @@ namespace Jazz2::Rendering
 		const Vector2i targetSize = _viewTexture->GetSize();
 		const std::int32_t copyTopTexel = std::clamp<std::int32_t>(std::int32_t(copyTop * targetSize.Y / std::max(bounds.H, 1.0f)), 0, targetSize.Y);
 		_waterCopyPass.SetScissor(Recti(0, copyTopTexel, targetSize.X, targetSize.Y - copyTopTexel));
-#else
-		// The console tiers rebuild the water over the whole view out of geometry (see Water.shader)
-		const float top = 0.0f;
-#endif
 
 		if (auto* instanceBlock = _waterCommand.GetInstanceBlock()) {
 			instanceBlock->GetUniform(Material::TexRectUniformName)->SetFloatValue(1.0f, 0.0f, 1.0f, 0.0f);
@@ -528,7 +470,6 @@ namespace Jazz2::Rendering
 		_waterCommand.SetVisitOrder(0xFFFF);
 		_waterCommand.SetTransformation(Matrix4x4f::Translation(cullingRect.X, cullingRect.Y + top * invScale, 0.0f));
 
-#if defined(RHI_CAP_POSTPROCESSING)
 		if (auto* uniform = material.Uniform("uTargetSizeInv")) {
 			uniform->SetFloatValue(1.0f / std::max(targetSize.X, 1), 1.0f / std::max(targetSize.Y, 1));
 		}
@@ -538,21 +479,14 @@ namespace Jazz2::Rendering
 		}
 		// Everything below the water is drawn and copied first, then the water over it and the rest over that
 		_view->RequestSplitAtKey(_waterCommand.GetLayerSortKey(), _waterCopyPasses);
-#elif defined(WITH_RHI_SOFTWARE)
-		// The software backend applies its per-row water to what is drawn so far when the scene gets to this draw
-		RHI::Device::SetPendingSoftwareWater(std::int32_t(bounds.X), std::int32_t(bounds.Y), std::int32_t(bounds.W), std::int32_t(bounds.H),
-			water.Level, water.Time, water.CameraPos.Y);
-#endif
 
 		renderQueue.AddCommand(&_waterCommand);
 	}
 
 	void PlayerViewport::OnEndFrame()
 	{
-#if defined(RHI_CAP_POSTPROCESSING)
 		Vector2f light = GetAmbientLightChannels(_ambientLight.W);
 		_lightingView->SetClearColor(light.X, light.Y, 0.0f, 1.0f);
-#endif
 	}
 
 	void PlayerViewport::UpdateCamera(float timeMult)

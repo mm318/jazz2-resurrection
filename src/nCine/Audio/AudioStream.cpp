@@ -1,8 +1,6 @@
 #include "AudioStream.h"
-#if !defined(NCINE_HAS_NATIVE_AUDIO)
 #include "IAudioLoader.h"
 #include "IAudioReader.h"
-#endif
 #include "../ServiceLocator.h"
 
 #include <algorithm>
@@ -26,107 +24,6 @@ namespace nCine
 	AudioStream::AudioStream(AudioStream&&) = default;
 	AudioStream& AudioStream::operator=(AudioStream&&) = default;
 
-#if defined(NCINE_HAS_NATIVE_AUDIO)
-	// Private constructor called only by AudioStreamPlayer
-	AudioStream::AudioStream()
-		: _bytesPerSample(0), _numChannels(0), _frequency(0), _numSamples(0), _duration(0.0f), _isLooping(false)
-	{
-	}
-
-	// The handle closes the stream by itself
-	AudioStream::~AudioStream() = default;
-
-	AudioStream::NativeStreamHandle::~NativeStreamHandle()
-	{
-#if defined(WITH_AUDIO)
-		if (Id != 0) {
-			theServiceLocator().GetAudioDevice().CloseNativeStream(Id);
-		}
-#endif
-	}
-
-	bool AudioStream::Enqueue(std::uint32_t source, bool looping)
-	{
-#if defined(WITH_AUDIO)
-		if (_nativeStream.Id == 0) {
-			return false;
-		}
-
-		// Nothing to decode: the device plays the stream itself once it is bound to the source, and all that is
-		// left to do here is to keep the looping flag in step and report whether it still plays
-		IAudioDevice& device = theServiceLocator().GetAudioDevice();
-		device.SetSourceLooping(source, looping);
-		if (!_nativeStream.Started) {
-			_nativeStream.Started = true;
-			device.SetSourceNativeStream(source, _nativeStream.Id);
-			device.PlaySource(source);
-		}
-		return device.IsSourcePlaying(source);
-#else
-		return false;
-#endif
-	}
-
-	void AudioStream::Stop(std::uint32_t source)
-	{
-#if defined(WITH_AUDIO)
-		// The device rewinds a native stream when its source is stopped; the next Play() binds it again,
-		// possibly to another source
-		theServiceLocator().GetAudioDevice().StopSource(source);
-		_nativeStream.Started = false;
-#endif
-	}
-
-	void AudioStream::SetLooping(bool value)
-	{
-		// The device takes the flag from every Enqueue()
-		_isLooping = value;
-	}
-
-	// The device plays the file by itself, the engine doesn't see a tracker module at all
-	bool AudioStream::GetModuleState(AudioModuleState& state) const
-	{
-		return false;
-	}
-
-	bool AudioStream::SetModulePosition(std::uint32_t source, std::int32_t order, std::int32_t row, bool restart, bool looping)
-	{
-		return false;
-	}
-
-	bool AudioStream::SetModuleSpeed(std::int32_t speed)
-	{
-		return false;
-	}
-
-	bool AudioStream::SetModuleTempo(std::int32_t tempo)
-	{
-		return false;
-	}
-
-	bool AudioStream::SlideModuleChannelVolume(std::int32_t channel, float volume, std::int32_t milliseconds)
-	{
-		return false;
-	}
-
-	bool AudioStream::LoadFromFile(StringView filename)
-	{
-#if defined(WITH_AUDIO)
-		// Replacing the handle closes the previous stream, also when this file cannot be played
-		IAudioDevice::NativeAudioInfo info;
-		_nativeStream = NativeStreamHandle(theServiceLocator().GetAudioDevice().OpenNativeStream(filename, info));
-		if (_nativeStream.Id != 0) {
-			_bytesPerSample = info.BytesPerSample;
-			_numChannels = info.NumChannels;
-			_frequency = info.Frequency;
-			_numSamples = info.NumSamples;
-			_duration = (_numSamples < 0 || _frequency <= 0 ? -1.0f : float(_numSamples) / _frequency);
-			return true;
-		}
-#endif
-		return false;
-	}
-#else
 	// Private constructor called only by AudioStreamPlayer
 	AudioStream::AudioStream()
 		: _nextAvailableBufferIndex(0), _currentBufferId(0), _asyncDecodeAvailable(true), _bytesPerSample(0), _numChannels(0), _isLooping(false),
@@ -487,5 +384,4 @@ namespace nCine
 		_audioReader->SetLooping(_isLooping);
 #endif
 	}
-#endif
 }

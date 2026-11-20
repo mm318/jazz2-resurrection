@@ -265,22 +265,9 @@ namespace nCine
 	}
 #endif
 
-#if defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_DREAMCAST) ||                                                           \
-	defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PS2) || \
-	defined(DEATH_TARGET_PS3) || defined(DEATH_TARGET_AMIGAOS)
-	/**
-	 * @brief Defined where libm is a software newlib: @ref sinApprox() and friends approximate, @ref floorFast() and friends avoid the call
-	 *
-	 * Only the PSP and x86-64 have actually been measured; the other consoles are included because they
-	 * share the same newlib libm and have no hardware sine (or, on the Dreamcast, have one that libm does
-	 * not use). Move a platform out of the list if it ever measures otherwise.
-	 */
-#define NCINE_APPROX_TRIG
-#endif
-
 	namespace Implementation
 	{
-#if defined(NCINE_APPROX_TRIG) && !defined(DEATH_TARGET_DREAMCAST)
+#if defined(NCINE_APPROX_TRIG)
 		/**
 		 * @brief Folds an angle into @f$ [-\pi, \pi] @f$ with a single truncating cast, |x| <= 4096
 		 *
@@ -306,14 +293,9 @@ namespace nCine
 		 */
 		inline float FoldHalfTurn(float x)
 		{
-#if (defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_PS3) || defined(DEATH_TARGET_AMIGAOS)) && !defined(__FAST_MATH__)
-			constexpr float RoundingBias = 12582912.0f; // 1.5 * 2^23, the ulp is exactly 1 for |turns| < 2^22
-			const float whole = (x * (0.5f / fPi) + RoundingBias) - RoundingBias;
-#else
 			// The bias comes back off in float, after the cast: the integer is exact either way, and this keeps
 			// the value in the FPU instead of a move to a general register and back for one `addiu`
 			const float whole = (float)(std::int32_t)(x * (0.5f / fPi) + 1024.5f) - 1024.0f;
-#endif
 			return x - fTwoPi * whole;
 		}
 
@@ -343,42 +325,6 @@ namespace nCine
 		}
 #endif
 
-#if defined(DEATH_TARGET_DREAMCAST)
-		/**
-		 * @brief Both @f$ \sin(x) @f$ and @f$ \cos(x) @f$ from the SH4's `fsca`, |x| <= 4096
-		 *
-		 * `fsca` reads FPUL as 16.16 fixed-point turns and writes the sine and cosine of the low 16 bits into
-		 * a register pair in 3 cycles, so the fold IS the `ftrc` - the whole-turn part simply falls out of
-		 * the low half. Accurate to about 2^-21, three orders of magnitude better than any polynomial that
-		 * runs in the same time, and it is what KallistiOS' own `fsincos()` does; this is inlined here so
-		 * the conversion constant and the range guard match the other targets. `ftrc` saturates rather
-		 * than wraps, which the 4096 rad guard (4.3e7 fixed, well inside int32) keeps out of reach.
-		 *
-		 * `fsca` needs an even-numbered `dr` pair as its destination, hence the pinned registers; fr10/fr11
-		 * are caller-saved on the SH ABI and are the pair KallistiOS pins for the same purpose. The `ftrc`
-		 * is inside the asm so the fixed-point angle goes FPU -> FPUL directly, without the `sts`/`lds`
-		 * round trip through a general register an `int` operand would cost.
-		 */
-		inline void SinCosFsca(float x, float& s, float& c)
-		{
-			// Both registers are read-write operands carrying the input in, which is the form KallistiOS'
-			// own fsin()/fsincos() use, and the multiply stays inside the asm. The earlier version took the
-			// angle in a register of GCC's choosing and declared fr10/fr11 write-only, which left the
-			// compiler free to keep an unrelated live value in the pair across the instruction: correct in
-			// isolation, but it miscompiled once the surrounding function got busy enough, and the symptom
-			// moved whenever anything nearby changed. Nothing here may be reordered or reallocated now.
-			register float fs __asm__("fr10") = x;
-			register float fc __asm__("fr11") = (65536.0f / fTwoPi);
-			__asm__("fmul fr11, fr10\n\t"
-					"ftrc fr10, fpul\n\t"
-					"fsca fpul, dr10"
-					: "+f"(fs), "+f"(fc)
-					:
-					: "fpul");
-			s = fs;
-			c = fc;
-		}
-#endif
 	}
 
 	/**
@@ -415,14 +361,7 @@ namespace nCine
 	 */
 	inline float sinApprox(float x)
 	{
-#if defined(DEATH_TARGET_DREAMCAST)
-		if (std::fabs(x) > 4096.0f) {
-			return std::sin(x);
-		}
-		float s, c;
-		Implementation::SinCosFsca(x, s, c);
-		return s;
-#elif defined(NCINE_APPROX_TRIG)
+#if defined(NCINE_APPROX_TRIG)
 		if (std::fabs(x) > 4096.0f) {
 			return std::sin(x);
 		}
@@ -435,14 +374,7 @@ namespace nCine
 	/** @brief Returns @f$ \cos(x) @f$ as cheaply as the platform can, see @ref sinApprox() */
 	inline float cosApprox(float x)
 	{
-#if defined(DEATH_TARGET_DREAMCAST)
-		if (std::fabs(x) > 4096.0f) {
-			return std::cos(x);
-		}
-		float s, c;
-		Implementation::SinCosFsca(x, s, c);
-		return c;
-#elif defined(NCINE_APPROX_TRIG)
+#if defined(NCINE_APPROX_TRIG)
 		if (std::fabs(x) > 4096.0f) {
 			return std::cos(x);
 		}
@@ -464,14 +396,7 @@ namespace nCine
 	 */
 	inline void sincosApprox(float x, float& s, float& c)
 	{
-#if defined(DEATH_TARGET_DREAMCAST)
-		if (std::fabs(x) > 4096.0f) {
-			s = std::sin(x);
-			c = std::cos(x);
-			return;
-		}
-		Implementation::SinCosFsca(x, s, c);
-#elif defined(NCINE_APPROX_TRIG)
+#if defined(NCINE_APPROX_TRIG)
 		if (std::fabs(x) > 4096.0f) {
 			s = std::sin(x);
 			c = std::cos(x);
@@ -509,7 +434,7 @@ namespace nCine
 	 */
 	inline float atan2Approx(float y, float x)
 	{
-#if defined(NCINE_APPROX_TRIG) && !defined(DEATH_TARGET_DREAMCAST)
+#if defined(NCINE_APPROX_TRIG)
 		const float ax = std::fabs(x), ay = std::fabs(y);
 		const float mx = (ax > ay ? ax : ay), mn = (ax > ay ? ay : ax);
 		if (mx == 0.0f) {
@@ -550,11 +475,7 @@ namespace nCine
 	inline float floorFast(float x)
 	{
 #if defined(NCINE_APPROX_TRIG)
-#if (defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_PS3) || defined(DEATH_TARGET_AMIGAOS)) && !defined(__FAST_MATH__)
-		const float r = (x + 12582912.0f) - 12582912.0f;
-#else
 		const float r = (float)(std::int32_t)x;
-#endif
 		return (r > x ? r - 1.0f : r);
 #else
 		return std::floor(x);
@@ -565,11 +486,7 @@ namespace nCine
 	inline float ceilFast(float x)
 	{
 #if defined(NCINE_APPROX_TRIG)
-#if (defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_PS3) || defined(DEATH_TARGET_AMIGAOS)) && !defined(__FAST_MATH__)
-		const float r = (x + 12582912.0f) - 12582912.0f;
-#else
 		const float r = (float)(std::int32_t)x;
-#endif
 		return (r < x ? r + 1.0f : r);
 #else
 		return std::ceil(x);
@@ -605,13 +522,7 @@ namespace nCine
 		if (x <= 0.0f) {
 			return 0.0f;
 		}
-#if defined(DEATH_TARGET_DREAMCAST)
-		float r = x;
-		__asm__("fsrra %0" : "+f"(r));
-		return x * r;
-#else
 		return std::sqrt(x);
-#endif
 	}
 
 	/** @brief Linearly interpolates between two values by the given ratio */

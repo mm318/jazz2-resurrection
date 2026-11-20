@@ -10,7 +10,6 @@
 
 namespace Jazz2::Rendering
 {
-#if defined(RHI_CAP_SHADERS) && defined(RHI_CAP_FRAMEBUFFERS)
 	namespace
 	{
 		// Interleaved per-vertex format shared with the tile-layer meshes (position.xy, texcoords.xy, color.rgba),
@@ -20,7 +19,6 @@ namespace Jazz2::Rendering
 		// the six vertices the same triangles need without indices
 		constexpr std::uint32_t FloatsPerQuad = RenderResources::VerticesPerQuad * FloatsPerVertex;
 	}
-#endif
 
 	LightingRenderer::LightingRenderer(PlayerViewport* owner)
 		: _owner(owner)
@@ -31,12 +29,6 @@ namespace Jazz2::Rendering
 
 	bool LightingRenderer::OnDraw(RenderQueue& renderQueue)
 	{
-#if !defined(RHI_CAP_SHADERS) || !defined(RHI_CAP_FRAMEBUFFERS)
-		// Dynamic lighting is composited by a full-screen shader pass into an off-screen buffer, which the
-		// combine shader later applies; on backends without cheap programmable shaders (the software renderer)
-		// there is no combine pass, so the scene is drawn without dynamic lighting
-		return true;
-#else
 		_emittedLightsCache.clear();
 
 		// Collect all active light emitters
@@ -109,10 +101,8 @@ namespace Jazz2::Rendering
 		}
 
 		return true;
-#endif
 	}
 
-#if defined(RHI_CAP_SHADERS) && defined(RHI_CAP_FRAMEBUFFERS)
 	void LightingRenderer::AppendLightQuad(const LightEmitter& light)
 	{
 		// What the single-light shader derived from its instance block, written out per vertex instead: the quad
@@ -252,5 +242,4 @@ namespace Jazz2::Rendering
 
 		return command.get();
 	}
-#endif
 }

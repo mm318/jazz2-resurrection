@@ -65,12 +65,6 @@ namespace Jazz2::UI::Menu
 		bool _previewLoaded;
 		std::unique_ptr<nCine::Texture> _previewPalette[3];
 		std::uint32_t _previewPaletteColor;
-#if defined(DEATH_TARGET_ANDROID)
-		String _deviceId;
-		Vector2i _initialVisibleSize;
-		Recti _currentVisibleBounds;
-		float _recalcVisibleBoundsTimeLeft;
-#endif
 
 		void RecalcLayoutForScreenKeyboard();
 #if defined(WITH_MULTIPLAYER)

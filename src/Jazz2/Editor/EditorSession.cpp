@@ -226,7 +226,6 @@ namespace Jazz2::Editor
 		};
 		// Only the editor's view, the game's blur is taken before its lighting
 		_surface->GetBackdrop = [this](BackdropKind backdrop, Vector2f screenSize, Rectf& bounds, bool inLevel) -> const Texture* {
-#if defined(RHI_CAP_POSTPROCESSING)
 			if (!PreferencesCache::BlurEffects || _editHandler == nullptr || _playTest->GetGameHandler() != nullptr) {
 				return nullptr;
 			}
@@ -249,9 +248,6 @@ namespace Jazz2::Editor
 			float scaleX = screenSize.X / float(viewSize.X), scaleY = screenSize.Y / float(viewSize.Y);
 			bounds = Rectf(viewBounds.X * scaleX, viewBounds.Y * scaleY, viewBounds.W * scaleX, viewBounds.H * scaleY);
 			return viewport->GetBlurredTarget();
-#else
-			return nullptr;
-#endif
 		};
 		// Events that turn by the tiles around them are shown turned as the game turns them
 		_eventPreviews.IsAreaEmpty = [this](const AABBf& aabb) {
@@ -841,12 +837,7 @@ namespace Jazz2::Editor
 		if (!(systemScale > 0.0f && systemScale < 16.0f)) {
 			systemScale = 1.0f;
 		}
-#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_IOS)
-		// A phone is held close, the panels may get as few units as the compact layout needs
-		constexpr float MinWidthUnits = 480.0f, MinHeightUnits = 270.0f;
-#else
 		constexpr float MinWidthUnits = 640.0f, MinHeightUnits = 360.0f;
-#endif
 		// The size of the system to the nearest step, as a density of 420 dpi would be 263%; the room for the panels is a
 		// limit, so it's rounded down
 		float fit = std::floor(std::min(width / MinWidthUnits, height / MinHeightUnits) / UiScaleStep) * UiScaleStep;

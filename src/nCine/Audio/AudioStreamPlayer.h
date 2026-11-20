@@ -61,7 +61,6 @@ namespace nCine
 			return _audioStream.GetBufferSize();
 		}
 
-#if !defined(NCINE_HAS_NATIVE_AUDIO) || defined(DOXYGEN_GENERATING_OUTPUT)
 		/** @brief Returns the number of samples held by a single streaming buffer */
 		inline std::int32_t GetStreamSampleCount() const
 		{
@@ -72,7 +71,6 @@ namespace nCine
 		{
 			return _audioStream.GetStreamBufferSize();
 		}
-#endif
 
 		void Play() override;
 		void Pause() override;
@@ -84,7 +82,7 @@ namespace nCine
 		/**
 		 * @brief Returns the state of a tracker module at the position being heard, `false` if the stream isn't a module
 		 *
-		 * @partialsupport Not every decoder supports it, always returns `false` where `NCINE_HAS_NATIVE_AUDIO` is defined.
+		 * @partialsupport Not every decoder supports it.
 		 */
 		inline bool GetModuleState(AudioModuleState& state) const
 		{
@@ -95,13 +93,13 @@ namespace nCine
 		 *
 		 * While playing, the jump is heard at once. Otherwise the module continues from there once it plays.
 		 *
-		 * @partialsupport Not every decoder supports it, has no effect where `NCINE_HAS_NATIVE_AUDIO` is defined.
+		 * @partialsupport Not every decoder supports it.
 		 */
 		bool SetModulePosition(std::int32_t order, std::int32_t row);
 		/**
 		 * @brief Sets the ticks per row of a tracker module until the module changes them
 		 *
-		 * @partialsupport Not every decoder supports it, has no effect where `NCINE_HAS_NATIVE_AUDIO` is defined.
+		 * @partialsupport Not every decoder supports it.
 		 */
 		inline bool SetModuleSpeed(std::int32_t speed)
 		{
@@ -110,7 +108,7 @@ namespace nCine
 		/**
 		 * @brief Sets the tempo of a tracker module until the module changes it
 		 *
-		 * @partialsupport Not every decoder supports it, has no effect where `NCINE_HAS_NATIVE_AUDIO` is defined.
+		 * @partialsupport Not every decoder supports it.
 		 */
 		inline bool SetModuleTempo(std::int32_t tempo)
 		{
@@ -119,7 +117,7 @@ namespace nCine
 		/**
 		 * @brief Changes the volume of a channel of a tracker module gradually, @p volume is in `0.0` to `1.0`
 		 *
-		 * @partialsupport Not every decoder supports it, has no effect where `NCINE_HAS_NATIVE_AUDIO` is defined.
+		 * @partialsupport Not every decoder supports it.
 		 */
 		inline bool SlideModuleChannelVolume(std::int32_t channel, float volume, std::int32_t milliseconds)
 		{

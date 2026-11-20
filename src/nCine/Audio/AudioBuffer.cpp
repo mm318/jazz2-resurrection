@@ -1,7 +1,5 @@
 #include "AudioBuffer.h"
-#if !defined(NCINE_HAS_NATIVE_AUDIO)
 #include "IAudioLoader.h"
-#endif
 #if defined(WITH_AUDIO)
 #include "AudioBufferPlayer.h"
 #include "../ServiceLocator.h"
@@ -12,7 +10,7 @@
 
 namespace nCine
 {
-#if defined(WITH_AUDIO) && !defined(NCINE_HAS_NATIVE_AUDIO)
+#if defined(WITH_AUDIO)
 	namespace
 	{
 		AudioBuffer::Format GetBufferFormat(std::int32_t bytesPerSample, std::int32_t numChannels)
@@ -64,7 +62,6 @@ namespace nCine
 #endif
 	}
 
-#if !defined(NCINE_HAS_NATIVE_AUDIO)
 	AudioBuffer::AudioBuffer(std::unique_ptr<Death::IO::Stream> fileHandle, StringView filename)
 		: AudioBuffer()
 	{
@@ -75,7 +72,6 @@ namespace nCine
 		}
 #endif
 	}
-#endif
 
 	AudioBuffer::~AudioBuffer()
 	{
@@ -124,7 +120,6 @@ namespace nCine
 		return *this;
 	}
 
-#if !defined(NCINE_HAS_NATIVE_AUDIO)
 	void AudioBuffer::Init(Format format, std::int32_t frequency)
 	{
 #if defined(WITH_AUDIO)
@@ -152,7 +147,6 @@ namespace nCine
 		LoadFromSamples(nullptr, 0);
 #endif
 	}
-#endif
 
 	/*bool AudioBuffer::loadFromMemory(const unsigned char* bufferPtr, unsigned long int bufferSize)
 	{
@@ -168,29 +162,14 @@ namespace nCine
 	bool AudioBuffer::LoadFromFile(StringView filename)
 	{
 #if defined(WITH_AUDIO)
-#if defined(NCINE_HAS_NATIVE_AUDIO)
-		// The device plays the file by itself (streaming it from storage), no decoded copy is kept at all
-		IAudioDevice::NativeAudioInfo info;
-		if (theServiceLocator().GetAudioDevice().LoadNativeBuffer(_bufferId, filename, info)) {
-			_bytesPerSample = info.BytesPerSample;
-			_numChannels = info.NumChannels;
-			_frequency = info.Frequency;
-			_originalFrequency = 0;
-			_numSamples = info.NumSamples;
-			_duration = (_frequency > 0 && _numSamples > 0 ? float(_numSamples) / _frequency : 0.0f);
-			return true;
-		}
-#else
 		std::unique_ptr<IAudioLoader> audioLoader = IAudioLoader::CreateFromFile(filename);
 		if (audioLoader->HasLoaded()) {
 			return Load(*audioLoader);
 		}
 #endif
-#endif
 		return false;
 	}
 
-#if !defined(NCINE_HAS_NATIVE_AUDIO)
 	bool AudioBuffer::LoadFromStream(std::unique_ptr<Death::IO::Stream> fileHandle, StringView filename)
 	{
 #if defined(WITH_AUDIO)
@@ -253,5 +232,4 @@ namespace nCine
 		return false;
 #endif
 	}
-#endif
 }

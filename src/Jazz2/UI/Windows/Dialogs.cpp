@@ -14,7 +14,7 @@
 #include <algorithm>
 #include <cmath>
 
-#if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS)
 #include <CommonWindows.h>
 #endif
 
@@ -719,8 +719,7 @@ namespace Jazz2::UI::Windows
 				root.Path = String(trimmed);
 			}
 		}
-#if (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || (defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_IOS)) || \
-	((defined(__linux__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)) && !defined(DEATH_TARGET_ANDROID))
+#if defined(DEATH_TARGET_WINDOWS) || defined(DEATH_TARGET_APPLE) || defined(__linux__) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
 		// Only a desktop lets the files anywhere be reached, the places are where the game looks for them
 		if (anywhere) {
 			_computerRoot = std::int32_t(_roots.size());
@@ -962,7 +961,7 @@ namespace Jazz2::UI::Windows
 			_entries.push_back({ ".."_s, true });
 		}
 
-#if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS)
 		if (_rootIndex == _computerRoot && _directory.empty()) {
 			// The whole computer starts at its drives
 			DWORD drives = ::GetLogicalDrives();

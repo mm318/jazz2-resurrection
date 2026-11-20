@@ -17,9 +17,6 @@
 #include <CommonWindows.h>
 #include <Utf8.h>
 #endif
-#if defined(DEATH_TARGET_IOS) && defined(WITH_SDL2)
-#include <SDL.h> // SDL_GameControllerMappingForDeviceIndex(), see OnJoyConnected()
-#endif
 
 using namespace Death::Containers;
 using namespace Death::Containers::Literals;
@@ -31,23 +28,7 @@ namespace nCine
 	{
 #include "JoyMappingDb.h"
 
-#if defined(DEATH_TARGET_ANDROID)
-		constexpr AxisName AndroidAxisNameMapping[] = {
-			AxisName::LeftX,
-			AxisName::LeftY,
-			AxisName::RightX,
-			AxisName::RightY,
-			AxisName::LeftTrigger,
-			AxisName::RightTrigger
-		};
-
-		constexpr ButtonName AndroidDpadButtonNameMapping[] = {
-			ButtonName::Up,
-			ButtonName::Right,
-			ButtonName::Down,
-			ButtonName::Left
-		};
-#elif defined(WITH_QT5)
+#if defined(WITH_QT5)
 		// Qt5Gamepad reports an already normalized gamepad and no device identity to match a mapping
 		// against, so every gamepad gets this fixed layout. The order of both arrays is the contract with
 		// Backends::Qt5JoystickState::IsButtonPressed() and axisValue().
@@ -212,7 +193,7 @@ namespace nCine
 			LOGI("Steam Input detected");
 		}
 #endif
-#elif !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_IOS) && !defined(DEATH_TARGET_SWITCH)
+#elif !(defined(DEATH_TARGET_EMSCRIPTEN))
 		StringView envGameControllerConfig = ::getenv("SDL_GAMECONTROLLERCONFIG");
 		if (envGameControllerConfig != nullptr) {
 			AddMappingsFromStringInternal(envGameControllerConfig, "SDL_GAMECONTROLLERCONFIG variable"_s);
@@ -574,46 +555,7 @@ namespace nCine
 			}
 		}
 
-#if defined(DEATH_TARGET_ANDROID)
-		// Never search by name on Android, it can lead to wrong mapping
-		if (!mapping.isValid) {
-			auto joyNameLower = StringUtils::lowercase(StringView(joyName));
-			// Don't assign Android default mapping to mice (detected as gamepads)
-			if (joyNameLower.contains("mouse"_s)) {
-				return false;
-			}
-
-			const std::uint8_t* g = joyGuid.data;
-			LOGI("Gamepad mapping not found for \"{}\" [{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}] ({}), using Android default mapping", joyName, g[0], g[1], g[2], g[3], g[4], g[5], g[6], g[7], g[8], g[9], g[10], g[11], g[12], g[13], g[14], g[15], event.JoyId);
-
-			mapping.isValid = true;
-
-			for (std::int32_t i = 0; i < std::int32_t(arraySize(AndroidAxisNameMapping)); i++) {
-				mapping.desc.axes[i].name = AndroidAxisNameMapping[i];
-				if (mapping.desc.axes[i].name == AxisName::LeftTrigger || mapping.desc.axes[i].name == AxisName::RightTrigger) {
-					mapping.desc.axes[i].min = 0.0f;
-				} else {
-					mapping.desc.axes[i].min = -1.0f;
-				}
-				mapping.desc.axes[i].max = 1.0f;
-				// Full physical input range (the assigned mapping is reused across reconnects, so set explicitly)
-				mapping.desc.axes[i].inMin = -1.0f;
-				mapping.desc.axes[i].inMax = 1.0f;
-			}
-
-			constexpr std::int32_t AndroidButtonCount = (std::int32_t)ButtonName::Misc1;
-			for (std::int32_t i = 0; i < AndroidButtonCount; i++) {
-				mapping.desc.buttons[i] = (ButtonName)i;
-			}
-			for (std::int32_t i = AndroidButtonCount; i < std::int32_t(arraySize(mapping.desc.buttons)); i++) {
-				mapping.desc.buttons[i] = ButtonName::Unknown;
-			}
-
-			for (std::int32_t i = 0; i < std::int32_t(arraySize(AndroidDpadButtonNameMapping)); i++) {
-				mapping.desc.hats[i] = AndroidDpadButtonNameMapping[i];
-			}
-		}
-#elif defined(WITH_QT5)
+#if defined(WITH_QT5)
 		// Qt5Gamepad has already mapped the device, and reports neither a GUID nor a name that could be
 		// matched against the database, so its fixed layout is assigned to every gamepad it reports
 		if (!mapping.isValid) {
@@ -645,22 +587,6 @@ namespace nCine
 			}
 		}
 #elif !defined(DEATH_TARGET_EMSCRIPTEN)
-#if defined(DEATH_TARGET_IOS) && defined(WITH_SDL2)
-		// The database has no iOS entries, and the MFi driver's button order depends on which buttons the controller
-		// has, so a mapping matched by name (from another platform) or the XInput one is wrong; SDL generates the exact
-		// one from the driver (joyId is the SDL device index here)
-		if (!mapping.isValid) {
-			if (char* sdlMapping = SDL_GameControllerMappingForDeviceIndex(event.JoyId)) {
-				MappedJoystick sdlMapped;
-				if (ParseMappingFromString(sdlMapping, sdlMapped, true)) {
-					mapping.isValid = true;
-					mapping.desc = sdlMapped.desc;
-					LOGI("Gamepad mapping for \"{}\" ({}) provided by SDL: {}", joyName, event.JoyId, sdlMapping);
-				}
-				SDL_free(sdlMapping);
-			}
-		}
-#endif
 		if (!mapping.isValid) {
 			const std::int32_t index = FindMappingByName(joyName);
 			if (index != -1) {
@@ -1046,15 +972,11 @@ namespace nCine
 
 	bool JoyMapping::ParsePlatformName(StringView value) const
 	{
-#if defined(DEATH_TARGET_EMSCRIPTEN) || defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_EMSCRIPTEN)
 		return false;
 #else
 #if defined(DEATH_TARGET_WINDOWS)
 		return (value == "Windows"_s);
-#elif defined(DEATH_TARGET_ANDROID)
-		return (value == "Android"_s);
-#elif defined(DEATH_TARGET_IOS)
-		return (value == "iOS"_s);
 #elif defined(DEATH_TARGET_APPLE)
 		return (value == "Mac OS X"_s);
 #else

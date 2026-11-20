@@ -1,21 +1,15 @@
 #pragma once
 
 #include <IO/FileSystem.h>
-#include <IO/PakFile.h>
 
 namespace Jazz2::Compatibility
 {
-	/** @brief Writes converted assets to individual files or a platform-specific package */
+	/** @brief Writes converted assets to individual runtime files */
 	class AssetWriter
 	{
 	public:
 		explicit AssetWriter(Death::Containers::StringView directory)
-			: _directory(directory), _package(nullptr), _valid(Death::IO::FileSystem::CreateDirectories(directory))
-		{
-		}
-
-		explicit AssetWriter(Death::IO::PakWriter& package)
-			: _package(&package), _valid(package.IsValid())
+			: _directory(directory), _valid(Death::IO::FileSystem::CreateDirectories(directory))
 		{
 		}
 
@@ -23,20 +17,10 @@ namespace Jazz2::Compatibility
 		{
 			return _valid;
 		}
-		bool IsDirectory() const
-		{
-			return _package == nullptr;
-		}
-
-		bool AddFile(Death::IO::Stream& source, Death::Containers::StringView path,
-			Death::IO::PakPreferredCompression compression = Death::IO::PakPreferredCompression::None)
+		bool AddFile(Death::IO::Stream& source, Death::Containers::StringView path)
 		{
 			if (!_valid) {
 				return false;
-			}
-			if (_package != nullptr) {
-				_valid = _package->AddFile(source, path, compression);
-				return _valid;
 			}
 
 			auto targetPath = Death::IO::FileSystem::CombinePath(_directory, path);
@@ -53,7 +37,6 @@ namespace Jazz2::Compatibility
 
 	private:
 		Death::Containers::String _directory;
-		Death::IO::PakWriter* _package;
 		bool _valid;
 	};
 }

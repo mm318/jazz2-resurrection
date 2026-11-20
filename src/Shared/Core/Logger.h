@@ -22,7 +22,7 @@
 #include <chrono>
 #include <string>
 
-#if defined(DEATH_TARGET_ANDROID) || defined(__linux__)
+#if defined(__linux__)
 #include <sys/syscall.h>
 #include <unistd.h>
 #elif defined(__NetBSD__)
@@ -36,19 +36,6 @@
 #include <unistd.h>
 #elif defined(__OpenBSD__)
 #include <pthread_np.h>
-#include <unistd.h>
-#elif defined(DEATH_TARGET_N64)
-// libdragon's newlib also pthreads without implementing them
-#include <kernel.h>
-#include <unistd.h>
-#elif defined(DEATH_TARGET_PS3)
-// PSL1GHT installs a <pthread.h> that declares nothing, so lv2's own thread API stands in for it
-#include <sys/thread.h>
-#include <unistd.h>
-#elif defined(DEATH_TARGET_MORPHOS)
-// This port does not use MorphOS's pthreads at all, so exec's own task API is included for FindTask()
-// rather than left to arrive through <pthread.h>
-#include <proto/exec.h>
 #include <unistd.h>
 #elif !defined(DEATH_TARGET_WINDOWS)
 #include <pthread.h>
@@ -81,8 +68,7 @@
 #endif
 
 // BoundedSPSCQueue includes
-#if defined(DEATH_TARGET_WINDOWS) || defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_VITA) || defined(DEATH_TARGET_WIIU) || \
-	defined(DEATH_TARGET_AMIGAOS4)
+#if defined(DEATH_TARGET_WINDOWS)
 #include <malloc.h>
 #else
 #include <sys/mman.h>
@@ -119,8 +105,6 @@ namespace Death
 				return 0; // Not supported
 #elif defined(DEATH_TARGET_WINDOWS)
 				return static_cast<std::uint32_t>(::GetCurrentThreadId());
-#elif defined(DEATH_TARGET_ANDROID)
-				return static_cast<std::uint32_t>(::syscall(__NR_gettid));
 #elif defined(DEATH_TARGET_EMSCRIPTEN)
 				return static_cast<std::uint32_t>(::gettid());
 #elif defined(__linux__)
@@ -139,25 +123,6 @@ namespace Death
 				return static_cast<std::uint32_t>(lwp_gettid());
 #elif defined(__OpenBSD__)
 				return static_cast<std::uint32_t>(getthrid());
-#elif defined(DEATH_TARGET_DREAMCAST)
-				// pthread_t is an integer type in KOS
-				return static_cast<std::uintptr_t>(pthread_self());
-#elif defined(DEATH_TARGET_N64)
-				// A thread's identity is its kthread pointer, see the includes above
-				return static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(kthread_current()));
-#elif defined(DEATH_TARGET_PS3)
-				// PSL1GHT has no pthreads at all, so the identity comes from lv2's own thread ID
-				sys_ppu_thread_t threadId = 0;
-				sysThreadGetId(&threadId);
-				return static_cast<std::uint32_t>(threadId);
-#elif defined(DEATH_TARGET_AMIGAOS4)
-				// pthread_t is an integer type here rather than a pointer, and reinterpret_cast does not
-				// convert between integer types
-				return static_cast<std::uint32_t>(pthread_self());
-#elif defined(DEATH_TARGET_MORPHOS)
-				// This port does not use MorphOS's pthreads, so the identity is the task
-				// pointer the OS itself uses for one - which is also what getpid() reports here.
-				return static_cast<std::uint32_t>(reinterpret_cast<std::uintptr_t>(FindTask(nullptr)));
 #else
 				return reinterpret_cast<std::uintptr_t>(pthread_self());
 #endif
@@ -348,9 +313,7 @@ namespace Death
 			having to be measured.
 		*/
 			static constexpr bool RdtscIsSteadyClock =
-#if defined(__aarch64__) || defined(_M_ARM64) || defined(__riscv) || defined(__loongarch64) || \
-	defined(__s390x__) || defined(__PPC64__) || defined(__powerpc64__) || defined(__PPC__) ||  \
-	defined(__powerpc__) || defined(DEATH_TARGET_X86)
+#if defined(__aarch64__) || defined(_M_ARM64) || defined(__riscv) || defined(__loongarch64) || defined(__s390x__) || defined(__PPC64__) || defined(__powerpc64__) || defined(__PPC__) || defined(__powerpc__) || defined(DEATH_TARGET_X86)
 				false;
 #else
 				true;
@@ -604,10 +567,6 @@ namespace Death
 					void* p = _aligned_malloc(size, alignment);
 					DEATH_DEBUG_ASSERT(p != nullptr);
 					return p;
-#elif defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_VITA) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_AMIGAOS4)
-					void* p = ::memalign(alignment, size);
-					DEATH_DEBUG_ASSERT(p != nullptr);
-					return p;
 #else
 					// Calculate the total size including the metadata and alignment
 					constexpr std::size_t MetadataSize = 2u * sizeof(std::size_t);
@@ -656,8 +615,6 @@ namespace Death
 				{
 #if defined(DEATH_TARGET_WINDOWS)
 					_aligned_free(ptr);
-#elif defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_VITA) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_AMIGAOS4)
-					::free(ptr);
 #else
 					// Retrieve the size and offset information from the metadata
 					std::size_t offset;

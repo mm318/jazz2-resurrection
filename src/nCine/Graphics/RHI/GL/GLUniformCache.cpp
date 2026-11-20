@@ -251,9 +251,7 @@ namespace nCine::RHI::GL
 			case GL_SAMPLER_1D:
 #endif
 			case GL_SAMPLER_2D:
-#if !defined(DEATH_TARGET_VITA) // GL_SAMPLER_3D is not declared by vitaGL
 			case GL_SAMPLER_3D:
-#endif
 			case GL_SAMPLER_CUBE:
 #if defined(RHI_GL_PROFILE_CORE) || GL_ES_VERSION_3_2
 			case GL_SAMPLER_BUFFER:
@@ -282,16 +280,12 @@ namespace nCine::RHI::GL
 	bool GLUniformCache::CheckInt() const
 	{
 		if (_uniform->GetBasicType() != GL_INT &&
-#if !defined(DEATH_TARGET_VITA) // vitaGL declares neither GL_BOOL nor GL_SAMPLER_3D
 			_uniform->GetBasicType() != GL_BOOL &&
-#endif
 #if defined(RHI_GL_PROFILE_CORE) // not available in OpenGL ES
 			_uniform->GetBasicType() != GL_SAMPLER_1D &&
 #endif
 			_uniform->GetBasicType() != GL_SAMPLER_2D &&
-#if !defined(DEATH_TARGET_VITA)
 			_uniform->GetBasicType() != GL_SAMPLER_3D &&
-#endif
 			_uniform->GetBasicType() != GL_SAMPLER_CUBE
 #if defined(RHI_GL_PROFILE_CORE) || GL_ES_VERSION_3_2
 			&& _uniform->GetBasicType() != GL_SAMPLER_BUFFER

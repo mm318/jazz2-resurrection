@@ -13,10 +13,6 @@
 #include "../../nCine/I18n.h"
 #include "../../nCine/Graphics/RenderQueue.h"
 
-#if defined(DEATH_TARGET_ANDROID)
-#include "../../nCine/Backends/Android/AndroidApplication.h"
-#endif
-
 // Position of key in 22x6 grid
 static const std::uint8_t KeyLayout[] = {
 	0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 15, 16, 17,
@@ -110,11 +106,9 @@ namespace Jazz2::UI
 
 	HUD::~HUD()
 	{
-#if !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_IOS) && !defined(DEATH_TARGET_WINDOWS_RT)
 		if (PreferencesCache::EnableRgbLights) {
 			RgbLights::Get().Clear();
 		}
-#endif
 	}
 
 	void HUD::OnUpdate(float timeMult)
@@ -204,16 +198,8 @@ namespace Jazz2::UI
 
 		Rectf view = Rectf(0.0f, 0.0f, static_cast<float>(ViewSize.X), static_cast<float>(ViewSize.Y));
 		Rectf adjustedView = view;
-#if defined(DEATH_TARGET_ANDROID)
-		if (static_cast<AndroidApplication&>(theApplication()).IsScreenRound()) {
-			float newWidth = roundf(adjustedView.W * 0.5f);
-			adjustedView.X += roundf((adjustedView.W - newWidth) * 0.5f);
-			adjustedView.W = newWidth;
-			adjustedView.H = roundf(adjustedView.H * 0.95f);
-		} else
-#endif
 #if defined(NCINE_HAS_TOUCH_CONTROLS)
-			if (_touchButtonsTimer > 0.0f) {
+		if (_touchButtonsTimer > 0.0f) {
 			const auto& dpadLayout = PreferencesCache::TouchButtons[(std::size_t)TouchButtonSlot::Dpad];
 			float leftMargin = dpadLayout.EdgeOffset.X + DpadSize * DefaultRef * dpadLayout.Scale + 8.0f;
 			float rightMargin = 0.0f;
@@ -255,12 +241,6 @@ namespace Jazz2::UI
 				// viewport are well inside the safe rectangle already and stay where they are
 				scopedView.Intersect(view);
 				adjustedScopedView.Intersect(adjustedView);
-
-#if defined(DEATH_TARGET_ANDROID)
-				if (static_cast<AndroidApplication&>(theApplication()).IsScreenRound() && _levelHandler->_assignedViewports.size() == 1) {
-					adjustedScopedView.H = roundf(adjustedScopedView.H * 0.95f);
-				}
-#endif
 
 				OnDrawOverview(scopedView, adjustedScopedView, player);
 
@@ -308,12 +288,6 @@ namespace Jazz2::UI
 		if DEATH_UNLIKELY (PreferencesCache::PerformanceMetrics != PerformanceMetricsLevel::Off) {
 			float metricsRight = view.X + view.W - 4.0f;
 			float metricsTop = view.Y + 1.0f;
-#if defined(DEATH_TARGET_ANDROID)
-			if (static_cast<AndroidApplication&>(theApplication()).IsScreenRound()) {
-				metricsRight = view.X + view.W / 2 + 40.0f;
-				metricsTop = view.Y + 6.0f;
-			}
-#endif
 			i32tos((std::int32_t)roundFast(theApplication().GetFrameTimer().GetAverageFps()), stringBuffer);
 			_smallFont->DrawString(this, stringBuffer, charOffset, metricsRight, metricsTop, FontLayer,
 				Alignment::TopRight, Font::DefaultColor, 0.8f, 0.0f, 0.0f, 0.0f, 0.0f, 0.96f);
@@ -382,11 +356,6 @@ namespace Jazz2::UI
 							if (button.Action == PlayerAction::Down) {
 								overrideActions |= (1 << (std::int32_t)PlayerAction::Buttstomp);
 							}
-#if defined(NCINE_HAS_VIBRATIONS)
-							if (PreferencesCache::EnableTouchVibration) {
-								theApplication().Vibrate(12);
-							}
-#endif
 						}
 					}
 				}
@@ -1211,11 +1180,6 @@ namespace Jazz2::UI
 					texture = anim->Base->TextureDiffuse.get();
 				}
 			} else {
-#if defined(NCINE_HAS_NATIVE_BACK_BUTTON)
-				if (button.Action == PlayerAction::Menu && PreferencesCache::UseNativeBackButton) {
-					continue;
-				}
-#endif
 				if (button.State != AnimState::Default) {
 					if (auto* anim = _metadata->FindAnimation(button.State)) {
 						texture = anim->Base->TextureDiffuse.get();
@@ -1276,12 +1240,6 @@ namespace Jazz2::UI
 		if (button.Action != PlayerAction::Menu || button.State == AnimState::Default) {
 			return false;
 		}
-#if defined(NCINE_HAS_NATIVE_BACK_BUTTON)
-		if (PreferencesCache::UseNativeBackButton) {
-			// Handled by the platform's native back button, so nothing is drawn here
-			return false;
-		}
-#endif
 
 		// Resolve the on-screen center from the alignment, exactly as OnDrawTouchButtons() does
 		float x;
@@ -1739,9 +1697,6 @@ namespace Jazz2::UI
 		}
 		state.VerticesCount = 0;
 		state.RenderCommandsCount = 0;
-#if defined(WITH_RHI_RDP)
-		state.MergedVerticesCount = 0;
-#endif
 
 		float requestedAngle;
 		std::int32_t requestedIndex;
@@ -1888,7 +1843,6 @@ namespace Jazz2::UI
 					DrawWeaponWheelSegment(state, center.X - distance2 + 1.0f, center.Y - distance2 + 1.0f, distance3, distance3, ShadowLayer, angleFrom, angleTo, lineTexture, color1);
 				}
 
-#if !defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_N64) && !defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_PSP)
 				// The half-pixel copies thicken the shadow between the whole-pixel ones under GL's line
 				// rasterization, which snaps them to neighbouring pixel columns. The Dreamcast draws
 				// lines as exact-coverage quads instead, where these four land almost entirely on the
@@ -1900,7 +1854,6 @@ namespace Jazz2::UI
 				DrawWeaponWheelSegment(state, center.X - distance2 + 0.5f, center.Y - distance2, distance3, distance3, ShadowLayer, angleFrom, angleTo, lineTexture, color1);
 				DrawWeaponWheelSegment(state, center.X - distance2, center.Y - distance2 - 0.5f, distance3, distance3, ShadowLayer, angleFrom, angleTo, lineTexture, color1);
 				DrawWeaponWheelSegment(state, center.X - distance2, center.Y - distance2 + 0.5f, distance3, distance3, ShadowLayer, angleFrom, angleTo, lineTexture, color1);
-#endif
 
 				DrawWeaponWheelSegment(state, center.X - distance2, center.Y - distance2, distance3, distance3, MainLayer, angleFrom, angleTo, lineTexture, color2);
 				if (isSelected) {
@@ -1911,14 +1864,6 @@ namespace Jazz2::UI
 				j++;
 			}
 		}
-
-#if defined(WITH_RHI_RDP)
-		// The arcs collected into one mesh (see DrawWeaponWheelSegment())
-		if (state.MergedVerticesCount > 0) {
-			DrawWeaponWheelMesh(state, state.MergedVertices.get(), state.MergedVerticesCount, PrimitiveType::Lines,
-				state.MergedLayer, lineTexture, state.MergedColor);
-		}
-#endif
 	}
 
 	void HUD::UpdateWeaponWheel(float timeMult)
@@ -2065,28 +2010,6 @@ namespace Jazz2::UI
 			vertices[j].V = 0.0f;
 		}
 
-#if defined(WITH_RHI_RDP)
-		// Arcs with the same color and layer are collected into one list of lines, drawn once the wheel is
-		// complete (see DrawWeaponWheel()), instead of a strip and a render command each. An arc that differs
-		// from the first one collected is still a strip.
-		if (state.MergedVerticesCount == 0 || (state.MergedLayer == z && state.MergedColor == color)) {
-			const std::int32_t lineVertexCount = (vertexCount - 1) * 2;
-			if (state.MergedVerticesCount + lineVertexCount <= WeaponWheelMaxMergedVertices) {
-				if (state.MergedVertices == nullptr) {
-					state.MergedVertices = std::make_unique<Vertex[]>(WeaponWheelMaxMergedVertices);
-				}
-				Vertex* lines = &state.MergedVertices[state.MergedVerticesCount];
-				for (std::int32_t i = 1; i < vertexCount; i++) {
-					*lines++ = vertices[i - 1];
-					*lines++ = vertices[i];
-				}
-				state.MergedVerticesCount += lineVertexCount;
-				state.MergedLayer = z;
-				state.MergedColor = color;
-				return;
-			}
-		}
-#endif
 		DrawWeaponWheelMesh(state, vertices, vertexCount, PrimitiveType::LineStrip, z, texture, color);
 	}
 
@@ -2148,14 +2071,6 @@ namespace Jazz2::UI
 			}
 		}
 		std::int32_t segmentNum = std::clamp<std::int32_t>((std::int32_t)roundFast(state.SegmentSizePow[0] * 3.5f * angleRange / fRadAngle360), 4, 128);
-#if defined(DEATH_TARGET_N64)
-		// Every segment costs the RDP backend two textured triangles, so the arcs are drawn with four fifths of the
-		// points - still about ten degrees a segment, where a one-pixel line reads as round. The count is rounded up
-		// to an even number, which puts a whole segment rather than a corner on the middle of the arc: at this
-		// density a corner there shows as a one-pixel bump at the top of an arc. Never more than the full count.
-		const std::int32_t reducedSegmentNum = 2 * (std::int32_t)ceilFast(state.SegmentSizePow[0] * (3.5f * 0.8f) * angleRange / fRadAngle360 * 0.5f);
-		segmentNum = std::max<std::int32_t>(std::min(segmentNum, reducedSegmentNum), 4);
-#endif
 		return segmentNum;
 	}
 
@@ -2274,15 +2189,6 @@ namespace Jazz2::UI
 		}
 
 		// Menu and Console (buttons 9-10)
-#if defined(DEATH_TARGET_ANDROID)
-		if (static_cast<AndroidApplication&>(theApplication()).IsScreenRound()) {
-			const auto& layout = PC::TouchButtons[(std::size_t)Slot::Menu];
-			float sz = roundFast(SmallButtonSize * DefaultRef * layout.Scale);
-			_touchButtons[9] = MakeTouchButton(PlayerAction::Menu, TouchPause, Alignment::Top | Fixed,
-				layout.EdgeOffset.X, layout.EdgeOffset.Y, sz, sz);
-			_touchButtons[10] = {};
-		} else
-#endif
 		{
 			{
 				const auto& layout = PC::TouchButtons[(std::size_t)Slot::Menu];
@@ -2395,7 +2301,6 @@ namespace Jazz2::UI
 
 	void HUD::UpdateRgbLights(float timeMult, Rendering::PlayerViewport* viewport)
 	{
-#if !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_IOS) && !defined(DEATH_TARGET_WINDOWS_RT)
 		if (!PreferencesCache::EnableRgbLights) {
 			_rgbHealthLast = 0.0f;
 			return;
@@ -2452,7 +2357,6 @@ namespace Jazz2::UI
 		}
 
 		rgbLights.Update(colors);
-#endif
 	}
 
 	Color HUD::ApplyRgbGradientAlpha(Color color, std::int32_t x, std::int32_t y, float animProgress, float ambientLight)
@@ -2690,9 +2594,6 @@ namespace Jazz2::UI
 
 	HUD::WeaponWheelState::WeaponWheelState()
 		: Anim(0.0f), LastIndex(-1), SegmentSize { -1.0f, -1.0f }, SegmentSizePow { 0.0f, 0.0f },
-#if defined(WITH_RHI_RDP)
-		  MergedVerticesCount(0), MergedLayer(0),
-#endif
 		  Shown(false)
 	{
 	}

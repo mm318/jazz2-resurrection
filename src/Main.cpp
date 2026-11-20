@@ -1,17 +1,8 @@
 ﻿#include "Main.h"
 
-#if defined(DEATH_TARGET_ANDROID)
-#include "nCine/Backends/Android/AndroidApplication.h"
-#include "nCine/Backends/Android/AndroidJniHelper.h"
-#elif defined(WITH_LIBRETRO)
-#include "nCine/Backends/Libretro/LibretroApplication.h"
-#elif defined(DEATH_TARGET_WINDOWS_RT)
-#include "nCine/Backends/Uwp/UwpApplication.h"
-#else
 #include "nCine/MainApplication.h"
 #if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
 #include <unistd.h>
-#endif
 #endif
 
 #if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
@@ -21,9 +12,6 @@
 #endif
 
 #include "nCine/I18n.h"
-#if defined(DEATH_TARGET_PSP)
-#include "nCine/Backends/Psp/PspNetwork.h"
-#endif
 #include "nCine/IAppEventHandler.h"
 #include "nCine/ServiceLocator.h"
 #include "nCine/tracy.h"
@@ -119,12 +107,7 @@ namespace
 	// memory is the tightest budget of the set, and an outgoing handler's textures hold pages of it until
 	// they are released. The intro cinematic's full-screen PSMCT32 frame alone is 140 of the 422 pages the
 	// texture cache has.
-#if defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_DREAMCAST) || \
-	defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PS2)
-	constexpr bool ReleaseAssetsBeforeLoading = true;
-#else
 	constexpr bool ReleaseAssetsBeforeLoading = false;
-#endif
 }
 
 class GameEventHandler : public IAppEventHandler, public IInputEventHandler, public IRootController
@@ -167,10 +150,6 @@ public:
 	bool HasResumableState() const override;
 	bool SaveStateToStream(Stream& dest);
 	void ResumeStateFromStream(std::shared_ptr<Stream> src);
-#if defined(WITH_LIBRETRO)
-	bool OnSaveState(Stream& dest) override;
-	bool OnLoadState(std::shared_ptr<Stream> src) override;
-#endif
 	void ResumeSavedState() override;
 	bool SaveCurrentStateIfAny() override;
 	void ApplyCursorPolicy() override;
@@ -246,9 +225,6 @@ private:
 #endif
 	void HandleEndOfGame(const LevelInitialization& levelInit, bool playerDied);
 	void RemoveResumableStateIfAny();
-#if defined(DEATH_TARGET_ANDROID)
-	void ApplyActivityIcon();
-#endif
 #if defined(WITH_MULTIPLAYER) && defined(WITH_THREADS) && !defined(DEATH_TARGET_EMSCRIPTEN)
 	void RunDedicatedServer(StringView configPath);
 	void StartProcessingStdin();
@@ -262,76 +238,13 @@ private:
 #endif
 };
 
-#if defined(WITH_LIBRETRO)
-/** @brief Returns the game root (the directory containing `assets`) in the directories advertised by the frontend */
-static String FindGameRoot(const Backends::LibretroApplication::HostPaths& hostPaths, StringView systemBase)
-{
-	// Walk up from the loaded file, the frontend can be pointed at any file of the game directory
-	if (!hostPaths.Content.empty()) {
-		String baseDir = (fs::DirectoryExists(hostPaths.Content) ? hostPaths.Content : String(fs::GetDirectoryName(hostPaths.Content)));
-		for (std::int32_t i = 0; i < 3 && !baseDir.empty(); i++) {
-			if (fs::DirectoryExists(fs::CombinePath(baseDir, "assets"_s))) {
-				return baseDir;
-			}
-			// `GetDirectoryName()` returns a view into its argument, so it can't be assigned in place
-			String parent = fs::GetDirectoryName(baseDir);
-			baseDir = Death::move(parent);
-		}
-	}
-	// Frontends that separate engine data from the user's game files keep assets/ (and the
-	// generated Cache/) in the core assets directory (Recalbox: core_assets = bios/jazz2)
-	if (!hostPaths.CoreAssets.empty() && fs::DirectoryExists(fs::CombinePath(hostPaths.CoreAssets, "assets"_s))) {
-		return hostPaths.CoreAssets;
-	}
-	if (!systemBase.empty() && fs::DirectoryExists(fs::CombinePath(systemBase, "assets"_s))) {
-		return systemBase;
-	}
-	return {};
-}
-
-/** @brief Locates `assets` and `Cache` in the directories advertised by the libretro frontend */
-static bool OverridePathsFromHost()
-{
-	const auto& hostPaths = Backends::theLibretroApplication().GetHostPaths();
-
-	// The frontend may point its system directory straight at the game root, otherwise the
-	// "<system>/jazz2" convention applies
-	String systemBase;
-	if (!hostPaths.System.empty()) {
-		systemBase = (fs::DirectoryExists(fs::CombinePath(hostPaths.System, "assets"_s))
-				? hostPaths.System
-				: fs::CombinePath(hostPaths.System, "jazz2"_s));
-	}
-
-	String baseDir = FindGameRoot(hostPaths, systemBase);
-	if (baseDir.empty()) {
-		LOGE("Cannot find \"assets\" directory in any of the directories provided by the frontend");
-		return false;
-	}
-
-	String cachePath = fs::CombinePath(baseDir, "Cache/"_s);
-
-	// A libretro core shares its process with the frontend, so the working directory is not the
-	// core's to change - absolute paths are used
-	ContentResolver::Get().OverridePaths(fs::CombinePath(baseDir, "assets/"_s), cachePath);
-	return true;
-}
-#endif
-
 void GameEventHandler::OnPreInitialize(AppConfiguration& config)
 {
 	ZoneScopedC(0x888888);
 
-#if defined(WITH_LIBRETRO)
-	if (!OverridePathsFromHost()) {
-		theApplication().Quit();
-		return;
-	}
-#endif
-
 #if defined(WITH_MULTIPLAYER) && defined(DEDICATED_SERVER)
 	constexpr bool isServer = true;
-#elif defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT))
+#elif defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_WINDOWS)
 	// Allow `/extract-pak` and `/server` only on PC platforms
 	bool isServer = false;
 	for (std::int32_t i = 0; i < config.GetArgc(); i++) {
@@ -395,18 +308,10 @@ void GameEventHandler::OnPreInitialize(AppConfiguration& config)
 				LOGI("Frame limit set to {} FPS", PreferencesCache::MaxFps);
 			}
 		}
-#if !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_VITA) && !defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && !defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_N64) && !defined(DEATH_TARGET_AMIGAOS)
 		// Fixed-panel consoles keep the native output resolution (the device pins it); the level viewport
 		// aspect-fits the logical view into it, so no explicit override is wanted there (the Amiga backend
 		// also picks its own screen mode, from the performance preset)
 		config.Resolution.Set(2 * LevelHandler::DefaultWidth, 2 * LevelHandler::DefaultHeight);
-#elif defined(DEATH_TARGET_WIIU)
-		// The resolution is left unset, so the window fills SDL's TV display, which wiiu-sdl2 sizes after the
-		// console's TV setting (854x480, 1280x720 or 1920x1080). The frame then reaches the TV without scaling,
-		// and GX2 scales it to the GamePad.
-		config.Fullscreen = false;
-		config.Resizable = false;
-#endif
 
 #if !defined(DEATH_TARGET_EMSCRIPTEN)
 		auto& resolver = ContentResolver::Get();
@@ -483,7 +388,7 @@ void GameEventHandler::OnInitialize()
 #endif
 	RunDedicatedServer(configPath);
 #else
-#if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_AMIGAOS) || (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT))
+#if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_WINDOWS)
 	const AppConfiguration& config = theApplication().GetAppConfiguration();
 #if defined(WITH_EDITOR)
 	// Checked first, because a level file given to it would otherwise be played
@@ -720,10 +625,6 @@ void GameEventHandler::OnShutdown()
 {
 	ZoneScopedC(0x888888);
 
-#if defined(DEATH_TARGET_ANDROID)
-	ApplyActivityIcon();
-#endif
-
 #if defined(WITH_MULTIPLAYER)
 	// The network manager has to go down first, because `Dispose()` joins the network thread and the callbacks
 	// running on it reach the current handler through `_currentHandler` - resetting it any earlier both races
@@ -758,21 +659,10 @@ void GameEventHandler::OnSuspend()
 		PreferencesCache::Save();
 	}
 #endif
-
-#if defined(DEATH_TARGET_ANDROID)
-	ApplyActivityIcon();
-#endif
 }
 
 void GameEventHandler::OnResume()
 {
-#if defined(DEATH_TARGET_ANDROID)
-	if (Backends::AndroidJniWrap_Activity::HasExternalStoragePermission()) {
-		_flags |= Flags::HasExternalStoragePermissionOnResume;
-	} else {
-		_flags &= ~Flags::HasExternalStoragePermissionOnResume;
-	}
-#endif
 
 #if !defined(SHAREWARE_DEMO_ONLY)
 	PreferencesCache::ResumeOnStart = false;
@@ -804,12 +694,6 @@ void GameEventHandler::OnKeyPressed(const KeyboardEvent& event)
 	// Allow F11 and Alt+Enter to switch fullscreen
 	// TODO: Don't override F11 in web browser with newer version of `contrib.glfw3`
 	if (event.Sym == Keys::F11 || (event.Sym == Keys::Return && (event.Mod & KeyMod::Mask) == KeyMod::LAlt)) {
-#if defined(DEATH_TARGET_WINDOWS_RT)
-		// Xbox is always fullscreen
-		if (Environment::CurrentDeviceType == DeviceType::Xbox) {
-			return;
-		}
-#endif
 		PreferencesCache::EnableFullscreen = !PreferencesCache::EnableFullscreen;
 		theApplication().GetGfxDevice().SetResolution(PreferencesCache::EnableFullscreen);
 		ApplyCursorPolicy();
@@ -893,12 +777,6 @@ void GameEventHandler::ApplyCursorPolicy()
 			visible = !PreferencesCache::EnableFullscreen;
 			break;
 	}
-#if defined(DEATH_TARGET_WINDOWS_RT)
-	// Xbox is always fullscreen and has no mouse
-	if (Environment::CurrentDeviceType == DeviceType::Xbox) {
-		visible = false;
-	}
-#endif
 	theApplication().GetInputManager().SetCursor(visible ? IInputManager::Cursor::Arrow : IInputManager::Cursor::Hidden);
 #endif
 }
@@ -1254,30 +1132,6 @@ bool GameEventHandler::SaveStateToStream(Stream& dest)
 #endif
 }
 
-#if defined(WITH_LIBRETRO)
-bool GameEventHandler::OnSaveState(Stream& dest)
-{
-	return SaveStateToStream(dest);
-}
-
-bool GameEventHandler::OnLoadState(std::shared_ptr<Stream> src)
-{
-	// The frontend expects an immediate answer, so validate the signature here - the level itself
-	// is reloaded asynchronously, on one of the next frames
-	if (src == nullptr || !*src || src->GetSize() < (std::int64_t)sizeof(std::uint64_t)) {
-		return false;
-	}
-	std::uint64_t signature = src->ReadValueAsLE<std::uint64_t>();
-	if (signature != 0x2095A59FF0BFBBEF || src->GetSize() < 11) {
-		return false;
-	}
-	src->Seek(0, SeekOrigin::Begin);
-
-	ResumeStateFromStream(Death::move(src));
-	return true;
-}
-#endif
-
 bool GameEventHandler::SaveCurrentStateIfAny()
 {
 	ZoneScopedNC("GameEventHandler::SaveCurrentStateIfAny", 0x888888);
@@ -1288,13 +1142,6 @@ bool GameEventHandler::SaveCurrentStateIfAny()
 		if (levelHandler->IsLocalSession()) {
 			auto configDir = PreferencesCache::GetDirectory();
 			auto statePath = fs::CombinePath(configDir, StateFileName);
-#if defined(DEATH_TARGET_DREAMCAST)
-			// A memory card file is listed by the description inside it rather than by its name, and one
-			// without a description is listed as unusable data
-			PreferencesCache::DescribeNextMemoryCardFile("Jazz2 Saved Game"_s, "Jazz2 Resurrection - Saved Game"_s);
-#elif defined(DEATH_TARGET_GAMECUBE)
-			PreferencesCache::DescribeNextMemoryCardFile("Jazz² Resurrection"_s, "Saved game"_s);
-#endif
 			auto s = fs::Open(statePath, FileAccess::Write);
 			if (*s) {
 				if (!SaveStateToStream(*s)) {
@@ -1323,28 +1170,6 @@ void GameEventHandler::RemoveResumableStateIfAny()
 	}
 #endif
 }
-
-#if defined(DEATH_TARGET_ANDROID)
-void GameEventHandler::ApplyActivityIcon()
-{
-	if (PreferencesCache::EnableReforgedMainMenuInitial == PreferencesCache::EnableReforgedMainMenu) {
-		return;
-	}
-
-	PreferencesCache::EnableReforgedMainMenuInitial = PreferencesCache::EnableReforgedMainMenu;
-
-	// These calls will kill the app in a second, so it should be called only on exit
-	if (PreferencesCache::EnableReforgedMainMenu) {
-		LOGI("Changed activity icon to \"Reforged\"");
-		Backends::AndroidJniWrap_Activity::SetActivityEnabled(".MainActivityReforged"_s, true);
-		Backends::AndroidJniWrap_Activity::SetActivityEnabled(".MainActivityLegacy"_s, false);
-	} else {
-		LOGI("Changed activity icon to \"Legacy\"");
-		Backends::AndroidJniWrap_Activity::SetActivityEnabled(".MainActivityLegacy"_s, true);
-		Backends::AndroidJniWrap_Activity::SetActivityEnabled(".MainActivityReforged"_s, false);
-	}
-}
-#endif
 
 #if defined(WITH_MULTIPLAYER) && defined(WITH_THREADS) && !defined(DEATH_TARGET_EMSCRIPTEN)
 void GameEventHandler::RunDedicatedServer(StringView configPath)
@@ -1588,17 +1413,10 @@ ConnectionResult GameEventHandler::OnPeerConnected(const Peer& peer, std::uint32
 		packet.WriteValue<std::uint8_t>((std::uint8_t)playerName.size());
 		packet.Write(playerName.data(), (std::uint32_t)playerName.size());
 
-#if defined(DEATH_TARGET_ANDROID)
-		auto androidId = Backends::AndroidJniWrap_Secure::GetAndroidId();
-		std::size_t androidIdLength = std::min(androidId.size(), (std::size_t)UINT8_MAX);
-		packet.WriteValue<std::uint8_t>((std::uint8_t)androidIdLength);
-		packet.Write(androidId.data(), (std::uint32_t)androidIdLength);
-#else
 		packet.WriteValue<std::uint8_t>(0); // Device ID
-#endif
 
 		std::uint64_t playerUserId = 0;
-#if (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || defined(DEATH_TARGET_UNIX)
+#if defined(DEATH_TARGET_WINDOWS) || defined(DEATH_TARGET_UNIX)
 		if (PreferencesCache::EnableDiscordIntegration && UI::DiscordRpcClient::Get().IsSupported()) {
 			playerUserId = UI::DiscordRpcClient::Get().GetUserId();
 		}
@@ -1974,31 +1792,11 @@ void GameEventHandler::OnBeginInitialize()
 	}
 #endif
 	// Likewise before the first handler lays its viewport out (a no-op everywhere but on PS Vita)
-	PreferencesCache::ApplyRenderingResolution();
 	PreferencesCache::ApplyPerformanceMetrics();
 
 	auto& resolver = ContentResolver::Get();
 
-#if defined(DEATH_TARGET_IOS)
-	// Like Android below: once the app leaves the foreground (SDL reports it as the window losing focus) nothing
-	// may touch the GPU any more - iOS terminates an app that renders in the background - so the whole loop
-	// suspends until it is back, which also saves the game state on the way out (see OnSuspend)
-	theApplication().SetAutoSuspension(true);
-#endif
-
-#if defined(DEATH_TARGET_ANDROID)
-	theApplication().SetAutoSuspension(true);
-
-	if (Backends::AndroidJniWrap_Activity::HasExternalStoragePermission()) {
-		_flags |= Flags::HasExternalStoragePermission;
-	}
-
-	// Try to load gamepad mappings from the writable data directory on Android
-	String mappingsPath = fs::CombinePath(fs::GetDirectoryName(resolver.GetCachePath()), "gamecontrollerdb.txt"_s);
-	if (fs::IsReadableFile(mappingsPath)) {
-		theApplication().GetInputManager().AddJoyMappingsFromFile(mappingsPath);
-	}
-#elif !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if !(defined(DEATH_TARGET_EMSCRIPTEN))
 	// Try to load gamepad mappings from `assets` directory
 	String mappingsPath = fs::CombinePath(resolver.GetContentPath(), "gamecontrollerdb.txt"_s);
 	if (fs::IsReadableFile(mappingsPath)) {
@@ -2014,7 +1812,7 @@ void GameEventHandler::OnBeginInitialize()
 	}
 #endif
 
-#if !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if !(defined(DEATH_TARGET_EMSCRIPTEN))
 	// Try to load gamepad mappings also from config directory
 	auto configDir = PreferencesCache::GetDirectory();
 	if (!configDir.empty()) {
@@ -2026,12 +1824,7 @@ void GameEventHandler::OnBeginInitialize()
 #endif
 
 #if defined(NCINE_HAS_WINDOWS)
-#if defined(DEATH_TARGET_WINDOWS_RT)
-	// Xbox is always fullscreen
-	if (PreferencesCache::EnableFullscreen || Environment::CurrentDeviceType == DeviceType::Xbox) {
-#else
 	if (PreferencesCache::EnableFullscreen) {
-#endif
 		theApplication().GetGfxDevice().SetResolution(true);
 	}
 	ApplyCursorPolicy();
@@ -2042,7 +1835,7 @@ void GameEventHandler::OnBeginInitialize()
 
 void GameEventHandler::OnAfterInitialize()
 {
-#if (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || defined(DEATH_TARGET_UNIX)
+#if defined(DEATH_TARGET_WINDOWS) || defined(DEATH_TARGET_UNIX)
 	if (PreferencesCache::EnableDiscordIntegration) {
 		DiscordRpcClient::Get().Connect("591586859960762378"_s);
 	}
@@ -2058,7 +1851,7 @@ void GameEventHandler::OnAfterInitialize()
 	}
 
 	auto& resolver = ContentResolver::Get();
-	if (resolver.IsContentPrebaked()) {
+	if (resolver.HasGameData()) {
 		_flags |= Flags::IsVerified | Flags::IsPlayable;
 	} else {
 		LOGE("Packaged game data is missing from \"{}\". Reinstall the complete assets directory.", resolver.GetContentPath());
@@ -2159,14 +1952,6 @@ void GameEventHandler::CheckUpdates()
 {
 #if !defined(DEATH_DEBUG)
 	ZoneScopedC(0x888888);
-
-#if defined(DEATH_TARGET_PSP)
-	// Nothing on this console has joined an access point yet, and the wait for one belongs on a thread that
-	// is not the main one - which this is, the whole check runs on the parallel initialization thread. The
-	// association lasts no longer than this one request: unless the player goes looking for a game, the
-	// update check is all a session does with the network, and the radio has no reason to stay up for it.
-	Backends::PspNetwork::ScopedConnection connection;
-#endif
 
 	String url = "https://de4th.dev/downloads/games/jazz2/updates?v=" NCINE_VERSION "&d=" + PreferencesCache::GetDeviceID();
 	if (auto session = WebSession::GetDefault()) {
@@ -2538,19 +2323,7 @@ bool GameEventHandler::RunLevelPackCommands(const AppConfiguration& config, bool
 }
 #endif
 
-#if defined(DEATH_TARGET_ANDROID) || defined(WITH_LIBRETRO)
-std::unique_ptr<IAppEventHandler> CreateAppEventHandler()
-{
-	return std::make_unique<GameEventHandler>();
-}
-#elif defined(DEATH_TARGET_WINDOWS_RT)
-int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow)
-{
-	return UwpApplication::Run([]() -> std::unique_ptr<IAppEventHandler> {
-		return std::make_unique<GameEventHandler>();
-	});
-}
-#elif defined(DEATH_TARGET_WINDOWS) && !defined(WITH_QT5)
+#if defined(DEATH_TARGET_WINDOWS) && !defined(WITH_QT5)
 #if defined(WITH_MULTIPLAYER) && defined(DEDICATED_SERVER)
 int wmain(int argc, wchar_t* argv[])
 {
@@ -2601,15 +2374,8 @@ int PrintVersion(bool logoVisible)
 }
 #endif
 
-#if defined(DEATH_TARGET_IOS)
-// SDL2 owns the process entry point on iOS: its SDL2main starts the UIApplication and calls this function
-// (renamed to `SDL_main` by the header) from the application delegate once UIKit is up
-#include <SDL_main.h>
-#endif
-
 int main(int argc, char** argv)
 {
-#if !defined(DEATH_TARGET_SWITCH)
 	bool logoVisible = false;
 #if defined(DEATH_TRACE) && (defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX))
 	bool hasVirtualTerminal = ::isatty(1);
@@ -2628,7 +2394,6 @@ int main(int argc, char** argv)
 			return PrintVersion(logoVisible);
 		}
 	}
-#endif
 #endif
 
 	return MainApplication::Run([]() -> std::unique_ptr<IAppEventHandler> {

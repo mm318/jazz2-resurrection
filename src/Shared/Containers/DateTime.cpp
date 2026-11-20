@@ -10,11 +10,6 @@
 
 #if !defined(DEATH_TARGET_WINDOWS)
 #include <sys/time.h>
-#if defined(DEATH_TARGET_VITA)
-#include <psp2/rtc.h>
-#elif defined(DEATH_TARGET_PSP)
-#include <psprtc.h>
-#endif
 #endif
 
 #if !defined(DEATH_USE_GMTOFF_IN_TM) && defined(DEATH_TARGET_APPLE)
@@ -25,7 +20,7 @@
 #include <atomic>
 #endif
 
-#if defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_VITA) || (defined(__MINGW32_TOOLCHAIN__) && defined(__STRICT_ANSI__))
+#if defined(__MINGW32_TOOLCHAIN__) && defined(__STRICT_ANSI__)
 // These two are excluded from headers for some reason, define them here
 extern "C" void tzset(void);
 extern long _timezone;
@@ -89,43 +84,11 @@ namespace Death
 				return ((year / 100) * DAYS_PER_400_YEARS) / 4 + ((year % 100) * DAYS_PER_4_YEARS) / 4 + (month * DAYS_PER_5_MONTHS + 2) / 5 + day - JDN_OFFSET;
 			}
 
-#if defined(DEATH_TARGET_PSP)
-			// Seconds east of UTC according to the firmware's own settings. PSPSDK's newlib has no timezone database
-			// and exposes neither `timezone` nor `_timezone`, so localtime() is gmtime() here and every local time in
-			// the application would be UTC - but the RTC converts between the two, and the difference is the offset,
-			// daylight saving included. Taken once, the setting cannot be changed without leaving the game.
-			static std::int32_t GetLocalTimeZoneOffset() noexcept
-			{
-				static const std::int32_t offset = []() -> std::int32_t {
-					// Both ticks come out of the same reading, so the difference is the offset exactly
-					u64 utcTick = 0, localTick = 0;
-					if (sceRtcGetCurrentTick(&utcTick) < 0 || sceRtcConvertUtcToLocalTime(&utcTick, &localTick) < 0) {
-						return 0;
-					}
-
-					return (std::int32_t)(((std::int64_t)localTick - (std::int64_t)utcTick) / 1000000);
-				}();
-				return offset;
-			}
-#endif
-
 			static struct tm* GetLocalTm(const time_t* ticks, struct tm* temp) noexcept
 			{
 #if defined(DEATH_TARGET_WINDOWS)
 				return (localtime_s(temp, ticks) == 0 ? temp : nullptr);
-#elif defined(DEATH_TARGET_PSP)
-				// Shift the value by the firmware's offset and format that as UTC, because localtime() knows nothing
-				// about timezones on this console (see GetLocalTimeZoneOffset())
-				const time_t local = *ticks + (time_t)GetLocalTimeZoneOffset();
-				const tm* const result = gmtime(&local);
-				if (result == nullptr) {
-					return nullptr;
-				}
-
-				std::memcpy(temp, result, sizeof(struct tm));
-				return temp;
-#elif defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_EMSCRIPTEN) || \
-	(defined(DEATH_TARGET_UNIX) && !defined(DEATH_TARGET_CONSTRAINED_MEMORY))
+#elif defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_EMSCRIPTEN) || defined(DEATH_TARGET_UNIX) && !(defined(DEATH_TARGET_CONSTRAINED_MEMORY))
 				return localtime_r(ticks, temp);
 #else
 				const tm* const result = localtime(ticks);
@@ -163,11 +126,7 @@ namespace Death
 
 			static std::int32_t GetTimeZone() noexcept
 			{
-#if defined(DEATH_TARGET_PSP)
-				// This one is read from the firmware and not from the C library, so it stands before every branch
-				// below - including the tm_gmtoff one, which newlib fills with a zero here (see GetLocalTimeZoneOffset())
-				return -GetLocalTimeZoneOffset();
-#elif defined(DEATH_USE_GMTOFF_IN_TM)
+#if defined(DEATH_USE_GMTOFF_IN_TM)
 				// Struct tm doesn't always have the tm_gmtoff field, define this if it does
 				static std::atomic<std::int32_t> _gmtoffset { INT32_MAX }; // Invalid timezone
 				if (_gmtoffset == INT32_MAX) {
@@ -191,11 +150,9 @@ namespace Death
 				ftime(&tb);
 				return tb.timezone * 60;
 #elif defined(DEATH_TARGET_MSVC)
-#if !defined(DEATH_TARGET_WINDOWS_RT)
 				// In any case we must initialize the time zone before using it, try to do it only once
 				static bool _tzSet = (_tzset(), true);
 				(void)_tzSet;
-#endif
 
 				long t;
 				_get_timezone(&t);
@@ -205,15 +162,8 @@ namespace Death
 				static bool _tzSet = (tzset(), true);
 				(void)_tzSet;
 
-#if defined(DEATH_TARGET_MINGW) || defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_N64) ||                               \
-	defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_3DS) || \
-	defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_VITA) || defined(DEATH_TARGET_PS3) ||                             \
-	defined(DEATH_TARGET_AMIGAOS)
+#if defined(DEATH_TARGET_MINGW)
 				return _timezone;
-#elif defined(DEATH_TARGET_PS2)
-				// PS2SDK's newlib exposes neither `timezone` nor `_timezone`, and the console has no timezone
-				// database at all
-				return 0;
 #else // Unknown platform - assume it has timezone variable
 				return timezone;
 #endif
@@ -235,8 +185,7 @@ namespace Death
 
 #if defined(DEATH_TARGET_WINDOWS)
 				return (gmtime_s(temp, &t) == 0 ? temp : nullptr);
-#elif defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_EMSCRIPTEN) || \
-	(defined(DEATH_TARGET_UNIX) && !defined(DEATH_TARGET_CONSTRAINED_MEMORY))
+#elif defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_EMSCRIPTEN) || defined(DEATH_TARGET_UNIX) && !(defined(DEATH_TARGET_CONSTRAINED_MEMORY))
 				return gmtime_r(&t, temp);
 #else
 				const tm* const result = gmtime(&t);
@@ -1154,14 +1103,6 @@ namespace Death
 			FILETIME ft;
 			::GetSystemTimeAsFileTime(&ft);
 			return DateTime(ft);
-#elif defined(DEATH_TARGET_VITA)
-			SceDateTime dt {};
-			sceRtcGetCurrentClock(&dt, 0);
-			SceRtcTick tick {};
-			sceRtcGetTick(&dt, &tick);
-
-			constexpr std::uint64_t VitaToUnixEpochMs = 62135596800000ULL;
-			return DateTime::FromUnixMilliseconds((std::int64_t)((tick.tick / 1000ULL) - VitaToUnixEpochMs));
 #else
 			struct timeval tp
 			{
@@ -1268,7 +1209,6 @@ namespace Death
 				return {};
 			}
 
-#if !defined(DEATH_TARGET_VITA)
 			time_t time = GetTicks();
 			if (time != (time_t)-1) {
 				struct tm temp;
@@ -1279,7 +1219,6 @@ namespace Death
 					return tm2;
 				}
 			}
-#endif
 
 			// If standard library functions cannot be used, try to guess it
 			std::int32_t secDiff = tz.GetOffset();

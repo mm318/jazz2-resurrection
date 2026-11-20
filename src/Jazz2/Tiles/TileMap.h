@@ -46,9 +46,6 @@ namespace Jazz2
 	DISTINCT tiles on screen. Every other backend holds the whole atlas in texture memory and would only pay
 	the grouping, so it stays off there.
 */
-#if defined(TILEMAP_USE_SINGLE_DRAW) && defined(WITH_RHI_RDP)
-#define TILEMAP_GROUP_MESH_BY_TILE
-#endif
 
 /*
 	Whether the particles of a level (see TileMap::DestructibleDebris) are handed to the backend as packed
@@ -56,9 +53,6 @@ namespace Jazz2
 	On the Nintendo 64 the quads of one defeated enemy were 6 ms of a frame, most of it cache misses
 	(see RHI::RDP::QuadRecord and TileMap::AppendDebrisRecord()).
 */
-#if defined(TILEMAP_USE_SINGLE_DRAW) && defined(WITH_RHI_RDP)
-#define TILEMAP_DEBRIS_RECORDS
-#endif
 
 /*
 	Whether a tile layer's mesh holds one packed record per tile instead of the four corners of a float quad.
@@ -69,9 +63,6 @@ namespace Jazz2
 	tile's position and texels straight from the record (see RHI::PVR::TileRecord). The RDP has records of its
 	own, written by the grouped emission above.
 */
-#if defined(TILEMAP_USE_SINGLE_DRAW) && defined(WITH_RHI_PVR)
-#define TILEMAP_PACKED_TILE_RECORDS
-#endif
 
 /*
 	Whether the tiles of a layer behind the sprite layer are skipped where fully opaque sprite-layer tiles cover
@@ -79,9 +70,6 @@ namespace Jazz2
 	often a texel upload on the Nintendo 64, a submitted polygon and the fill of every one of its pixels on the
 	PowerVR, which has no hidden-surface removal in the translucent list everything is drawn in.
 */
-#if defined(DEATH_TARGET_N64) || defined(WITH_RHI_PVR)
-#define TILEMAP_OPAQUE_COVERAGE
-#endif
 
 /*
 	Whether that coverage takes each tile's own opacity (TileSet::IsTileOpaque()) as proof, instead of requiring a
@@ -89,7 +77,7 @@ namespace Jazz2
 	it costs a pass over every opaque tile when the atlas is built. Not with scripting, which can recolor the
 	palette while the level runs, and not yet on the Nintendo 64 (see the note in TileMap::DrawLayer()).
 */
-#if defined(TILEMAP_OPAQUE_COVERAGE) && !defined(DEATH_TARGET_N64) && !defined(WITH_ANGELSCRIPT)
+#if defined(TILEMAP_OPAQUE_COVERAGE) && !(defined(WITH_ANGELSCRIPT))
 #define TILEMAP_PER_TILE_OPACITY
 #endif
 
@@ -110,9 +98,7 @@ namespace Jazz2
 	0.5 ms a frame with one player, and the CPU time of a four-player frame from 14.7 to 6.3 ms; a rewritten
 	buffer the GPU still reads is renamed (see `Gx2BufferObject::PrepareCpuWrite()`).
 */
-#if defined(TILEMAP_USE_SINGLE_DRAW) && !defined(TILEMAP_GROUP_MESH_BY_TILE) &&                                \
-	(defined(WITH_RHI_GL) || defined(WITH_RHI_D3D11) || defined(WITH_RHI_VULKAN) || defined(WITH_RHI_METAL) || \
-		defined(WITH_RHI_GX2) || defined(WITH_RHI_GX) || defined(WITH_RHI_PICA) || defined(WITH_RHI_GS) || defined(WITH_RHI_GU))
+#if defined(TILEMAP_USE_SINGLE_DRAW) && !(defined(TILEMAP_GROUP_MESH_BY_TILE)) && (defined(WITH_RHI_GL) || defined(WITH_RHI_D3D11) || defined(WITH_RHI_VULKAN) || defined(WITH_RHI_METAL))
 #define TILEMAP_CACHE_LAYER_WINDOW
 #endif
 
@@ -230,12 +216,7 @@ namespace Jazz2::Tiles
 			of a returned reference for the memory (see the class description); the platforms with memory
 			to spare keep the plain array semantics.
 		*/
-#if defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_DREAMCAST) || \
-	defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PS2)
-		static constexpr bool CompactDrawOnlyLayers = true;
-#else
 		static constexpr bool CompactDrawOnlyLayers = false;
-#endif
 		/** @brief Tiles per allocated block */
 		static constexpr std::size_t BlockTiles = std::size_t(1) << BlockShift;
 
@@ -817,15 +798,7 @@ namespace Jazz2::Tiles
 			thousand of them - more than the whole heap the consoles have left. Desktop targets have the memory,
 			so the effect stays unbounded there.
 		*/
-#if defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || \
-	defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_AMIGAOS)
-		static constexpr std::int32_t MaxDebrisCount = 448;
-#elif defined(DEATH_TARGET_N64)
-		// Half the other consoles' budget, because 8 MB of RDRAM is half the heap the smallest of them has
-		static constexpr std::int32_t MaxDebrisCount = 224;
-#else
 		static constexpr std::int32_t MaxDebrisCount = 0;
-#endif
 		/**
 			@brief Maximum number of live debris particles the weather effect may occupy, or `0` if unbounded
 
@@ -833,15 +806,7 @@ namespace Jazz2::Tiles
 			`intensity * ~190` live particles. Left alone it would sit at @ref MaxDebrisCount on its own and
 			leave nothing for a death burst, which is the effect that actually matters.
 		*/
-#if defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || \
-	defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_AMIGAOS)
-		static constexpr std::int32_t MaxWeatherDebrisCount = 128;
-#elif defined(DEATH_TARGET_N64)
-		// Half again, see MaxDebrisCount
-		static constexpr std::int32_t MaxWeatherDebrisCount = 64;
-#else
 		static constexpr std::int32_t MaxWeatherDebrisCount = 0;
-#endif
 		/**
 			@brief Step the depth of a weather particle is rounded to
 
@@ -849,23 +814,14 @@ namespace Jazz2::Tiles
 			be batched with the others. Rounded to a few levels on the consoles that budget their particles
 			(see @ref MaxWeatherDebrisCount), the weather is a few draws.
 		*/
-#if defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || \
-	defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_AMIGAOS)
-		static constexpr std::int32_t WeatherDepthStep = 40;
-#else
 		static constexpr std::int32_t WeatherDepthStep = 1;
-#endif
 		/**
 			@brief Whether the snowflakes turn as they fall
 
 			Off on the Nintendo 64: a turned particle is two triangles instead of one rectangle, about four times
 			the cost, and the turn of a few pixels isn't visible.
 		*/
-#if defined(DEATH_TARGET_N64)
-		static constexpr bool WeatherDebrisSpins = false;
-#else
 		static constexpr bool WeatherDebrisSpins = true;
-#endif
 		/**
 			@brief Maximum number of particles one @ref CreateParticleDebris() burst emits, or `0` if unbounded
 
@@ -874,15 +830,7 @@ namespace Jazz2::Tiles
 			the step instead of dropping the tail keeps the burst covering the whole sprite - the particles just
 			get proportionally fewer and bigger (see @ref GetParticleDebrisStep()).
 		*/
-#if defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || \
-	defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_AMIGAOS)
-		static constexpr std::int32_t MaxParticleDebrisPerBurst = 256;
-#elif defined(DEATH_TARGET_N64)
-		// Half again, see MaxDebrisCount
-		static constexpr std::int32_t MaxParticleDebrisPerBurst = 128;
-#else
 		static constexpr std::int32_t MaxParticleDebrisPerBurst = 0;
-#endif
 
 		/** @brief Returns number of live debris particles */
 		std::int32_t GetDebrisCount() const
@@ -1411,55 +1359,9 @@ namespace Jazz2::Tiles
 		};
 		OpaqueCoverage _opaqueCoverage = {};
 #endif
-#if defined(WITH_RHI_SOFTWARE) || defined(DEATH_TARGET_N64) || (defined(TILEMAP_OPAQUE_COVERAGE) && defined(WITH_ANGELSCRIPT))
+#if defined(TILEMAP_OPAQUE_COVERAGE) && defined(WITH_ANGELSCRIPT)
 		/// Whether every non-zero entry of the sprite palette is fully opaque, scanned once per OnDraw() (see DrawLayer())
 		bool _spritePaletteOpaque = true;
-#endif
-
-#if defined(DEATH_TARGET_N64)
-		/// Bumped whenever a rebuilt coverage grid differs from the previous one (keys the culled layers' caches)
-		std::uint32_t _coverageStamp = 0;
-
-		/**
-			@brief The static tiles of one layer's window, kept between frames
-
-			See the note in DrawLayer(): a layer's visible window changes only every 32 pixels of its own
-			scroll, so its tiles are walked and their quads written once per window into a VBO the layer
-			owns, and the frames in between re-issue those commands under a new translation. Animated tiles
-			are excluded (recorded as cells and re-resolved every frame through the streaming path), and a
-			copy of the window's tile IDs detects destroyed or triggered tiles.
-		*/
-		struct LayerMeshCache
-		{
-			struct AnimatedCell
-			{
-				std::uint16_t Xo, Yo;
-				std::int32_t LayoutIndex;
-			};
-			struct Chunk
-			{
-				std::unique_ptr<RenderCommand> Command;
-				std::uint32_t VboFloats = 0; //< Capacity of the command's own VBO (written through a mapping)
-				std::int32_t QuadCount = 0;
-			};
-			bool Valid = false;
-			bool Covering = false, Culled = false, PaletteOpaque = true;
-			std::int32_t TileAbsX = 0, TileAbsY = 0, Cols = 0, Rows = 0;
-			std::int32_t CullShiftX = 0, CullShiftY = 0;
-			std::uint32_t CoverageStamp = 0;
-			std::uint32_t LayoutVersion = 0; //< The layout's stamp (LayerLayout::GetVersion()) WindowIds were last checked against
-			SmallVector<std::uint16_t, 0> WindowIds;
-			SmallVector<AnimatedCell, 0> Animated;
-			SmallVector<Chunk, 1> Chunks;
-			OpaqueCoverage Coverage = {};
-		};
-		SmallVector<LayerMeshCache, 0> _layerMeshCaches;
-
-		bool LayerMeshWindowUnchanged(const TileMapLayer& layer, const LayerMeshCache& cache, std::int32_t tileAbsX, std::int32_t tileAbsY,
-			std::int32_t tileXs, std::int32_t tileYs) const;
-		void BuildLayerMeshCache(LayerMeshCache& cache, TileSet& tileSet, std::int32_t x1i, std::int32_t y1i);
-		void AddCachedLayerMesh(RenderQueue& renderQueue, LayerMeshCache& cache, std::int32_t x1i, std::int32_t y1i, const Vector4f& color, std::uint16_t depth);
-		void PushAnimatedMeshEntries(const TileMapLayer& layer, const LayerMeshCache& cache, TileSet& tileSet, std::int32_t x1i, std::int32_t y1i);
 #endif
 
 #if defined(TILEMAP_CACHE_LAYER_WINDOW)

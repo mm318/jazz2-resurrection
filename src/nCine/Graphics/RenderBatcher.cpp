@@ -132,14 +132,9 @@ namespace nCine
 		batchCommand->SetVisitOrder(refCommand->GetVisitOrder());
 	}
 
-#if defined(RHI_CAP_POSTPROCESSING)
 	void RenderBatcher::CreateBatches(const SmallVectorImpl<RenderCommand*>& srcQueue, SmallVectorImpl<RenderCommand*>& destQueue,
 		ArrayView<const std::uint32_t> splitKeys)
-#else
-	void RenderBatcher::CreateBatches(const SmallVectorImpl<RenderCommand*>& srcQueue, SmallVectorImpl<RenderCommand*>& destQueue)
-#endif
 	{
-#if defined(RHI_CAP_POSTPROCESSING)
 		// Whether a split key lies between the layer sort keys of two commands, which the queue sort keeps adjacent
 		const auto isSplitBetween = [splitKeys](std::uint32_t prevKey, std::uint32_t key) {
 			const std::uint32_t lower = std::min(prevKey, key), upper = std::max(prevKey, key);
@@ -150,7 +145,6 @@ namespace nCine
 			}
 			return false;
 		};
-#endif
 
 		std::uint32_t minBatchSize, maxBatchSize;
 		GetBatchSizeLimits(minBatchSize, maxBatchSize);
@@ -169,11 +163,7 @@ namespace nCine
 			// The layer isn't part of that key, so neighbours on two sides of a split layer have to be told apart
 			// on their own - a batch spanning it would be drawn whole in the earlier part of a split queue
 			const bool shouldSplit = (command->GetLowerMaterialSortKey() != prevCommand->GetLowerMaterialSortKey() || prevPrimitive != primitive ||
-				primitive == PrimitiveType::LineStrip
-#if defined(RHI_CAP_POSTPROCESSING)
-				|| (prevCommand->GetLayerSortKey() != command->GetLayerSortKey() && isSplitBetween(prevCommand->GetLayerSortKey(), command->GetLayerSortKey()))
-#endif
-			);
+				primitive == PrimitiveType::LineStrip || (prevCommand->GetLayerSortKey() != command->GetLayerSortKey() && isSplitBetween(prevCommand->GetLayerSortKey(), command->GetLayerSortKey())));
 
 			// Also collect the very last command if it can be batched with the previous one
 			std::uint32_t endSplit = (i == srcQueue.size() - 1 && !shouldSplit ? i + 1 : i);

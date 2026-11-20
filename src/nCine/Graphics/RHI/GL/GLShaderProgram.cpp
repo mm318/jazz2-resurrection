@@ -26,10 +26,8 @@ namespace nCine::RHI::GL
 					return GL_INT;
 				case ShaderCompiler::UniformType::UInt:
 					return GL_UNSIGNED_INT;
-#if !defined(DEATH_TARGET_VITA)
 				case ShaderCompiler::UniformType::Bool:
 					return GL_BOOL;
-#endif
 				case ShaderCompiler::UniformType::Vec2:
 					return GL_FLOAT_VEC2;
 				case ShaderCompiler::UniformType::Vec3:
@@ -42,7 +40,6 @@ namespace nCine::RHI::GL
 					return GL_INT_VEC3;
 				case ShaderCompiler::UniformType::IVec4:
 					return GL_INT_VEC4;
-#if !defined(DEATH_TARGET_VITA) // vitaGL declares none of the bool / unsigned-int vector types
 				case ShaderCompiler::UniformType::UVec2:
 					return GL_UNSIGNED_INT_VEC2;
 				case ShaderCompiler::UniformType::UVec3:
@@ -55,7 +52,6 @@ namespace nCine::RHI::GL
 					return GL_BOOL_VEC3;
 				case ShaderCompiler::UniformType::BVec4:
 					return GL_BOOL_VEC4;
-#endif
 				case ShaderCompiler::UniformType::Mat2:
 					return GL_FLOAT_MAT2;
 				case ShaderCompiler::UniformType::Mat3:
@@ -64,10 +60,8 @@ namespace nCine::RHI::GL
 					return GL_FLOAT_MAT4;
 				case ShaderCompiler::UniformType::Sampler2D:
 					return GL_SAMPLER_2D;
-#if !defined(DEATH_TARGET_VITA) // GL_SAMPLER_3D is not declared by vitaGL
 				case ShaderCompiler::UniformType::Sampler3D:
 					return GL_SAMPLER_3D;
-#endif
 				case ShaderCompiler::UniformType::SamplerCube:
 					return GL_SAMPLER_CUBE;
 				default:
@@ -133,11 +127,9 @@ namespace nCine::RHI::GL
 
 		glDeleteProgram(_glHandle);
 
-#if !defined(WITH_RHI_SOFTWARE)
 		// The render pipeline is built against a single backend's `RHI::` aliases; when the software
 		// backend is selected these GL-typed pipeline calls do not apply (this file is dead code there)
 		RenderResources::RemoveCameraUniformData(this);
-#endif
 	}
 
 	bool GLShaderProgram::IsLinked() const
@@ -218,15 +210,10 @@ namespace nCine::RHI::GL
 
 	bool GLShaderProgram::Validate()
 	{
-#if defined(DEATH_TARGET_VITA)
-		// vitaGL provides no glValidateProgram(), program validation is a debug-only aid, so assume success
-		return true;
-#else
 		glValidateProgram(_glHandle);
 		GLint status;
 		glGetProgramiv(_glHandle, GL_VALIDATE_STATUS, &status);
 		return (status == GL_TRUE);
-#endif
 	}
 
 	bool GLShaderProgram::FinalizeAfterLinking(Introspection introspection)
@@ -241,12 +228,10 @@ namespace nCine::RHI::GL
 			}
 
 			// After linking, shader objects are not needed anymore
-#if !defined(DEATH_TARGET_VITA)
 			// vitaGL has no glDetachShader(), the shader objects are released with the program instead
 			for (auto& shader : _attachedShaders) {
 				glDetachShader(_glHandle, shader->GetGLHandle());
 			}
-#endif
 
 			_attachedShaders.clear();
 
@@ -306,18 +291,13 @@ namespace nCine::RHI::GL
 			}
 			_vertexFormat.SetIbo(ibo);
 
-#if !defined(WITH_RHI_SOFTWARE)
 			RenderResources::GetVaoPool().BindVao(_vertexFormat);
-#endif
-		}
-#if !defined(WITH_RHI_SOFTWARE)
-		else {
+		} else {
 			// Nothing is read from a buffer then. The VAO of the draw before would stay bound otherwise, with its arrays
 			// enabled, and a buffer deleted since it was set up is unbound from it, so a driver that reads them reads
 			// from address 0 on. Most draws are like this, so it's a VAO of its own rather than a search of the pool.
 			RenderResources::GetVaoPool().BindEmptyVao();
 		}
-#endif
 #endif
 	}
 
@@ -335,20 +315,16 @@ namespace nCine::RHI::GL
 				glUseProgram(0);
 			}
 
-#if !defined(DEATH_TARGET_VITA)
 			// vitaGL has no glDetachShader(), the shader objects are released with the program instead
 			for (auto& shader : _attachedShaders) {
 				glDetachShader(_glHandle, shader->GetGLHandle());
 			}
-#endif
 
 			_attachedShaders.clear();
 			glDeleteProgram(_glHandle);
 
-#if !defined(WITH_RHI_SOFTWARE)
 			RenderResources::RemoveCameraUniformData(this);
 			RenderResources::UnregisterBatchedShader(this);
-#endif
 
 			_glHandle = glCreateProgram();
 		}
@@ -379,12 +355,10 @@ namespace nCine::RHI::GL
 			}
 
 			// After linking, shader objects are not needed anymore
-#if !defined(DEATH_TARGET_VITA)
 			// vitaGL has no glDetachShader(), the shader objects are released with the program instead
 			for (auto& shader : _attachedShaders) {
 				glDetachShader(_glHandle, shader->GetGLHandle());
 			}
-#endif
 
 			_attachedShaders.clear();
 

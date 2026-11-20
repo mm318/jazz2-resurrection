@@ -222,7 +222,7 @@ namespace Jazz2::Input
 		RgbLights(const RgbLights&) = delete;
 		RgbLights& operator=(const RgbLights&) = delete;
 
-#if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS)
 		using RzInit = int (*)();
 		using RzUnInit = int (*)();
 		using RzCreateKeyboardEffect = int (*)(ChromaSDK::Keyboard::EFFECT_TYPE Effect, void* pParam, void* pEffectId);

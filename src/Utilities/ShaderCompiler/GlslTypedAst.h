@@ -15,9 +15,6 @@
 	(@ref Vulkan.h) and the ESSL 100 emitter (@ref Essl100.h) — each of which keeps only its own target
 	spelling / declaration formatting.
 
-	The software transpiler (@ref GlslToCpp.h) is NOT a consumer: it folds `uint`/matrices away and grows
-	its own lighter type-folded AST, so its model stays private to that unit.
-
 	This is a HEADER-ONLY unit shared by the shader emitters.
 */
 

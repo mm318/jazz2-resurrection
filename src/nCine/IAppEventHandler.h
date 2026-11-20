@@ -1,6 +1,6 @@
 #pragma once
 
-#if defined(WITH_LIBRETRO) || defined(DOXYGEN_GENERATING_OUTPUT)
+#if defined(DOXYGEN_GENERATING_OUTPUT)
 #include <memory>
 
 namespace Death
@@ -72,7 +72,7 @@ namespace nCine
 		virtual void OnBackInvoked()
 		{
 		}
-#if defined(WITH_LIBRETRO) || defined(DOXYGEN_GENERATING_OUTPUT)
+#if defined(DOXYGEN_GENERATING_OUTPUT)
 		/** @brief Called when the host frontend asks for a snapshot of the current session */
 		virtual bool OnSaveState(Death::IO::Stream& dest)
 		{

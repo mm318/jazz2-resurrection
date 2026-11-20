@@ -26,7 +26,6 @@ namespace Jazz2::Rendering
 
 		std::unique_ptr<CombineRenderer> _combineRenderer;
 
-#if defined(RHI_CAP_POSTPROCESSING)
 		// Lighting render target + bloom blur chain. Only the full post-processing tier (shaders AND
 		// framebuffers, see RhiFwd.h) renders lighting into an off-screen buffer and blurs it; the direct
 		// tier renders the scene straight to the screen buffer and composites the CPU lightmap instead
@@ -38,7 +37,6 @@ namespace Jazz2::Rendering
 		BlurRenderPass _blurPass1;
 		BlurRenderPass _blurPass3;
 		BlurRenderPass _blurPass4;
-#endif
 #if defined(TILEMAP_LAYER_EFFECTS)
 		// What the special tile layers (see Tiles::LayerRendererType::XRay and ::BlurBehind) need from this viewport:
 		// the coverage of the actors behind the x-ray layers, rendered before the scene, and the blurred scene behind
@@ -55,12 +53,10 @@ namespace Jazz2::Rendering
 #endif
 		// The water in front of a layer behind the others, drawn in the middle of the scene (see DrawWater())
 		RenderCommand _waterCommand;
-#if defined(RHI_CAP_POSTPROCESSING)
 		// The copy of the scene below the water the water is drawn over, taken in the middle of the scene, allocated only
 		// for a level whose water may be there - a split pass of the scene view, and its bit
 		BlurRenderPass _waterCopyPass;
 		std::uint32_t _waterCopyPasses;
-#endif
 
 		std::unique_ptr<Viewport> _view;
 		std::unique_ptr<Texture> _viewTexture; // Scene render target for the full tier; unused (null) on the direct tier
@@ -140,10 +136,8 @@ namespace Jazz2::Rendering
 		Rectf GetBounds() const;
 		/** @brief Returns size of the viewport */
 		Vector2i GetViewportSize() const;
-#if defined(RHI_CAP_POSTPROCESSING)
 		/** @brief Returns the most blurred level of the blur chain, or `nullptr` if blur effects are disabled */
 		Texture* GetBlurredTarget() const;
-#endif
 		/** @brief Returns the actor the camera follows */
 		Actors::ActorBase* GetTargetActor() const;
 #if defined(TILEMAP_LAYER_EFFECTS)

@@ -52,22 +52,3 @@ void fragment() {
 }
 
 // Fixed-function tiers draw only the underwater part over the scene so far
-void fixed_function(gx, pica, gu, gs, legacygl) {
-#define WATER_NO_DARKNESS
-#include "Include/CombineWaterFixedFunction.inc"
-}
-
-void fixed_function(rdp) {
-#define WATER_STRIP_SEGMENTS 5
-#define WATER_STRIPS 2
-#define WATER_LITE
-#define WATER_NO_DARKNESS
-#include "Include/CombineWaterFixedFunction.inc"
-}
-
-void fixed_function(pvr) {
-#define WATER_STRIP_SEGMENTS 3
-#define WATER_STRIPS 9
-#define WATER_NO_DARKNESS
-#include "Include/CombineWaterFixedFunction.inc"
-}

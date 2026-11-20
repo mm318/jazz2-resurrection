@@ -1,4 +1,3 @@
 void fragment() {
 	COLOR = vColor;
 }
-

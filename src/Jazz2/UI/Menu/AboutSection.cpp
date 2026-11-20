@@ -6,34 +6,12 @@
 
 // Rendering backend (RHI) currently compiled in. The non-OpenGL backends take precedence; the OpenGL family
 // backend reports which of its profiles was built (see `NCINE_RHI_GL_PROFILE`).
-#if defined(WITH_RHI_SOFTWARE)
-#define _i1a "\nSoftware renderer"
-#elif defined(WITH_RHI_D3D11)
+#if defined(WITH_RHI_D3D11)
 #define _i1a "\nDirect3D 11"
 #elif defined(WITH_RHI_VULKAN)
 #define _i1a "\nVulkan"
 #elif defined(WITH_RHI_METAL)
 #define _i1a "\nMetal"
-#elif defined(WITH_RHI_GXM)
-#define _i1a "\nGXM"
-#elif defined(WITH_RHI_GS)
-#define _i1a "\nGS (fixed-function)"
-#elif defined(WITH_RHI_GX)
-#define _i1a "\nGX (fixed-function)"
-#elif defined(WITH_RHI_PVR)
-#define _i1a "\nPowerVR (fixed-function)"
-#elif defined(WITH_RHI_GU)
-#define _i1a "\nGU (fixed-function)"
-#elif defined(WITH_RHI_PICA)
-#define _i1a "\nPICA200 (fixed-function)"
-#elif defined(WITH_RHI_RDP)
-#define _i1a "\nRDP (fixed-function)"
-#elif defined(WITH_RHI_LEGACYGL)
-#define _i1a "\nOpenGL 1.x (fixed-function)"
-#elif defined(WITH_RHI_RSX)
-#define _i1a "\nRSX"
-#elif defined(WITH_RHI_GX2)
-#define _i1a "\nGX2"
 #elif defined(RHI_GL_PROFILE_ES2)
 #define _i1a "\nOpenGL│ES 2.0"
 #elif defined(RHI_GL_PROFILE_ES3)
@@ -54,11 +32,7 @@
 #define _i1 _i1a
 #endif
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-#define _i2 " (UWP)"
-#else
 #define _i2 ""
-#endif
 
 #if defined(DEATH_CPU_USE_RUNTIME_DISPATCH)
 #if defined(DEATH_CPU_USE_IFUNC)
@@ -73,8 +47,6 @@
 // OpenGL implementation attribution - only meaningful when the OpenGL family backend is active
 #if defined(WITH_RHI_GL) && defined(WITH_ANGLE)
 #define _i4 "\nANGLE \f[c:#707070]· \f[h:80]https://github.com/google/angle\f[/h]\f[/c]"
-#elif defined(WITH_RHI_GL) && defined(DEATH_TARGET_WINDOWS_RT)
-#define _i4 "\nMesa \f[c:#707070]· \f[h:80]https://gitlab.freedesktop.org/mesa/mesa\f[/h]\f[/c]"
 #else
 #define _i4 ""
 #endif
@@ -93,20 +65,6 @@
 #define _i5 "\nSDL2 \f[c:#707070]· \f[h:80]https://www.libsdl.org/\f[/h]\f[/c]"
 // The consoles have no windowing library: their window, input and audio backends sit directly on the SDK, which
 // is what is credited here (the rendering backend above sits on it as well)
-#elif defined(WITH_N64)
-#define _i5 "\nlibdragon \f[c:#707070]· \f[h:80]https://github.com/DragonMinded/libdragon\f[/h]\f[/c]"
-#elif defined(WITH_DC)
-#define _i5 "\nKallistiOS \f[c:#707070]· \f[h:80]https://github.com/KallistiOS/KallistiOS\f[/h]\f[/c]"
-#elif defined(WITH_OGC)
-#define _i5 "\nlibogc \f[c:#707070]· \f[h:80]https://github.com/devkitPro/libogc\f[/h]\f[/c]"
-#elif defined(WITH_CTR)
-#define _i5 "\nlibctru \f[c:#707070]· \f[h:80]https://github.com/devkitPro/libctru\f[/h]\f[/c]\ncitro3d \f[c:#707070]· \f[h:80]https://github.com/devkitPro/citro3d\f[/h]\f[/c]"
-#elif defined(WITH_PS2)
-#define _i5 "\nps2sdk \f[c:#707070]· \f[h:80]https://github.com/ps2dev/ps2sdk\f[/h]\f[/c]"
-#elif defined(WITH_PS3)
-#define _i5 "\nPSL1GHT \f[c:#707070]· \f[h:80]https://github.com/ps3dev/PSL1GHT\f[/h]\f[/c]"
-#elif defined(WITH_PSP)
-#define _i5 "\npspsdk \f[c:#707070]· \f[h:80]https://github.com/pspdev/pspsdk\f[/h]\f[/c]"
 #else
 #define _i5 ""
 #endif
@@ -120,23 +78,7 @@
 
 // Audio backend: OpenAL where the platform has one, otherwise the engine's own software mixer over the SDK's
 // output path (credited above), named after the hardware/service it feeds
-#if defined(WITH_ASND)
-#define _i7 "\nASND audio (software mixer)"
-#elif defined(WITH_AICA)
-#define _i7 "\nAICA audio (software mixer)"
-#elif defined(WITH_NDSP)
-#define _i7 "\nNDSP audio (software mixer)"
-#elif defined(WITH_N64AUDIO)
-#define _i7 "\nAI audio (software mixer)"
-#elif defined(WITH_PS3AUDIO)
-#define _i7 "\nPS3 audio (software mixer)"
-#elif defined(WITH_PSPAUDIO)
-#define _i7 "\nsceAudio (software mixer)"
-#elif defined(WITH_PS2AUDIO)
-#define _i7 "\naudsrv (software mixer)"
-#elif defined(WITH_AHIAUDIO)
-#define _i7 "\nAHI audio (software mixer)"
-#elif defined(WITH_SDLAUDIO)
+#if defined(WITH_SDLAUDIO)
 #define _i7 "\nSDL audio (software mixer)"
 #elif defined(WITH_AUDIO)
 #define _i7 "\nOpenAL \f[c:#707070]· \f[h:80]https://github.com/kcat/openal-soft\f[/h]\f[/c]"

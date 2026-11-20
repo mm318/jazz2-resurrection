@@ -151,18 +151,6 @@ namespace Jazz2::UI::Menu
 				_isDirty = true;
 			});
 #endif
-#if defined(NCINE_HAS_NATIVE_BACK_BUTTON)
-		// TRANSLATORS: Menu item in Options > Controls section (Android only)
-		list->Add<ChoiceItem>(_("Native Back Button"),
-			// TRANSLATORS: Option for on/off items in Options > Controls section
-			[]() -> StringView {
-				return (PreferencesCache::UseNativeBackButton ? _("Enabled") : _("Disabled"));
-			},
-			[this](std::int32_t) {
-				PreferencesCache::UseNativeBackButton = !PreferencesCache::UseNativeBackButton;
-				_isDirty = true;
-			});
-#endif
 
 		// TRANSLATORS: Menu item in Options > Controls section
 		list->Add<ListItem>(_("Input Diagnostics"), [root]() {

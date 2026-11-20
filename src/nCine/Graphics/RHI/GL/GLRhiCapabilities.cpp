@@ -77,9 +77,7 @@ namespace nCine::RHI::GL
 		// batch a 64 KB block allows is far more per-draw uniform data than these drivers want to move, and
 		// on ANGLE it is also what the D3D backend behind it has to translate every frame. Stated here rather
 		// than in AppConfiguration so the number sits with the device it describes (see IntValues::MaxBatchSize).
-#if defined(DEATH_TARGET_WINDOWS_RT)
-		_intValues[(std::int32_t)IntValues::MaxBatchSize] = 24;
-#elif defined(DEATH_TARGET_EMSCRIPTEN) || defined(WITH_ANGLE)
+#if defined(DEATH_TARGET_EMSCRIPTEN) || defined(WITH_ANGLE)
 		_intValues[(std::int32_t)IntValues::MaxBatchSize] = 10;
 #endif
 
@@ -89,7 +87,7 @@ namespace nCine::RHI::GL
 			"GL_ARB_buffer_storage",
 			"GL_ARB_get_program_binary",
 			"GL_EXT_disjoint_timer_query",
-#if defined(RHI_GL_PROFILE_ES) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_UNIX)
+#if defined(RHI_GL_PROFILE_ES) && !(defined(DEATH_TARGET_EMSCRIPTEN)) && !(defined(DEATH_TARGET_UNIX))
 			"GL_OES_get_program_binary",
 #endif
 #if defined(DEATH_TARGET_EMSCRIPTEN)
@@ -118,8 +116,7 @@ namespace nCine::RHI::GL
 		// PS Vita's vitaGL exposes no program-binary format enums (neither the ARB `GL_PROGRAM_BINARY_FORMATS` nor
 		// the OES spelling) and does not support shader binary caching, so this query is skipped there,
 		// NUM_PROGRAM_BINARY_FORMATS then stays 0 and the cache stays off.
-#if !defined(DEATH_TARGET_VITA)
-#if defined(RHI_GL_PROFILE_ES) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_UNIX) && !defined(DEATH_TARGET_IOS)
+#if defined(RHI_GL_PROFILE_ES) && !(defined(DEATH_TARGET_EMSCRIPTEN)) && !(defined(DEATH_TARGET_UNIX))
 		if (HasExtension(Extensions::OesGetProgramBinary)) {
 			glGetIntegerv(GL_NUM_PROGRAM_BINARY_FORMATS_OES, &_intValues[(std::int32_t)IntValues::NumProgramBinaryFormats]);
 			DEATH_ASSERT(_intValues[(std::int32_t)IntValues::NumProgramBinaryFormats] <= MaxProgramBinaryFormats);
@@ -131,7 +128,6 @@ namespace nCine::RHI::GL
 			DEATH_ASSERT(_intValues[(std::int32_t)IntValues::NumProgramBinaryFormats] <= MaxProgramBinaryFormats);
 			glGetIntegerv(GL_PROGRAM_BINARY_FORMATS, _programBinaryFormats);
 		}
-#endif
 
 		// The device info and the limits themselves are reported the same way by every backend
 		LogCapabilities();
@@ -144,7 +140,7 @@ namespace nCine::RHI::GL
 		LOGI("GL_ARB_texture_storage: {}", _extensions[(std::int32_t)Extensions::ArbTextureStorage]);
 		LOGI("GL_ARB_buffer_storage: {}", _extensions[(std::int32_t)Extensions::ArbBufferStorage]);
 		LOGI("GL_ARB_get_program_binary: {}", _extensions[(std::int32_t)Extensions::ArbGetProgramBinary]);
-#if defined(RHI_GL_PROFILE_ES) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_UNIX)
+#if defined(RHI_GL_PROFILE_ES) && !(defined(DEATH_TARGET_EMSCRIPTEN)) && !(defined(DEATH_TARGET_UNIX))
 		LOGI("GL_OES_get_program_binary: {}", _extensions[(std::int32_t)Extensions::OesGetProgramBinary]);
 #endif
 #if defined(RHI_GL_PROFILE_ES)

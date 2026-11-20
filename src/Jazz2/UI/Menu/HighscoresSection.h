@@ -104,11 +104,6 @@ namespace Jazz2::UI::Menu
 		float _animation;
 		bool _waitForInput;
 		ScrollView* _list;
-#if defined(DEATH_TARGET_ANDROID)
-		Vector2i _initialVisibleSize;
-		Recti _currentVisibleBounds;
-		float _recalcVisibleBoundsTimeLeft;
-#endif
 
 		std::int32_t GetSelectedRow() const;
 		void RebuildList();

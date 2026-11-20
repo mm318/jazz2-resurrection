@@ -1,6 +1,6 @@
 ﻿#include "DiscordRpcClient.h"
 
-#if (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || defined(DEATH_TARGET_UNIX)
+#if defined(DEATH_TARGET_WINDOWS) || defined(DEATH_TARGET_UNIX)
 
 #include "../../nCine/Base/Algorithms.h"
 

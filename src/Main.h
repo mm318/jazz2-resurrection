@@ -15,19 +15,6 @@
 #endif
 
 /**
-	@brief Game ID of the GameCube disc image
-
-	Six characters, the game code and the maker code. The game recognizes its own disc by it and creates its memory
-	card saves under it, and AssetPacker takes it as the default of `create-image --game-id=` --- the GameCube build
-	passes it to the tool explicitly anyway with its selected game ID. "GJJ" is no retail game, so Dolphin
-	applies no game-specific settings or patches to the disc and its saves do not mix with anything else's, "E" is
-	the region (NTSC-U, which every loader and optical drive emulator boots), and "JR" is the maker code.
-*/
-#if !defined(NCINE_GAMECUBE_GAME_ID)
-#define NCINE_GAMECUBE_GAME_ID "GJJEJR"
-#endif
-
-/**
 	@brief Application multiplayer protocol version
 
 	Decides whether a client and a server can play together, independently of @ref NCINE_VERSION. Bump it
@@ -101,54 +88,15 @@
 
 // Check platform-specific capabilities
 /** @brief Whether the current platform supports a gamepad rumble, see @relativeref{nCine,IInputManager::JoystickRumble()} */
-#if (defined(WITH_SDL2) || defined(WITH_SDL3)) || defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_WINDOWS_RT) || defined(DEATH_TARGET_N64) || defined(DOXYGEN_GENERATING_OUTPUT)
+#if defined(WITH_SDL2) || defined(WITH_SDL3) || defined(DOXYGEN_GENERATING_OUTPUT)
 #define NCINE_HAS_GAMEPAD_RUMBLE
 #endif
-/**
-	@brief Whether the current platform can deliver keyboard input
 
-	The consoles excluded below have no keyboard the engine can read: their input backends implement
-	@relativeref{nCine,IInputManager::GetKeyboardState()} only to satisfy the interface and never produce a key
-	event, so a key binding on them can never fire. It would still be built into the mapping tables and listed
-	in the controls screen, which is why the defaults skip them entirely.
-*/
-#if (!defined(DEATH_TARGET_N64) && !defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_GAMECUBE) &&                    \
-	!defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_PSP) && \
-	!defined(DEATH_TARGET_PS2) && !defined(DEATH_TARGET_PS3)) ||                                                             \
-	defined(DOXYGEN_GENERATING_OUTPUT)
 #define NCINE_HAS_KEYBOARD
-#endif
-/** @brief Whether the current platform has a native (hardware) back button */
-#if defined(DEATH_TARGET_ANDROID) || defined(DOXYGEN_GENERATING_OUTPUT)
-#define NCINE_HAS_NATIVE_BACK_BUTTON
-#endif
-/** @brief Whether the current platform supports vibrations of the device */
-#if defined(DEATH_TARGET_ANDROID)
-#define NCINE_HAS_VIBRATIONS
-#endif
 /** @brief Whether the current platform has non-fullscreen windows */
-#if !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_IOS) && !defined(DEATH_TARGET_SWITCH) &&                                    \
-	!defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && \
-	!defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_VITA) && !defined(DEATH_TARGET_PS2) &&            \
-	!defined(DEATH_TARGET_PS3) && !defined(DEATH_TARGET_N64) && !defined(DEATH_TARGET_AMIGAOS)
 #define NCINE_HAS_WINDOWS
-#endif
-/**
-	@brief Whether the current platform can have a touchscreen
 
-	Listed rather than excluded, so a platform that has no touchscreen doesn't acquire one by not being
-	mentioned - which is how the consoles ended up offering to configure touch controls.
-
-	Where it is not defined, no touch event ever reaches the game (the input backends drop them at the
-	source), so the on-screen controls can never appear - and the code that only serves them is compiled
-	out: the HUD's touch buttons and joystick, the touch dispatch and back arrow of the menus, the touch
-	handling of the in-game console and the multiplayer lobby, and the section that configures the controls.
-	The PS Vita does have a front touchscreen and a rear touchpad, but both sit exactly where the console is
-	held, so they only ever fire by accident - it is played with the sticks and buttons.
-*/
-#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_IOS) || defined(DEATH_TARGET_EMSCRIPTEN) || \
-	defined(DEATH_TARGET_SWITCH) ||                                                                   \
-	defined(DEATH_TARGET_WINDOWS) || defined(DEATH_TARGET_UNIX) || defined(DOXYGEN_GENERATING_OUTPUT)
+#if defined(DEATH_TARGET_EMSCRIPTEN) || defined(DEATH_TARGET_WINDOWS) || defined(DEATH_TARGET_UNIX) || defined(DOXYGEN_GENERATING_OUTPUT)
 #define NCINE_HAS_TOUCH_CONTROLS
 #endif
 /**
@@ -158,58 +106,15 @@
 	the other desktop platforms are included because that is where such a device is plugged in, and where
 	@relativeref{Jazz2::Input,RgbLights} could gain a backend without the option having to reappear.
 */
-#if (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || defined(DEATH_TARGET_EMSCRIPTEN) || \
-	defined(DEATH_TARGET_UNIX) || (defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_IOS)) ||                \
-	defined(DOXYGEN_GENERATING_OUTPUT)
+#if defined(DEATH_TARGET_WINDOWS) || defined(DEATH_TARGET_EMSCRIPTEN) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_APPLE) || defined(DOXYGEN_GENERATING_OUTPUT)
 #define NCINE_HAS_RGB_LIGHTS
 #endif
-/**
-	@brief Whether the current platform can convert the original game data into a cache of its own
 
-	The Dreamcast and PlayStation 2 play from a disc, the Nintendo 64 from a read-only ROM image,
-	and the GameCube has nowhere to put a cache the size of a converted installation, and the web
-	build is prepared entirely ahead of time - none of them can write one, so they consume a content
-	tree prebaked with @ref asset-packer "AssetPacker", skip the conversion altogether and never look
-	for the original game files, which are not there in the first place.
-
-	Everywhere else the first-run conversion exists, including the PlayStation Portable and the Wii,
-	where the content sits on a writable memory stick or SD card. Those two are usually given a prebaked
-	tree as well, which is recognized at runtime rather than assumed here, see
-	@relativeref{Jazz2,ContentResolver::IsContentPrebaked()}.
-*/
-#if !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_GAMECUBE) && !defined(DEATH_TARGET_PS2) && !defined(DEATH_TARGET_N64)
+#if !(defined(DEATH_TARGET_EMSCRIPTEN))
 #define NCINE_HAS_WRITABLE_CACHE
 #endif
-/**
-	@brief Whether the current platform can store a resumable mid-level session
 
-	The state file is written next to the configuration, and on the Nintendo 64 that is the cartridge
-	EEPROM: libdragon's `eepromfs` is a fixed table of files declared up front, and the two kilobytes it
-	has hold the configuration alone, so a second file cannot be created there at all. Everything else
-	writes it, including the platforms with no writable content cache --- the Dreamcast and the GameCube
-	put it on a memory card next to their settings.
-
-	Episode progress does not depend on this. That lives in the configuration itself
-	@m_span{m-text m-dim} (@relativeref{Jazz2,PreferencesCache::GetEpisodeContinue()}) @m_endspan and is
-	saved on every platform, so the N64 remembers which levels have been finished and where an episode
-	was left --- only continuing from the middle of a level is unavailable there.
-*/
-#if !defined(DEATH_TARGET_N64)
 #define NCINE_HAS_RESUMABLE_STATE
-#endif
-/**
-	@brief Whether the audio device plays sound in formats of its own instead of samples the engine decodes
-
-	The content prepared for the Nintendo 64 carries every sound effect as a `.wav64` file the mixer streams
-	from the cartridge, and every track as an `.xm64` module or a `.wav64` recording, all of which libdragon
-	plays without the engine decoding anything. There @relativeref{nCine,AudioBuffer} and
-	@relativeref{nCine,AudioStream} only hand files over to the device, and the whole decoding path is compiled
-	out: the audio loaders and readers, sample uploads, the streaming buffer queue and the decoding thread.
-	Everywhere else it is the other way around, and the native playback interface does not exist.
-*/
-#if defined(DEATH_TARGET_N64)
-#define NCINE_HAS_NATIVE_AUDIO
-#endif
 
 /** @brief Function name */
 #if defined(__DEATH_CURRENT_FUNCTION)

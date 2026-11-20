@@ -5,18 +5,8 @@
 
 	Shared GLSL expression AST and stage tokenizer for the AST-based ShaderCompiler lowerings.
 
-	Both AST-based emitters — the GLSL-to-HLSL emitter (@ref Hlsl.h) and the GLSL-to-C++ software
-	transpiler (@ref GlslToCpp.h) — grow a per-statement/expression tree from the same reusable lexer
-	(@ref GlslExprTokenizer) and preprocessor (@ref Preprocessor). This header holds the parts of that
-	tree that carry no type information and are therefore identical for every target: the expression
-	node (@ref Expr / @ref ExprKind), its factory (@ref MakeExpr) and the stage-source tokenizer
-	(@ref TokenizeStage). Each emitter keeps its OWN statement/declaration model and type system, because
-	those diverge per target (HLSL keeps `uint`/`uvec`/matrices/user structs distinct, the software path
-	folds them away), so they are NOT shared here.
-
-	@ref ExprKind is the UNION of what the targets need: it carries @ref ExprKind::UIntLit for the HLSL
-	emitter (which keeps unsigned literals distinct); the software transpiler folds `2u` to a signed
-	@ref ExprKind::IntLit while tokenizing, so it never produces a @ref ExprKind::UIntLit node.
+	The desktop shader emitters share expression nodes, the stage lexer and the preprocessor.
+	Typed statements and declarations are defined in GlslTypedAst.h.
 */
 
 #include <cstddef>

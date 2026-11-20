@@ -2,14 +2,11 @@
 #include "../IRhiCapabilities.h"
 #include "../../../Application.h"
 
-#if !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_VITA) && defined(RHI_GL_PROFILE_ES) && defined(__linux__)
+#if defined(RHI_GL_PROFILE_ES) && defined(__linux__)
 #include <GLES3/gl32.h>
 #endif
 
-#if defined(DEATH_DEBUG) &&                                                                         \
-	((defined(DEATH_TARGET_ANDROID) && __ANDROID_API__ >= 21) || !defined(DEATH_TARGET_ANDROID)) && \
-	!defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_EMSCRIPTEN) &&                            \
-	!defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_WINDOWS_RT) && !defined(DEATH_TARGET_VITA)
+#if defined(DEATH_DEBUG) && !(defined(DEATH_TARGET_APPLE)) && !(defined(DEATH_TARGET_EMSCRIPTEN))
 #define GL_DEBUG_SUPPORTED
 #endif
 

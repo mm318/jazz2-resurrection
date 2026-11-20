@@ -9,11 +9,6 @@
 #include "../../nCine/Graphics/RenderQueue.h"
 #include "../../nCine/Input/IInputManager.h"
 
-#if defined(DEATH_TARGET_ANDROID)
-#include "../../nCine/Backends/Android/AndroidApplication.h"
-#include "../../nCine/Backends/Android/AndroidJniHelper.h"
-#endif
-
 #include <Containers/StringConcatenable.h>
 #include <Utf8.h>
 
@@ -34,19 +29,9 @@ namespace Jazz2::UI
 	InGameConsole::InGameConsole(LevelHandler* levelHandler)
 		: _levelHandler(levelHandler), _currentLine {}, _textCursor(0), _carretAnim(0.0f), _scrollPos(0), _isVisible(false),
 		  _keyboardVisible(false)
-#if defined(DEATH_TARGET_ANDROID)
-		  ,
-		  _recalcVisibleBoundsTimeLeft(30.0f)
-#endif
 	{
 		PruneLogHistory();
 		_historyIndex = _commandHistory.size();
-
-#if defined(DEATH_TARGET_ANDROID)
-		_currentVisibleBounds = Backends::AndroidJniWrap_Activity::GetVisibleBounds();
-		_initialVisibleSize.X = _currentVisibleBounds.W;
-		_initialVisibleSize.Y = _currentVisibleBounds.H;
-#endif
 	}
 
 	InGameConsole::~InGameConsole()
@@ -81,16 +66,6 @@ namespace Jazz2::UI
 			// until the game hides it. Windows reports the state of a system window that takes a moment to show
 			// up after it was asked for, so there the flag stays driven by our own calls.
 			_keyboardVisible = theApplication().IsScreenKeyboardVisible();
-		}
-#endif
-
-#if defined(DEATH_TARGET_ANDROID)
-		if (_isVisible && _keyboardVisible) {
-			_recalcVisibleBoundsTimeLeft -= timeMult;
-			if (_recalcVisibleBoundsTimeLeft <= 0.0f) {
-				_recalcVisibleBoundsTimeLeft = 60.0f;
-				_currentVisibleBounds = Backends::AndroidJniWrap_Activity::GetVisibleBounds();
-			}
 		}
 #endif
 
@@ -209,12 +184,6 @@ namespace Jazz2::UI
 		// a tappable hint in the top-left corner toggles it
 		if (_isVisible && theApplication().CanShowScreenKeyboard()) {
 			bool keyboardCoversInput = _keyboardVisible;
-#if defined(DEATH_TARGET_ANDROID)
-			// On Android the keyboard state can't be queried directly, so detect it from the shrunk visible bounds
-			keyboardCoversInput = (_keyboardVisible &&
-				(_currentVisibleBounds.W < _initialVisibleSize.X || _currentVisibleBounds.H < _initialVisibleSize.Y) &&
-				(_currentVisibleBounds.Y * ViewSize.Y / _initialVisibleSize.Y < 32.0f));
-#endif
 
 			if (keyboardCoversInput) {
 				// Dark overlay over the console with the input line redrawn near the top, above the keyboard
@@ -448,16 +417,6 @@ namespace Jazz2::UI
 		_carretAnim = 0.0f;
 
 		AnimTime = 0.0f;
-
-#if defined(DEATH_TARGET_ANDROID)
-		// On touch-only devices the on-screen keyboard is the only way to type, so show it right away. On desktop
-		// the keyboard stays hidden until the user taps the hint, so it never pops up over a physical keyboard.
-		if (!_keyboardVisible && theApplication().CanShowScreenKeyboard()) {
-			ShowScreenKeyboardForInputLine();
-			_keyboardVisible = true;
-			RecalcLayoutForScreenKeyboard();
-		}
-#endif
 	}
 
 	void InGameConsole::Hide()
@@ -514,13 +473,6 @@ namespace Jazz2::UI
 
 	void InGameConsole::RecalcLayoutForScreenKeyboard()
 	{
-#if defined(DEATH_TARGET_ANDROID)
-		_currentVisibleBounds = Backends::AndroidJniWrap_Activity::GetVisibleBounds();
-
-		if (_recalcVisibleBoundsTimeLeft > 30.0f) {
-			_recalcVisibleBoundsTimeLeft = 30.0f;
-		}
-#endif
 	}
 
 	void InGameConsole::WriteLine(MessageLevel level, String line)

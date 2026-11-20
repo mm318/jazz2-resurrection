@@ -31,11 +31,6 @@ namespace nCine
 		/** @brief Upper bound on the value returned by @ref GetTimeMult() */
 		static constexpr float MaxTimeMult = FramesPerSecond / LowestFrameRate;
 
-#if defined(WITH_LIBRETRO)
-		/** @brief Fixed timestep used instead of the wall clock, set by the libretro glue to 1/fps of the frontend */
-		static float FixedFrameDuration;
-#endif
-
 		/**
 		 * @brief Constructor
 		 *

@@ -8,14 +8,6 @@
 #include <pthread.h>
 #endif
 
-#if defined(DEATH_TARGET_MORPHOS)
-// MorphOS's <pthread.h> turns exec's Wait(), WaitIO() and WaitPort() into macros that add a
-// cancellation point - and a macro named Wait rewrites every Wait() member declared below
-#undef Wait
-#undef WaitIO
-#undef WaitPort
-#endif
-
 namespace nCine
 {
 	/**
@@ -171,8 +163,7 @@ namespace nCine
 	};
 
 // AmigaOS 4's newlib has pthreads but not the barrier API, like Android and Apple
-#if !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_WINDOWS) && \
-	!defined(DEATH_TARGET_AMIGAOS4)
+#if !(defined(DEATH_TARGET_APPLE)) && !(defined(DEATH_TARGET_WINDOWS))
 
 	/**
 		@brief Barrier for thread synchronization

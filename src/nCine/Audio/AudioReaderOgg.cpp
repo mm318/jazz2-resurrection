@@ -110,11 +110,7 @@ namespace nCine
 #else
 		const wchar_t* LibraryName = L"libvorbisfile.dll";
 #endif
-#if defined(DEATH_TARGET_WINDOWS_RT)
-		_ovLib = ::LoadPackagedLibrary(LibraryName, NULL);
-#else
 		_ovLib = ::LoadLibrary(LibraryName);
-#endif
 		if (_ovLib == nullptr) {
 			return false;
 		}

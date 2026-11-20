@@ -2,9 +2,7 @@
 #include "../Main.h"
 #include "Base/Algorithms.h"
 
-#if defined(DEATH_TARGET_ANDROID)
-#include "Backends/Android/AndroidJniHelper.h"
-#elif defined(DEATH_TARGET_APPLE)
+#if defined(DEATH_TARGET_APPLE)
 #include <CoreFoundation/CFPreferences.h>
 #include <CoreFoundation/CFPropertyList.h>
 #include <CoreFoundation/CFArray.h>
@@ -657,13 +655,7 @@ namespace nCine
 	{
 		Array<String> preferred;
 
-#if defined(DEATH_TARGET_ANDROID)
-		String langId = Backends::AndroidJniWrap_Activity::GetPreferredLanguage();
-		if (!langId.empty()) {
-			StringUtils::lowercaseInPlace(langId);
-			arrayAppend(preferred, Death::move(langId));
-		}
-#elif defined(DEATH_TARGET_APPLE)
+#if defined(DEATH_TARGET_APPLE)
 		CFTypeRef preferences = CFPreferencesCopyAppValue(CFSTR("AppleLanguages"), kCFPreferencesCurrentApplication);
 		if (preferences != nullptr && CFGetTypeID(preferences) == CFArrayGetTypeID()) {
 			CFArrayRef prefArray = (CFArrayRef)preferences;

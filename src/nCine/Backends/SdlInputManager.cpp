@@ -369,7 +369,7 @@ namespace nCine::Backends
 					return;
 				}
 				_scrollEvent.WindowId = (SdlGfxDevice::IsMainWindow(event.wheel.windowID) ? 0 : event.wheel.windowID);
-#if !defined(WITH_SDL3) && SDL_VERSION_ATLEAST(2, 0, 18)
+#if !(defined(WITH_SDL3)) && SDL_VERSION_ATLEAST(2, 0, 18)
 				// The fractional amounts of a touchpad scroll, SDL3 reports them in the plain fields
 				_scrollEvent.X = event.wheel.preciseX;
 				_scrollEvent.Y = event.wheel.preciseY;

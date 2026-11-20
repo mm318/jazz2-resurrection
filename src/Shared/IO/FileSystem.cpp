@@ -13,43 +13,22 @@
 #include <fileapi.h>
 #include <shellapi.h>
 #include <shlobj.h>
-#if defined(DEATH_TARGET_WINDOWS_RT)
-#include <winrt/Windows.Foundation.h>
-#include <winrt/Windows.Storage.h>
-#include <winrt/Windows.System.h>
-#endif
 #else
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
-#if defined(DEATH_TARGET_N64)
-// libdragon's newlib carries no <dirent.h> at all (its <sys/dirent.h> is the stub that refuses the
-// include), the directory API it has instead is its own <dir.h>, adapted back into the POSIX surface
-// this file is written against right below the includes
-#include <dir.h>
-#elif !defined(DEATH_TARGET_PS2)
 // The PS2 has a <dirent.h>, but the calls behind it cannot answer for every device the console
 // mounts - so it is left out and the same POSIX surface is adapted onto `fio` below instead
 #include <dirent.h>
-#endif
 #include <fcntl.h>
-#if !defined(DEATH_TARGET_PS3) && !defined(DEATH_TARGET_AMIGAOS) && !defined(DEATH_TARGET_AMIGAOS4) && \
-	!defined(DEATH_TARGET_MORPHOS)
 #include <ftw.h>
-#endif
 #include <limits.h>
 #include <pwd.h>
 #include <strings.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
+#if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
 #include <sys/mman.h>
-#endif
-#if defined(DEATH_TARGET_ANDROID)
-#include "AndroidAssetStream.h"
-#endif
-#if defined(DEATH_TARGET_SWITCH)
-#include <alloca.h>
 #endif
 #if defined(DEATH_TARGET_UNIX)
 #include <sys/wait.h>
@@ -68,167 +47,6 @@
 #elif defined(__linux__)
 #include <sys/sendfile.h>
 #endif
-#endif
-
-#if defined(DEATH_TARGET_N64)
-// The POSIX face of libdragon's own directory API: dir_findfirst()/dir_findnext() walk by PATH rather
-// than by handle, so the handle here is the remembered path plus one entry of read-ahead - the lookahead
-// is what turns "0 entries / -1 done" into readdir()'s "entry / nullptr" without losing the distinction
-// between an empty directory (opendir() succeeds, readdir() has nothing) and a missing one (opendir()
-// fails with dir_findfirst()'s errno). DT_REG/DT_DIR carry libdragon's values (1/2) since they arrive
-// straight from dir_t, DT_LNK gets a value nothing ever reports, because nothing libdragon mounts has
-// symbolic links.
-struct dirent
-{
-	char d_name[256];
-	int d_type;
-};
-#define DT_LNK 3
-
-struct DIR
-{
-	char path[1024];
-	dir_t entry;
-	int nextResult;
-	struct dirent current;
-};
-
-static DIR* opendir(const char* path)
-{
-	std::size_t pathLength = strlen(path);
-	if (pathLength >= sizeof(DIR::path)) {
-		errno = ENAMETOOLONG;
-		return nullptr;
-	}
-	DIR* d = new DIR();
-	std::memcpy(d->path, path, pathLength + 1);
-	d->nextResult = dir_findfirst(d->path, &d->entry);
-	if (d->nextResult < -1) {
-		// -1 is an existing directory with nothing in it; anything below that is a real error, and
-		// dir_findfirst() has already set errno for it
-		delete d;
-		return nullptr;
-	}
-	return d;
-}
-
-static struct dirent* readdir(DIR* d)
-{
-	if (d->nextResult != 0) {
-		return nullptr;
-	}
-	std::memcpy(d->current.d_name, d->entry.d_name, sizeof(d->current.d_name));
-	d->current.d_type = d->entry.d_type;
-	d->nextResult = dir_findnext(d->path, &d->entry);
-	return &d->current;
-}
-
-static int closedir(DIR* d)
-{
-	delete d;
-	return 0;
-}
-#endif
-
-#if defined(DEATH_TARGET_PS2)
-// The POSIX face of PS2SDK's `fio` directory API, for the same reason the N64 has one above: what
-// <dirent.h> would have provided cannot answer for every device this console mounts. newlib's opendir() is
-// built on open(), and `bdmfs_fatfs` - an SD card in an MX4SIO adapter - passes that straight to FatFs
-// `f_open()`, which rejects a directory. Nobody sees an error, only a card that reads as carrying nothing.
-// `dopen`/`dread`/`dclose` reach `f_opendir()` instead, through the same `ioman`, and the disc's `cdfs`
-// implements them too - so one path serves both devices. (PS2SDK marks `fioDread()` "unstable": it does not
-// suspend interrupts around its DMA. It is the only directory API the card answers at all, and it is paid
-// on a handful of entries at load time rather than anywhere hot.)
-#define NEWLIB_PORT_AWARE
-extern "C"
-{
-#include <fileio.h>
-}
-
-// Only this file ever sets or reads them, so the values are just the usual ones
-#define DT_DIR 4
-#define DT_REG 8
-#define DT_LNK 10
-
-struct dirent
-{
-	char d_name[256];
-	int d_type;
-};
-
-struct DIR
-{
-	int dd;
-	struct dirent current;
-};
-
-static DIR* opendir(const char* path)
-{
-	// FatFs accepts a volume root written either way, but rejects a deeper path that ends in a separator -
-	// its segmenter runs once more after the trailing one and refuses the empty name it gets. Every caller
-	// here builds paths by concatenation, so trimming it is what makes the two agree.
-	char trimmed[1024];
-	std::size_t pathLength = std::strlen(path);
-	if (pathLength >= sizeof(trimmed)) {
-		errno = ENAMETOOLONG;
-		return nullptr;
-	}
-	while (pathLength > 1 && (path[pathLength - 1] == '/' || path[pathLength - 1] == '\\') &&
-		path[pathLength - 2] != ':') {
-		pathLength--;
-	}
-	std::memcpy(trimmed, path, pathLength);
-	trimmed[pathLength] = '\0';
-
-	const int dd = fioDopen(trimmed);
-	if (dd < 0) {
-		errno = ENOENT;
-		return nullptr;
-	}
-
-	DIR* d = new DIR();
-	d->dd = dd;
-	return d;
-}
-
-static struct dirent* readdir(DIR* d)
-{
-	io_dirent_t entry;
-	std::memset(&entry, 0, sizeof(entry));
-	if (fioDread(d->dd, &entry) <= 0) {
-		return nullptr;
-	}
-
-	std::size_t nameLength = std::strlen(entry.name);
-	if (nameLength >= sizeof(dirent::d_name)) {
-		nameLength = sizeof(dirent::d_name) - 1;
-	}
-	std::memcpy(d->current.d_name, entry.name, nameLength);
-	d->current.d_name[nameLength] = '\0';
-
-	// Which spelling arrives depends on the driver: the IOP's own `iox_stat.h` bits (FIO_S_IFDIR 0x1000)
-	// are what a driver fills a dirent with, while the EE glue elsewhere reads the older FIO_SO_* layout
-	// (FIO_SO_IFDIR 0x0020). The two cannot simply be OR-ed together - 0x0020 is FIO_S_IRGRP in the newer
-	// layout, so a plain file readable by its group would read as a directory - but they can be told apart
-	// first, because each carries its file type in a field the other leaves clear: FIO_S_IFMT is 0xF000 and
-	// FIO_SO_IFMT is 0x0038. Anything that fills in neither is not a directory.
-	const std::uint32_t mode = (std::uint32_t)entry.stat.mode;
-	bool isDirectory;
-	if ((mode & 0xF000) != 0) {
-		isDirectory = ((mode & 0xF000) == 0x1000);
-	} else {
-		isDirectory = ((mode & 0x0038) == 0x0020);
-	}
-	d->current.d_type = (isDirectory ? DT_DIR : DT_REG);
-	return &d->current;
-}
-
-static int closedir(DIR* d)
-{
-	fioDclose(d->dd);
-	delete d;
-	return 0;
-}
 #endif
 
 using namespace Death::Containers;
@@ -341,76 +159,6 @@ namespace Death
 
 				return i;
 #else
-#if defined(DEATH_TARGET_ANDROID)
-				if (path.hasPrefix(AndroidAssetStream::Prefix)) {
-					return AndroidAssetStream::Prefix.size();
-				}
-#elif defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PS2) || \
-	defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_VITA) || defined(DEATH_TARGET_WIIU)
-					// Switch and 3DS mount points: romfs:, sdmc:, etc.
-					// Wii U mount points: fs: (wut's devoptab, with "/vol/external01" and "/vol/content" under it)
-					// N64 mount points: rom:, eeprom:, sd:, etc.
-					// PS2 mount points: cdfs:, cdrom0:, mc0:, mass:, host:, etc.
-					// PSP mount points: ms0:, ef0:, disc0:, umd0:, host0:, flash0:, etc.
-					// Vita mount points: app0:, ux0:, os0:, vs0:, ur0:, sa0:, tm0:, etc.
-#if defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_PSP)
-				// "eeprom", "flash0" and "cdrom0" are one character longer than anything the other platforms mount
-				constexpr std::size_t MaxMountPointLength = 6;
-#else
-				// "romfs" is the longest name there
-				constexpr std::size_t MaxMountPointLength = 5;
-#endif
-#if defined(DEATH_TARGET_WIIU)
-				// On the console, "fs:/vol" is no directory that stat() or mkdir() can reach, only the devices mounted
-				// under it are ("fs:/vol/external01", "fs:/vol/content"). So the device is part of the root, otherwise
-				// CreateDirectories() tries to create "fs:/vol" and fails. Cemu does report "fs:/vol", which hid it.
-				if (path.hasPrefix("fs:/vol/"_s)) {
-					std::size_t i = sizeof("fs:/vol/") - 1;
-					while (i < path.size() && path[i] != '/' && path[i] != '\\') {
-						i++;
-					}
-					if (i < path.size()) {
-						i++;
-					}
-					return i;
-				}
-#endif
-				// The colon comes after the name, so for the longest one it is at index MaxMountPointLength - with
-				// the bound exclusive, "romfs:" was taken for a relative path and GetAbsolutePath() failed on it
-				for (std::size_t i = 0; i <= MaxMountPointLength && i < path.size(); i++) {
-					char c = path.data()[i];
-					if (c == ':') {
-						if (i + 1 < path.size() && (path.data()[i + 1] == '/' || path.data()[i + 1] == '\\')) {
-							return i + 2;
-						}
-						return i + 1;
-					}
-					if (!((c >= 'a' && c <= 'z') ||
-							(c >= 'A' && c <= 'Z') ||
-							(c >= '0' && c <= '9'))) {
-						break;
-					}
-				}
-#elif defined(DEATH_TARGET_AMIGAOS) || defined(DEATH_TARGET_AMIGAOS4) || defined(DEATH_TARGET_MORPHOS)
-				// AmigaDOS roots a path at a volume, device or assign name followed by a colon ("Work:Games",
-				// "Ram Disk:", "LIBS:"), and the colon IS the whole root - there is no separator after it, so
-				// "Work:Games" is already absolute. The name is not restricted to the alphanumerics the console
-				// mount points above are (a space is ordinary in one), so the scan runs to the first colon and
-				// stops at the first '/', which cannot appear in a name. A bare ':' names the current volume's
-				// root, which the same rule already covers.
-				for (std::size_t i = 0; i < path.size(); i++) {
-					char c = path.data()[i];
-					if (c == ':') {
-						return i + 1;
-					}
-					if (c == '/' || c == '\\') {
-						break;
-					}
-				}
-				// A leading slash is not a root here: AmigaDOS spells the parent directory that way, so
-				// "/Data" is relative to the current directory rather than to anything above it
-				return 0;
-#endif
 				return (path[0] == '/' || path[0] == '\\' ? 1 : 0);
 #endif
 			}
@@ -443,13 +191,8 @@ namespace Death
 						std::memcpy(dirPath.data(), bufferExtended.data(), (bufferOffset - 1) * sizeof(wchar_t));
 						dirPath[bufferOffset - 1] = L'\0';
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-						HANDLE hDirectory = ::CreateFileFromAppW(dirPath, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-							nullptr, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, nullptr);
-#else
 						HANDLE hDirectory = ::CreateFileW(dirPath, FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
 							nullptr, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, nullptr);
-#endif
 
 						if (hDirectory != NULL && hDirectory != INVALID_HANDLE_VALUE) {
 							constexpr ULONG BufferSize = 64 * 1024;
@@ -498,11 +241,7 @@ namespace Death
 												}
 
 												// RemoveDirectory() on a symbolic link will remove the link itself
-#if defined(DEATH_TARGET_WINDOWS_RT)
-												if (!::RemoveDirectoryFromAppW(bufferExtended)) {
-#else
 												if (!::RemoveDirectoryW(bufferExtended)) {
-#endif
 													DWORD error = ::GetLastError();
 													if (error != ERROR_PATH_NOT_FOUND) {
 														// Cannot remove symbolic link
@@ -512,11 +251,7 @@ namespace Death
 										} else {
 											bufferExtended[bufferOffset + fileNameLengthInChars] = L'\0';
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-											::DeleteFileFromAppW(bufferExtended);
-#else
 											::DeleteFileW(bufferExtended);
-#endif
 										}
 									}
 
@@ -535,11 +270,7 @@ namespace Death
 					}
 				}
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-				return ::RemoveDirectoryFromAppW(path);
-#else
 				return ::RemoveDirectoryW(path);
-#endif
 			}
 #else
 			// Not every platform fills in the permission bits of `st_mode`, and the ones that don't have no
@@ -549,12 +280,7 @@ namespace Death
 			// memory card, and KOS answers with the bare file type whenever a filesystem has no native stat().
 			// Testing S_IRUSR there rejects everything that exists, so on those platforms the file type is all
 			// that is tested and a refused access only surfaces when it is actually attempted.
-#if defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_PS2) || \
-	defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_VITA) || defined(DEATH_TARGET_WIIU)
-			static constexpr bool HasFilePermissions = false;
-#else
 			static constexpr bool HasFilePermissions = true;
-#endif
 
 			static bool IsModeReadable(std::uint32_t nativeMode)
 			{
@@ -579,25 +305,13 @@ namespace Death
 			// reports is KOS's own file type (1 for a file, 2 for a directory) rather than POSIX mode bits and
 			// the size is always zero - and its VMU filesystem fails with ENOTDIR for everything below the
 			// mount point anyway, which is where every save file lives.
-#if defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_PS2)
-			static constexpr bool HasReliableFileStatus = false;
-#else
 			static constexpr bool HasReliableFileStatus = true;
-#endif
 
 			/** @brief Describes @p path the same way @cpp ::stat() @ce does, but also on platforms where it can't */
 			static bool TryGetFileStatus(const char* path, struct stat& sb, bool followLinks = true)
 			{
 				if constexpr (HasReliableFileStatus) {
-#if defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_PS3)
-					// PSL1GHT's newlib declares no lstat(), which costs nothing: lv2's filesystem has no
-					// symbolic links, so following them or not is the same question. libdragon has stat()
-					// but no lstat() behind its newlib glue, and no symbolic links either.
-					static_cast<void>(followLinks);
-					return (::stat(path, &sb) == 0);
-#else
 					return ((followLinks ? ::stat(path, &sb) : ::lstat(path, &sb)) == 0);
-#endif
 				} else {
 					// Neither platform has symbolic links, so there is nothing to follow or not to follow
 					static_cast<void>(followLinks);
@@ -667,65 +381,15 @@ namespace Death
 				return currentMode;
 			}
 
-#if !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_PS2) && !defined(DEATH_TARGET_PSP) &&                                   \
-	!defined(DEATH_TARGET_VITA) && !defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && \
-	!defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_PS3) &&                                \
-	!defined(DEATH_TARGET_N64) && !defined(DEATH_TARGET_AMIGAOS) && !defined(DEATH_TARGET_AMIGAOS4) &&                             \
-	!defined(DEATH_TARGET_MORPHOS)
 			static std::int32_t DeleteDirectoryInternalCallback(const char* fpath, const struct stat* sb, std::int32_t typeflag, struct FTW* ftwbuf)
 			{
 				return ::remove(fpath);
 			}
-#endif
 
 			static bool DeleteDirectoryInternal(StringView path)
 			{
-#if defined(DEATH_TARGET_N64)
-				// Nothing libdragon mounts can lose a directory: the ROM's DragonFS is read-only, the EEPROM
-				// filesystem is a fixed table of files, and its newlib glue has no rmdir() to walk with anyway
-				static_cast<void>(path);
-				return false;
-#elif defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_PSP) ||                                                             \
-	defined(DEATH_TARGET_VITA) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_3DS) || \
-	defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_PS3) || defined(DEATH_TARGET_AMIGAOS) ||                                                        \
-	defined(DEATH_TARGET_AMIGAOS4) || defined(DEATH_TARGET_MORPHOS)
-				// nftw() is missing in libnx, libctru, Vita, libogc, KOS and the PS3's newlib (which has no <ftw.h> at
-				// all), and on PSPSDK and PS2SDK it is only declared
-				// (there is no implementation behind it), so the walk is done by hand everywhere on the consoles.
-				// On the PS2 the declaration is additionally unusable: its callback takes `int` parameters, and
-				// `std::int32_t` is `long` on the EE, so the handler below would not even convert to it.
-				auto nullTerminatedPath = String::nullTerminatedView(path);
-				DIR* d = ::opendir(nullTerminatedPath.data());
-				std::int32_t r = -1;
-				if (d != nullptr) {
-					r = 0;
-					struct dirent* p;
-					while (r == 0 && (p = ::readdir(d)) != nullptr) {
-						if (strcmp(p->d_name, ".") == 0 || strcmp(p->d_name, "..") == 0) {
-							continue;
-						}
-
-						String fileName = FileSystem::CombinePath(path, p->d_name);
-						struct stat sb;
-						if (TryGetFileStatus(fileName.data(), sb, false)) { // Don't follow symbolic links
-							if (S_ISDIR(sb.st_mode)) {
-								DeleteDirectoryInternal(fileName);
-							} else {
-								r = ::unlink(fileName.data());
-							}
-						}
-					}
-					::closedir(d);
-				}
-
-				if (r == 0) {
-					r = ::rmdir(nullTerminatedPath.data());
-				}
-				return (r == 0);
-#else
 				// Don't follow symbolic links
 				return ::nftw(String::nullTerminatedView(path).data(), DeleteDirectoryInternalCallback, 64, FTW_DEPTH | FTW_PHYS) == 0;
-#endif
 			}
 
 #if defined(DEATH_TARGET_UNIX)
@@ -790,6 +454,7 @@ namespace Death
 #endif
 
 #if defined(DEATH_TARGET_EMSCRIPTEN)
+			// clang-format off: embedded JavaScript
 			EM_JS(int, __asyncjs__MountAsPersistent, (const char* path, int pathLength), {
 				return Asyncify.handleSleep(function(callback) {
 					var p = UTF8ToString(path, pathLength);
@@ -800,6 +465,7 @@ namespace Death
 					FS.syncfs(true, function(error) { callback(error ? 0 : 1); });
 				});
 			});
+			// clang-format on
 #endif
 		}
 
@@ -814,10 +480,6 @@ namespace Death
 				  ,
 				  _hDirectory(INVALID_HANDLE_VALUE), _currentEntry(nullptr)
 #else
-#if defined(DEATH_TARGET_ANDROID)
-				  ,
-				  _assetDir(nullptr)
-#endif
 				  ,
 				  _dirStream(nullptr)
 #endif
@@ -865,13 +527,8 @@ namespace Death
 							pathLengthW--;
 						}
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-						_hDirectory = ::CreateFileFromAppW(pathW.data(), FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
-							nullptr, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, nullptr);
-#else
 						_hDirectory = ::CreateFileW(pathW.data(), FILE_LIST_DIRECTORY, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
 							nullptr, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, nullptr);
-#endif
 
 						if (_hDirectory != INVALID_HANDLE_VALUE) {
 							Increment();
@@ -883,23 +540,6 @@ namespace Death
 #else
 				auto nullTerminatedPath = String::nullTerminatedView(path);
 				if (!nullTerminatedPath.empty()) {
-#if defined(DEATH_TARGET_ANDROID)
-					if (auto strippedPath = AndroidAssetStream::TryGetAssetPath(nullTerminatedPath)) {
-						// It probably supports only files
-						if ((_options & EnumerationOptions::SkipFiles) != EnumerationOptions::SkipFiles) {
-							_assetDir = AndroidAssetStream::OpenDirectory(strippedPath);
-							if (_assetDir != nullptr) {
-								if (!SetDirectoryPath(path, '/')) {
-									Close();
-									return false;
-								}
-								Increment();
-								return true;
-							}
-						}
-						return false;
-					}
-#endif
 					_dirStream = ::opendir(nullTerminatedPath.data());
 					if (_dirStream != nullptr) {
 						String absPath = GetAbsolutePath(path);
@@ -928,13 +568,7 @@ namespace Death
 					_hDirectory = INVALID_HANDLE_VALUE;
 				}
 #else
-#if defined(DEATH_TARGET_ANDROID)
-				if (_assetDir != nullptr) {
-					AndroidAssetStream::CloseDirectory(_assetDir);
-					_assetDir = nullptr;
-				} else
-#endif
-					if (_dirStream != nullptr) {
+				if (_dirStream != nullptr) {
 					::closedir(_dirStream);
 					_dirStream = nullptr;
 				}
@@ -997,25 +631,6 @@ namespace Death
 					_path[0] = '\0';
 				}
 #else
-#if defined(DEATH_TARGET_ANDROID)
-				// It does not return directory names
-				if (_assetDir != nullptr) {
-					std::size_t charsLeft = sizeof(_path) - (_fileNamePart - _path) - 1;
-					while (true) {
-						const char* assetName = AndroidAssetStream::GetNextFileName(_assetDir);
-						if DEATH_UNLIKELY (assetName == nullptr) {
-							_path[0] = '\0';
-							return;
-						}
-						std::size_t fileNameLength = std::strlen(assetName);
-						if DEATH_LIKELY (fileNameLength <= charsLeft) {
-							std::memcpy(_fileNamePart, assetName, fileNameLength + 1);
-							return;
-						}
-						// Path is too long, skip this file
-					}
-				}
-#endif
 				if DEATH_UNLIKELY (_dirStream == nullptr) {
 					_path[0] = '\0';
 					return;
@@ -1029,14 +644,6 @@ namespace Death
 						goto Retry;
 					}
 
-#if defined(DEATH_TARGET_VITA)
-					if ((_options & EnumerationOptions::SkipDirectories) == EnumerationOptions::SkipDirectories && SCE_S_ISDIR(entry->d_stat.st_mode))
-						goto Retry;
-					if ((_options & EnumerationOptions::SkipFiles) == EnumerationOptions::SkipFiles && SCE_S_ISREG(entry->d_stat.st_mode))
-						goto Retry;
-					if ((_options & EnumerationOptions::SkipSpecial) == EnumerationOptions::SkipSpecial && !SCE_S_ISDIR(entry->d_stat.st_mode) && !SCE_S_ISREG(entry->d_stat.st_mode) && !SCE_S_ISLNK(entry->d_stat.st_mode))
-						goto Retry;
-#else
 					if ((_options & EnumerationOptions::SkipDirectories) == EnumerationOptions::SkipDirectories && entry->d_type == DT_DIR)
 						goto Retry;
 #if !defined(DEATH_TARGET_EMSCRIPTEN)
@@ -1048,7 +655,6 @@ namespace Death
 					// Emscripten doesn't set DT_REG for files, so we treat everything that's not a DT_DIR as a file. SkipSpecial has no effect here.
 					if ((_options & EnumerationOptions::SkipFiles) == EnumerationOptions::SkipFiles && entry->d_type != DT_DIR)
 						goto Retry;
-#endif
 #endif
 					std::size_t charsLeft = sizeof(_path) - (_fileNamePart - _path) - 1;
 #if defined(__FreeBSD__)
@@ -1077,9 +683,6 @@ namespace Death
 			std::uint8_t _buffer[64 * 1024];
 			std::uint8_t* _currentEntry;
 #else
-#if defined(DEATH_TARGET_ANDROID)
-			AAssetDir* _assetDir;
-#endif
 			DIR* _dirStream;
 #endif
 
@@ -1301,12 +904,6 @@ namespace Death
 			if (firstSize == 0 || GetPathRootLength(second) > 0) {
 				return second;
 			}
-
-#if defined(DEATH_TARGET_ANDROID)
-			if (first == AndroidAssetStream::Prefix) {
-				return first + second;
-			}
-#endif
 
 			if (first[firstSize - 1] == '/' || first[firstSize - 1] == '\\') {
 				// Path has trailing separator
@@ -1531,165 +1128,9 @@ namespace Death
 			}
 
 			return Utf8::FromUtf16(buffer, length);
-#elif defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_VITA) || \
-	defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_PS2)
-			// realpath() is missing in libnx, libctru, libdragon, Vita and PS2SDK, and unreliable in KOS (lstat() fails on iso9660)
-			char left[MaxPathLength];
-			char nextToken[MaxPathLength];
-			char result[MaxPathLength];
-			std::size_t resultLength = 0;
-#if !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_VITA)
-			std::int32_t symlinks = 0;
-#endif
-
-			// The view may not be null-terminated
-			std::size_t pathRootLength = GetPathRootLength(path);
-			if (pathRootLength > 0) {
-				if (pathRootLength >= sizeof(result) || path.size() - pathRootLength >= sizeof(left)) {
-					// Path is too long
-					return path;
-				}
-				std::memcpy(result, path.data(), pathRootLength);
-				resultLength = pathRootLength;
-				if (path.size() == pathRootLength) {
-					return String { result, resultLength };
-				}
-
-				std::memcpy(left, path.data() + pathRootLength, path.size() - pathRootLength);
-				left[path.size() - pathRootLength] = '\0';
-			} else {
-#if defined(DEATH_TARGET_N64)
-				// libdragon's newlib has no working directory at all - every reachable path carries its mount
-				// prefix ("rom:/", "eeprom:/"), so a path without one cannot be resolved into anything
-				return {};
-#else
-				if (::getcwd(result, sizeof(result)) == nullptr) {
-					return "."_s;
-				}
-				resultLength = std::strlen(result);
-				if (path.size() >= sizeof(left)) {
-					// Path is too long
-					return path;
-				}
-				std::memcpy(left, path.data(), path.size());
-				left[path.size()] = '\0';
-#endif
-			}
-			std::size_t leftLength = std::strlen(left);
-			if (resultLength >= MaxPathLength) {
-				// Path is too long
-				return path;
-			}
-
-			while (leftLength != 0) {
-				char* p = strchr(left, '/');
-				char* s = (p != nullptr ? p : left + leftLength);
-				std::size_t nextTokenLength = s - left;
-				if (nextTokenLength >= sizeof(nextToken)) {
-					// Path is too long
-					return path;
-				}
-				std::memcpy(nextToken, left, nextTokenLength);
-				nextToken[nextTokenLength] = '\0';
-				leftLength -= nextTokenLength;
-				if (p != nullptr) {
-					std::memmove(left, s + 1, leftLength + 1);
-					leftLength--;
-				}
-				if (result[resultLength - 1] != '/') {
-					if (resultLength + 1 >= MaxPathLength) {
-						return path;
-					}
-					result[resultLength++] = '/';
-				}
-				if (nextToken[0] == '\0' || strcmp(nextToken, ".") == 0) {
-					continue;
-				}
-				if (strcmp(nextToken, "..") == 0) {
-					if (resultLength > 1) {
-						result[resultLength - 1] = '\0';
-						char* q = strrchr(result, '/') + 1;
-						resultLength = q - result;
-					}
-					continue;
-				}
-
-				if (resultLength + nextTokenLength >= sizeof(result)) {
-					// Path is too long
-					return path;
-				}
-				std::memcpy(result + resultLength, nextToken, nextTokenLength);
-				resultLength += nextTokenLength;
-				result[resultLength] = '\0';
-
-				struct stat sb;
-				if (!TryGetFileStatus(result, sb, false)) {
-					// The last component is allowed not to exist yet, anything before it is a hard error.
-					// `errno` is only meaningful where ::stat() itself is, i.e. not where the status above
-					// had to be reconstructed by opening the path.
-					if (p == nullptr && (!HasReliableFileStatus || errno == ENOENT)) {
-						return String { result, resultLength };
-					}
-					return {};
-				}
-#if !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_VITA)
-				// readlink() is missing in libnx, libctru and Vita (none of them has symbolic links to read)
-				if (S_ISLNK(sb.st_mode)) {
-					if (++symlinks > 8) {
-						// Too many symlinks
-						return {};
-					}
-					ssize_t symlinkLength = ::readlink(result, nextToken, sizeof(nextToken) - 1);
-					if (symlinkLength < 0) {
-						// Cannot resolve the symlink
-						return {};
-					}
-					nextToken[symlinkLength] = '\0';
-					if (nextToken[0] == '/') {
-						resultLength = 1;
-					} else if (resultLength > 1) {
-						result[resultLength - 1] = '\0';
-						char* q = strrchr(result, '/') + 1;
-						resultLength = q - result;
-					}
-
-					if (p != nullptr) {
-						if (symlinkLength > 0 && nextToken[symlinkLength - 1] != '/') {
-							if (static_cast<std::size_t>(symlinkLength) + 1 >= sizeof(nextToken)) {
-								// Path is too long
-								return {};
-							}
-							nextToken[symlinkLength++] = '/';
-						}
-						if (static_cast<std::size_t>(symlinkLength) + leftLength >= sizeof(nextToken)) {
-							// Path is too long
-							return {};
-						}
-						std::memcpy(nextToken + symlinkLength, left, leftLength + 1);
-					}
-					leftLength = std::strlen(nextToken);
-					std::memcpy(left, nextToken, leftLength + 1);
-				}
-#endif
-			}
-
-			if (resultLength > 1 && result[resultLength - 1] == '/') {
-				resultLength--;
-			}
-			return String { result, resultLength };
-#else
-#if defined(DEATH_TARGET_ANDROID)
-			if (path.hasPrefix(AndroidAssetStream::Prefix)) {
-				return path;
-			}
-#endif
-#if defined(DEATH_TARGET_PS3) || defined(DEATH_TARGET_AMIGAOS)
-			// This newlib defines no PATH_MAX, the class's own bound is larger than lv2's real path limit
-			char buffer[MaxPathLength];
 #else
 			// realpath() output parameter must be a pointer to a buffer with >= PATH_MAX bytes
 			char buffer[PATH_MAX];
-#endif
 			const char* resolvedPath = ::realpath(String::nullTerminatedView(path).data(), buffer);
 			if (resolvedPath == nullptr) {
 				return {};
@@ -1748,7 +1189,7 @@ namespace Death
 			path[size] = '\0';
 			const auto deleter = path.deleter();
 			return String { path.release(), std::size_t(size), deleter };
-#elif defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#elif defined(DEATH_TARGET_WINDOWS)
 			wchar_t path[MaxPathLength + 1];
 			// Returns size *without* the null terminator
 			const std::size_t size = ::GetModuleFileNameW(NULL, path, DWORD(arraySize(path)));
@@ -1760,9 +1201,7 @@ namespace Death
 
 		String FileSystem::GetConfigPath(StringView applicationName)
 		{
-#if defined(DEATH_TARGET_ANDROID)
-			return AndroidAssetStream::GetInternalDataPath();
-#elif defined(DEATH_TARGET_APPLE)
+#if defined(DEATH_TARGET_APPLE)
 			StringView home = ::getenv("HOME");
 			if (home.empty()) {
 				LOGE("Cannot find home directory");
@@ -1770,7 +1209,7 @@ namespace Death
 			}
 
 			return CombinePath({ home, "Library/Application Support"_s, applicationName });
-#elif defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_EMSCRIPTEN) || defined(DEATH_TARGET_VITA)
+#elif defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_EMSCRIPTEN)
 			StringView config = ::getenv("XDG_CONFIG_HOME");
 			if (IsAbsolutePath(config)) {
 				return CombinePath(config, applicationName);
@@ -1783,9 +1222,6 @@ namespace Death
 			}
 
 			return CombinePath({ home, ".config"_s, applicationName });
-#elif defined(DEATH_TARGET_WINDOWS_RT)
-			auto appData = winrt::Windows::Storage::ApplicationData::Current().LocalFolder().Path();
-			return Death::Utf8::FromUtf16(appData.data(), appData.size());
 #elif defined(DEATH_TARGET_WINDOWS)
 			String result;
 			wchar_t* pathW = nullptr;
@@ -1807,7 +1243,7 @@ namespace Death
 
 		String FileSystem::GetSavePath(StringView applicationName)
 		{
-#if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS)
 			// Prefer "Saved Games" directory for games on Windows if available
 			String result;
 			wchar_t* pathW = nullptr;
@@ -1852,10 +1288,6 @@ namespace Death
 				return {};
 			}
 			return Utf8::FromUtf16(pathW.data(), length);
-#elif defined(DEATH_TARGET_N64)
-			// libdragon's newlib has no getcwd() and no working directory behind it - every reachable path
-			// carries its mount prefix instead
-			return {};
 #else
 			char buffer[MaxPathLength];
 			if (::getcwd(buffer, MaxPathLength) == nullptr) {
@@ -1874,10 +1306,6 @@ namespace Death
 			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
 			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
 			return ::SetCurrentDirectoryW(pathW.data());
-#elif defined(DEATH_TARGET_N64)
-			// No chdir() either, see GetWorkingDirectory()
-			static_cast<void>(path);
-			return false;
 #else
 			return (::chdir(String::nullTerminatedView(path).data()) == 0);
 #endif
@@ -1885,10 +1313,7 @@ namespace Death
 
 		String FileSystem::GetHomeDirectory()
 		{
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			// This method is not supported on WinRT
-			return {};
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			String result;
 			wchar_t* path = nullptr;
 			if (SUCCEEDED(::SHGetKnownFolderPath(FOLDERID_Profile, KF_FLAG_DEFAULT, nullptr, &path))) {
@@ -1903,8 +1328,7 @@ namespace Death
 			if (!home.empty()) {
 				return home;
 			}
-#if !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_VITA) && !defined(DEATH_TARGET_N64) && \
-	!defined(DEATH_TARGET_MORPHOS)
+#if !(defined(DEATH_TARGET_EMSCRIPTEN))
 			// `getpwuid()` is not implemented on Emscripten, Vita and libdragon, and on MorphOS it lives in
 			// usergroup.library - a reference to it makes the loader open that library (and bsdsocket.library
 			// behind it) before the program starts
@@ -1960,16 +1384,6 @@ namespace Death
 #endif
 		}
 
-#if defined(DEATH_TARGET_ANDROID)
-		String FileSystem::GetExternalStorage()
-		{
-			StringView extStorage = ::getenv("EXTERNAL_STORAGE");
-			if (!extStorage.empty()) {
-				return extStorage;
-			}
-			return "/sdcard"_s;
-		}
-#endif
 #if defined(DEATH_TARGET_UNIX)
 		String FileSystem::GetLocalStorage()
 		{
@@ -2012,19 +1426,11 @@ namespace Death
 			if (path.empty())
 				return false;
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			WIN32_FILE_ATTRIBUTE_DATA lpFileInfo;
-			return (::GetFileAttributesExFromAppW(Utf8::ToUtf16(path), GetFileExInfoStandard, &lpFileInfo) && (lpFileInfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY);
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			const DWORD attrs = ::GetFileAttributesW(Utf8::ToUtf16(path));
 			return (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY);
 #else
 			auto nullTerminatedPath = String::nullTerminatedView(path);
-#if defined(DEATH_TARGET_ANDROID)
-			if (auto strippedPath = AndroidAssetStream::TryGetAssetPath(nullTerminatedPath)) {
-				return AndroidAssetStream::TryOpenDirectory(strippedPath);
-			}
-#endif
 			struct stat sb;
 			return (TryGetFileStatus(nullTerminatedPath.data(), sb) && (sb.st_mode & S_IFMT) == S_IFDIR);
 #endif
@@ -2035,23 +1441,13 @@ namespace Death
 			if (path.empty())
 				return false;
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
-			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
-			WIN32_FILE_ATTRIBUTE_DATA lpFileInfo;
-			return (::GetFileAttributesExFromAppW(pathW.data(), GetFileExInfoStandard, &lpFileInfo) && (lpFileInfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY);
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
 			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
 			const DWORD attrs = ::GetFileAttributesW(pathW.data());
 			return (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY);
 #else
 			auto nullTerminatedPath = String::nullTerminatedView(path);
-#if defined(DEATH_TARGET_ANDROID)
-			if (auto strippedPath = AndroidAssetStream::TryGetAssetPath(nullTerminatedPath)) {
-				return AndroidAssetStream::TryOpenFile(strippedPath);
-			}
-#endif
 			struct stat sb;
 			return (TryGetFileStatus(nullTerminatedPath.data(), sb) && (sb.st_mode & S_IFMT) == S_IFREG);
 #endif
@@ -2062,23 +1458,13 @@ namespace Death
 			if (path.empty())
 				return false;
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
-			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
-			WIN32_FILE_ATTRIBUTE_DATA lpFileInfo;
-			return !(!::GetFileAttributesExFromAppW(pathW.data(), GetFileExInfoStandard, &lpFileInfo) && ::GetLastError() == ERROR_FILE_NOT_FOUND);
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
 			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
 			const DWORD attrs = ::GetFileAttributesW(pathW.data());
 			return !(attrs == INVALID_FILE_ATTRIBUTES && ::GetLastError() == ERROR_FILE_NOT_FOUND);
 #else
 			auto nullTerminatedPath = String::nullTerminatedView(path);
-#if defined(DEATH_TARGET_ANDROID)
-			if (auto strippedPath = AndroidAssetStream::TryGetAssetPath(nullTerminatedPath)) {
-				return AndroidAssetStream::TryOpen(strippedPath);
-			}
-#endif
 			struct stat sb;
 			return TryGetFileStatus(nullTerminatedPath.data(), sb, false);
 #endif
@@ -2089,23 +1475,13 @@ namespace Death
 			if (path.empty())
 				return false;
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
-			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
-			WIN32_FILE_ATTRIBUTE_DATA lpFileInfo;
-			return ::GetFileAttributesExFromAppW(pathW.data(), GetFileExInfoStandard, &lpFileInfo);
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
 			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
 			const DWORD attrs = ::GetFileAttributesW(pathW.data());
 			return (attrs != INVALID_FILE_ATTRIBUTES);
 #else
 			auto nullTerminatedPath = String::nullTerminatedView(path);
-#if defined(DEATH_TARGET_ANDROID)
-			if (auto strippedPath = AndroidAssetStream::TryGetAssetPath(nullTerminatedPath)) {
-				return AndroidAssetStream::TryOpen(strippedPath);
-			}
-#endif
 			struct stat sb;
 			return (TryGetFileStatus(nullTerminatedPath.data(), sb) && IsModeReadable(sb.st_mode));
 #endif
@@ -2116,24 +1492,13 @@ namespace Death
 			if (path.empty())
 				return false;
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
-			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
-			WIN32_FILE_ATTRIBUTE_DATA lpFileInfo;
-			return (::GetFileAttributesExFromAppW(pathW.data(), GetFileExInfoStandard, &lpFileInfo) && (lpFileInfo.dwFileAttributes & FILE_ATTRIBUTE_READONLY) == 0);
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
 			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
 			const DWORD attrs = ::GetFileAttributesW(pathW.data());
 			return (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_READONLY) == 0);
 #else
 			auto nullTerminatedPath = String::nullTerminatedView(path);
-#if defined(DEATH_TARGET_ANDROID)
-			if (AndroidAssetStream::TryGetAssetPath(nullTerminatedPath)) {
-				// Android assets are not writable
-				return false;
-			}
-#endif
 			struct stat sb;
 			return (TryGetFileStatus(nullTerminatedPath.data(), sb) && IsModeWritable(sb.st_mode));
 #endif
@@ -2144,9 +1509,7 @@ namespace Death
 			if (path.empty())
 				return false;
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			return false;
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			// Assuming that every file that exists is also executable
 			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
 			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
@@ -2163,11 +1526,6 @@ namespace Death
 			}
 #else
 			auto nullTerminatedPath = String::nullTerminatedView(path);
-#if defined(DEATH_TARGET_ANDROID)
-			if (auto strippedPath = AndroidAssetStream::TryGetAssetPath(nullTerminatedPath)) {
-				return AndroidAssetStream::TryOpenDirectory(strippedPath);
-			}
-#endif
 			// Tested through the mode bits like IsReadable()/IsWritable() are, and not with ::access(), which
 			// KOS declares but doesn't implement at all
 			struct stat sb;
@@ -2180,23 +1538,13 @@ namespace Death
 			if (path.empty())
 				return false;
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
-			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
-			WIN32_FILE_ATTRIBUTE_DATA lpFileInfo;
-			return (::GetFileAttributesExFromAppW(pathW.data(), GetFileExInfoStandard, &lpFileInfo) && (lpFileInfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY);
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
 			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
 			const DWORD attrs = ::GetFileAttributesW(pathW.data());
 			return (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY);
 #else
 			auto nullTerminatedPath = String::nullTerminatedView(path);
-#if defined(DEATH_TARGET_ANDROID)
-			if (auto strippedPath = AndroidAssetStream::TryGetAssetPath(nullTerminatedPath)) {
-				return AndroidAssetStream::TryOpenFile(strippedPath);
-			}
-#endif
 			struct stat sb;
 			return (TryGetFileStatus(nullTerminatedPath.data(), sb) &&
 				(sb.st_mode & S_IFMT) == S_IFREG && IsModeReadable(sb.st_mode));
@@ -2208,24 +1556,13 @@ namespace Death
 			if (path.empty())
 				return false;
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
-			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
-			WIN32_FILE_ATTRIBUTE_DATA lpFileInfo;
-			return (::GetFileAttributesExFromAppW(pathW.data(), GetFileExInfoStandard, &lpFileInfo) && (lpFileInfo.dwFileAttributes & (FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_DIRECTORY)) == 0);
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
 			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
 			const DWORD attrs = ::GetFileAttributesW(pathW.data());
 			return (attrs != INVALID_FILE_ATTRIBUTES && (attrs & (FILE_ATTRIBUTE_READONLY | FILE_ATTRIBUTE_DIRECTORY)) == 0);
 #else
 			auto nullTerminatedPath = String::nullTerminatedView(path);
-#if defined(DEATH_TARGET_ANDROID)
-			if (AndroidAssetStream::TryGetAssetPath(nullTerminatedPath)) {
-				// Android assets are not writable
-				return false;
-			}
-#endif
 			struct stat sb;
 			return (TryGetFileStatus(nullTerminatedPath.data(), sb) &&
 				(sb.st_mode & S_IFMT) == S_IFREG && IsModeWritable(sb.st_mode));
@@ -2237,23 +1574,13 @@ namespace Death
 			if (path.empty())
 				return false;
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
-			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
-			WIN32_FILE_ATTRIBUTE_DATA lpFileInfo;
-			return (::GetFileAttributesExFromAppW(pathW.data(), GetFileExInfoStandard, &lpFileInfo) && (lpFileInfo.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT);
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
 			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
 			const DWORD attrs = ::GetFileAttributesW(pathW.data());
 			return (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_REPARSE_POINT) == FILE_ATTRIBUTE_REPARSE_POINT);
 #else
 			auto nullTerminatedPath = String::nullTerminatedView(path);
-#if defined(DEATH_TARGET_ANDROID)
-			if (AndroidAssetStream::TryGetAssetPath(nullTerminatedPath)) {
-				return false;
-			}
-#endif
 			struct stat sb;
 			return (TryGetFileStatus(nullTerminatedPath.data(), sb, false) && (sb.st_mode & S_IFMT) == S_IFLNK);
 #endif
@@ -2264,12 +1591,7 @@ namespace Death
 			if (path.empty())
 				return false;
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
-			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
-			WIN32_FILE_ATTRIBUTE_DATA lpFileInfo;
-			return (::GetFileAttributesExFromAppW(pathW.data(), GetFileExInfoStandard, &lpFileInfo) && (lpFileInfo.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) == FILE_ATTRIBUTE_HIDDEN);
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
 			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
 			const DWORD attrs = ::GetFileAttributesW(pathW.data());
@@ -2279,11 +1601,6 @@ namespace Death
 			struct stat sb;
 			return (::stat(nullTerminatedPath.data(), &sb) == 0 && (sb.st_flags & UF_HIDDEN) == UF_HIDDEN);
 #else
-#if defined(DEATH_TARGET_ANDROID)
-			if (AndroidAssetStream::TryGetAssetPath(path)) {
-				return false;
-			}
-#endif
 			StringView fileName = GetFileName(path);
 			return (!fileName.empty() && fileName[0] == '.');
 #endif
@@ -2294,22 +1611,7 @@ namespace Death
 			if (path.empty())
 				return false;
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
-			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
-			WIN32_FILE_ATTRIBUTE_DATA lpFileInfo;
-			if (!::GetFileAttributesExFromAppW(pathW.data(), GetFileExInfoStandard, &lpFileInfo)) {
-				return false;
-			}
-
-			if (hidden == ((lpFileInfo.dwFileAttributes & FILE_ATTRIBUTE_HIDDEN) == FILE_ATTRIBUTE_HIDDEN)) {
-				return true;
-			} else if (hidden) {
-				return ::SetFileAttributes(pathW.data(), lpFileInfo.dwFileAttributes | FILE_ATTRIBUTE_HIDDEN);
-			} else {
-				return ::SetFileAttributes(pathW.data(), lpFileInfo.dwFileAttributes & ~FILE_ATTRIBUTE_HIDDEN);
-			}
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
 			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
 			DWORD attrs = ::GetFileAttributesW(pathW.data());
@@ -2340,11 +1642,6 @@ namespace Death
 			}
 #else
 			auto nullTerminatedPath = String::nullTerminatedView(path);
-#if defined(DEATH_TARGET_ANDROID)
-			if (AndroidAssetStream::TryGetAssetPath(nullTerminatedPath)) {
-				return false;
-			}
-#endif
 			StringView fileName = GetFileName(nullTerminatedPath);
 			if (hidden && !fileName.empty() && fileName[0] != '.') {
 				String newPath = CombinePath(GetDirectoryName(nullTerminatedPath), String("."_s + fileName));
@@ -2370,12 +1667,7 @@ namespace Death
 			if (path.empty())
 				return false;
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
-			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
-			WIN32_FILE_ATTRIBUTE_DATA lpFileInfo;
-			return (::GetFileAttributesExFromAppW(pathW.data(), GetFileExInfoStandard, &lpFileInfo) && (lpFileInfo.dwFileAttributes & FILE_ATTRIBUTE_READONLY) == FILE_ATTRIBUTE_READONLY);
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
 			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
 			const DWORD attrs = ::GetFileAttributesW(pathW.data());
@@ -2394,22 +1686,7 @@ namespace Death
 			if (path.empty())
 				return false;
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
-			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
-			WIN32_FILE_ATTRIBUTE_DATA lpFileInfo;
-			if (!::GetFileAttributesExFromAppW(pathW.data(), GetFileExInfoStandard, &lpFileInfo)) {
-				return false;
-			}
-
-			if (readonly == ((lpFileInfo.dwFileAttributes & FILE_ATTRIBUTE_READONLY) == FILE_ATTRIBUTE_READONLY)) {
-				return true;
-			} else if (readonly) {
-				return ::SetFileAttributes(pathW.data(), lpFileInfo.dwFileAttributes | FILE_ATTRIBUTE_READONLY);
-			} else {
-				return ::SetFileAttributes(pathW.data(), lpFileInfo.dwFileAttributes & ~FILE_ATTRIBUTE_READONLY);
-			}
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
 			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
 			DWORD attrs = ::GetFileAttributesW(pathW.data());
@@ -2451,17 +1728,10 @@ namespace Death
 			SmallVector<wchar_t, MAX_PATH + 1> fullPath(DefaultInit, path.size() + 1);
 			std::int32_t fullPathSize = Utf8::ToUtf16(fullPath.data(), std::int32_t(fullPath.size()), path.data(), std::int32_t(path.size()));
 			// Don't use DirectoryExists() to avoid calling Utf8::ToUtf16() twice
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			WIN32_FILE_ATTRIBUTE_DATA lpFileInfo;
-			if (::GetFileAttributesExFromAppW(fullPath.data(), GetFileExInfoStandard, &lpFileInfo) && (lpFileInfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY) {
-				return true;
-			}
-#else
 			DWORD attrs = ::GetFileAttributesW(fullPath.data());
 			if (attrs != INVALID_FILE_ATTRIBUTES && (attrs & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY) {
 				return true;
 			}
-#endif
 
 			std::int32_t startIdx = 0;
 			if (fullPathSize >= 2) {
@@ -2490,14 +1760,9 @@ namespace Death
 
 				if (fullPath[i] == L'/' || fullPath[i] == L'\\') {
 					fullPath[i] = L'\0';
-#if defined(DEATH_TARGET_WINDOWS_RT)
-					if (!::GetFileAttributesExFromAppW(fullPath.data(), GetFileExInfoStandard, &lpFileInfo)) {
-						if (!::CreateDirectoryFromAppW(fullPath.data(), NULL)) {
-#else
 					attrs = ::GetFileAttributesW(fullPath.data());
 					if (attrs == INVALID_FILE_ATTRIBUTES) {
 						if (!::CreateDirectoryW(fullPath.data(), NULL)) {
-#endif
 							DWORD error = ::GetLastError();
 							if (error != ERROR_ALREADY_EXISTS) {
 #if defined(DEATH_TRACE_VERBOSE_IO)
@@ -2515,11 +1780,7 @@ namespace Death
 			}
 
 			if (!slashWasLast) {
-#if defined(DEATH_TARGET_WINDOWS_RT)
-				if (!::CreateDirectoryFromAppW(fullPath.data(), NULL)) {
-#else
 				if (!::CreateDirectoryW(fullPath.data(), NULL)) {
-#endif
 					DWORD error = ::GetLastError();
 					if (error != ERROR_ALREADY_EXISTS) {
 #if defined(DEATH_TRACE_VERBOSE_IO)
@@ -2536,11 +1797,6 @@ namespace Death
 			}
 
 			auto nullTerminatedPath = String::nullTerminatedView(path);
-#if defined(DEATH_TARGET_ANDROID)
-			if (AndroidAssetStream::TryGetAssetPath(nullTerminatedPath)) {
-				return false;
-			}
-#endif
 
 			String fullPath = String { nullTerminatedPath };
 			bool slashWasLast = true;
@@ -2587,18 +1843,7 @@ namespace Death
 			if (path.empty())
 				return false;
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
-			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
-			WIN32_FILE_ATTRIBUTE_DATA lpFileInfo;
-			if (!::GetFileAttributesExFromAppW(pathW.data(), GetFileExInfoStandard, &lpFileInfo) || (lpFileInfo.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != FILE_ATTRIBUTE_DIRECTORY) {
-				return false;
-			}
-
-			// Do not recursively delete through reparse points
-			Array<wchar_t> absPath = Utf8::ToUtf16(GetAbsolutePath(path));
-			return DeleteDirectoryInternal(absPath, (lpFileInfo.dwFileAttributes & FILE_ATTRIBUTE_REPARSE_POINT) != FILE_ATTRIBUTE_REPARSE_POINT, 0);
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			SmallVector<wchar_t, MAX_PATH + 1> pathW(DefaultInit, path.size() + 1);
 			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
 			const DWORD attrs = ::GetFileAttributesW(pathW.data());
@@ -2619,21 +1864,12 @@ namespace Death
 			if (path.empty())
 				return false;
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			SmallVector<wchar_t, MAX_PATH + 1> pathW(path.size() + 1);
-			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
-			return ::DeleteFileFromAppW(pathW.data());
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			SmallVector<wchar_t, MAX_PATH + 1> pathW(path.size() + 1);
 			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
 			return ::DeleteFileW(pathW.data());
 #else
 			auto nullTerminatedPath = String::nullTerminatedView(path);
-#if defined(DEATH_TARGET_ANDROID)
-			if (AndroidAssetStream::TryGetAssetPath(nullTerminatedPath)) {
-				return false;
-			}
-#endif
 			return (::unlink(nullTerminatedPath.data()) == 0);
 #endif
 		}
@@ -2652,11 +1888,6 @@ namespace Death
 #else
 			auto nullTerminatedOldPath = String::nullTerminatedView(oldPath);
 			auto nullTerminatedNewPath = String::nullTerminatedView(newPath);
-#if defined(DEATH_TARGET_ANDROID)
-			if (AndroidAssetStream::TryGetAssetPath(nullTerminatedOldPath) || AndroidAssetStream::TryGetAssetPath(nullTerminatedNewPath)) {
-				return false;
-			}
-#endif
 			if (::rename(nullTerminatedOldPath.data(), nullTerminatedNewPath.data()) == 0) {
 				return true;
 			}
@@ -2684,7 +1915,7 @@ namespace Death
 			if (path.empty())
 				return false;
 
-#if defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_IOS)
+#if defined(DEATH_TARGET_APPLE)
 			Class nsStringClass = objc_getClass("NSString");
 			Class nsUrlClass = objc_getClass("NSURL");
 			Class nsFileManager = objc_getClass("NSFileManager");
@@ -2695,7 +1926,7 @@ namespace Death
 				return ((bool (*)(id, SEL, id, SEL, id, SEL, id))objc_msgSend)(fileManagerInstance, sel_getUid("trashItemAtURL:"), pathUrl, sel_getUid("resultingItemURL:"), nullptr, sel_getUid("error:"), nullptr);
 			}
 			return false;
-#elif defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#elif defined(DEATH_TARGET_WINDOWS)
 			SmallVector<wchar_t, MAX_PATH + 1> pathW(path.size() + 1);
 			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
 
@@ -2719,13 +1950,7 @@ namespace Death
 			if (oldPath.empty() || newPath.empty())
 				return false;
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			SmallVector<wchar_t, MAX_PATH + 1> oldPathW(oldPath.size() + 1);
-			Utf8::ToUtf16(oldPathW.data(), std::int32_t(oldPathW.size()), oldPath.data(), std::int32_t(oldPath.size()));
-			SmallVector<wchar_t, MAX_PATH + 1> newPathW(newPath.size() + 1);
-			Utf8::ToUtf16(newPathW.data(), std::int32_t(newPathW.size()), newPath.data(), std::int32_t(newPath.size()));
-			return ::CopyFileFromAppW(oldPathW.data(), newPathW.data(), overwrite ? TRUE : FALSE);
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			SmallVector<wchar_t, MAX_PATH + 1> oldPathW(oldPath.size() + 1);
 			Utf8::ToUtf16(oldPathW.data(), std::int32_t(oldPathW.size()), oldPath.data(), std::int32_t(oldPath.size()));
 			SmallVector<wchar_t, MAX_PATH + 1> newPathW(newPath.size() + 1);
@@ -2734,23 +1959,11 @@ namespace Death
 #else
 			auto nullTerminatedOldPath = String::nullTerminatedView(oldPath);
 			auto nullTerminatedNewPath = String::nullTerminatedView(newPath);
-#if defined(DEATH_TARGET_ANDROID)
-			if (AndroidAssetStream::TryGetAssetPath(nullTerminatedOldPath) || AndroidAssetStream::TryGetAssetPath(nullTerminatedNewPath)) {
-				return false;
-			}
-#endif
 			if (!overwrite && Exists(newPath)) {
 				return false;
 			}
 
-#if defined(DEATH_TARGET_VITA) || defined(DEATH_TARGET_PS3) || defined(DEATH_TARGET_AMIGAOS) || \
-	defined(DEATH_TARGET_AMIGAOS4) || defined(DEATH_TARGET_MORPHOS)
-			// O_CLOEXEC is not supported on Vita, and the PS3's newlib does not declare it - lv2 has no exec
-			// for a descriptor to survive into anyway (neither Amiga runtime declares it - AmigaOS has no exec at all)
-			const std::int32_t commonFlags = 0;
-#else
 			const std::int32_t commonFlags = O_CLOEXEC;
-#endif
 
 			std::int32_t sourceFd, destFd;
 			if ((sourceFd = ::open(nullTerminatedOldPath.data(), O_RDONLY | commonFlags)) == -1) {
@@ -2773,13 +1986,7 @@ namespace Death
 				return false;
 			}
 
-#if !defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) &&                         \
-	!defined(DEATH_TARGET_N64) && !defined(DEATH_TARGET_GAMECUBE) && !defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && \
-	!defined(DEATH_TARGET_3DS) &&                                                                                                 \
-	!defined(DEATH_TARGET_PS2) && !defined(DEATH_TARGET_PS3) &&                                                                   \
-	!defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_VITA) && !defined(DEATH_TARGET_DREAMCAST) &&                              \
-	!defined(DEATH_TARGET_AMIGAOS) && !defined(DEATH_TARGET_AMIGAOS4) && !defined(DEATH_TARGET_MORPHOS) &&                        \
-	!defined(__FreeBSD__)
+#if !(defined(DEATH_TARGET_APPLE)) && !(defined(DEATH_TARGET_EMSCRIPTEN)) && !(defined(__FreeBSD__))
 			while (true) {
 				if (::fallocate(destFd, FALLOC_FL_KEEP_SIZE, 0, sb.st_size) == 0) {
 					break;
@@ -2823,7 +2030,7 @@ namespace Death
 				offset += sz;
 			}
 #else
-#if defined(POSIX_FADV_SEQUENTIAL) && (!defined(__ANDROID__) || __ANDROID_API__ >= 21) && !defined(DEATH_TARGET_SWITCH)
+#if defined(POSIX_FADV_SEQUENTIAL)
 			// As noted in https://eklitzke.org/efficient-file-copying-on-linux, might make the file reading faster
 			::posix_fadvise(sourceFd, 0, 0, POSIX_FADV_SEQUENTIAL);
 #endif
@@ -2833,19 +2040,7 @@ namespace Death
 #else
 			constexpr std::size_t BufferSize = 128 * 1024;
 #endif
-#if defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_GAMECUBE) ||                             \
-	defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_DREAMCAST) || \
-	defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_PS3) || defined(DEATH_TARGET_PSP) ||                                     \
-	defined(DEATH_TARGET_VITA) || defined(DEATH_TARGET_AMIGAOS) || defined(DEATH_TARGET_AMIGAOS4) ||                           \
-	defined(DEATH_TARGET_MORPHOS)
-			// On devices with smaller stack size, use heap buffer instead - the alternative is not a performance
-			// question there but a crash: BufferSize is larger than the whole stack these platforms give a thread
-			// (the PSP's are 64 KB), so the array below would run off the end of it before a single byte was copied.
-			auto heapBuffer = std::make_unique<char[]>(BufferSize);
-			char* buffer = heapBuffer.get();
-#else
 			char buffer[BufferSize];
-#endif
 			bool success = true;
 			while (true) {
 				ssize_t bytesRead = ::read(sourceFd, buffer, BufferSize);
@@ -2880,9 +2075,7 @@ namespace Death
 		End:
 #endif
 
-#if !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_N64) && \
-	!defined(DEATH_TARGET_VITA) && !defined(DEATH_TARGET_PS3) && !defined(DEATH_TARGET_3DS) &&             \
-	!defined(DEATH_TARGET_WIIU)
+#if !(defined(DEATH_TARGET_EMSCRIPTEN))
 			// If we created a new file with an explicitly added S_IWUSR permission, we may need to update its mode bits to match the source file.
 			// PSL1GHT is excluded because its newlib declares fchmod() without implementing it - lv2 has only a
 			// path-based chmod - and the copy is no less correct for leaving the destination's own mode alone.
@@ -2906,15 +2099,9 @@ namespace Death
 				return -1;
 
 #if defined(DEATH_TARGET_WINDOWS)
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			SmallVector<wchar_t, MAX_PATH + 1> pathW(path.size() + 1);
-			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
-			HANDLE hFile = ::CreateFileFromAppW(pathW.data(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
-#else
 			SmallVector<wchar_t, MAX_PATH + 1> pathW(path.size() + 1);
 			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
 			HANDLE hFile = ::CreateFileW(pathW.data(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
-#endif
 			if (hFile == INVALID_HANDLE_VALUE) {
 				return -1;
 			}
@@ -2925,11 +2112,6 @@ namespace Death
 			return (status != 0 ? static_cast<std::int64_t>(fileSize.QuadPart) : -1);
 #else
 			auto nullTerminatedPath = String::nullTerminatedView(path);
-#if defined(DEATH_TARGET_ANDROID)
-			if (auto strippedPath = AndroidAssetStream::TryGetAssetPath(nullTerminatedPath)) {
-				return AndroidAssetStream::GetFileSize(strippedPath);
-			}
-#endif
 			struct stat sb;
 			if (!TryGetFileStatus(nullTerminatedPath.data(), sb)) {
 				return -1;
@@ -2947,11 +2129,7 @@ namespace Death
 #if defined(DEATH_TARGET_WINDOWS)
 			SmallVector<wchar_t, MAX_PATH + 1> pathW(path.size() + 1);
 			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			HANDLE hFile = ::CreateFileFromAppW(pathW.data(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
-#else
 			HANDLE hFile = ::CreateFileW(pathW.data(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
-#endif
 			FILETIME fileTime;
 			if (::GetFileTime(hFile, &fileTime, nullptr, nullptr)) {
 				date = DateTime(fileTime);
@@ -2966,11 +2144,6 @@ namespace Death
 			}
 #else
 			auto nullTerminatedPath = String::nullTerminatedView(path);
-#if defined(DEATH_TARGET_ANDROID)
-			if (AndroidAssetStream::TryGetAssetPath(nullTerminatedPath)) {
-				return date;
-			}
-#endif
 			struct stat sb;
 			if (TryGetFileStatus(nullTerminatedPath.data(), sb)) {
 				// Creation time is not available on Linux, return the last change of inode instead
@@ -2989,11 +2162,7 @@ namespace Death
 #if defined(DEATH_TARGET_WINDOWS)
 			SmallVector<wchar_t, MAX_PATH + 1> pathW(path.size() + 1);
 			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			HANDLE hFile = ::CreateFileFromAppW(pathW.data(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
-#else
 			HANDLE hFile = ::CreateFileW(pathW.data(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
-#endif
 			FILETIME fileTime;
 			if (::GetFileTime(hFile, nullptr, nullptr, &fileTime)) {
 				date = DateTime(fileTime);
@@ -3008,11 +2177,6 @@ namespace Death
 			}
 #else
 			auto nullTerminatedPath = String::nullTerminatedView(path);
-#if defined(DEATH_TARGET_ANDROID)
-			if (AndroidAssetStream::TryGetAssetPath(nullTerminatedPath)) {
-				return date;
-			}
-#endif
 			struct stat sb;
 			if (TryGetFileStatus(nullTerminatedPath.data(), sb)) {
 				date = DateTime(sb.st_mtime);
@@ -3030,11 +2194,7 @@ namespace Death
 #if defined(DEATH_TARGET_WINDOWS)
 			SmallVector<wchar_t, MAX_PATH + 1> pathW(path.size() + 1);
 			Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
-#if defined(DEATH_TARGET_WINDOWS_RT)
-			HANDLE hFile = ::CreateFileFromAppW(pathW.data(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
-#else
 			HANDLE hFile = ::CreateFileW(pathW.data(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
-#endif
 			FILETIME fileTime;
 			if (::GetFileTime(hFile, nullptr, &fileTime, nullptr)) {
 				date = DateTime(fileTime);
@@ -3049,11 +2209,6 @@ namespace Death
 			}
 #else
 			auto nullTerminatedPath = String::nullTerminatedView(path);
-#if defined(DEATH_TARGET_ANDROID)
-			if (AndroidAssetStream::TryGetAssetPath(nullTerminatedPath)) {
-				return date;
-			}
-#endif
 			struct stat sb;
 			if (TryGetFileStatus(nullTerminatedPath.data(), sb)) {
 				date = DateTime(sb.st_atime);
@@ -3081,17 +2236,6 @@ namespace Death
 			return mode;
 #else
 			auto nullTerminatedPath = String::nullTerminatedView(path);
-#if defined(DEATH_TARGET_ANDROID)
-			if (auto strippedPath = AndroidAssetStream::TryGetAssetPath(nullTerminatedPath)) {
-				if (AndroidAssetStream::TryOpenDirectory(strippedPath)) {
-					return Permission::Read | Permission::Execute;
-				} else if (AndroidAssetStream::TryOpenFile(strippedPath)) {
-					return Permission::Read;
-				} else {
-					return Permission::None;
-				}
-			}
-#endif
 			struct stat sb;
 			if (!TryGetFileStatus(nullTerminatedPath.data(), sb)) {
 				return Permission::None;
@@ -3124,17 +2268,6 @@ namespace Death
 			return false;
 #else
 			auto nullTerminatedPath = String::nullTerminatedView(path);
-#if defined(DEATH_TARGET_ANDROID)
-			if (AndroidAssetStream::TryGetAssetPath(nullTerminatedPath)) {
-				return false;
-			}
-#endif
-#if defined(DEATH_TARGET_N64)
-			// Nothing libdragon mounts keeps permission bits (see HasFilePermissions), and there is no chmod()
-			// behind its newlib glue to change them with
-			static_cast<void>(mode);
-			return false;
-#else
 			struct stat sb;
 			if (!TryGetFileStatus(nullTerminatedPath.data(), sb)) {
 				return false;
@@ -3142,7 +2275,6 @@ namespace Death
 			const std::uint32_t currentMode = sb.st_mode;
 			std::uint32_t newMode = AddPermissionsToCurrent(currentMode & ~(S_IRUSR | S_IWUSR | S_IXUSR), mode);
 			return (::chmod(nullTerminatedPath.data(), newMode) == 0);
-#endif
 #endif
 		}
 
@@ -3166,16 +2298,6 @@ namespace Death
 			return false;
 #else
 			auto nullTerminatedPath = String::nullTerminatedView(path);
-#if defined(DEATH_TARGET_ANDROID)
-			if (AndroidAssetStream::TryGetAssetPath(nullTerminatedPath)) {
-				return false;
-			}
-#endif
-#if defined(DEATH_TARGET_N64)
-			// See ChangePermissions()
-			static_cast<void>(mode);
-			return false;
-#else
 			struct stat sb;
 			if (!TryGetFileStatus(nullTerminatedPath.data(), sb)) {
 				return false;
@@ -3183,7 +2305,6 @@ namespace Death
 			const std::uint32_t currentMode = sb.st_mode;
 			const std::uint32_t newMode = AddPermissionsToCurrent(currentMode, mode);
 			return (::chmod(nullTerminatedPath.data(), newMode) == 0);
-#endif
 #endif
 		}
 
@@ -3207,16 +2328,6 @@ namespace Death
 			return false;
 #else
 			auto nullTerminatedPath = String::nullTerminatedView(path);
-#if defined(DEATH_TARGET_ANDROID)
-			if (AndroidAssetStream::TryGetAssetPath(nullTerminatedPath)) {
-				return false;
-			}
-#endif
-#if defined(DEATH_TARGET_N64)
-			// See ChangePermissions()
-			static_cast<void>(mode);
-			return false;
-#else
 			struct stat sb;
 			if (!TryGetFileStatus(nullTerminatedPath.data(), sb)) {
 				return false;
@@ -3225,32 +2336,11 @@ namespace Death
 			const std::uint32_t newMode = RemovePermissionsFromCurrent(currentMode, mode);
 			return (::chmod(nullTerminatedPath.data(), newMode) == 0);
 #endif
-#endif
 		}
 
 		bool FileSystem::LaunchDirectoryAsync(StringView path)
 		{
-#if defined(DEATH_TARGET_IOS)
-			// No Finder, but the Files app opens a directory of the app's own "Documents" through its `shareddocuments://` URL scheme
-			if (!DirectoryExists(path)) {
-				return false;
-			}
-			Class nsStringClass = objc_getClass("NSString");
-			Class nsUrlClass = objc_getClass("NSURL");
-			Class uiApplicationClass = objc_getClass("UIApplication");
-			if (nsStringClass != nullptr && nsUrlClass != nullptr && uiApplicationClass != nullptr) {
-				String url = "shareddocuments://"_s + GetAbsolutePath(path);
-				id urlString = ((id(*)(Class, SEL, const char*))objc_msgSend)(nsStringClass, sel_getUid("stringWithUTF8String:"), url.data());
-				id nsUrl = ((id(*)(Class, SEL, id))objc_msgSend)(nsUrlClass, sel_getUid("URLWithString:"), urlString);
-				if (nsUrl == nullptr) {
-					return false;
-				}
-				id application = ((id(*)(Class, SEL))objc_msgSend)(uiApplicationClass, sel_getUid("sharedApplication"));
-				((void (*)(id, SEL, id, id, id))objc_msgSend)(application, sel_getUid("openURL:options:completionHandler:"), nsUrl, nullptr, nullptr);
-				return true;
-			}
-			return false;
-#elif defined(DEATH_TARGET_APPLE)
+#if defined(DEATH_TARGET_APPLE)
 			if (!DirectoryExists(path)) {
 				return false;
 			}
@@ -3264,14 +2354,6 @@ namespace Death
 				return ((bool (*)(id, SEL, id))objc_msgSend)(workspaceInstance, sel_getUid("openURL:"), pathUrl);
 			}
 			return false;
-#elif defined(DEATH_TARGET_WINDOWS_RT)
-			if (!DirectoryExists(path)) {
-				return false;
-			}
-			SmallVector<wchar_t, MAX_PATH + 1> pathW(path.size() + 1);
-			std::int32_t lengthW = Utf8::ToUtf16(pathW.data(), std::int32_t(pathW.size()), path.data(), std::int32_t(path.size()));
-			winrt::Windows::System::Launcher::LaunchFolderPathAsync(winrt::hstring(pathW.data(), (winrt::hstring::size_type)lengthW));
-			return true;
 #elif defined(DEATH_TARGET_WINDOWS)
 			if (!DirectoryExists(path)) {
 				return false;
@@ -3335,34 +2417,30 @@ namespace Death
 
 		void FileSystem::SyncToPersistent()
 		{
+			// clang-format off: embedded JavaScript
 			EM_ASM({
 				FS.syncfs(false, function(err) {
 									 // Don't wait for completion, it should take ~1 second, so it doesn't matter
 								 });
 			});
+			// clang-format on
 		}
 #endif
 
 		std::unique_ptr<Stream> FileSystem::Open(StringView path, FileAccess mode, std::int32_t bufferSize)
 		{
-#if defined(DEATH_TARGET_ANDROID)
-			if (auto strippedPath = AndroidAssetStream::TryGetAssetPath(path)) {
-				// AndroidAssetStream is not buffered, so bufferSize is ignored here
-				return std::make_unique<AndroidAssetStream>(strippedPath, mode);
-			}
-#endif
 			return std::make_unique<FileStream>(path, mode, bufferSize);
 		}
 
-#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT))
+#if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_WINDOWS)
 		void FileSystem::MapDeleter::operator()(const char* const data, const std::size_t size)
 		{
-#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
+#if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
 			if (data != nullptr)
 				::munmap(const_cast<char*>(data), size);
 			if (_fd != 0)
 				::close(_fd);
-#elif defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#elif defined(DEATH_TARGET_WINDOWS)
 			if (data != nullptr)
 				::UnmapViewOfFile(data);
 			if (_hMap != nullptr)
@@ -3375,7 +2453,7 @@ namespace Death
 
 		std::optional<Array<char, FileSystem::MapDeleter>> FileSystem::OpenAsMemoryMapped(StringView path, FileAccess mode)
 		{
-#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
+#if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
 			int flags, prot;
 			switch (mode) {
 				case FileAccess::Read:
@@ -3426,7 +2504,7 @@ namespace Death
 			}
 
 			return Array<char, MapDeleter> { data, size, MapDeleter { fd } };
-#elif defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#elif defined(DEATH_TARGET_WINDOWS)
 			DWORD fileDesiredAccess, shareMode, protect, mapDesiredAccess;
 			switch (mode) {
 				case FileAccess::Read:

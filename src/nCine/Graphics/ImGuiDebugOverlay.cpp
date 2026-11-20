@@ -631,7 +631,7 @@ namespace nCine
 			ImGui::Text("GL_KHR_debug: %d", caps.HasExtension(RHI::IRhiCapabilities::Extensions::KhrDebug));
 			ImGui::Text("GL_ARB_texture_storage: %d", caps.HasExtension(RHI::IRhiCapabilities::Extensions::ArbTextureStorage));
 			ImGui::Text("GL_ARB_get_program_binary: %d", caps.HasExtension(RHI::IRhiCapabilities::Extensions::ArbGetProgramBinary));
-#if defined(RHI_GL_PROFILE_ES) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_UNIX)
+#if defined(RHI_GL_PROFILE_ES) && !(defined(DEATH_TARGET_EMSCRIPTEN)) && !(defined(DEATH_TARGET_UNIX))
 			ImGui::Text("GL_OES_get_program_binary: %d", caps.HasExtension(RHI::IRhiCapabilities::Extensions::OesGetProgramBinary));
 #endif
 			ImGui::Text("GL_EXT_texture_compression_s3tc: %d", caps.HasExtension(RHI::IRhiCapabilities::Extensions::ExtTextureCompressionS3tc));
@@ -727,115 +727,6 @@ namespace nCine
 	void ImGuiDebugOverlay::GuiWindowSettings()
 	{
 		if (ImGui::CollapsingHeader("Window Settings")) {
-			/*IGfxDevice& gfxDevice = theApplication().gfxDevice();
-			const std::uint32_t numMonitors = gfxDevice.numMonitors();
-			for (std::uint32_t i = 0; i < numMonitors; i++) {
-				const IGfxDevice::Monitor& monitor = gfxDevice.monitor(i);
-				_widgetName.format("Monitor #%u: \"%s\"", i, monitor.name);
-				if (i == gfxDevice.primaryMonitorIndex())
-					_widgetName.append(" [Primary]");
-				if (i == gfxDevice.windowMonitorIndex())
-					_widgetName.formatAppend(" [%s]", gfxDevice.isFullScreen() ? "Full Screen" : "Window");
-
-				if (ImGui::TreeNode(_widgetName.data())) {
-					ImGui::Text("Position: <%d, %d>", monitor.position.x, monitor.position.y);
-					ImGui::Text("DPI: <%d, %d>", monitor.dpi.x, monitor.dpi.y);
-					ImGui::Text("Scale: <%.2f, %.2f>", monitor.scale.x, monitor.scale.y);
-
-					const std::uint32_t numVideoModes = monitor.numVideoModes;
-					_widgetName.format("%u Video Modes", numVideoModes);
-					if (ImGui::TreeNode(_widgetName.data())) {
-						for (std::uint32_t j = 0; j < numVideoModes; j++) {
-							const IGfxDevice::VideoMode& videoMode = monitor.videoModes[j];
-							_widgetName.format("#%u: %u x %u, %.2f Hz", j, videoMode.width, videoMode.height, videoMode.refreshRate);
-							if (videoMode.redBits != 8 || videoMode.greenBits != 8 || videoMode.blueBits != 8)
-								_widgetName.formatAppend(" (R%uG%uB%u)", videoMode.redBits, videoMode.greenBits, videoMode.blueBits);
-							ImGui::TextUnformatted(_widgetName.data());
-						}
-						ImGui::TreePop();
-					}
-					ImGui::TreePop();
-				}
-			}
-
-#if !defined(DEATH_TARGET_ANDROID) || (defined(DEATH_TARGET_ANDROID) && __ANDROID_API__ >= 30)
-			static Vector2i resolution = theApplication().resolutionInt();
-			static Vector2i winPosition = gfxDevice.windowPosition();
-			static bool fullScreen = gfxDevice.isFullScreen();
-
-			static std::int32_t selectedVideoMode = -1;
-			const IGfxDevice::VideoMode currentVideoMode = gfxDevice.currentVideoMode();
-			if (fullScreen == false) {
-				ImGui::InputInt2("Resolution", resolution.data());
-				ImGui::InputInt2("Position", winPosition.data());
-				selectedVideoMode = -1;
-			} else {
-				const std::int32_t monitorIndex = gfxDevice.windowMonitorIndex();
-				const IGfxDevice::Monitor& monitor = gfxDevice.monitor(monitorIndex);
-
-				std::uint32_t currentVideoModeIndex = 0;
-				const std::uint32_t numVideoModes = monitor.numVideoModes;
-				_comboVideoModes.clear();
-				for (std::uint32_t i = 0; i < numVideoModes; i++) {
-					const IGfxDevice::VideoMode& mode = monitor.videoModes[i];
-					_comboVideoModes.formatAppend("%u: %u x %u, %.2f Hz", i, mode.width, mode.height, mode.refreshRate);
-					_comboVideoModes.setLength(_comboVideoModes.length() + 1);
-
-					if (mode == currentVideoMode)
-						currentVideoModeIndex = i;
-				}
-				_comboVideoModes.setLength(_comboVideoModes.length() + 1);
-				// Append a second '\0' to signal the end of the combo item list
-				_comboVideoModes[_comboVideoModes.length() - 1] = '\0';
-
-				if (selectedVideoMode < 0)
-					selectedVideoMode = currentVideoModeIndex;
-
-				ImGui::Combo("Video Mode", &selectedVideoMode, _comboVideoModes.data());
-				resolution.x = monitor.videoModes[selectedVideoMode].width;
-				resolution.y = monitor.videoModes[selectedVideoMode].height;
-			}
-
-#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_SWITCH)
-			ImGui::TextUnformatted("Full Screen: true");
-#else
-			ImGui::Checkbox("Full Screen", &fullScreen);
-#endif
-			ImGui::SameLine();
-			if (ImGui::Button("Apply")) {
-				if (fullScreen == false) {
-					// Disable full screen, then change window size and position
-					gfxDevice.setFullScreen(fullScreen);
-					gfxDevice.setWindowSize(resolution);
-					gfxDevice.setWindowPosition(winPosition);
-				} else {
-					// Set the video mode, then enable full screen
-					winPosition = gfxDevice.windowPosition();
-					gfxDevice.setVideoMode(selectedVideoMode);
-					gfxDevice.setFullScreen(fullScreen);
-				}
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Reset")) {
-#if !defined(DEATH_TARGET_ANDROID)
-				resolution = theApplication().appConfiguration().resolution;
-				fullScreen = theApplication().appConfiguration().fullScreen;
-#endif
-				gfxDevice.setFullScreen(fullScreen);
-				gfxDevice.setWindowSize(resolution[0], resolution[1]);
-				gfxDevice.setWindowPosition(winPosition[0], winPosition[1]);
-			}
-			ImGui::SameLine();
-			if (ImGui::Button("Current")) {
-				resolution = theApplication().resolutionInt();
-				winPosition = gfxDevice.windowPosition();
-				fullScreen = gfxDevice.isFullScreen();
-				selectedVideoMode = -1;
-			}
-
-			ImGui::Text("Resizable: %s", gfxDevice.isResizable() ? "true" : "false");
-#endif
-*/
 		}
 	}
 

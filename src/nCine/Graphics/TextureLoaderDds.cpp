@@ -105,18 +105,7 @@ namespace nCine
 				} else if ((alphaMask == 0xFF000000 && redMask == 0x00FF0000 && greenMask == 0x0000FF00 && blueMask == 0x000000FF) ||
 					(alphaMask == 0xFF000000 && blueMask == 0x00FF0000 && greenMask == 0x0000FF00 && redMask == 0x000000FF)) { // 8888
 					internalFormat = PixelFormat::RGBA8;
-				}
-#if 0
-				// 16 bits uncompressed DDS data is not compatible with the graphics API color channel order
-				else if (redMask == 0xF800 && greenMask == 0x07E0 && blueMask == 0x001F) { // 565
-					internalFormat = PixelFormat::RGB565;
-				} else if (alphaMask == 0x8000 && redMask == 0x7C00 && greenMask == 0x03E0 && blueMask == 0x001F) { // 5551
-					internalFormat = PixelFormat::RGB5A1;
-				} else if (alphaMask == 0xF000 && redMask == 0x0F00 && greenMask == 0x00F0 && blueMask == 0x000F) { // 4444
-					internalFormat = PixelFormat::RGBA4;
-				}
-#endif
-				else {
+				} else {
 					LOGE("Unsupported DDPF_RGB pixel format");
 					return false;
 				}

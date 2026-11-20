@@ -16,34 +16,12 @@ namespace Jazz2::Input
 		}
 
 		// Fire and Run also take a shoulder control - the trigger, or the bumper on pads without usable triggers
-#if defined(DEATH_TARGET_N64)
-		// N64: A jumps, B shoots, Z (reported as the right trigger) runs, L is a second Fire, R changes weapon
-		constexpr ButtonName FireShoulder = ButtonName::LeftBumper;
-		constexpr AxisName RunShoulder = AxisName::RightTrigger;
-#elif defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_VITA) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_AMIGAOS)
-		// Only L and R exist (or the Vita's trigger axes are never driven, see JoyMappingDb.h)
-		constexpr ButtonName FireShoulder = ButtonName::RightBumper;
-		constexpr ButtonName RunShoulder = ButtonName::LeftBumper;
-#else
 		constexpr AxisName FireShoulder = AxisName::RightTrigger;
 		constexpr AxisName RunShoulder = AxisName::LeftTrigger;
-#endif
-#if defined(DEATH_TARGET_N64)
-		// B stays B so it goes back in menus, there is no X/Y for Run and Change Weapon
-		constexpr ButtonName FireButton = ButtonName::B;
-		constexpr ButtonName RunButton = ButtonName::Unknown;
-		constexpr ButtonName ChangeWeaponButton = ButtonName::RightBumper;
-#else
 		constexpr ButtonName FireButton = ButtonName::X;
 		constexpr ButtonName RunButton = ButtonName::B;
 		constexpr ButtonName ChangeWeaponButton = ButtonName::Y;
-#endif
-#if defined(DEATH_TARGET_AMIGAOS)
-		// The Amiga's joysticks and the CD32 pad are digital, their directions arrive as the D-pad (see AmigaInputManager)
-		constexpr bool HasAnalogStick = false;
-#else
 		constexpr bool HasAnalogStick = true;
-#endif
 
 		// Set default mappings for 1st player
 		auto first = GetMappings(0);
@@ -307,12 +285,6 @@ namespace Jazz2::Input
 		normalizedLength = std::clamp(normalizedLength, 0.0f, 1.0f);
 		result.Movement.Y = std::copysign(normalizedLength, result.Movement.Y);
 
-#if defined(DEATH_TARGET_ANDROID)
-		// Allow native Android back button as menu key
-		if (PreferencesCache::UseNativeBackButton && pressedKeys[(uint32_t)Keys::Back]) {
-			result.PressedActions |= (1 << (int32_t)PlayerAction::Menu);
-		}
-#endif
 		return result;
 	}
 
@@ -409,12 +381,6 @@ namespace Jazz2::Input
 			}
 		}
 
-#if defined(DEATH_TARGET_ANDROID)
-		// Allow native Android back button as menu key
-		if (PreferencesCache::UseNativeBackButton && pressedKeys[(std::uint32_t)Keys::Back]) {
-			pressedActions |= (1 << (std::int32_t)PlayerAction::Menu);
-		}
-#endif
 		return pressedActions;
 	}
 

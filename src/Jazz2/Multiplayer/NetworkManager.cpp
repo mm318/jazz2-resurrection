@@ -1,9 +1,5 @@
 ﻿#include "NetworkManager.h"
 
-#if defined(DEATH_TARGET_PSP)
-#include "../../nCine/Backends/Psp/PspNetwork.h"
-#endif
-
 #if defined(WITH_MULTIPLAYER)
 
 #include "Teams.h"
@@ -87,24 +83,6 @@ namespace Jazz2::Multiplayer
 
 		_serverConfig->StartUnixTimestamp = DateTime::UtcNow().ToUnixMilliseconds() / 1000;
 
-#if defined(DEATH_TARGET_PSP)
-		if (_serverConfig->AdhocMode) {
-			// The console becomes the ad hoc group other consoles find by scanning: the group carries the
-			// server's name (as far as the firmware's 8 alphanumeric characters allow), and has to exist
-			// before the transport binds its PDP socket in it
-			if (!SetAdhocMode(true)) {
-				return false;
-			}
-			char groupName[9];
-			Backends::PspNetwork::MakeAdhocGroupName(_serverConfig->ServerName, groupName);
-			if (!Backends::PspNetwork::AdhocCreateGroup(groupName)) {
-				return false;
-			}
-		} else {
-			SetAdhocMode(false);
-		}
-#endif
-
 		bool result = NetworkManagerBase::CreateServer(handler, serverPort);
 
 		if (result) {
@@ -115,7 +93,7 @@ namespace Jazz2::Multiplayer
 #endif
 			// An ad hoc server is found by scanning for its group; there is no internet to publish it on and
 			// no IP network to broadcast into, so it runs no discovery of its own
-			if (!_serverConfig->IsPrivate && !_serverConfig->AdhocMode) {
+			if (!_serverConfig->IsPrivate) {
 				_discovery = std::make_unique<ServerDiscovery>(this);
 			}
 			if (!_serverConfig->WebhookUrl.empty()) {

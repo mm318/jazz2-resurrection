@@ -35,13 +35,3 @@ void fragment() {
 	COLOR = texColor * COLOR.a;
 #endif
 }
-
-void fixed_function(pvr) {
-	pass quad;
-#ifdef PLUS
-#ifdef DITHER
-	quad.blend = ALPHA;
-#endif
-#endif
-	submit_quad(quad);
-}

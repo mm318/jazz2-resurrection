@@ -82,7 +82,6 @@ namespace nCine
 			RenderResources::_currentViewport = nullptr;
 		}
 
-#if defined(RHI_CAP_POSTPROCESSING)
 		// Neither side of a split may be left pointing at the other one
 		RemoveSplitPasses();
 		if (_splitOwner != nullptr) {
@@ -93,10 +92,8 @@ namespace nCine
 				}
 			}
 		}
-#endif
 	}
 
-#if defined(RHI_CAP_POSTPROCESSING)
 	std::uint32_t Viewport::AddSplitPass(Viewport* pass)
 	{
 		DEATH_ASSERT(pass != nullptr && pass != this && pass->_type == Type::WithTexture && pass->_splitOwner == nullptr &&
@@ -133,7 +130,6 @@ namespace nCine
 		}
 		_splitPasses.clear();
 	}
-#endif
 
 	/** @note Adding more textures enables the use of multiple render targets (MRTs) */
 	bool Viewport::SetTexture(std::uint32_t index, Texture* texture)
@@ -384,12 +380,8 @@ namespace nCine
 
 		if (!_renderQueue.IsEmpty()) {
 			ZoneScopedC(0x81A861);
-#if defined(RHI_CAP_POSTPROCESSING)
 			// The split was requested while the scene was visited, which is over by now
 			_renderQueue.SortAndCommit(IsSplit() ? ArrayView<const std::uint32_t>(_splitLayers) : ArrayView<const std::uint32_t>());
-#else
-			_renderQueue.SortAndCommit();
-#endif
 		}
 
 		_stateBits.set(StateBitPositions::CommittedBit);
@@ -404,12 +396,10 @@ namespace nCine
 			nextViewport->Draw(nextIndex + 1);
 		}
 
-#if defined(RHI_CAP_POSTPROCESSING)
 		if (_splitOwner != nullptr) {
 			// Drawn by the viewport it is a split pass of, in the middle of that one's queue (see AddSplitPass())
 			return;
 		}
-#endif
 
 		DrawContents(nextViewport, nextIndex);
 	}
@@ -505,7 +495,6 @@ namespace nCine
 				RHI::Device::SetScissor(_scissorRect);
 			}
 
-#if defined(RHI_CAP_POSTPROCESSING)
 			if (IsSplit()) {
 				// The passes are held back until a part with something to draw comes, the scene stays the same until then,
 				// so the passes of all the splits in between are drawn at once and those with nothing after them not at all.
@@ -528,9 +517,7 @@ namespace nCine
 						upToDate |= passes;
 					}
 				}
-			} else
-#endif
-			{
+			} else {
 				_renderQueue.Draw();
 			}
 
@@ -569,14 +556,11 @@ namespace nCine
 			RenderResources::_renderTargetBound = false;
 		}
 
-#if defined(RHI_CAP_POSTPROCESSING)
 		// A split lasts only for the frame it was requested in
 		_splitLayers.clear();
 		_splitLayerPasses.clear();
-#endif
 	}
 
-#if defined(RHI_CAP_POSTPROCESSING)
 	bool Viewport::IsSplit() const
 	{
 		return (!_splitLayers.empty() && !_splitPasses.empty() && _type == Type::WithTexture);
@@ -609,7 +593,6 @@ namespace nCine
 		RenderResources::SetCurrentCamera(_camera);
 		RenderResources::UpdateCameraUniforms();
 	}
-#endif
 
 	void Viewport::UpdateCulling(SceneNode* node)
 	{

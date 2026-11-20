@@ -64,14 +64,7 @@ namespace Jazz2
 		/** @brief Pixel size in bytes */
 		static constexpr std::uint32_t PixelSize = 4;
 		/** @brief Maximum number of palettes */
-#if defined(DEATH_TARGET_N64)
-		// Eight fixed rows plus the dynamic recolors (see FirstDynamicPaletteRow): one player and a handful of
-		// recolored enemies per level need a few, and every row costs 1 KB here and another 1 KB in the palette
-		// texture the TLUTs are converted from - 256 rows were half a megabyte of the console's 8 MB
-		static constexpr std::int32_t PaletteCount = 32;
-#else
 		static constexpr std::int32_t PaletteCount = 256;
-#endif
 		/** @brief Number of colors per palette */
 		static constexpr std::int32_t ColorsPerPalette = 256;
 		/**
@@ -131,20 +124,6 @@ namespace Jazz2
 
 		/** @brief Releases all cached assets */
 		void Release();
-
-#if defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_GAMECUBE) || defined(DOXYGEN_GENERATING_OUTPUT)
-		/**
-		 * @brief Returns the directory the content was found in, if it is writable, otherwise an empty view
-		 *
-		 * Only the PlayStation 2 and the GameCube can answer anything but "no" here. Both run from a disc,
-		 * where nothing can be written and settings have to go to a memory card, but both can equally be
-		 * started from an SD card - in an MX4SIO adapter on the PlayStation 2, in an SD Gecko or an SD2SP2
-		 * adapter on the GameCube - and then the directory the game is reading from is also the best place on
-		 * the console to write to. @ref PreferencesCache prefers it over a memory card, which is what lets
-		 * such a build save on a console with no memory card in it.
-		 */
-		StringView GetWritablePath() const;
-#endif
 
 		/** @brief Returns path to `"assets"` directory */
 		StringView GetContentPath() const;
@@ -208,12 +187,7 @@ namespace Jazz2
 		 * Desktop and browser builds use individual files under Animations, Sounds and Cinematics.
 		 * Console profiles may use a converted package instead.
 		 */
-		bool IsContentPrebaked() const;
-
-#if defined(WITH_LIBRETRO)
-		/** @brief Overrides `"assets"` and `"Cache"` directories (used by the libretro core, which cannot rely on the working directory of the frontend process) */
-		void OverridePaths(StringView contentPath, StringView cachePath);
-#endif
+		bool HasGameData() const;
 
 		/** @brief Scans the user and packaged `"assets"` directories for `.pak` files and mounts them  */
 		void RemountPaks();
@@ -226,16 +200,6 @@ namespace Jazz2
 		/** @brief Marks end of the loading assets */
 		void EndLoading();
 
-		/**
-			@brief Scope that marks a load, pairing @ref BeginLoading() with @ref EndLoading()
-
-			The two do more than bracket the mark-and-sweep of the resource cache: they also tell the audio
-			device that the thread feeding it is about to stop for longer than it queues ahead (see
-			@relativeref{nCine,IAudioDevice::BeginBlockingOperation()}). A load that gives up half way - a
-			missing or corrupt level, which the game otherwise handles by returning to the menu - used to
-			leave that unpaired, and on the PlayStation 2 the sound module stays closed once stopped, so the
-			console went silent for the rest of the session. Held in a scope, every exit path ends the load.
-		*/
 		class LoadingScope
 		{
 		public:
@@ -645,17 +609,6 @@ namespace Jazz2
 			read is not retried on every play.
 		*/
 		bool ResolveSound(Resources::SoundResource& sound);
-#if defined(NCINE_HAS_NATIVE_AUDIO) || defined(DOXYGEN_GENERATING_OUTPUT)
-		/**
-			@brief Returns the console's own copy of a sound sample (relative to `Animations`), or an empty string
-
-			The content prepared for the Nintendo 64 keeps every sound effect as a `.wav64` file next to the pak
-			instead of inside it, and the audio device streams it from the cartridge while it plays, so a sound
-			costs no RAM at all (see @ref nCine::N64AudioDevice). It is the only form the console plays: nothing
-			is decoded there, so a sample without its `.wav64` stays silent.
-		*/
-		String GetNativeSoundPath(StringView assetPath) const;
-#endif
 
 		/** @brief Returns currently loaded set of palettes */
 		StaticArrayView<PaletteCount * ColorsPerPalette, const std::uint32_t> GetPalettes() const
@@ -726,7 +679,7 @@ namespace Jazz2
 
 		void InitializePaths();
 		// Looks for the package that marks a prepared content tree, has to run again if the paths change
-		void DetectPrebakedContent();
+		void DetectGameData();
 		// Looks for the user-accessible "assets" directory (see GetUserContentPath()), has to run again if the paths change
 		void DetectUserContent();
 		// Returns where the user-accessible "assets" directory is or would be, empty where the platform has none
@@ -852,8 +805,7 @@ namespace Jazz2
 
 		bool _isHeadless;
 		bool _isLoading;
-		bool _isContentPrebaked;
-		bool _hasLooseAssets;
+		bool _hasGameData;
 		std::uint32_t _palettes[PaletteCount * ColorsPerPalette];
 		// Shared palette texture (256x256: one palette per row). Rows changed since the last upload are tracked by
 		// the dirty range below and re-uploaded lazily. Dynamically allocated per-player rows are reference-counted
@@ -903,22 +855,15 @@ namespace Jazz2
 		/** @brief Drops the cached fonts whose atlas baked the palette, leaving the palette-indexed ones alone */
 		void DropBakedFonts();
 
-#if defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_IOS) || defined(DEATH_TARGET_WINDOWS_RT) || defined(DEATH_TARGET_PS2) || \
-	defined(DEATH_TARGET_GAMECUBE)
+#if defined(DEATH_TARGET_UNIX)
 		String _contentPath;
 #endif
-#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_WINDOWS_RT) || \
-	defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_GAMECUBE)
+#if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
 		String _cachePath;
 #endif
-#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_WINDOWS_RT) || \
-	defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_VITA)
+#if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
 		// Set only when the directory exists - see GetUserContentPath()
 		String _userContentPath;
-#endif
-#if defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_GAMECUBE)
-		/** @brief Set only when the content was found on writable storage - see @ref GetWritablePath() */
-		String _writablePath;
 #endif
 	};
 }

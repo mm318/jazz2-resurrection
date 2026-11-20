@@ -14,10 +14,6 @@
 #include "../../Multiplayer/MpLevelHandler.h"
 #endif
 
-#if defined(DEATH_TARGET_ANDROID)
-#include "../../../nCine/Backends/Android/AndroidApplication.h"
-#endif
-
 using namespace Jazz2::UI::Menu::Resources;
 
 namespace Jazz2::UI::Menu
@@ -160,16 +156,13 @@ namespace Jazz2::UI::Menu
 		for (std::size_t i = 0; i < viewports.size(); i++) {
 			auto& viewport = viewports[i];
 			Rectf scopedView = viewport->GetBounds();
-#if defined(RHI_CAP_POSTPROCESSING)
 			// The blurred background behind the pause menu comes from the bloom blur chain, which only the full
 			// post-processing tier builds; the direct tier darkens the frozen scene with a solid overlay instead.
 			// The chain is shortened at a low lighting resolution, so the last level is not always the quarter-size one.
 			Texture* blurTexture = viewport->GetBlurredTarget();
 			if DEATH_LIKELY (blurTexture != nullptr) {
 				DrawTexture(*blurTexture, scopedView.GetLocation(), 500, scopedView.GetSize(), Vector4f(1.0f, 0.0f, 1.0f, 0.0f), Colorf(0.5f, 0.5f, 0.5f, std::min(AnimTime * 8.0f, 1.0f)));
-			} else
-#endif
-			{
+			} else {
 				DrawSolid(scopedView.GetLocation(), 500, scopedView.GetSize(), Colorf(0.0f, 0.0f, 0.0f, std::min(AnimTime * 8.0f, 0.7f)));
 			}
 
@@ -216,12 +209,7 @@ namespace Jazz2::UI::Menu
 		// below the 272-row threshold the frame reaches the bottom of the screen and these show through
 		// underneath it, so they are drawn only while the root section is the one on top
 		bool showCorners = (ViewSize.Y >= 300 || _owner->_sections.size() <= 1);
-#if defined(DEATH_TARGET_ANDROID)
-		if (showCorners && !static_cast<AndroidApplication&>(theApplication()).IsScreenRound())
-#else
-		if (showCorners)
-#endif
-		{
+		if (showCorners) {
 			// Version. These two are the only text in the menu placed against the view itself rather than
 			// against the content bounds, which already follow the safe area, so they take it off here
 			Rectf safeView = PreferencesCache::ApplySafeArea(Rectf(0.0f, 0.0f, (float)ViewSize.X, (float)ViewSize.Y), ViewSize);

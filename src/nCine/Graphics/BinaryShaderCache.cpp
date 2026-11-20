@@ -18,7 +18,7 @@ static constexpr std::uint16_t Version = 1 | 0x1000;
 
 namespace nCine
 {
-#if defined(WITH_RHI_GL) && !defined(DEATH_TARGET_VITA)
+#if defined(WITH_RHI_GL)
 	namespace
 	{
 		std::uint32_t bufferSize = 0;
@@ -29,7 +29,7 @@ namespace nCine
 	BinaryShaderCache::BinaryShaderCache(StringView path)
 		: _isAvailable(false), _platformHash(0)
 	{
-#if !defined(WITH_RHI_GL) || defined(DEATH_TARGET_VITA)
+#if !(defined(WITH_RHI_GL))
 		// The software backend compiles no shaders, the Direct3D 11 backend does not use GL program binaries,
 		// and the Vulkan backend runs from pre-compiled SPIR-V shader modules (no GL program binary exists to
 		// cache), so there is nothing to cache on any of these. Stay silently disabled (_isAvailable is already
@@ -42,7 +42,7 @@ namespace nCine
 		}
 
 		const RHI::IRhiCapabilities& caps = theServiceLocator().GetRhiCapabilities();
-#if defined(RHI_GL_PROFILE_ES) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_UNIX) && !defined(DEATH_TARGET_IOS)
+#if defined(RHI_GL_PROFILE_ES) && !(defined(DEATH_TARGET_EMSCRIPTEN)) && !(defined(DEATH_TARGET_UNIX))
 		const bool isSupported = caps.HasExtension(RHI::IRhiCapabilities::Extensions::ArbGetProgramBinary) ||
 			caps.HasExtension(RHI::IRhiCapabilities::Extensions::OesGetProgramBinary);
 #else
@@ -53,7 +53,7 @@ namespace nCine
 			return;
 		}
 
-#if defined(RHI_GL_PROFILE_ES) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_UNIX) && !defined(DEATH_TARGET_IOS) && (!defined(DEATH_TARGET_WINDOWS_RT) || defined(WITH_ANGLE))
+#if defined(RHI_GL_PROFILE_ES) && !(defined(DEATH_TARGET_EMSCRIPTEN)) && !(defined(DEATH_TARGET_UNIX))
 		// (iOS is left out as well: Apple's OpenGL|ES headers have no OES_get_program_binary spelling, only the core one)
 		if (caps.HasExtension(RHI::IRhiCapabilities::Extensions::OesGetProgramBinary)) {
 			_glGetProgramBinary = glGetProgramBinaryOES;
@@ -109,7 +109,7 @@ namespace nCine
 
 	bool BinaryShaderCache::LoadFromCache(const char* shaderName, std::uint64_t shaderVersion, RHI::ShaderProgram* program, RHI::ShaderProgram::Introspection introspection)
 	{
-#if !defined(WITH_RHI_GL) || defined(DEATH_TARGET_VITA)
+#if !(defined(WITH_RHI_GL))
 		// No GL program binaries exist on these backends and the cache is permanently disabled (see the constructor)
 		return false;
 #else
@@ -168,7 +168,7 @@ namespace nCine
 
 	bool BinaryShaderCache::SaveToCache(const char* shaderName, std::uint64_t shaderVersion, RHI::ShaderProgram* program)
 	{
-#if !defined(WITH_RHI_GL) || defined(DEATH_TARGET_VITA)
+#if !(defined(WITH_RHI_GL))
 		// No GL program binaries exist on these backends and the cache is permanently disabled (see the constructor)
 		return false;
 #else

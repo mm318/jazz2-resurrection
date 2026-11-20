@@ -147,15 +147,7 @@
 
 #include <cxxabi.h>
 #include <fcntl.h>
-#if defined(DEATH_TARGET_ANDROID)
-// Old Android API levels define _Unwind_Ptr in both link.h and unwind.h
-// Rename the one in link.h as we are not going to be using it
-#define _Unwind_Ptr _Unwind_Ptr_Custom
 #include <link.h>
-#undef _Unwind_Ptr
-#else
-#include <link.h>
-#endif
 #if defined(DEATH_TARGET_POWERPC)
 // Linux kernel header required for the struct pt_regs definition to access the NIP (Next Instruction Pointer) register value
 #include <asm/ptrace.h>
@@ -928,11 +920,7 @@ namespace Death
 			void LoadThreadInfo()
 			{
 #if defined(BACKWARD_TARGET_LINUX)
-#if !defined(DEATH_TARGET_ANDROID)
 				_threadId = static_cast<std::size_t>(syscall(SYS_gettid));
-#else
-				_threadId = static_cast<std::size_t>(gettid());
-#endif
 				if (_threadId == static_cast<std::size_t>(getpid())) {
 					// If the thread is the main one, let's hide that.
 					_threadId = 0;
@@ -1722,41 +1710,6 @@ namespace Death
 					// Maybe the source of the trace got inlined inside the function (trace.source.function). Let's see
 					// if we can get all the inlined calls along the way up to the initial call site.
 					trace.Inliners = backtrace_inliners(fobj, *details_selected);
-
-#if 0
-				if (trace.Inliners.empty()) {
-					// Maybe the trace was not inlined... or maybe it was and we are lacking the debug information.
-					// Let's try to make the world better and see if we can get the line number of the function
-					// (trace.source.function) now.
-					//
-					// We will get the location of where the function start (to be exact: the first instruction that
-					// really start the function), not where the name of the function is defined. This can be quite far
-					// away from the name of the function btw.
-					//
-					// If the source of the function is the same as the source of the trace, we cannot say if the trace
-					// was really inlined or not. However, if the filename of the source is different between the function
-					// and the trace... we can declare it as an inliner. This is not 100% accurate, but better than nothing.
-
-					if (symbol_info.dli_saddr) {
-						find_sym_result details = find_symbol_details(fobj, symbol_info.dli_saddr, symbol_info.dli_fbase);
-						if (details.found) {
-							ResolvedTrace::SourceLoc diy_inliner;
-							diy_inliner.Line = details.line;
-							if (details.filename) {
-								diy_inliner.Filename = details.filename;
-							}
-							if (details.funcname) {
-								diy_inliner.Function = Demangle(details.funcname);
-							} else {
-								diy_inliner.Function = trace.Source.Function;
-							}
-							if (diy_inliner != trace.Source) {
-								trace.Inliners.push_back(diy_inliner);
-							}
-						}
-					}
-				}
-#endif
 				}
 
 				return trace;
@@ -2204,7 +2157,6 @@ namespace Death
 				Dwarf_Die* cudie = dw.dwfl_module_addrdie(mod, trace_addr, &mod_bias);
 				trace.ObjectBaseAddress = (void*)mod_bias;
 
-#if 1
 				if (cudie == nullptr) {
 					// Sadly clang does not generate the section .debug_aranges, thus dwfl_module_addrdie will fail early.
 					// Clang doesn't either set the lowpc/highpc/range info for every compilation unit.
@@ -2222,7 +2174,6 @@ namespace Death
 						}
 					}
 				}
-#endif
 
 //#	define BACKWARD_I_DO_NOT_RECOMMEND_TO_ENABLE_THIS_HORRIBLE_PIECE_OF_CODE
 #if defined(BACKWARD_I_DO_NOT_RECOMMEND_TO_ENABLE_THIS_HORRIBLE_PIECE_OF_CODE)

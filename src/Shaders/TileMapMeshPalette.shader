@@ -14,8 +14,3 @@ void fragment() {
 	vec4 paletteColor = texture(uTexturePalette, vec2(palX, palY));
 	COLOR = vec4(paletteColor.rgb, paletteColor.a * src.a) * vColor;
 }
-
-void fixed_function() {
-	// Same stream as TileMapMesh; the palette comes from the uTexturePalette binding
-	pipeline tile_map_mesh;
-}

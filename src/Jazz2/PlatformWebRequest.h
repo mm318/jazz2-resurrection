@@ -4,15 +4,6 @@
 
 #include <IO/WebRequest.h>
 
-#if defined(WITH_CURL) && (defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_VITA))
-#include "ContentResolver.h"
-
-#include <Containers/String.h>
-#include <IO/FileSystem.h>
-
-#include <curl/curl.h>
-#endif
-
 namespace Jazz2
 {
 	/**
@@ -35,32 +26,6 @@ namespace Jazz2
 	*/
 	inline void ApplyPlatformWebRequestOptions(Death::IO::WebRequest& request)
 	{
-#if defined(WITH_CURL) && (defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_VITA))
-		using namespace Death::Containers::Literals;
-
-		// Resolved once - the path cannot change while the game is running, and a missing bundle leaves the
-		// TLS stack's own default alone instead of pointing it at something that is not there either
-		static const Death::Containers::String caBundlePath = []() -> Death::Containers::String {
-			Death::Containers::String path = Death::IO::FileSystem::CombinePath(
-				ContentResolver::Get().GetContentPath(), "cacert.pem"_s);
-			if (!Death::IO::FileSystem::FileExists(path)) {
-				LOGW("Certificate bundle \"{}\" is missing, HTTPS requests will fail to verify", path);
-				return {};
-			}
-			return path;
-		}();
-
-		if (!caBundlePath.empty()) {
-			if (CURL* handle = (CURL*)request.GetNativeHandle()) {
-				curl_easy_setopt(handle, CURLOPT_CAINFO, caBundlePath.data());
-				// The build's default CA *directory* has to go too: mbedTLS reads the whole directory before it
-				// looks at the file, and on the PSP that is a Unix path that does not exist ("Error reading ca
-				// cert path /etc/ssl/certs"), which fails the verification before the bundle is ever opened
-				curl_easy_setopt(handle, CURLOPT_CAPATH, nullptr);
-			}
-		}
-#else
 		static_cast<void>(request);
-#endif
 	}
 }

@@ -40,15 +40,6 @@ namespace Jazz2::UI::Menu
 
 		void OnServerFound(Jazz2::Multiplayer::ServerDescription&& desc) override;
 
-#if defined(DEATH_TARGET_PSP) || defined(DOXYGEN_GENERATING_OUTPUT)
-		/**
-		 * @brief Switches between Wi-Fi and ad hoc mode and starts discovering servers again
-		 *
-		 * @partialsupport Available only on @ref DEATH_TARGET_PSP "PlayStation Portable" platform.
-		 */
-		void ToggleAdhocMode();
-#endif
-
 	private:
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
@@ -81,7 +72,6 @@ namespace Jazz2::UI::Menu
 		// OnServerFound()); declared before `_discovery`, so they outlive its thread
 		SmallVector<Jazz2::Multiplayer::ServerDescription, 0> _pendingServers;
 		Death::Threading::Spinlock _pendingServersLock;
-		// Owned indirectly, so it can be restarted when the transport mode changes (see ToggleAdhocMode())
 		std::unique_ptr<Jazz2::Multiplayer::ServerDiscovery> _discovery;
 		std::int8_t _touchDirection;
 
@@ -89,19 +79,9 @@ namespace Jazz2::UI::Menu
 		float _transitionTime;
 		bool _shouldStart;
 		bool _isConnecting;
-#if defined(DEATH_TARGET_PSP)
-		// A transport mode switch in progress (see ToggleAdhocMode()): the discovery thread has been asked to
-		// end and OnUpdate() finishes the switch once it has, so the menu never waits on it
-		bool _switchingMode;
-#endif
 		bool _waitForIpInput;
 		bool _keyboardVisible;
 		TextInputBuffer _ipInput;
-#if defined(DEATH_TARGET_ANDROID)
-		Vector2i _initialVisibleSize;
-		Recti _currentVisibleBounds;
-		float _recalcVisibleBoundsTimeLeft;
-#endif
 
 		// Two answers describe the same server when they carry the same announced identifier, which is how the
 		// IPv4 and IPv6 halves of local discovery are folded into one entry (see ServerDiscovery)

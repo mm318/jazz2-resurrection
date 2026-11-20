@@ -1,10 +1,6 @@
 #include "GLTextureFormat.h"
 #include "../../../ServiceLocator.h"
 
-#if defined(DEATH_TARGET_ANDROID)
-#include <android/api-level.h>
-#endif
-
 namespace nCine::RHI::GL
 {
 	void GLTextureFormat::Resolve(PixelFormat format, bool bgr, GLint& internalFormat, GLenum& externalFormat, GLenum& dataType)
@@ -126,7 +122,6 @@ namespace nCine::RHI::GL
 				externalFormat = GL_RGBA;
 				dataType = GL_FLOAT;
 				break;
-#if !defined(DEATH_TARGET_VITA) // vitaGL declares GL_RGBA16F but not the 32-bit-float / RGB-float internal formats
 			case PixelFormat::RGBA32F:
 				internalFormat = GL_RGBA32F;
 				externalFormat = GL_RGBA;
@@ -142,7 +137,6 @@ namespace nCine::RHI::GL
 				externalFormat = GL_RGB;
 				dataType = GL_FLOAT;
 				break;
-#endif
 			case PixelFormat::Depth32F:
 				internalFormat = GL_DEPTH_COMPONENT32F;
 				externalFormat = GL_DEPTH_COMPONENT;
@@ -198,14 +192,12 @@ namespace nCine::RHI::GL
 				externalFormat = GL_RGBA;
 				dataType = GL_UNSIGNED_BYTE;
 				break;
-#if !defined(DEATH_TARGET_VITA) // GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2 is not declared by vitaGL
 			case PixelFormat::ETC2RGB8A1:
 				internalFormat = GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
 				externalFormat = GL_RGBA;
 				dataType = GL_UNSIGNED_BYTE;
 				break;
-#endif
-#if ((!defined(DEATH_TARGET_ANDROID) && defined(RHI_GL_PROFILE_ES)) || (defined(DEATH_TARGET_ANDROID) && __ANDROID_API__ >= 21)) && !defined(DEATH_TARGET_VITA)
+#if defined(RHI_GL_PROFILE_ES)
 			case PixelFormat::ASTC_4x4:
 				internalFormat = GL_COMPRESSED_RGBA_ASTC_4x4_KHR;
 				externalFormat = GL_RGBA;
@@ -282,13 +274,11 @@ namespace nCine::RHI::GL
 				externalFormat = GL_RGB;
 				dataType = GL_UNSIGNED_BYTE;
 				break;
-#if !defined(DEATH_TARGET_VITA) // GL_COMPRESSED_RGB8_ETC2 is not declared by vitaGL
 			case PixelFormat::ETC2RGB8:
 				internalFormat = GL_COMPRESSED_RGB8_ETC2;
 				externalFormat = GL_RGB;
 				dataType = GL_UNSIGNED_BYTE;
 				break;
-#endif
 			case PixelFormat::ATC_RGB:
 				internalFormat = GL_ATC_RGB_AMD;
 				externalFormat = GL_RGB;
@@ -304,7 +294,6 @@ namespace nCine::RHI::GL
 				externalFormat = GL_RGB;
 				dataType = GL_UNSIGNED_BYTE;
 				break;
-#if !defined(DEATH_TARGET_VITA) // GL_COMPRESSED_RG11_EAC / GL_COMPRESSED_R11_EAC are not declared by vitaGL
 			case PixelFormat::EAC_RG11:
 				internalFormat = GL_COMPRESSED_RG11_EAC;
 				externalFormat = GL_RG;
@@ -316,7 +305,6 @@ namespace nCine::RHI::GL
 				dataType = GL_UNSIGNED_BYTE;
 				break;
 #endif
-#endif
 
 			default:
 				FATAL_ASSERT_MSG(false, "Unsupported pixel format: {}", std::uint32_t(format));
@@ -326,9 +314,7 @@ namespace nCine::RHI::GL
 		// Convert the external format to the corresponding BGR/BGRA one, matching the former `TextureFormat::BgrFormat()`
 		if (bgr) {
 			if (externalFormat == GL_RGBA) {
-#if defined(DEATH_TARGET_VITA)
-				// vitaGL declares no GL_BGRA_EXT, BGRA source data is left unswizzled (the bgr path is unused on Vita)
-#elif defined(RHI_GL_PROFILE_ES2)
+#if defined(RHI_GL_PROFILE_ES2)
 				// ES2's GL_EXT_texture_format_BGRA8888 requires `internalformat` to be GL_BGRA_EXT as well
 				// (ES2 core mandates internal == external), unlike ES3 where only the external format changes
 				externalFormat = GL_BGRA_EXT;
@@ -394,7 +380,7 @@ namespace nCine::RHI::GL
 				FATAL_ASSERT_MSG(hasPvr, "GL_IMG_texture_compression_pvrtc not available");
 				break;
 			}
-#if (!defined(DEATH_TARGET_ANDROID) && defined(RHI_GL_PROFILE_ES)) || (defined(DEATH_TARGET_ANDROID) && __ANDROID_API__ >= 21)
+#if defined(RHI_GL_PROFILE_ES)
 			case PixelFormat::ASTC_4x4:
 			case PixelFormat::ASTC_5x4:
 			case PixelFormat::ASTC_5x5:

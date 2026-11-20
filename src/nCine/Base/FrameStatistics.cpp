@@ -4,25 +4,16 @@
 #include <algorithm>
 #include <cstring>
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-#include <winrt/Windows.System.h>
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 #pragma comment(lib, "psapi")
 #
 #include <CommonWindows.h>
 #include <psapi.h>
 #elif defined(DEATH_TARGET_APPLE)
 #include <mach/mach.h>
-#elif defined(DEATH_TARGET_ANDROID) || (defined(DEATH_TARGET_UNIX) && defined(__linux__))
+#elif defined(DEATH_TARGET_UNIX) && defined(__linux__)
 #include <cstdio>
 #include <unistd.h>
-#elif defined(DEATH_TARGET_N64)
-#include <n64sys.h>
-#elif defined(DEATH_TARGET_3DS)
-#include <3ds.h>
-#include <malloc.h>
-#elif defined(DEATH_TARGET_DREAMCAST)
-#include "../Backends/Dc/DcPlatform.h"
 #endif
 
 namespace nCine
@@ -181,11 +172,7 @@ namespace nCine
 		used = 0;
 		total = 0;
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-		// The Xbox caps what a game may use, which is the number worth comparing against
-		used = winrt::Windows::System::MemoryManager::AppMemoryUsage();
-		total = winrt::Windows::System::MemoryManager::AppMemoryUsageLimit();
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 		// Private bytes, what the process has committed for itself, rather than the working set, which also
 		// counts the shared pages of every loaded library and drops whenever the system trims it
 		PROCESS_MEMORY_COUNTERS_EX counters = {};
@@ -200,7 +187,7 @@ namespace nCine
 		if (task_info(mach_task_self(), TASK_VM_INFO, reinterpret_cast<task_info_t>(&info), &count) == KERN_SUCCESS) {
 			used = info.phys_footprint;
 		}
-#elif defined(DEATH_TARGET_ANDROID) || (defined(DEATH_TARGET_UNIX) && defined(__linux__))
+#elif defined(DEATH_TARGET_UNIX) && defined(__linux__)
 		// The resident set, the second field of statm, in pages
 		const long pageSize = ::sysconf(_SC_PAGESIZE);
 		if (FILE* f = (pageSize > 0 ? std::fopen("/proc/self/statm", "r") : nullptr)) {
@@ -210,23 +197,6 @@ namespace nCine
 			}
 			std::fclose(f);
 		}
-#elif defined(DEATH_TARGET_N64)
-		// Out of the 4 or 8 MB of RDRAM, less the code, the framebuffers and the audio buffers
-		heap_stats_t stats;
-		sys_get_heap_stats(&stats);
-		used = std::uint64_t(stats.used);
-		total = std::uint64_t(stats.total);
-#elif defined(DEATH_TARGET_3DS)
-		// The regular heap only - the linear heap every texture and vertex buffer comes out of is reported
-		// by the graphics backend, next to the video memory
-		const struct ::mallinfo info = ::mallinfo();
-		used = std::uint64_t(info.uordblks);
-		total = std::uint64_t(envGetHeapSize());
-#elif defined(DEATH_TARGET_DREAMCAST)
-		std::size_t heapUsed, heapTotal;
-		Backends::DcPlatform::GetHeapUsage(heapUsed, heapTotal);
-		used = heapUsed;
-		total = heapTotal;
 #endif
 	}
 }

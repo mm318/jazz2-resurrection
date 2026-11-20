@@ -26,8 +26,3 @@ void vertex() {
 }
 
 #include "Include/DefaultSpriteFs.inc"
-
-void fixed_function() {
-	// Weapon wheel: a vertex-fed textured line strip, only the LineStrip form is drawn
-	pipeline line_strip_mesh;
-}

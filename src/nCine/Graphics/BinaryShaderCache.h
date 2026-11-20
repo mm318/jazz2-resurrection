@@ -64,7 +64,7 @@ namespace nCine
 		bool SetPath(StringView path);
 
 	private:
-#if defined(WITH_RHI_GL) && !defined(DEATH_TARGET_VITA)
+#if defined(WITH_RHI_GL)
 		using glGetProgramBinary_t = void(__GLAPIENTRY*)(GLuint program, GLsizei bufSize, GLsizei* length, GLenum* binaryFormat, void* binary);
 		using glProgramBinary_t = void(__GLAPIENTRY*)(GLuint program, GLenum binaryFormat, const void* binary, GLsizei length);
 #endif
@@ -78,7 +78,7 @@ namespace nCine
 		/** @brief The cache directory containing the binary shaders */
 		String _path;
 
-#if defined(WITH_RHI_GL) && !defined(DEATH_TARGET_VITA)
+#if defined(WITH_RHI_GL)
 		glGetProgramBinary_t _glGetProgramBinary;
 		glProgramBinary_t _glProgramBinary;
 		GLenum _glProgramBinaryLength;

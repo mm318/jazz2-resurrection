@@ -8,9 +8,7 @@
 // the canonical Khronos value; none of them is ever requested from the driver on iOS, because no iOS asset
 // carries these formats (and a request for an unsupported format would simply fail with GL_INVALID_ENUM).
 
-#if !defined(DEATH_TARGET_IOS)
 #error GLEsAppleHeaderShims.h must only be included on iOS
-#endif
 
 // GL_EXT_texture_compression_s3tc
 #if !defined(GL_COMPRESSED_RGB_S3TC_DXT1_EXT)

@@ -35,9 +35,7 @@
 	The PlayStation®3 is deliberately absent: nothing here establishes how its file system compares names,
 	and the pass-through is only safe where that is known.
 */
-#if defined(DEATH_TARGET_WINDOWS) || defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_VITA) || \
-	defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_DREAMCAST) ||   \
-	defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || defined(DOXYGEN_GENERATING_OUTPUT)
+#if defined(DEATH_TARGET_WINDOWS) || defined(DOXYGEN_GENERATING_OUTPUT)
 #define DEATH_CASE_INSENSITIVE_FILESYSTEM
 #endif
 
@@ -265,14 +263,6 @@ namespace Death
 		 */
 			static Containers::String GetTempDirectory();
 
-#if defined(DEATH_TARGET_ANDROID) || defined(DOXYGEN_GENERATING_OUTPUT)
-			/**
-		 * @brief Returns the path of the Android external storage directory
-		 *
-		 * @partialsupport Available only on @ref DEATH_TARGET_ANDROID "Android" platform.
-		 */
-			static Containers::String GetExternalStorage();
-#endif
 #if defined(DEATH_TARGET_UNIX) || defined(DOXYGEN_GENERATING_OUTPUT)
 			/**
 		 * @brief Returns the path pointing to `${XDG_DATA_HOME}` environment variable
@@ -377,7 +367,7 @@ namespace Death
 			/** @brief Opens a file stream with specified access mode */
 			static std::unique_ptr<Stream> Open(Containers::StringView path, FileAccess mode, std::int32_t bufferSize = 8192);
 
-#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || defined(DOXYGEN_GENERATING_OUTPUT)
+#if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_WINDOWS) || defined(DOXYGEN_GENERATING_OUTPUT)
 			/**
 			@brief Memory-mapped file deleter
 		
@@ -386,7 +376,7 @@ namespace Death
 		*/
 			class MapDeleter
 			{
-#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
+#if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
 			public:
 				constexpr explicit MapDeleter()
 					: _fd {}
@@ -400,7 +390,7 @@ namespace Death
 
 			private:
 				int _fd;
-#elif defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#elif defined(DEATH_TARGET_WINDOWS)
 			public:
 				constexpr explicit MapDeleter()
 					: _hFile {}, _hMap {}

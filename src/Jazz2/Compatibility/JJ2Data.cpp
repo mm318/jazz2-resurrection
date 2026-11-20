@@ -176,7 +176,7 @@ namespace Jazz2::Compatibility
 		}
 
 		so.Seek(0, SeekOrigin::Begin);
-		bool success = output.AddFile(so, targetPath, PakPreferredCompression::Deflate);
+		bool success = output.AddFile(so, targetPath);
 		DEATH_ASSERT(success, "Cannot add file to .pak container", );
 	}
 
@@ -225,7 +225,7 @@ namespace Jazz2::Compatibility
 		JJ2Anims::WriteImageContent(so, pixels.get(), width, height, 4);
 
 		so.Seek(0, SeekOrigin::Begin);
-		bool success = output.AddFile(so, targetPath, PakPreferredCompression::Deflate);
+		bool success = output.AddFile(so, targetPath);
 		DEATH_ASSERT(success, "Cannot add file to .pak container", );
 	}
 }

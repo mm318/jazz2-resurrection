@@ -27,11 +27,3 @@ void fragment() {
 	float color = min((0.299 * tex.r + 0.587 * tex.g + 0.114 * tex.b) * 6.0, 1.0);
 	COLOR = vec4(color, color, color, tex.a) * COLOR;
 }
-
-void fixed_function() {
-	// Flat mask of the instance color: black-modulated sprite plus the color as offset, alpha from the texture
-	pass p;
-	p.color = vec4(0.0, 0.0, 0.0, COLOR.a);
-	p.offset_color = COLOR.rgb;
-	submit_quad(p);
-}

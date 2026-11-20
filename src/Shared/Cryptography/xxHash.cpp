@@ -74,9 +74,7 @@ extern "C"
  *   - Targeting macOS
  */
 #ifndef XXH_DISPATCH_SCALAR
-#if defined(__SSE2__) || (defined(_M_IX86_FP) && _M_IX86_FP >= 2) /* SSE2 on by default */ \
-	|| defined(__x86_64__) || defined(_M_X64) /* x86_64 */                                 \
-	|| defined(__ANDROID__) || defined(__APPLE__) /* Android or macOS */
+#if defined(__SSE2__) || (defined(_M_IX86_FP) && _M_IX86_FP >= 2) /* SSE2 on by default */ || defined(__x86_64__) || defined(_M_X64) /* x86_64 */ || defined(__APPLE__) /* Android or macOS */
 #define XXH_DISPATCH_SCALAR 0 /* disable */
 #else
 #define XXH_DISPATCH_SCALAR 1
@@ -97,10 +95,7 @@ extern "C"
  * @see XXH_AVX2
  */
 #ifndef XXH_DISPATCH_AVX2
-#if (defined(__GNUC__) && (__GNUC__ > 4)) /* GCC 5.0+ */                             \
-	|| (defined(_MSC_VER) && _MSC_VER >= 1900) /* VS 2015+ */                        \
-	|| (defined(_MSC_FULL_VER) && _MSC_FULL_VER >= 180030501) /* VS 2013 Update 2 */ \
-	|| XXH_HAS_INCLUDE(<avx2intrin.h>) /* GCC/Clang internal header */
+#if (defined(__GNUC__) && (__GNUC__ > 4)) /* GCC 5.0+ */ || (defined(_MSC_VER) && _MSC_VER >= 1900) /* VS 2015+ */ || (defined(_MSC_FULL_VER) && _MSC_FULL_VER >= 180030501) /* VS 2013 Update 2 */ || XXH_HAS_INCLUDE(<avx2intrin.h>) /* GCC/Clang internal header */
 #define XXH_DISPATCH_AVX2 1 /* enable dispatch towards AVX2 */
 #else
 #define XXH_DISPATCH_AVX2 0
@@ -121,9 +116,7 @@ extern "C"
  * @see XXH_AVX512
  */
 #ifndef XXH_DISPATCH_AVX512
-#if (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 9))) /* GCC 4.9+ */ \
-	|| (defined(_MSC_VER) && _MSC_VER >= 1910) /* VS 2017+ */                                      \
-	|| XXH_HAS_INCLUDE(<avx512fintrin.h>) /* GCC/Clang internal header */
+#if (defined(__GNUC__) && (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 9))) /* GCC 4.9+ */ || (defined(_MSC_VER) && _MSC_VER >= 1910) /* VS 2017+ */ || XXH_HAS_INCLUDE(<avx512fintrin.h>) /* GCC/Clang internal header */
 #define XXH_DISPATCH_AVX512 1 /* enable dispatch towards AVX512 */
 #else
 #define XXH_DISPATCH_AVX512 0
@@ -1630,9 +1623,7 @@ extern "C"
    Every one of these alignments is a cache-line hint for the SIMD accumulator paths, and this target
    takes XXH_SCALAR, so clamping the request costs nothing but a little padding. This file is always
    compiled as C++, so alignas() is the right spelling here. */
-#if defined(DEATH_TARGET_AMIGAOS)
-#define XXH_ALIGN(n) alignas((n) > 8 ? 8 : (n))
-#elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L) /* >= C11 */
+#if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L) /* >= C11 */
 #define XXH_ALIGN(n) _Alignas(n)
 #elif defined(__cplusplus) && (__cplusplus >= 201103L) /* >= C++11 */
 /* In C++ alignas() is a keyword */
@@ -1646,9 +1637,7 @@ extern "C"
 #endif
 
 /* Old GCC versions only accept the attribute after the type in structures. */
-#if !(defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)) /* C11+ */ \
-	&& !(defined(__cplusplus) && (__cplusplus >= 201103L)) /* >= C++11 */    \
-	&& defined(__GNUC__)
+#if !(defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)) /* C11+ */ && !(defined(__cplusplus) && (__cplusplus >= 201103L)) /* >= C++11 */ && defined(__GNUC__)
 #define XXH_ALIGN_MEMBER(align, type) type XXH_ALIGN(align)
 #else
 #define XXH_ALIGN_MEMBER(align, type) XXH_ALIGN(align) type
@@ -2239,8 +2228,7 @@ extern "C"
 
 #ifndef XXH_FORCE_ALIGN_CHECK /* can be defined externally */
 	/* don't check on sizeopt, x86, aarch64, or arm when unaligned access is available */
-#if XXH_SIZE_OPT >= 1 || \
-	defined(__i386) || defined(__x86_64__) || defined(__aarch64__) || defined(__ARM_FEATURE_UNALIGNED) || defined(_M_IX86) || defined(_M_X64) || defined(_M_ARM64) || defined(_M_ARM) /* visual */
+#if XXH_SIZE_OPT >= 1 || defined(__i386) || defined(__x86_64__) || defined(__aarch64__) || defined(__ARM_FEATURE_UNALIGNED) || defined(_M_IX86) || defined(_M_X64) || defined(_M_ARM64) || defined(_M_ARM) /* visual */
 #define XXH_FORCE_ALIGN_CHECK 0
 #else
 #define XXH_FORCE_ALIGN_CHECK 1
@@ -2402,7 +2390,7 @@ extern "C"
 #define XXH_RESTRICT /* disable */
 #elif defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L /* >= C99 */
 #define XXH_RESTRICT restrict
-#elif (defined(__GNUC__) && ((__GNUC__ > 3) || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))) || (defined(__clang__)) || (defined(_MSC_VER) && (_MSC_VER >= 1400)) || (defined(__INTEL_COMPILER) && (__INTEL_COMPILER >= 1300))
+#elif defined(__GNUC__) && (__GNUC__ > 3 || __GNUC__ == 3 && __GNUC_MINOR__ >= 1) || defined(__clang__) || defined(_MSC_VER) && _MSC_VER >= 1400 || defined(__INTEL_COMPILER) && __INTEL_COMPILER >= 1300
 /*
  * There are a LOT more compilers that recognize __restrict but this
  * covers the major ones.
@@ -2431,7 +2419,7 @@ extern "C"
 #endif
 #endif
 
-#if (XXH_DEBUGLEVEL >= 1)
+#if XXH_DEBUGLEVEL >= 1
 #define XXH_ASSERT(c) DEATH_ASSERT(c)
 #else
 #if defined(__INTEL_COMPILER)
@@ -2585,7 +2573,7 @@ extern "C"
 		return *(const xxh_u32*)memPtr;
 	}
 
-#elif (defined(XXH_FORCE_MEMORY_ACCESS) && (XXH_FORCE_MEMORY_ACCESS == 1))
+#elif defined(XXH_FORCE_MEMORY_ACCESS) && XXH_FORCE_MEMORY_ACCESS == 1
 
 /*
  * __attribute__((aligned(1))) is supported by gcc and clang. Originally the
@@ -2644,8 +2632,7 @@ extern "C"
  * Try to detect endianness automatically, to avoid the nonstandard behavior
  * in `XXH_isLittleEndian()`
  */
-#if defined(_WIN32) /* Windows is always little endian */ \
-	|| defined(__LITTLE_ENDIAN__) || (defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
+#if defined(_WIN32) /* Windows is always little endian */ || defined(__LITTLE_ENDIAN__) || (defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__)
 #define XXH_CPU_LITTLE_ENDIAN 1
 #elif defined(__BIG_ENDIAN__) || (defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__)
 #define XXH_CPU_LITTLE_ENDIAN 0
@@ -3314,7 +3301,7 @@ extern "C"
 		return *(const xxh_u64*)memPtr;
 	}
 
-#elif (defined(XXH_FORCE_MEMORY_ACCESS) && (XXH_FORCE_MEMORY_ACCESS == 1))
+#elif defined(XXH_FORCE_MEMORY_ACCESS) && XXH_FORCE_MEMORY_ACCESS == 1
 
 /*
  * __attribute__((aligned(1))) is supported by gcc and clang. Originally the
@@ -3937,13 +3924,7 @@ extern "C"
 #endif
 
 #ifndef XXH_VECTOR /* can be defined on command line */
-#if (                                                                                            \
-	defined(__ARM_NEON__) || defined(__ARM_NEON) /* gcc */                                       \
-	|| defined(_M_ARM) || defined(_M_ARM64) || defined(_M_ARM64EC) /* msvc */                    \
-	|| (defined(__wasm_simd128__) && XXH_HAS_INCLUDE(<arm_neon.h>)) /* wasm simd128 via SIMDe */ \
-	) &&                                                                                         \
-	(defined(_WIN32) || defined(__LITTLE_ENDIAN__) /* little endian only */                      \
-		|| (defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__))
+#if (defined(__ARM_NEON__) || defined(__ARM_NEON) /* gcc */ || defined(_M_ARM) || defined(_M_ARM64) || defined(_M_ARM64EC) /* msvc */ || (defined(__wasm_simd128__) && XXH_HAS_INCLUDE(<arm_neon.h>)) /* wasm simd128 via SIMDe */) && (defined(_WIN32) || defined(__LITTLE_ENDIAN__) /* little endian only */ || (defined(__BYTE_ORDER__) && __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__))
 #define XXH_VECTOR XXH_NEON
 #elif defined(__ARM_FEATURE_SVE)
 #define XXH_VECTOR XXH_SVE
@@ -4044,9 +4025,7 @@ extern "C"
  * -O2, but the other one we can't control without "failed to inline always
  * inline function due to target mismatch" warnings.
  */
-#if XXH_VECTOR == XXH_AVX2 /* AVX2 */                                \
-	&& defined(__GNUC__) && !defined(__clang__) /* GCC, not Clang */ \
-	&& defined(__OPTIMIZE__) && XXH_SIZE_OPT <= 0 /* respect -O0 and -Os */
+#if XXH_VECTOR == XXH_AVX2 /* AVX2 */ && defined(__GNUC__) && !(defined(__clang__) /* GCC, not Clang */) && defined(__OPTIMIZE__) && XXH_SIZE_OPT <= 0 /* respect -O0 and -Os */
 #pragma GCC push_options
 #pragma GCC optimize("-O2")
 #endif
@@ -4164,7 +4143,7 @@ extern "C"
  * @see XXH3_accumulate_512_neon()
  */
 #ifndef XXH3_NEON_LANES
-#if (defined(__aarch64__) || defined(__arm64__) || defined(_M_ARM64) || defined(_M_ARM64EC)) && !defined(__APPLE__) && XXH_SIZE_OPT <= 0
+#if (defined(__aarch64__) || defined(__arm64__) || defined(_M_ARM64) || defined(_M_ARM64EC)) && !(defined(__APPLE__)) && XXH_SIZE_OPT <= 0
 #define XXH3_NEON_LANES 6
 #else
 #define XXH3_NEON_LANES XXH_ACC_NB
@@ -4314,7 +4293,7 @@ extern "C"
 #elif defined(_MSC_VER) && (defined(_M_X64) || defined(_M_IX86)) /* _mm_prefetch() not defined outside of x86/x64 */
 #include <mmintrin.h> /* https://msdn.microsoft.com/fr-fr/library/84szxsww(v=vs.90).aspx */
 #define XXH_PREFETCH(ptr) _mm_prefetch((const char*)(ptr), _MM_HINT_T0)
-#elif defined(__GNUC__) && ((__GNUC__ >= 4) || ((__GNUC__ == 3) && (__GNUC_MINOR__ >= 1)))
+#elif defined(__GNUC__) && (__GNUC__ >= 4 || __GNUC__ == 3 && __GNUC_MINOR__ >= 1)
 #define XXH_PREFETCH(ptr) __builtin_prefetch((ptr), 0 /* rw==read */, 3 /* locality */)
 #else
 #define XXH_PREFETCH(ptr) (void)(ptr) /* disabled */
@@ -4887,9 +4866,7 @@ extern "C"
 	XXH_FORCE_INLINE xxh_u64 XXH3_mix16B(const xxh_u8* XXH_RESTRICT input,
 		const xxh_u8* XXH_RESTRICT secret, xxh_u64 seed64)
 	{
-#if defined(__GNUC__) && !defined(__clang__) /* GCC, not Clang */ \
-	&& defined(__i386__) && defined(__SSE2__) /* x86 + SSE2 */    \
-	&& !defined(XXH_ENABLE_AUTOVECTORIZE) /* Define to disable like XXH32 hack */
+#if defined(__GNUC__) && !defined(__clang__) /* GCC, not Clang */ && defined(__i386__) && defined(__SSE2__) /* x86 + SSE2 */ && !defined(XXH_ENABLE_AUTOVECTORIZE) /* Define to disable like XXH32 hack */
 		/*
 	 * UGLY HACK:
 	 * GCC for x86 tends to autovectorize the 128-bit multiply, resulting in
@@ -4980,9 +4957,7 @@ extern "C"
 			acc_end = XXH3_mix16B(input + len - 16, secret + XXH3_SECRET_SIZE_MIN - XXH3_MIDSIZE_LASTOFFSET, seed);
 			XXH_ASSERT(nbRounds >= 8);
 			acc = XXH3_avalanche(acc);
-#if defined(__clang__) /* Clang */                               \
-	&& (defined(__ARM_NEON) || defined(__ARM_NEON__)) /* NEON */ \
-	&& !defined(XXH_ENABLE_AUTOVECTORIZE) /* Define to disable */
+#if defined(__clang__) /* Clang */ && (defined(__ARM_NEON) || defined(__ARM_NEON__)) /* NEON */ && !defined(XXH_ENABLE_AUTOVECTORIZE) /* Define to disable */
 /*
 		 * UGLY HACK:
 		 * Clang for ARMv7-A tries to vectorize this loop, similar to GCC x86.
@@ -5109,7 +5084,7 @@ extern "C"
  * Both XXH3_64bits and XXH3_128bits use this subroutine.
  */
 
-#if (XXH_VECTOR == XXH_AVX512) || (defined(XXH_DISPATCH_AVX512) && XXH_DISPATCH_AVX512 != 0)
+#if XXH_VECTOR == XXH_AVX512 || defined(XXH_DISPATCH_AVX512) && XXH_DISPATCH_AVX512 != 0
 
 #ifndef XXH_TARGET_AVX512
 #define XXH_TARGET_AVX512 /* disable attribute target */
@@ -5213,7 +5188,7 @@ extern "C"
 
 #endif
 
-#if (XXH_VECTOR == XXH_AVX2) || (defined(XXH_DISPATCH_AVX2) && XXH_DISPATCH_AVX2 != 0)
+#if XXH_VECTOR == XXH_AVX2 || defined(XXH_DISPATCH_AVX2) && XXH_DISPATCH_AVX2 != 0
 
 #ifndef XXH_TARGET_AVX2
 #define XXH_TARGET_AVX2 /* disable attribute target */
@@ -5968,8 +5943,7 @@ extern "C"
 #if (XXH_VECTOR == XXH_RVV)
 #define XXH_CONCAT2(X, Y) X##Y
 #define XXH_CONCAT(X, Y) XXH_CONCAT2(X, Y)
-#if ((defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 13) || \
-	(defined(__clang__) && __clang_major__ < 16))
+#if ((defined(__GNUC__) && !defined(__clang__) && __GNUC__ < 13) || (defined(__clang__) && __clang_major__ < 16))
 #define XXH_RVOP(op) op
 #define XXH_RVCAST(op) XXH_CONCAT(vreinterpret_v_, op)
 #else
@@ -6164,8 +6138,7 @@ extern "C"
 	{
 		size_t i;
 		/* ARM GCC refuses to unroll this loop, resulting in a 24% slowdown on ARMv6. */
-#if defined(__GNUC__) && !defined(__clang__) && (defined(__arm__) || defined(__thumb2__)) && defined(__ARM_FEATURE_UNALIGNED) /* no unaligned access just wastes bytes */ \
-	&& XXH_SIZE_OPT <= 0
+#if defined(__GNUC__) && !(defined(__clang__)) && (defined(__arm__) || defined(__thumb2__)) && defined(__ARM_FEATURE_UNALIGNED) /* no unaligned access just wastes bytes */ && XXH_SIZE_OPT <= 0
 #pragma GCC unroll 8
 #endif
 		for (i = 0; i < XXH_ACC_NB; i++) {
@@ -6405,10 +6378,7 @@ extern "C"
 
 		for (i = 0; i < 4; i++) {
 			result64 += XXH3_mix2Accs(acc + 2 * i, secret + 16 * i);
-#if defined(__clang__) /* Clang */                               \
-	&& (defined(__arm__) || defined(__thumb__)) /* ARMv7 */      \
-	&& (defined(__ARM_NEON) || defined(__ARM_NEON__)) /* NEON */ \
-	&& !defined(XXH_ENABLE_AUTOVECTORIZE) /* Define to disable */
+#if defined(__clang__) /* Clang */ && (defined(__arm__) || defined(__thumb__)) /* ARMv7 */ && (defined(__ARM_NEON) || defined(__ARM_NEON__)) /* NEON */ && !defined(XXH_ENABLE_AUTOVECTORIZE) /* Define to disable */
 			/*
 		 * UGLY HACK:
 		 * Prevent autovectorization on Clang ARMv7-a. Exact same problem as
@@ -6831,7 +6801,7 @@ extern "C"
 	}
 
 #ifndef XXH3_STREAM_USE_STACK
-#if XXH_SIZE_OPT <= 0 && !defined(__clang__) /* clang doesn't need additional stack space */
+#if XXH_SIZE_OPT <= 0 && !(defined(__clang__) /* clang doesn't need additional stack space */)
 #define XXH3_STREAM_USE_STACK 1
 #endif
 #endif
@@ -7569,7 +7539,7 @@ extern "C"
 	XXH_PUBLIC_API XXH_errorcode
 	XXH3_generateSecret(XXH_NOESCAPE void* secretBuffer, size_t secretSize, XXH_NOESCAPE const void* customSeed, size_t customSeedSize)
 	{
-#if (XXH_DEBUGLEVEL >= 1)
+#if XXH_DEBUGLEVEL >= 1
 		XXH_ASSERT(secretBuffer != NULL);
 		XXH_ASSERT(secretSize >= XXH3_SECRET_SIZE_MIN);
 #else
@@ -7584,7 +7554,7 @@ extern "C"
 			customSeed = XXH3_kSecret;
 			customSeedSize = XXH_SECRET_DEFAULT_SIZE;
 		}
-#if (XXH_DEBUGLEVEL >= 1)
+#if XXH_DEBUGLEVEL >= 1
 		XXH_ASSERT(customSeed != NULL);
 #else
 		if (customSeed == NULL)
@@ -7628,9 +7598,7 @@ extern "C"
 	}
 
 /* Pop our optimization override from above */
-#if XXH_VECTOR == XXH_AVX2 /* AVX2 */                                \
-	&& defined(__GNUC__) && !defined(__clang__) /* GCC, not Clang */ \
-	&& defined(__OPTIMIZE__) && XXH_SIZE_OPT <= 0 /* respect -O0 and -Os */
+#if XXH_VECTOR == XXH_AVX2 /* AVX2 */ && defined(__GNUC__) && !(defined(__clang__) /* GCC, not Clang */) && defined(__OPTIMIZE__) && XXH_SIZE_OPT <= 0 /* respect -O0 and -Os */
 #pragma GCC pop_options
 #endif
 

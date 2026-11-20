@@ -119,11 +119,7 @@ namespace nCine
 			// overloads. Unqualified, `cos()` is the C library's double function, which a CPU without a double
 			// FPU runs in software: on the PSP that measured ~18 us per call in PPSSPP against ~0.3 us for
 			// `cosf()`, and the reforged HUD alone rotates up to fifteen elements every frame (its health carrots).
-#if defined(DEATH_TARGET_DREAMCAST)
-#define DEATH_MATRIX_ROTATION_BUILDER DEATH_NEVER_INLINE
-#else
 #define DEATH_MATRIX_ROTATION_BUILDER
-#endif
 			/** @brief Creates a rotation matrix around the X axis */
 			DEATH_MATRIX_ROTATION_BUILDER static Matrix4x4 RotationX(T radians);
 			/** @brief Creates a rotation matrix around the Y axis */
@@ -363,11 +359,8 @@ namespace nCine
 		// expressions: both keep the composition of a freshly built rotation from being folded into the
 		// caller, where its negated sine term loses its sign (see the note next to RotationZ's declaration).
 		// This is also the shape the software and PVR backends use to combine matrices.
-#if defined(DEATH_TARGET_DREAMCAST)
-		DEATH_NEVER_INLINE
-#endif
-			inline Matrix4x4<T>
-			Matrix4x4<T>::operator*(const Matrix4x4& m2) const
+		inline Matrix4x4<T>
+		Matrix4x4<T>::operator*(const Matrix4x4& m2) const
 		{
 			Matrix4x4 result;
 			const T* DEATH_RESTRICT a = Data();
@@ -568,14 +561,6 @@ namespace nCine
 		template <class T>
 		inline Matrix4x4<T>& Matrix4x4<T>::RotateX(T radians)
 		{
-#if defined(DEATH_TARGET_DREAMCAST)
-			// Composed from RotationX() instead of updating the columns in place - see the note next to the
-			// builder declarations. The barrier forces the freshly built rotation out to memory so the
-			// composition below cannot re-derive (and drop the sign of) its negated sine term.
-			Matrix4x4 r = RotationX(radians);
-			asm volatile("" : "+m"(r));
-			return (*this = *this * r);
-#else
 			Matrix4x4& m = *this;
 			const T m10 = m[1][0];
 			const T m20 = m[2][0];
@@ -600,20 +585,11 @@ namespace nCine
 			m[2][3] = -s * m13 + c * m23;
 
 			return *this;
-#endif
 		}
 
 		template <class T>
 		inline Matrix4x4<T>& Matrix4x4<T>::RotateY(T radians)
 		{
-#if defined(DEATH_TARGET_DREAMCAST)
-			// Composed from RotationY() instead of updating the columns in place - see the note next to the
-			// builder declarations. The barrier forces the freshly built rotation out to memory so the
-			// composition below cannot re-derive (and drop the sign of) its negated sine term.
-			Matrix4x4 r = RotationY(radians);
-			asm volatile("" : "+m"(r));
-			return (*this = *this * r);
-#else
 			Matrix4x4& m = *this;
 			const T m00 = m[0][0];
 			const T m20 = m[2][0];
@@ -638,20 +614,11 @@ namespace nCine
 			m[2][3] = s * m03 + c * m23;
 
 			return *this;
-#endif
 		}
 
 		template <class T>
 		inline Matrix4x4<T>& Matrix4x4<T>::RotateZ(T radians)
 		{
-#if defined(DEATH_TARGET_DREAMCAST)
-			// Composed from RotationZ() instead of updating the columns in place - see the note next to the
-			// builder declarations. The barrier forces the freshly built rotation out to memory so the
-			// composition below cannot re-derive (and drop the sign of) its negated sine term.
-			Matrix4x4 r = RotationZ(radians);
-			asm volatile("" : "+m"(r));
-			return (*this = *this * r);
-#else
 			Matrix4x4& m = *this;
 			const T m00 = m[0][0];
 			const T m10 = m[1][0];
@@ -676,7 +643,6 @@ namespace nCine
 			m[1][3] = -s * m03 + c * m13;
 
 			return *this;
-#endif
 		}
 
 		template <class T>
@@ -731,11 +697,7 @@ namespace nCine
 		{
 			const T c = std::cos(radians);
 			const T s = std::sin(radians);
-#if defined(DEATH_TARGET_DREAMCAST)
-			const T ns = std::sin(-radians); // Never "-s", see the note next to the declarations
-#else
 			const T ns = -s;
-#endif
 
 			return Matrix4x4(Vector4<T>(1, 0, 0, 0),
 				Vector4<T>(0, c, s, 0),
@@ -748,11 +710,7 @@ namespace nCine
 		{
 			const T c = std::cos(radians);
 			const T s = std::sin(radians);
-#if defined(DEATH_TARGET_DREAMCAST)
-			const T ns = std::sin(-radians); // Never "-s", see the note next to the declarations
-#else
 			const T ns = -s;
-#endif
 
 			return Matrix4x4(Vector4<T>(c, 0, ns, 0),
 				Vector4<T>(0, 1, 0, 0),
@@ -765,11 +723,7 @@ namespace nCine
 		{
 			const T c = std::cos(radians);
 			const T s = std::sin(radians);
-#if defined(DEATH_TARGET_DREAMCAST)
-			const T ns = std::sin(-radians); // Never "-s", see the note next to the declarations
-#else
 			const T ns = -s;
-#endif
 
 			return Matrix4x4(Vector4<T>(c, s, 0, 0),
 				Vector4<T>(ns, c, 0, 0),

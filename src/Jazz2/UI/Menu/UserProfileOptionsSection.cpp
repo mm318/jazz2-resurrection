@@ -9,11 +9,6 @@
 #include "../../../nCine/Application.h"
 #include "../../../nCine/I18n.h"
 
-#if defined(DEATH_TARGET_ANDROID)
-#include "../../../nCine/Backends/Android/AndroidApplication.h"
-#include "../../../nCine/Backends/Android/AndroidJniHelper.h"
-#endif
-
 #include <algorithm>
 #include <Containers/StringConcatenable.h>
 
@@ -47,10 +42,6 @@ namespace Jazz2::UI::Menu
 		  ,
 		  _uniqueIdItem(nullptr)
 #endif
-#if defined(DEATH_TARGET_ANDROID)
-		  ,
-		  _recalcVisibleBoundsTimeLeft(30.0f)
-#endif
 	{
 		_localPlayerName = PreferencesCache::PlayerName;
 		if (_localPlayerName.empty()) {
@@ -65,17 +56,6 @@ namespace Jazz2::UI::Menu
 		_previewMetadata = nullptr;
 		_previewLoaded = false;
 		_previewPaletteColor = 0;
-
-#if defined(DEATH_TARGET_ANDROID)
-		auto androidId = Backends::AndroidJniWrap_Secure::GetAndroidId();
-		if (!androidId.empty()) {
-			_deviceId = "A:"_s + androidId;
-		}
-
-		_currentVisibleBounds = Backends::AndroidJniWrap_Activity::GetVisibleBounds();
-		_initialVisibleSize.X = _currentVisibleBounds.W;
-		_initialVisibleSize.Y = _currentVisibleBounds.H;
-#endif
 	}
 
 	UserProfileOptionsSection::~UserProfileOptionsSection()
@@ -104,7 +84,7 @@ namespace Jazz2::UI::Menu
 
 		auto list = std::make_unique<ScrollView>();
 
-#if (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || defined(DEATH_TARGET_UNIX)
+#if defined(DEATH_TARGET_WINDOWS) || defined(DEATH_TARGET_UNIX)
 		// TRANSLATORS: Menu item in Options > User Profile section
 		auto* discordItem = list->Add<ChoiceItem>(_("Discord Integration"),
 			// TRANSLATORS: Option for on/off items in Options > User Profile section
@@ -129,7 +109,7 @@ namespace Jazz2::UI::Menu
 		nameInput->ReadOnly = isInGame;
 		nameInput->Icon = ""_s;
 		nameInput->Value = [this]() -> String {
-#if (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || defined(DEATH_TARGET_UNIX)
+#if defined(DEATH_TARGET_WINDOWS) || defined(DEATH_TARGET_UNIX)
 			if (DiscordRpcClient::Get().IsSupported()) {
 				StringView discordUserName = DiscordRpcClient::Get().GetUserDisplayName();
 				if (!discordUserName.empty()) {
@@ -140,7 +120,7 @@ namespace Jazz2::UI::Menu
 			return _localPlayerName;
 		};
 		nameInput->CanEdit = []() -> bool {
-#if (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || defined(DEATH_TARGET_UNIX)
+#if defined(DEATH_TARGET_WINDOWS) || defined(DEATH_TARGET_UNIX)
 			if (DiscordRpcClient::Get().IsSupported() && !DiscordRpcClient::Get().GetUserDisplayName().empty()) {
 				return false;
 			}
@@ -148,7 +128,7 @@ namespace Jazz2::UI::Menu
 			return true;
 		};
 		nameInput->ShowIcon = []() -> bool {
-#if (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || defined(DEATH_TARGET_UNIX)
+#if defined(DEATH_TARGET_WINDOWS) || defined(DEATH_TARGET_UNIX)
 			return (DiscordRpcClient::Get().IsSupported() && !DiscordRpcClient::Get().GetUserDisplayName().empty());
 #else
 			return false;
@@ -252,11 +232,7 @@ namespace Jazz2::UI::Menu
 			r->DrawStringShadow({ uniquePlayerId, length }, charOffset, centerX, y, IMenuContainer::FontLayer - 10, Alignment::Center, c, 0.8f);
 			// The second line is only drawn where HasSecondaryPlayerId() says there is one, because that is
 			// what the row reserved the extra line of height for
-#if defined(DEATH_TARGET_ANDROID)
-			if (!_deviceId.empty()) {
-				r->DrawStringShadow(_deviceId, charOffset, centerX, y + SecondaryIdLineHeight, IMenuContainer::FontLayer - 10, Alignment::Center, c, 0.8f);
-			}
-#elif (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || defined(DEATH_TARGET_UNIX)
+#if defined(DEATH_TARGET_WINDOWS) || defined(DEATH_TARGET_UNIX)
 			if (DiscordRpcClient::Get().IsSupported()) {
 				std::uint64_t userId = DiscordRpcClient::Get().GetUserId();
 				if (userId != 0) {
@@ -286,13 +262,6 @@ namespace Jazz2::UI::Menu
 
 		// While editing (and still editing after the base update handled Menu/Fire), handle the editing-only actions
 		if (wasEditing && _nameInput != nullptr && _nameInput->IsActive()) {
-#if defined(DEATH_TARGET_ANDROID)
-			_recalcVisibleBoundsTimeLeft -= timeMult;
-			if (_recalcVisibleBoundsTimeLeft <= 0.0f) {
-				_recalcVisibleBoundsTimeLeft = 60.0f;
-				_currentVisibleBounds = Backends::AndroidJniWrap_Activity::GetVisibleBounds();
-			}
-#endif
 			if (_root->ActionHit(PlayerAction::ChangeWeapon) && theApplication().CanShowScreenKeyboard()) {
 				_root->PlaySfx("MenuSelect"_s, 0.5f);
 				// Not Application::ToggleScreenKeyboard(): its show side takes no field to seed from and no
@@ -417,23 +386,6 @@ namespace Jazz2::UI::Menu
 
 			_root->DrawElement(ShowKeyboard, -1, 72.0f, titleY - 2.0f + 2.0f, IMenuContainer::MainLayer - 10, Alignment::Center, Colorf(0.0f, 0.0f, 0.0f, 0.2f));
 			_root->DrawElement(ShowKeyboard, -1, 72.0f, titleY - 2.0f, IMenuContainer::MainLayer, Alignment::Center, Colorf::White);
-
-#if defined(DEATH_TARGET_ANDROID)
-			if (_currentVisibleBounds.W < _initialVisibleSize.X || _currentVisibleBounds.H < _initialVisibleSize.Y) {
-				Vector2i viewSize = _root->GetViewSize();
-				if (_currentVisibleBounds.Y * viewSize.Y / _initialVisibleSize.Y < 32.0f) {
-					_root->DrawSolid(0.0f, 0.0f, IMenuContainer::MainLayer - 10, Alignment::TopLeft, Vector2f(viewSize.X, viewSize.Y), Colorf(0.0f, 0.0f, 0.0f, 0.6f));
-
-					std::int32_t charOffset = 0;
-					_root->DrawStringShadow(_nameInput->GetText(), charOffset, 120.0f, titleY, IMenuContainer::MainLayer,
-						Alignment::Left, Colorf(0.62f, 0.44f, 0.34f, 0.5f), 1.0f);
-
-					Vector2f textToCursorSize = _root->MeasureString(_nameInput->GetText().prefix(_nameInput->GetCursor()), 1.0f);
-					_root->DrawSolid(120.0f + textToCursorSize.X + 1.0f, titleY - 1.0f, IMenuContainer::MainLayer + 10, Alignment::Left, Vector2f(1.0f, 14.0f),
-						Colorf(1.0f, 1.0f, 1.0f, std::clamp(sinApprox(_nameInput->GetCaretAnim() * 0.1f) * 1.4f, 0.0f, 0.8f)), BlendMode::Additive);
-				}
-			}
-#endif
 		}
 	}
 
@@ -483,21 +435,12 @@ namespace Jazz2::UI::Menu
 
 	void UserProfileOptionsSection::RecalcLayoutForScreenKeyboard()
 	{
-#if defined(DEATH_TARGET_ANDROID)
-		_currentVisibleBounds = Backends::AndroidJniWrap_Activity::GetVisibleBounds();
-
-		if (_recalcVisibleBoundsTimeLeft > 30.0f) {
-			_recalcVisibleBoundsTimeLeft = 30.0f;
-		}
-#endif
 	}
 
 #if defined(WITH_MULTIPLAYER)
 	bool UserProfileOptionsSection::HasSecondaryPlayerId() const
 	{
-#if defined(DEATH_TARGET_ANDROID)
-		return !_deviceId.empty();
-#elif (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || defined(DEATH_TARGET_UNIX)
+#if defined(DEATH_TARGET_WINDOWS) || defined(DEATH_TARGET_UNIX)
 		return (DiscordRpcClient::Get().IsSupported() && DiscordRpcClient::Get().GetUserId() != 0);
 #else
 		return false;

@@ -591,7 +591,6 @@ fn assetPacker(b: *Build) *Build.Step.Compile {
         "src/Jazz2/Formats/WeaponsChunk.cpp",
         "src/Jazz2/Formats/LevelTextsChunk.cpp",
         "src/nCine/Threading/Thread.cpp",
-        "src/Utilities/AssetPacker/N64Content.cpp",
     }) |file| mod.addCSourceFile(.{
         .file = b.path(file),
         .flags = &flags,
@@ -1207,12 +1206,10 @@ const sources = struct {
     };
 
     pub const shader_tool = [_][]const u8{
-        "Utilities/ShaderCompiler/ConsoleFixedFunction.cpp",
         "Utilities/ShaderCompiler/ConstFold.cpp",
         "Utilities/ShaderCompiler/Emit.cpp",
         "Utilities/ShaderCompiler/Essl100.cpp",
         "Utilities/ShaderCompiler/GlslReflect.cpp",
-        "Utilities/ShaderCompiler/GlslToCpp.cpp",
         "Utilities/ShaderCompiler/Hlsl.cpp",
         "Utilities/ShaderCompiler/Main.cpp",
         "Utilities/ShaderCompiler/Msl.cpp",
@@ -1222,16 +1219,11 @@ const sources = struct {
     };
 
     pub const asset_tool = [_][]const u8{
-        "Utilities/AssetPacker/Iso9660.cpp",
-        "Utilities/AssetPacker/TranslationFilter.cpp",
         "Utilities/AssetPacker/LevelText.cpp",
         "Utilities/AssetPacker/ModuleConverter.cpp",
         "Utilities/AssetPacker/FontPacker.cpp",
         "Utilities/AssetPacker/Main.cpp",
         "Utilities/AssetPacker/FormatVerifier.cpp",
-        "Utilities/AssetPacker/DiscImage.cpp",
         "Utilities/AssetPacker/ContentFilter.cpp",
-        "Utilities/AssetPacker/SpriteRepacker.cpp",
-        "Utilities/AssetPacker/CartridgeImage.cpp",
     };
 };

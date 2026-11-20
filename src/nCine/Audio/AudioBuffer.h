@@ -12,12 +12,7 @@ namespace nCine
 {
 	class IAudioLoader;
 
-	/**
-		@brief Fully decoded audio buffer
-		
-		Holds an entire sound effect in device memory, can be shared by multiple @ref AudioBufferPlayer instances.
-		Where `NCINE_HAS_NATIVE_AUDIO` is defined, @ref LoadFromFile() hands the file over to the device instead.
-	*/
+	/** @brief Decoded audio loaded from runtime assets */
 	class AudioBuffer : public Object
 	{
 	public:
@@ -35,7 +30,6 @@ namespace nCine
 		/** @brief Loads audio data from the specified file */
 		bool LoadFromFile(StringView filename);
 
-#if !defined(NCINE_HAS_NATIVE_AUDIO) || defined(DOXYGEN_GENERATING_OUTPUT)
 		/** @brief Sample format */
 		using Format = IAudioDevice::BufferFormat;
 
@@ -49,7 +43,6 @@ namespace nCine
 		bool LoadFromStream(std::unique_ptr<Death::IO::Stream> fileHandle, StringView filename);
 		/** @brief Loads samples in raw PCM format from a memory buffer */
 		bool LoadFromSamples(const unsigned char* bufferPtr, std::int32_t bufferSize);
-#endif
 
 		/** @brief Returns the backend buffer id */
 		inline std::uint32_t GetBufferId() const
@@ -118,9 +111,7 @@ namespace nCine
 		/** @brief Duration in seconds */
 		float _duration;
 
-#if !defined(NCINE_HAS_NATIVE_AUDIO)
 		/** @brief Loads audio samples using the supplied loader and its reader */
 		bool Load(IAudioLoader& audioLoader);
-#endif
 	};
 }

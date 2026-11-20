@@ -89,7 +89,7 @@ namespace nCine::RHI::GL
 		// KHR_debug at all (object labelling is compiled out entirely in GLDebug.cpp - GL_DEBUG_SUPPORTED is
 		// never defined there for Vita). On both, these values are never passed to the driver, so use plain
 		// sequential enumerators instead of the GL_* object-identifier tokens.
-#if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_VITA)
+#if defined(DEATH_TARGET_APPLE)
 			Buffer,
 			Shader,
 			Program,
@@ -106,7 +106,7 @@ namespace nCine::RHI::GL
 			Texture = GL_TEXTURE,
 			RenderBuffer = GL_RENDERBUFFER,
 			FrameBuffer = GL_FRAMEBUFFER,
-#if ((defined(DEATH_TARGET_ANDROID) && __ANDROID_API__ >= 21) || (!defined(DEATH_TARGET_ANDROID) && defined(RHI_GL_PROFILE_ES))) && (GL_ES_VERSION_3_0 || (defined(RHI_GL_PROFILE_ES2) && !defined(DEATH_TARGET_VITA)))
+#if defined(RHI_GL_PROFILE_ES) && (GL_ES_VERSION_3_0 || defined(RHI_GL_PROFILE_ES2))
 			Buffer = GL_BUFFER_KHR,
 			Shader = GL_SHADER_KHR,
 			Program = GL_PROGRAM_KHR,

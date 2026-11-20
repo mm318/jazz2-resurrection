@@ -1,6 +1,6 @@
 #include "Cpu.h"
 
-#if defined(DEATH_TARGET_ARM) && ((defined(__linux__) && !(defined(DEATH_TARGET_ANDROID) && __ANDROID_API__ < 18)) || defined(__FreeBSD__))
+#if defined(DEATH_TARGET_ARM) && (defined(__linux__) || defined(__FreeBSD__))
 // getauxval() for ARM on Linux, Android with API level 18+ and FreeBSD
 #include <sys/auxv.h>
 #elif defined(DEATH_TARGET_ARM) && defined(DEATH_TARGET_APPLE)
@@ -49,11 +49,11 @@ namespace Death
 		}
 #endif
 
-#if defined(DEATH_TARGET_ARM) && ((defined(__linux__) && !(defined(DEATH_TARGET_ANDROID) && __ANDROID_API__ < 18)) || defined(DEATH_TARGET_APPLE) || defined(__FreeBSD__))
+#if defined(DEATH_TARGET_ARM) && (defined(__linux__) || defined(DEATH_TARGET_APPLE) || defined(__FreeBSD__))
 		Features runtimeFeatures()
 		{
 			// Use getauxval() on ARM on Linux and Android
-#if defined(DEATH_TARGET_ARM) && defined(__linux__) && !(defined(DEATH_TARGET_ANDROID) && __ANDROID_API__ < 18)
+#if defined(DEATH_TARGET_ARM) && defined(__linux__)
 			// People say getauxval() is "extremely slow": https://lemire.me/blog/2020/07/17/the-cost-of-runtime-dispatch/#comment-538459
 			// Like, can anything be worse than reading and parsing the text from /proc/cpuinfo?
 			return Implementation::runtimeFeatures(getauxval(AT_HWCAP));

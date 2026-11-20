@@ -4,11 +4,7 @@
 
 // Windows besides the main one exist only on desktop systems, with a backend that can make them, a build may leave them
 // out with NCINE_NO_AUXILIARY_WINDOWS
-#if ((defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || (defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_IOS)) || \
-	(defined(DEATH_TARGET_UNIX) && !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) &&  \
-		!defined(DEATH_TARGET_VITA) && !defined(DEATH_TARGET_MORPHOS))) &&                                                                  \
-	(defined(WITH_SDL2) || defined(WITH_SDL3) || defined(WITH_GLFW)) &&                                                                     \
-	!defined(DEDICATED_SERVER) && !defined(NCINE_NO_AUXILIARY_WINDOWS)
+#if (defined(DEATH_TARGET_WINDOWS) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) && !(defined(DEATH_TARGET_EMSCRIPTEN))) && (defined(WITH_SDL2) || defined(WITH_SDL3) || defined(WITH_GLFW)) && !(defined(DEDICATED_SERVER)) && !(defined(NCINE_NO_AUXILIARY_WINDOWS))
 #define NCINE_HAS_AUXILIARY_WINDOWS
 #endif
 

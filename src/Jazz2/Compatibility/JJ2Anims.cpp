@@ -888,7 +888,7 @@ namespace Jazz2::Compatibility
 			so.Seek(0, SeekOrigin::Begin);
 			// LZ4 content is stored as it is: compressing it again would only put an inflate in front of the
 			// decoder it was chosen for
-			bool success = output.AddFile(so, filename, PreferredImageCompression == ImageCompression::Lz4 ? PakPreferredCompression::None : PakPreferredCompression::Deflate);
+			bool success = output.AddFile(so, filename);
 			DEATH_ASSERT(success, "Failed to write converted asset", );
 
 			/*if (!string.IsNullOrEmpty(data.Name) && !data.SkipNormalMap) {
@@ -1072,7 +1072,7 @@ namespace Jazz2::Compatibility
 				continue;
 			}
 
-			filename = fs::CombinePath({ output.IsDirectory() ? "Sounds"_s : "Animations"_s, entry->Category, String(entry->Name + ".wav"_s) });
+			filename = fs::CombinePath({ "Sounds"_s, entry->Category, String(entry->Name + ".wav"_s) });
 
 			MemoryStream so(16384);
 
@@ -1113,7 +1113,7 @@ namespace Jazz2::Compatibility
 			}
 
 			so.Seek(0, SeekOrigin::Begin);
-			bool success = output.AddFile(so, filename, PakPreferredCompression::Deflate);
+			bool success = output.AddFile(so, filename);
 			DEATH_ASSERT(success, "Failed to write converted asset", );
 		}
 	}

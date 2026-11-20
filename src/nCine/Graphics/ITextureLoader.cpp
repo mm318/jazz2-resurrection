@@ -8,9 +8,6 @@
 #if defined(WITH_WEBP)
 #include "TextureLoaderWebP.h"
 #endif
-#if defined(DEATH_TARGET_ANDROID) && defined(RHI_GL_PROFILE_ES)
-#include "TextureLoaderPkm.h"
-#endif
 #if defined(WITH_QOI)
 #include "TextureLoaderQoi.h"
 #endif
@@ -96,11 +93,6 @@ namespace nCine
 			return std::make_unique<TextureLoaderWebP>(Death::move(fileHandle));
 		}
 #endif*/
-#if defined(DEATH_TARGET_ANDROID) && defined(RHI_GL_PROFILE_ES)
-		if (extension == "pkm"_s) {
-			return std::make_unique<TextureLoaderPkm>(Death::move(fileHandle));
-		}
-#endif
 #if defined(WITH_QOI)
 		if (extension == "qoi"_s) {
 			return std::make_unique<TextureLoaderQoi>(Death::move(fileHandle));

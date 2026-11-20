@@ -16,8 +16,6 @@
 #include "../Backends/ImGuiGlfwInput.h"
 #elif (defined(WITH_SDL2) || defined(WITH_SDL3))
 #include "../Backends/ImGuiSdlInput.h"
-#elif defined(DEATH_TARGET_ANDROID)
-#include "../Backends/Android/ImGuiAndroidInput.h"
 #endif
 
 #include <Shaders/Generated/DefaultImGui.h>
@@ -65,12 +63,6 @@ namespace nCine
 #else
 		io.BackendRendererName = "nCine_OpenGL";
 #endif
-
-		/*#if defined(DEATH_TARGET_ANDROID)
-		static char iniFilename[512];
-		nctl::strncpy(iniFilename, fs::joinPath(fs::savePath(), "imgui.ini").data(), 512);
-		io.IniFilename = iniFilename;
-#endif*/
 
 #if !(defined(RHI_GL_PROFILE_ES) && !GL_ES_VERSION_3_2) && !defined(DEATH_TARGET_EMSCRIPTEN)
 		io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset; // We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.
@@ -227,8 +219,6 @@ namespace nCine
 		ImGuiGlfwInput::NewFrame();
 #elif (defined(WITH_SDL2) || defined(WITH_SDL3))
 		ImGuiSdlInput::NewFrame();
-#elif defined(DEATH_TARGET_ANDROID)
-		ImGuiAndroidInput::NewFrame();
 #endif
 
 #if !defined(IMGUI_HAS_VIEWPORT)

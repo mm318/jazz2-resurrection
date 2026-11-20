@@ -43,11 +43,7 @@ namespace Jazz2::Tiles
 			of a large level is among the biggest allocations on a console that has 6 MB of heap for
 			everything. Any platform that scales the tile layer or samples it bilinearly needs the border.
 		*/
-#if defined(DEATH_TARGET_N64)
-		static constexpr std::int32_t TilePadding = 0;
-#else
 		static constexpr std::int32_t TilePadding = 1;
-#endif
 		/** @brief Size one tile occupies in the atlas, including @ref TilePadding on each side */
 		static constexpr std::int32_t PaddedTileSize = DefaultTileSize + 2 * TilePadding;
 		/** @brief Byte size of one tile's packed collision mask (1 bit per pixel, LSB-first, row-major - the cache file format) */

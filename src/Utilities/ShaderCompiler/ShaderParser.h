@@ -104,82 +104,6 @@ namespace ShaderCompiler
 		std::int32_t Line = 0;
 	};
 
-	/** @brief One backend a "void fixed_function(...) { ... }" block can name in its parentheses */
-	enum class FixedFunctionTarget : std::uint8_t
-	{
-		Pvr, /**< Dreamcast-specific override (wins over the generic block for that backend) */
-		Gx, /**< Wii/GameCube-specific override (wins over the generic block for that backend) */
-		Pica, /**< Nintendo 3DS-specific override (wins over the generic block for that backend) */
-		Gu, /**< PlayStation Portable-specific override (wins over the generic block for that backend) */
-		Gs, /**< PlayStation 2-specific override (wins over the generic block for that backend) */
-		Rdp, /**< Nintendo 64-specific override (wins over the generic block for that backend) */
-		LegacyGl /**< Legacy-OpenGL-specific override (MorphOS's TinyGL and any other fixed-function GL) */
-	};
-
-	/** @brief Spelling of @p target as it is written inside a block's parentheses */
-	inline const char* FixedFunctionTargetName(FixedFunctionTarget target)
-	{
-		switch (target) {
-			case FixedFunctionTarget::Gx:
-				return "gx";
-			case FixedFunctionTarget::Pica:
-				return "pica";
-			case FixedFunctionTarget::Gu:
-				return "gu";
-			case FixedFunctionTarget::Gs:
-				return "gs";
-			case FixedFunctionTarget::Rdp:
-				return "rdp";
-			case FixedFunctionTarget::LegacyGl:
-				return "legacygl";
-			default:
-				return "pvr";
-		}
-	}
-
-	/**
-		@brief The target list of a block, spelled the way the block declares it — e.g. `pvr, gu` (empty for the generic block)
-
-		The canonical spelling (declaration order, one ", " between entries) rather than the raw
-		source text, so a provenance comment in a generated header cannot change just because
-		somebody reformatted the parentheses in the shader file.
-	*/
-	inline String FixedFunctionTargetList(const SmallVectorImpl<FixedFunctionTarget>& targets)
-	{
-		String result;
-		for (std::size_t i = 0; i < targets.size(); i++) {
-			if (i != 0) {
-				result += ", ";
-			}
-			result += FixedFunctionTargetName(targets[i]);
-		}
-		return result;
-	}
-
-	/**
-		@brief One captured "void fixed_function([<target>[, <target>...]]) { ... }" block
-
-		The body is captured verbatim (like the vertex()/fragment() entry bodies) and transpiled to C++
-		offline by the fixed-function emitter (@ref ConsoleFixedFunction) — it never becomes part of the
-		lowered GLSL stages, so a shader that carries a block emits byte-identical per-shader headers.
-	*/
-	struct FixedFunctionBlock
-	{
-		/**
-			@brief Which backends the block implements, in declaration order — EMPTY for the generic block
-
-			A comma-separated target list lets one block serve several backends, which is what shaders
-			whose implementation for two consoles is literally the same code use instead of keeping two
-			byte-identical copies. Capabilities are then validated against the INTERSECTION of the
-			listed targets, so a shared block can only use what every one of them can do.
-		*/
-		SmallVector<FixedFunctionTarget, 0> Targets;
-		/** @brief Raw (unpreprocessed) statement lines of the block body */
-		SmallVector<SourceLine, 0> Lines;
-		/** @brief 1-based line number of the block header */
-		std::int32_t Line = 0;
-	};
-
 	/** @brief "render_mode" flags (bit values match ShaderCompiler::RenderMode in the generated ShaderCompilerTypes.h) */
 	enum RenderModeMask : std::uint32_t
 	{
@@ -207,7 +131,6 @@ namespace ShaderCompiler
 		/** @brief Raw (unpreprocessed) fragment-stage GLSL line stream */
 		SmallVector<SourceLine, 0> FragmentLines;
 		/** @brief Captured "fixed_function" blocks (empty for shaders with no console fixed-function implementation); a batched twin shares its primary's blocks */
-		SmallVector<FixedFunctionBlock, 0> FixedFunctionBlocks;
 		/** @brief Bitmask of @ref RenderModeMask flags (`0` when no "render_mode" is declared) */
 		std::uint32_t RenderModes = 0;
 		/** @brief Whether the document declares a vertex stage */

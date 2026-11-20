@@ -70,16 +70,7 @@ namespace nCine
 				: BatchingEnabled(true),
 #endif
 				  BatchingWithIndices(false), CullingEnabled(true), MinBatchSize(4),
-#if defined(WITH_RHI_RSX)
-				  // The PlayStation 3's batched shaders reach their instance array through the RSX's constant
-				  // registers rather than a uniform buffer, so the batch is bounded by what fits there and by
-				  // what the backend's batched corner stream covers - a far smaller number than the 585 a
-				  // 64 KB UBO holds, and one the microcode has baked in (see RsxDevice::MaxBatchSize). A
-				  // larger batch would draw its later sprites with instance data the shader cannot address.
-				  MaxBatchSize(32)
-#else
 				  MaxBatchSize(585)
-#endif
 			{
 			}
 
@@ -262,13 +253,8 @@ namespace nCine
 		/**
 		 * @brief Returns the name of the device the application is running on
 		 *
-		 * The host name wherever the platform has one - the computer name on Windows, `gethostname()` on
-		 * the POSIX systems, the nickname the console was given in its settings on the Wii and the Switch.
-		 * A console with no name of its own answers with another identifier that is stable for the device,
-		 * formatted as text: the Android ID, the WLAN MAC address of the PlayStation Portable, the OpenPSID
-		 * of the PS Vita and the PlayStation 3, the i.Link ID of the PlayStation 2, the system ID the BIOS
-		 * keeps on the Dreamcast. Empty where nothing of the kind exists (GameCube, Nintendo 64, web) or
-		 * when the query fails.
+		 * The computer name on Windows or the POSIX host name on Linux and macOS.
+		 * Empty on the web or when the query fails.
 		 */
 		static String GetDeviceHostname();
 		/** @brief Opens the specified URL in a default web browser */
@@ -413,9 +399,6 @@ namespace nCine
 		Application& operator=(const Application&) = delete;
 
 		friend class MainApplication;
-#if defined(DEATH_TARGET_ANDROID)
-		friend class AndroidApplication;
-#endif
 #if defined(WITH_QT5)
 		// The widget drives the loop and the lifetime of the embedded application, like MainApplication does
 		friend class Backends::Qt5Widget;
@@ -429,7 +412,7 @@ namespace nCine
 #if !defined(DEATH_TARGET_EMSCRIPTEN)
 		void AppendLogFileHeader(IO::Stream& s);
 #endif
-#if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS)
 		bool CreateTraceConsole(StringView title, bool& hasVirtualTerminal);
 		void DestroyTraceConsole();
 #endif

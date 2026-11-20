@@ -14,10 +14,6 @@
 #include <Environment.h>
 #include <Utf8.h>
 
-#if defined(DEATH_TARGET_ANDROID)
-#include "../../../nCine/Backends/Android/AndroidApplication.h"
-#endif
-
 namespace Jazz2::UI::Menu
 {
 	GraphicsOptionsSection::~GraphicsOptionsSection()
@@ -61,7 +57,6 @@ namespace Jazz2::UI::Menu
 		},
 			nullptr);
 
-#if defined(RHI_CAP_POSTPROCESSING)
 		// The most the scene is rendered at - the logical view is bounded by the default size scaled by this
 		// (see UpscaleRenderPass::CalculateViewSize), and a smaller display keeps a view of its own size. On PS
 		// Vita it sizes the frame surface itself instead (see PreferencesCache::ApplyRenderingResolution), so
@@ -76,18 +71,11 @@ namespace Jazz2::UI::Menu
 			return _renderingResolutionValue;
 		},
 			[this](std::int32_t direction) {
-		// Ascending presets so Right increases and Left decreases; clamped at the ends (no wraparound)
-#if defined(WITH_RHI_GXM)
-				// The Vita's frame surface is the panel scaled by this, and 75% (720x408) already covers the
-				// logical view - the full panel would only resample that same scene into 960x544 for another
-				// full-panel pass, and looks worse for it
-				static const std::int32_t presets[] = { 50, 60, 75 };
-#else
+				// Ascending presets so Right increases and Left decreases; clamped at the ends (no wraparound)
 				// Stepped evenly in fill rate (about 25%, 36%, 56%, 72% and 100% of the unscaled view's
 				// pixels), which is what the option is bought with. It stops at 50% because the preference
 				// bounds the logical view too, so anything lower also shows that much less of the level
 				static const std::int32_t presets[] = { 50, 60, 75, 85, 100 };
-#endif
 				constexpr std::int32_t count = (std::int32_t)(sizeof(presets) / sizeof(presets[0]));
 				std::int32_t index = count - 1;
 				for (std::int32_t i = 0; i < count; i++) {
@@ -106,17 +94,11 @@ namespace Jazz2::UI::Menu
 				// The drawable itself changes on PS Vita, so the device goes first and the viewports are laid out
 				// for the result; every section in the stack then lays itself out again for the new view size
 				// (at the next update, as this widget is what is asking - see MenuContainerBase)
-				PreferencesCache::ApplyRenderingResolution();
 				_root->ApplyPreferencesChanges(ChangedPreferencesType::Graphics | ChangedPreferencesType::Layout);
 				_isDirty = true;
 			});
-#endif
 
 #if defined(NCINE_HAS_WINDOWS)
-#if defined(DEATH_TARGET_WINDOWS_RT)
-		// Xbox is always fullscreen
-		if (Environment::CurrentDeviceType != DeviceType::Xbox)
-#endif
 		{
 			// TRANSLATORS: Menu item in Options > Graphics section
 			list->Add<ChoiceItem>(_("Fullscreen"),
@@ -133,7 +115,6 @@ namespace Jazz2::UI::Menu
 				});
 		}
 #endif
-#if defined(RHI_CAP_POSTPROCESSING) && !defined(DEATH_TARGET_VITA)
 		// The antialiasing subpass is part of the rescale shader chain, which the direct tier bypasses
 		// entirely, so the option is hidden there too. It is likewise hidden on PS Vita: vitaGL's runtime shader
 		// compiler cannot build the antialiasing resolve shader (see ContentResolver / UpscaleRenderPass).
@@ -152,7 +133,6 @@ namespace Jazz2::UI::Menu
 				_root->ApplyPreferencesChanges(ChangedPreferencesType::Graphics);
 				_isDirty = true;
 			});
-#endif
 #if defined(RHI_CAP_POSTPROCESSING) && !defined(RHI_LOW_POWER_GPU)
 		// The colors of the 16-bit renderer of JJ2+ (see DitheringScope), of the textured and translucent background layers
 		// themselves, of everything behind the sprites, or of the whole scene. The direct tier has no pass to do it in (the
@@ -186,7 +166,6 @@ namespace Jazz2::UI::Menu
 				_isDirty = true;
 			});
 #endif
-#if defined(RHI_CAP_POSTPROCESSING)
 		// Blur effects are not supported by the direct rendering tier. Their chain of off-screen passes is shorter
 		// at a lower lighting resolution (see PlayerViewport::Initialize()), which is what the PS Vita defaults to.
 		// TRANSLATORS: Menu item in Options > Graphics section
@@ -200,8 +179,6 @@ namespace Jazz2::UI::Menu
 				_root->ApplyPreferencesChanges(ChangedPreferencesType::Graphics);
 				_isDirty = true;
 			});
-#endif
-#if defined(RHI_CAP_POSTPROCESSING)
 		// Sizes the off-screen lighting buffer of the shader lighting path (see PlayerViewport), which the
 		// direct tier does not create at all - it composites a CPU lightmap of its own instead
 		// TRANSLATORS: Menu item in Options > Graphics section
@@ -239,7 +216,6 @@ namespace Jazz2::UI::Menu
 				_root->ApplyPreferencesChanges(ChangedPreferencesType::Graphics);
 				_isDirty = true;
 			});
-#endif
 		// Debris and weather particles (see TileMap::CreateDebris): off, about half of every burst, or all of
 		// them. Ultra is reserved for a future tier and not offered yet, so the cycle stops at High and a
 		// configuration that carries Ultra reads as High.
@@ -267,7 +243,6 @@ namespace Jazz2::UI::Menu
 				PreferencesCache::Particles = (ParticleQuality)index;
 				_isDirty = true;
 			});
-#if defined(RHI_CAP_POSTPROCESSING)
 		// Selects between the two Combine shader variants (see LevelHandler), neither of which the direct
 		// tier uses - its water is the per-row tint and wave applied by the device's software compositor
 		// TRANSLATORS: Menu item in Options > Graphics section
@@ -281,7 +256,6 @@ namespace Jazz2::UI::Menu
 				_root->ApplyPreferencesChanges(ChangedPreferencesType::Graphics);
 				_isDirty = true;
 			});
-#endif
 		// TRANSLATORS: Menu item in Options > Graphics section
 		list->Add<ChoiceItem>(_("Show Player Trails"),
 			// TRANSLATORS: Option for on/off items in Options > Graphics section
@@ -406,12 +380,6 @@ namespace Jazz2::UI::Menu
 			Rectf view = PreferencesCache::ApplySafeArea(Rectf(0.0f, 0.0f, (float)viewSize.X, (float)viewSize.Y), viewSize);
 			float metricsRight = view.X + view.W - 4.0f;
 			float metricsTop = view.Y + 1.0f;
-#if defined(DEATH_TARGET_ANDROID)
-			if (static_cast<AndroidApplication&>(theApplication()).IsScreenRound()) {
-				metricsRight = view.X + view.W / 2 + 40.0f;
-				metricsTop = view.Y + 6.0f;
-			}
-#endif
 			std::int32_t charOffset = 0;
 			char stringBuffer[32];
 			i32tos((std::int32_t)std::round(theApplication().GetFrameTimer().GetAverageFps()), stringBuffer);

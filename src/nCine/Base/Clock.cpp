@@ -10,15 +10,8 @@
 #else
 #include <mach/mach_time.h>
 #endif
-#elif defined(DEATH_TARGET_N64)
-#include <n64sys.h> // libdragon's COP0 tick counter, this newlib has no clock_gettime()
-#elif defined(DEATH_TARGET_AMIGAOS)
-#include "../Backends/Amiga/AmigaPlatform.h" // timer.device's EClock (~709 kHz), libnix has no monotonic clock_gettime()
 #else
 #include <time.h> // for clock_gettime()
-#if defined(DEATH_TARGET_PS3)
-#include <sys/systime.h> // lv2's clock, this newlib has no clock_gettime()
-#endif
 #include <sys/time.h> // for gettimeofday()
 #endif
 
@@ -50,21 +43,6 @@ namespace nCine
 		mach_timebase_info(&info);
 		_frequency = (info.denom * 1.0e9L) / info.numer;
 #endif
-#elif defined(DEATH_TARGET_N64)
-		// libdragon's newlib has no clock_gettime() either; the COP0 count register ticks at half the CPU
-		// clock (TICKS_PER_SECOND) and libdragon extends it to 64 bits, so it is the monotonic clock here
-		_frequency = TICKS_PER_SECOND;
-		_hasMonotonicClock = true;
-#elif defined(DEATH_TARGET_AMIGAOS)
-		// The CIA E-clock through timer.device's ReadEClock(), the machine's only fine-grained monotonic
-		// counter (~709379 Hz PAL / ~715909 NTSC - AmigaPlatform read the true rate at startup)
-		_frequency = Backends::AmigaPlatform::TimerFrequency();
-		_hasMonotonicClock = true;
-#elif defined(DEATH_TARGET_PS3)
-		// The powerpc64-ps3-elf newlib defines _POSIX_TIMERS only for RTEMS, so there is no clock_getres()
-		// to ask; lv2's own clock reports nanoseconds and is always there, so the answer is known statically
-		_frequency = 1.0e9L;
-		_hasMonotonicClock = true;
 #else
 		struct timespec resolution;
 		if (clock_getres(CLOCK_MONOTONIC, &resolution) == 0) {
@@ -93,14 +71,6 @@ namespace nCine
 #else
 		return mach_absolute_time();
 #endif
-#elif defined(DEATH_TARGET_N64)
-		return get_ticks();
-#elif defined(DEATH_TARGET_AMIGAOS)
-		return Backends::AmigaPlatform::TimerTicks();
-#elif defined(DEATH_TARGET_PS3)
-		std::uint64_t sec = 0, nsec = 0;
-		sysGetCurrentTime(&sec, &nsec);
-		return sec * static_cast<std::uint64_t>(_frequency) + nsec;
 #else
 		if (_hasMonotonicClock) {
 			struct timespec now;

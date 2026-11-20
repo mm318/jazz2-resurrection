@@ -8,21 +8,10 @@
 
 #include <atomic>
 
-#if defined(DEATH_TARGET_3DS)
-// libctru's individual headers carry no extern "C" of their own (only the umbrella <3ds.h> does)
-extern "C"
-{
-#include <3ds/types.h>
-#include <3ds/svc.h>
-}
-#elif defined(DEATH_TARGET_PSP)
-#include <pspthreadman.h>
-#elif defined(DEATH_TARGET_VITA)
-#include <psp2/kernel/threadmgr.h>
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 #include "../CommonWindows.h"
 #define __DEATH_SPINLOCK_CAN_YIELD
-#elif defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || (defined(DEATH_TARGET_UNIX) && !defined(DEATH_TARGET_CONSTRAINED_MEMORY))
+#elif defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) && !(defined(DEATH_TARGET_CONSTRAINED_MEMORY))
 #include <sched.h>
 #define __DEATH_SPINLOCK_CAN_YIELD
 #endif
@@ -64,21 +53,6 @@ namespace Death
 		private:
 			static void Backoff(std::uint32_t& spins) noexcept
 			{
-#if defined(DEATH_TARGET_3DS)
-				// One core, no preemption between equal priorities
-				(void)spins;
-				svcSleepThread(50000);
-#elif defined(DEATH_TARGET_PSP)
-				// Single core without time-slicing, spinning would starve the holder
-				(void)spins;
-				sceKernelDelayThread(50);
-#elif defined(DEATH_TARGET_VITA)
-				// No time-slicing, a higher-priority spinner on the holder's core would starve it
-				if (++spins >= 64) {
-					spins = 0;
-					sceKernelDelayThread(50);
-				}
-#else
 #if defined(__DEATH_SPINLOCK_CAN_YIELD)
 				// The holder may have been preempted
 				if (++spins >= 64) {
@@ -100,7 +74,6 @@ namespace Death
 				__builtin_ia32_pause();
 #elif (defined(DEATH_TARGET_GCC) || defined(DEATH_TARGET_CLANG)) && (defined(__aarch64__) || (defined(__ARM_ARCH) && __ARM_ARCH >= 7))
 				__asm__ __volatile__("yield");
-#endif
 #endif
 			}
 

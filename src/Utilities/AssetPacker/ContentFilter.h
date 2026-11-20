@@ -8,25 +8,9 @@ using namespace Death::Containers;
 
 namespace Jazz2::AssetPacker
 {
-	/**
-		@brief Decides what of a tree of game content is left out of what is made for a target
-
-		The rules `convert` copies the game's own content by, and `swap-content` and `create-image` put a tree on a
-		disc or into a ROM by, kept in one place so all of them leave out the same:
-		-   `.po` files, the sources of the translations --- the game reads only the compiled `.mo` files
-		-   `.zig` and `.cjs` files, the host tools for preparing and packaging assets
-		-   @ref N64TempDirectory at the top, which a failed conversion for the Nintendo 64 leaves behind
-		-   `Editor` at the top, what only the level editor reads (its font), for a build without the editor
-
-		What a single console can't use, such as the original music formats on the Nintendo 64, is decided where
-		the content is made for that console.
-	*/
 	class ContentFilter
 	{
 	public:
-		/** @brief Directory a conversion for the Nintendo 64 works in, at the top of the tree it makes */
-		static constexpr char N64TempDirectory[] = ".n64-temp";
-
 		/**
 			@brief Returns `true` if an entry of a content tree is left out
 

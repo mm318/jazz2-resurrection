@@ -18,7 +18,7 @@ using namespace nCine;
 
 	Needs a backend that reads the uniform memory of a command in place, the others copy it on every commit.
 */
-#if defined(WITH_RHI_RDP) || defined(DOXYGEN_GENERATING_OUTPUT)
+#if defined(DOXYGEN_GENERATING_OUTPUT)
 #define CANVAS_RETAINED_DRAWS
 #endif
 

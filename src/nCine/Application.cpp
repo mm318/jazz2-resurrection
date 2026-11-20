@@ -80,62 +80,15 @@ extern "C"
 
 #if defined(DEATH_TARGET_WINDOWS)
 // Nothing more, but not <unistd.h> below either
-#elif defined(DEATH_TARGET_ANDROID)
-#include "Backends/Android/AndroidJniHelper.h"
-#elif defined(DEATH_TARGET_SWITCH)
-#include <switch.h>
-#elif defined(DEATH_TARGET_DREAMCAST)
-#include <dc/syscalls.h>
-#include "Backends/Dc/DcPlatform.h"
-#elif defined(DEATH_TARGET_WII)
-#include <ogc/conf.h>
-#include <ogc/es.h>
-#elif defined(DEATH_TARGET_3DS)
-#include <3ds.h>
-#include "Backends/Ctr/CtrPlatform.h"
-#elif defined(DEATH_TARGET_PS2)
-extern "C"
-{
-#include <libcdvd.h>
-#include <debug.h>
-}
-#elif defined(DEATH_TARGET_PS3)
-#include <ppu-lv2.h>
-#elif defined(DEATH_TARGET_PSP)
-#include <pspwlan.h>
-#if defined(WITH_CURL)
-#include "Backends/Psp/PspNetwork.h"
-#endif
-#elif defined(DEATH_TARGET_VITA)
-#include <psp2/kernel/openpsid.h>
-#elif defined(DEATH_TARGET_N64)
-#include <backtrace.h>
-#include <n64sys.h>
-#elif !defined(DEATH_TARGET_GAMECUBE)
+#else
 #include <unistd.h>
 #endif
 
 #if defined(WITH_AUDIO)
 #if defined(WITH_OPENAL)
 #include "Audio/Backends/AL/ALAudioDevice.h"
-#elif defined(WITH_ASND)
-#include "Audio/Backends/ASND/AsndAudioDevice.h"
-#elif defined(WITH_AICA)
-#include "Audio/Backends/AICA/AicaAudioDevice.h"
-#elif defined(WITH_N64AUDIO)
-#include "Audio/Backends/N64/N64AudioDevice.h"
-#elif defined(WITH_PS3AUDIO)
-#include "Audio/Backends/PS3/Ps3AudioDevice.h"
-#elif defined(WITH_AHIAUDIO)
-#include "Audio/Backends/Amiga/AmigaAudioDevice.h"
 #elif defined(WITH_SDLAUDIO)
 #include "Audio/Backends/SDL/SdlAudioDevice.h"
-#elif defined(WITH_PSPAUDIO)
-#include "Audio/Backends/Psp/PspAudioDevice.h"
-#elif defined(WITH_PS2AUDIO)
-#include "Audio/Backends/Ps2/Ps2AudioDevice.h"
-#elif defined(WITH_NDSP)
-#include "Audio/Backends/Ndsp/NdspAudioDevice.h"
 #endif
 #endif
 
@@ -173,32 +126,9 @@ using namespace Death::IO;
 #if defined(DEATH_TARGET_WINDOWS)
 #include <Environment.h>
 #include <Utf8.h>
-#elif defined(DEATH_TARGET_ANDROID)
-#include <stdarg.h>
-#include <time.h>
-#include <unistd.h>
-#include <android/log.h>
-#include "Backends/Android/AndroidJniHelper.h"
 #else
 #include <cstdarg>
 #include <unistd.h>
-#if defined(DEATH_TARGET_SWITCH)
-#include <time.h>
-#include <switch.h>
-#elif defined(DEATH_TARGET_VITA)
-#include <psp2/kernel/clib.h>
-#elif defined(DEATH_TARGET_WIIU)
-#include <coreinit/debug.h>
-#elif defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_GAMECUBE)
-#include <ogc/exi.h>
-#include <ogc/usbgecko.h>
-#elif defined(DEATH_TARGET_DREAMCAST)
-#include <kos/dbgio.h>
-#elif defined(DEATH_TARGET_PSP)
-#include <pspdebug.h>
-#elif defined(DEATH_TARGET_PS3)
-#include <sys/tty.h>
-#endif
 #endif
 
 #if defined(DEATH_TRACE_ASYNC) && (!defined(WITH_THREADS) || defined(DEATH_TARGET_EMSCRIPTEN))
@@ -634,12 +564,10 @@ static ConsoleType __consoleType = ConsoleType::None;
 // Whether the trace sink is already attached, so Application::InitializeTrace() can be called as early as
 // an entry point is able to and still be called again by PreInitCommon() without attaching twice
 static bool __traceInitialized = false;
-#if !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_VITA) && !defined(DEATH_TARGET_WINDOWS_RT)
 static bool __consoleDarkMode = true;
 static bool __consoleSixelSupported = false;
-#endif
 
-#if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS)
 #if !defined(ENABLE_VIRTUAL_TERMINAL_INPUT)
 #define ENABLE_VIRTUAL_TERMINAL_INPUT 0x0200
 #endif
@@ -1188,7 +1116,7 @@ static void AppendMessageColor(char* dest, std::int32_t& length, TraceLevel leve
 // detection above these handlers are compiled and installed even when `DEATH_TRACE` is disabled ---
 // a dedicated server has to disconnect its peers and delist itself from the online server list on
 // the way out no matter how the build was configured
-#if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS)
 
 static BOOL WINAPI OnHandleConsoleEvent(DWORD signal)
 {
@@ -1355,89 +1283,15 @@ namespace nCine
 			but it can say what happened first, and `std::set_new_handler` is the only hook the standard
 			gives for it.
 		*/
-#if defined(DEATH_TARGET_N64)
-		/** @brief Size of the allocation that is failing, set by the `operator new` replacement below for the report */
-		std::size_t FailedAllocationSize = 0;
-#endif
 
 		void ReportFailedAllocation()
 		{
-#if defined(DEATH_TARGET_3DS)
-			// The handler is called in a loop until the allocation succeeds, so it must not return. The
-			// fatal line goes out first - it is the one that must survive even if reporting the numbers
-			// cannot allocate - and the heap status after it, because which of the two heaps ran out and
-			// how much of it the content had taken is not guessable from the failure itself
-			LOGF("Out of memory: an allocation failed and the process cannot continue");
-			Backends::CtrPlatform::LogMemoryStatus("allocation failed");
-#elif defined(DEATH_TARGET_DREAMCAST)
-			// Same reasoning as above: the heap window is the binding constraint of this console, and
-			// how much of it the content had taken is not guessable from the failure itself
-			LOGF("Out of memory: an allocation failed and the process cannot continue");
-			Backends::DcPlatform::LogMemoryStatus("allocation failed");
-#elif defined(DEATH_TARGET_N64)
-			// 8 MB of RDRAM in total, and what failed is nearly always a contiguous block that the
-			// fragmented heap could not place rather than the heap being full - the two look identical
-			// without the numbers. The requested size comes from the `operator new` replacement below;
-			// the backtrace is logged as raw return addresses (no symbol table is embedded in the ROM),
-			// resolved offline with `mips64-elf-addr2line -f -C -e build/n64/jazz2.elf <pc>`.
-			heap_stats_t stats;
-			sys_get_heap_stats(&stats);
-			LOGF("Out of memory: an allocation of {} bytes failed and the process cannot continue ({} bytes used, {} free of {}, {} free in holes, fragmentation {})",
-				FailedAllocationSize, stats.used, stats.free, stats.total, stats.fragmented, stats.fragmentation);
-			void* frames[24];
-			const std::int32_t frameCount = backtrace(frames, std::int32_t(arraySize(frames)));
-			for (std::int32_t i = 0; i < frameCount; i++) {
-				LOGF("  #{} 0x{:x}", i, std::uintptr_t(frames[i]));
-			}
-#else
 			// The handler is called in a loop until the allocation succeeds, so it must not return
 			LOGF("Out of memory: an allocation failed and the process cannot continue");
-#endif
 			std::abort();
 		}
 	}
 }
-
-#if defined(DEATH_TARGET_N64)
-// The standard `operator new` calls the new-handler without telling it what size failed, and on this
-// console the size is the diagnosis (see ReportFailedAllocation). These replace the library ones with the
-// same malloc-backed behavior, remembering the size before reporting. `operator delete` stays the default,
-// which frees with `free()` - the same allocator, so the pairing holds.
-void* operator new(std::size_t size)
-{
-	void* p = std::malloc(size != 0 ? size : 1);
-	if (p == nullptr) {
-		nCine::FailedAllocationSize = size;
-		nCine::ReportFailedAllocation();
-	}
-	return p;
-}
-
-void* operator new[](std::size_t size)
-{
-	void* p = std::malloc(size != 0 ? size : 1);
-	if (p == nullptr) {
-		nCine::FailedAllocationSize = size;
-		nCine::ReportFailedAllocation();
-	}
-	return p;
-}
-
-// The nothrow forms are what the deferred resource loads use (a sprite sheet or a sound read in
-// mid-level, see ContentResolver::RequestGraphicsAura). The library's versions call the throwing
-// `operator new` and catch `bad_alloc`, which with the replacement above would abort instead of
-// returning null - so these go to the allocator directly and hand the failure back to the caller,
-// which has a recoverable answer (a missing sprite) where the process does not
-void* operator new(std::size_t size, const std::nothrow_t&) noexcept
-{
-	return std::malloc(size != 0 ? size : 1);
-}
-
-void* operator new[](std::size_t size, const std::nothrow_t&) noexcept
-{
-	return std::malloc(size != 0 ? size : 1);
-}
-#endif
 
 namespace nCine
 {
@@ -1467,24 +1321,8 @@ namespace nCine
 		if (_appCfg.WithAudio) {
 #if defined(WITH_OPENAL)
 			theServiceLocator().RegisterAudioDevice(std::make_unique<ALAudioDevice>());
-#elif defined(WITH_ASND)
-			theServiceLocator().RegisterAudioDevice(std::make_unique<AsndAudioDevice>());
-#elif defined(WITH_AICA)
-			theServiceLocator().RegisterAudioDevice(std::make_unique<AicaAudioDevice>());
-#elif defined(WITH_N64AUDIO)
-			theServiceLocator().RegisterAudioDevice(std::make_unique<N64AudioDevice>());
-#elif defined(WITH_PS3AUDIO)
-			theServiceLocator().RegisterAudioDevice(std::make_unique<Ps3AudioDevice>());
-#elif defined(WITH_AHIAUDIO)
-			theServiceLocator().RegisterAudioDevice(std::make_unique<AmigaAudioDevice>());
 #elif defined(WITH_SDLAUDIO)
 			theServiceLocator().RegisterAudioDevice(std::make_unique<SdlAudioDevice>());
-#elif defined(WITH_PSPAUDIO)
-			theServiceLocator().RegisterAudioDevice(std::make_unique<PspAudioDevice>());
-#elif defined(WITH_PS2AUDIO)
-			theServiceLocator().RegisterAudioDevice(std::make_unique<Ps2AudioDevice>());
-#elif defined(WITH_NDSP)
-			theServiceLocator().RegisterAudioDevice(std::make_unique<NdspAudioDevice>());
 #endif
 		}
 #endif
@@ -1499,7 +1337,7 @@ namespace nCine
 			const auto& rhiCapabilities = theServiceLocator().GetRhiCapabilities();
 			RHI::Debug::Init(rhiCapabilities);
 
-#if !defined(WITH_ANGLE) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if !(defined(WITH_ANGLE)) && !(defined(DEATH_TARGET_EMSCRIPTEN))
 			if (_appCfg.FixedBatchSize > 0) {
 				LOGI("Using fixed batch size: {}", _appCfg.FixedBatchSize);
 			} else {
@@ -1903,13 +1741,6 @@ namespace nCine
 
 		theServiceLocator().UnregisterAll();
 
-#if defined(DEATH_TARGET_PSP) && defined(WITH_CURL)
-		// Before the trace goes: taking the firmware's network stack down is a sequence of calls the PS Vita's
-		// PSP emulator has killed the process in before, and a teardown that runs after the log is closed
-		// cannot say which one it was
-		Backends::PspNetwork::Shutdown();
-#endif
-
 #if defined(DEATH_TRACE)
 		ShutdownTrace();
 #endif
@@ -1917,7 +1748,7 @@ namespace nCine
 
 	void Application::SetFocus(bool hasFocus)
 	{
-#if defined(WITH_TRACY) && !defined(DEATH_TARGET_ANDROID)
+#if defined(WITH_TRACY)
 		hasFocus = true;
 #endif
 
@@ -1975,243 +1806,7 @@ namespace nCine
 
 		char logEntryWithColors[MaxLogEntryLength + 24];
 
-#if defined(DEATH_TARGET_ANDROID)
-		std::int32_t length2 = 0;
-		// Provide actual timestamps even though Android includes its own
-		AppendDateTime(logEntryWithColors, length2, timestamp);
-		logEntryWithColors[length2++] = ' ';
-		AppendLevel(logEntryWithColors, length2, level, threadId);
-		AppendFunctionName(logEntryWithColors, length2, functionName);
-		AppendPart(logEntryWithColors, length2, content.data(), (std::int32_t)content.size());
-
-		android_LogPriority priority;
-		switch (level) {
-			case TraceLevel::Fatal:
-				priority = ANDROID_LOG_FATAL;
-				break;
-			case TraceLevel::Assert: // Android doesn't support this priority, use ANDROID_LOG_ERROR instead
-			case TraceLevel::Error:
-				priority = ANDROID_LOG_ERROR;
-				break;
-			case TraceLevel::Warning:
-				priority = ANDROID_LOG_WARN;
-				break;
-			case TraceLevel::Info:
-				priority = ANDROID_LOG_INFO;
-				break;
-			default:
-				priority = ANDROID_LOG_DEBUG;
-				break;
-		}
-
-		std::int32_t result = __android_log_write(priority, NCINE_APP, logEntryWithColors);
-		std::int32_t n = 0;
-		while (result == -11 /*EAGAIN*/ && n < 2) {
-			::usleep(2000); // 2ms in microseconds
-			result = __android_log_write(priority, NCINE_APP, logEntryWithColors);
-			n++;
-		}
-#elif defined(DEATH_TARGET_SWITCH)
-		std::int32_t length2 = 0;
-		AppendLevel(logEntryWithColors, length2, level, threadId);
-		AppendFunctionName(logEntryWithColors, length2, functionName);
-		AppendPart(logEntryWithColors, length2, content.data(), (std::int32_t)content.size());
-		svcOutputDebugString(logEntryWithColors, length2);
-#elif defined(DEATH_TARGET_WIIU)
-		// OSReport() reaches Cemu's log (with coreinit logging on) and, on a console, any logging module of the
-		// Aroma environment that listens to it. Cemu logs only the format string, so the entry is passed as
-		// the format itself, with every '%' doubled so the console's formatting leaves it as it is.
-		std::int32_t length2 = 0;
-		AppendLevel(logEntryWithColors, length2, level, threadId);
-		AppendFunctionName(logEntryWithColors, length2, functionName);
-		AppendPart(logEntryWithColors, length2, content.data(), (std::int32_t)content.size());
-		char reportEntry[MaxLogEntryLength];
-		std::int32_t reportLength = 0;
-		for (std::int32_t i = 0; i < length2 && reportLength < MaxLogEntryLength - 3; i++) {
-			if (logEntryWithColors[i] == '%') {
-				reportEntry[reportLength++] = '%';
-			}
-			reportEntry[reportLength++] = logEntryWithColors[i];
-		}
-		reportEntry[reportLength++] = '\n';
-		reportEntry[reportLength] = '\0';
-		OSReport(reportEntry);
-#elif defined(DEATH_TARGET_N64)
-		// Write the message to fd 2, which libdragon routes to every log channel that answered during
-		// startup: the emulator log (ISViewer/emux, shown in the Ares log) and the flashcart's USB log.
-		// The early boot console also mirrors it on the screen until N64GfxDevice takes the display over.
-		//
-		// The write goes to the descriptor rather than through `stderr`, because libdragon makes that
-		// stream LINE-buffered (`setvbuf` in its debug init) - which is exactly wrong for the case these
-		// messages exist for. A hang or a hardware fault leaves whatever is still sitting in the FILE
-		// buffer unwritten, so the last messages before the failure - the interesting ones - never arrive.
-		// `write()` reaches the sinks with no buffer in between, and also cannot deadlock on the stdio
-		// lock when the trace comes from a thread that already holds it.
-		std::int32_t length2 = 0;
-		AppendLevel(logEntryWithColors, length2, level, threadId);
-		AppendFunctionName(logEntryWithColors, length2, functionName);
-		AppendPart(logEntryWithColors, length2, content.data(), (std::int32_t)content.size());
-		if (length2 >= MaxLogEntryLength - 2) {
-			length2 = MaxLogEntryLength - 2;
-		}
-		logEntryWithColors[length2++] = '\n';
-		::write(STDERR_FILENO, logEntryWithColors, length2);
-#elif defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_GAMECUBE)
-		std::int32_t length2 = 0;
-		AppendLevel(logEntryWithColors, length2, level, threadId);
-		AppendFunctionName(logEntryWithColors, length2, functionName);
-		AppendPart(logEntryWithColors, length2, content.data(), (std::int32_t)content.size());
-		if (length2 >= MaxLogEntryLength - 2) {
-			length2 = MaxLogEntryLength - 2;
-		}
-		logEntryWithColors[length2++] = '\n';
-
-		// Show the message on the early boot console (a no-op once OgcGfxDevice owns the video output)
-		::fwrite(logEntryWithColors, 1, length2, stdout);
-
-		// Also send it to a USB Gecko in memory card slot B - the Dolphin emulator exposes it as a raw
-		// TCP socket on port 55020 (0xd6ec, with "SlotB = 7" in Dolphin.ini) and it also works with
-		// the real adapter
-		static const bool __geckoAlive = (usb_isgeckoalive(EXI_CHANNEL_1) != 0);
-		if (__geckoAlive) {
-			usb_sendbuffer_safe(EXI_CHANNEL_1, logEntryWithColors, length2);
-		}
-#elif defined(DEATH_TARGET_3DS)
-		// svcOutputDebugString is the kernel's debug channel: Azahar (and Citra before it) print it into their
-		// log under "Debug.Emulated" (which their default filter hides - see doc/Consoles.dox), a debugger
-		// attached to the console shows it, and it costs nothing when nobody listens. Until the renderer owns
-		// the display the message also goes to the boot console on the bottom screen, so a startup failure is
-		// readable without any host tool; afterwards only warnings and errors are drawn there, because the
-		// console renders text with the CPU the game is using (see CtrPlatform::WriteBootConsole).
-		std::int32_t length2 = 0;
-		AppendLevel(logEntryWithColors, length2, level, threadId);
-		AppendFunctionName(logEntryWithColors, length2, functionName);
-		AppendPart(logEntryWithColors, length2, content.data(), (std::int32_t)content.size());
-		if (length2 >= MaxLogEntryLength - 2) {
-			length2 = MaxLogEntryLength - 2;
-		}
-		svcOutputDebugString(logEntryWithColors, length2);
-		logEntryWithColors[length2++] = '\n';
-		logEntryWithColors[length2] = '\0';
-		Backends::CtrPlatform::WriteBootConsole(logEntryWithColors, length2, level >= TraceLevel::Warning);
-#elif defined(DEATH_TARGET_DREAMCAST)
-		// Write the message to dbgio (SCIF serial by default) - the Flycast/lxdream emulators show it
-		// in their logs and dc-tool/dcload shows it in the console
-		std::int32_t length2 = 0;
-		AppendLevel(logEntryWithColors, length2, level, threadId);
-		AppendFunctionName(logEntryWithColors, length2, functionName);
-		AppendPart(logEntryWithColors, length2, content.data(), (std::int32_t)content.size());
-		if (length2 >= MaxLogEntryLength - 2) {
-			length2 = MaxLogEntryLength - 2;
-		}
-		logEntryWithColors[length2++] = '\n';
-		dbgio_write_buffer_xlat(reinterpret_cast<const std::uint8_t*>(logEntryWithColors), length2);
-#elif defined(DEATH_TARGET_PS2)
-		// A bare ELF has no connected stdout - its file descriptor is only wired up when the program was
-		// launched through ps2client - so the message goes to the EE's SIO transmit register instead.
-		// PCSX2 captures that as EE console output (with "EnableEEConsole" turned on) and it reaches a
-		// serial cable on real hardware, which is the same trade the Dreamcast makes with dbgio above.
-		std::int32_t length2 = 0;
-		AppendLevel(logEntryWithColors, length2, level, threadId);
-		AppendFunctionName(logEntryWithColors, length2, functionName);
-		AppendPart(logEntryWithColors, length2, content.data(), (std::int32_t)content.size());
-		if (length2 >= MaxLogEntryLength - 2) {
-			length2 = MaxLogEntryLength - 2;
-		}
-		logEntryWithColors[length2++] = '\n';
-		{
-			volatile std::uint8_t* const sioTx = reinterpret_cast<volatile std::uint8_t*>(0x1000F180);
-			for (std::int32_t i = 0; i < length2; i++) {
-				*sioTx = std::uint8_t(logEntryWithColors[i]);
-			}
-		}
-		// And on the boot console MainApplication::Run() opens, for as long as the renderer has not taken the
-		// Graphics Synthesizer over - the one place a trace can be read on hardware without a serial cable.
-		// Afterwards libdebug would program the GS underneath the frame being drawn, exactly the PSP's
-		// situation above, and there is a picture to look at by then anyway.
-		if (!RHI::Device::HasDisplayOwnership()) {
-			logEntryWithColors[length2] = '\0';
-			scr_printf("%s", logEntryWithColors);
-		}
-#elif defined(DEATH_TARGET_PS3)
-		// PSL1GHT's newlib routes fd 1 and 2 straight to the lv2 `sysTtyWrite` syscall rather than to a
-		// file, so an ordinary write reaches the console TTY on hardware and RPCS3's log in the emulator -
-		// no serial cable or on-screen fallback is needed the way the PS2 and PSP arms above need one.
-		// The write is issued directly instead of through stdio so a trace still gets out when the message
-		// comes from a thread that already holds stdio's lock (a fatal inside a printf, for instance).
-		std::int32_t length2 = 0;
-		AppendLevel(logEntryWithColors, length2, level, threadId);
-		AppendFunctionName(logEntryWithColors, length2, functionName);
-		AppendPart(logEntryWithColors, length2, content.data(), (std::int32_t)content.size());
-		if (length2 >= MaxLogEntryLength - 2) {
-			length2 = MaxLogEntryLength - 2;
-		}
-		logEntryWithColors[length2++] = '\n';
-		{
-			std::uint32_t written = 0;
-			sysTtyWrite(STDOUT_FILENO, logEntryWithColors, std::uint32_t(length2), &written);
-		}
-#elif defined(DEATH_TARGET_PSP)
-		// Write the message to stdout, which PSPSDK routes to the host through sceIoWrite on fd 1: the
-		// PPSSPP emulator prints it into its log and psplink shows it in its console. On real hardware
-		// launched from the firmware there is nobody listening, but pspDebugScreenPrintf below still puts
-		// it on the screen for as long as the GU session has not taken the framebuffer over - which covers
-		// exactly the startup window where a failure would otherwise be invisible.
-		std::int32_t length2 = 0;
-		AppendLevel(logEntryWithColors, length2, level, threadId);
-		AppendFunctionName(logEntryWithColors, length2, functionName);
-		AppendPart(logEntryWithColors, length2, content.data(), (std::int32_t)content.size());
-		if (length2 >= MaxLogEntryLength - 2) {
-			length2 = MaxLogEntryLength - 2;
-		}
-		logEntryWithColors[length2++] = '\n';
-		logEntryWithColors[length2] = '\0';
-		::fwrite(logEntryWithColors, 1, length2, stdout);
-		::fflush(stdout);
-		// Only while the GU session has not taken the framebuffer over. The comment above describes what
-		// this was meant to do all along, but the call used to be unconditional, so every trace line after
-		// startup - a level load, a warning, anything - was still being drawn straight into the framebuffer
-		// the game was presenting, printing debug text over the running game.
-		if (!RHI::Device::HasDisplayOwnership()) {
-			pspDebugScreenPrintf("%s", logEntryWithColors);
-		}
-#elif defined(DEATH_TARGET_VITA)
-		std::int32_t length2 = 0;
-		AppendLevel(logEntryWithColors, length2, level, threadId);
-		AppendFunctionName(logEntryWithColors, length2, functionName);
-		AppendPart(logEntryWithColors, length2, content.data(), (std::int32_t)content.size());
-		logEntryWithColors[length2] = '\0';
-		sceClibPrintf("%s", logEntryWithColors);
-#elif defined(DEATH_TARGET_AMIGAOS) || defined(DEATH_TARGET_MORPHOS)
-		std::int32_t length2 = 0;
-		AppendLevel(logEntryWithColors, length2, level, threadId);
-		AppendFunctionName(logEntryWithColors, length2, functionName);
-		AppendPart(logEntryWithColors, length2, content.data(), (std::int32_t)content.size());
-		if (length2 >= MaxLogEntryLength - 2) {
-			length2 = MaxLogEntryLength - 2;
-		}
-		logEntryWithColors[length2++] = '\n';
-
-		// Through the descriptor rather than stdio: neither Amiga system has a crash-time atexit flush,
-		// and the boot-test workflow reads the shell-redirected file after a guru - a buffered line
-		// would be exactly the one that named the crash. On MorphOS the shell redirects this to DEBUG:,
-		// which the emulator writes to its serial log.
-		::write(STDOUT_FILENO, logEntryWithColors, length2);
-#elif defined(DEATH_TARGET_WINDOWS_RT)
-		// Use OutputDebugStringA() to avoid conversion UTF-8 => UTF-16 => current code page
-		std::int32_t length2 = 0;
-		AppendDateTime(logEntryWithColors, length2, timestamp);
-		logEntryWithColors[length2++] = ' ';
-		AppendLevel(logEntryWithColors, length2, level, threadId);
-		AppendFunctionName(logEntryWithColors, length2, functionName);
-		AppendPart(logEntryWithColors, length2, content.data(), (std::int32_t)content.size());
-		if (length2 >= MaxLogEntryLength - 2) {
-			length2 = MaxLogEntryLength - 2;
-		}
-		logEntryWithColors[length2++] = '\n';
-		logEntryWithColors[length2] = '\0';
-		::OutputDebugStringA(logEntryWithColors);
-#elif !defined(DEATH_TRACE_LOG_PATH) // Log to stdout only if file logging is not force enabled
+#if !defined(DEATH_TRACE_LOG_PATH) // Log to stdout only if file logging is not force enabled
 #if defined(DEATH_TARGET_WINDOWS) && defined(DEATH_DEBUG)
 		if (__consoleType >= ConsoleType::Redirect) {
 #endif
@@ -2372,36 +1967,6 @@ namespace nCine
 
 			if (logFile != nullptr) {
 				logFile->Write(logEntryWithColors, length3);
-#if defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PS2) || \
-	defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_VITA)
-				// This file is effectively the only debugging channel these consoles have, and a hard kill
-				// (the PS button, vitacompanion's "destroy", the PS2's reset switch) runs no shutdown code,
-				// so an unflushed buffer is exactly the log that would have said why. Flushing every entry
-				// guarantees that at 8-13 ms per line on a memory card (measured on a Vita), which the
-				// continuously logging asset conversion cannot afford - so Info or worse flushes at once and
-				// the rest at most once per FlushIntervalMs, costing a hard kill some Debug chatter but never
-				// the diagnosis. Info is on the immediate side because the one-off milestones are what
-				// localize a crash; leaving them buffered once made three runs all appear to die on the same
-				// Warning, which only meant "last thing flushed".
-				// The timestamp is held as 32 bits of milliseconds because a 64-bit atomic is not lock-free
-				// everywhere in this list: on PowerPC std::atomic<std::uint64_t> lowers to __atomic_*_8
-				// libcalls devkitPPC does not ship, and the Wii and GameCube fail to link. Only the
-				// difference is ever read, so truncating is harmless across the 49-day wrap.
-				constexpr std::uint32_t FlushIntervalMs = 250;
-				static std::atomic<std::uint32_t> lastFlushMs { 0 };
-				const std::uint32_t nowMs = (std::uint32_t)(timestamp / 1000000);
-				if (level >= TraceLevel::Info) {
-					lastFlushMs.store(nowMs, std::memory_order_relaxed);
-					logFile->Flush();
-				} else {
-					std::uint32_t lastFlush = lastFlushMs.load(std::memory_order_relaxed);
-					// An unsigned wrap here (a timestamp going backwards) only ever flushes early, never late
-					if (nowMs - lastFlush >= FlushIntervalMs &&
-						lastFlushMs.compare_exchange_strong(lastFlush, nowMs, std::memory_order_relaxed)) {
-						logFile->Flush();
-					}
-				}
-#endif
 			} else {
 				AppendLogHistory(logEntryWithColors, std::uint32_t(length3));
 			}
@@ -2502,51 +2067,6 @@ namespace nCine
 		return {};
 	}
 
-#if defined(DEATH_TARGET_VITA) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_PS3)
-	// Formats a binary identifier as uppercase hex, with `separator` (if any) between the bytes. All zeros or
-	// all ones is what unprogrammed storage reads back as - an emulator with a blank NVRAM, a console whose ID
-	// was never written - so that is reported as no identifier at all rather than as one every such device
-	// would share
-	static String FormatIdentifierBytes(const std::uint8_t* bytes, std::size_t count, char separator)
-	{
-		bool allZeros = true, allOnes = true;
-		for (std::size_t i = 0; i < count; i++) {
-			if (bytes[i] != 0x00) {
-				allZeros = false;
-			}
-			if (bytes[i] != 0xFF) {
-				allOnes = false;
-			}
-		}
-		if (count == 0 || allZeros || allOnes) {
-			return {};
-		}
-
-		static const char Digits[] = "0123456789ABCDEF";
-		String result(NoInit, count * 2 + (separator != '\0' ? count - 1 : 0));
-		char* dst = result.data();
-		for (std::size_t i = 0; i < count; i++) {
-			if (i > 0 && separator != '\0') {
-				*dst++ = separator;
-			}
-			*dst++ = Digits[bytes[i] >> 4];
-			*dst++ = Digits[bytes[i] & 0x0F];
-		}
-		return result;
-	}
-#endif
-
-#if defined(DEATH_TARGET_PS3)
-	// PSL1GHT wraps no `sys_ss_get_open_psid` (lv2 syscall 872), so it's issued directly the way the SDK's own
-	// inline wrappers are written - the macro leaves the result in a register variable `return_to_user_prog`
-	// reads, which is why it needs a function of its own
-	static s32 Ps3GetOpenPsId(std::uint8_t (&psid)[16])
-	{
-		lv2syscall1(872, (u64)(std::uintptr_t)psid);
-		return_to_user_prog(s32);
-	}
-#endif
-
 	String Application::GetDeviceHostname()
 	{
 #if defined(DEATH_TARGET_WINDOWS)
@@ -2556,126 +2076,7 @@ namespace nCine
 			return Utf8::FromUtf16(hostNameW, hostNameWLength);
 		}
 		return {};
-#elif defined(DEATH_TARGET_ANDROID)
-		// A device has no host name a user would recognize; the Android ID (64 bits as hex, fixed per device,
-		// user and signing key) stands in for it
-		return Backends::AndroidJniWrap_Secure::GetAndroidId();
-#elif defined(DEATH_TARGET_SWITCH)
-		// The nickname the console was given in its settings is the nearest thing to a host name - what libnx's
-		// gethostname() answers is the current IP address, which is neither a name nor stable. A console with
-		// the nickname left empty is told apart by its serial number instead. set:sys is opened for the query
-		// only, libnx itself closes it right after reading the firmware version at startup.
-		String result;
-		if (R_SUCCEEDED(setsysInitialize())) {
-			SetSysDeviceNickName nickname {};
-			if (R_SUCCEEDED(setsysGetDeviceNickname(&nickname))) {
-				nickname.nickname[sizeof(nickname.nickname) - 1] = '\0';
-				result = nickname.nickname;
-			}
-			if (result.empty()) {
-				// The field is not terminated when the number fills it entirely
-				SetSysSerialNumber serialNumber {};
-				if (R_SUCCEEDED(setsysGetSerialNumber(&serialNumber))) {
-					std::size_t length = 0;
-					while (length < sizeof(serialNumber.number) && serialNumber.number[length] != '\0') {
-						length++;
-					}
-					result = StringView(serialNumber.number, length);
-				}
-			}
-			setsysExit();
-		}
-		return result;
-#elif defined(DEATH_TARGET_WII)
-		// The nickname the console was given in its settings is the nearest thing to a host name. The console
-		// stores it as UTF-16 and libogc narrows each character to a byte, so anything outside printable ASCII
-		// is dropped here rather than passed on as a stray byte. A console with no usable nickname is told apart
-		// by the ES device ID instead, which is unique per console. CONF_Init() is idempotent, so it doesn't
-		// matter whether the startup code already did it.
-		String result;
-		if (CONF_Init() >= 0) {
-			u8 nickname[32] {};
-			if (CONF_GetNickName(nickname) >= 0) {
-				char sanitized[sizeof(nickname)];
-				std::size_t length = 0;
-				for (std::size_t i = 0; i < sizeof(nickname) - 1 && nickname[i] != '\0'; i++) {
-					if (nickname[i] >= 0x20 && nickname[i] < 0x7F) {
-						sanitized[length++] = (char)nickname[i];
-					}
-				}
-				result = StringView(sanitized, length).trimmed();
-			}
-		}
-		if (result.empty()) {
-			u32 deviceId = 0;
-			if (ES_GetDeviceID(&deviceId) >= 0 && deviceId != 0) {
-				result = format("{:.8x}", deviceId);
-			}
-		}
-		return result;
-#elif defined(DEATH_TARGET_3DS)
-		// The user name the console was given in its settings is the nearest thing to a host name, the same
-		// choice the Wii and the Switch make. It is stored as UTF-16 in the config savegame block 0x000A0000
-		// (0x1C bytes: up to 10 characters and a terminator); anything outside printable ASCII is dropped
-		// rather than passed on as a stray byte. A console with no usable name is told apart by the console's
-		// unique ID, which every console has
-		return Backends::CtrPlatform::GetDeviceName();
-#elif defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_N64)
-		// Neither console has a host name nor any identifier a program could read: no serial number is stored
-		// anywhere software can reach, and the network adapters that would carry a MAC address are optional
-		// accessories
-		return {};
-#elif defined(DEATH_TARGET_DREAMCAST)
-		// No host name, the 64-bit identifier the BIOS keeps for the console stands in for it. The SYSINFO
-		// syscall behind it answers out of the area the firmware copies the flashrom into, which KOS prepares
-		// during its own initialization (syscall_sysinfo_init), so nothing has to be brought up here. The bytes
-		// are taken out of the value in the order they have in memory on this little-endian machine, which is
-		// the order they have in the flashrom. Not to be confused with the factory settings partition, which
-		// holds the region code and the default language and no identifier at all.
-		std::uint64_t systemId = syscall_sysinfo_id();
-		std::uint8_t id[8];
-		for (std::size_t i = 0; i < sizeof(id); i++) {
-			id[i] = (std::uint8_t)(systemId >> (i * 8));
-		}
-		return FormatIdentifierBytes(id, sizeof(id), '\0');
-#elif defined(DEATH_TARGET_PS2)
-		// No host name, the i.Link ID - the 8-byte identifier every console has, whether or not it has the
-		// physical port - stands in for it. It comes over the CDVD RPC, which MainApplication brings up long
-		// before a trace file or a device ID is asked for. The call answers 1 when it succeeded, the status
-		// it fills in describes what went wrong otherwise.
-		u8 id[8] {};
-		u32 status = 0;
-		if (sceCdRI(id, &status) == 1) {
-			return FormatIdentifierBytes(id, sizeof(id), '\0');
-		}
-		return {};
-#elif defined(DEATH_TARGET_PS3)
-		// No host name, the OpenPSID - the 16-byte console identifier the system hands out to applications -
-		// stands in for it
-		std::uint8_t psid[16] {};
-		if (Ps3GetOpenPsId(psid) == 0) {
-			return FormatIdentifierBytes(psid, sizeof(psid), '\0');
-		}
-		return {};
-#elif defined(DEATH_TARGET_PSP)
-		// No host name on this console, the WLAN's MAC address stands in for it. It's read from the console's
-		// flash rather than from a running stack, so it's available with the WLAN switch off as well and needs
-		// nothing of PspNetwork. The SDK documents the call as writing 6 bytes but asking for 8.
-		std::uint8_t mac[8] {};
-		if (sceWlanGetEtherAddr(mac) >= 0) {
-			return FormatIdentifierBytes(mac, 6, ':');
-		}
-		return {};
-#elif defined(DEATH_TARGET_VITA)
-		// No host name on this console, the OpenPSID - the 16-byte console identifier the system exposes to
-		// applications - stands in for it. The function is exported by SceLibKernel, which is linked anyway.
-		SceKernelOpenPsId psid {};
-		if (sceKernelGetOpenPsId(&psid) >= 0) {
-			// The SDK declares the identifier as `char`, but it's 16 arbitrary bytes rather than text
-			return FormatIdentifierBytes(reinterpret_cast<const std::uint8_t*>(psid.id), sizeof(psid.id), '\0');
-		}
-		return {};
-#elif !defined(DEATH_TARGET_MORPHOS) && !defined(DEATH_TARGET_EMSCRIPTEN)
+#elif !(defined(DEATH_TARGET_EMSCRIPTEN))
 		// Not on MorphOS: gethostname() there lives in bsdsocket.library, and a reference to it makes the loader
 		// open that library before the program starts - so a machine with no TCP/IP stack running would refuse
 		// to start the game. Not on the web either, where the libc answers with a constant that tells nothing.
@@ -2743,7 +2144,7 @@ namespace nCine
 
 	void Application::AttachTraceTarget(Containers::StringView targetPath, DEATH_UNUSED bool archivePrevious)
 	{
-#if defined(DEATH_TRACE) && defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TRACE) && defined(DEATH_TARGET_WINDOWS)
 		if (targetPath == ConsoleTarget) {
 			if (__consoleType == ConsoleType::None) {
 				bool hasVirtualTerminal = false;
@@ -2875,12 +2276,14 @@ namespace nCine
 #endif
 
 #if defined(DEATH_TARGET_EMSCRIPTEN)
+		// clang-format off: embedded JavaScript
 		char* userAgent = (char*)EM_ASM_PTR({
-			return (typeof navigator != = 'undefined' && navigator != = null &&
-					typeof navigator.userAgent != = 'undefined' && navigator.userAgent != = null
+			return (typeof navigator !== 'undefined' && navigator !== null &&
+					typeof navigator.userAgent !== 'undefined' && navigator.userAgent !== null
 					? stringToNewUTF8(navigator.userAgent)
 					: 0);
 		});
+		// clang-format on
 		if (userAgent != nullptr) {
 			// Only Chrome supports ANSI escape sequences for now
 			__consoleType = (::strcasestr(userAgent, "chrome") != nullptr ? ConsoleType::EscapeCodes : ConsoleType::Redirect);
@@ -2927,7 +2330,7 @@ namespace nCine
 			__consoleType = ConsoleType::EscapeCodes24bit;
 		}
 
-#elif defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#elif defined(DEATH_TARGET_WINDOWS)
 		DWORD NO_COLOR = ::GetEnvironmentVariable(L"NO_COLOR", nullptr, 0);
 		if (NO_COLOR) {
 			// Don't use colors if NO_COLOR is set, even if the console supports it
@@ -2995,7 +2398,7 @@ namespace nCine
 		__logHistory = {};
 #endif
 
-#if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS)
 		if (__consoleType >= ConsoleType::WinApi) {
 			DestroyTraceConsole();
 		}
@@ -3133,39 +2536,12 @@ namespace nCine
 #if defined(DEATH_TARGET_BIG_ENDIAN)
 		flags |= 0x80; // IsBigEndian
 #endif
-#if defined(WITH_LIBRETRO)
-		flags |= 0x4000; // IsHosted
-#endif
 		// Always reported, even for UTC itself - the flag is what tells a header that knows its timezone from one
 		// written before there was a field for it, which the reader must not take for UTC
 		flags |= 0x08; // HasTimeZoneOffset
 
-#if defined(DEATH_TARGET_WINDOWS_RT)
-		constexpr MetadataPlatform platform = MetadataPlatform::WindowsRT;
-#elif defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 		constexpr MetadataPlatform platform = MetadataPlatform::Windows;
-#elif defined(DEATH_TARGET_ANDROID)
-		constexpr MetadataPlatform platform = MetadataPlatform::Android;
-#elif defined(DEATH_TARGET_SWITCH)
-		constexpr MetadataPlatform platform = MetadataPlatform::Switch;
-#elif defined(DEATH_TARGET_N64)
-		constexpr MetadataPlatform platform = MetadataPlatform::Nintendo64;
-#elif defined(DEATH_TARGET_GAMECUBE)
-		constexpr MetadataPlatform platform = MetadataPlatform::GameCube;
-#elif defined(DEATH_TARGET_WII)
-		constexpr MetadataPlatform platform = MetadataPlatform::Wii;
-#elif defined(DEATH_TARGET_3DS)
-		constexpr MetadataPlatform platform = MetadataPlatform::Nintendo3DS;
-#elif defined(DEATH_TARGET_DREAMCAST)
-		constexpr MetadataPlatform platform = MetadataPlatform::SegaDreamcast;
-#elif defined(DEATH_TARGET_PSP)
-		constexpr MetadataPlatform platform = MetadataPlatform::PlayStationPortable;
-#elif defined(DEATH_TARGET_VITA)
-		constexpr MetadataPlatform platform = MetadataPlatform::PlayStationVita;
-#elif defined(DEATH_TARGET_AMIGAOS) || defined(DEATH_TARGET_AMIGAOS4) || defined(DEATH_TARGET_MORPHOS)
-		constexpr MetadataPlatform platform = MetadataPlatform::Amiga;
-#elif defined(DEATH_TARGET_IOS)
-		constexpr MetadataPlatform platform = MetadataPlatform::iOS;
 #elif defined(DEATH_TARGET_APPLE)
 		constexpr MetadataPlatform platform = MetadataPlatform::Apple;
 #elif defined(DEATH_TARGET_EMSCRIPTEN)
@@ -3190,20 +2566,9 @@ namespace nCine
 		if (Environment::IsWine()) {
 			flags |= 0x2000; // IsWine
 		}
-#elif defined(DEATH_TARGET_ANDROID)
-		flags |= 0x04 | 0x20; // ProcessIdEqualsToMainThreadId | RemoteDevice
-		std::uint32_t processId = (std::uint32_t)::getpid();
-#elif defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || \
-	defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_PS3) ||   \
-	defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_VITA)
-		flags |= 0x20; // RemoteDevice
-		std::uint32_t processId = (std::uint32_t)::getpid();
 #else
 #if !defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_EMSCRIPTEN)
 		flags |= 0x04; // ProcessIdEqualsToMainThreadId
-#endif
-#if defined(DEATH_TARGET_SWITCH)
-		flags |= 0x20; // RemoteDevice
 #endif
 		std::uint32_t processId = (std::uint32_t)getpid();
 #endif
@@ -3259,15 +2624,11 @@ namespace nCine
 			}
 		}
 
-#if defined(DEATH_TARGET_ANDROID)
-		auto executableFileName = nCine::Backends::AndroidJniWrap_Activity::GetPackageName();
-#else
 		auto executablePath = fs::GetExecutablePath();
 		auto executableFileName = fs::GetFileName(executablePath);
 		if (executableFileName.empty()) {
 			executableFileName = NCINE_APP;
 		}
-#endif
 
 		// The executable itself is not among the arguments, it's stripped when they are parsed
 		std::string arguments;
@@ -3429,7 +2790,7 @@ namespace nCine
 	}
 #endif
 
-#if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS)
 	bool Application::CreateTraceConsole(StringView title, bool& hasVirtualTerminal)
 	{
 		FILE* fDummy = nullptr;

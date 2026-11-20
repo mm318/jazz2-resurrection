@@ -460,29 +460,6 @@ $fs = Get-Essl100Stage $d 'fragment'
 Assert ($vs.Contains('attribute vec2 aQuadCorner;') -and -not $vs.Contains('gl_VertexID')) 'Essl100 TexturePassthrough: VS gl_VertexID not lowered to the corner attribute'
 Assert ($fs.Contains('texture2D(TEXTURE, vTexCoords)') -and $fs.Contains('gl_FragColor = COLOR;')) 'Essl100 TexturePassthrough: FS not transformed'
 
-# --- software (GlslToCpp) emission: primary-texel fast path -------------------------------------
-# The transpiler emits swTexturePrimary(in, N) for the exact `texture(uTexture, vTexCoords)` pattern
-# (the software rasterizer's gather has already fetched that texel into in.rgba); every other sample
-# (an offset UV, a computed UV, or a sampler that is not the device's primary "uTexture") must keep
-# the generic swTexture(in, N, uv) re-sample.
-$swOut = Join-Path $tempDir 'SwGenerated.h'
-& $tool --emit-sw-generated $swOut (Join-Path $testsDir 'Sprite.shader') (Join-Path $testsDir 'TexturePassthrough.shader') | Out-Null
-$swText = [System.IO.File]::ReadAllText($swOut)
-Assert ($swText.Contains('swTexturePrimary(in, 0)')) 'SwEmission: texture(uTexture, vTexCoords) not lowered to the primary-texel fast path'
-Assert (-not $swText.Contains('swTexture(in, 0, vec2(in.u, in.v))')) 'SwEmission: the primary sample still re-samples through swTexture()'
-Assert ($swText.Contains('swTexture(in, 2, vec2(in.u, in.v))')) 'SwEmission: a non-primary sampler (TEXTURE, unit 2) must keep the generic swTexture()'
-Assert (($swText.IndexOf('swTexturePrimary') -eq $swText.LastIndexOf('swTexturePrimary'))) 'SwEmission: swTexturePrimary emitted for a sampler other than uTexture'
-
-# --- software emission of a built-in input: the software fragment has no gl_FragCoord (nor any other gl_
-# input), so a shader reading one is declined with a reason instead of emitted as C++ that names an
-# undeclared variable - which broke every software build once a shader without a SOFTWARE_RENDERER branch
-# read it
-$swOut3 = Join-Path $tempDir 'SwGeneratedFragCoord.h'
-$swLog3 = & $tool --emit-sw-generated $swOut3 (Join-Path $testsDir 'SwFragCoord.shader') | Out-String
-$swText3 = [System.IO.File]::ReadAllText($swOut3)
-Assert (-not $swText3.Contains('gl_FragCoord')) 'SwFragCoord: the gl_FragCoord read was emitted into the software transpile'
-Assert ($swLog3.Contains("declined: SwFragCoord - reads built-in 'gl_FragCoord'")) 'SwFragCoord: not declined with a reason'
-
 # --- software-only varyings: a global-scope SOFTWARE_RENDERER conditional around varying
 # declarations selects per-backend declarations (spelled "#if !SOFTWARE_RENDERER" here, "#ifndef
 # SOFTWARE_RENDERER" in the bodies - both spellings must be recognized). The GL/ES2/HLSL/SPIR-V
@@ -497,16 +474,9 @@ Assert ($vs.Contains('out vec2 vPos;') -and $vs.Contains('vPos = aPosition * vec
 Assert ($fs.Contains('in vec2 vPos;') -and $fs.Contains('vec2 pos = vPos;')) 'SwVarying: GL FS lost the non-software varying/read'
 Assert (-not $h.Contains('vRect')) 'SwVarying: software-only varying leaked into the emitted header'
 Assert (-not $h.Contains('SOFTWARE_RENDERER')) 'SwVarying: SOFTWARE_RENDERER macro leaked into the emitted header'
-$swOut2 = Join-Path $tempDir 'SwGeneratedVarying.h'
-& $tool --emit-sw-generated $swOut2 (Join-Path $testsDir 'SwVarying.shader') | Out-Null
-$swText2 = [System.IO.File]::ReadAllText($swOut2)
-Assert ($swText2.Contains('io->vRect = (*reinterpret_cast<const vec4*>(instanceBlock + 80));')) 'SwVarying: SW ComputeVaryings does not fill the constant varying from the instance block'
-Assert ($swText2.Contains('unis->vRect.xy()')) 'SwVarying: SW fragment does not read the constant varying from the uniforms struct'
-Assert (-not $swText2.Contains('vPos')) 'SwVarying: non-software branch leaked into the SW transpile'
-
 # --- low-power varyings: the same global-scope conditional spelled with LOW_POWER_GPU ("#if" form here)
 # tags the varyings of a cheaper path that moves work from the fragment stage to the vertex stage. Only the
-# ESSL 100 (and Cg) emission may carry them, and a uniform that only the low-power branch of the vertex
+# ESSL 100 emission may carry them, and a uniform that only the low-power branch of the vertex
 # stage reads (uTime) must not be declared in the vertex stage of any other emission - there it would be
 # an extra member of the HLSL cbuffer / MSL argument struct - nor in the low-power fragment stage, which no
 # longer reads it, while the fragment stage of every other emission keeps it
@@ -561,13 +531,6 @@ Assert ($fs.Contains("#if 0 || defined(SLOPE)`n	c.rgb += vec3(0.07);`n#endif") -
     -not ($fsDither -match '(?m)^\s*#.*\bSLOPE\b')) 'BackendConditionals: "#if DITHER || SLOPE" not decided in the DITHER variant and lowered in the base one'
 Assert ($fs.Contains('c.rgb = c.rgb * c.rgb;') -and -not $fs.Contains('clamp')) 'BackendConditionals: "#if defined(SOFTWARE_RENDERER)" did not resolve to its #else side'
 Assert (-not $h.Contains('SOFTWARE_RENDERER') -and -not $h.Contains('NO_DYNAMIC_BRANCHING')) 'BackendConditionals: a backend macro leaked into the emitted header'
-$swOut3 = Join-Path $tempDir 'SwGeneratedBackend.h'
-& $tool --emit-sw-generated $swOut3 (Join-Path $testsDir 'BackendConditionals.shader') | Out-Null
-$swText3 = [System.IO.File]::ReadAllText($swOut3)
-Assert ($swText3.Contains('clamp')) 'BackendConditionals: the SW transpile did not take the "#if defined(SOFTWARE_RENDERER)" side'
-Assert (-not $swText3.Contains('0.01') -and -not $swText3.Contains('0.06')) 'BackendConditionals: a "&& !SOFTWARE_RENDERER" block survived into the SW transpile'
-Assert (-not $swText3.Contains('SOFTWARE_RENDERER')) 'BackendConditionals: a backend macro leaked into the SW transpile'
-
 # --- MultiOutput: multiple fragment outputs (MRT) across the offline targets ----------------------
 # The render-target contract: fragment "out" declarations map to render targets in DECLARATION ORDER
 # of the emitted stage source (user-declared extras precede the tool-appended COLOR). The GL source
@@ -596,42 +559,6 @@ Assert (-not $hl.Contains(': SV_Target`n')) 'MultiOutput: the single-output SV_T
 Assert ($es.Contains('multiple fragment outputs')) 'MultiOutput: ESSL100 did not decline the multi-output fragment stage'
 Assert (-not $es.Contains('NORMAL =')) 'MultiOutput: ESSL100 emitted a mangled fragment stage instead of declining'
 
-$swOut3 = Join-Path $tempDir 'SwGeneratedMultiOut.h'
-$previousPreference = $ErrorActionPreference
-$ErrorActionPreference = 'Continue'
-$swMsg = (& $tool --emit-sw-generated $swOut3 (Join-Path $testsDir 'MultiOutput.shader') 2>&1 | Out-String -Width 4096)
-$ErrorActionPreference = $previousPreference
-$swText3 = [System.IO.File]::ReadAllText($swOut3)
-Assert ($swMsg.Contains("declined: MultiOutput") -and $swMsg.Contains("fragment output 'NORMAL' is unsupported")) 'MultiOutput: SW transpile did not decline with the MRT diagnostic'
-Assert (-not $swText3.Contains('MultiOutput_Fragment')) 'MultiOutput: a fragment function for the declined shader leaked into the SW header'
-
-# --- fixed_function: a pipeline binding WITH passes, uniform_float, and the SamplesTexture analysis --
-
-$ffOut = Join-Path $tempDir 'PvrPipelinePasses.h'
-& $tool --emit-fixed-function pvr $ffOut (Join-Path $testsDir 'fixedfunction\PipelinePasses.shader') | Out-Null
-Assert ($LASTEXITCODE -eq 0) 'PipelinePasses: --emit-fixed-function pvr failed'
-$ff = [System.IO.File]::ReadAllText($ffOut)
-# The whole point: ONE entry carrying both the stage and a function, which used to be mutually exclusive
-Assert ($ff -match '\{ "PipelinePasses", "",[^\n]*FixedFunctionIntrinsic::LightingCombine, &PipelinePasses_Effect \}') `
-    'PipelinePasses: the table row does not carry both the LightingCombine stage and the effect function'
-Assert ($ff.Contains('UniformFloat(ctx, "uLevel")')) 'PipelinePasses: uniform_float() did not lower to the UniformFloat bridge'
-# Through the support code's bridge, which cuts the strip first while strip_clip() is in effect
-Assert ($ff.Contains('SubmitStripShaded(ctx, p, 4)')) 'PipelinePasses: the shaded strip was not emitted'
-# An effect that only submits shaded strips never samples, so the dispatch must not require a texture
-# for it - the program declares uTexture purely for the fragment stage the console tiers never run
-$ffRow = ([regex]'\{ "PipelinePasses", "",[^\n]*').Match($ff).Value
-Assert (-not $ffRow.Contains('SamplesTexture')) 'PipelinePasses: a shaded-strip-only effect must not claim SamplesTexture'
-Assert ($ffRow.Contains('NeedsStripBuilder') -and $ffRow.Contains('NeedsQuadAxes') -and $ffRow.Contains('NeedsUniforms')) `
-    'PipelinePasses: the strip-builder / quad-axes / uniform requirements were not recorded'
-
-$previousPreference = $ErrorActionPreference
-$ErrorActionPreference = 'Continue'
-$ffErr = (& $tool --emit-fixed-function pvr (Join-Path $tempDir 'PvrNotFirst.h') (Join-Path $testsDir 'fixedfunction\PipelineNotFirst.shader') 2>&1 | Out-String -Width 4096)
-$ffErrExit = $LASTEXITCODE
-$ErrorActionPreference = $previousPreference
-Assert ($ffErrExit -ne 0) 'PipelineNotFirst: a pipeline binding after a pass should be rejected'
-Assert ($ffErr.Contains('must be the first statement')) "PipelineNotFirst: unexpected diagnostic: $ffErr"
-
 # --- combined variants: "variant PLUS + DITHER;" is one more variant, PLUS_DITHER, compiled with both defines - its
 # GL source is resolved for both (and holds neither define, nothing names them any more, nor a helper only other
 # variants call), the ProgramVariant initializer names both and the fixed_function block takes the path of both; no
@@ -648,14 +575,6 @@ Assert ($fs.Contains('vec4 ditherTap(vec2 uv)') -and -not (Get-Source $h 'Combin
     'VariantCombination: a helper only the DITHER variants call was not removed from the others'
 Assert ($h.Contains('{ "PLUS_DITHER", "PLUS DITHER",')) 'VariantCombination: the ProgramVariant initializer does not name the combination and its defines'
 Assert (-not $h.Contains('DITHER_KEYED') -and -not $h.Contains('KEYED_DITHER')) 'VariantCombination: a combination that was not declared was emitted'
-$ffOut2 = Join-Path $tempDir 'PvrVariantCombination.h'
-& $tool --emit-fixed-function pvr $ffOut2 (Join-Path $testsDir 'VariantCombination.shader') | Out-Null
-$ffText2 = [System.IO.File]::ReadAllText($ffOut2)
-Assert ($ffText2.Contains('{ "Combined", "PLUS_DITHER", false, FixedFunctionRequirements::SamplesTexture, FixedFunctionIntrinsic::None, &Combined_PLUS_DITHER_Effect }')) `
-    'VariantCombination: the fixed_function block of the combination did not see both defines'
-Assert ($ffText2.Contains('{ "Combined", "PLUS_KEYED", false, FixedFunctionRequirements::SamplesTexture, FixedFunctionIntrinsic::None, &Combined_Effect }')) `
-    'VariantCombination: a combination without DITHER took the path of both'
-
 Write-Host ''
 if ($failures -eq 0) {
     Write-Host "All tests passed ($passed assertions)."

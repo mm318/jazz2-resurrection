@@ -337,7 +337,6 @@ namespace nCine
 			shaderToLoad.shaderProgram->SetReflection(&variant);
 			// The generated program name + variant name are the identity the fixed-function console
 			// backends resolve their generated effect tables from (the shaderName is only a label)
-			shaderToLoad.shaderProgram->SetProgramIdentity(shaderToLoad.program.Name, variant.Name);
 #if !defined(RHI_CAP_BATCHING)
 			// Where the backend does not batch, the batched programs are never used, so skip compiling them -
 			// the program object stays created (RegisterDefaultBatchedShaders only stores its pointer) but
@@ -448,7 +447,6 @@ namespace nCine
 					// Reset() on a retry clears the reflection and the identity, so both are set (again)
 					// right before linking
 					shaderToLoad.shaderProgram->SetReflection(&variant);
-					shaderToLoad.shaderProgram->SetProgramIdentity(shaderToLoad.program.Name, variant.Name);
 					hasLinked = shaderToLoad.shaderProgram->Link(shaderToLoad.introspection);
 				}
 				if (hasLinked || !hasBatchSizeDefine || batchSize <= 1) {

@@ -7,9 +7,6 @@ namespace Jazz2::Rendering
 {
 	void BlurRenderPass::Initialize(Texture* source, std::int32_t width, std::int32_t height, Vector2f direction)
 	{
-#if !defined(RHI_CAP_SHADERS) || !defined(RHI_CAP_FRAMEBUFFERS)
-		// Blur post-processing requires shader support and framebuffers
-#else
 		_downsampleOnly = (direction.X <= std::numeric_limits<float>::epsilon() && direction.Y <= std::numeric_limits<float>::epsilon());
 		_copyOnly = false;
 		_direction = direction;
@@ -28,12 +25,10 @@ namespace Jazz2::Rendering
 		if (textureUniform && textureUniform->GetIntValue(0) != 0) {
 			textureUniform->SetIntValue(0); // GL_TEXTURE0
 		}
-#endif
 	}
 
 	void BlurRenderPass::InitializeCopy(Texture* source, std::int32_t width, std::int32_t height)
 	{
-#if defined(RHI_CAP_SHADERS) && defined(RHI_CAP_FRAMEBUFFERS)
 		_downsampleOnly = false;
 		_copyOnly = true;
 		_direction = Vector2f(0.0f, 0.0f);
@@ -49,12 +44,10 @@ namespace Jazz2::Rendering
 		if (textureUniform && textureUniform->GetIntValue(0) != 0) {
 			textureUniform->SetIntValue(0); // GL_TEXTURE0
 		}
-#endif
 	}
 
 	void BlurRenderPass::InitializeTarget(Texture* source, std::int32_t width, std::int32_t height)
 	{
-#if defined(RHI_CAP_SHADERS) && defined(RHI_CAP_FRAMEBUFFERS)
 		_source = source;
 
 		bool notInitialized = (_view == nullptr);
@@ -78,17 +71,14 @@ namespace Jazz2::Rendering
 			_view->SetTexture(_target.get());
 		}
 		_target->SetMagFiltering(SamplerFilter::Linear);
-#endif
 	}
 
 	void BlurRenderPass::Register()
 	{
-#if defined(RHI_CAP_SHADERS) && defined(RHI_CAP_FRAMEBUFFERS)
 		// A disposed pass has no view, and a null entry would end the chain there (see Viewport::Draw())
 		if (_view != nullptr) {
 			Viewport::GetChain().push_back(_view.get());
 		}
-#endif
 	}
 
 	void BlurRenderPass::Dispose()
@@ -101,10 +91,6 @@ namespace Jazz2::Rendering
 
 	bool BlurRenderPass::OnDraw(RenderQueue& renderQueue)
 	{
-#if !defined(RHI_CAP_SHADERS) || !defined(RHI_CAP_FRAMEBUFFERS)
-		// Blur post-processing requires shader support and framebuffers
-		return true;
-#else
 		Vector2i size = _target->GetSize();
 
 		auto* instanceBlock = _renderCommand.GetMaterial().UniformBlock(Material::InstanceBlockName);
@@ -123,6 +109,5 @@ namespace Jazz2::Rendering
 		renderQueue.AddCommand(&_renderCommand);
 
 		return true;
-#endif
 	}
 }

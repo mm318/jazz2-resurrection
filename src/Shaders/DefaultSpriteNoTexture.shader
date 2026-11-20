@@ -21,10 +21,3 @@ void vertex() {
 }
 
 #include "Include/DefaultSpriteNoTextureFs.inc"
-
-void fixed_function() {
-	// Solid-color quad; not in the shared include because the MeshSprite programs use it too
-	pass p;
-	p.color = COLOR;
-	submit_quad(p);
-}
