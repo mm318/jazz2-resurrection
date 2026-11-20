@@ -43,9 +43,12 @@ namespace Jazz2::Editor
 		String path = ContentResolver::Get().FindContentFile(fs::CombinePath("Tilesets"_s, String(fs::ToNativeSeparators(tileSet) + ".rules"_s)));
 		// An empty file left behind counts as none, there's nothing in it to lose
 		switch (Utils::JsonFile::Read(path, doc, MaxRulesSize, String("Rules of tile set \""_s + tileSet + "\""_s))) {
-			case Utils::JsonFile::ReadResult::Ok: return ReadResult::Ok;
-			case Utils::JsonFile::ReadResult::Unreadable: return ReadResult::Unreadable;
-			default: return ReadResult::Missing;
+			case Utils::JsonFile::ReadResult::Ok:
+				return ReadResult::Ok;
+			case Utils::JsonFile::ReadResult::Unreadable:
+				return ReadResult::Unreadable;
+			default:
+				return ReadResult::Missing;
 		}
 	}
 

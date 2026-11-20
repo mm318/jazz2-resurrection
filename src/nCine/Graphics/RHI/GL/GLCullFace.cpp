@@ -30,7 +30,10 @@ namespace nCine::RHI::GL
 
 	void GLCullFace::Reapply()
 	{
-		if (_state.enabled) glEnable(GL_CULL_FACE); else glDisable(GL_CULL_FACE);
+		if (_state.enabled)
+			glEnable(GL_CULL_FACE);
+		else
+			glDisable(GL_CULL_FACE);
 		glCullFace(_state.mode);
 	}
 

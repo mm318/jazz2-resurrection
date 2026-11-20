@@ -15,10 +15,10 @@ namespace Jazz2
 	*/
 	enum class SfxFlags
 	{
-		None = 0,					/**< Plain one-shot sound */
+		None = 0, /**< Plain one-shot sound */
 
-		Exclusive = 0x01,			/**< Replaces the previous instance of the same sound from the same actor, follows the actor while it plays */
-		Looping = 0x02				/**< Loops until stopped, use together with @ref SfxFlags::Exclusive */
+		Exclusive = 0x01, /**< Replaces the previous instance of the same sound from the same actor, follows the actor while it plays */
+		Looping = 0x02 /**< Loops until stopped, use together with @ref SfxFlags::Exclusive */
 	};
 
 	DEATH_ENUM_FLAGS(SfxFlags);

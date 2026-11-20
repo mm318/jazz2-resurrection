@@ -45,11 +45,13 @@ namespace Jazz2::Editor
 		~EditorShell() override;
 
 		/** @brief Returns the part of the screen the level is seen in, between the panels */
-		Rectf GetViewRect() const {
+		Rectf GetViewRect() const
+		{
 			return _viewRect;
 		}
 		/** @brief Returns `true` if the interface is laid out for a small screen, with the panels in drawers */
-		bool IsCompact() const {
+		bool IsCompact() const
+		{
 			return _compact;
 		}
 		/** @brief Opens or closes the drawer of the panel with the tiles and the events, or of the panel on the right */

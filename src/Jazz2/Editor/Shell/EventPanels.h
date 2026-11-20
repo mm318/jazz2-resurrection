@@ -28,11 +28,13 @@ namespace Jazz2::Editor
 		/** @brief Shows only events of a category, or of all of them, and those with a text in their name */
 		void SetFilter(std::int32_t category, StringView search);
 		/** @brief Returns the category shown */
-		std::int32_t GetCategory() const {
+		std::int32_t GetCategory() const
+		{
 			return _category;
 		}
 		/** @brief Returns the text searched for */
-		StringView GetSearch() const {
+		StringView GetSearch() const
+		{
 			return _search;
 		}
 
@@ -102,11 +104,13 @@ namespace Jazz2::Editor
 		 * Their parameters mean something else for each kind, so only what all events have in common is shown then ---
 		 * the difficulties and the flags.
 		 */
-		bool HasMixedKinds() const {
+		bool HasMixedKinds() const
+		{
 			return (_otherKind != 0);
 		}
 		/** @brief Returns the kind of a selected event other than the shown one, if they're of different kinds, 0 otherwise */
-		std::uint16_t GetOtherKind() const {
+		std::uint16_t GetOtherKind() const
+		{
 			return _otherKind;
 		}
 		/**
@@ -155,7 +159,15 @@ namespace Jazz2::Editor
 		// Bits of _mixed after those of the fields
 		enum MixedBit : std::int32_t
 		{
-			MixedEasy = 32, MixedNormal, MixedHard, MixedMultiplayer, MixedIlluminated, MixedGenerator, MixedDelay, MixedDelayFirst, MixedRaw
+			MixedEasy = 32,
+			MixedNormal,
+			MixedHard,
+			MixedMultiplayer,
+			MixedIlluminated,
+			MixedGenerator,
+			MixedDelay,
+			MixedDelayFirst,
+			MixedRaw
 		};
 
 		void UpdateMixed();
@@ -164,7 +176,8 @@ namespace Jazz2::Editor
 		bool IsShownValue(std::int32_t shown, std::int32_t committed, const EventParamField* field, bool final);
 		// Adds a mark shown while a value of @p mask, bits of _mixed, differs among the selected events
 		void AddMixedMark(Element* parent, std::uint64_t mask);
-		void AddMixedMark(Element* parent, std::int32_t bit) {
+		void AddMixedMark(Element* parent, std::int32_t bit)
+		{
 			AddMixedMark(parent, std::uint64_t(1) << bit);
 		}
 

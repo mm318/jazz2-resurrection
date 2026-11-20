@@ -9,7 +9,8 @@
 #include <Containers/Array.h>
 #include <Core/Logger.h>
 
-extern "C" {
+extern "C"
+{
 #include "../../../deps/vadpcm/codec/vadpcm.h"
 #include "../../../deps/ulc/ulcEncoder.h"
 }
@@ -144,11 +145,11 @@ namespace Jazz2::AssetPacker
 			// so the mixer can interpolate across the loop point
 			std::array<std::array<std::int16_t, 3>, 2> loopHead = {};
 			const std::int32_t loopStartAligned = (audio.Looping
-				? (audio.LoopOffset + kVADPCMFrameSampleCount - 1) / kVADPCMFrameSampleCount * kVADPCMFrameSampleCount
-				: -1);
+					? (audio.LoopOffset + kVADPCMFrameSampleCount - 1) / kVADPCMFrameSampleCount * kVADPCMFrameSampleCount
+					: -1);
 
-			Array<std::uint8_t> encoded{ValueInit, std::size_t(frameCount) * kVADPCMFrameByteSize * channels};
-			Array<std::uint8_t> channelData{ValueInit, std::size_t(frameCount) * kVADPCMFrameByteSize};
+			Array<std::uint8_t> encoded { ValueInit, std::size_t(frameCount) * kVADPCMFrameByteSize * channels };
+			Array<std::uint8_t> channelData { ValueInit, std::size_t(frameCount) * kVADPCMFrameByteSize };
 			SmallVector<std::int16_t, 0> channelSamples;
 			channelSamples.resize(std::size_t(audio.Frames));
 			for (std::int32_t i = 0; i < channels; i++) {
@@ -194,7 +195,7 @@ namespace Jazz2::AssetPacker
 				}
 			}
 
-			std::uint8_t flags = 0;		// Bit 0 would be the Huffman stage
+			std::uint8_t flags = 0; // Bit 0 would be the Huffman stage
 			if (audio.Resident) {
 				flags |= 0x02;
 			}
@@ -208,11 +209,11 @@ namespace Jazz2::AssetPacker
 			out.Write16(std::uint16_t(skipCount));
 			out.Write8(VadpcmBits);
 			out.Write8(audio.AttackFrames);
-			out.Write32(0);		// Huffman table pointer
+			out.Write32(0); // Huffman table pointer
 			out.Write32(skipCount > 0 ? std::uint32_t(codebookBytes) : 0);
 			out.Write32(skipCount > 0 ? std::uint32_t(codebookBytes + skipCount * 8) : 0);
 			out.WriteZeros(HuffmanContextSize);
-			out.Write32(0);		// Padding
+			out.Write32(0); // Padding
 			for (std::int32_t c = 0; c < channels; c++) {
 				const vadpcm_vector* channelCodebook = codebook.get() + std::size_t(VectorsPerChannel) * c;
 				for (std::int32_t i = 0; i < VectorsPerChannel; i++) {
@@ -227,7 +228,7 @@ namespace Jazz2::AssetPacker
 			}
 			for (std::int32_t i = 0; i < skipCount; i++) {
 				out.Write32(std::uint32_t(skipPoints[i]));
-				out.Write32(0);		// Bit position in the Huffman stream
+				out.Write32(0); // Bit position in the Huffman stream
 			}
 			for (std::int32_t i = 0; i < skipCount; i++) {
 				for (std::int32_t c = 0; c < channels; c++) {
@@ -336,10 +337,14 @@ namespace Jazz2::AssetPacker
 				return std::int16_t(std::int32_t(value * 32767.5f) - 32768);
 			}
 			switch (bits) {
-				case 8: return std::int16_t((std::int32_t(p[0]) << 8) - 32768);
-				case 16: return std::int16_t(ReadU16LE(p));
-				case 24: return std::int16_t(ReadU16LE(p + 1));
-				default: return std::int16_t(ReadU16LE(p + 2));
+				case 8:
+					return std::int16_t((std::int32_t(p[0]) << 8) - 32768);
+				case 16:
+					return std::int16_t(ReadU16LE(p));
+				case 24:
+					return std::int16_t(ReadU16LE(p + 1));
+				default:
+					return std::int16_t(ReadU16LE(p + 2));
 			}
 		}
 	}
@@ -451,7 +456,7 @@ namespace Jazz2::AssetPacker
 			LOGE("\"{}\" is not a valid WAV file", displayName);
 			return false;
 		}
-		Array<std::uint8_t> file{NoInit, std::size_t(size)};
+		Array<std::uint8_t> file { NoInit, std::size_t(size) };
 		if (s.Read(file.data(), size) != size || std::memcmp(&file[0], "RIFF", 4) != 0 || std::memcmp(&file[8], "WAVE", 4) != 0) {
 			LOGE("\"{}\" is not a valid WAV file", displayName);
 			return false;

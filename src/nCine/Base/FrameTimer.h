@@ -57,28 +57,34 @@ namespace nCine
 		TimeStamp Resume();
 
 		/** @brief Returns the total number of frames counted */
-		inline std::uint32_t GetTotalNumberFrames() const {
+		inline std::uint32_t GetTotalNumberFrames() const
+		{
 			return _totNumFrames;
 		}
 		/** @brief Returns the duration in seconds between the last two calls to @ref AddFrame() */
-		inline float GetLastFrameDuration() const {
+		inline float GetLastFrameDuration() const
+		{
 			return _frameDuration;
 		}
 		/** @brief Returns the duration in seconds since the last call to @ref AddFrame() */
-		inline float GetFrameDuration() const {
+		inline float GetFrameDuration() const
+		{
 			return _frameStart.GetSecondsSince();
 		}
 		/** @brief Returns the duration in ticks since the last call to @ref AddFrame() */
-		inline std::uint64_t GetFrameDurationAsTicks() const {
+		inline std::uint64_t GetFrameDurationAsTicks() const
+		{
 			return _frameStart.GetTimeSince().GetTicks();
 		}
 		/** @brief Returns the average FPS measured over the averaging interval */
-		inline float GetAverageFps() const {
+		inline float GetAverageFps() const
+		{
 			return _avgFps;
 		}
 
 		/** @brief Returns the factor expressing how long the last frame took relative to the nominal frame time */
-		inline float GetTimeMult() const {
+		inline float GetTimeMult() const
+		{
 			return _timeMults[0];
 		}
 

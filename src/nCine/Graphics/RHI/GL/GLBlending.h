@@ -38,7 +38,8 @@ namespace nCine::RHI::GL
 		};
 
 		/** @brief Returns whether blending is enabled */
-		static bool IsEnabled() {
+		static bool IsEnabled()
+		{
 			return _state.enabled;
 		}
 		/** @brief Enables blending */
@@ -63,7 +64,8 @@ namespace nCine::RHI::GL
 		static void SetBlendFunc(GLenum srcRgb, GLenum dstRgb, GLenum srcAlpha, GLenum dstAlpha);
 
 		/** @brief Returns the whole cached blending state */
-		static State GetState() {
+		static State GetState()
+		{
 			return _state;
 		}
 		/** @brief Restores the whole blending state */

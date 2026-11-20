@@ -28,17 +28,32 @@ namespace Jazz2::UI::Menu
 		const float itemHeight = GetItemHeight(root);
 		_items.clear();
 		// TRANSLATORS: Menu item in Options section
-		_items.push_back(list->Add<ListItem>(_("Gameplay"), [root]() { root->SwitchToSection<GameplayOptionsSection>(); }, itemHeight));
+		_items.push_back(list->Add<ListItem>(_("Gameplay"), [root]() {
+			root->SwitchToSection<GameplayOptionsSection>();
+		},
+			itemHeight));
 		// TRANSLATORS: Menu item in Options section
-		_items.push_back(list->Add<ListItem>(_("Graphics"), [root]() { root->SwitchToSection<GraphicsOptionsSection>(); }, itemHeight));
+		_items.push_back(list->Add<ListItem>(_("Graphics"), [root]() {
+			root->SwitchToSection<GraphicsOptionsSection>();
+		},
+			itemHeight));
 #if defined(WITH_AUDIO)
 		// TRANSLATORS: Menu item in Options section
-		_items.push_back(list->Add<ListItem>(_("Sounds"), [root]() { root->SwitchToSection<SoundsOptionsSection>(); }, itemHeight));
+		_items.push_back(list->Add<ListItem>(_("Sounds"), [root]() {
+			root->SwitchToSection<SoundsOptionsSection>();
+		},
+			itemHeight));
 #endif
 		// TRANSLATORS: Menu item in Options section
-		_items.push_back(list->Add<ListItem>(_("Controls"), [root]() { root->SwitchToSection<ControlsOptionsSection>(); }, itemHeight));
+		_items.push_back(list->Add<ListItem>(_("Controls"), [root]() {
+			root->SwitchToSection<ControlsOptionsSection>();
+		},
+			itemHeight));
 		// TRANSLATORS: Menu item in Options section
-		_items.push_back(list->Add<ListItem>(_("User Profile"), [root]() { root->SwitchToSection<UserProfileOptionsSection>(); }, itemHeight));
+		_items.push_back(list->Add<ListItem>(_("User Profile"), [root]() {
+			root->SwitchToSection<UserProfileOptionsSection>();
+		},
+			itemHeight));
 		SetContent(Death::move(list));
 	}
 

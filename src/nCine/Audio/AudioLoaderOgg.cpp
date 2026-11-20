@@ -86,7 +86,7 @@ namespace nCine
 			if (length > rateTagLength && std::memcmp(comment, rateTag, rateTagLength) == 0) {
 				std::int32_t rate = 0;
 				auto result = std::from_chars(comment + rateTagLength, comment + length, rate);
-				if (result.ec == std::errc{} && result.ptr == comment + length && rate > 0 && rate <= 384000) {
+				if (result.ec == std::errc {} && result.ptr == comment + length && rate > 0 && rate <= 384000) {
 					_originalFrequency = rate;
 				}
 			}

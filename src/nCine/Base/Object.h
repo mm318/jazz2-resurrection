@@ -16,7 +16,8 @@ namespace nCine
 		/**
 		 * @brief Run-time type of an object
 		 */
-		enum class ObjectType {
+		enum class ObjectType
+		{
 			Base = 0,
 			Texture,
 			Shader,
@@ -39,16 +40,19 @@ namespace nCine
 		Object& operator=(Object&& other) noexcept;
 
 		/** @brief Returns the unique object identifier */
-		inline unsigned int GetId() const {
+		inline unsigned int GetId() const
+		{
 			return _id;
 		}
 
 		/** @brief Returns the run-time object type */
-		inline ObjectType GetType() const {
+		inline ObjectType GetType() const
+		{
 			return _type;
 		}
 		/** @brief Returns the static type of this class */
-		inline static ObjectType sType() {
+		inline static ObjectType sType()
+		{
 			return ObjectType::Base;
 		}
 
@@ -67,5 +71,7 @@ namespace nCine
 		Object& operator=(const Object&) = delete;
 	};
 
-	inline Object::~Object() { }
+	inline Object::~Object()
+	{
+	}
 }

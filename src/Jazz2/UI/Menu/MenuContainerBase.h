@@ -10,7 +10,7 @@
 #include "../../../nCine/Input/InputEvents.h"
 
 #if defined(WITH_AUDIO)
-#	include "../../../nCine/Audio/AudioBufferPlayer.h"
+#include "../../../nCine/Audio/AudioBufferPlayer.h"
 #endif
 
 namespace Jazz2::UI::Menu
@@ -43,12 +43,14 @@ namespace Jazz2::UI::Menu
 		bool ActionPressed(PlayerAction action) override;
 		bool ActionHit(PlayerAction action) override;
 
-		Recti GetContentBounds() const override {
+		Recti GetContentBounds() const override
+		{
 			return _contentBounds;
 		}
 
 #if defined(NCINE_HAS_TOUCH_CONTROLS)
-		bool IsTouchInputActive() const override {
+		bool IsTouchInputActive() const override
+		{
 			return (_touchButtonsTimer > 0.0f);
 		}
 #endif
@@ -73,7 +75,8 @@ namespace Jazz2::UI::Menu
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Which of the three drawing layers the section primitives currently target
-		enum class ActiveCanvas {
+		enum class ActiveCanvas
+		{
 			Background,
 			Clipped,
 			Overlay
@@ -92,9 +95,9 @@ namespace Jazz2::UI::Menu
 		Font* _mediumFont;
 		std::uint32_t _pressedActions;
 		NavigationFlags _lastNavigationFlags;
-#	if defined(NCINE_HAS_TOUCH_CONTROLS)
+#if defined(NCINE_HAS_TOUCH_CONTROLS)
 		float _touchButtonsTimer;
-#	endif
+#endif
 		/**
 		 * @brief Whether every section is to lay itself out again at the next update (see @ref RelayoutSections())
 		 *
@@ -102,17 +105,21 @@ namespace Jazz2::UI::Menu
 		 * from a widget of the very section that would rebuild its content underneath it.
 		 */
 		bool _sectionsRelayoutPending = false;
-#	if defined(WITH_AUDIO)
+#if defined(WITH_AUDIO)
 		SmallVector<std::shared_ptr<AudioBufferPlayer>> _playingSounds;
-#	endif
+#endif
 
 		/** @brief Returns the canvas of the currently active drawing layer */
-		Canvas* GetActiveCanvas() {
+		Canvas* GetActiveCanvas()
+		{
 			switch (_activeCanvas) {
 				default:
-				case ActiveCanvas::Background: return _canvasBackground.get();
-				case ActiveCanvas::Clipped: return _canvasClipped.get();
-				case ActiveCanvas::Overlay: return _canvasOverlay.get();
+				case ActiveCanvas::Background:
+					return _canvasBackground.get();
+				case ActiveCanvas::Clipped:
+					return _canvasClipped.get();
+				case ActiveCanvas::Overlay:
+					return _canvasOverlay.get();
 			}
 		}
 

@@ -15,7 +15,7 @@
 	writes images (AssetPacker) defines it on its own.
 */
 #if (defined(WITH_EDITOR) && !defined(WITH_PNG_ENCODER)) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define WITH_PNG_ENCODER
+#define WITH_PNG_ENCODER
 #endif
 
 namespace nCine
@@ -61,7 +61,8 @@ namespace nCine
 		std::unique_ptr<std::uint8_t[]> Pixels;
 
 		/** @brief Returns `true` if the image holds pixels */
-		explicit operator bool() const {
+		explicit operator bool() const
+		{
 			return (Pixels != nullptr);
 		}
 	};
@@ -69,14 +70,14 @@ namespace nCine
 	/** @brief Why @ref PngCodec couldn't read an image */
 	enum class PngError : std::uint8_t
 	{
-		None,			/**< It could */
-		NotPng,			/**< The data isn't a PNG image */
-		EndsTooSoon,	/**< The data ends before the image does */
-		Damaged,		/**< The image is damaged */
-		TooLarge,		/**< The image has more pixels than allowed, see @ref PngDecodeOptions::MaxPixels */
-		UnknownKind,	/**< The image is of a kind PNG doesn't have */
-		Unsupported,	/**< The image uses a feature that isn't supported */
-		NoPalette		/**< An indexed image has no palette */
+		None, /**< It could */
+		NotPng, /**< The data isn't a PNG image */
+		EndsTooSoon, /**< The data ends before the image does */
+		Damaged, /**< The image is damaged */
+		TooLarge, /**< The image has more pixels than allowed, see @ref PngDecodeOptions::MaxPixels */
+		UnknownKind, /**< The image is of a kind PNG doesn't have */
+		Unsupported, /**< The image uses a feature that isn't supported */
+		NoPalette /**< An indexed image has no palette */
 	};
 
 	/** @brief Default of @ref PngDecodeOptions::MaxPixels, 16384 × 16384, or 8192 × 8192 with 32-bit addresses */

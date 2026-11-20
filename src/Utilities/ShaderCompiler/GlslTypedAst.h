@@ -31,9 +31,9 @@
 #include <Containers/SmallVector.h>
 #include <Containers/StringConcatenable.h>
 
-#include "GlslAst.h"			// Expr / ExprKind / MakeExpr / TokenizeStage / IsQualifier / BinPrec
-#include "ConstFold.h"		// GlslToken, GlslTokenType
-#include "ShaderParser.h"	// Diagnostic, StringView
+#include "GlslAst.h" // Expr / ExprKind / MakeExpr / TokenizeStage / IsQualifier / BinPrec
+#include "ConstFold.h" // GlslToken, GlslTokenType
+#include "ShaderParser.h" // Diagnostic, StringView
 
 namespace ShaderCompiler
 {
@@ -47,45 +47,93 @@ namespace ShaderCompiler
 	/** @brief Scalar/vector/matrix/opaque type of the translated GLSL subset (uint/uvec kept distinct) */
 	enum class Ty
 	{
-		Void, Float, Int, UInt, Bool,
-		Vec2, Vec3, Vec4,
-		IVec2, IVec3, IVec4,
-		UVec2, UVec3, UVec4,
-		BVec2, BVec3, BVec4,
-		Mat2, Mat3, Mat4,
-		Sampler2D, Sampler3D, SamplerCube,
-		Struct, Unknown
+		Void,
+		Float,
+		Int,
+		UInt,
+		Bool,
+		Vec2,
+		Vec3,
+		Vec4,
+		IVec2,
+		IVec3,
+		IVec4,
+		UVec2,
+		UVec3,
+		UVec4,
+		BVec2,
+		BVec3,
+		BVec4,
+		Mat2,
+		Mat3,
+		Mat4,
+		Sampler2D,
+		Sampler3D,
+		SamplerCube,
+		Struct,
+		Unknown
 	};
 
 	/** @brief A type plus, for Ty::Struct, the user struct name (so struct-typed members resolve their fields) */
 	struct TyRef
 	{
 		Ty T = Ty::Unknown;
-		String S;		// struct name when T == Struct
+		String S; // struct name when T == Struct
 	};
 
-	inline bool IsMatrix(Ty t) { return (t == Ty::Mat2 || t == Ty::Mat3 || t == Ty::Mat4); }
+	inline bool IsMatrix(Ty t)
+	{
+		return (t == Ty::Mat2 || t == Ty::Mat3 || t == Ty::Mat4);
+	}
 	inline bool IsVector(Ty t)
 	{
 		switch (t) {
-			case Ty::Vec2: case Ty::Vec3: case Ty::Vec4:
-			case Ty::IVec2: case Ty::IVec3: case Ty::IVec4:
-			case Ty::UVec2: case Ty::UVec3: case Ty::UVec4:
-			case Ty::BVec2: case Ty::BVec3: case Ty::BVec4:
+			case Ty::Vec2:
+			case Ty::Vec3:
+			case Ty::Vec4:
+			case Ty::IVec2:
+			case Ty::IVec3:
+			case Ty::IVec4:
+			case Ty::UVec2:
+			case Ty::UVec3:
+			case Ty::UVec4:
+			case Ty::BVec2:
+			case Ty::BVec3:
+			case Ty::BVec4:
 				return true;
-			default: return false;
+			default:
+				return false;
 		}
 	}
-	inline bool IsSampler(Ty t) { return (t == Ty::Sampler2D || t == Ty::Sampler3D || t == Ty::SamplerCube); }
+	inline bool IsSampler(Ty t)
+	{
+		return (t == Ty::Sampler2D || t == Ty::Sampler3D || t == Ty::SamplerCube);
+	}
 
 	// Vector/scalar component count (1 for scalar; matrices report their dimension)
 	inline std::int32_t Comps(Ty t)
 	{
 		switch (t) {
-			case Ty::Vec2: case Ty::IVec2: case Ty::UVec2: case Ty::BVec2: case Ty::Mat2: return 2;
-			case Ty::Vec3: case Ty::IVec3: case Ty::UVec3: case Ty::BVec3: case Ty::Mat3: return 3;
-			case Ty::Vec4: case Ty::IVec4: case Ty::UVec4: case Ty::BVec4: case Ty::Mat4: return 4;
-			default: return 1;
+			case Ty::Vec2:
+			case Ty::IVec2:
+			case Ty::UVec2:
+			case Ty::BVec2:
+			case Ty::Mat2:
+				return 2;
+			case Ty::Vec3:
+			case Ty::IVec3:
+			case Ty::UVec3:
+			case Ty::BVec3:
+			case Ty::Mat3:
+				return 3;
+			case Ty::Vec4:
+			case Ty::IVec4:
+			case Ty::UVec4:
+			case Ty::BVec4:
+			case Ty::Mat4:
+				return 4;
+			default:
+				return 1;
 		}
 	}
 
@@ -93,60 +141,154 @@ namespace ShaderCompiler
 	inline Ty BaseScalar(Ty t)
 	{
 		switch (t) {
-			case Ty::Int: case Ty::IVec2: case Ty::IVec3: case Ty::IVec4: return Ty::Int;
-			case Ty::UInt: case Ty::UVec2: case Ty::UVec3: case Ty::UVec4: return Ty::UInt;
-			case Ty::Bool: case Ty::BVec2: case Ty::BVec3: case Ty::BVec4: return Ty::Bool;
-			default: return Ty::Float;
+			case Ty::Int:
+			case Ty::IVec2:
+			case Ty::IVec3:
+			case Ty::IVec4:
+				return Ty::Int;
+			case Ty::UInt:
+			case Ty::UVec2:
+			case Ty::UVec3:
+			case Ty::UVec4:
+				return Ty::UInt;
+			case Ty::Bool:
+			case Ty::BVec2:
+			case Ty::BVec3:
+			case Ty::BVec4:
+				return Ty::Bool;
+			default:
+				return Ty::Float;
 		}
 	}
 
 	// A vector type from a scalar base and a component count (n==1 yields the scalar itself)
 	inline Ty MakeVec(Ty scalar, std::int32_t n)
 	{
-		if (n <= 1) return scalar;
-		if (scalar == Ty::Int) return (n == 2 ? Ty::IVec2 : n == 3 ? Ty::IVec3 : Ty::IVec4);
-		if (scalar == Ty::UInt) return (n == 2 ? Ty::UVec2 : n == 3 ? Ty::UVec3 : Ty::UVec4);
-		if (scalar == Ty::Bool) return (n == 2 ? Ty::BVec2 : n == 3 ? Ty::BVec3 : Ty::BVec4);
-		return (n == 2 ? Ty::Vec2 : n == 3 ? Ty::Vec3 : Ty::Vec4);
+		if (n <= 1)
+			return scalar;
+		if (scalar == Ty::Int)
+			return (n == 2 ? Ty::IVec2 : n == 3 ? Ty::IVec3
+												: Ty::IVec4);
+		if (scalar == Ty::UInt)
+			return (n == 2 ? Ty::UVec2 : n == 3 ? Ty::UVec3
+												: Ty::UVec4);
+		if (scalar == Ty::Bool)
+			return (n == 2 ? Ty::BVec2 : n == 3 ? Ty::BVec3
+												: Ty::BVec4);
+		return (n == 2 ? Ty::Vec2 : n == 3 ? Ty::Vec3
+										   : Ty::Vec4);
 	}
 
 	// The column vector of a matrix (Mat4 -> Vec4), for matrix subscripting
 	inline Ty MatrixColumn(Ty t)
 	{
 		switch (t) {
-			case Ty::Mat2: return Ty::Vec2;
-			case Ty::Mat3: return Ty::Vec3;
-			case Ty::Mat4: return Ty::Vec4;
-			default: return Ty::Unknown;
+			case Ty::Mat2:
+				return Ty::Vec2;
+			case Ty::Mat3:
+				return Ty::Vec3;
+			case Ty::Mat4:
+				return Ty::Vec4;
+			default:
+				return Ty::Unknown;
 		}
 	}
 
 	// Recognizes a built-in GLSL type keyword (uint/uvec kept distinct — HLSL has them)
 	inline bool TryBuiltinType(StringView k, Ty& out)
 	{
-		if (k == "void") { out = Ty::Void; return true; }
-		if (k == "float") { out = Ty::Float; return true; }
-		if (k == "int") { out = Ty::Int; return true; }
-		if (k == "uint") { out = Ty::UInt; return true; }
-		if (k == "bool") { out = Ty::Bool; return true; }
-		if (k == "vec2") { out = Ty::Vec2; return true; }
-		if (k == "vec3") { out = Ty::Vec3; return true; }
-		if (k == "vec4") { out = Ty::Vec4; return true; }
-		if (k == "ivec2") { out = Ty::IVec2; return true; }
-		if (k == "ivec3") { out = Ty::IVec3; return true; }
-		if (k == "ivec4") { out = Ty::IVec4; return true; }
-		if (k == "uvec2") { out = Ty::UVec2; return true; }
-		if (k == "uvec3") { out = Ty::UVec3; return true; }
-		if (k == "uvec4") { out = Ty::UVec4; return true; }
-		if (k == "bvec2") { out = Ty::BVec2; return true; }
-		if (k == "bvec3") { out = Ty::BVec3; return true; }
-		if (k == "bvec4") { out = Ty::BVec4; return true; }
-		if (k == "mat2") { out = Ty::Mat2; return true; }
-		if (k == "mat3") { out = Ty::Mat3; return true; }
-		if (k == "mat4") { out = Ty::Mat4; return true; }
-		if (k == "sampler2D") { out = Ty::Sampler2D; return true; }
-		if (k == "sampler3D") { out = Ty::Sampler3D; return true; }
-		if (k == "samplerCube") { out = Ty::SamplerCube; return true; }
+		if (k == "void") {
+			out = Ty::Void;
+			return true;
+		}
+		if (k == "float") {
+			out = Ty::Float;
+			return true;
+		}
+		if (k == "int") {
+			out = Ty::Int;
+			return true;
+		}
+		if (k == "uint") {
+			out = Ty::UInt;
+			return true;
+		}
+		if (k == "bool") {
+			out = Ty::Bool;
+			return true;
+		}
+		if (k == "vec2") {
+			out = Ty::Vec2;
+			return true;
+		}
+		if (k == "vec3") {
+			out = Ty::Vec3;
+			return true;
+		}
+		if (k == "vec4") {
+			out = Ty::Vec4;
+			return true;
+		}
+		if (k == "ivec2") {
+			out = Ty::IVec2;
+			return true;
+		}
+		if (k == "ivec3") {
+			out = Ty::IVec3;
+			return true;
+		}
+		if (k == "ivec4") {
+			out = Ty::IVec4;
+			return true;
+		}
+		if (k == "uvec2") {
+			out = Ty::UVec2;
+			return true;
+		}
+		if (k == "uvec3") {
+			out = Ty::UVec3;
+			return true;
+		}
+		if (k == "uvec4") {
+			out = Ty::UVec4;
+			return true;
+		}
+		if (k == "bvec2") {
+			out = Ty::BVec2;
+			return true;
+		}
+		if (k == "bvec3") {
+			out = Ty::BVec3;
+			return true;
+		}
+		if (k == "bvec4") {
+			out = Ty::BVec4;
+			return true;
+		}
+		if (k == "mat2") {
+			out = Ty::Mat2;
+			return true;
+		}
+		if (k == "mat3") {
+			out = Ty::Mat3;
+			return true;
+		}
+		if (k == "mat4") {
+			out = Ty::Mat4;
+			return true;
+		}
+		if (k == "sampler2D") {
+			out = Ty::Sampler2D;
+			return true;
+		}
+		if (k == "sampler3D") {
+			out = Ty::Sampler3D;
+			return true;
+		}
+		if (k == "samplerCube") {
+			out = Ty::SamplerCube;
+			return true;
+		}
 		return false;
 	}
 
@@ -154,22 +296,33 @@ namespace ShaderCompiler
 	// The expression AST (Expr / ExprKind / ExprPtr / MakeExpr) is shared and lives in GlslAst.h; the
 	// statement/declaration model is shared here across the AST-based non-software emitters.
 
-	enum class StmtKind { Block, VarDecl, ExprStmt, If, For, Return };
+	enum class StmtKind
+	{
+		Block,
+		VarDecl,
+		ExprStmt,
+		If,
+		For,
+		Return
+	};
 
 	struct Stmt
 	{
 		StmtKind Kind;
-		SmallVector<std::unique_ptr<Stmt>, 0> Body;		// Block
-		TyRef DeclType;									// VarDecl
+		SmallVector<std::unique_ptr<Stmt>, 0> Body; // Block
+		TyRef DeclType; // VarDecl
 		bool DeclConst = false;
-		std::int32_t DeclArraySize = 0;					// VarDecl: 0 = scalar, >0 = local array "T name[N]"
+		std::int32_t DeclArraySize = 0; // VarDecl: 0 = scalar, >0 = local array "T name[N]"
 		String DeclName;
 		ExprPtr Init;
 		SmallVector<std::pair<String, ExprPtr>, 0> ExtraDecls;
-		ExprPtr E;										// ExprStmt / Return value
-		ExprPtr Cond;									// If
+		ExprPtr E; // ExprStmt / Return value
+		ExprPtr Cond; // If
 		std::unique_ptr<Stmt> Then, Else;
-		std::unique_ptr<Stmt> ForInit; ExprPtr ForCond; ExprPtr ForUpdate; std::unique_ptr<Stmt> ForBody;
+		std::unique_ptr<Stmt> ForInit;
+		ExprPtr ForCond;
+		ExprPtr ForUpdate;
+		std::unique_ptr<Stmt> ForBody;
 	};
 	using StmtPtr = std::unique_ptr<Stmt>;
 
@@ -180,19 +333,71 @@ namespace ShaderCompiler
 		return s;
 	}
 
-	struct Param { TyRef Type; String Name; std::int32_t ArraySize = 0; String Qualifier; };	// Qualifier: "" / "out" / "inout"
-	struct Function { TyRef RetType; String Name; SmallVector<Param, 0> Params; StmtPtr Body; };
+	struct Param
+	{
+		TyRef Type;
+		String Name;
+		std::int32_t ArraySize = 0;
+		String Qualifier;
+	}; // Qualifier: "" / "out" / "inout"
+	struct Function
+	{
+		TyRef RetType;
+		String Name;
+		SmallVector<Param, 0> Params;
+		StmtPtr Body;
+	};
 
 	// ── Declaration Records ──────────────────────────────────────────────────────────────────────
 
-	struct Field { String Name; TyRef Type; std::int32_t ArraySize = 0; bool SymbolicArray = false; };
-	struct StructDecl { String Name; SmallVector<Field, 0> Fields; };
-	struct BlockDecl { String Name; String Instance; SmallVector<Field, 0> Members; };
-	struct UniformDecl { String Name; TyRef Type; std::int32_t ArraySize = 0; };
-	struct SamplerDecl { String Name; Ty Type = Ty::Sampler2D; };
-	struct VaryingDecl { String Name; TyRef Type; bool Flat = false; };
-	struct AttributeDecl { String Name; TyRef Type; std::int32_t Location = -1; };
-	struct GlobalVarDecl { String Name; TyRef Type; bool IsConst = false; ExprPtr Init; };
+	struct Field
+	{
+		String Name;
+		TyRef Type;
+		std::int32_t ArraySize = 0;
+		bool SymbolicArray = false;
+	};
+	struct StructDecl
+	{
+		String Name;
+		SmallVector<Field, 0> Fields;
+	};
+	struct BlockDecl
+	{
+		String Name;
+		String Instance;
+		SmallVector<Field, 0> Members;
+	};
+	struct UniformDecl
+	{
+		String Name;
+		TyRef Type;
+		std::int32_t ArraySize = 0;
+	};
+	struct SamplerDecl
+	{
+		String Name;
+		Ty Type = Ty::Sampler2D;
+	};
+	struct VaryingDecl
+	{
+		String Name;
+		TyRef Type;
+		bool Flat = false;
+	};
+	struct AttributeDecl
+	{
+		String Name;
+		TyRef Type;
+		std::int32_t Location = -1;
+	};
+	struct GlobalVarDecl
+	{
+		String Name;
+		TyRef Type;
+		bool IsConst = false;
+		ExprPtr Init;
+	};
 
 	// ── Parser ───────────────────────────────────────────────────────────────────────────────────
 
@@ -208,30 +413,45 @@ namespace ShaderCompiler
 	{
 	public:
 		Parser(const SmallVectorImpl<GlslToken>& tokens, bool vertexStage)
-			: _toks(tokens), _vertexStage(vertexStage) {}
+			: _toks(tokens), _vertexStage(vertexStage)
+		{
+		}
 
 		void Run()
 		{
 			while (!AtEnd() && _ok) {
-				if (IsOp(";")) { Next(); continue; }
+				if (IsOp(";")) {
+					Next();
+					continue;
+				}
 				ParseTopLevel();
 			}
 		}
 
-		bool Ok() const { return _ok; }
-		const String& Reason() const { return _reason; }
+		bool Ok() const
+		{
+			return _ok;
+		}
+		const String& Reason() const
+		{
+			return _reason;
+		}
 
 		SmallVector<StructDecl, 0> Structs;
 		SmallVector<BlockDecl, 0> Blocks;
 		SmallVector<UniformDecl, 0> Uniforms;
 		SmallVector<SamplerDecl, 0> Samplers;
-		SmallVector<VaryingDecl, 0> Varyings;			// VS out / FS in
-		SmallVector<AttributeDecl, 0> Attributes;		// VS in
+		SmallVector<VaryingDecl, 0> Varyings; // VS out / FS in
+		SmallVector<AttributeDecl, 0> Attributes; // VS in
 		SmallVector<GlobalVarDecl, 0> GlobalVars;
 		SmallVector<Function, 0> Functions;
 		// FS "out" declarations in DECLARATION ORDER; index i renders to SV_Target<i>. A single output
 		// keeps the historical "PSMain(...) : SV_Target" shape; multiple emit a PsOutput struct.
-		struct FragOutputDecl { String Name; TyRef Type; };
+		struct FragOutputDecl
+		{
+			String Name;
+			TyRef Type;
+		};
 		SmallVector<FragOutputDecl, 0> FragOutputs;
 
 	private:
@@ -242,18 +462,49 @@ namespace ShaderCompiler
 		String _reason;
 		std::set<String> _structNames;
 
-		const GlslToken& Cur() const { return _toks[_pos]; }
-		const GlslToken& At(std::size_t p) const { return _toks[p < _toks.size() ? p : _toks.size() - 1]; }
-		bool AtEnd() const { return Cur().Type == GlslTokenType::End; }
-		bool Is(GlslTokenType t) const { return Cur().Type == t; }
-		bool IsOp(const char* s) const { return Cur().Type == GlslTokenType::Operator && Cur().Text == s; }
-		bool IsKw(const char* s) const { return Cur().Type == GlslTokenType::Identifier && Cur().Text == s; }
-		void Next() { if (Cur().Type != GlslTokenType::End) _pos++; }
-		void Fail(String why) { if (_ok) { _ok = false; _reason = Death::move(why); } }
+		const GlslToken& Cur() const
+		{
+			return _toks[_pos];
+		}
+		const GlslToken& At(std::size_t p) const
+		{
+			return _toks[p < _toks.size() ? p : _toks.size() - 1];
+		}
+		bool AtEnd() const
+		{
+			return Cur().Type == GlslTokenType::End;
+		}
+		bool Is(GlslTokenType t) const
+		{
+			return Cur().Type == t;
+		}
+		bool IsOp(const char* s) const
+		{
+			return Cur().Type == GlslTokenType::Operator && Cur().Text == s;
+		}
+		bool IsKw(const char* s) const
+		{
+			return Cur().Type == GlslTokenType::Identifier && Cur().Text == s;
+		}
+		void Next()
+		{
+			if (Cur().Type != GlslTokenType::End)
+				_pos++;
+		}
+		void Fail(String why)
+		{
+			if (_ok) {
+				_ok = false;
+				_reason = Death::move(why);
+			}
+		}
 
 		bool Expect(const char* op)
 		{
-			if (IsOp(op)) { Next(); return true; }
+			if (IsOp(op)) {
+				Next();
+				return true;
+			}
 			Fail("expected '"_s + op + "'"_s);
 			return false;
 		}
@@ -268,16 +519,28 @@ namespace ShaderCompiler
 		bool TryType(StringView k, TyRef& out)
 		{
 			Ty t;
-			if (TryBuiltinType(k, t)) { out = { t, {} }; return true; }
-			if (_structNames.find(String{k}) != _structNames.end()) { out = { Ty::Struct, String{k} }; return true; }
+			if (TryBuiltinType(k, t)) {
+				out = { t, {} };
+				return true;
+			}
+			if (_structNames.find(String { k }) != _structNames.end()) {
+				out = { Ty::Struct, String { k } };
+				return true;
+			}
 			return false;
 		}
 
 		TyRef ParseType()
 		{
-			if (!Is(GlslTokenType::Identifier)) { Fail("expected a type name"_s); return {}; }
+			if (!Is(GlslTokenType::Identifier)) {
+				Fail("expected a type name"_s);
+				return {};
+			}
 			TyRef t;
-			if (!TryType(Cur().Text, t)) { Fail("unknown type '"_s + Cur().Text + "'"_s); return {}; }
+			if (!TryType(Cur().Text, t)) {
+				Fail("unknown type '"_s + Cur().Text + "'"_s);
+				return {};
+			}
 			Next();
 			return t;
 		}
@@ -285,19 +548,24 @@ namespace ShaderCompiler
 		bool LooksLikeDecl() const
 		{
 			std::size_t p = _pos;
-			while (At(p).Type == GlslTokenType::Identifier && IsQualifier(At(p).Text)) p++;
-			if (At(p).Type != GlslTokenType::Identifier) return false;
+			while (At(p).Type == GlslTokenType::Identifier && IsQualifier(At(p).Text))
+				p++;
+			if (At(p).Type != GlslTokenType::Identifier)
+				return false;
 			Ty t;
-			if (TryBuiltinType(At(p).Text, t)) return true;
-			return (_structNames.find(String{At(p).Text}) != _structNames.end());
+			if (TryBuiltinType(At(p).Text, t))
+				return true;
+			return (_structNames.find(String { At(p).Text }) != _structNames.end());
 		}
 
 		void SkipBalancedParens()
 		{
 			std::int32_t depth = 1;
 			while (!AtEnd() && depth > 0) {
-				if (IsOp("(")) depth++;
-				else if (IsOp(")")) depth--;
+				if (IsOp("("))
+					depth++;
+				else if (IsOp(")"))
+					depth--;
 				Next();
 			}
 		}
@@ -315,7 +583,8 @@ namespace ShaderCompiler
 			} else {
 				// A symbolic size (BATCH_SIZE / LIGHT_COUNT); consume tokens up to ']'
 				symbolic = true;
-				while (!AtEnd() && !IsOp("]")) Next();
+				while (!AtEnd() && !IsOp("]"))
+					Next();
 			}
 			Expect("]");
 			return size;
@@ -325,12 +594,21 @@ namespace ShaderCompiler
 		std::int32_t ParseLayout()
 		{
 			std::int32_t location = -1;
-			Next();		// "layout"
-			if (!Expect("(")) return location;
+			Next(); // "layout"
+			if (!Expect("("))
+				return location;
 			std::int32_t depth = 1;
 			while (!AtEnd() && depth > 0) {
-				if (IsOp("(")) { depth++; Next(); continue; }
-				if (IsOp(")")) { depth--; Next(); continue; }
+				if (IsOp("(")) {
+					depth++;
+					Next();
+					continue;
+				}
+				if (IsOp(")")) {
+					depth--;
+					Next();
+					continue;
+				}
 				if (IsKw("location")) {
 					Next();
 					if (IsOp("=")) {
@@ -349,27 +627,44 @@ namespace ShaderCompiler
 
 		void ParseTopLevel()
 		{
-			if (IsKw("struct")) { ParseStruct(); return; }
+			if (IsKw("struct")) {
+				ParseStruct();
+				return;
+			}
 
 			std::int32_t location = -1;
 			if (IsKw("layout")) {
 				location = ParseLayout();
 			}
 			if (IsKw("precision")) {
-				while (!AtEnd() && !IsOp(";")) Next();
-				if (IsOp(";")) Next();
+				while (!AtEnd() && !IsOp(";"))
+					Next();
+				if (IsOp(";"))
+					Next();
 				return;
 			}
 
 			bool isIn = false, isOut = false, isUniform = false, isConst = false, isFlat = false;
 			for (;;) {
-				if (IsKw("in")) { isIn = true; Next(); }
-				else if (IsKw("out")) { isOut = true; Next(); }
-				else if (IsKw("uniform")) { isUniform = true; Next(); }
-				else if (IsKw("const")) { isConst = true; Next(); }
-				else if (IsKw("flat")) { isFlat = true; Next(); }
-				else if (Is(GlslTokenType::Identifier) && IsQualifier(Cur().Text)) { Next(); }
-				else break;
+				if (IsKw("in")) {
+					isIn = true;
+					Next();
+				} else if (IsKw("out")) {
+					isOut = true;
+					Next();
+				} else if (IsKw("uniform")) {
+					isUniform = true;
+					Next();
+				} else if (IsKw("const")) {
+					isConst = true;
+					Next();
+				} else if (IsKw("flat")) {
+					isFlat = true;
+					Next();
+				} else if (Is(GlslTokenType::Identifier) && IsQualifier(Cur().Text)) {
+					Next();
+				} else
+					break;
 			}
 
 			// A std140 uniform block: "uniform <Name> { ... } [instance];"
@@ -380,52 +675,91 @@ namespace ShaderCompiler
 			}
 
 			TyRef t = ParseType();
-			if (!_ok) return;
-			if (!Is(GlslTokenType::Identifier)) { Fail("expected a name after the type"_s); return; }
+			if (!_ok)
+				return;
+			if (!Is(GlslTokenType::Identifier)) {
+				Fail("expected a name after the type"_s);
+				return;
+			}
 			String name = Cur().Text;
 			Next();
 
-			if (IsOp("(")) { ParseFunctionRest(t, Death::move(name)); return; }
+			if (IsOp("(")) {
+				ParseFunctionRest(t, Death::move(name));
+				return;
+			}
 
 			// Array suffix on the name (e.g. "uniform vec4 uLights[N];")
 			std::int32_t arraySize = 0;
 			bool symbolic = false;
-			if (IsOp("[")) { arraySize = ParseArraySuffix(symbolic); }
+			if (IsOp("[")) {
+				arraySize = ParseArraySuffix(symbolic);
+			}
 
 			ExprPtr init;
-			if (IsOp("=")) { Next(); init = ParseExpression(0); if (!_ok) return; }
+			if (IsOp("=")) {
+				Next();
+				init = ParseExpression(0);
+				if (!_ok)
+					return;
+			}
 			// Extra declarators are uncommon at global scope; decline rather than mis-handle
-			if (IsOp(",")) { Fail("multiple global declarators are unsupported"_s); return; }
-			if (!Expect(";")) return;
+			if (IsOp(",")) {
+				Fail("multiple global declarators are unsupported"_s);
+				return;
+			}
+			if (!Expect(";"))
+				return;
 
 			if (isUniform) {
 				if (IsSampler(t.T)) {
-					SamplerDecl s; s.Name = Death::move(name); s.Type = t.T;
+					SamplerDecl s;
+					s.Name = Death::move(name);
+					s.Type = t.T;
 					Samplers.push_back(Death::move(s));
 				} else {
-					UniformDecl u; u.Name = Death::move(name); u.Type = t; u.ArraySize = (symbolic ? 0 : arraySize);
+					UniformDecl u;
+					u.Name = Death::move(name);
+					u.Type = t;
+					u.ArraySize = (symbolic ? 0 : arraySize);
 					Uniforms.push_back(Death::move(u));
 				}
 			} else if (isIn) {
 				if (_vertexStage) {
-					AttributeDecl a; a.Name = Death::move(name); a.Type = t; a.Location = location;
+					AttributeDecl a;
+					a.Name = Death::move(name);
+					a.Type = t;
+					a.Location = location;
 					Attributes.push_back(Death::move(a));
 				} else {
-					VaryingDecl v; v.Name = Death::move(name); v.Type = t; v.Flat = isFlat;
+					VaryingDecl v;
+					v.Name = Death::move(name);
+					v.Type = t;
+					v.Flat = isFlat;
 					Varyings.push_back(Death::move(v));
 				}
 			} else if (isOut) {
 				if (_vertexStage) {
-					VaryingDecl v; v.Name = Death::move(name); v.Type = t; v.Flat = isFlat;
+					VaryingDecl v;
+					v.Name = Death::move(name);
+					v.Type = t;
+					v.Flat = isFlat;
 					Varyings.push_back(Death::move(v));
 				} else {
 					// Render-target index = declaration order (SV_Target0..N); an explicit location would
 					// diverge from that scheme (and from the offline SPIR-V emission), so it is declined
-					if (location >= 0) { Fail("explicit locations on fragment outputs are unsupported (render targets follow declaration order)"_s); return; }
+					if (location >= 0) {
+						Fail("explicit locations on fragment outputs are unsupported (render targets follow declaration order)"_s);
+						return;
+					}
 					FragOutputs.push_back({ Death::move(name), t });
 				}
 			} else {
-				GlobalVarDecl g; g.Name = Death::move(name); g.Type = t; g.IsConst = isConst; g.Init = Death::move(init);
+				GlobalVarDecl g;
+				g.Name = Death::move(name);
+				g.Type = t;
+				g.IsConst = isConst;
+				g.Init = Death::move(init);
 				GlobalVars.push_back(Death::move(g));
 			}
 		}
@@ -433,8 +767,9 @@ namespace ShaderCompiler
 		bool LooksLikeType(StringView k) const
 		{
 			Ty t;
-			if (TryBuiltinType(k, t)) return true;
-			return (_structNames.find(String{k}) != _structNames.end());
+			if (TryBuiltinType(k, t))
+				return true;
+			return (_structNames.find(String { k }) != _structNames.end());
 		}
 
 		// Parses one aggregate member: "[qualifiers] Type [arr] Name [arr] ;"
@@ -442,37 +777,54 @@ namespace ShaderCompiler
 		{
 			SkipQualifiers();
 			TyRef t = ParseType();
-			if (!_ok) return false;
+			if (!_ok)
+				return false;
 			std::int32_t arraySize = 0;
 			bool symbolic = false;
-			if (IsOp("[")) { arraySize = ParseArraySuffix(symbolic); }		// "Instance[BATCH_SIZE] instances;"
-			if (!Is(GlslTokenType::Identifier)) { Fail("expected a member name"_s); return false; }
+			if (IsOp("[")) {
+				arraySize = ParseArraySuffix(symbolic);
+			} // "Instance[BATCH_SIZE] instances;"
+			if (!Is(GlslTokenType::Identifier)) {
+				Fail("expected a member name"_s);
+				return false;
+			}
 			out.Name = Cur().Text;
 			out.Type = t;
 			Next();
-			if (IsOp("[")) { arraySize = ParseArraySuffix(symbolic); }		// "vec4 name[N];"
+			if (IsOp("[")) {
+				arraySize = ParseArraySuffix(symbolic);
+			} // "vec4 name[N];"
 			out.ArraySize = arraySize;
 			out.SymbolicArray = symbolic;
-			if (!Expect(";")) return false;
+			if (!Expect(";"))
+				return false;
 			return true;
 		}
 
 		void ParseStruct()
 		{
-			Next();		// "struct"
-			if (!Is(GlslTokenType::Identifier)) { Fail("expected a struct name"_s); return; }
+			Next(); // "struct"
+			if (!Is(GlslTokenType::Identifier)) {
+				Fail("expected a struct name"_s);
+				return;
+			}
 			StructDecl s;
 			s.Name = Cur().Text;
 			Next();
-			if (!Expect("{")) return;
+			if (!Expect("{"))
+				return;
 			while (!IsOp("}") && !AtEnd() && _ok) {
 				Field f;
-				if (!ParseField(f)) return;
+				if (!ParseField(f))
+					return;
 				s.Fields.push_back(Death::move(f));
 			}
-			if (!Expect("}")) return;
-			if (Is(GlslTokenType::Identifier)) Next();		// optional inline instance name (unused)
-			if (IsOp(";")) Next();
+			if (!Expect("}"))
+				return;
+			if (Is(GlslTokenType::Identifier))
+				Next(); // optional inline instance name (unused)
+			if (IsOp(";"))
+				Next();
 			_structNames.insert(s.Name);
 			Structs.push_back(Death::move(s));
 		}
@@ -482,15 +834,22 @@ namespace ShaderCompiler
 			BlockDecl b;
 			b.Name = Cur().Text;
 			Next();
-			if (!Expect("{")) return;
+			if (!Expect("{"))
+				return;
 			while (!IsOp("}") && !AtEnd() && _ok) {
 				Field f;
-				if (!ParseField(f)) return;
+				if (!ParseField(f))
+					return;
 				b.Members.push_back(Death::move(f));
 			}
-			if (!Expect("}")) return;
-			if (Is(GlslTokenType::Identifier)) { b.Instance = Cur().Text; Next(); }
-			if (!Expect(";")) return;
+			if (!Expect("}"))
+				return;
+			if (Is(GlslTokenType::Identifier)) {
+				b.Instance = Cur().Text;
+				Next();
+			}
+			if (!Expect(";"))
+				return;
 			Blocks.push_back(Death::move(b));
 		}
 
@@ -500,41 +859,64 @@ namespace ShaderCompiler
 			Function fn;
 			fn.RetType = retType;
 			fn.Name = Death::move(name);
-			if (IsKw("void") && At(_pos + 1).Type == GlslTokenType::Operator && At(_pos + 1).Text == ")") { Next(); }
+			if (IsKw("void") && At(_pos + 1).Type == GlslTokenType::Operator && At(_pos + 1).Text == ")") {
+				Next();
+			}
 			while (!IsOp(")") && !AtEnd() && _ok) {
 				String qual;
 				while (IsKw("in") || IsKw("out") || IsKw("inout")) {
-					if (Cur().Text == "out") qual = "out";
-					else if (Cur().Text == "inout") qual = "inout";
+					if (Cur().Text == "out")
+						qual = "out";
+					else if (Cur().Text == "inout")
+						qual = "inout";
 					Next();
 				}
 				SkipQualifiers();
 				TyRef pt = ParseType();
-				if (!_ok) return;
+				if (!_ok)
+					return;
 				std::int32_t arraySize = 0;
 				bool sym = false;
-				if (IsOp("[")) { arraySize = ParseArraySuffix(sym); }			// "vec3[9] name"
-				if (!Is(GlslTokenType::Identifier)) { Fail("expected a parameter name"_s); return; }
-				Param p; p.Type = pt; p.Name = Cur().Text; p.Qualifier = Death::move(qual); Next();
-				if (IsOp("[")) { arraySize = ParseArraySuffix(sym); }			// "vec3 name[9]"
+				if (IsOp("[")) {
+					arraySize = ParseArraySuffix(sym);
+				} // "vec3[9] name"
+				if (!Is(GlslTokenType::Identifier)) {
+					Fail("expected a parameter name"_s);
+					return;
+				}
+				Param p;
+				p.Type = pt;
+				p.Name = Cur().Text;
+				p.Qualifier = Death::move(qual);
+				Next();
+				if (IsOp("[")) {
+					arraySize = ParseArraySuffix(sym);
+				} // "vec3 name[9]"
 				p.ArraySize = arraySize;
 				fn.Params.push_back(Death::move(p));
-				if (IsOp(",")) { Next(); continue; }
+				if (IsOp(",")) {
+					Next();
+					continue;
+				}
 				break;
 			}
-			if (!Expect(")")) return;
+			if (!Expect(")"))
+				return;
 			fn.Body = ParseBlock2();
-			if (!_ok) return;
+			if (!_ok)
+				return;
 			Functions.push_back(Death::move(fn));
 		}
 
 		StmtPtr ParseBlock2()
 		{
-			if (!Expect("{")) return nullptr;
+			if (!Expect("{"))
+				return nullptr;
 			StmtPtr block = MakeStmt(StmtKind::Block);
 			while (!IsOp("}") && !AtEnd() && _ok) {
 				StmtPtr s = ParseStatement();
-				if (s != nullptr) block->Body.push_back(Death::move(s));
+				if (s != nullptr)
+					block->Body.push_back(Death::move(s));
 			}
 			Expect("}");
 			return block;
@@ -542,16 +924,28 @@ namespace ShaderCompiler
 
 		StmtPtr ParseStatement()
 		{
-			if (IsOp("{")) return ParseBlock2();
-			if (IsKw("if")) return ParseIf();
-			if (IsKw("for")) return ParseFor();
-			if (IsKw("return")) return ParseReturn();
-			if (IsKw("while") || IsKw("do") || IsKw("switch")) { Fail("'"_s + Cur().Text + "' statements are unsupported"_s); return nullptr; }
-			if (IsKw("discard") || IsKw("break") || IsKw("continue")) { Fail("'"_s + Cur().Text + "' statements are unsupported"_s); return nullptr; }
-			if (LooksLikeDecl()) return ParseLocalDecl();
+			if (IsOp("{"))
+				return ParseBlock2();
+			if (IsKw("if"))
+				return ParseIf();
+			if (IsKw("for"))
+				return ParseFor();
+			if (IsKw("return"))
+				return ParseReturn();
+			if (IsKw("while") || IsKw("do") || IsKw("switch")) {
+				Fail("'"_s + Cur().Text + "' statements are unsupported"_s);
+				return nullptr;
+			}
+			if (IsKw("discard") || IsKw("break") || IsKw("continue")) {
+				Fail("'"_s + Cur().Text + "' statements are unsupported"_s);
+				return nullptr;
+			}
+			if (LooksLikeDecl())
+				return ParseLocalDecl();
 
 			ExprPtr e = ParseExpression(0);
-			if (!_ok) return nullptr;
+			if (!_ok)
+				return nullptr;
 			Expect(";");
 			StmtPtr s = MakeStmt(StmtKind::ExprStmt);
 			s->E = Death::move(e);
@@ -562,12 +956,17 @@ namespace ShaderCompiler
 		{
 			bool isConst = false;
 			while (Is(GlslTokenType::Identifier) && IsQualifier(Cur().Text)) {
-				if (Cur().Text == "const") isConst = true;
+				if (Cur().Text == "const")
+					isConst = true;
 				Next();
 			}
 			TyRef t = ParseType();
-			if (!_ok) return nullptr;
-			if (!Is(GlslTokenType::Identifier)) { Fail("expected a variable name"_s); return nullptr; }
+			if (!_ok)
+				return nullptr;
+			if (!Is(GlslTokenType::Identifier)) {
+				Fail("expected a variable name"_s);
+				return nullptr;
+			}
 			StmtPtr s = MakeStmt(StmtKind::VarDecl);
 			s->DeclType = t;
 			s->DeclConst = isConst;
@@ -576,18 +975,40 @@ namespace ShaderCompiler
 			if (IsOp("[")) {
 				bool sym;
 				s->DeclArraySize = ParseArraySuffix(sym);
-				if (sym) { Fail("symbolically-sized local arrays are unsupported"_s); return nullptr; }
+				if (sym) {
+					Fail("symbolically-sized local arrays are unsupported"_s);
+					return nullptr;
+				}
 			}
-			if (s->DeclArraySize > 0 && IsOp("=")) { Fail("local array initializers are unsupported"_s); return nullptr; }
-			if (IsOp("=")) { Next(); s->Init = ParseExpression(1); if (!_ok) return nullptr; }
+			if (s->DeclArraySize > 0 && IsOp("=")) {
+				Fail("local array initializers are unsupported"_s);
+				return nullptr;
+			}
+			if (IsOp("=")) {
+				Next();
+				s->Init = ParseExpression(1);
+				if (!_ok)
+					return nullptr;
+			}
 			while (IsOp(",")) {
 				Next();
-				if (!Is(GlslTokenType::Identifier)) { Fail("expected a variable name"_s); return nullptr; }
+				if (!Is(GlslTokenType::Identifier)) {
+					Fail("expected a variable name"_s);
+					return nullptr;
+				}
 				String name = Cur().Text;
 				Next();
-				if (IsOp("[")) { Fail("local array declarations are unsupported"_s); return nullptr; }
+				if (IsOp("[")) {
+					Fail("local array declarations are unsupported"_s);
+					return nullptr;
+				}
 				ExprPtr init;
-				if (IsOp("=")) { Next(); init = ParseExpression(1); if (!_ok) return nullptr; }
+				if (IsOp("=")) {
+					Next();
+					init = ParseExpression(1);
+					if (!_ok)
+						return nullptr;
+				}
 				s->ExtraDecls.emplace_back(Death::move(name), Death::move(init));
 			}
 			Expect(";");
@@ -602,7 +1023,10 @@ namespace ShaderCompiler
 			Expect(")");
 			StmtPtr th = ParseStatement();
 			StmtPtr el;
-			if (IsKw("else")) { Next(); el = ParseStatement(); }
+			if (IsKw("else")) {
+				Next();
+				el = ParseStatement();
+			}
 			StmtPtr s = MakeStmt(StmtKind::If);
 			s->Cond = Death::move(cond);
 			s->Then = Death::move(th);
@@ -615,19 +1039,23 @@ namespace ShaderCompiler
 			Next();
 			Expect("(");
 			StmtPtr init;
-			if (IsOp(";")) { Next(); }
-			else if (LooksLikeDecl()) { init = ParseLocalDecl(); }
-			else {
+			if (IsOp(";")) {
+				Next();
+			} else if (LooksLikeDecl()) {
+				init = ParseLocalDecl();
+			} else {
 				ExprPtr e = ParseExpression(0);
 				Expect(";");
 				init = MakeStmt(StmtKind::ExprStmt);
 				init->E = Death::move(e);
 			}
 			ExprPtr cond;
-			if (!IsOp(";")) cond = ParseExpression(0);
+			if (!IsOp(";"))
+				cond = ParseExpression(0);
 			Expect(";");
 			ExprPtr upd;
-			if (!IsOp(")")) upd = ParseExpression(0);
+			if (!IsOp(")"))
+				upd = ParseExpression(0);
 			Expect(")");
 			StmtPtr body = ParseStatement();
 			StmtPtr s = MakeStmt(StmtKind::For);
@@ -642,7 +1070,8 @@ namespace ShaderCompiler
 		{
 			Next();
 			StmtPtr s = MakeStmt(StmtKind::Return);
-			if (!IsOp(";")) s->E = ParseExpression(0);
+			if (!IsOp(";"))
+				s->E = ParseExpression(0);
 			Expect(";");
 			return s;
 		}
@@ -650,11 +1079,13 @@ namespace ShaderCompiler
 		ExprPtr ParseExpression(std::int32_t minPrec)
 		{
 			ExprPtr lhs = ParseUnary();
-			if (!_ok) return lhs;
+			if (!_ok)
+				return lhs;
 			while (Is(GlslTokenType::Operator) && _ok) {
 				StringView op = Cur().Text;
 				if (op == "?") {
-					if (minPrec > 2) break;
+					if (minPrec > 2)
+						break;
 					Next();
 					ExprPtr mid = ParseExpression(0);
 					Expect(":");
@@ -667,12 +1098,14 @@ namespace ShaderCompiler
 					continue;
 				}
 				std::int32_t prec = BinPrec(op);
-				if (prec < 0 || prec < minPrec) break;
+				if (prec < 0 || prec < minPrec)
+					break;
 				String opText = Cur().Text;
 				Next();
 				bool assign = (prec == 1);
 				ExprPtr rhs = ParseExpression(assign ? prec : prec + 1);
-				if (!_ok) return lhs;
+				if (!_ok)
+					return lhs;
 				ExprPtr node = MakeExpr(assign ? ExprKind::Assign : ExprKind::Binary, Death::move(opText));
 				node->A = Death::move(lhs);
 				node->B = Death::move(rhs);
@@ -685,7 +1118,10 @@ namespace ShaderCompiler
 		{
 			if (Is(GlslTokenType::Operator)) {
 				StringView op = Cur().Text;
-				if (op == "+") { Next(); return ParseUnary(); }
+				if (op == "+") {
+					Next();
+					return ParseUnary();
+				}
 				if (op == "-" || op == "!" || op == "~" || op == "++" || op == "--") {
 					String o = Cur().Text;
 					Next();
@@ -701,11 +1137,15 @@ namespace ShaderCompiler
 		ExprPtr ParsePostfix()
 		{
 			ExprPtr e = ParsePrimary();
-			if (!_ok) return e;
+			if (!_ok)
+				return e;
 			while (Is(GlslTokenType::Operator) && _ok) {
 				if (IsOp(".")) {
 					Next();
-					if (!Is(GlslTokenType::Identifier)) { Fail("expected a member name after '.'"_s); return e; }
+					if (!Is(GlslTokenType::Identifier)) {
+						Fail("expected a member name after '.'"_s);
+						return e;
+					}
 					ExprPtr m = MakeExpr(ExprKind::Member, Cur().Text);
 					Next();
 					m->A = Death::move(e);
@@ -713,8 +1153,10 @@ namespace ShaderCompiler
 				} else if (IsOp("[")) {
 					Next();
 					ExprPtr idx = ParseExpression(0);
-					if (!_ok) return e;
-					if (!Expect("]")) return e;
+					if (!_ok)
+						return e;
+					if (!Expect("]"))
+						return e;
 					ExprPtr node = MakeExpr(ExprKind::Index);
 					node->A = Death::move(e);
 					node->B = Death::move(idx);
@@ -736,10 +1178,26 @@ namespace ShaderCompiler
 		{
 			const GlslToken& t = Cur();
 			switch (t.Type) {
-				case GlslTokenType::IntLiteral: { ExprPtr e = MakeExpr(ExprKind::IntLit, t.Text); Next(); return e; }
-				case GlslTokenType::FloatLiteral: { ExprPtr e = MakeExpr(ExprKind::FloatLit, t.Text); Next(); return e; }
-				case GlslTokenType::BoolLiteral: { ExprPtr e = MakeExpr(ExprKind::BoolLit, t.Text); Next(); return e; }
-				case GlslTokenType::UIntLiteral: { ExprPtr e = MakeExpr(ExprKind::UIntLit, t.Text); Next(); return e; }
+				case GlslTokenType::IntLiteral: {
+					ExprPtr e = MakeExpr(ExprKind::IntLit, t.Text);
+					Next();
+					return e;
+				}
+				case GlslTokenType::FloatLiteral: {
+					ExprPtr e = MakeExpr(ExprKind::FloatLit, t.Text);
+					Next();
+					return e;
+				}
+				case GlslTokenType::BoolLiteral: {
+					ExprPtr e = MakeExpr(ExprKind::BoolLit, t.Text);
+					Next();
+					return e;
+				}
+				case GlslTokenType::UIntLiteral: {
+					ExprPtr e = MakeExpr(ExprKind::UIntLit, t.Text);
+					Next();
+					return e;
+				}
 				case GlslTokenType::Identifier: {
 					String name = t.Text;
 					Next();
@@ -749,8 +1207,12 @@ namespace ShaderCompiler
 						if (!IsOp(")")) {
 							for (;;) {
 								call->Args.push_back(ParseExpression(0));
-								if (!_ok) return call;
-								if (IsOp(",")) { Next(); continue; }
+								if (!_ok)
+									return call;
+								if (IsOp(",")) {
+									Next();
+									continue;
+								}
 								break;
 							}
 						}

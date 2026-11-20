@@ -2,7 +2,7 @@
 #include "../../PreferencesCache.h"
 
 #include "../../../nCine/I18n.h"
-#include "../../../nCine/Graphics/RHI/RhiFwd.h"	// RHI_CAP_POSTPROCESSING (a header macro, not a build define)
+#include "../../../nCine/Graphics/RHI/RhiFwd.h" // RHI_CAP_POSTPROCESSING (a header macro, not a build define)
 
 namespace Jazz2::UI::Menu
 {
@@ -41,7 +41,9 @@ namespace Jazz2::UI::Menu
 			if (mode == currentMode) {
 				selectedIndex = index;
 			}
-			list->Add<ListItem>(name, [root, mode]() { ApplyRescaleMode(root, mode); });
+			list->Add<ListItem>(name, [root, mode]() {
+				ApplyRescaleMode(root, mode);
+			});
 			index++;
 		};
 
@@ -55,24 +57,24 @@ namespace Jazz2::UI::Menu
 		// (see RHI_CAP_HEAVY_RESCALE_SHADERS). Omitting them here is all that is needed: a value stored by
 		// another backend needs no fallback, because UpscaleRenderPass already falls back to the plain sprite
 		// shader whenever the mode resolves to no program, which is exactly the pixel-perfect mode.
-#	if defined(RHI_CAP_HEAVY_RESCALE_SHADERS)
+#if defined(RHI_CAP_HEAVY_RESCALE_SHADERS)
 		add(RescaleMode::CleanEdge, "CleanEdge"_s);
-#	endif
+#endif
 		add(RescaleMode::HQ2x, "HQ2×"_s);
 		add(RescaleMode::_3xBrz, "3×BRZ"_s);
-#	if defined(RHI_CAP_HEAVY_RESCALE_SHADERS)
+#if defined(RHI_CAP_HEAVY_RESCALE_SHADERS)
 		add(RescaleMode::Sabr, "SABR"_s);
-#	endif
+#endif
 		// TRANSLATORS: Menu item in Options > Graphics > Rescale Mode section
 		add(RescaleMode::CrtScanlines, _("CRT Scanlines"));
 		// TRANSLATORS: Menu item in Options > Graphics > Rescale Mode section
 		add(RescaleMode::CrtShadowMask, _("CRT Shadow Mask"));
 		// TRANSLATORS: Menu item in Options > Graphics > Rescale Mode section
 		add(RescaleMode::CrtApertureGrille, _("CRT Aperture Grille"));
-#	if defined(RHI_CAP_HEAVY_RESCALE_SHADERS)
+#if defined(RHI_CAP_HEAVY_RESCALE_SHADERS)
 		// TRANSLATORS: Menu item in Options > Graphics > Rescale Mode section
 		add(RescaleMode::Monochrome, _("Monochrome"));
-#	endif
+#endif
 #endif
 
 		list->SetSelectedIndex(selectedIndex);

@@ -14,7 +14,8 @@ namespace nCine
 		/**
 		 * @brief Double buffering state
 		 */
-		enum class DoubleBuffering {
+		enum class DoubleBuffering
+		{
 			Disabled,
 			Enabled
 		};
@@ -22,55 +23,74 @@ namespace nCine
 		/**
 		 * @brief Vertical sync state
 		 */
-		enum class VSync {
+		enum class VSync
+		{
 			Disabled,
 			Enabled
 		};
 
 		DisplayMode()
-			: DisplayMode(0, 0, 0, 0, 0, 0, DoubleBuffering::Disabled, VSync::Disabled) {}
+			: DisplayMode(0, 0, 0, 0, 0, 0, DoubleBuffering::Disabled, VSync::Disabled)
+		{
+		}
 		DisplayMode(std::uint8_t redBits, std::uint8_t greenBits, std::uint8_t blueBits)
-			: DisplayMode(redBits, greenBits, blueBits, 0, 0, 0, DoubleBuffering::Enabled, VSync::Disabled) {}
+			: DisplayMode(redBits, greenBits, blueBits, 0, 0, 0, DoubleBuffering::Enabled, VSync::Disabled)
+		{
+		}
 		DisplayMode(std::uint8_t redBits, std::uint8_t greenBits, std::uint8_t blueBits, std::uint8_t alphaBits)
-			: DisplayMode(redBits, greenBits, blueBits, alphaBits, 0, 0, DoubleBuffering::Enabled, VSync::Disabled) {}
+			: DisplayMode(redBits, greenBits, blueBits, alphaBits, 0, 0, DoubleBuffering::Enabled, VSync::Disabled)
+		{
+		}
 		DisplayMode(std::uint8_t depthBits, std::uint8_t stencilBits, DoubleBuffering dbMode, VSync vsMode)
-			: DisplayMode(0, 0, 0, 0, depthBits, stencilBits, dbMode, vsMode) {}
+			: DisplayMode(0, 0, 0, 0, depthBits, stencilBits, dbMode, vsMode)
+		{
+		}
 		DisplayMode(std::uint8_t redBits, std::uint8_t greenBits, std::uint8_t blueBits, std::uint8_t alphaBits,
-					std::uint8_t depthBits, std::uint8_t stencilBits, DoubleBuffering dbMode, VSync vsMode)
+			std::uint8_t depthBits, std::uint8_t stencilBits, DoubleBuffering dbMode, VSync vsMode)
 			: _redBits(redBits), _greenBits(greenBits), _blueBits(blueBits), _alphaBits(alphaBits),
-			_depthBits(depthBits), _stencilBits(stencilBits), _isDoubleBuffered(dbMode == DoubleBuffering::Enabled),
-			_hasVSync(vsMode == VSync::Enabled) {}
+			  _depthBits(depthBits), _stencilBits(stencilBits), _isDoubleBuffered(dbMode == DoubleBuffering::Enabled),
+			  _hasVSync(vsMode == VSync::Enabled)
+		{
+		}
 
 		/** @brief Returns the number of bits for the red channel */
-		inline std::uint8_t GetRedBits() const {
+		inline std::uint8_t GetRedBits() const
+		{
 			return _redBits;
 		}
 		/** @brief Returns the number of bits for the green channel */
-		inline std::uint8_t GetGreenBits() const {
+		inline std::uint8_t GetGreenBits() const
+		{
 			return _greenBits;
 		}
 		/** @brief Returns the number of bits for the blue channel */
-		inline std::uint8_t GetBlueBits() const {
+		inline std::uint8_t GetBlueBits() const
+		{
 			return _blueBits;
 		}
 		/** @brief Returns the number of bits for the alpha channel */
-		inline std::uint8_t GetAlphaBits() const {
+		inline std::uint8_t GetAlphaBits() const
+		{
 			return _alphaBits;
 		}
 		/** @brief Returns the number of bits for the depth buffer */
-		inline std::uint8_t GetDepthBits() const {
+		inline std::uint8_t GetDepthBits() const
+		{
 			return _depthBits;
 		}
 		/** @brief Returns the number of bits for the stencil buffer */
-		inline std::uint8_t GetStencilBits() const {
+		inline std::uint8_t GetStencilBits() const
+		{
 			return _stencilBits;
 		}
 		/** @brief Returns whether the display is double buffered */
-		inline bool IsDoubleBuffered() const {
+		inline bool IsDoubleBuffered() const
+		{
 			return _isDoubleBuffered;
 		}
 		/** @brief Returns whether the display has vertical sync enabled */
-		inline bool HasVSync() const {
+		inline bool HasVSync() const
+		{
 			return _hasVSync;
 		}
 
@@ -94,4 +114,3 @@ namespace nCine
 	};
 
 }
-

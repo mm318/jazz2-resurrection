@@ -25,7 +25,7 @@ namespace Jazz2::Editor
 		constexpr float LeftWallX = -30.0f;
 		// The part of the range shown, in pixels of the level
 		constexpr float ViewLeft = -40.0f, ViewTop = FiringRange::CeilingY - 8.0f, ViewWidth = 360.0f,
-			ViewHeight = FiringRange::FloorY + 8.0f - ViewTop;
+						ViewHeight = FiringRange::FloorY + 8.0f - ViewTop;
 
 		// An even spread of -1 to 1 in place of random numbers, so the preview doesn't change while it's looked at
 		float SpreadSample(std::int32_t i)
@@ -576,7 +576,7 @@ namespace Jazz2::Editor
 		}
 		const GraphicResource* mainResource = FindWeaponAnimation(path, state);
 		const GraphicResource* altResource = (options.AltSprite.IsEmpty() ? nullptr
-			: FindWeaponAnimation(weapons->GetSpriteMetadataPath(options.AltSprite), options.AltSprite.AnimState));
+																		  : FindWeaponAnimation(weapons->GetSpriteMetadataPath(options.AltSprite), options.AltSprite.AnimState));
 
 		// The fire is held again and again, with a short pause between, each shot is animated from when it's fired
 		std::int32_t longest = 1;

@@ -56,12 +56,18 @@ namespace Jazz2::UI::Windows
 			float f = sector - float(i);
 			float p = v * (1.0f - s), q = v * (1.0f - s * f), t = v * (1.0f - s * (1.0f - f));
 			switch (i) {
-				case 0: return Colorf(v, t, p, a);
-				case 1: return Colorf(q, v, p, a);
-				case 2: return Colorf(p, v, t, a);
-				case 3: return Colorf(p, q, v, a);
-				case 4: return Colorf(t, p, v, a);
-				default: return Colorf(v, p, q, a);
+				case 0:
+					return Colorf(v, t, p, a);
+				case 1:
+					return Colorf(q, v, p, a);
+				case 2:
+					return Colorf(p, v, t, a);
+				case 3:
+					return Colorf(p, q, v, a);
+				case 4:
+					return Colorf(t, p, v, a);
+				default:
+					return Colorf(v, p, q, a);
 			}
 		}
 
@@ -178,7 +184,7 @@ namespace Jazz2::UI::Windows
 
 	PaletteGrid::PaletteGrid(Function<const std::uint32_t*()>&& palette, Function<std::int32_t()>&& selected, Function<void(std::int32_t, bool)>&& onPick)
 		: CellSize(DefaultCellSize), _palette(Death::move(palette)), _selected(Death::move(selected)), _onPick(Death::move(onPick)), _tooltipIndex(-1),
-			_tooltipEntry(0), _dragIndex(-1), _shownEntries{}
+		  _tooltipEntry(0), _dragIndex(-1), _shownEntries {}
 	{
 	}
 
@@ -355,7 +361,7 @@ namespace Jazz2::UI::Windows
 
 	ColorPicker::ColorPicker(Function<Colorf()>&& color, Function<void(const Colorf&)>&& onChange, bool withAlpha)
 		: _color(Death::move(color)), _onChange(Death::move(onChange)), _withAlpha(withAlpha), _hue(0.0f), _saturation(0.0f),
-			_value(0.0f), _alpha(1.0f), _knownColor(0), _dragPart(Part::None), _squareHue(-1.0f)
+		  _value(0.0f), _alpha(1.0f), _knownColor(0), _dragPart(Part::None), _squareHue(-1.0f)
 	{
 		Colorf current = (_color ? _color() : Colorf::White);
 		RgbToHsv(current, _hue, _saturation, _value);
@@ -375,18 +381,33 @@ namespace Jazz2::UI::Windows
 
 		auto panel = std::make_unique<Panel>(PanelStyle::Floating);
 		auto* column = panel->Add<Stack>(Orientation::Vertical, Theme::Spacing);
-		column->Add<ColorPicker>([shared]() { return (*shared)(); }, [change](const Colorf& value) { (*change)(value); }, withAlpha);
+		column->Add<ColorPicker>([shared]() {
+			return (*shared)();
+		},
+			[change](const Colorf& value) {
+				(*change)(value);
+			},
+			withAlpha);
 
 		auto* row = column->Add<Stack>(Orientation::Horizontal, 2.0f);
-		auto* before = row->Add<ColorSwatch>([original]() { return original; }, [change, original]() { (*change)(original); });
+		auto* before = row->Add<ColorSwatch>([original]() {
+			return original;
+		},
+			[change, original]() {
+				(*change)(original);
+			});
 		before->Tooltip = _x("editor", "The color before, click to bring it back");
-		auto* now = row->Add<ColorSwatch>([shared]() { return (*shared)(); });
+		auto* now = row->Add<ColorSwatch>([shared]() {
+			return (*shared)();
+		});
 		now->Tooltip = _x("editor", "The color now");
 		auto* hex = row->Add<TextBox>();
 		hex->MaxLength = 7;
 		hex->Flex = 1.0f;
 		hex->Width = 52.0f;
-		hex->TextFunc = [shared]() { return ToHex((*shared)()); };
+		hex->TextFunc = [shared]() {
+			return ToHex((*shared)());
+		};
 		hex->OnCommit = [shared, change](StringView text) {
 			Colorf value = (*shared)();
 			if (FromHex(text, value)) {
@@ -499,22 +520,22 @@ namespace Jazz2::UI::Windows
 		if (_hueBar == nullptr) {
 			// Red, yellow, green, cyan, blue, magenta and red again, from the top
 			static const std::uint8_t HueTexels[] = {
-				255, 0, 0, 255,  255, 255, 0, 255,  0, 255, 0, 255,  0, 255, 255, 255,
-				0, 0, 255, 255,  255, 0, 255, 255,  255, 0, 0, 255
+				255, 0, 0, 255, 255, 255, 0, 255, 0, 255, 0, 255, 0, 255, 255, 255,
+				0, 0, 255, 255, 255, 0, 255, 255, 255, 0, 0, 255
 			};
 			_hueBar = MakeGradient("EditorPickerHue", HueTexels, 1, 7);
 		}
 		if (_withAlpha && _alphaBar == nullptr) {
 			// White, tinted by the color when drawn, from opaque at the top to transparent
-			static const std::uint8_t AlphaTexels[] = { 255, 255, 255, 255,  255, 255, 255, 0 };
+			static const std::uint8_t AlphaTexels[] = { 255, 255, 255, 255, 255, 255, 255, 0 };
 			_alphaBar = MakeGradient("EditorPickerAlpha", AlphaTexels, 1, 2);
 		}
 		if (_square == nullptr || _squareHue != _hue) {
 			// White to the hue across the top, black along the bottom, smoothing between them is the rest of the square
 			Colorf pure = HsvToRgb(_hue, 1.0f, 1.0f, 1.0f);
 			std::uint8_t texels[] = {
-				255, 255, 255, 255,  ToByte(pure.R), ToByte(pure.G), ToByte(pure.B), 255,
-				0, 0, 0, 255,  0, 0, 0, 255
+				255, 255, 255, 255, ToByte(pure.R), ToByte(pure.G), ToByte(pure.B), 255,
+				0, 0, 0, 255, 0, 0, 0, 255
 			};
 			if (_square == nullptr) {
 				_square = MakeGradient("EditorPickerSquare", texels, 2, 2);

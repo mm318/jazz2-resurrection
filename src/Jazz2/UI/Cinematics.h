@@ -10,8 +10,8 @@
 #include "../../nCine/Audio/AudioStreamPlayer.h"
 #include "../../nCine/Input/InputEvents.h"
 #if defined(WITH_THREADS)
-#	include "../../nCine/Threading/Thread.h"
-#	include "../../nCine/Threading/ThreadSync.h"
+#include "../../nCine/Threading/Thread.h"
+#include "../../nCine/Threading/ThreadSync.h"
 #endif
 
 #include <Containers/Pair.h>
@@ -88,17 +88,19 @@ namespace Jazz2::UI
 #endif
 
 #if defined(WITH_AUDIO)
-		struct SfxItem {
+		struct SfxItem
+		{
 			std::unique_ptr<AudioBuffer> Buffer;
 
 			SfxItem();
-#	if !defined(NCINE_HAS_NATIVE_AUDIO)
+#if !defined(NCINE_HAS_NATIVE_AUDIO)
 			SfxItem(std::unique_ptr<Stream> stream, StringView path);
-#	endif
+#endif
 			explicit SfxItem(StringView path);
 		};
 
-		struct SfxPlaylistItem {
+		struct SfxPlaylistItem
+		{
 			std::uint32_t Frame;
 			std::uint16_t Sample;
 			float Gain;
@@ -140,7 +142,7 @@ namespace Jazz2::UI
 		std::unique_ptr<std::uint8_t[]> _buffer;
 		std::unique_ptr<std::uint8_t[]> _lastBuffer;
 		std::uint32_t _palette[256];
-		
+
 		/**
 			@brief Sliding window over the video file, shared by the four compressed streams
 
@@ -212,7 +214,8 @@ namespace Jazz2::UI
 			of the hundreds of thousands of bytes in a frame. Inflating into a block and handing out bytes
 			from it makes the decoding an order of magnitude cheaper.
 		*/
-		struct StreamBuffer {
+		struct StreamBuffer
+		{
 			static constexpr std::int32_t Capacity = 8 * 1024;
 
 			Stream* Source = nullptr;
@@ -354,11 +357,13 @@ namespace Jazz2::UI
 			/** @brief Reads one piece ahead if there is room for it - only for a reader without a thread */
 			void Pump();
 			/** @brief Whether the reader runs on its own thread */
-			bool IsBackground() const {
+			bool IsBackground() const
+			{
 				return _background;
 			}
 			/** @brief Whether a thread decompresses the frames ahead, which are then taken with @ref AcquireFrame() */
-			bool IsDecompressingAhead() const {
+			bool IsDecompressingAhead() const
+			{
 				return _decompressAhead;
 			}
 #if defined(WITH_THREADS)
@@ -401,7 +406,8 @@ namespace Jazz2::UI
 			/** @brief Frames decompressed ahead of the main thread */
 			static constexpr std::int32_t FrameSlotCount = 3;
 
-			struct FrameSlot {
+			struct FrameSlot
+			{
 				std::unique_ptr<std::uint8_t[]> Data;
 				std::uint32_t Capacity = 0;
 				std::uint32_t Size = 0;
@@ -419,17 +425,17 @@ namespace Jazz2::UI
 			// A frame record that is not contiguous in the ring, gathered before it is decompressed
 			std::unique_ptr<std::uint8_t[]> _record;
 			std::uint32_t _recordCapacity;
-#	if defined(DEATH_TARGET_DREAMCAST)
+#if defined(DEATH_TARGET_DREAMCAST)
 			// The decompressing thread goes one below it (see DecompressThreadFunc)
 			std::int32_t _mainThreadPriority;
-#	endif
+#endif
 
 			static void ThreadFunc(void* arg);
-#	if defined(WITH_LZ4)
+#if defined(WITH_LZ4)
 			static void DecompressThreadFunc(void* arg);
 			/** @brief Takes the next frame record out of the ring and decompresses it into @p slot */
 			bool DecompressNextFrame(FrameSlot& slot);
-#	endif
+#endif
 #endif
 
 			/** @brief Reads the next piece into the free part of the ring; the caller has made sure there is room */
@@ -472,17 +478,19 @@ namespace Jazz2::UI
 		void Skip(std::int32_t streamIndex, std::uint32_t bytes);
 		void UpdatePressedActions();
 
-		template<typename T>
-		inline T ReadValue(std::int32_t streamIndex) {
+		template <typename T>
+		inline T ReadValue(std::int32_t streamIndex)
+		{
 			T buffer;
 			Read(streamIndex, &buffer, sizeof(T));
 			return buffer;
 		}
 
 		/** @brief Reads a single byte, the hot path of the frame decoding */
-		inline std::uint8_t ReadByte(std::int32_t streamIndex) {
+		inline std::uint8_t ReadByte(std::int32_t streamIndex)
+		{
 			StreamBuffer& buffer = _streamBuffers[streamIndex];
-			if DEATH_LIKELY(buffer.Position < buffer.Length) {
+			if DEATH_LIKELY (buffer.Position < buffer.Length) {
 				return buffer.Data[buffer.Position++];
 			}
 			return ReadValue<std::uint8_t>(streamIndex);

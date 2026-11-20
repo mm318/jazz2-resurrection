@@ -5,24 +5,24 @@
 #include <cstring>
 
 #if defined(DEATH_TARGET_WINDOWS_RT)
-#	include <winrt/Windows.System.h>
+#include <winrt/Windows.System.h>
 #elif defined(DEATH_TARGET_WINDOWS)
-#	pragma comment(lib, "psapi")
+#pragma comment(lib, "psapi")
 #
-#	include <CommonWindows.h>
-#	include <psapi.h>
+#include <CommonWindows.h>
+#include <psapi.h>
 #elif defined(DEATH_TARGET_APPLE)
-#	include <mach/mach.h>
+#include <mach/mach.h>
 #elif defined(DEATH_TARGET_ANDROID) || (defined(DEATH_TARGET_UNIX) && defined(__linux__))
-#	include <cstdio>
-#	include <unistd.h>
+#include <cstdio>
+#include <unistd.h>
 #elif defined(DEATH_TARGET_N64)
-#	include <n64sys.h>
+#include <n64sys.h>
 #elif defined(DEATH_TARGET_3DS)
-#	include <3ds.h>
-#	include <malloc.h>
+#include <3ds.h>
+#include <malloc.h>
 #elif defined(DEATH_TARGET_DREAMCAST)
-#	include "../Backends/Dc/DcPlatform.h"
+#include "../Backends/Dc/DcPlatform.h"
 #endif
 
 namespace nCine
@@ -58,7 +58,7 @@ namespace nCine
 
 	void FrameStatistics::AddDrawCalls(std::uint32_t drawCalls, std::uint32_t renderCommands)
 	{
-		if DEATH_LIKELY(!_enabled) {
+		if DEATH_LIKELY (!_enabled) {
 			return;
 		}
 
@@ -69,7 +69,7 @@ namespace nCine
 
 	void FrameStatistics::AddCounter(const char* name, float value, Unit unit, float limit)
 	{
-		if DEATH_LIKELY(!_enabled) {
+		if DEATH_LIKELY (!_enabled) {
 			return;
 		}
 
@@ -101,7 +101,7 @@ namespace nCine
 
 	void FrameStatistics::EndFrame(const float* phaseTimes, float frameTime)
 	{
-		if DEATH_LIKELY(!_enabled) {
+		if DEATH_LIKELY (!_enabled) {
 			return;
 		}
 

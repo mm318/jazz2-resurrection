@@ -22,7 +22,8 @@ namespace Jazz2::Actors::Multiplayer
 		Flag();
 
 		/** @brief Returns the team this flag belongs to */
-		std::uint8_t GetTeam() const {
+		std::uint8_t GetTeam() const
+		{
 			return _team;
 		}
 

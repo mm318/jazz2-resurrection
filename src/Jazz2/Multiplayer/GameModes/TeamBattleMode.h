@@ -17,10 +17,12 @@ namespace Jazz2::Multiplayer::GameModes
 	class TeamBattleMode : public BattleMode
 	{
 	public:
-		MpGameMode GetMode() const override {
+		MpGameMode GetMode() const override
+		{
 			return MpGameMode::TeamBattle;
 		}
-		bool IsTeamBased() const override {
+		bool IsTeamBased() const override
+		{
 			return true;
 		}
 

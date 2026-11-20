@@ -44,7 +44,10 @@ namespace nCine::RHI::GL
 
 	void GLScissorTest::Reapply()
 	{
-		if (_state.enabled) glEnable(GL_SCISSOR_TEST); else glDisable(GL_SCISSOR_TEST);
+		if (_state.enabled)
+			glEnable(GL_SCISSOR_TEST);
+		else
+			glDisable(GL_SCISSOR_TEST);
 		glScissor(_state.rect.X, _state.rect.Y, _state.rect.W, _state.rect.H);
 	}
 

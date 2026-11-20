@@ -42,18 +42,18 @@ namespace Jazz2::Rendering
 	PlayerViewport::PlayerViewport(LevelHandler* levelHandler, Actors::ActorBase* targetActor)
 		: _levelHandler(levelHandler), _targetActor(targetActor),
 #if defined(RHI_CAP_POSTPROCESSING)
-			_downsamplePass(this), _blurPass1(this), _blurPass2(this), _blurPass3(this), _blurPass4(this),
+		  _downsamplePass(this), _blurPass1(this), _blurPass2(this), _blurPass3(this), _blurPass4(this),
 #endif
 #if defined(TILEMAP_LAYER_EFFECTS)
-			_behindCopyPass(this), _behindDownsamplePass(this), _behindBlurPass1(this), _behindBlurPass2(this),
+		  _behindCopyPass(this), _behindDownsamplePass(this), _behindBlurPass1(this), _behindBlurPass2(this),
 #endif
 #if defined(RHI_CAP_POSTPROCESSING)
-			_waterCopyPass(this), _waterCopyPasses(0),
+		  _waterCopyPass(this), _waterCopyPasses(0),
 #endif
-			_cameraViewCenterY(0.0f), _lookAheadDirectionX(1.0f), _lookAheadTurnTime(0.0f), _legacyCameraSpeed(0.0f),
-			_legacyCameraDrop(0.0f), _legacyCameraDirection(0), _legacyLookOffset(0.0f), _legacyQuakeTicks(0.0f),
-			_legacyQuakeOffset(Vector2f::Zero), _legacyQuakeShown(Vector2f::Zero), _legacyQuakeAccum(1.0f), _centerOnTargetProgress(0.0f),
-			_shakeDuration(0.0f), _cameraEaseProgress(1.0f), _cameraScale(1.0f), _freeCamera(false), _cameraFixedX(false), _cameraFixedY(false)
+		  _cameraViewCenterY(0.0f), _lookAheadDirectionX(1.0f), _lookAheadTurnTime(0.0f), _legacyCameraSpeed(0.0f),
+		  _legacyCameraDrop(0.0f), _legacyCameraDirection(0), _legacyLookOffset(0.0f), _legacyQuakeTicks(0.0f),
+		  _legacyQuakeOffset(Vector2f::Zero), _legacyQuakeShown(Vector2f::Zero), _legacyQuakeAccum(1.0f), _centerOnTargetProgress(0.0f),
+		  _shakeDuration(0.0f), _cameraEaseProgress(1.0f), _cameraScale(1.0f), _freeCamera(false), _cameraFixedX(false), _cameraFixedY(false)
 	{
 		_ambientLight = levelHandler->_defaultAmbientLight;
 		_ambientLightTarget = _ambientLight.W;
@@ -315,11 +315,11 @@ namespace Jazz2::Rendering
 		if (needsMask) {
 			// The format of the lighting buffer, which every backend of this tier is known to render into (OpenGL|ES 2.0
 			// cannot render into fewer than four channels). Only the red channel is read.
-#	if defined(RHI_GL_PROFILE_ES2) || defined(DEATH_TARGET_EMSCRIPTEN)
+#if defined(RHI_GL_PROFILE_ES2) || defined(DEATH_TARGET_EMSCRIPTEN)
 			constexpr Texture::Format MaskFormat = Texture::Format::RGBA8;
-#	else
+#else
 			constexpr Texture::Format MaskFormat = Texture::Format::RG8;
-#	endif
+#endif
 			// The size of the scene target, so a fragment of the scene finds its own texel in the mask
 			if (_xrayMaskView == nullptr) {
 				_xrayMaskRenderer = std::make_unique<XRayMaskRenderer>(this);
@@ -345,17 +345,17 @@ namespace Jazz2::Rendering
 		if (needsBehindBlur) {
 			// A blur of its own rather than the bloom chain: that one is rendered from the whole scene, this one only
 			// from what is below the layer. Every step is at most a halving, as in the bloom chain (see Initialize()).
-#	if defined(RHI_LOW_POWER_GPU)
+#if defined(RHI_LOW_POWER_GPU)
 			// Where every pass is a whole scene of its own (see Initialize()), the first blur reads the view directly
 			// and the chain stays at half size
 			_behindDownsamplePass.Dispose();
 			_behindBlurPass1.Initialize(_viewTexture.get(), width / 2, height / 2, Vector2f(1.0f, 0.0f));
 			_behindBlurPass2.Initialize(_behindBlurPass1.GetTarget(), width / 2, height / 2, Vector2f(0.0f, 1.0f));
-#	else
+#else
 			_behindDownsamplePass.Initialize(_viewTexture.get(), width / 2, height / 2, Vector2f(0.0f, 0.0f));
 			_behindBlurPass1.Initialize(_behindDownsamplePass.GetTarget(), width / 4, height / 4, Vector2f(1.0f, 0.0f));
 			_behindBlurPass2.Initialize(_behindBlurPass1.GetTarget(), width / 4, height / 4, Vector2f(0.0f, 1.0f));
-#	endif
+#endif
 			_layerEffects.BehindBlur = _behindBlurPass2.GetTarget();
 		} else {
 			_behindDownsamplePass.Dispose();
@@ -368,12 +368,12 @@ namespace Jazz2::Rendering
 			// A sharp copy of what is behind the layer for the reflections to mirror and the displacement to move, taken
 			// first in the middle of the scene (see Register()). A plain copy rather than a downsampling pass of the same
 			// size, which would blur it.
-#	if defined(RHI_LOW_POWER_GPU)
+#if defined(RHI_LOW_POWER_GPU)
 			// Half the pixels to write and read where every pass costs a whole scene
 			_behindCopyPass.InitializeCopy(_viewTexture.get(), width / 2, height / 2);
-#	else
+#else
 			_behindCopyPass.InitializeCopy(_viewTexture.get(), width, height);
-#	endif
+#endif
 			_layerEffects.BehindCopy = _behindCopyPass.GetTarget();
 		} else {
 			_behindCopyPass.Dispose();
@@ -645,13 +645,13 @@ namespace Jazz2::Rendering
 				} else {
 					_lookAheadTurnTime = 0.0f;
 				}
-				targetLookAheadX = _lookAheadDirectionX * std::min(halfView.X * SmallViewIdleLeadFraction + speedLookAheadX,
-					halfView.X * SmallViewMaxLookAheadFraction);
+				targetLookAheadX = _lookAheadDirectionX * std::min(halfView.X * SmallViewIdleLeadFraction + speedLookAheadX, halfView.X * SmallViewMaxLookAheadFraction);
 			} else {
 				targetLookAheadX = (movingX ? (focusSpeed.X < 0.0f ? -1.0f : 1.0f) * std::min(speedLookAheadX, halfView.X * MaxLookAheadFraction) : 0.0f);
 			}
 			float targetLookAheadY = (focusVelocity.Y > CameraStickSpeed
-				? (focusSpeed.Y < 0.0f ? -1.0f : 1.0f) * std::min((focusVelocity.Y - CameraStickSpeed) * LookAheadFactorY, maxLookAheadY) : 0.0f);
+					? (focusSpeed.Y < 0.0f ? -1.0f : 1.0f) * std::min((focusVelocity.Y - CameraStickSpeed) * LookAheadFactorY, maxLookAheadY)
+					: 0.0f);
 			// Ease the look-ahead toward its target, but once the player has stopped and the lead is within a few pixels
 			// of where it rests (zero, or the resting lead of a small view), freeze it instead of crawling the rest of
 			// the way: the camera is pixel-snapped, so easing through the last few pixels shows up as visible 1px jumps.
@@ -714,7 +714,8 @@ namespace Jazz2::Rendering
 			StepLegacyLead(_cameraDistanceFactor.X, _legacyLeadStep.X, targetX, limitX, ticks, halfKeep);
 
 			float limitY = (_legacyCameraDrop == 0.0f || std::abs(_cameraDistanceFactor.Y) < LegacyCameraDropFastRange
-				? LegacyCameraStepReversed : LegacyCameraStepReleased);
+					? LegacyCameraStepReversed
+					: LegacyCameraStepReleased);
 			StepLegacyLead(_cameraDistanceFactor.Y, _legacyLeadStep.Y, _legacyCameraDrop, limitY, ticks, halfKeep);
 			_cameraViewCenterY = focusPos.Y;
 
@@ -790,7 +791,9 @@ namespace Jazz2::Rendering
 			lookAhead.Y += _legacyLookOffset;
 		}
 		float viewCenterY = lerp(_cameraViewCenterY, focusPos.Y, centerOnTarget);
-		const auto alignView = [](float pos) { return (PreferencesCache::UnalignedViewport ? pos : floorFast(pos)); };
+		const auto alignView = [](float pos) {
+			return (PreferencesCache::UnalignedViewport ? pos : floorFast(pos));
+		};
 		_centerOnTargetOffset = Vector2f::Zero;
 		if (_viewBounds.W > halfView.X * 2) {
 			const float minX = _viewBounds.X + halfView.X, maxX = _viewBounds.X + _viewBounds.W - halfView.X;

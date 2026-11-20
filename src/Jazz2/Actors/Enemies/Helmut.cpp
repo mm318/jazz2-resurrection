@@ -81,11 +81,13 @@ namespace Jazz2::Actors::Enemies
 		EnemyBase::OnSerializeState(dest);
 
 		dest.WriteValueAsLE<float>(_stateTime);
-		dest.WriteValueAsLE<float>(0.0f);	// Unused
+		dest.WriteValueAsLE<float>(0.0f); // Unused
 
 		std::uint8_t flags = 0;
-		if (_idling) flags |= 0x01;
-		if (_stuck) flags |= 0x02;
+		if (_idling)
+			flags |= 0x01;
+		if (_stuck)
+			flags |= 0x02;
 		dest.WriteValue<std::uint8_t>(flags);
 	}
 
@@ -94,7 +96,7 @@ namespace Jazz2::Actors::Enemies
 		EnemyBase::OnDeserializeState(src);
 
 		_stateTime = src.ReadValueAsLE<float>();
-		src.ReadValueAsLE<float>();	// Unused
+		src.ReadValueAsLE<float>(); // Unused
 
 		std::uint8_t flags = src.ReadValue<std::uint8_t>();
 		_idling = ((flags & 0x01) != 0);

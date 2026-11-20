@@ -21,8 +21,10 @@ namespace Jazz2::Editor
 			}
 			for (std::size_t i = 0; i < a.size(); i++) {
 				char ca = a[i], cb = b[i];
-				if (ca >= 'A' && ca <= 'Z') ca = char(ca - 'A' + 'a');
-				if (cb >= 'A' && cb <= 'Z') cb = char(cb - 'A' + 'a');
+				if (ca >= 'A' && ca <= 'Z')
+					ca = char(ca - 'A' + 'a');
+				if (cb >= 'A' && cb <= 'Z')
+					cb = char(cb - 'A' + 'a');
 				if (ca != cb) {
 					return false;
 				}
@@ -234,7 +236,7 @@ namespace Jazz2::Editor
 		stamp.Width = width;
 		stamp.Height = height;
 		for (const Tile& tile : tiles) {
-			TileRef ref{};
+			TileRef ref {};
 			bool present = tile.Present;
 			if (present && !tile.TileSet.empty()) {
 				// By the name in any case, as the rules find tile sets, never one the level has in itself
@@ -243,16 +245,16 @@ namespace Jazz2::Editor
 					const Formats::ExtraTileSetRecord& extra = document.ExtraTileSets[i];
 					if ((extra.Flags & Formats::ExtraTileSetRecord::Embedded) == 0 && EqualsIgnoreCase(extra.Name, tile.TileSet) &&
 						tile.Index >= extra.Offset && tile.Index < extra.Offset + extra.Count) {
-						ref = TileRef{ std::uint16_t(tile.Index - extra.Offset), std::uint8_t(i + 1), tile.Flags };
+						ref = TileRef { std::uint16_t(tile.Index - extra.Offset), std::uint8_t(i + 1), tile.Flags };
 						present = true;
 						break;
 					}
 				}
 			} else if (present) {
 				// A tile past the end of the tile set, imported again with fewer tiles, would be saved as another tile
-				ref = TileRef{ tile.Index, TileRef::DefaultTileSet, tile.Flags };
+				ref = TileRef { tile.Index, TileRef::DefaultTileSet, tile.Flags };
 				if (!StampClipboard::HasTile(document, ref)) {
-					ref = TileRef{};
+					ref = TileRef {};
 					present = false;
 				}
 			}
@@ -300,12 +302,12 @@ namespace Jazz2::Editor
 		}
 		for (const EventStamp::Item& item : stamp.Events.Items) {
 			if (item.Offset.X >= 0 && item.Offset.Y >= 0 && item.Offset.X < stamp.Width && item.Offset.Y < stamp.Height) {
-				prefab.Events.push_back(PrefabEvent{ item.Offset, item.Event });
+				prefab.Events.push_back(PrefabEvent { item.Offset, item.Event });
 			}
 		}
 		for (const EventStamp::OffGridItem& item : stamp.Events.OffGrid) {
 			if (item.Offset.X >= 0 && item.Offset.Y >= 0 && item.Offset.X < stamp.Width * 32 && item.Offset.Y < stamp.Height * 32) {
-				prefab.OffGridEvents.push_back(PrefabEvent{ item.Offset, item.Event });
+				prefab.OffGridEvents.push_back(PrefabEvent { item.Offset, item.Event });
 			}
 		}
 		return prefab;

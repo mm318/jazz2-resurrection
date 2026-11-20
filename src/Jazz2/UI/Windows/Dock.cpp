@@ -66,7 +66,7 @@ namespace Jazz2::UI::Windows
 
 	DockFrame::DockFrame(DockSide side, StringView tooltip)
 		: _side(side), _dockButton(nullptr), _floating(false), _buttonShowsFloating(true), _floatAmount(0.0f), _previewAmount(0.0f),
-			_moving(false), _undockPending(false), _overDockZone(false), _restoreBounds(false), _resizeEdges(0), _hoverEdges(0), _scale(1.0f)
+		  _moving(false), _undockPending(false), _overDockZone(false), _restoreBounds(false), _resizeEdges(0), _hoverEdges(0), _scale(1.0f)
 	{
 		_panel = Add<Panel>(PanelStyle::Docked, Orientation::Vertical, Theme::Spacing, Thickness(Theme::Padding));
 
@@ -84,9 +84,15 @@ namespace Jazz2::UI::Windows
 			}
 		});
 		_dockButton->Style = ButtonStyle::Flat;
-		_header->OnDragStart = [this](Vector2f pos) { BeginMove(pos); };
-		_header->OnDrag = [this](Vector2f offset, Vector2f pos) { Move(offset, pos); };
-		_header->OnDragEnd = [this](Vector2f pos) { EndMove(pos); };
+		_header->OnDragStart = [this](Vector2f pos) {
+			BeginMove(pos);
+		};
+		_header->OnDrag = [this](Vector2f offset, Vector2f pos) {
+			Move(offset, pos);
+		};
+		_header->OnDragEnd = [this](Vector2f pos) {
+			EndMove(pos);
+		};
 		_header->OnDoubleClick = [this]() {
 			if (_drawer) {
 				SetDrawerOpen(false);
@@ -209,8 +215,8 @@ namespace Jazz2::UI::Windows
 		// Past the edge, the pointer is out of the main window, over an auxiliary window or the desktop
 		float zone = _scale * DockZoneWidth;
 		return (_side == DockSide::Left
-			? pos.X >= _dockBounds.X && pos.X < _dockBounds.X + zone
-			: pos.X > _dockBounds.X + _dockBounds.W - zone && pos.X <= _dockBounds.X + _dockBounds.W);
+				? pos.X >= _dockBounds.X && pos.X < _dockBounds.X + zone
+				: pos.X > _dockBounds.X + _dockBounds.W - zone && pos.X <= _dockBounds.X + _dockBounds.W);
 	}
 
 	void DockFrame::BeginMove(Vector2f pos)
@@ -347,8 +353,8 @@ namespace Jazz2::UI::Windows
 			}
 			float margin = painter.Px(12.0f);
 			Rectf clip = (_side == DockSide::Left
-				? Rectf(_dockBounds.X, _dockBounds.Y - margin, _dockBounds.W + margin, _dockBounds.H + margin * 2.0f)
-				: Rectf(_dockBounds.X - margin, _dockBounds.Y - margin, _dockBounds.W + margin, _dockBounds.H + margin * 2.0f));
+					? Rectf(_dockBounds.X, _dockBounds.Y - margin, _dockBounds.W + margin, _dockBounds.H + margin * 2.0f)
+					: Rectf(_dockBounds.X - margin, _dockBounds.Y - margin, _dockBounds.W + margin, _dockBounds.H + margin * 2.0f));
 			painter.PushClip(clip);
 			Element::Draw(painter);
 			painter.PopClip();

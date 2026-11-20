@@ -32,10 +32,10 @@ namespace Jazz2::Resources
 	*/
 	enum class GenericGraphicResourceFlags
 	{
-		None = 0x00,						/**< None */
+		None = 0x00, /**< None */
 
-		Referenced = 0x01,					/**< The resource is referenced and should not be released */
-		
+		Referenced = 0x01, /**< The resource is referenced and should not be released */
+
 		/**
 		 * @brief Diffuse texture stores raw palette indices instead of baked colors
 		 *
@@ -99,7 +99,8 @@ namespace Jazz2::Resources
 			figure is *not* a margin and is left as it was - that box is centred on the actor rather than anchored
 			to the frame, so it is a deliberate inset either way.
 		*/
-		static constexpr Vector2i GetDefaultBoundingBox(Vector2i frameDimensions) {
+		static constexpr Vector2i GetDefaultBoundingBox(Vector2i frameDimensions)
+		{
 			return Vector2i(frameDimensions.X - 2, frameDimensions.Y - FrameBorder * 2);
 		}
 
@@ -149,11 +150,13 @@ namespace Jazz2::Resources
 		GenericGraphicResource() noexcept;
 
 		/** @brief Returns the distance between two rows of @ref Mask, in bits (the sheet width in pixels) */
-		inline std::int32_t GetMaskStride() const {
+		inline std::int32_t GetMaskStride() const
+		{
 			return (MaskStride > 0 ? MaskStride : FrameConfiguration.X * FrameDimensions.X);
 		}
 		/** @brief Returns the area the given frame occupies in the sheet, in pixels */
-		inline Recti GetFrameRect(std::int32_t frame) const {
+		inline Recti GetFrameRect(std::int32_t frame) const
+		{
 			if (!FrameRects.empty()) {
 				const FrameRect& rect = FrameRects[frame < (std::int32_t)FrameRects.size() ? frame : 0];
 				return Recti(rect.X, rect.Y, rect.W, rect.H);
@@ -168,7 +171,8 @@ namespace Jazz2::Resources
 			Anything that positions a frame by aligning @ref FrameDimensions should add this, so trimming the
 			transparent margin away does not move the frame on screen.
 		*/
-		inline Vector2i GetFrameOffset(std::int32_t frame) const {
+		inline Vector2i GetFrameOffset(std::int32_t frame) const
+		{
 			if (!FrameRects.empty()) {
 				const FrameRect& rect = FrameRects[frame < (std::int32_t)FrameRects.size() ? frame : 0];
 				return Vector2i(rect.OffsetX, rect.OffsetY);
@@ -184,7 +188,8 @@ namespace Jazz2::Resources
 			the space its pixels occupy, and mirroring within the cell would displace it by the trimmed
 			margin. Both cases fall out of the same expression.
 		*/
-		inline Vector2i GetFrameAnchor(std::int32_t frame, bool flippedX = false, bool flippedY = false) const {
+		inline Vector2i GetFrameAnchor(std::int32_t frame, bool flippedX = false, bool flippedY = false) const
+		{
 			const Recti rect = GetFrameRect(frame);
 			const Vector2i offset = GetFrameOffset(frame);
 			return Vector2i(flippedX ? (offset.X + rect.W - Hotspot.X) : (Hotspot.X - offset.X),
@@ -247,7 +252,8 @@ namespace Jazz2::Resources
 		 * A duration of zero is a legitimate value for content that does not animate, so the division is the
 		 * thing that has to give way.
 		 */
-		inline std::int32_t GetFrameForTime(float animTime) const {
+		inline std::int32_t GetFrameForTime(float animTime) const
+		{
 			if (FrameCount <= 1 || !(AnimDuration > 0.0f)) {
 				return FrameOffset;
 			}
@@ -293,9 +299,9 @@ namespace Jazz2::Resources
 	*/
 	enum class GenericSoundResourceFlags
 	{
-		None = 0x00,						/**< None */
+		None = 0x00, /**< None */
 
-		Referenced = 0x01					/**< The resource is referenced and should not be released */
+		Referenced = 0x01 /**< The resource is referenced and should not be released */
 	};
 
 	DEATH_ENUM_FLAGS(GenericSoundResourceFlags);
@@ -368,12 +374,13 @@ namespace Jazz2::Resources
 		while still in use, and @ref MetadataFlags::AsyncFinalizingRequired marks metadata whose linked assets still
 		need asynchronous finalization before it is fully ready. Supports a bitwise combination of its member values.
 	*/
-	enum class MetadataFlags {
-		None = 0x00,						/**< None */
+	enum class MetadataFlags
+	{
+		None = 0x00, /**< None */
 
-		Referenced = 0x01,					/**< The metadata is referenced and should not be released */
-		AsyncFinalizingRequired = 0x02,		/**< The metadata still requires asynchronous finalization */
-		Pinned = 0x04						/**< The metadata stays loaded even when nothing requests it, see @ref ContentResolver::PinMetadata() */
+		Referenced = 0x01, /**< The metadata is referenced and should not be released */
+		AsyncFinalizingRequired = 0x02, /**< The metadata still requires asynchronous finalization */
+		Pinned = 0x04 /**< The metadata stays loaded even when nothing requests it, see @ref ContentResolver::PinMetadata() */
 	};
 
 	DEATH_ENUM_FLAGS(MetadataFlags);
@@ -429,7 +436,7 @@ namespace Jazz2::Resources
 		 */
 		GraphicResource* FindAnimation(AnimState state);
 	};
-	
+
 	/**
 		@brief Describes an episode
 		
@@ -470,10 +477,10 @@ namespace Jazz2::Resources
 	*/
 	enum class FontType
 	{
-		Small,			/**< Small */
-		Medium,			/**< Medium */
+		Small, /**< Small */
+		Medium, /**< Medium */
 
-		Count			/**< Count of supported font types */
+		Count /**< Count of supported font types */
 	};
 
 	/**
@@ -488,112 +495,112 @@ namespace Jazz2::Resources
 	*/
 	enum class PrecompiledShader
 	{
-		LightingMesh,						/**< Light aggregation shader, one draw for all lights of a viewport */
+		LightingMesh, /**< Light aggregation shader, one draw for all lights of a viewport */
 
-		Blur,								/**< Blur */
-		Downsample,							/**< Downsample */
-		Combine,							/**< Combine render passes */
-		CombineWithWater,					/**< Combine render passes with water effect */
-		CombineWithWaterLow,				/**< Combine render passes with low quality water effect */
-		CombineDither,						/**< @ref Combine in the colors of the 16-bit renderer of JJ2+, see @ref DitheringScope::Screen */
-		CombineWithWaterDither,				/**< @ref CombineWithWater in the colors of the 16-bit renderer of JJ2+ */
-		CombineWithWaterLowDither,			/**< @ref CombineWithWaterLow in the colors of the 16-bit renderer of JJ2+ */
-		Water,								/**< Water in front of a layer behind the others, drawn in the middle of the scene */
-		WaterLow,							/**< Low quality variant of @ref Water */
+		Blur, /**< Blur */
+		Downsample, /**< Downsample */
+		Combine, /**< Combine render passes */
+		CombineWithWater, /**< Combine render passes with water effect */
+		CombineWithWaterLow, /**< Combine render passes with low quality water effect */
+		CombineDither, /**< @ref Combine in the colors of the 16-bit renderer of JJ2+, see @ref DitheringScope::Screen */
+		CombineWithWaterDither, /**< @ref CombineWithWater in the colors of the 16-bit renderer of JJ2+ */
+		CombineWithWaterLowDither, /**< @ref CombineWithWaterLow in the colors of the 16-bit renderer of JJ2+ */
+		Water, /**< Water in front of a layer behind the others, drawn in the middle of the scene */
+		WaterLow, /**< Low quality variant of @ref Water */
 
-		TexturedBackground,					/**< Textured background */
-		TexturedBackgroundDither,			/**< Textured background with dithering */
-		TexturedBackgroundTunnel,			/**< Tunnel textured background */
-		TexturedBackgroundTunnelDither,		/**< Tunnel textured background with dithering */
-		TexturedBackgroundPlus,				/**< Textured background in the perspective of JJ2+ */
-		TexturedBackgroundPlusDither,		/**< Textured background in the perspective of JJ2+ with dithering */
-		TexturedBackgroundTunnelPlus,		/**< Tunnel textured background of JJ2+ */
-		TexturedBackgroundTunnelPlusDither,	/**< Tunnel textured background of JJ2+ with dithering */
-		TexturedBackgroundCylinder,			/**< Cylinder textured background */
-		TexturedBackgroundCylinderDither,	/**< Cylinder textured background with dithering */
-		TexturedBackgroundWave,				/**< Wave textured background */
-		TexturedBackgroundWaveDither,		/**< Wave textured background with dithering */
+		TexturedBackground, /**< Textured background */
+		TexturedBackgroundDither, /**< Textured background with dithering */
+		TexturedBackgroundTunnel, /**< Tunnel textured background */
+		TexturedBackgroundTunnelDither, /**< Tunnel textured background with dithering */
+		TexturedBackgroundPlus, /**< Textured background in the perspective of JJ2+ */
+		TexturedBackgroundPlusDither, /**< Textured background in the perspective of JJ2+ with dithering */
+		TexturedBackgroundTunnelPlus, /**< Tunnel textured background of JJ2+ */
+		TexturedBackgroundTunnelPlusDither, /**< Tunnel textured background of JJ2+ with dithering */
+		TexturedBackgroundCylinder, /**< Cylinder textured background */
+		TexturedBackgroundCylinderDither, /**< Cylinder textured background with dithering */
+		TexturedBackgroundWave, /**< Wave textured background */
+		TexturedBackgroundWaveDither, /**< Wave textured background with dithering */
 
-		TileMapMeshHeat,					/**< Tiles of the heat effect, see @ref Tiles::LayerTileFlags::Heat */
-		TileMapMeshHeatPalette,				/**< Tiles of the heat effect with palette */
+		TileMapMeshHeat, /**< Tiles of the heat effect, see @ref Tiles::LayerTileFlags::Heat */
+		TileMapMeshHeatPalette, /**< Tiles of the heat effect with palette */
 
-		Colorized,							/**< Colorized */
-		BatchedColorized,					/**< Batched variant of @ref Colorized */
-		Tinted,								/**< Tinted */
-		BatchedTinted,						/**< Batched variant of @ref Tinted */
-		Outline,							/**< Outline */
-		BatchedOutline,						/**< Batched variant of @ref Outline */
-		WhiteMask,							/**< White mask */
-		BatchedWhiteMask,					/**< Batched variant of @ref WhiteMask */
-		PartialWhiteMask,					/**< Partial white mask */
-		BatchedPartialWhiteMask,			/**< Batched variant of @ref PartialWhiteMask */
-		FrozenMask,							/**< Frozen mask */
-		BatchedFrozenMask,					/**< Batched variant of @ref FrozenMask */
-		PaletteRemap,						/**< Remaps indexed sprites through a palette texture */
-		BatchedPaletteRemap,				/**< Batched variant of @ref PaletteRemap */
-		OutlinePalette,						/**< Palette variant of @ref Outline */
-		BatchedOutlinePalette,				/**< Batched variant of @ref OutlinePalette */
-		WhiteMaskPalette,					/**< Palette variant of @ref WhiteMask */
-		BatchedWhiteMaskPalette,			/**< Batched variant of @ref WhiteMaskPalette */
-		PartialWhiteMaskPalette,			/**< Palette variant of @ref PartialWhiteMask */
-		BatchedPartialWhiteMaskPalette,		/**< Batched variant of @ref PartialWhiteMaskPalette */
-		FrozenMaskPalette,					/**< Palette variant of @ref FrozenMask */
-		BatchedFrozenMaskPalette,			/**< Batched variant of @ref FrozenMaskPalette */
-		TintedPalette,						/**< Palette variant of @ref Tinted */
-		BatchedTintedPalette,				/**< Batched variant of @ref TintedPalette */
-		SingleColor,						/**< The shape of a sprite in a single color, see @ref Tiles::LayerRendererType::SingleColor */
-		BatchedSingleColor,					/**< Batched variant of @ref SingleColor */
-		SingleColorPalette,					/**< Palette variant of @ref SingleColor */
-		BatchedSingleColorPalette,			/**< Batched variant of @ref SingleColorPalette */
-		ShieldFire,							/**< Fire shield effect */
-		BatchedShieldFire,					/**< Batched variant of @ref ShieldFire */
-		ShieldLightning,					/**< Lightning shield effect */
-		BatchedShieldLightning,				/**< Batched variant of @ref ShieldLightning */
+		Colorized, /**< Colorized */
+		BatchedColorized, /**< Batched variant of @ref Colorized */
+		Tinted, /**< Tinted */
+		BatchedTinted, /**< Batched variant of @ref Tinted */
+		Outline, /**< Outline */
+		BatchedOutline, /**< Batched variant of @ref Outline */
+		WhiteMask, /**< White mask */
+		BatchedWhiteMask, /**< Batched variant of @ref WhiteMask */
+		PartialWhiteMask, /**< Partial white mask */
+		BatchedPartialWhiteMask, /**< Batched variant of @ref PartialWhiteMask */
+		FrozenMask, /**< Frozen mask */
+		BatchedFrozenMask, /**< Batched variant of @ref FrozenMask */
+		PaletteRemap, /**< Remaps indexed sprites through a palette texture */
+		BatchedPaletteRemap, /**< Batched variant of @ref PaletteRemap */
+		OutlinePalette, /**< Palette variant of @ref Outline */
+		BatchedOutlinePalette, /**< Batched variant of @ref OutlinePalette */
+		WhiteMaskPalette, /**< Palette variant of @ref WhiteMask */
+		BatchedWhiteMaskPalette, /**< Batched variant of @ref WhiteMaskPalette */
+		PartialWhiteMaskPalette, /**< Palette variant of @ref PartialWhiteMask */
+		BatchedPartialWhiteMaskPalette, /**< Batched variant of @ref PartialWhiteMaskPalette */
+		FrozenMaskPalette, /**< Palette variant of @ref FrozenMask */
+		BatchedFrozenMaskPalette, /**< Batched variant of @ref FrozenMaskPalette */
+		TintedPalette, /**< Palette variant of @ref Tinted */
+		BatchedTintedPalette, /**< Batched variant of @ref TintedPalette */
+		SingleColor, /**< The shape of a sprite in a single color, see @ref Tiles::LayerRendererType::SingleColor */
+		BatchedSingleColor, /**< Batched variant of @ref SingleColor */
+		SingleColorPalette, /**< Palette variant of @ref SingleColor */
+		BatchedSingleColorPalette, /**< Batched variant of @ref SingleColorPalette */
+		ShieldFire, /**< Fire shield effect */
+		BatchedShieldFire, /**< Batched variant of @ref ShieldFire */
+		ShieldLightning, /**< Lightning shield effect */
+		BatchedShieldLightning, /**< Batched variant of @ref ShieldLightning */
 
 #if defined(TILEMAP_USE_SINGLE_DRAW)
 		// Whole-layer tile mesh: one draw call per tile layer instead of one per visible tile. Reads per-vertex
 		// position/texcoords/alpha; `TileMapMeshPalette` additionally recolors indexed tilesets via the palette texture.
-		TileMapMesh,						/**< Tile-map aggregation shader */
-		TileMapMeshPalette,					/**< Batched variant of @ref TileMapMesh */
+		TileMapMesh, /**< Tile-map aggregation shader */
+		TileMapMeshPalette, /**< Batched variant of @ref TileMapMesh */
 #endif
 #if defined(TILEMAP_LAYER_EFFECTS)
 		// The special tile layers (see Tiles::LayerRendererType::XRay, ::BlurBehind, ::Reflection and Tiles::LayerBlend::ChromaKey) and the actor
 		// coverage the x-ray layers sample. Compiled only once a level that has such a layer is loaded, see
 		// ContentResolver::CompileLayerEffectShaders()
-		TileMapMeshXRay,					/**< Animated tiles of an x-ray layer */
-		TileMapMeshXRayPalette,				/**< Palette variant of @ref TileMapMeshXRay */
-		TileMapMeshBlur,					/**< Blur-behind layer */
-		TileMapMeshBlurPalette,				/**< Palette variant of @ref TileMapMeshBlur */
-		Silhouette,							/**< Coverage of the actors behind an x-ray layer */
-		SilhouettePalette,					/**< Palette variant of @ref Silhouette */
-		TexturedBackgroundReflection,		/**< Reflection layer */
-		TileMapMeshChromaKey,				/**< Chroma key layer */
-		TileMapMeshChromaKeyPalette,		/**< Palette variant of @ref TileMapMeshChromaKey */
-		TexturedBackgroundKeyed,			/**< Chroma key or translucent variant of @ref TexturedBackground */
-		TexturedBackgroundTunnelKeyed,		/**< Chroma key or translucent variant of @ref TexturedBackgroundTunnel */
-		TexturedBackgroundPlusKeyed,		/**< Chroma key or translucent variant of @ref TexturedBackgroundPlus */
-		TexturedBackgroundTunnelPlusKeyed,	/**< Chroma key or translucent variant of @ref TexturedBackgroundTunnelPlus */
-		TexturedBackgroundCylinderKeyed,	/**< Chroma key or translucent variant of @ref TexturedBackgroundCylinder */
-		TexturedBackgroundWaveKeyed,		/**< Chroma key or translucent variant of @ref TexturedBackgroundWave */
-		BackgroundDither,					/**< What is behind the sprite layer in the colors of the 16-bit renderer of JJ2+, see @ref DitheringScope::BehindSprites */
-		SpriteChromaKey,					/**< Sprite of a level script drawn only over the key color, as `SPRITE::CHROMAKEY` */
-		SpriteChromaKeyPalette,				/**< Palette variant of @ref SpriteChromaKey */
+		TileMapMeshXRay, /**< Animated tiles of an x-ray layer */
+		TileMapMeshXRayPalette, /**< Palette variant of @ref TileMapMeshXRay */
+		TileMapMeshBlur, /**< Blur-behind layer */
+		TileMapMeshBlurPalette, /**< Palette variant of @ref TileMapMeshBlur */
+		Silhouette, /**< Coverage of the actors behind an x-ray layer */
+		SilhouettePalette, /**< Palette variant of @ref Silhouette */
+		TexturedBackgroundReflection, /**< Reflection layer */
+		TileMapMeshChromaKey, /**< Chroma key layer */
+		TileMapMeshChromaKeyPalette, /**< Palette variant of @ref TileMapMeshChromaKey */
+		TexturedBackgroundKeyed, /**< Chroma key or translucent variant of @ref TexturedBackground */
+		TexturedBackgroundTunnelKeyed, /**< Chroma key or translucent variant of @ref TexturedBackgroundTunnel */
+		TexturedBackgroundPlusKeyed, /**< Chroma key or translucent variant of @ref TexturedBackgroundPlus */
+		TexturedBackgroundTunnelPlusKeyed, /**< Chroma key or translucent variant of @ref TexturedBackgroundTunnelPlus */
+		TexturedBackgroundCylinderKeyed, /**< Chroma key or translucent variant of @ref TexturedBackgroundCylinder */
+		TexturedBackgroundWaveKeyed, /**< Chroma key or translucent variant of @ref TexturedBackgroundWave */
+		BackgroundDither, /**< What is behind the sprite layer in the colors of the 16-bit renderer of JJ2+, see @ref DitheringScope::BehindSprites */
+		SpriteChromaKey, /**< Sprite of a level script drawn only over the key color, as `SPRITE::CHROMAKEY` */
+		SpriteChromaKeyPalette, /**< Palette variant of @ref SpriteChromaKey */
 #endif
 
 #if !defined(DISABLE_RESCALE_SHADERS)
-		ResizeHQ2x,							/**< HQ2× upscaling */
-		Resize3xBrz,						/**< 3×BRZ upscaling */
-		ResizeCrtScanlines,					/**< CRT scanlines upscaling */
-		ResizeCrtShadowMask,				/**< CRT shadow mask upscaling */
-		ResizeCrtApertureGrille,			/**< CRT aperture grille upscaling */
-		ResizeMonochrome,					/**< Monochrome upscaling */
-		ResizeSabr,							/**< SABR upscaling */
-		ResizeCleanEdge,					/**< CleanEdge upscaling */
+		ResizeHQ2x, /**< HQ2× upscaling */
+		Resize3xBrz, /**< 3×BRZ upscaling */
+		ResizeCrtScanlines, /**< CRT scanlines upscaling */
+		ResizeCrtShadowMask, /**< CRT shadow mask upscaling */
+		ResizeCrtApertureGrille, /**< CRT aperture grille upscaling */
+		ResizeMonochrome, /**< Monochrome upscaling */
+		ResizeSabr, /**< SABR upscaling */
+		ResizeCleanEdge, /**< CleanEdge upscaling */
 #endif
-		Antialiasing,						/**< Antialiasing */
-		Transition,							/**< Screen transition effect */
-		TouchCircle,						/**< Touch control circle */
+		Antialiasing, /**< Antialiasing */
+		Transition, /**< Screen transition effect */
+		TouchCircle, /**< Touch control circle */
 
-		Count								/**< Number of precompiled shaders */
+		Count /**< Number of precompiled shaders */
 	};
 }

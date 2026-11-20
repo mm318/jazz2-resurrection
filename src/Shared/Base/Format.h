@@ -30,8 +30,9 @@
 #include "../Containers/Containers.h"
 #include "../Containers/Tags.h"
 
-namespace Death {
-//###==##====#=====--==~--~=~- --- -- -  -  -   -
+namespace Death
+{
+	//###==##====#=====--==~--~=~- --- -- -  -  -   -
 
 	/**
 		@brief Formats a string
@@ -119,10 +120,12 @@ namespace Death {
 		for a completely zero-allocation alternative.
 	*/
 #ifdef DOXYGEN_GENERATING_OUTPUT
-	template<class ...Args> Containers::String format(const char* format, const Args&... args);
+	template <class... Args>
+	Containers::String format(const char* format, const Args&... args);
 #else
 	/* Done this way to avoid including <Containers/StringView.h> and <Containers/String.h> for the return type */
-	template<class ...Args, class String = Containers::String> String format(const char* format, const Args&... args);
+	template <class... Args, class String = Containers::String>
+	String format(const char* format, const Args&... args);
 #endif
 
 	/**
@@ -135,14 +138,17 @@ namespace Death {
 		See @ref format() for more information about usage and templating language.
 	*/
 #ifdef DOXYGEN_GENERATING_OUTPUT
-	template<class ...Args> std::size_t formatInto(Containers::MutableStringView buffer, const char* format, const Args&... args);
+	template <class... Args>
+	std::size_t formatInto(Containers::MutableStringView buffer, const char* format, const Args&... args);
 #else
 	/* Done this way to avoid including <Containers/StringView.h> */
-	template<class ...Args, class MutableStringView = Containers::MutableStringView> std::size_t formatInto(MutableStringView buffer, const char* format, const Args&... args);
+	template <class... Args, class MutableStringView = Containers::MutableStringView>
+	std::size_t formatInto(MutableStringView buffer, const char* format, const Args&... args);
 #endif
 
 	/** @overload */
-	template<class ...Args, std::size_t size> std::size_t formatInto(char(&buffer)[size], const char* format, const Args&... args);
+	template <class... Args, std::size_t size>
+	std::size_t formatInto(char (&buffer)[size], const char* format, const Args&... args);
 
 	namespace Implementation
 	{
@@ -150,103 +156,173 @@ namespace Death {
 
 		struct FormatContext;
 
-		template<class T, class = void> struct Formatter;
+		template <class T, class = void>
+		struct Formatter;
 
-		template<> struct Formatter<int> {
+		template <>
+		struct Formatter<int>
+		{
 			static std::size_t format(const Containers::MutableStringView& buffer, int value, FormatContext& context);
 		};
-		template<> struct Formatter<short> : Formatter<int> {};
+		template <>
+		struct Formatter<short> : Formatter<int>
+		{
+		};
 
-		template<> struct Formatter<unsigned int> {
+		template <>
+		struct Formatter<unsigned int>
+		{
 			static std::size_t format(const Containers::MutableStringView& buffer, unsigned int value, FormatContext& context);
 		};
-		template<> struct Formatter<unsigned short> : Formatter<unsigned int> {};
+		template <>
+		struct Formatter<unsigned short> : Formatter<unsigned int>
+		{
+		};
 
 		// The char is signed or unsigned depending on platform (ARM has it unsigned by default for example,
 		// because it maps better to the instruction set), and thus std::int8_t is usually a typedef to `signed char`.
 		// Be sure to support that as well, `signed short` and such OTOH isn't so important.
-		template<> struct Formatter<char> : Formatter<int> {};
-		template<> struct Formatter<signed char> : Formatter<int> {};
-		template<> struct Formatter<unsigned char> : Formatter<unsigned int> {};
+		template <>
+		struct Formatter<char> : Formatter<int>
+		{
+		};
+		template <>
+		struct Formatter<signed char> : Formatter<int>
+		{
+		};
+		template <>
+		struct Formatter<unsigned char> : Formatter<unsigned int>
+		{
+		};
 
-		template<> struct Formatter<long long> {
+		template <>
+		struct Formatter<long long>
+		{
 			static std::size_t format(const Containers::MutableStringView& buffer, long long value, FormatContext& context);
 		};
-		template<> struct Formatter<long> : Formatter<long long> {};
+		template <>
+		struct Formatter<long> : Formatter<long long>
+		{
+		};
 
-		template<> struct Formatter<unsigned long long> {
+		template <>
+		struct Formatter<unsigned long long>
+		{
 			static std::size_t format(const Containers::MutableStringView& buffer, unsigned long long value, FormatContext& context);
 		};
-		template<> struct Formatter<unsigned long> : Formatter<unsigned long long> {};
+		template <>
+		struct Formatter<unsigned long> : Formatter<unsigned long long>
+		{
+		};
 
-		template<> struct Formatter<float> {
+		template <>
+		struct Formatter<float>
+		{
 			static std::size_t format(const Containers::MutableStringView& buffer, float value, FormatContext& context);
 		};
-		template<> struct Formatter<double> {
+		template <>
+		struct Formatter<double>
+		{
 			static std::size_t format(const Containers::MutableStringView& buffer, double value, FormatContext& context);
 		};
-		template<> struct Formatter<long double> {
+		template <>
+		struct Formatter<long double>
+		{
 			static std::size_t format(const Containers::MutableStringView& buffer, long double value, FormatContext& context);
 		};
-		template<> struct Formatter<bool> {
+		template <>
+		struct Formatter<bool>
+		{
 			static std::size_t format(const Containers::MutableStringView& buffer, bool value, FormatContext& context);
 		};
-		template<> struct Formatter<const char*> {
+		template <>
+		struct Formatter<const char*>
+		{
 			static std::size_t format(const Containers::MutableStringView& buffer, const char* value, FormatContext& context);
 		};
-		template<> struct Formatter<char*> : Formatter<const char*> {};
-		template<> struct Formatter<Containers::StringView> {
+		template <>
+		struct Formatter<char*> : Formatter<const char*>
+		{
+		};
+		template <>
+		struct Formatter<Containers::StringView>
+		{
 			static std::size_t format(const Containers::MutableStringView& buffer, Containers::StringView value, FormatContext& context);
 		};
-		template<> struct Formatter<Containers::MutableStringView> : Formatter<Containers::StringView> {};
-		template<> struct Formatter<Containers::String> : Formatter<Containers::StringView> {};
+		template <>
+		struct Formatter<Containers::MutableStringView> : Formatter<Containers::StringView>
+		{
+		};
+		template <>
+		struct Formatter<Containers::String> : Formatter<Containers::StringView>
+		{
+		};
 
 		// If the type is an enum, use its underlying type, assuming the enum is convertible to it
-		template<class T> struct Formatter<T, typename std::enable_if<std::is_enum<T>::value>::type> {
-			static std::size_t format(const Containers::MutableStringView& buffer, T value, FormatContext& context) {
+		template <class T>
+		struct Formatter<T, typename std::enable_if<std::is_enum<T>::value>::type>
+		{
+			static std::size_t format(const Containers::MutableStringView& buffer, T value, FormatContext& context)
+			{
 				return Formatter<typename std::underlying_type<T>::type>::format(buffer, static_cast<typename std::underlying_type<T>::type>(value), context);
 			}
 		};
 
-		struct BufferFormatter {
-			/*implicit*/ constexpr BufferFormatter() : _fn{}, _value{} {}
+		struct BufferFormatter
+		{
+			/*implicit*/ constexpr BufferFormatter()
+				: _fn {}, _value {}
+			{
+			}
 
-			template<class T> explicit BufferFormatter(const T& value) : _value{&value} {
+			template <class T>
+			explicit BufferFormatter(const T& value)
+				: _value { &value }
+			{
 				_fn = [](const Containers::MutableStringView& buffer, const void* value, FormatContext& context) {
 					return Formatter<typename std::decay<T>::type>::format(buffer, *static_cast<const T*>(value), context);
 				};
 			}
 
-			std::size_t operator()(const Containers::MutableStringView& buffer, FormatContext& context) const {
+			std::size_t operator()(const Containers::MutableStringView& buffer, FormatContext& context) const
+			{
 				return _fn(buffer, _value, context);
 			}
 
 		private:
-			std::size_t(*_fn)(const Containers::MutableStringView&, const void*, FormatContext&);
+			std::size_t (*_fn)(const Containers::MutableStringView&, const void*, FormatContext&);
 			const void* _value;
 		};
 
 		std::size_t formatFormatters(char* buffer, std::size_t bufferSize, const char* format, BufferFormatter* formatters, std::size_t formattersCount);
 
-		template<class ...Args> std::size_t formatArgs(char* buffer, std::size_t bufferSize, const char* format, const Args&... args) {
-			Implementation::BufferFormatter formatters[sizeof...(args) + 1] { Implementation::BufferFormatter{args}..., {} };
+		template <class... Args>
+		std::size_t formatArgs(char* buffer, std::size_t bufferSize, const char* format, const Args&... args)
+		{
+			Implementation::BufferFormatter formatters[sizeof...(args) + 1] { Implementation::BufferFormatter { args }..., {} };
 			return Implementation::formatFormatters(buffer, bufferSize, format, formatters, sizeof...(args));
 		}
 	}
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
-	template<class ...Args, class String> String format(const char* format, const Args&... args) {
+	template <class... Args, class String>
+	String format(const char* format, const Args&... args)
+	{
 		const std::size_t size = Implementation::formatArgs(nullptr, 0, format, args...);
-		String string{Containers::NoInit, size};
+		String string { Containers::NoInit, size };
 		Implementation::formatArgs(string.data(), size + 1, format, args...);
 		return string;
 	}
 
-	template<class ...Args, class MutableStringView> std::size_t formatInto(MutableStringView buffer, const char* format, const Args&... args) {
+	template <class... Args, class MutableStringView>
+	std::size_t formatInto(MutableStringView buffer, const char* format, const Args&... args)
+	{
 		return Implementation::formatArgs(buffer.data(), buffer.size(), format, args...);
 	}
 
-	template<class ...Args, std::size_t size> std::size_t formatInto(char(&buffer)[size], const char* format, const Args&... args) {
+	template <class... Args, std::size_t size>
+	std::size_t formatInto(char (&buffer)[size], const char* format, const Args&... args)
+	{
 		return Implementation::formatArgs(buffer, size, format, args...);
 	}
 #endif

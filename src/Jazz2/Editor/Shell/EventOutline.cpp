@@ -114,9 +114,12 @@ namespace Jazz2::Editor
 			std::uint8_t difficulties = event.Flags & Formats::EventRecord::DifficultyMask;
 			if (difficulties != 0 && difficulties != Formats::EventRecord::DifficultyMask) {
 				// TRANSLATORS: First letters of Easy, Normal and Hard in the list of events, keep each one letter
-				if ((difficulties & Formats::EventRecord::Easy) != 0) result += _x("editor", "E");
-				if ((difficulties & Formats::EventRecord::Normal) != 0) result += _x("editor", "N");
-				if ((difficulties & Formats::EventRecord::Hard) != 0) result += _x("editor", "H");
+				if ((difficulties & Formats::EventRecord::Easy) != 0)
+					result += _x("editor", "E");
+				if ((difficulties & Formats::EventRecord::Normal) != 0)
+					result += _x("editor", "N");
+				if ((difficulties & Formats::EventRecord::Hard) != 0)
+					result += _x("editor", "H");
 			}
 			if ((event.Flags & Formats::EventRecord::MultiplayerOnly) != 0) {
 				if (!result.empty()) {
@@ -166,7 +169,7 @@ namespace Jazz2::Editor
 		{
 			if (EditorLevelHandler* editHandler = session.GetEditHandler()) {
 				Vector2f target = (item.OffGrid >= 0 ? Vector2f(float(item.Position.X), float(item.Position.Y))
-					: Vector2f(item.Position.X * 32.0f + 16.0f, item.Position.Y * 32.0f + 16.0f));
+													 : Vector2f(item.Position.X * 32.0f + 16.0f, item.Position.Y * 32.0f + 16.0f));
 				EditorCamera& camera = editHandler->GetCamera();
 				camera.FlyTo(target, camera.GetScale());
 			}
@@ -261,8 +264,12 @@ namespace Jazz2::Editor
 		auto state = std::make_shared<OutlineState>();
 		auto* list = scroll->SetContent<VirtualList>();
 		list->RowHeight = Theme::RowHeight + 2.0f;
-		list->CountFunc = [state]() { return std::int32_t(state->Items.size()); };
-		list->RowText = [state](std::int32_t index) { return (index >= 0 && index < std::int32_t(state->Items.size()) ? state->GetName(state->Items[index].Record.Type) : String()); };
+		list->CountFunc = [state]() {
+			return std::int32_t(state->Items.size());
+		};
+		list->RowText = [state](std::int32_t index) {
+			return (index >= 0 && index < std::int32_t(state->Items.size()) ? state->GetName(state->Items[index].Record.Type) : String());
+		};
 		list->RowTooltip = [](std::int32_t index) {
 			return String(_x("editor", "Click to select the event and go to it, Ctrl+click to add it to the selection, Shift+click to select all from the last one"));
 		};
@@ -347,8 +354,8 @@ namespace Jazz2::Editor
 				addItem(event.Event, 0, std::int32_t(i), Vector2i(event.X, event.Y));
 			}
 			summary->Text = (std::int32_t(state->Items.size()) == total ? _fnx("editor", "{} event", "{} events", total, total)
-				// TRANSLATORS: In the Event List dialog, how many events the filter shows of how many there are in the level
-				: _fx("editor", "{} of {}", std::int32_t(state->Items.size()), total));
+																		// TRANSLATORS: In the Event List dialog, how many events the filter shows of how many there are in the level
+																		: _fx("editor", "{} of {}", std::int32_t(state->Items.size()), total));
 		};
 		search->OnChanged = [state](StringView text) {
 			state->Filter = text;

@@ -32,7 +32,9 @@ namespace Jazz2::Actors::Solid
 				PreloadMetadataAsync("Object/PowerUp/ShieldLightning"_s);
 				PreloadMetadataAsync("Weapon/ShieldLightning"_s);
 				break;
-			default: PreloadMetadataAsync("Object/PowerUp/Empty"_s); break;
+			default:
+				PreloadMetadataAsync("Object/PowerUp/Empty"_s);
+				break;
 		}
 	}
 
@@ -44,11 +46,21 @@ namespace Jazz2::Actors::Solid
 		Movable = true;
 
 		switch (_shieldType) {
-			case ShieldType::Fire: async_await RequestMetadataAsync("Object/PowerUp/ShieldFire"_s); break;
-			case ShieldType::Water: async_await RequestMetadataAsync("Object/PowerUp/ShieldWater"_s); break;
-			case ShieldType::Laser: async_await RequestMetadataAsync("Object/PowerUp/ShieldLaser"_s); break;
-			case ShieldType::Lightning: async_await RequestMetadataAsync("Object/PowerUp/ShieldLightning"_s); break;
-			default: async_await RequestMetadataAsync("Object/PowerUp/Empty"_s); break;
+			case ShieldType::Fire:
+				async_await RequestMetadataAsync("Object/PowerUp/ShieldFire"_s);
+				break;
+			case ShieldType::Water:
+				async_await RequestMetadataAsync("Object/PowerUp/ShieldWater"_s);
+				break;
+			case ShieldType::Laser:
+				async_await RequestMetadataAsync("Object/PowerUp/ShieldLaser"_s);
+				break;
+			case ShieldType::Lightning:
+				async_await RequestMetadataAsync("Object/PowerUp/ShieldLightning"_s);
+				break;
+			default:
+				async_await RequestMetadataAsync("Object/PowerUp/Empty"_s);
+				break;
 		}
 
 		SetAnimation(AnimState::Default);

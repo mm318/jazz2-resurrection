@@ -20,22 +20,22 @@ namespace Jazz2::Editor
 	/** @brief Kind of a change of a level being edited, supports a bitwise combination of its member values */
 	enum class DocumentChangeKind : std::uint32_t
 	{
-		None = 0,						/**< Nothing changed */
-		Tiles = 0x01,					/**< Tiles of layers, see @ref DocumentChanges::GetTileAreas() */
-		LayerProperties = 0x02,			/**< Descriptions or names of layers */
-		LayerStructure = 0x04,			/**< Layers were added, removed, moved or resized */
-		AnimationTiming = 0x08,			/**< Timing of animated tiles */
-		AnimationStructure = 0x10,		/**< Animated tiles were added or removed, or their frames changed */
-		Events = 0x20,					/**< Events, see @ref DocumentChanges::GetEventArea() */
-		Palette = 0x40,					/**< Palettes */
-		TileSets = 0x80,				/**< Tile sets */
-		TileOverrides = 0x100,			/**< Overridden tile diffuse or masks */
-		Texts = 0x200,					/**< Level texts */
-		LevelProperties = 0x400,		/**< Level properties or flags */
-		EditorState = 0x800,			/**< State saved with the level only for the editor, such as hidden layers */
-		Chunks = 0x1000,				/**< Other chunks */
+		None = 0, /**< Nothing changed */
+		Tiles = 0x01, /**< Tiles of layers, see @ref DocumentChanges::GetTileAreas() */
+		LayerProperties = 0x02, /**< Descriptions or names of layers */
+		LayerStructure = 0x04, /**< Layers were added, removed, moved or resized */
+		AnimationTiming = 0x08, /**< Timing of animated tiles */
+		AnimationStructure = 0x10, /**< Animated tiles were added or removed, or their frames changed */
+		Events = 0x20, /**< Events, see @ref DocumentChanges::GetEventArea() */
+		Palette = 0x40, /**< Palettes */
+		TileSets = 0x80, /**< Tile sets */
+		TileOverrides = 0x100, /**< Overridden tile diffuse or masks */
+		Texts = 0x200, /**< Level texts */
+		LevelProperties = 0x400, /**< Level properties or flags */
+		EditorState = 0x800, /**< State saved with the level only for the editor, such as hidden layers */
+		Chunks = 0x1000, /**< Other chunks */
 
-		All = 0x1FFF					/**< Everything */
+		All = 0x1FFF /**< Everything */
 	};
 
 	DEATH_ENUM_FLAGS(DocumentChangeKind);
@@ -63,23 +63,28 @@ namespace Jazz2::Editor
 		DocumentChanges();
 
 		/** @brief Returns `true` if nothing changed */
-		bool IsEmpty() const {
+		bool IsEmpty() const
+		{
 			return (_kinds == DocumentChangeKind::None);
 		}
 		/** @brief Returns all kinds of changes */
-		DocumentChangeKind GetKinds() const {
+		DocumentChangeKind GetKinds() const
+		{
 			return _kinds;
 		}
 		/** @brief Returns `true` if any of the given kinds changed */
-		bool HasAny(DocumentChangeKind kinds) const {
+		bool HasAny(DocumentChangeKind kinds) const
+		{
 			return (_kinds & kinds) != DocumentChangeKind::None;
 		}
 		/** @brief Returns the changed areas of layers */
-		ArrayView<const DocumentTileArea> GetTileAreas() const {
+		ArrayView<const DocumentTileArea> GetTileAreas() const
+		{
 			return _tileAreas;
 		}
 		/** @brief Returns the changed area of the event grid, or an empty rectangle */
-		const Recti& GetEventArea() const {
+		const Recti& GetEventArea() const
+		{
 			return _eventArea;
 		}
 		/**
@@ -88,7 +93,8 @@ namespace Jazz2::Editor
 		 * A change reported only by its kind, as a snapshot of layers restored, doesn't tell which tiles it changed, all
 		 * of them have to be taken as changed then.
 		 */
-		bool AreTileAreasComplete() const {
+		bool AreTileAreasComplete() const
+		{
 			return !_tilesOutsideAreas;
 		}
 		/**
@@ -96,7 +102,8 @@ namespace Jazz2::Editor
 		 *
 		 * An event off the grid is in the area of the tile its position is in.
 		 */
-		bool IsEventAreaComplete() const {
+		bool IsEventAreaComplete() const
+		{
 			return !_eventsOutsideArea;
 		}
 		/**
@@ -105,7 +112,8 @@ namespace Jazz2::Editor
 		 * Empty if the layers weren't moved, or if they changed otherwise too --- added, removed, resized or replaced
 		 * by a snapshot (see @ref DocumentChangeKind::LayerStructure).
 		 */
-		ArrayView<const std::int32_t> GetLayerOrder() const {
+		ArrayView<const std::int32_t> GetLayerOrder() const
+		{
 			return _layerOrder;
 		}
 

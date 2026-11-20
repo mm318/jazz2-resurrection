@@ -128,7 +128,7 @@ namespace Jazz2
 		static ContentResolver& Get();
 
 		~ContentResolver();
-		
+
 		/** @brief Releases all cached assets */
 		void Release();
 
@@ -388,7 +388,8 @@ namespace Jazz2
 		 */
 		Texture* GetPaletteTexture();
 		/** @brief Returns a number that changes whenever the sprite palette (the first row of the palette texture) changes */
-		std::uint32_t GetSpritePaletteRevision() const {
+		std::uint32_t GetSpritePaletteRevision() const
+		{
 			return _spritePaletteRevision;
 		}
 		/**
@@ -657,7 +658,8 @@ namespace Jazz2
 #endif
 
 		/** @brief Returns currently loaded set of palettes */
-		StaticArrayView<PaletteCount * ColorsPerPalette, const std::uint32_t> GetPalettes() const {
+		StaticArrayView<PaletteCount * ColorsPerPalette, const std::uint32_t> GetPalettes() const
+		{
 			return _palettes;
 		}
 
@@ -710,7 +712,8 @@ namespace Jazz2
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
 		struct StringRefEqualTo
 		{
-			inline bool operator()(const Reference<const String>& a, const Reference<const String>& b) const noexcept {
+			inline bool operator()(const Reference<const String>& a, const Reference<const String>& b) const noexcept
+			{
 				return a.get() == b.get();
 			}
 		};
@@ -809,10 +812,11 @@ namespace Jazz2
 		// Pass nullptr (the default) as variantName for the unnamed base variant (program.Variants[0]).
 		std::unique_ptr<Shader> CompileShader(const char* shaderName, const ShaderCompiler::Program& program, const char* variantName = nullptr, Shader::Introspection introspection = Shader::Introspection::Enabled);
 		// Convenience overload - compiles the base variant with explicit introspection
-		std::unique_ptr<Shader> CompileShader(const char* shaderName, const ShaderCompiler::Program& program, Shader::Introspection introspection) {
+		std::unique_ptr<Shader> CompileShader(const char* shaderName, const ShaderCompiler::Program& program, Shader::Introspection introspection)
+		{
 			return CompileShader(shaderName, program, nullptr, introspection);
 		}
-		
+
 		void RecreateGemPalettes();
 		// Expands the dirty palette-row range so the next GetPaletteTexture re-uploads at least rows [firstRow, lastRow]
 		void MarkPaletteDirty(std::int32_t firstRow, std::int32_t lastRow);
@@ -864,13 +868,14 @@ namespace Jazz2
 		std::int32_t _paletteRowRefCount[PaletteCount];
 		std::uint32_t _paletteRowColor[PaletteCount];
 		std::uint8_t _paletteRowScheme[PaletteCount];
-		HashMap<Reference<const String>, std::unique_ptr<Metadata>, 
+		HashMap<Reference<const String>, std::unique_ptr<Metadata>,
 #if defined(DEATH_TARGET_32BIT)
 			xxHash32Func<String>,
 #else
 			xxHash64Func<String>,
 #endif
-			StringRefEqualTo> _cachedMetadata;
+			StringRefEqualTo>
+			_cachedMetadata;
 		HashMap<Pair<String, std::uint16_t>, std::unique_ptr<GenericGraphicResource>> _cachedGraphics;
 #if defined(WITH_AUDIO)
 		HashMap<String, std::unique_ptr<GenericSoundResource>> _cachedSounds;
@@ -899,15 +904,15 @@ namespace Jazz2
 		void DropBakedFonts();
 
 #if defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_IOS) || defined(DEATH_TARGET_WINDOWS_RT) || defined(DEATH_TARGET_PS2) || \
-		defined(DEATH_TARGET_GAMECUBE)
+	defined(DEATH_TARGET_GAMECUBE)
 		String _contentPath;
 #endif
 #if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_WINDOWS_RT) || \
-		defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_GAMECUBE)
+	defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_GAMECUBE)
 		String _cachePath;
 #endif
 #if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_WINDOWS_RT) || \
-		defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_VITA)
+	defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_VITA)
 		// Set only when the directory exists - see GetUserContentPath()
 		String _userContentPath;
 #endif

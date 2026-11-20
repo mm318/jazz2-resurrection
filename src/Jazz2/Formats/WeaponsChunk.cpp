@@ -75,7 +75,7 @@ namespace Jazz2::Formats
 			Encode(data, value.Image);
 		}
 
-		template<typename T, typename std::enable_if<std::is_enum<T>::value, int>::type = 0>
+		template <typename T, typename std::enable_if<std::is_enum<T>::value, int>::type = 0>
 		void Encode(SmallVectorImpl<std::uint8_t>& data, T value)
 		{
 			using U = typename std::underlying_type<T>::type;
@@ -169,7 +169,7 @@ namespace Jazz2::Formats
 			return true;
 		}
 
-		template<typename T, typename std::enable_if<std::is_enum<T>::value, int>::type = 0>
+		template <typename T, typename std::enable_if<std::is_enum<T>::value, int>::type = 0>
 		bool Decode(ArrayView<const std::uint8_t> bytes, T& value)
 		{
 			using U = typename std::underlying_type<T>::type;
@@ -190,7 +190,7 @@ namespace Jazz2::Formats
 		}
 
 		// Calls f(id, field, baselineField) for each property of a block
-		template<typename TOptions, typename F>
+		template <typename TOptions, typename F>
 		void VisitOptions(TOptions& o, const WeaponOptions& b, F&& f)
 		{
 			f(16, o.Infinite, b.Infinite);
@@ -212,7 +212,7 @@ namespace Jazz2::Formats
 			f(32, o.ComesFromBirdsPowerup, b.ComesFromBirdsPowerup);
 		}
 
-		template<typename TFire, typename F>
+		template <typename TFire, typename F>
 		void VisitFire(TFire& o, const WeaponFireOptions& b, F&& f)
 		{
 			f(40, o.Cooldown, b.Cooldown);
@@ -230,7 +230,7 @@ namespace Jazz2::Formats
 			f(52, o.SoundIndex, b.SoundIndex);
 		}
 
-		template<typename TShot, typename F>
+		template <typename TShot, typename F>
 		void VisitShot(TShot& o, const WeaponShotOptions& b, std::uint8_t first, F&& f)
 		{
 			f(first + 0, o.Sprite, b.Sprite);
@@ -265,7 +265,7 @@ namespace Jazz2::Formats
 		}
 
 		// The properties of a custom weapon, besides its powered-up shot, see WeaponDefinition::GetCustom()
-		template<typename TCustom, typename F>
+		template <typename TCustom, typename F>
 		void VisitCustom(TCustom& o, const CustomWeaponOptions& b, F&& f)
 		{
 			f(5, o.BasedOn, b.BasedOn);
@@ -276,7 +276,7 @@ namespace Jazz2::Formats
 			VisitShot(o.Shot, b.Shot, ShotIds, f);
 		}
 
-		template<typename TWeapon, typename F>
+		template <typename TWeapon, typename F>
 		void VisitWeapon(TWeapon& o, const WeaponDefinition& b, F&& f)
 		{
 			f(1, o.Kind, b.Kind);
@@ -288,7 +288,7 @@ namespace Jazz2::Formats
 		}
 
 		// What only the editor needs, see WeaponEditorData
-		template<typename TEditorData, typename F>
+		template <typename TEditorData, typename F>
 		void VisitEditorData(TEditorData& o, const WeaponEditorData& b, F&& f)
 		{
 			f(6, o.ScriptLibrary, b.ScriptLibrary);
@@ -334,7 +334,7 @@ namespace Jazz2::Formats
 		}
 
 		// The limits take the type of the value, an int32_t isn't an int everywhere (long on PSP)
-		template<typename T>
+		template <typename T>
 		T Clamped(T value, typename std::common_type<T>::type min, typename std::common_type<T>::type max)
 		{
 			return std::clamp<T>(value, min, max);

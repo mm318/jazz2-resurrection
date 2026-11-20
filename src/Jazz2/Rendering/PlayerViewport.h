@@ -63,7 +63,7 @@ namespace Jazz2::Rendering
 #endif
 
 		std::unique_ptr<Viewport> _view;
-		std::unique_ptr<Texture> _viewTexture;	// Scene render target for the full tier; unused (null) on the direct tier
+		std::unique_ptr<Texture> _viewTexture; // Scene render target for the full tier; unused (null) on the direct tier
 		std::unique_ptr<Camera> _camera;
 
 		Rectf _viewBounds;
@@ -148,7 +148,8 @@ namespace Jazz2::Rendering
 		Actors::ActorBase* GetTargetActor() const;
 #if defined(TILEMAP_LAYER_EFFECTS)
 		/** @brief Returns what the special tile layers need from this viewport */
-		Tiles::LayerEffectsTarget* GetLayerEffectsTarget() {
+		Tiles::LayerEffectsTarget* GetLayerEffectsTarget()
+		{
 			return &_layerEffects;
 		}
 #endif
@@ -208,15 +209,18 @@ namespace Jazz2::Rendering
 		/** @brief Makes the camera follow the target actor again, at the scale of the game */
 		void SetFollowCamera();
 		/** @brief Returns `true` if the camera is a free one, see @ref SetFreeCamera() */
-		bool IsFreeCamera() const {
+		bool IsFreeCamera() const
+		{
 			return _freeCamera;
 		}
 		/** @brief Returns the center of the view in the level */
-		Vector2f GetCameraCenter() const {
+		Vector2f GetCameraCenter() const
+		{
 			return _cameraPos;
 		}
 		/** @brief Returns how many view pixels a world pixel takes, 1 in the game */
-		float GetCameraScale() const {
+		float GetCameraScale() const
+		{
 			return _cameraScale;
 		}
 		/** @brief Returns the size of the part of the level the view shows */

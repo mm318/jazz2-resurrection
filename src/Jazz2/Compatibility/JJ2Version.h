@@ -14,17 +14,17 @@ namespace Jazz2::Compatibility
 	*/
 	enum class JJ2Version : std::uint16_t
 	{
-		Unknown = 0x0000,					/**< Unknown version */
+		Unknown = 0x0000, /**< Unknown version */
 
-		BaseGame = 0x0001,					/**< Jazz Jackrabbit 2 base game */
-		TSF = 0x0002,						/**< The Secret Files expansion */
-		HH = 0x0004,						/**< Holiday Hare */
-		CC = 0x0008,						/**< Christmas Chronicles */
+		BaseGame = 0x0001, /**< Jazz Jackrabbit 2 base game */
+		TSF = 0x0002, /**< The Secret Files expansion */
+		HH = 0x0004, /**< Holiday Hare */
+		CC = 0x0008, /**< Christmas Chronicles */
 
-		PlusExtension = 0x0100,				/**< JJ2+ extension is present */
-		SharewareDemo = 0x0200,				/**< Shareware demo version */
+		PlusExtension = 0x0100, /**< JJ2+ extension is present */
+		SharewareDemo = 0x0200, /**< Shareware demo version */
 
-		All = 0xffff						/**< All versions */
+		All = 0xffff /**< All versions */
 	};
 
 	DEATH_ENUM_FLAGS(JJ2Version);

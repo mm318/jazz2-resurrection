@@ -15,10 +15,13 @@ namespace Jazz2::Editor
 		bool Mergeable;
 
 		explicit Transaction(String name)
-			: Name(Death::move(name)), Mergeable(true) {}
+			: Name(Death::move(name)), Mergeable(true)
+		{
+		}
 
 		// The same changes again, as a value of more things dragged is a transaction on each step
-		bool CanMerge(EditCommand& next) override {
+		bool CanMerge(EditCommand& next) override
+		{
 			auto* other = runtime_cast<Transaction>(&next);
 			if (other == nullptr || other->Name != Name || other->Commands.size() != Commands.size() || Commands.empty()) {
 				return false;
@@ -31,7 +34,8 @@ namespace Jazz2::Editor
 			return true;
 		}
 
-		bool TryMerge(EditCommand& next) override {
+		bool TryMerge(EditCommand& next) override
+		{
 			// All of them are asked first, a part merged and a part not would leave the step broken
 			if (!CanMerge(next)) {
 				return false;
@@ -43,23 +47,27 @@ namespace Jazz2::Editor
 			return true;
 		}
 
-		void Do(LevelDocument& document, DocumentChanges& changes) override {
+		void Do(LevelDocument& document, DocumentChanges& changes) override
+		{
 			for (auto& command : Commands) {
 				command->Do(document, changes);
 			}
 		}
 
-		void Undo(LevelDocument& document, DocumentChanges& changes) override {
+		void Undo(LevelDocument& document, DocumentChanges& changes) override
+		{
 			for (std::size_t i = Commands.size(); i > 0; i--) {
 				Commands[i - 1]->Undo(document, changes);
 			}
 		}
 
-		String GetName() const override {
+		String GetName() const override
+		{
 			return Name;
 		}
 
-		std::size_t GetMemoryUsage() const override {
+		std::size_t GetMemoryUsage() const override
+		{
 			std::size_t usage = sizeof(Transaction);
 			for (const auto& command : Commands) {
 				usage += command->GetMemoryUsage();
@@ -90,7 +98,7 @@ namespace Jazz2::Editor
 
 	CommandHistory::CommandHistory(LevelDocument& document, std::size_t memoryBudget)
 		: _document(document), _memoryBudget(memoryBudget), _memoryUsage(0), _doneCount(0),
-			_baseRevision(_nextRevision++), _savedRevision(_baseRevision), _outsideChanges(0), _mergeBroken(false)
+		  _baseRevision(_nextRevision++), _savedRevision(_baseRevision), _outsideChanges(0), _mergeBroken(false)
 	{
 	}
 

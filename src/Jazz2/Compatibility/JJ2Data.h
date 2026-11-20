@@ -25,7 +25,8 @@ namespace Jazz2::Compatibility
 	{
 	public:
 		/** @brief Item from a `.j2d` data file */
-		struct Item {
+		struct Item
+		{
 			/** @brief File name of the item */
 			String Filename;
 			/** @brief Raw item data */
@@ -40,7 +41,9 @@ namespace Jazz2::Compatibility
 		SmallVector<Item, 0> Items;
 
 		/** @brief Creates a new instance */
-		JJ2Data() {}
+		JJ2Data()
+		{
+		}
 
 		/** @brief Opens and parses the specified `.j2d` data file */
 		bool Open(StringView path, bool strictParser);

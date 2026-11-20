@@ -90,7 +90,7 @@ namespace Jazz2::Actors::Bosses
 					_state = StateAppear;
 					_stateTime = AppearTime;
 					SetAnimation((AnimState)1073741824);
-		SetAnimationTicks(AppearTicks);
+					SetAnimationTicks(AppearTicks);
 					PlaySfx("Appear"_s, 0.8f);
 				}
 				break;
@@ -133,7 +133,7 @@ namespace Jazz2::Actors::Bosses
 							_state = StateVanish;
 							_stateTime = VanishTime;
 							SetAnimation((AnimState)1073741825);
-		SetAnimationTicks(VanishTicks);
+							SetAnimationTicks(VanishTicks);
 							PlaySfx("Disappear"_s, 0.8f);
 						}
 					}
@@ -150,8 +150,7 @@ namespace Jazz2::Actors::Bosses
 					fireball->OnActivated(ActorActivationDetails(
 						_levelHandler,
 						Vector3i((std::int32_t)_pos.X + (IsFacingLeft() ? -26 : 26), (std::int32_t)_pos.Y - 20, _renderer.GetLayer() + 2),
-						fireballParams
-					));
+						fireballParams));
 					fireball->SetTarget(_target.lock());
 					_levelHandler->AddActor(fireball);
 				}
@@ -160,7 +159,7 @@ namespace Jazz2::Actors::Bosses
 					_state = StateVanish;
 					_stateTime = VanishTime;
 					SetAnimation((AnimState)1073741825);
-		SetAnimationTicks(VanishTicks);
+					SetAnimationTicks(VanishTicks);
 					PlaySfx("Disappear"_s, 0.8f);
 				}
 				break;

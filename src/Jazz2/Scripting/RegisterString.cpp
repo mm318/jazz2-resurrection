@@ -13,7 +13,7 @@
 #include <new>
 
 #if !defined(DEATH_TARGET_ANDROID) && !defined(_WIN32_WCE) && !defined(__psp2__)
-#	include <locale.h>		// setlocale()
+#include <locale.h> // setlocale()
 #endif
 
 #include <Containers/Reference.h>
@@ -30,14 +30,20 @@ namespace Jazz2::Scripting
 	class StringFactory : public asIStringFactory
 	{
 	public:
-		struct InternalData {
+		struct InternalData
+		{
 			std::unique_ptr<String> Data;
 			std::int32_t RefCount;
 
-			InternalData(std::int32_t refCount) : RefCount(refCount) {}
+			InternalData(std::int32_t refCount)
+				: RefCount(refCount)
+			{
+			}
 		};
 
-		StringFactory() {}
+		StringFactory()
+		{
+		}
 
 		~StringFactory()
 		{
@@ -51,10 +57,12 @@ namespace Jazz2::Scripting
 			asAcquireExclusiveLock();
 
 			// Recreate non-owned string
-			const String stringView(data, length, [](char*, std::size_t) {});
+			const String stringView(data, length, [](char*, std::size_t) {
+			});
 			auto it = _stringCache.find(stringView);
 			if (it != _stringCache.end()) {
-				it->second.RefCount++;;
+				it->second.RefCount++;
+				;
 			} else {
 				auto data = std::make_unique<String>(stringView);
 				it = _stringCache.emplace(*data.get(), 1).first;
@@ -68,7 +76,8 @@ namespace Jazz2::Scripting
 
 		int ReleaseStringConstant(const void* str)
 		{
-			if (str == nullptr) return asERROR;
+			if (str == nullptr)
+				return asERROR;
 
 			std::int32_t ret = asSUCCESS;
 
@@ -94,7 +103,8 @@ namespace Jazz2::Scripting
 
 		int GetRawStringData(const void* str, char* data, std::uint32_t* length) const
 		{
-			if (str == nullptr) return asERROR;
+			if (str == nullptr)
+				return asERROR;
 
 			const String& stringView = *static_cast<const String*>(str);
 			if (length) {
@@ -108,7 +118,8 @@ namespace Jazz2::Scripting
 
 		struct StringRefEqualTo
 		{
-			inline bool operator()(const Reference<const String>& a, const Reference<const String>& b) const noexcept {
+			inline bool operator()(const Reference<const String>& a, const Reference<const String>& b) const noexcept
+			{
 				return a.get() == b.get();
 			}
 		};
@@ -119,7 +130,8 @@ namespace Jazz2::Scripting
 #else
 			xxHash64Func<String>,
 #endif
-			StringRefEqualTo> _stringCache;
+			StringRefEqualTo>
+			_stringCache;
 	};
 
 	static StringFactory* _stringFactory = nullptr;
@@ -154,12 +166,12 @@ namespace Jazz2::Scripting
 
 	static void ConstructString(String* thisPointer)
 	{
-		new(thisPointer) String();
+		new (thisPointer) String();
 	}
 
 	static void CopyConstructString(const String& other, String* thisPointer)
 	{
-		new(thisPointer) String(other);
+		new (thisPointer) String(other);
 	}
 
 	static void DestructString(String* thisPointer)
@@ -342,8 +354,10 @@ namespace Jazz2::Scripting
 	static std::int32_t StringCmp(const String& a, const String& b)
 	{
 		std::int32_t cmp = 0;
-		if (a < b) cmp = -1;
-		else if (a > b) cmp = 1;
+		if (a < b)
+			cmp = -1;
+		else if (a > b)
+			cmp = 1;
 		return cmp;
 	}
 
@@ -472,7 +486,7 @@ namespace Jazz2::Scripting
 	static void StringResize(std::uint32_t l, String& str)
 	{
 		// As std::string::resize(), new characters are zeros
-		String resized{NoInit, l};
+		String resized { NoInit, l };
 		std::size_t kept = std::min(std::size_t(l), str.size());
 		std::memcpy(resized.data(), str.data(), kept);
 		std::memset(resized.data() + kept, 0, l - kept);
@@ -531,10 +545,14 @@ namespace Jazz2::Scripting
 		bool hexLarge = options.find("H") != nullptr;
 
 		String fmt = "%";
-		if (leftJustify) fmt += "-";
-		if (alwaysSign) fmt += "+";
-		if (spaceOnSign) fmt += " ";
-		if (padWithZero) fmt += "0";
+		if (leftJustify)
+			fmt += "-";
+		if (alwaysSign)
+			fmt += "+";
+		if (spaceOnSign)
+			fmt += " ";
+		if (padWithZero)
+			fmt += "0";
 
 #if defined(DEATH_TARGET_WINDOWS)
 		fmt += "*I64";
@@ -544,9 +562,12 @@ namespace Jazz2::Scripting
 		fmt += "*ll";
 #endif
 
-		if (hexSmall) fmt += "x";
-		else if (hexLarge) fmt += "X";
-		else fmt += "d";
+		if (hexSmall)
+			fmt += "x";
+		else if (hexLarge)
+			fmt += "X";
+		else
+			fmt += "d";
 
 		char buffer[64];
 #if defined(DEATH_TARGET_MSVC)
@@ -569,10 +590,14 @@ namespace Jazz2::Scripting
 		bool hexLarge = options.find('H') != nullptr;
 
 		String fmt = "%";
-		if (leftJustify) fmt += "-";
-		if (alwaysSign) fmt += "+";
-		if (spaceOnSign) fmt += " ";
-		if (padWithZero) fmt += "0";
+		if (leftJustify)
+			fmt += "-";
+		if (alwaysSign)
+			fmt += "+";
+		if (spaceOnSign)
+			fmt += " ";
+		if (padWithZero)
+			fmt += "0";
 
 #if defined(DEATH_TARGET_WINDOWS)
 		fmt += "*I64";
@@ -582,9 +607,12 @@ namespace Jazz2::Scripting
 		fmt += "*ll";
 #endif
 
-		if (hexSmall) fmt += "x";
-		else if (hexLarge) fmt += "X";
-		else fmt += "u";
+		if (hexSmall)
+			fmt += "x";
+		else if (hexLarge)
+			fmt += "X";
+		else
+			fmt += "u";
 
 		char buffer[64];
 #if defined(DEATH_TARGET_MSVC)
@@ -607,16 +635,23 @@ namespace Jazz2::Scripting
 		bool expLarge = options.find("E") != nullptr;
 
 		String fmt = "%";
-		if (leftJustify) fmt += "-";
-		if (alwaysSign) fmt += "+";
-		if (spaceOnSign) fmt += " ";
-		if (padWithZero) fmt += "0";
+		if (leftJustify)
+			fmt += "-";
+		if (alwaysSign)
+			fmt += "+";
+		if (spaceOnSign)
+			fmt += " ";
+		if (padWithZero)
+			fmt += "0";
 
 		fmt += "*.*";
 
-		if (expSmall) fmt += "e";
-		else if (expLarge) fmt += "E";
-		else fmt += "f";
+		if (expSmall)
+			fmt += "e";
+		else if (expLarge)
+			fmt += "E";
+		else
+			fmt += "f";
 
 		char buffer[64];
 #if defined(DEATH_TARGET_MSVC)
@@ -632,7 +667,8 @@ namespace Jazz2::Scripting
 	static std::int64_t parseInt(const String& val, std::uint32_t base, std::uint32_t* byteCount)
 	{
 		if (base != 10 && base != 16) {
-			if (byteCount) *byteCount = 0;
+			if (byteCount)
+				*byteCount = 0;
 			return 0;
 		}
 
@@ -654,8 +690,8 @@ namespace Jazz2::Scripting
 			}
 		} else if (base == 16) {
 			while ((*end >= '0' && *end <= '9') ||
-					(*end >= 'a' && *end <= 'f') ||
-					(*end >= 'A' && *end <= 'F')) {
+				(*end >= 'a' && *end <= 'f') ||
+				(*end >= 'A' && *end <= 'F')) {
 				res *= 16;
 				if (*end >= '0' && *end <= '9') {
 					res += *end++ - '0';
@@ -680,7 +716,8 @@ namespace Jazz2::Scripting
 	static std::uint64_t parseUInt(const String& val, std::uint32_t base, std::uint32_t* byteCount)
 	{
 		if (base != 10 && base != 16) {
-			if (byteCount) *byteCount = 0;
+			if (byteCount)
+				*byteCount = 0;
 			return 0;
 		}
 
@@ -781,21 +818,27 @@ namespace Jazz2::Scripting
 		 * Numbers and booleans can be assigned to or concatenated with a string directly, see @ref formatInt()
 		 * and @ref formatFloat() for control over the formatting.
 		 */
-		r = engine->RegisterObjectType("string", sizeof(String), asOBJ_VALUE | asGetTypeTraits<String>()); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectType("string", sizeof(String), asOBJ_VALUE | asGetTypeTraits<String>());
+		RETURN_ASSERT(r >= 0);
 
 		r = engine->RegisterStringFactory("string", GetStringFactoryInstance());
 
 		// Register the object operator overloads
 		/** @brief Creates an empty string */
-		r = engine->RegisterObjectBehaviour("string", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(ConstructString), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectBehaviour("string", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(ConstructString), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Creates a copy of another string */
-		r = engine->RegisterObjectBehaviour("string", asBEHAVE_CONSTRUCT, "void f(const string &in)", asFUNCTION(CopyConstructString), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectBehaviour("string", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(DestructString), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectBehaviour("string", asBEHAVE_CONSTRUCT, "void f(const string &in)", asFUNCTION(CopyConstructString), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectBehaviour("string", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(DestructString), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Replaces the content with a copy of another string */
-		r = engine->RegisterObjectMethod("string", "string &opAssign(const string &in)", asMETHODPR(String, operator=, (const String&), String&), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string &opAssign(const string &in)", asMETHODPR(String, operator=, (const String&), String&), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 		// Need to use a wrapper on Mac OS X 10.7/XCode 4.3 and CLang/LLVM, otherwise the linker fails
 		/** @brief Appends another string */
-		r = engine->RegisterObjectMethod("string", "string &opAddAssign(const string &in)", asFUNCTION(AddAssignStringToString), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string &opAddAssign(const string &in)", asFUNCTION(AddAssignStringToString), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		//r = engine->RegisterObjectMethod("string", "string &opAddAssign(const string &in)", asMETHODPR(string, operator+=, (const string&), string&), asCALL_THISCALL); RETURN_ASSERT( r >= 0 );
 
 		// Need to use a wrapper for operator== otherwise gcc 4.7 fails to compile
@@ -804,27 +847,32 @@ namespace Jazz2::Scripting
 		 *
 		 * The comparison is exact and case-sensitive.
 		 */
-		r = engine->RegisterObjectMethod("string", "bool opEquals(const string &in) const", asFUNCTIONPR(StringEquals, (const String&, const String&), bool), asCALL_CDECL_OBJFIRST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "bool opEquals(const string &in) const", asFUNCTIONPR(StringEquals, (const String&, const String&), bool), asCALL_CDECL_OBJFIRST);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Compares two strings, used by the `<`, `<=`, `>` and `>=` operators
 		 *
 		 * Compares byte by byte, so uppercase letters sort before lowercase ones.
 		 * @return Negative value if this string sorts first, zero if both are equal, positive value otherwise
 		 */
-		r = engine->RegisterObjectMethod("string", "int opCmp(const string &in) const", asFUNCTION(StringCmp), asCALL_CDECL_OBJFIRST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "int opCmp(const string &in) const", asFUNCTION(StringCmp), asCALL_CDECL_OBJFIRST);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Returns a new string with another string appended */
-		r = engine->RegisterObjectMethod("string", "string opAdd(const string &in) const", asFUNCTION(StringConcat), asCALL_CDECL_OBJFIRST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string opAdd(const string &in) const", asFUNCTION(StringConcat), asCALL_CDECL_OBJFIRST);
+		RETURN_ASSERT(r >= 0);
 
 		// The string length can be accessed through methods or through virtual property
 #if AS_USE_ACCESSORS != 1
-		r = engine->RegisterObjectMethod("string", "uint length() const", asFUNCTION(StringSize), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "uint length() const", asFUNCTION(StringSize), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 #endif
 		/**
 		 * @brief Changes the length of the string
 		 *
 		 * Takes the new length in bytes. A shorter length cuts the string, a longer one pads it with zero bytes.
 		 */
-		r = engine->RegisterObjectMethod("string", "void resize(uint)", asFUNCTION(StringResize), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "void resize(uint)", asFUNCTION(StringResize), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 #if AS_USE_STLNAMES != 1 && AS_USE_ACCESSORS == 1
 		// Don't register these if STL names is used, as they conflict with the method size()
 		/**
@@ -832,13 +880,15 @@ namespace Jazz2::Scripting
 		 *
 		 * Read-only, use @ref string::resize() to change it. A character outside ASCII takes more than one byte in UTF-8.
 		 */
-		r = engine->RegisterObjectMethod("string", "uint get_length() const property", asFUNCTION(StringSize), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "uint get_length() const property", asFUNCTION(StringSize), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		//r = engine->RegisterObjectMethod("string", "void set_length(uint) property", asFUNCTION(StringResize), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
 #endif
 		// Need to use a wrapper on Mac OS X 10.7/XCode 4.3 and CLang/LLVM, otherwise the linker fails
 		//r = engine->RegisterObjectMethod("string", "bool empty() const", asMETHOD(string, empty), asCALL_THISCALL); RETURN_ASSERT( r >= 0 );
 		/** @brief Returns `true` if the string has no content */
-		r = engine->RegisterObjectMethod("string", "bool empty() const", asFUNCTION(StringIsEmpty), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "bool empty() const", asFUNCTION(StringIsEmpty), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 
 		// Register the index operator, both as a mutator and as an inspector
 		// Note that we don't register the operator[] directly, as it doesn't do bounds checking
@@ -848,13 +898,15 @@ namespace Jazz2::Scripting
 		 * The byte can be read and changed in place. An index equal to or greater than @ref string::length
 		 * raises a script exception.
 		 */
-		r = engine->RegisterObjectMethod("string", "uint8 &opIndex(uint)", asFUNCTION(StringCharAt), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "uint8 &opIndex(uint)", asFUNCTION(StringCharAt), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Reads a single byte of the string
 		 *
 		 * An index equal to or greater than @ref string::length raises a script exception.
 		 */
-		r = engine->RegisterObjectMethod("string", "const uint8 &opIndex(uint) const", asFUNCTION(StringCharAt), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "const uint8 &opIndex(uint) const", asFUNCTION(StringCharAt), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 
 		// Automatic conversion from values
 		/**
@@ -862,53 +914,73 @@ namespace Jazz2::Scripting
 		 *
 		 * Uses up to 6 decimal places with trailing zeros removed, but always keeps one digit after the decimal point.
 		 */
-		r = engine->RegisterObjectMethod("string", "string &opAssign(double)", asFUNCTION(AssignDoubleToString), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string &opAssign(double)", asFUNCTION(AssignDoubleToString), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Appends a number converted to text */
-		r = engine->RegisterObjectMethod("string", "string &opAddAssign(double)", asFUNCTION(AddAssignDoubleToString), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string &opAddAssign(double)", asFUNCTION(AddAssignDoubleToString), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Returns a new string with a number appended as text */
-		r = engine->RegisterObjectMethod("string", "string opAdd(double) const", asFUNCTION(AddStringDouble), asCALL_CDECL_OBJFIRST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string opAdd(double) const", asFUNCTION(AddStringDouble), asCALL_CDECL_OBJFIRST);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Returns a new string with a number prepended as text */
-		r = engine->RegisterObjectMethod("string", "string opAdd_r(double) const", asFUNCTION(AddDoubleString), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string opAdd_r(double) const", asFUNCTION(AddDoubleString), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 
 		/**
 		 * @brief Replaces the content with a number converted to text
 		 *
 		 * Uses up to 6 decimal places with trailing zeros removed, but always keeps one digit after the decimal point.
 		 */
-		r = engine->RegisterObjectMethod("string", "string &opAssign(float)", asFUNCTION(AssignFloatToString), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string &opAssign(float)", asFUNCTION(AssignFloatToString), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Appends a number converted to text */
-		r = engine->RegisterObjectMethod("string", "string &opAddAssign(float)", asFUNCTION(AddAssignFloatToString), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string &opAddAssign(float)", asFUNCTION(AddAssignFloatToString), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Returns a new string with a number appended as text */
-		r = engine->RegisterObjectMethod("string", "string opAdd(float) const", asFUNCTION(AddStringFloat), asCALL_CDECL_OBJFIRST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string opAdd(float) const", asFUNCTION(AddStringFloat), asCALL_CDECL_OBJFIRST);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Returns a new string with a number prepended as text */
-		r = engine->RegisterObjectMethod("string", "string opAdd_r(float) const", asFUNCTION(AddFloatString), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string opAdd_r(float) const", asFUNCTION(AddFloatString), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 
 		/** @brief Replaces the content with an integer converted to decimal text */
-		r = engine->RegisterObjectMethod("string", "string &opAssign(int64)", asFUNCTION(AssignInt64ToString), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string &opAssign(int64)", asFUNCTION(AssignInt64ToString), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Appends an integer converted to decimal text */
-		r = engine->RegisterObjectMethod("string", "string &opAddAssign(int64)", asFUNCTION(AddAssignInt64ToString), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string &opAddAssign(int64)", asFUNCTION(AddAssignInt64ToString), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Returns a new string with an integer appended as decimal text */
-		r = engine->RegisterObjectMethod("string", "string opAdd(int64) const", asFUNCTION(AddStringInt64), asCALL_CDECL_OBJFIRST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string opAdd(int64) const", asFUNCTION(AddStringInt64), asCALL_CDECL_OBJFIRST);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Returns a new string with an integer prepended as decimal text */
-		r = engine->RegisterObjectMethod("string", "string opAdd_r(int64) const", asFUNCTION(AddInt64String), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string opAdd_r(int64) const", asFUNCTION(AddInt64String), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 
 		/** @brief Replaces the content with an unsigned integer converted to decimal text */
-		r = engine->RegisterObjectMethod("string", "string &opAssign(uint64)", asFUNCTION(AssignUInt64ToString), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string &opAssign(uint64)", asFUNCTION(AssignUInt64ToString), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Appends an unsigned integer converted to decimal text */
-		r = engine->RegisterObjectMethod("string", "string &opAddAssign(uint64)", asFUNCTION(AddAssignUInt64ToString), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string &opAddAssign(uint64)", asFUNCTION(AddAssignUInt64ToString), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Returns a new string with an unsigned integer appended as decimal text */
-		r = engine->RegisterObjectMethod("string", "string opAdd(uint64) const", asFUNCTION(AddStringUInt64), asCALL_CDECL_OBJFIRST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string opAdd(uint64) const", asFUNCTION(AddStringUInt64), asCALL_CDECL_OBJFIRST);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Returns a new string with an unsigned integer prepended as decimal text */
-		r = engine->RegisterObjectMethod("string", "string opAdd_r(uint64) const", asFUNCTION(AddUInt64String), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string opAdd_r(uint64) const", asFUNCTION(AddUInt64String), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 
 		/** @brief Replaces the content with `true` or `false` */
-		r = engine->RegisterObjectMethod("string", "string &opAssign(bool)", asFUNCTION(AssignBoolToString), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string &opAssign(bool)", asFUNCTION(AssignBoolToString), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Appends `true` or `false` */
-		r = engine->RegisterObjectMethod("string", "string &opAddAssign(bool)", asFUNCTION(AddAssignBoolToString), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string &opAddAssign(bool)", asFUNCTION(AddAssignBoolToString), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Returns a new string with `true` or `false` appended */
-		r = engine->RegisterObjectMethod("string", "string opAdd(bool) const", asFUNCTION(AddStringBool), asCALL_CDECL_OBJFIRST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string opAdd(bool) const", asFUNCTION(AddStringBool), asCALL_CDECL_OBJFIRST);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Returns a new string with `true` or `false` prepended */
-		r = engine->RegisterObjectMethod("string", "string opAdd_r(bool) const", asFUNCTION(AddBoolString), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string opAdd_r(bool) const", asFUNCTION(AddBoolString), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 
 		// Utilities
 		/**
@@ -919,7 +991,8 @@ namespace Jazz2::Scripting
 		 * @param start Byte position where the part begins
 		 * @param count Number of bytes to take, or -1 for the rest of the string
 		 */
-		r = engine->RegisterObjectMethod("string", "string substr(uint start = 0, int count = -1) const", asFUNCTION(StringSubString), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "string substr(uint start = 0, int count = -1) const", asFUNCTION(StringSubString), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Finds the first occurrence of a substring
 		 *
@@ -927,7 +1000,8 @@ namespace Jazz2::Scripting
 		 * @param start Byte position where the search begins, a position past the end finds nothing
 		 * @return Byte position of the match, or -1 if not found
 		 */
-		r = engine->RegisterObjectMethod("string", "int findFirst(const string &in, uint start = 0) const", asFUNCTION(StringFindFirst), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "int findFirst(const string &in, uint start = 0) const", asFUNCTION(StringFindFirst), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Finds the first byte that is one of the given characters
 		 *
@@ -935,7 +1009,8 @@ namespace Jazz2::Scripting
 		 * @param start Byte position where the search begins, a position past the end finds nothing
 		 * @return Byte position of the match, or -1 if not found
 		 */
-		r = engine->RegisterObjectMethod("string", "int findFirstOf(const string &in, uint start = 0) const", asFUNCTION(StringFindFirstOf), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "int findFirstOf(const string &in, uint start = 0) const", asFUNCTION(StringFindFirstOf), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Finds the first byte that is none of the given characters
 		 *
@@ -943,7 +1018,8 @@ namespace Jazz2::Scripting
 		 * @param start Byte position where the search begins
 		 * @return Byte position of the match, or -1 if not found
 		 */
-		r = engine->RegisterObjectMethod("string", "int findFirstNotOf(const string &in, uint start = 0) const", asFUNCTION(StringFindFirstNotOf), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "int findFirstNotOf(const string &in, uint start = 0) const", asFUNCTION(StringFindFirstNotOf), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Finds the last occurrence of a substring
 		 *
@@ -951,7 +1027,8 @@ namespace Jazz2::Scripting
 		 * @param start Last byte position where a match may begin, -1 or any position past the end searches the whole string
 		 * @return Byte position of the match, or -1 if not found
 		 */
-		r = engine->RegisterObjectMethod("string", "int findLast(const string &in, int start = -1) const", asFUNCTION(StringFindLast), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "int findLast(const string &in, int start = -1) const", asFUNCTION(StringFindLast), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Finds the last byte that is one of the given characters
 		 *
@@ -959,7 +1036,8 @@ namespace Jazz2::Scripting
 		 * @param start Byte position where the backward search begins, -1 or any position past the end searches the whole string
 		 * @return Byte position of the match, or -1 if not found
 		 */
-		r = engine->RegisterObjectMethod("string", "int findLastOf(const string &in, int start = -1) const", asFUNCTION(StringFindLastOf), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "int findLastOf(const string &in, int start = -1) const", asFUNCTION(StringFindLastOf), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Finds the last byte that is none of the given characters
 		 *
@@ -967,7 +1045,8 @@ namespace Jazz2::Scripting
 		 * @param start Byte position where the backward search begins, -1 or any position past the end searches the whole string
 		 * @return Byte position of the match, or -1 if not found
 		 */
-		r = engine->RegisterObjectMethod("string", "int findLastNotOf(const string &in, int start = -1) const", asFUNCTION(StringFindLastNotOf), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "int findLastNotOf(const string &in, int start = -1) const", asFUNCTION(StringFindLastNotOf), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Inserts another string at the given position
 		 *
@@ -975,7 +1054,8 @@ namespace Jazz2::Scripting
 		 * @param pos Byte position where the text is inserted
 		 * @param other Text to insert
 		 */
-		r = engine->RegisterObjectMethod("string", "void insert(uint pos, const string &in other)", asFUNCTION(StringInsert), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "void insert(uint pos, const string &in other)", asFUNCTION(StringInsert), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Removes a part of the string
 		 *
@@ -984,7 +1064,8 @@ namespace Jazz2::Scripting
 		 * @param pos Byte position of the first removed byte
 		 * @param count Number of bytes to remove, or -1 for the rest of the string
 		 */
-		r = engine->RegisterObjectMethod("string", "void erase(uint pos, int count = -1)", asFUNCTION(StringErase), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "void erase(uint pos, int count = -1)", asFUNCTION(StringErase), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 
 		/**
 		 * @brief Formats a signed integer as text
@@ -1003,7 +1084,8 @@ namespace Jazz2::Scripting
 		 * @param width Minimum number of characters, the result is never cut to fit
 		 * @note Keep the result shorter than 64 characters, longer output is not supported.
 		 */
-		r = engine->RegisterGlobalFunction("string formatInt(int64 val, const string &in options = \"\", uint width = 0)", asFUNCTION(formatInt), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("string formatInt(int64 val, const string &in options = \"\", uint width = 0)", asFUNCTION(formatInt), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Formats an unsigned integer as text
 		 *
@@ -1013,7 +1095,8 @@ namespace Jazz2::Scripting
 		 * @param width Minimum number of characters, the result is never cut to fit
 		 * @note Keep the result shorter than 64 characters, longer output is not supported.
 		 */
-		r = engine->RegisterGlobalFunction("string formatUInt(uint64 val, const string &in options = \"\", uint width = 0)", asFUNCTION(formatUInt), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("string formatUInt(uint64 val, const string &in options = \"\", uint width = 0)", asFUNCTION(formatUInt), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Formats a floating-point number as text
 		 *
@@ -1034,7 +1117,8 @@ namespace Jazz2::Scripting
 		 * @note Keep the result shorter than 64 characters, longer output (e.g. very large values without
 		 *       exponent notation) is not supported.
 		 */
-		r = engine->RegisterGlobalFunction("string formatFloat(double val, const string &in options = \"\", uint width = 0, uint precision = 0)", asFUNCTION(formatFloat), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("string formatFloat(double val, const string &in options = \"\", uint width = 0, uint precision = 0)", asFUNCTION(formatFloat), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Parses a signed integer from the beginning of a string
 		 *
@@ -1045,7 +1129,8 @@ namespace Jazz2::Scripting
 		 * @param byteCount Receives the number of bytes that were read, 0 if nothing could be parsed
 		 * @return Parsed value, or 0 if the string doesn't start with a number
 		 */
-		r = engine->RegisterGlobalFunction("int64 parseInt(const string &in, uint base = 10, uint &out byteCount = 0)", asFUNCTION(parseInt), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("int64 parseInt(const string &in, uint base = 10, uint &out byteCount = 0)", asFUNCTION(parseInt), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Parses an unsigned integer from the beginning of a string
 		 *
@@ -1056,7 +1141,8 @@ namespace Jazz2::Scripting
 		 * @param byteCount Receives the number of bytes that were read, 0 if nothing could be parsed
 		 * @return Parsed value, or 0 if the string doesn't start with a number
 		 */
-		r = engine->RegisterGlobalFunction("uint64 parseUInt(const string &in, uint base = 10, uint &out byteCount = 0)", asFUNCTION(parseUInt), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("uint64 parseUInt(const string &in, uint base = 10, uint &out byteCount = 0)", asFUNCTION(parseUInt), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Parses a floating-point number from the beginning of a string
 		 *
@@ -1066,7 +1152,8 @@ namespace Jazz2::Scripting
 		 * @param byteCount Receives the number of bytes that were read, 0 if nothing could be parsed
 		 * @return Parsed value, or 0 if the string doesn't start with a number
 		 */
-		r = engine->RegisterGlobalFunction("double parseFloat(const string &in, uint &out byteCount = 0)", asFUNCTION(parseFloat), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("double parseFloat(const string &in, uint &out byteCount = 0)", asFUNCTION(parseFloat), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 	}
 
 	void RegisterStringUtils(asIScriptEngine* engine)
@@ -1081,7 +1168,8 @@ namespace Jazz2::Scripting
 		 * @return New array of the parts
 		 * @see @ref join()
 		 */
-		r = engine->RegisterObjectMethod("string", "array<string>@ split(const string &in) const", asFUNCTION(StringSplit), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("string", "array<string>@ split(const string &in) const", asFUNCTION(StringSplit), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Joins an array of strings into one string
 		 *
@@ -1089,7 +1177,8 @@ namespace Jazz2::Scripting
 		 * before the first or after the last one. An empty array gives an empty string.
 		 * @see @ref string::split()
 		 */
-		r = engine->RegisterGlobalFunction("string join(const array<string> &in, const string &in)", asFUNCTION(StringJoin), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("string join(const array<string> &in, const string &in)", asFUNCTION(StringJoin), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 	}
 }
 

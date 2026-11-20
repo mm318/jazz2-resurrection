@@ -19,8 +19,8 @@ namespace Jazz2::Actors::Weapons
 {
 	CustomShot::CustomShot()
 		: _slot(WeaponType::Blaster), _basedOn(WeaponType::Blaster), _pierceLeft(0), _bouncesLeft(0),
-			_baseStrength(0), _lookStep(0.0f), _particleSpawnTime(0.0f),
-			_farPoint(Vector2f::Zero), _direction(1.0f, 0.0f), _fired(0), _detonated(false), _bubbleInWater(false), _flipX(false)
+		  _baseStrength(0), _lookStep(0.0f), _particleSpawnTime(0.0f),
+		  _farPoint(Vector2f::Zero), _direction(1.0f, 0.0f), _fired(0), _detonated(false), _bubbleInWater(false), _flipX(false)
 	{
 	}
 
@@ -158,7 +158,9 @@ namespace Jazz2::Actors::Weapons
 				Detonate();
 				return;
 			}
-			Vector3i initialPos; Vector2f gunspotPos; float angle;
+			Vector3i initialPos;
+			Vector2f gunspotPos;
+			float angle;
 			player->GetFirePointAndAngle(initialPos, gunspotPos, angle);
 			MoveInstantly(gunspotPos, MoveType::Absolute | MoveType::Force);
 			_farPoint = GetBeamEnd(gunspotPos, _renderer.GetRotation());

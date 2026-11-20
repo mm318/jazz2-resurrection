@@ -94,7 +94,8 @@ namespace Jazz2::Scripting
 		~LevelScriptLoader();
 
 		/** @brief Returns the level handler this script is bound to */
-		LevelHandler* GetLevelHandler() const {
+		LevelHandler* GetLevelHandler() const
+		{
 			return _levelHandler;
 		}
 
@@ -117,7 +118,8 @@ namespace Jazz2::Scripting
 		bool LoadSample(std::int32_t sampleId, StringView path);
 
 		/** @brief Returns `true` if the game is converted from version 1.24 (The Secret Files), which has more animation sets than 1.23 */
-		bool IsTSF() const {
+		bool IsTSF() const
+		{
 			return versionTSF;
 		}
 
@@ -244,7 +246,8 @@ namespace Jazz2::Scripting
 		/** @brief Returns the depth something drawn on a layer of the original, 1 to 8, is drawn at */
 		std::uint16_t GetLayerDrawZ(std::int32_t layerNumber) const;
 		/** @brief Forgets the depths @ref GetLayerDrawZ() resolved, once the order or the depths of the layers change */
-		void InvalidateLayerDrawZ() {
+		void InvalidateLayerDrawZ()
+		{
 			_layerDrawZFrame = UINT32_MAX;
 		}
 		/**
@@ -291,16 +294,19 @@ namespace Jazz2::Scripting
 		/** @brief Returns the player of the music of the level, `nullptr` if there's none */
 		nCine::AudioStreamPlayer* GetMusicPlayer() const;
 		/** @brief Returns `jjWarpsTransmuteCoins` */
-		bool WarpsTransmuteCoins() const {
+		bool WarpsTransmuteCoins() const
+		{
 			return warpsTransmuteCoins;
 		}
 		/** @brief Returns `true` once a boss of a script was activated, see @ref OnBossAreaActivated() */
-		bool IsBossAreaActivated() const {
+		bool IsBossAreaActivated() const
+		{
 			return _bossAreaActivated;
 		}
 
 		/** @brief Methods of a class of a script that implements `jjBEHAVIORINTERFACE`, `nullptr` for the ones it doesn't have */
-		struct BehaviorMethods {
+		struct BehaviorMethods
+		{
 			asIScriptFunction* OnBehave;
 			asIScriptFunction* OnDraw;
 			asIScriptFunction* OnObjectHit;
@@ -308,7 +314,8 @@ namespace Jazz2::Scripting
 		/** @brief Returns the methods of a class of a script that implements `jjBEHAVIORINTERFACE`, looked up once per class */
 		BehaviorMethods GetBehaviorMethods(asITypeInfo* type);
 		/** @brief Returns the global `onObjectHit()` of the script, `nullptr` if it has none */
-		asIScriptFunction* GetGlobalObjectHit() const {
+		asIScriptFunction* GetGlobalObjectHit() const
+		{
 			return _onObjectHit;
 		}
 		/**
@@ -362,7 +369,8 @@ namespace Jazz2::Scripting
 		/** @brief Changes the type of a tile of the original game, every placed tile of it is drawn so */
 		void SetOriginalTileType(std::int32_t tileId, std::uint8_t type);
 		/** @brief Returns whether layer 8 moves by its own speeds (`jjUseLayer8Speeds`) instead of staying fixed */
-		bool GetUseLayer8Speeds() const {
+		bool GetUseLayer8Speeds() const
+		{
 			return _useLayer8Speeds;
 		}
 		/**
@@ -614,7 +622,8 @@ namespace Jazz2::Scripting
 		// avoid repeatedly trying to open a missing file)
 		HashMap<std::int32_t, std::unique_ptr<nCine::AudioBuffer>> _scriptSamples;
 		// Looped samples playing by their channels, and the tick a script played each in last (see PlayLoopedSample())
-		struct LoopedSample {
+		struct LoopedSample
+		{
 			std::shared_ptr<AudioBufferPlayer> Player;
 			std::int32_t Tick;
 		};
@@ -631,7 +640,8 @@ namespace Jazz2::Scripting
 		std::unique_ptr<Legacy::EventTranslator> _eventTranslator;
 		// Event words scripts wrote by the index of the tile, with what the tile was made into, a word is kept only while
 		// the tile stays so - translating the event back could lose what the script wrote
-		struct WrittenEvent {
+		struct WrittenEvent
+		{
 			std::uint32_t Word;
 			EventType Type;
 			std::uint8_t Params[16];
@@ -639,7 +649,8 @@ namespace Jazz2::Scripting
 		HashMap<std::int32_t, WrittenEvent> _writtenEvents;
 		// Every event a script wrote to a tile, by its position, which stays when the level goes back to a checkpoint as
 		// in JJ2+ - a script clears the event of a pickup so it isn't there again after a death (see ReapplyEventWrites())
-		struct EventWrite {
+		struct EventWrite
+		{
 			EventType Type;
 			Actors::ActorState Flags;
 			std::uint8_t Params[16];
@@ -651,7 +662,8 @@ namespace Jazz2::Scripting
 
 		// The objects of the level scripts reach by their object ID (jjObjects), the first entry is never used. The level
 		// owns the objects, an entry only follows its object.
-		struct ObjectSlot {
+		struct ObjectSlot
+		{
 			std::weak_ptr<Actors::ActorBase> Actor;
 			// The same object as a key of _objectIdsByActor, never dereferenced (it may be gone)
 			Actors::ActorBase* ActorKey;
@@ -675,7 +687,8 @@ namespace Jazz2::Scripting
 		static constexpr std::int8_t NotSpread = INT8_MIN;
 		SmallVector<ObjectSlot, 0> _objectSlots;
 		// The bullet being fired by FirePlayerWeapon(), RegisterObject() gives its object ID the place in the spread
-		struct FiringBullet {
+		struct FiringBullet
+		{
 			const Actors::ActorBase* Shot;
 			std::int8_t SpreadSlot;
 			float GunspotOffsetY;
@@ -729,7 +742,8 @@ namespace Jazz2::Scripting
 		std::uint8_t _sceneryObjectsMask = 0;
 		// Objects of the game to be made the objects of other events, by their object IDs (see SwapActor()), and the one being
 		// added in place of another, which keeps its object ID
-		struct ActorSwap {
+		struct ActorSwap
+		{
 			std::int32_t ObjectID;
 			std::uint8_t EventID;
 		};
@@ -737,11 +751,12 @@ namespace Jazz2::Scripting
 		Actors::ActorBase* _swappingActor = nullptr;
 		// A player activated the boss of the level, which is one of the script, see OnBossAreaActivated()
 		bool _bossAreaActivated = false;
+
 	public:
 		// `jjVerticalSplitscreen`, as a script set it
 		bool _verticalSplitscreen = false;
-	private:
 
+	private:
 		// Gives an object of the level an object ID, `object` is its script view if it has one already (taken over)
 		std::int32_t RegisterObject(const std::shared_ptr<Actors::ActorBase>& actor, Legacy::jjOBJ* object, std::uint8_t eventId);
 		// Makes an object the one of an object ID, see _objectIdsByActor
@@ -788,7 +803,8 @@ namespace Jazz2::Scripting
 
 		// Pixels of the tile sets of the level as scripts read and write them (see jjPIXELMAP), one per part of the tile
 		// map, read from the file on first use (Data stays null if it can't be)
-		struct ScriptTileSetPixels {
+		struct ScriptTileSetPixels
+		{
 			std::unique_ptr<Formats::TileSetData> Data;
 			// The colors the 8-bit tiles of a part added as true color tiles are in (see AddTrueColorTilesFromTileSet()),
 			// they're made true color tiles of `Data` once it's read
@@ -816,7 +832,8 @@ namespace Jazz2::Scripting
 		// The index of the first layer a script made (see CreateLayer()), the layers from it on are made by scripts, or -1
 		std::int32_t _firstScriptLayer = -1;
 		// The textures of JJ2+ read from Plus.j2d (see GetPlusTexture()), by their numbers
-		struct PlusTexture {
+		struct PlusTexture
+		{
 			std::int32_t Index;
 			std::unique_ptr<std::uint8_t[]> Pixels;
 		};
@@ -824,7 +841,8 @@ namespace Jazz2::Scripting
 		bool _plusTexturesLoaded = false;
 		// The mappings of SPRITE::MAPPING of JJ2+ (see jjSpriteModeSetMapping()), only kept for the scripts, 256 of them made
 		// on first use; one without a palette of its own maps to the colors of the palette in effect
-		struct SpriteModeMapping {
+		struct SpriteModeMapping
+		{
 			bool Used = false;
 			bool HasPalette = false;
 			std::uint8_t Indices[256];
@@ -1099,7 +1117,6 @@ namespace Jazz2::Scripting
 		static void jjMusicResume();
 
 		static bool jjSendPacket(const jjSTREAM& packet, std::int32_t toClientID, std::uint32_t toScriptModuleID);
-
 	};
 }
 

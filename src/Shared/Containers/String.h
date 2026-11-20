@@ -33,40 +33,50 @@
 
 #include <type_traits>
 
-namespace Death { namespace Containers {
-//###==##====#=====--==~--~=~- --- -- -  -  -   -
-
-	namespace Implementation
+namespace Death
+{
+	namespace Containers
 	{
-		enum : std::size_t {
-			SmallStringBit = 0x40,
-			SmallStringSize = sizeof(std::size_t) * 3 - 1
-		};
+		//###==##====#=====--==~--~=~- --- -- -  -  -   -
 
-		template<class> struct StringConverter;
-	}
+		namespace Implementation
+		{
+			enum : std::size_t
+			{
+				SmallStringBit = 0x40,
+				SmallStringSize = sizeof(std::size_t) * 3 - 1
+			};
 
-	/**
+			template <class>
+			struct StringConverter;
+		}
+
+		/**
 		@brief Allocated initialization tag type
 
 		Used to distinguish @ref String construction that bypasses small string optimization.
 	*/
-	struct AllocatedInitT {
+		struct AllocatedInitT
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		struct Init {};
-		// Explicit constructor to avoid ambiguous calls when using {}
-		constexpr explicit AllocatedInitT(Init) {}
+			struct Init
+			{
+			};
+			// Explicit constructor to avoid ambiguous calls when using {}
+			constexpr explicit AllocatedInitT(Init)
+			{
+			}
 #endif
-	};
+		};
 
-	/**
+		/**
 		@brief Allocated initialization tag
 
 		Use for @ref String construction that bypasses small string optimization.
 	*/
-	constexpr AllocatedInitT AllocatedInit{AllocatedInitT::Init{}};
+		constexpr AllocatedInitT AllocatedInit { AllocatedInitT::Init {} };
 
-	/**
+		/**
 		@brief String
 
 		A lightweight non-templated alternative to @ref std::string with support for
@@ -207,12 +217,12 @@ namespace Death { namespace Containers {
 		convert @ref std::string_view instances to @ref BasicStringView "StringView"
 		instead where possible.
 	*/
-	class String
-	{
-	public:
-		typedef void(*Deleter)(char*, std::size_t); /**< @brief Deleter type */
+		class String
+		{
+		public:
+			typedef void (*Deleter)(char*, std::size_t); /**< @brief Deleter type */
 
-		/**
+			/**
 		 * @brief Turn a view into a null-terminated string
 		 *
 		 * If the view is @ref StringViewFlags::NullTerminated, returns a
@@ -226,17 +236,17 @@ namespace Death { namespace Containers {
 		 * null-terminated @cpp const char* @ce. Mutating the result in any way
 		 * is undefined behavior.
 		 */
-		static String nullTerminatedView(StringView view);
+			static String nullTerminatedView(StringView view);
 
-		/**
+			/**
 		 * @brief Turn a view into a null-terminated string, bypassing SSO
 		 *
 		 * Compared to @ref nullTerminatedView(StringView) the null-terminated
 		 * copy is always allocated.
 		 */
-		static String nullTerminatedView(AllocatedInitT, StringView view);
+			static String nullTerminatedView(AllocatedInitT, StringView view);
 
-		/**
+			/**
 		 * @brief Turn a view into a null-terminated global string
 		 *
 		 * If the view is both @ref StringViewFlags::NullTerminated and
@@ -251,24 +261,24 @@ namespace Death { namespace Containers {
 		 * null-terminated @cpp const char* @ce. Mutating the result in any way
 		 * is undefined behavior.
 		 */
-		static String nullTerminatedGlobalView(StringView view);
+			static String nullTerminatedGlobalView(StringView view);
 
-		/**
+			/**
 		 * @brief Turn a view into a null-terminated global string, bypassing SSO
 		 *
 		 * Compared to @ref nullTerminatedGlobalView(StringView) the
 		 * null-terminated copy is always allocated.
 		 */
-		static String nullTerminatedGlobalView(AllocatedInitT, StringView view);
+			static String nullTerminatedGlobalView(AllocatedInitT, StringView view);
 
-		/**
+			/**
 		 * @brief Default constructor
 		 *
 		 * Creates an empty string.
 		 */
-		/*implicit*/ String() noexcept;
+			/*implicit*/ String() noexcept;
 
-		/**
+			/**
 		 * @brief Construct from a string view
 		 *
 		 * Creates a null-terminated owning copy of @p view. Contrary to the
@@ -276,16 +286,16 @@ namespace Death { namespace Containers {
 		 * @cpp nullptr @ce, but only if it's size is zero. Depending on the
 		 * size, it's either stored allocated or in a SSO.
 		 */
-		/*implicit*/ String(StringView view);
-		/** @overload */
-		/*implicit*/ String(ArrayView<const char> view);
-		/* Without these there's ambiguity between StringView / ArrayView and char* */
-		/** @overload */
-		/*implicit*/ String(MutableStringView view);
-		/** @overload */
-		/*implicit*/ String(ArrayView<char> view);
+			/*implicit*/ String(StringView view);
+			/** @overload */
+			/*implicit*/ String(ArrayView<const char> view);
+			/* Without these there's ambiguity between StringView / ArrayView and char* */
+			/** @overload */
+			/*implicit*/ String(MutableStringView view);
+			/** @overload */
+			/*implicit*/ String(ArrayView<char> view);
 
-		/**
+			/**
 		 * @brief Construct from a null-terminated C string
 		 *
 		 * Creates a null-terminated owning copy of @p data. Contrary to the
@@ -294,13 +304,17 @@ namespace Death { namespace Containers {
 		 * Depending on the size, it's either stored allocated or in a SSO.
 		 */
 #ifdef DOXYGEN_GENERATING_OUTPUT
-		/*implicit*/ String(const char* data);
+			/*implicit*/ String(const char* data);
 #else
-		/* To avoid ambiguity in certain cases of passing 0 to overloads that take either a String or std::size_t */
-		template<class T, typename std::enable_if<std::is_convertible<T, const char*>::value && !std::is_convertible<T, std::size_t>::value, int>::type = 0> /*implicit*/ String(T data) : String{nullptr, nullptr, nullptr, data} {}
+			/* To avoid ambiguity in certain cases of passing 0 to overloads that take either a String or std::size_t */
+			template <class T, typename std::enable_if<std::is_convertible<T, const char*>::value && !std::is_convertible<T, std::size_t>::value, int>::type = 0>
+			/*implicit*/ String(T data)
+				: String { nullptr, nullptr, nullptr, data }
+			{
+			}
 #endif
 
-		/**
+			/**
 		 * @brief Construct from a sized C string
 		 *
 		 * Creates a null-terminated owning copy of @p data. Contrary to the
@@ -308,48 +322,48 @@ namespace Death { namespace Containers {
 		 * @cpp nullptr @ce, but only if @p size is zero. Depending on the
 		 * size, it's either stored allocated or in a SSO.
 		 */
-		/*implicit*/ String(const char* data, std::size_t size);
+			/*implicit*/ String(const char* data, std::size_t size);
 
-		/**
+			/**
 		 * @brief Construct from a string view, bypassing SSO
 		 *
 		 * Compared to @ref String(StringView) the data is always allocated.
 		 */
-		explicit String(AllocatedInitT, StringView view);
-		/** @overload */
-		explicit String(AllocatedInitT, ArrayView<const char> view);
-		/* Without these there's ambiguity between StringView / ArrayView and char* */
-		/** @overload */
-		explicit String(AllocatedInitT, MutableStringView view);
-		/** @overload */
-		explicit String(AllocatedInitT, ArrayView<char> view);
+			explicit String(AllocatedInitT, StringView view);
+			/** @overload */
+			explicit String(AllocatedInitT, ArrayView<const char> view);
+			/* Without these there's ambiguity between StringView / ArrayView and char* */
+			/** @overload */
+			explicit String(AllocatedInitT, MutableStringView view);
+			/** @overload */
+			explicit String(AllocatedInitT, ArrayView<char> view);
 
-		/**
+			/**
 		 * @brief Create a string instance bypassing SSO
 		 *
 		 * If @p other already has allocated data, the data ownership is
 		 * transferred. Otherwise a copy is allocated.
 		 */
-		explicit String(AllocatedInitT, String&& other);
-		/** @overload */
-		explicit String(AllocatedInitT, const String& other);
+			explicit String(AllocatedInitT, String&& other);
+			/** @overload */
+			explicit String(AllocatedInitT, const String& other);
 
-		/**
+			/**
 		 * @brief Construct from a null-terminated C string, bypassing SSO
 		 *
 		 * Compared to @ref String(const char*) the data is always allocated.
 		 */
-		explicit String(AllocatedInitT, const char* data);
+			explicit String(AllocatedInitT, const char* data);
 
-		/**
+			/**
 		 * @brief Construct from a sized C string
 		 *
 		 * Compared to @ref String(const char*, std::size_t) the data is always
 		 * allocated.
 		 */
-		explicit String(AllocatedInitT, const char* data, std::size_t size);
+			explicit String(AllocatedInitT, const char* data, std::size_t size);
 
-		/**
+			/**
 		 * @brief Take ownership of an external data array
 		 * @param data      String. Can't be @cpp nullptr @ce.
 		 * @param size      Size of the string, excluding the null terminator
@@ -375,22 +389,26 @@ namespace Death { namespace Containers {
 		 * effectively means @cpp delete[] nullptr @ce gets called when
 		 * destructing a moved-out instance (which is a no-op).
 		 */
-		explicit String(char* data, std::size_t size, Deleter deleter) noexcept;
+			explicit String(char* data, std::size_t size, Deleter deleter) noexcept;
 
-		/**
+			/**
 		 * @brief Take ownership of an external data array with implicit size
 		 *
 		 * Calculates the size using @ref std::strlen() and calls
 		 * @ref String(char*, std::size_t, Deleter).
 		 */
 #ifdef DOXYGEN_GENERATING_OUTPUT
-		explicit String(char* data, Deleter deleter) noexcept;
+			explicit String(char* data, Deleter deleter) noexcept;
 #else
-		/* Gets ambigous when calling String{ptr, 0}. FFS, zero as null pointerwas deprecated in C++11 already, why is this still a problem?! */
-		template<class T, typename std::enable_if<std::is_convertible<T, Deleter>::value && !std::is_convertible<T, std::size_t>::value, int>::type = 0> String(char* data, T deleter) noexcept : String{deleter, nullptr, data} {}
+			/* Gets ambigous when calling String{ptr, 0}. FFS, zero as null pointerwas deprecated in C++11 already, why is this still a problem?! */
+			template <class T, typename std::enable_if<std::is_convertible<T, Deleter>::value && !std::is_convertible<T, std::size_t>::value, int>::type = 0>
+			String(char* data, T deleter) noexcept
+				: String { deleter, nullptr, data }
+			{
+			}
 #endif
 
-		/**
+			/**
 		 * @brief Take ownership of an immutable external data array
 		 *
 		 * Casts away the @cpp const @ce and delegates to
@@ -400,49 +418,57 @@ namespace Death { namespace Containers {
 		 * copy, it's the user responsibility to avoid mutating the data in any
 		 * way.
 		 */
-		explicit String(const char* data, std::size_t size, Deleter deleter) noexcept : String{const_cast<char*>(data), size, deleter} {}
+			explicit String(const char* data, std::size_t size, Deleter deleter) noexcept
+				: String { const_cast<char*>(data), size, deleter }
+			{
+			}
 
-		/**
+			/**
 		 * @brief Take ownership of an external data array with implicit size
 		 *
 		 * Calculates the size using @ref std::strlen() and calls
 		 * @ref String(const char*, std::size_t, Deleter).
 		 */
 #ifdef DOXYGEN_GENERATING_OUTPUT
-		explicit String(const char* data, Deleter deleter) noexcept;
+			explicit String(const char* data, Deleter deleter) noexcept;
 #else
-		/* Gets ambigous when calling String{ptr, 0}. FFS, zero as null pointer was deprecated in C++11 already, why is this still a problem?! */
-		template<class T, typename std::enable_if<std::is_convertible<T, Deleter>::value && !std::is_convertible<T, std::size_t>::value, int>::type = 0> String(const char* data, T deleter) noexcept : String{deleter, nullptr, const_cast<char*>(data)} {}
+			/* Gets ambigous when calling String{ptr, 0}. FFS, zero as null pointer was deprecated in C++11 already, why is this still a problem?! */
+			template <class T, typename std::enable_if<std::is_convertible<T, Deleter>::value && !std::is_convertible<T, std::size_t>::value, int>::type = 0>
+			String(const char* data, T deleter) noexcept
+				: String { deleter, nullptr, const_cast<char*>(data) }
+			{
+			}
 #endif
 
-		/**
+			/**
 		 * @brief Taking ownership of a null pointer is not allowed
 		 *
 		 * Since the @ref String class provides a guarantee of null-terminated
 		 * strings, @p data *can't* be @cpp nullptr @ce.
 		 */
-		explicit String(std::nullptr_t, std::size_t size, Deleter deleter) = delete;
+			explicit String(std::nullptr_t, std::size_t size, Deleter deleter) = delete;
 
-		/**
+			/**
 		 * @brief Taking ownership of a null pointer is not allowed
 		 *
 		 * Since the @ref String class provides a guarantee of null-terminated
 		 * strings, @p data *can't* be @cpp nullptr @ce.
 		 */
 #ifdef DOXYGEN_GENERATING_OUTPUT
-		explicit String(std::nullptr_t, Deleter deleter) = delete;
+			explicit String(std::nullptr_t, Deleter deleter) = delete;
 #else
-		/* Gets ambigous when calling String{nullptr, 0}. FFS, zero as null pointer was deprecated in C++11 already, why is this still a problem?! */
-		template<class T, typename std::enable_if<std::is_convertible<T, Deleter>::value && !std::is_convertible<T, std::size_t>::value, int>::type = 0> String(std::nullptr_t, T) noexcept = delete;
+			/* Gets ambigous when calling String{nullptr, 0}. FFS, zero as null pointer was deprecated in C++11 already, why is this still a problem?! */
+			template <class T, typename std::enable_if<std::is_convertible<T, Deleter>::value && !std::is_convertible<T, std::size_t>::value, int>::type = 0>
+			String(std::nullptr_t, T) noexcept = delete;
 #endif
 
-		/**
+			/**
 		 * @brief Create a zero-initialized string
 		 * @param size      Size excluding the null terminator
 		 */
-		explicit String(ValueInitT, std::size_t size);
+			explicit String(ValueInitT, std::size_t size);
 
-		/**
+			/**
 		 * @brief Create an uninitialized string
 		 * @param size      Size excluding the null terminator
 		 *
@@ -450,72 +476,76 @@ namespace Death { namespace Containers {
 		 * *does* get initialized to @cpp '\0' @ce. Useful if you're going to
 		 * overwrite the contents anyway.
 		 */
-		explicit String(NoInitT, std::size_t size);
+			explicit String(NoInitT, std::size_t size);
 
-		/**
+			/**
 		 * @brief Create a string initialized to a particular character
 		 * @param size      Size excluding the null terminator
 		 * @param c         Character value
 		 */
-		explicit String(DirectInitT, std::size_t size, char c);
+			explicit String(DirectInitT, std::size_t size, char c);
 
-		/** @brief Construct from an external representation */
-		/* There's no restriction that would disallow creating StringView from e.g. std::string<T>&& because that would break uses like
+			/** @brief Construct from an external representation */
+			/* There's no restriction that would disallow creating StringView from e.g. std::string<T>&& because that would break uses like
 		   `consume(foo());`, where `consume()` expects a view but `foo()` returns a std::vector. Besides that, to simplify the implementation,
 		   there's no const-adding conversion. Instead, the implementer is supposed to add an ArrayViewConverter variant for that. */
-		template<class T, class = decltype(Implementation::StringConverter<typename std::decay<T&&>::type>::from(std::declval<T&&>()))> /*implicit*/ String(T&& other) noexcept : String{Implementation::StringConverter<typename std::decay<T&&>::type>::from(Death::forward<T>(other))} {}
+			template <class T, class = decltype(Implementation::StringConverter<typename std::decay<T&&>::type>::from(std::declval<T&&>()))>
+			/*implicit*/ String(T&& other) noexcept
+				: String { Implementation::StringConverter<typename std::decay<T&&>::type>::from(Death::forward<T>(other)) }
+			{
+			}
 
-		/**
+			/**
 		 * @brief Destructor
 		 *
 		 * Calls @ref deleter() on the owned @ref data(); in case of a SSO does nothing.
 		 */
-		~String();
+			~String();
 
-		/**
+			/**
 		 * @brief Copy constructor
 		 *
 		 * If @p other is a SSO instance, the copy is as well, otherwise a copy is allocated using the default @cpp operator new[] @ce.
 		 * The actual string size isn't taken into account. See @ref Containers-String-usage-sso for more information.
 		 */
-		String(const String& other);
+			String(const String& other);
 
-		/** @brief Move constructor */
-		String(String&& other) noexcept;
+			/** @brief Move constructor */
+			String(String&& other) noexcept;
 
-		/**
+			/**
 		 * @brief Copy assignment
 		 *
 		 * If @p other is a SSO instance, the copy is as well, otherwise a copy is allocated using the default @cpp operator new[] @ce.
 		 * The actual string size isn't taken into account. See @ref Containers-String-usage-sso for more information.
 		 */
-		String& operator=(const String& other);
+			String& operator=(const String& other);
 
-		/** @brief Move assignment */
-		String& operator=(String&& other) noexcept;
+			/** @brief Move assignment */
+			String& operator=(String&& other) noexcept;
 
-		/**
+			/**
 		 * @brief Convert to a const @ref ArrayView
 		 *
 		 * The resulting view has the same size as this string @ref size() ---
 		 * the null terminator is not counted into it.
 		 */
-		/*implicit*/ operator ArrayView<const char>() const noexcept;
-		/** @overload */
-		/*implicit*/ operator ArrayView<const void>() const noexcept;
+			/*implicit*/ operator ArrayView<const char>() const noexcept;
+			/** @overload */
+			/*implicit*/ operator ArrayView<const void>() const noexcept;
 
-		/**
+			/**
 		 * @brief Convert to an @ref ArrayView
 		 *
 		 * The resulting view has the same size as this string @ref size() ---
 		 * the null terminator is not counted into it. Note that with custom
 		 * deleters the returned view is not guaranteed to be actually mutable.
 		 */
-		/*implicit*/ operator ArrayView<char>() noexcept;
-		/** @overload */
-		/*implicit*/ operator ArrayView<void>() noexcept;
+			/*implicit*/ operator ArrayView<char>() noexcept;
+			/** @overload */
+			/*implicit*/ operator ArrayView<void>() noexcept;
 
-		/**
+			/**
 		 * @brief Move-convert to an @ref Array
 		 *
 		 * The data and the corresponding @ref deleter() is transferred to the
@@ -527,15 +557,17 @@ namespace Death { namespace Containers {
 		 * that with custom deleters the array is not guaranteed to be actually
 		 * mutable.
 		 */
-		/*implicit*/ operator Array<char>() &&;
+			/*implicit*/ operator Array<char>() &&;
 
-		/** @brief Convert the string to external representation */
-		/* To simplify the implementation, there's no const-adding conversion. Instead, the implementer is supposed to add an StringViewConverter variant for that. */
-		template<class T, class = decltype(Implementation::StringConverter<T>::to(std::declval<String>()))> /*implicit*/ operator T() const {
-			return Implementation::StringConverter<T>::to(*this);
-		}
+			/** @brief Convert the string to external representation */
+			/* To simplify the implementation, there's no const-adding conversion. Instead, the implementer is supposed to add an StringViewConverter variant for that. */
+			template <class T, class = decltype(Implementation::StringConverter<T>::to(std::declval<String>()))>
+			/*implicit*/ operator T() const
+			{
+				return Implementation::StringConverter<T>::to(*this);
+			}
 
-		/**
+			/**
 		 * @brief Whether the string is non-empty
 		 *
 		 * Returns @cpp true @ce if the string is non-empty, @cpp false @ce
@@ -543,19 +575,20 @@ namespace Death { namespace Containers {
 		 * @ref String can never be @cpp nullptr @ce, so the pointer value
 		 * isn't taken into account here.
 		 */
-		explicit operator bool() const;
+			explicit operator bool() const;
 
-		/**
+			/**
 		 * @brief Whether the string is stored using small string optimization
 		 *
 		 * It's not allowed to call @ref deleter() or @ref release() on a SSO
 		 * instance. See @ref Containers-String-usage-sso for more information.
 		 */
-		bool isSmall() const {
-			return _small.size & Implementation::SmallStringBit;
-		}
+			bool isSmall() const
+			{
+				return _small.size & Implementation::SmallStringBit;
+			}
 
-		/**
+			/**
 		 * @brief View flags
 		 *
 		 * A @ref BasicStringView "StringView" constructed from this instance
@@ -564,20 +597,20 @@ namespace Death { namespace Containers {
 		 * originally created from a global null-terminated view with
 		 * @ref nullTerminatedView() or @ref nullTerminatedGlobalView().
 		 */
-		StringViewFlags viewFlags() const;
+			StringViewFlags viewFlags() const;
 
-		/**
+			/**
 		 * @brief String data
 		 *
 		 * The pointer is always guaranteed to be non-null and the data to be
 		 * null-terminated, however note that the actual string might contain
 		 * null bytes earlier than at the end.
 		 */
-		char* data();
-		/** @overload */
-		const char* data() const;
+			char* data();
+			/** @overload */
+			const char* data() const;
 
-		/**
+			/**
 		 * @brief String deleter
 		 *
 		 * If set to @cpp nullptr @ce, the contents are deleted using standard
@@ -585,71 +618,71 @@ namespace Death { namespace Containers {
 		 * stored using SSO --- see @ref Containers-String-usage-sso for more
 		 * information.
 		 */
-		Deleter deleter() const;
+			Deleter deleter() const;
 
-		/**
+			/**
 		 * @brief Whether the string is empty
 		 */
-		bool empty() const;
+			bool empty() const;
 
-		/**
+			/**
 		 * @brief String size
 		 *
 		 * Excludes the null terminator.
 		 */
-		std::size_t size() const;
+			std::size_t size() const;
 
-		/**
+			/**
 		 * @brief Pointer to the first byte
 		 */
-		char* begin();
-		/** @overload */
-		const char* begin() const;
-		/** @overload */
-		const char* cbegin() const;
+			char* begin();
+			/** @overload */
+			const char* begin() const;
+			/** @overload */
+			const char* cbegin() const;
 
-		/**
+			/**
 		 * @brief Pointer to (one item after) the last byte
 		 */
-		char* end();
-		/** @overload */
-		const char* end() const;
-		/** @overload */
-		const char* cend() const;
+			char* end();
+			/** @overload */
+			const char* end() const;
+			/** @overload */
+			const char* cend() const;
 
-		/**
+			/**
 		 * @brief First byte
 		 *
 		 * Expects there is at least one byte.
 		 */
-		char& front();
-		/** @overload */
-		char front() const;
+			char& front();
+			/** @overload */
+			char front() const;
 
-		/**
+			/**
 		 * @brief Last byte
 		 *
 		 * Expects there is at least one byte.
 		 */
-		char& back();
-		/** @overload */
-		char back() const;
+			char& back();
+			/** @overload */
+			char back() const;
 
-		/** @brief Element access */
-		char& operator[](std::size_t i);
-		/** @overload */
-		char operator[](std::size_t i) const;
+			/** @brief Element access */
+			char& operator[](std::size_t i);
+			/** @overload */
+			char operator[](std::size_t i) const;
 
-		/**
+			/**
 		 * @brief String concatenation
 		 *
 		 * Appends @p other and returns a reference to this string. For joining more
 		 * than one string prefer to use @ref StringView::join() to avoid needless
 		 * temporary allocations.
 		 */
-		String& operator+=(const StringView& other);
+			String& operator+=(const StringView& other);
 
-		/**
+			/**
 		 * @brief View on a slice
 		 *
 		 * Equivalent to @ref BasicStringView::slice(). Both arguments are
@@ -658,15 +691,15 @@ namespace Death { namespace Containers {
 		 * @ref StringViewFlags::NullTerminated set.
 		 * @m_keywords{substr()}
 		 */
-		MutableStringView slice(char* begin, char* end);
-		/** @overload */
-		StringView slice(const char* begin, const char* end) const;
-		/** @overload */
-		MutableStringView slice(std::size_t begin, std::size_t end);
-		/** @overload */
-		StringView slice(std::size_t begin, std::size_t end) const;
+			MutableStringView slice(char* begin, char* end);
+			/** @overload */
+			StringView slice(const char* begin, const char* end) const;
+			/** @overload */
+			MutableStringView slice(std::size_t begin, std::size_t end);
+			/** @overload */
+			StringView slice(std::size_t begin, std::size_t end) const;
 
-		/**
+			/**
 		 * @brief View on a slice of given size
 		 *
 		 * Equivalent to @ref BasicStringView::sliceSize(). Both arguments are
@@ -676,26 +709,30 @@ namespace Death { namespace Containers {
 		 * @m_keywords{substr()}
 		 */
 #ifdef DOXYGEN_GENERATING_OUTPUT
-		MutableStringView sliceSize(char* begin, std::size_t size);
+			MutableStringView sliceSize(char* begin, std::size_t size);
 #else
-		template<class T, typename std::enable_if<std::is_convertible<T, char*>::value && !std::is_convertible<T, std::size_t>::value, int>::type = 0> MutableStringView sliceSize(T begin, std::size_t size) {
-			return sliceSizePointerInternal(begin, size);
-		}
+			template <class T, typename std::enable_if<std::is_convertible<T, char*>::value && !std::is_convertible<T, std::size_t>::value, int>::type = 0>
+			MutableStringView sliceSize(T begin, std::size_t size)
+			{
+				return sliceSizePointerInternal(begin, size);
+			}
 #endif
-		/** @overload */
+			/** @overload */
 #ifdef DOXYGEN_GENERATING_OUTPUT
-		StringView sliceSize(const char* begin, std::size_t size) const;
+			StringView sliceSize(const char* begin, std::size_t size) const;
 #else
-		template<class T, typename std::enable_if<std::is_convertible<T, const char*>::value && !std::is_convertible<T, std::size_t>::value, int>::type = 0> StringView sliceSize(T begin, std::size_t size) const {
-			return sliceSizePointerInternal(begin, size);
-		}
+			template <class T, typename std::enable_if<std::is_convertible<T, const char*>::value && !std::is_convertible<T, std::size_t>::value, int>::type = 0>
+			StringView sliceSize(T begin, std::size_t size) const
+			{
+				return sliceSizePointerInternal(begin, size);
+			}
 #endif
-		/** @overload */
-		MutableStringView sliceSize(std::size_t begin, std::size_t size);
-		/** @overload */
-		StringView sliceSize(std::size_t begin, std::size_t size) const;
+			/** @overload */
+			MutableStringView sliceSize(std::size_t begin, std::size_t size);
+			/** @overload */
+			StringView sliceSize(std::size_t begin, std::size_t size) const;
 
-		/**
+			/**
 		 * @brief View on a prefix until a pointer
 		 *
 		 * Equivalent to @ref BasicStringView::prefix(T*) const. If @p end
@@ -703,175 +740,179 @@ namespace Death { namespace Containers {
 		 * string, the result has @ref StringViewFlags::NullTerminated set.
 		 */
 #ifdef DOXYGEN_GENERATING_OUTPUT
-		MutableStringView prefix(char* end);
+			MutableStringView prefix(char* end);
 #else
-		template<class T, typename std::enable_if<std::is_convertible<T, char*>::value && !std::is_convertible<T, std::size_t>::value, int>::type = 0> MutableStringView prefix(T end) {
-			return prefixPointerInternal(end);
-		}
+			template <class T, typename std::enable_if<std::is_convertible<T, char*>::value && !std::is_convertible<T, std::size_t>::value, int>::type = 0>
+			MutableStringView prefix(T end)
+			{
+				return prefixPointerInternal(end);
+			}
 #endif
-		/** @overload */
+			/** @overload */
 #ifdef DOXYGEN_GENERATING_OUTPUT
-		StringView prefix(const char* end) const;
+			StringView prefix(const char* end) const;
 #else
-		template<class T, typename std::enable_if<std::is_convertible<T, const char*>::value && !std::is_convertible<T, std::size_t>::value, int>::type = 0> StringView prefix(T end) const {
-			return prefixPointerInternal(end);
-		}
+			template <class T, typename std::enable_if<std::is_convertible<T, const char*>::value && !std::is_convertible<T, std::size_t>::value, int>::type = 0>
+			StringView prefix(T end) const
+			{
+				return prefixPointerInternal(end);
+			}
 #endif
 
-		/**
+			/**
 		 * @brief View on a suffix after a pointer
 		 *
 		 * Equivalent to @ref BasicStringView::suffix(T*) const. The result has
 		 * always @ref StringViewFlags::NullTerminated set.
 		 */
-		MutableStringView suffix(char* begin);
-		/** @overload */
-		StringView suffix(const char* begin) const;
+			MutableStringView suffix(char* begin);
+			/** @overload */
+			StringView suffix(const char* begin) const;
 
-		/**
+			/**
 		 * @brief View on the first @p size bytes
 		 *
 		 * Equivalent to @ref BasicStringView::prefix(std::size_t) const. If
 		 * @p size is equal to @ref size(), the result has
 		 * @ref StringViewFlags::NullTerminated set.
 		 */
-		MutableStringView prefix(std::size_t size);
-		/** @overload */
-		StringView prefix(std::size_t size) const;
+			MutableStringView prefix(std::size_t size);
+			/** @overload */
+			StringView prefix(std::size_t size) const;
 
-		/**
+			/**
 		 * @brief View except the first @p size bytes
 		 *
 		 * Equivalent to @ref BasicStringView::exceptPrefix(). The result has
 		 * always @ref StringViewFlags::NullTerminated set.
 		 */
-		MutableStringView exceptPrefix(std::size_t size);
-		/** @overload */
-		StringView exceptPrefix(std::size_t size) const;
+			MutableStringView exceptPrefix(std::size_t size);
+			/** @overload */
+			StringView exceptPrefix(std::size_t size) const;
 
-		/**
+			/**
 		 * @brief View except the last @p size bytes
 		 *
 		 * Equivalent to @ref BasicStringView::exceptSuffix(). If
 		 * @p size is @cpp 0 @ce, the result has
 		 * @ref StringViewFlags::NullTerminated set.
 		 */
-		MutableStringView exceptSuffix(std::size_t size);
-		/** @overload */
-		StringView exceptSuffix(std::size_t size) const;
+			MutableStringView exceptSuffix(std::size_t size);
+			/** @overload */
+			StringView exceptSuffix(std::size_t size) const;
 
-		/**
+			/**
 		 * @brief Split on given character
 		 *
 		 * Equivalent to @ref BasicStringView::split(char) const.
 		 */
-		Array<MutableStringView> split(char delimiter);
-		/** @overload */
-		Array<StringView> split(char delimiter) const;
+			Array<MutableStringView> split(char delimiter);
+			/** @overload */
+			Array<StringView> split(char delimiter) const;
 
-		/**
+			/**
 		 * @brief Split on given substring
 		 *
 		 * Equivalent to @ref BasicStringView::split(StringView) const.
 		 */
-		Array<MutableStringView> split(StringView delimiter);
-		/** @overload */
-		Array<StringView> split(StringView delimiter) const;
+			Array<MutableStringView> split(StringView delimiter);
+			/** @overload */
+			Array<StringView> split(StringView delimiter) const;
 
-		/**
+			/**
 		 * @brief Split on given character, removing empty parts
 		 *
 		 * Equivalent to @ref BasicStringView::splitWithoutEmptyParts(char) const.
 		 */
-		Array<MutableStringView> splitWithoutEmptyParts(char delimiter);
-		/** @overload */
-		Array<StringView> splitWithoutEmptyParts(char delimiter) const;
+			Array<MutableStringView> splitWithoutEmptyParts(char delimiter);
+			/** @overload */
+			Array<StringView> splitWithoutEmptyParts(char delimiter) const;
 
-		/**
+			/**
 		 * @brief Split on any character from given set, removing empty parts
 		 *
 		 * Equivalent to @ref BasicStringView::splitOnAnyWithoutEmptyParts(StringView) const.
 		 */
-		Array<MutableStringView> splitOnAnyWithoutEmptyParts(StringView delimiters);
-		/** @overload */
-		Array<StringView> splitOnAnyWithoutEmptyParts(StringView delimiters) const;
+			Array<MutableStringView> splitOnAnyWithoutEmptyParts(StringView delimiters);
+			/** @overload */
+			Array<StringView> splitOnAnyWithoutEmptyParts(StringView delimiters) const;
 
-		/**
+			/**
 		 * @brief Split on whitespace, removing empty parts
 		 *
 		 * Equivalent to @ref BasicStringView::splitOnWhitespaceWithoutEmptyParts() const.
 		 */
-		Array<MutableStringView> splitOnWhitespaceWithoutEmptyParts();
-		/** @overload */
-		Array<StringView> splitOnWhitespaceWithoutEmptyParts() const;
+			Array<MutableStringView> splitOnWhitespaceWithoutEmptyParts();
+			/** @overload */
+			Array<StringView> splitOnWhitespaceWithoutEmptyParts() const;
 
-		/**
+			/**
 		 * @brief Partition
 		 *
 		 * Equivalent to @ref BasicStringView::partition(char) const. The last returned
 		 * value has always @ref StringViewFlags::NullTerminated set.
 		 */
-		StaticArray<3, MutableStringView> partition(char separator);
-		/** @overload */
-		StaticArray<3, StringView> partition(char separator) const;
+			StaticArray<3, MutableStringView> partition(char separator);
+			/** @overload */
+			StaticArray<3, StringView> partition(char separator) const;
 
-		/**
+			/**
 		 * @brief Partition
 		 *
 		 * Equivalent to @ref BasicStringView::partition(StringView) const. The
 		 * last returned value has always @ref StringViewFlags::NullTerminated
 		 * set.
 		 */
-		StaticArray<3, MutableStringView> partition(StringView separator);
-		/** @overload */
-		StaticArray<3, StringView> partition(StringView separator) const;
+			StaticArray<3, MutableStringView> partition(StringView separator);
+			/** @overload */
+			StaticArray<3, StringView> partition(StringView separator) const;
 
-		/**
+			/**
 		 * @brief Join strings with this view as the delimiter
 		 *
 		 * Equivalent to @ref BasicStringView::join().
 		 */
-		String join(ArrayView<const StringView> strings) const;
-		/** @overload */
-		String join(std::initializer_list<StringView> strings) const;
+			String join(ArrayView<const StringView> strings) const;
+			/** @overload */
+			String join(std::initializer_list<StringView> strings) const;
 
-		/**
+			/**
 		 * @brief Join strings with this view as the delimiter, skipping empty parts
 		 *
 		 * Equivalent to @ref BasicStringView::joinWithoutEmptyParts().
 		 */
-		String joinWithoutEmptyParts(ArrayView<const StringView> strings) const;
-		/** @overload */
-		String joinWithoutEmptyParts(std::initializer_list<StringView> strings) const;
+			String joinWithoutEmptyParts(ArrayView<const StringView> strings) const;
+			/** @overload */
+			String joinWithoutEmptyParts(std::initializer_list<StringView> strings) const;
 
-		/**
+			/**
 		 * @brief Whether the string begins with given prefix
 		 *
 		 * Equivalent to @ref BasicStringView::hasPrefix().
 		 */
-		bool hasPrefix(StringView prefix) const;
-		/** @overload */
-		bool hasPrefix(char prefix) const;
+			bool hasPrefix(StringView prefix) const;
+			/** @overload */
+			bool hasPrefix(char prefix) const;
 
-		/**
+			/**
 		 * @brief Whether the string ends with given suffix
 		 *
 		 * Equivalent to @ref BasicStringView::hasSuffix().
 		 */
-		bool hasSuffix(StringView suffix) const;
-		/** @overload */
-		bool hasSuffix(char suffix) const;
+			bool hasSuffix(StringView suffix) const;
+			/** @overload */
+			bool hasSuffix(char suffix) const;
 
-		/**
+			/**
 		 * @brief View with given prefix stripped
 		 *
 		 * Equivalent to @ref BasicStringView::exceptPrefix().
 		 */
-		MutableStringView exceptPrefix(StringView prefix);
-		/** @overload */
-		StringView exceptPrefix(StringView prefix) const;
+			MutableStringView exceptPrefix(StringView prefix);
+			/** @overload */
+			StringView exceptPrefix(StringView prefix) const;
 
-		/**
+			/**
 		 * @brief Using char literals for prefix stripping is not allowed
 		 *
 		 * To avoid accidentally interpreting a @cpp char @ce literal as a size
@@ -879,25 +920,27 @@ namespace Death { namespace Containers {
 		 * you have to always use a string literal to call this function.
 		 */
 #ifdef DOXYGEN_GENERATING_OUTPUT
-		MutableStringView exceptPrefix(char prefix) = delete;
-		/** @overload */
-		StringView exceptPrefix(char prefix) const = delete;
+			MutableStringView exceptPrefix(char prefix) = delete;
+			/** @overload */
+			StringView exceptPrefix(char prefix) const = delete;
 #else
-		template<class T, typename std::enable_if<std::is_same<typename std::decay<T>::type, char>::value, int>::type = 0> MutableStringView exceptPrefix(T&& prefix) = delete;
-		/** @overload */
-		template<class T, typename std::enable_if<std::is_same<typename std::decay<T>::type, char>::value, int>::type = 0> StringView exceptPrefix(T&& prefix) const = delete;
+			template <class T, typename std::enable_if<std::is_same<typename std::decay<T>::type, char>::value, int>::type = 0>
+			MutableStringView exceptPrefix(T&& prefix) = delete;
+			/** @overload */
+			template <class T, typename std::enable_if<std::is_same<typename std::decay<T>::type, char>::value, int>::type = 0>
+			StringView exceptPrefix(T&& prefix) const = delete;
 #endif
 
-		/**
+			/**
 		 * @brief View with given suffix stripped
 		 *
 		 * Equivalent to @ref BasicStringView::exceptSuffix().
 		 */
-		MutableStringView exceptSuffix(StringView suffix);
-		/** @overload */
-		StringView exceptSuffix(StringView suffix) const;
+			MutableStringView exceptSuffix(StringView suffix);
+			/** @overload */
+			StringView exceptSuffix(StringView suffix) const;
 
-		/**
+			/**
 		 * @brief Using char literals for suffix stripping is not allowed
 		 *
 		 * To avoid accidentally interpreting a @cpp char @ce literal as a size
@@ -905,210 +948,212 @@ namespace Death { namespace Containers {
 		 * you have to always use a string literal to call this function.
 		 */
 #ifdef DOXYGEN_GENERATING_OUTPUT
-		MutableStringView exceptSuffix(char suffix) = delete;
-		/** @overload */
-		StringView exceptSuffix(char suffix) const = delete;
+			MutableStringView exceptSuffix(char suffix) = delete;
+			/** @overload */
+			StringView exceptSuffix(char suffix) const = delete;
 #else
-		template<class T, typename std::enable_if<std::is_same<typename std::decay<T>::type, char>::value, int>::type = 0> MutableStringView exceptSuffix(T&& suffix) = delete;
-		/** @overload */
-		template<class T, typename std::enable_if<std::is_same<typename std::decay<T>::type, char>::value, int>::type = 0> StringView exceptSuffix(T&& suffix) const = delete;
+			template <class T, typename std::enable_if<std::is_same<typename std::decay<T>::type, char>::value, int>::type = 0>
+			MutableStringView exceptSuffix(T&& suffix) = delete;
+			/** @overload */
+			template <class T, typename std::enable_if<std::is_same<typename std::decay<T>::type, char>::value, int>::type = 0>
+			StringView exceptSuffix(T&& suffix) const = delete;
 #endif
 
-		/**
+			/**
 		 * @brief View with given characters trimmed from prefix and suffix
 		 *
 		 * Equivalent to @ref BasicStringView::trimmed(StringView) const.
 		 */
-		MutableStringView trimmed(StringView characters);
-		/** @overload */
-		StringView trimmed(StringView characters) const;
+			MutableStringView trimmed(StringView characters);
+			/** @overload */
+			StringView trimmed(StringView characters) const;
 
-		/**
+			/**
 		 * @brief View with whitespace trimmed from prefix and suffix
 		 *
 		 * Equivalent to @ref BasicStringView::trimmed() const.
 		 */
-		MutableStringView trimmed();
-		/** @overload */
-		StringView trimmed() const;
+			MutableStringView trimmed();
+			/** @overload */
+			StringView trimmed() const;
 
-		/**
+			/**
 		 * @brief View with given characters trimmed from prefix
 		 *
 		 * Equivalent to @ref BasicStringView::trimmedPrefix(StringView) const.
 		 */
-		MutableStringView trimmedPrefix(StringView characters);
-		/** @overload */
-		StringView trimmedPrefix(StringView characters) const;
+			MutableStringView trimmedPrefix(StringView characters);
+			/** @overload */
+			StringView trimmedPrefix(StringView characters) const;
 
-		/**
+			/**
 		 * @brief View with whitespace trimmed from prefix
 		 *
 		 * Equivalent to @ref BasicStringView::trimmedPrefix() const.
 		 */
-		MutableStringView trimmedPrefix();
-		/** @overload */
-		StringView trimmedPrefix() const;
+			MutableStringView trimmedPrefix();
+			/** @overload */
+			StringView trimmedPrefix() const;
 
-		/**
+			/**
 		 * @brief View with given characters trimmed from suffix
 		 *
 		 * Equivalent to @ref BasicStringView::trimmedSuffix(StringView) const.
 		 */
-		MutableStringView trimmedSuffix(StringView characters);
-		/** @overload */
-		StringView trimmedSuffix(StringView characters) const;
+			MutableStringView trimmedSuffix(StringView characters);
+			/** @overload */
+			StringView trimmedSuffix(StringView characters) const;
 
-		/**
+			/**
 		 * @brief View with whitespace trimmed from suffix
 		 *
 		 * Equivalent to @ref BasicStringView::trimmedSuffix() const.
 		 */
-		MutableStringView trimmedSuffix();
-		/** @overload */
-		StringView trimmedSuffix() const;
+			MutableStringView trimmedSuffix();
+			/** @overload */
+			StringView trimmedSuffix() const;
 
-		/**
+			/**
 		 * @brief Find a substring
 		 *
 		 * Equivalent to @ref BasicStringView::find(StringView) const.
 		 */
-		MutableStringView find(StringView substring);
-		/** @overload */
-		StringView find(StringView substring) const;
+			MutableStringView find(StringView substring);
+			/** @overload */
+			StringView find(StringView substring) const;
 
-		/**
+			/**
 		 * @brief Find a substring
 		 *
 		 * Equivalent to @ref BasicStringView::find(char) const, which in turn
 		 * is a specialization of @ref BasicStringView::find(StringView) const.
 		 */
-		MutableStringView find(char character);
-		/** @overload */
-		StringView find(char character) const;
+			MutableStringView find(char character);
+			/** @overload */
+			StringView find(char character) const;
 
-		/**
+			/**
 		 * @brief Find a substring with a custom failure pointer
 		 *
 		 * Equivalent to @ref BasicStringView::findOr(StringView, T*) const.
 		 */
-		MutableStringView findOr(StringView substring, char* fail);
-		/** @overload */
-		StringView findOr(StringView substring, const char* fail) const;
+			MutableStringView findOr(StringView substring, char* fail);
+			/** @overload */
+			StringView findOr(StringView substring, const char* fail) const;
 
-		/**
+			/**
 		 * @brief Find a substring with a custom failure pointer
 		 *
 		 * Equivalent to @ref BasicStringView::findOr(char, T*) const, which in
 		 * turn is a specialization of @ref BasicStringView::findOr(StringView, T*) const.
 		 */
-		MutableStringView findOr(char character, char* fail);
-		/** @overload */
-		StringView findOr(char character, const char* fail) const;
+			MutableStringView findOr(char character, char* fail);
+			/** @overload */
+			StringView findOr(char character, const char* fail) const;
 
-		/**
+			/**
 		 * @brief Find the last occurence of a substring
 		 *
 		 * Equivalent to @ref BasicStringView::findLast(StringView) const.
 		 */
-		MutableStringView findLast(StringView substring);
-		/** @overload */
-		StringView findLast(StringView substring) const;
+			MutableStringView findLast(StringView substring);
+			/** @overload */
+			StringView findLast(StringView substring) const;
 
-		/**
+			/**
 		 * @brief Find the last occurence of a substring
 		 *
 		 * Equivalent to @ref BasicStringView::findLast(char) const, which in
 		 * turn is a specialization of @ref BasicStringView::findLast(StringView) const.
 		 */
-		MutableStringView findLast(char character);
-		/** @overload */
-		StringView findLast(char character) const;
+			MutableStringView findLast(char character);
+			/** @overload */
+			StringView findLast(char character) const;
 
-		/**
+			/**
 		 * @brief Find the last occurence of a substring with a custom failure pointer
 		 *
 		 * Equivalent to @ref BasicStringView::findLastOr(StringView, T*) const.
 		 */
-		MutableStringView findLastOr(StringView substring, char* fail);
-		/** @overload */
-		StringView findLastOr(StringView substring, const char* fail) const;
+			MutableStringView findLastOr(StringView substring, char* fail);
+			/** @overload */
+			StringView findLastOr(StringView substring, const char* fail) const;
 
-		/**
+			/**
 		 * @brief Find the last occurence of a substring with a custom failure pointer
 		 *
 		 * Equivalent to @ref BasicStringView::findLastOr(char, T*) const,
 		 * which in turn is a specialization of @ref BasicStringView::findLastOr(StringView, T*) const.
 		 */
-		MutableStringView findLastOr(char character, char* fail);
-		/** @overload */
-		StringView findLastOr(char character, const char* fail) const;
+			MutableStringView findLastOr(char character, char* fail);
+			/** @overload */
+			StringView findLastOr(char character, const char* fail) const;
 
-		/**
+			/**
 		 * @brief Whether the string contains a substring
 		 *
 		 * Equivalent to @ref BasicStringView::contains(StringView) const.
 		 */
-		bool contains(StringView substring) const;
+			bool contains(StringView substring) const;
 
-		/**
+			/**
 		 * @brief Whether the string contains a character
 		 *
 		 * Equivalent to @ref BasicStringView::contains(char) const.
 		 */
-		bool contains(char character) const;
+			bool contains(char character) const;
 
-		/**
+			/**
 		 * @brief Find any character from given set
 		 *
 		 * Equivalent to @ref BasicStringView::findAny().
 		 */
-		MutableStringView findAny(StringView characters);
-		/** @overload */
-		StringView findAny(StringView characters) const;
+			MutableStringView findAny(StringView characters);
+			/** @overload */
+			StringView findAny(StringView characters) const;
 
-		/**
+			/**
 		 * @brief Find any character from given set with a custom failure pointer
 		 *
 		 * Equivalent to @ref BasicStringView::findAnyOr().
 		 */
-		MutableStringView findAnyOr(StringView characters, char* fail);
-		/** @overload */
-		StringView findAnyOr(StringView characters, const char* fail) const;
+			MutableStringView findAnyOr(StringView characters, char* fail);
+			/** @overload */
+			StringView findAnyOr(StringView characters, const char* fail) const;
 
-		/**
+			/**
 		 * @brief Find the last occurence of any character from given set
 		 *
 		 * Equivalent to @ref BasicStringView::findLastAny().
 		 */
-		MutableStringView findLastAny(StringView characters);
-		/** @overload */
-		StringView findLastAny(StringView characters) const;
+			MutableStringView findLastAny(StringView characters);
+			/** @overload */
+			StringView findLastAny(StringView characters) const;
 
-		/**
+			/**
 		 * @brief Find the last occurence of any character from given set with a custom failure pointer
 		 *
 		 * Equivalent to @ref BasicStringView::findLastAnyOr().
 		 */
-		MutableStringView findLastAnyOr(StringView characters, char* fail);
-		/** @overload */
-		StringView findLastAnyOr(StringView characters, const char* fail) const;
+			MutableStringView findLastAnyOr(StringView characters, char* fail);
+			/** @overload */
+			StringView findLastAnyOr(StringView characters, const char* fail) const;
 
-		/**
+			/**
 		 * @brief Whether the string contains any character from given set
 		 *
 		 * Equivalent to @ref BasicStringView::containsAny().
 		 */
-		bool containsAny(StringView substring) const;
+			bool containsAny(StringView substring) const;
 
-		/**
+			/**
 		 * @brief Count of occurences of given character
 		 *
 		 * Equivalent to @ref BasicStringView::count(char) const.
 		 */
-		std::size_t count(char character) const;
+			std::size_t count(char character) const;
 
-		/**
+			/**
 		 * @brief Release data storage
 		 *
 		 * Returns the data pointer and resets data pointer, size and deleter
@@ -1120,35 +1165,36 @@ namespace Death { namespace Containers {
 		 * appropriate. Note also that with custom deleters the returned
 		 * pointer is not guaranteed to be actually mutable.
 		 */
-		char* release();
+			char* release();
 
-	private:
-		// Delegated to from the (templated) String(const char*). THREE extra nullptr arguments to avoid accidental ambiguous overloads.
-		explicit String(std::nullptr_t, std::nullptr_t, std::nullptr_t, const char* data);
-		// Delegated to from the (templated) String(char*, Deleter). Argument order shuffled together with a null parameter to avoid accidental ambiguous overloads.
-		explicit String(Deleter deleter, std::nullptr_t, char* data) noexcept;
+		private:
+			// Delegated to from the (templated) String(const char*). THREE extra nullptr arguments to avoid accidental ambiguous overloads.
+			explicit String(std::nullptr_t, std::nullptr_t, std::nullptr_t, const char* data);
+			// Delegated to from the (templated) String(char*, Deleter). Argument order shuffled together with a null parameter to avoid accidental ambiguous overloads.
+			explicit String(Deleter deleter, std::nullptr_t, char* data) noexcept;
 
-		void construct(NoInitT, std::size_t size);
-		void construct(const char* data, std::size_t size);
-		void copyConstruct(const String& other);
-		void destruct();
+			void construct(NoInitT, std::size_t size);
+			void construct(const char* data, std::size_t size);
+			void copyConstruct(const String& other);
+			void destruct();
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
-		struct Data {
-			const char* data;
-			std::size_t size;
-		};
+			// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
+			struct Data
+			{
+				const char* data;
+				std::size_t size;
+			};
 #endif
 
-		Data dataInternal() const;
+			Data dataInternal() const;
 
-		MutableStringView sliceSizePointerInternal(char* begin, std::size_t size);
-		StringView sliceSizePointerInternal(const char* begin, std::size_t size) const;
-		MutableStringView prefixPointerInternal(char* end);
-		StringView prefixPointerInternal(const char* end) const;
+			MutableStringView sliceSizePointerInternal(char* begin, std::size_t size);
+			StringView sliceSizePointerInternal(const char* begin, std::size_t size) const;
+			MutableStringView prefixPointerInternal(char* end);
+			StringView prefixPointerInternal(const char* end) const;
 
-		/* Small string optimization. Following size restrictions from
+			/* Small string optimization. Following size restrictions from
 		   StringView (which uses the top two bits for marking global and
 		   null-terminated views), we can use the second highest bit of the
 		   size to denote a small string. The highest bit, marked as G in the
@@ -1204,32 +1250,36 @@ namespace Death { namespace Containers {
 		   The above approach is consistent with StringView, which is the
 		   preferrable solution after all. */
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
-		struct Small {
+			// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
+			struct Small
+			{
 #if defined(DEATH_TARGET_BIG_ENDIAN)
-			unsigned char size;
-			char data[Implementation::SmallStringSize];
+				unsigned char size;
+				char data[Implementation::SmallStringSize];
 #else
-			char data[Implementation::SmallStringSize];
-			unsigned char size;
+				char data[Implementation::SmallStringSize];
+				unsigned char size;
 #endif
-		};
-		struct Large {
+			};
+			struct Large
+			{
 #if defined(DEATH_TARGET_BIG_ENDIAN)
-			std::size_t size;
-			char* data;
-			void(*deleter)(char*, std::size_t);
+				std::size_t size;
+				char* data;
+				void (*deleter)(char*, std::size_t);
 #else
-			char* data;
-			void(*deleter)(char*, std::size_t);
-			std::size_t size;
+				char* data;
+				void (*deleter)(char*, std::size_t);
+				std::size_t size;
+#endif
+			};
+			union
+			{
+				Small _small;
+				Large _large;
+			};
 #endif
 		};
-		union {
-			Small _small;
-			Large _large;
-		};
-#endif
-	};
 
-}}
+	}
+}

@@ -215,14 +215,15 @@ namespace Jazz2::Events
 		_spawnableEvents[type] = { create, preload };
 	}
 
-	template<typename T>
+	template <typename T>
 	void EventSpawner::RegisterSpawnable(EventType type)
 	{
 		_spawnableEvents[type] = { [](const ActorActivationDetails& details) -> std::shared_ptr<ActorBase> {
-			std::shared_ptr<ActorBase> actor = std::make_shared<T>();
-			actor->OnActivated(details);
-			return actor;
-		}, T::Preload };
+									  std::shared_ptr<ActorBase> actor = std::make_shared<T>();
+									  actor->OnActivated(details);
+									  return actor;
+								  },
+			T::Preload };
 	}
 
 	bool EventSpawner::CanSpawn(EventType type) const

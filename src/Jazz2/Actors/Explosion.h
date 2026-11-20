@@ -17,28 +17,29 @@ namespace Jazz2::Actors
 
 	public:
 		/** @brief Explosion effect type */
-		enum class Type {
-			Tiny,				/**< Tiny explosion */
-			TinyBlue,			/**< Tiny blue explosion */
-			TinyDark,			/**< Tiny dark explosion */
-			Small,				/**< Small explosion */
-			SmallDark,			/**< Small dark explosion */
-			Large,				/**< Large explosion */
+		enum class Type
+		{
+			Tiny, /**< Tiny explosion */
+			TinyBlue, /**< Tiny blue explosion */
+			TinyDark, /**< Tiny dark explosion */
+			Small, /**< Small explosion */
+			SmallDark, /**< Small dark explosion */
+			Large, /**< Large explosion */
 
-			SmokeBrown,			/**< Brown smoke */
-			SmokeGray,			/**< Gray smoke */
-			SmokeWhite,			/**< White smoke */
-			SmokePoof,			/**< Smoke poof */
+			SmokeBrown, /**< Brown smoke */
+			SmokeGray, /**< Gray smoke */
+			SmokeWhite, /**< White smoke */
+			SmokePoof, /**< Smoke poof */
 
-			WaterSplash,		/**< Water splash */
+			WaterSplash, /**< Water splash */
 
-			Pepper,				/**< Pepper spray impact */
-			RF,					/**< RF missile explosion */
-			RFUpgraded,			/**< Upgraded RF missile explosion */
+			Pepper, /**< Pepper spray impact */
+			RF, /**< RF missile explosion */
+			RFUpgraded, /**< Upgraded RF missile explosion */
 
-			Generator,			/**< Generator (de)activation effect */
+			Generator, /**< Generator (de)activation effect */
 
-			IceShrapnel,		/**< Ice shrapnel */
+			IceShrapnel, /**< Ice shrapnel */
 		};
 
 		/** @brief Creates a new instance */

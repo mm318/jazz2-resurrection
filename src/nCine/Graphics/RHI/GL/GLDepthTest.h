@@ -33,7 +33,8 @@ namespace nCine::RHI::GL
 		};
 
 		/** @brief Returns whether the depth test is enabled */
-		static bool IsEnabled() {
+		static bool IsEnabled()
+		{
 			return _state.enabled;
 		}
 		/** @brief Enables the depth test */
@@ -42,7 +43,8 @@ namespace nCine::RHI::GL
 		static void Disable();
 
 		/** @brief Returns whether writing to the depth buffer is enabled */
-		static bool IsDepthMaskEnabled() {
+		static bool IsDepthMaskEnabled()
+		{
 			return _state.depthMaskEnabled;
 		}
 		/** @brief Enables writing to the depth buffer */
@@ -51,7 +53,8 @@ namespace nCine::RHI::GL
 		static void DisableDepthMask();
 
 		/** @brief Returns the whole cached depth test state */
-		static State GetState() {
+		static State GetState()
+		{
 			return _state;
 		}
 		/** @brief Restores the whole depth test state */

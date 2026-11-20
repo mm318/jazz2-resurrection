@@ -17,21 +17,31 @@ namespace nCine
 			magnitude and normalization, conjugation, conversion to a rotation @ref Matrix4x4 and
 			construction from an axis and an angle.
 		*/
-		template<class T>
+		template <class T>
 		class Quaternion
 		{
 		public:
 			T X, Y, Z, W;
 
 			constexpr Quaternion() noexcept
-				: X(T(0)), Y(T(0)), Z(T(0)), W(T(1)) {}
-			explicit Quaternion(NoInitT) noexcept {}
+				: X(T(0)), Y(T(0)), Z(T(0)), W(T(1))
+			{
+			}
+			explicit Quaternion(NoInitT) noexcept
+			{
+			}
 			constexpr Quaternion(T x, T y, T z, T w) noexcept
-				: X(x), Y(y), Z(z), W(w) {}
+				: X(x), Y(y), Z(z), W(w)
+			{
+			}
 			explicit Quaternion(const Vector4<T>& v) noexcept
-				: X(v.X), Y(v.Y), Z(v.Z), W(v.W) {}
+				: X(v.X), Y(v.Y), Z(v.Z), W(v.W)
+			{
+			}
 			constexpr Quaternion(const Quaternion& other) noexcept
-				: X(other.X), Y(other.Y), Z(other.Z), W(other.W) {}
+				: X(other.X), Y(other.Y), Z(other.Z), W(other.W)
+			{
+			}
 			Quaternion& operator=(const Quaternion& other);
 
 			void Set(T x, T y, T z, T w);
@@ -99,7 +109,7 @@ namespace nCine
 		/** @brief Quaternion of floats */
 		using Quaternionf = Quaternion<float>;
 
-		template<class T>
+		template <class T>
 		inline Quaternion<T>& Quaternion<T>::operator=(const Quaternion<T>& other)
 		{
 			X = other.X;
@@ -110,7 +120,7 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline void Quaternion<T>::Set(T x, T y, T z, T w)
 		{
 			X = x;
@@ -119,51 +129,51 @@ namespace nCine
 			W = w;
 		}
 
-		template<class T>
+		template <class T>
 		inline T* Quaternion<T>::Data()
 		{
 			return &X;
 		}
 
-		template<class T>
+		template <class T>
 		inline const T* Quaternion<T>::Data() const
 		{
 			return &X;
 		}
 
-		template<class T>
+		template <class T>
 		inline T& Quaternion<T>::operator[](std::size_t index)
 		{
 			DEATH_ASSERT(index < 4);
 			return (&X)[index];
 		}
 
-		template<class T>
+		template <class T>
 		inline const T& Quaternion<T>::operator[](std::size_t index) const
 		{
 			DEATH_ASSERT(index < 4);
 			return (&X)[index];
 		}
 
-		template<class T>
+		template <class T>
 		inline bool Quaternion<T>::operator==(const Quaternion& q) const
 		{
 			return (X == q.X && Y == q.Y && Z == q.Z && W == q.W);
 		}
 
-		template<class T>
+		template <class T>
 		inline bool Quaternion<T>::operator!=(const Quaternion& q) const
 		{
 			return (X != q.X || Y != q.Y || Z != q.Z || W != q.W);
 		}
 
-		template<class T>
+		template <class T>
 		inline Quaternion<T> Quaternion<T>::operator-() const
 		{
 			return Quaternion(-X, -Y, -Z, W);
 		}
 
-		template<class T>
+		template <class T>
 		inline Quaternion<T>& Quaternion<T>::operator+=(const Quaternion& q)
 		{
 			X += q.X;
@@ -174,7 +184,7 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Quaternion<T>& Quaternion<T>::operator-=(const Quaternion& q)
 		{
 			X -= q.X;
@@ -185,7 +195,7 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Quaternion<T>& Quaternion<T>::operator*=(const Quaternion& q)
 		{
 			const Quaternion<T> q0 = *this;
@@ -198,7 +208,7 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Quaternion<T>& Quaternion<T>::operator*=(T s)
 		{
 			X *= s;
@@ -209,7 +219,7 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Quaternion<T>& Quaternion<T>::operator/=(T s)
 		{
 			X /= s;
@@ -220,71 +230,71 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Quaternion<T> Quaternion<T>::operator+(const Quaternion& q) const
 		{
 			return Quaternion(X + q.X,
-							  Y + q.Y,
-							  Z + q.Z,
-							  W + q.W);
+				Y + q.Y,
+				Z + q.Z,
+				W + q.W);
 		}
 
-		template<class T>
+		template <class T>
 		inline Quaternion<T> Quaternion<T>::operator-(const Quaternion& q) const
 		{
 			return Quaternion(X - q.X,
-							  Y - q.Y,
-							  Z - q.Z,
-							  W - q.W);
+				Y - q.Y,
+				Z - q.Z,
+				W - q.W);
 		}
 
-		template<class T>
+		template <class T>
 		inline Quaternion<T> Quaternion<T>::operator*(const Quaternion& q) const
 		{
 			return Quaternion(W * q.X + X * q.W + Y * q.Z - Z * q.Y,
-							  W * q.Y + Y * q.W + Z * q.X - X * q.Z,
-							  W * q.Z + Z * q.W + X * q.Y - Y * q.X,
-							  W * q.W - X * q.X - Y * q.Y - Z * q.Z);
+				W * q.Y + Y * q.W + Z * q.X - X * q.Z,
+				W * q.Z + Z * q.W + X * q.Y - Y * q.X,
+				W * q.W - X * q.X - Y * q.Y - Z * q.Z);
 		}
 
-		template<class T>
+		template <class T>
 		inline Quaternion<T> Quaternion<T>::operator*(T s) const
 		{
 			return Quaternion(X * s,
-							  Y * s,
-							  Z * s,
-							  W * s);
+				Y * s,
+				Z * s,
+				W * s);
 		}
 
-		template<class T>
+		template <class T>
 		inline Quaternion<T> Quaternion<T>::operator/(T s) const
 		{
 			return Quaternion(X / s,
-							  Y / s,
-							  Z / s,
-							  W / s);
+				Y / s,
+				Z / s,
+				W / s);
 		}
 
-		template<class T>
+		template <class T>
 		inline T Quaternion<T>::Magnitude() const
 		{
 			return sqrt(X * X + Y * Y + Z * Z + W * W);
 		}
 
-		template<class T>
+		template <class T>
 		inline T Quaternion<T>::SqrMagnitude() const
 		{
 			return X * X + Y * Y + Z * Z + W * W;
 		}
 
-		template<class T>
+		template <class T>
 		inline Quaternion<T> Quaternion<T>::Normalized() const
 		{
 			const T mag = magnitude();
 			return Quaternion(X / mag, Y / mag, Z / mag, W / mag);
 		}
 
-		template<class T>
+		template <class T>
 		inline Quaternion<T>& Quaternion<T>::Normalize()
 		{
 			const T mag = magnitude();
@@ -297,13 +307,13 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Quaternion<T> Quaternion<T>::Conjugated() const
 		{
 			return Quaternion(-X, -Y, -Z, W);
 		}
 
-		template<class T>
+		template <class T>
 		inline Quaternion<T>& Quaternion<T>::Conjugate()
 		{
 			X = -X;
@@ -313,7 +323,7 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T> Quaternion<T>::ToMatrix4x4() const
 		{
 			const T x2 = X * 2;
@@ -332,53 +342,53 @@ namespace nCine
 			const T zw = W * z2;
 
 			return Matrix4x4<T>(Vector4<T>(1 - (yy + zz), xy + zw, xz - yw, 0),
-								Vector4<T>(xy - zw, 1 - (xx + zz), yz + xw, 0),
-								Vector4<T>(xz + yw, yz - xw, 1 - (xx + yy), 0),
-								Vector4<T>(0, 0, 0, 1));
+				Vector4<T>(xy - zw, 1 - (xx + zz), yz + xw, 0),
+				Vector4<T>(xz + yw, yz - xw, 1 - (xx + yy), 0),
+				Vector4<T>(0, 0, 0, 1));
 		}
 
-		template<class T>
+		template <class T>
 		inline Quaternion<T> Quaternion<T>::FromAxisAngle(T xx, T yy, T zz, T degrees)
 		{
 			const T halfRadians = static_cast<T>(degrees * 0.5f) * (static_cast<T>(Pi) / 180);
 			const T sinus = sin(halfRadians);
 
 			return Quaternion<T>(xx * sinus,
-								 yy * sinus,
-								 zz * sinus,
-								 cos(halfRadians));
+				yy * sinus,
+				zz * sinus,
+				cos(halfRadians));
 		}
 
-		template<class T>
+		template <class T>
 		inline Quaternion<T> Quaternion<T>::FromAxisAngle(const Vector3<T>& axis, T degrees)
 		{
 			return fromAxisAngle(axis.X, axis.Y, axis.Z, degrees);
 		}
 
-		template<class T>
+		template <class T>
 		inline Quaternion<T> Quaternion<T>::FromXAxisAngle(T degrees)
 		{
 			const T halfRadians = static_cast<T>(degrees * 0.5f) * (static_cast<T>(Pi) / 180);
 			return Quaternion<T>(sin(halfRadians), 0, 0, cos(halfRadians));
 		}
 
-		template<class T>
+		template <class T>
 		inline Quaternion<T> Quaternion<T>::FromYAxisAngle(T degrees)
 		{
 			const T halfRadians = static_cast<T>(degrees * 0.5f) * (static_cast<T>(Pi) / 180);
 			return Quaternion<T>(0, sin(halfRadians), 0, cos(halfRadians));
 		}
 
-		template<class T>
+		template <class T>
 		inline Quaternion<T> Quaternion<T>::FromZAxisAngle(T degrees)
 		{
 			const T halfRadians = static_cast<T>(degrees * 0.5f) * (static_cast<T>(Pi) / 180);
 			return Quaternion<T>(0, 0, sin(halfRadians), cos(halfRadians));
 		}
 
-		template<class T>
+		template <class T>
 		const Quaternion<T> Quaternion<T>::Zero(0, 0, 0, 0);
-		template<class T>
+		template <class T>
 		const Quaternion<T> Quaternion<T>::Identity(0, 0, 0, 1);
 	}
 }

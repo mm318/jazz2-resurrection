@@ -13,7 +13,7 @@ namespace Jazz2::Events
 {
 	EventMap::EventMap(Vector2i layoutSize)
 		: _levelHandler(nullptr), _layoutSize(layoutSize), _pitType(PitType::FallForever), _hasRollbackCheckpoint(false), _layoutRows(layoutSize.Y),
-			_spawningTile(-1, -1), _spawningPos(0, 0), _spawningType(EventType::Empty)
+		  _spawningTile(-1, -1), _spawningPos(0, 0), _spawningType(EventType::Empty)
 	{
 	}
 
@@ -250,7 +250,7 @@ namespace Jazz2::Events
 				EventTile* tilePtr = _eventLayout.Find(tileID);
 				if (tilePtr == nullptr) {
 					if (!hasSaved) {
-						continue;		// An empty cell was never active either
+						continue; // An empty cell was never active either
 					}
 					tilePtr = &_eventLayout.Edit(tileID);
 				}
@@ -336,7 +336,7 @@ namespace Jazz2::Events
 			// TODO: Exclude also some modifiers here ?
 			auto& tile = _eventLayout[i];
 			if (tile.Event != EventType::Empty && tile.Event != EventType::Generator && tile.Event != EventType::AreaWeather) {
-				eventSpawner->PreloadEvent(tile.Event, const_cast<std::uint8_t*>(tile.EventParams));	// Read-only there
+				eventSpawner->PreloadEvent(tile.Event, const_cast<std::uint8_t*>(tile.EventParams)); // Read-only there
 			}
 		}
 
@@ -466,7 +466,7 @@ namespace Jazz2::Events
 		// A reader refuses a level with more off-grid events than the 16-bit indices hold, they're counted there before
 		// any is left out
 		static_assert(Formats::LevelFile::MaxOffGridEvents <= std::uint32_t(UINT16_MAX) + 1, "Off-grid event indices are 16-bit");
-		
+
 		_offGridOrder.resize_for_overwrite(_offGridPositions.size());
 		for (std::size_t i = 0; i < _offGridPositions.size(); i++) {
 			_offGridOrder[i] = std::uint16_t(i);
@@ -636,7 +636,7 @@ namespace Jazz2::Events
 		}
 
 		if (x >= 0 && y >= 0 && y < _layoutSize.Y && x < _layoutSize.X) {
-			*eventParams = const_cast<std::uint8_t*>(_eventLayout[x + y * _layoutSize.X].EventParams);	// The callers only read them
+			*eventParams = const_cast<std::uint8_t*>(_eventLayout[x + y * _layoutSize.X].EventParams); // The callers only read them
 			return _eventLayout[x + y * _layoutSize.X].Event;
 		}
 		return EventType::Empty;
@@ -884,8 +884,7 @@ namespace Jazz2::Events
 
 		reader.ReadEvents(_layoutSize.X, _layoutSize.Y, [this, &tileMap, &options, difficultyFlag, &occupiedTiles](std::int32_t x, std::int32_t y, const Formats::EventRecord& event) {
 			// Starts and warp targets aren't kept in the tiles
-			if (event.Type != std::uint16_t(EventType::Empty) && ((event.Flags & Formats::EventRecord::Generator) != 0 ||
-				(event.Type != std::uint16_t(EventType::LevelStart) && event.Type != std::uint16_t(EventType::WarpTarget)))) {
+			if (event.Type != std::uint16_t(EventType::Empty) && ((event.Flags & Formats::EventRecord::Generator) != 0 || (event.Type != std::uint16_t(EventType::LevelStart) && event.Type != std::uint16_t(EventType::WarpTarget)))) {
 				occupiedTiles.set(std::size_t(x) + std::size_t(y) * std::size_t(_layoutSize.X));
 			}
 

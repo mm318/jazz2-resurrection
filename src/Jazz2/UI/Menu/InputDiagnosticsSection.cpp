@@ -122,7 +122,7 @@ namespace Jazz2::UI::Menu
 		char buffer[128];
 		std::size_t length = formatInto(buffer, "{} ({} axes, {} buttons, {} hats)", joyName, numAxes, numButtons, numHats);
 
-		std::size_t joyNameStringLength = _root->MeasureString({buffer, length}).X * 0.05f;
+		std::size_t joyNameStringLength = _root->MeasureString({ buffer, length }).X * 0.05f;
 		float xMultiplier = joyNameStringLength * 0.5f;
 		float easing = Easing::OutElastic(_animation);
 		float x = center.X * 0.4f + (1.0f - easing) * xMultiplier;
@@ -164,27 +164,48 @@ namespace Jazz2::UI::Menu
 
 		MutableStringView bufferView = { buffer, sizeof(buffer) };
 		std::size_t buttonsLength = 0;
-		if (mappedState.IsButtonPressed(ButtonName::A)) AppendPressedButton(bufferView, buttonsLength, "A"_s);
-		if (mappedState.IsButtonPressed(ButtonName::B)) AppendPressedButton(bufferView, buttonsLength, "B"_s);
-		if (mappedState.IsButtonPressed(ButtonName::X)) AppendPressedButton(bufferView, buttonsLength, "X"_s);
-		if (mappedState.IsButtonPressed(ButtonName::Y)) AppendPressedButton(bufferView, buttonsLength, "Y"_s);
-		if (mappedState.IsButtonPressed(ButtonName::LeftBumper)) AppendPressedButton(bufferView, buttonsLength, "LB"_s);
-		if (mappedState.IsButtonPressed(ButtonName::RightBumper)) AppendPressedButton(bufferView, buttonsLength, "RB"_s);
-		if (mappedState.IsButtonPressed(ButtonName::LeftStick)) AppendPressedButton(bufferView, buttonsLength, "LS"_s);
-		if (mappedState.IsButtonPressed(ButtonName::RightStick)) AppendPressedButton(bufferView, buttonsLength, "RS"_s);
-		if (mappedState.IsButtonPressed(ButtonName::Back)) AppendPressedButton(bufferView, buttonsLength, "Back"_s);
-		if (mappedState.IsButtonPressed(ButtonName::Guide)) AppendPressedButton(bufferView, buttonsLength, "Guide"_s);
-		if (mappedState.IsButtonPressed(ButtonName::Start)) AppendPressedButton(bufferView, buttonsLength, "Start"_s);
-		if (mappedState.IsButtonPressed(ButtonName::Up)) AppendPressedButton(bufferView, buttonsLength, "Up"_s);
-		if (mappedState.IsButtonPressed(ButtonName::Down)) AppendPressedButton(bufferView, buttonsLength, "Down"_s);
-		if (mappedState.IsButtonPressed(ButtonName::Left)) AppendPressedButton(bufferView, buttonsLength, "Left"_s);
-		if (mappedState.IsButtonPressed(ButtonName::Right)) AppendPressedButton(bufferView, buttonsLength, "Right"_s);
-		if (mappedState.IsButtonPressed(ButtonName::Misc1)) AppendPressedButton(bufferView, buttonsLength, "Misc1"_s);
-		if (mappedState.IsButtonPressed(ButtonName::Paddle1)) AppendPressedButton(bufferView, buttonsLength, "Paddle1"_s);
-		if (mappedState.IsButtonPressed(ButtonName::Paddle2)) AppendPressedButton(bufferView, buttonsLength, "Paddle2"_s);
-		if (mappedState.IsButtonPressed(ButtonName::Paddle3)) AppendPressedButton(bufferView, buttonsLength, "Paddle3"_s);
-		if (mappedState.IsButtonPressed(ButtonName::Paddle4)) AppendPressedButton(bufferView, buttonsLength, "Paddle4"_s);
-		if (mappedState.IsButtonPressed(ButtonName::Touchpad)) AppendPressedButton(bufferView, buttonsLength, "Touchpad"_s);
+		if (mappedState.IsButtonPressed(ButtonName::A))
+			AppendPressedButton(bufferView, buttonsLength, "A"_s);
+		if (mappedState.IsButtonPressed(ButtonName::B))
+			AppendPressedButton(bufferView, buttonsLength, "B"_s);
+		if (mappedState.IsButtonPressed(ButtonName::X))
+			AppendPressedButton(bufferView, buttonsLength, "X"_s);
+		if (mappedState.IsButtonPressed(ButtonName::Y))
+			AppendPressedButton(bufferView, buttonsLength, "Y"_s);
+		if (mappedState.IsButtonPressed(ButtonName::LeftBumper))
+			AppendPressedButton(bufferView, buttonsLength, "LB"_s);
+		if (mappedState.IsButtonPressed(ButtonName::RightBumper))
+			AppendPressedButton(bufferView, buttonsLength, "RB"_s);
+		if (mappedState.IsButtonPressed(ButtonName::LeftStick))
+			AppendPressedButton(bufferView, buttonsLength, "LS"_s);
+		if (mappedState.IsButtonPressed(ButtonName::RightStick))
+			AppendPressedButton(bufferView, buttonsLength, "RS"_s);
+		if (mappedState.IsButtonPressed(ButtonName::Back))
+			AppendPressedButton(bufferView, buttonsLength, "Back"_s);
+		if (mappedState.IsButtonPressed(ButtonName::Guide))
+			AppendPressedButton(bufferView, buttonsLength, "Guide"_s);
+		if (mappedState.IsButtonPressed(ButtonName::Start))
+			AppendPressedButton(bufferView, buttonsLength, "Start"_s);
+		if (mappedState.IsButtonPressed(ButtonName::Up))
+			AppendPressedButton(bufferView, buttonsLength, "Up"_s);
+		if (mappedState.IsButtonPressed(ButtonName::Down))
+			AppendPressedButton(bufferView, buttonsLength, "Down"_s);
+		if (mappedState.IsButtonPressed(ButtonName::Left))
+			AppendPressedButton(bufferView, buttonsLength, "Left"_s);
+		if (mappedState.IsButtonPressed(ButtonName::Right))
+			AppendPressedButton(bufferView, buttonsLength, "Right"_s);
+		if (mappedState.IsButtonPressed(ButtonName::Misc1))
+			AppendPressedButton(bufferView, buttonsLength, "Misc1"_s);
+		if (mappedState.IsButtonPressed(ButtonName::Paddle1))
+			AppendPressedButton(bufferView, buttonsLength, "Paddle1"_s);
+		if (mappedState.IsButtonPressed(ButtonName::Paddle2))
+			AppendPressedButton(bufferView, buttonsLength, "Paddle2"_s);
+		if (mappedState.IsButtonPressed(ButtonName::Paddle3))
+			AppendPressedButton(bufferView, buttonsLength, "Paddle3"_s);
+		if (mappedState.IsButtonPressed(ButtonName::Paddle4))
+			AppendPressedButton(bufferView, buttonsLength, "Paddle4"_s);
+		if (mappedState.IsButtonPressed(ButtonName::Touchpad))
+			AppendPressedButton(bufferView, buttonsLength, "Touchpad"_s);
 
 		_root->DrawStringShadow({ buffer, buttonsLength }, charOffset, center.X * 0.4f, topLine + 105.0f, IMenuContainer::FontLayer,
 			Alignment::Left, Font::DefaultColor, 0.8f, 0.0f, 4.0f, 4.0f, 0.4f, 0.88f);
@@ -249,7 +270,7 @@ namespace Jazz2::UI::Menu
 			_root->DrawElement(exitName, 0, center.X - 37.0f, hintY + 1.0f,
 				IMenuContainer::MainLayer, Alignment::Center, Colorf::White, 0.9f, 0.9f);
 		}
-		
+
 		_root->DrawStringShadow("+"_s, charOffset, center.X - 28.0f, hintY, IMenuContainer::FontLayer,
 			Alignment::Left, Font::DefaultColor, 0.6f, 0.4f, 0.0f, 0.0f, 0.46f, 0.88f);
 
@@ -260,7 +281,7 @@ namespace Jazz2::UI::Menu
 			_root->DrawElement(startName, 0, center.X - 11.0f, hintY + 1.0f,
 				IMenuContainer::MainLayer, Alignment::Center, Colorf::White, 0.9f, 0.9f);
 		}
-		
+
 		_root->DrawStringShadow("to exit"_s, charOffset, center.X, hintY + 1.0f, IMenuContainer::FontLayer,
 			Alignment::Left, Font::DefaultColor, 0.8f, 0.4f, 0.0f, 0.0f, 0.46f, 0.8f);
 	}

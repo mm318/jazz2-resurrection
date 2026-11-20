@@ -23,7 +23,8 @@ namespace Jazz2::Tiles
 		it, measured with `Tests/Level/LayerProbe.j2as` (see @ref LayerDescription::GetViewCoordinates()). `NORMAL`
 		has no model of its own, it's @ref Default without the speed for a layer that has an auto speed.
 	*/
-	enum class LayerSpeedModel {
+	enum class LayerSpeedModel
+	{
 		/** @brief Default model, as `LAYERSPEEDMODEL::BOTHSPEEDS` --- moves by the speed and the auto speed, with the origin depending on the size of the view */
 		Default,
 		/**
@@ -61,10 +62,11 @@ namespace Jazz2::Tiles
 		of the textured background of a layer of the original game). Any number of layers can be textured or reflections,
 		each is drawn with a texture of its own, made of its tiles.
 	*/
-	enum class LayerRendererType {
-		Default,				/**< Default rendering */
-		Solid,					/**< Solid color rendering */
-		Tinted,					/**< Color-tinted rendering */
+	enum class LayerRendererType
+	{
+		Default, /**< Default rendering */
+		Solid, /**< Solid color rendering */
+		Tinted, /**< Color-tinted rendering */
 		/**
 			X-ray --- the last frame of an animated tile of the layer is its mask frame, shown only where an object is
 			behind it, in the object's silhouette. Elsewhere the tile animates through the frames before it as usual,
@@ -232,7 +234,8 @@ namespace Jazz2::Tiles
 		them: the color of the layer and the color behind it make the color shown, which is mixed over what is behind it
 		as far as @ref LayerDescription::BlendParam is from 0 to 255 (see @ref LayerDescription::FromSpriteMode()).
 	*/
-	enum class LayerBlend : std::uint8_t {
+	enum class LayerBlend : std::uint8_t
+	{
 		/** @brief Drawn as the renderer type draws it */
 		Normal,
 		/** @brief As opaque as @ref LayerDescription::BlendParam is, from 0 to 255 */
@@ -291,7 +294,8 @@ namespace Jazz2::Tiles
 		without one --- the preview of a level made when the level is converted (see @ref Formats::LevelPreview)
 		places the layers this way too.
 	*/
-	struct LayerDescription {
+	struct LayerDescription
+	{
 		/** @brief Hardcoded offset for layer positioning */
 		static constexpr std::int32_t HardcodedOffset = 70;
 		/**
@@ -377,7 +381,8 @@ namespace Jazz2::Tiles
 		 */
 		static bool IsSpriteLayerRenderer(LayerRendererType type);
 		/** @brief Returns `true` if a blend is computed with what is behind the layer, @ref LayerBlend::Darken and those after it */
-		static bool IsBehindBlend(LayerBlend blend) {
+		static bool IsBehindBlend(LayerBlend blend)
+		{
 			return (blend >= LayerBlend::Darken && blend <= LayerBlend::Last);
 		}
 		/**
@@ -385,7 +390,8 @@ namespace Jazz2::Tiles
 		 *
 		 * Only over a color of it (@ref LayerBlend::ChromaKey), or mixed with it by a blend mode (see @ref IsBehindBlend()).
 		 */
-		bool IsKeyedTileLayer() const {
+		bool IsKeyedTileLayer() const
+		{
 			return ((Blend == LayerBlend::ChromaKey || IsBehindBlend(Blend)) && RendererType == LayerRendererType::Default);
 		}
 		/**
@@ -394,9 +400,9 @@ namespace Jazz2::Tiles
 		 * A layer of tiles drawn by @ref IsKeyedTileLayer(), and a textured background drawn translucent, keyed or by a
 		 * blend mode from @ref LayerBlend::Darken on.
 		 */
-		bool ReadsBehind() const {
-			return (IsKeyedTileLayer() || (IsTexturedBackground(RendererType) && (Blend == LayerBlend::Translucent ||
-				Blend == LayerBlend::ChromaKey || IsBehindBlend(Blend))));
+		bool ReadsBehind() const
+		{
+			return (IsKeyedTileLayer() || (IsTexturedBackground(RendererType) && (Blend == LayerBlend::Translucent || Blend == LayerBlend::ChromaKey || IsBehindBlend(Blend))));
 		}
 		/**
 		 * @brief Returns the blend of a sprite mode of JJ2+ (`SPRITE::Mode`) a layer can be drawn with, @ref LayerBlend::Normal for any other
@@ -410,7 +416,8 @@ namespace Jazz2::Tiles
 		 *
 		 * A @ref LayerRendererType::Reflection isn't one, though it takes the tiles of its layer as a texture too.
 		 */
-		static bool IsTexturedBackground(LayerRendererType type) {
+		static bool IsTexturedBackground(LayerRendererType type)
+		{
 			return (type == LayerRendererType::Sky || type == LayerRendererType::Tunnel || type == LayerRendererType::TileMenu ||
 				type == LayerRendererType::Wave || type == LayerRendererType::Cylinder);
 		}
@@ -444,11 +451,13 @@ namespace Jazz2::Tiles
 		 * Multiplied by @ref OriginalAutoSpeedScale, so the layer moves as far each second as there. The auto speed of
 		 * @ref LayerSpeedModel::SpeedMultipliers isn't a speed but where the layer is at the end of the level, it's kept.
 		 */
-		static float FromOriginalAutoSpeed(float autoSpeed, LayerSpeedModel model) {
+		static float FromOriginalAutoSpeed(float autoSpeed, LayerSpeedModel model)
+		{
 			return (model == LayerSpeedModel::SpeedMultipliers ? autoSpeed : autoSpeed * OriginalAutoSpeedScale);
 		}
 		/** @brief Converts an auto speed of a layer back to one of the original game or of JJ2+, see @ref FromOriginalAutoSpeed() */
-		static float ToOriginalAutoSpeed(float autoSpeed, LayerSpeedModel model) {
+		static float ToOriginalAutoSpeed(float autoSpeed, LayerSpeedModel model)
+		{
 			return (model == LayerSpeedModel::SpeedMultipliers ? autoSpeed : autoSpeed / OriginalAutoSpeedScale);
 		}
 

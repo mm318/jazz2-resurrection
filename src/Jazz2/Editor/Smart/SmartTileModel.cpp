@@ -16,9 +16,9 @@
 #include <IO/FileSystem.h>
 
 #if defined(WITH_THREADS) && !defined(DEATH_TARGET_EMSCRIPTEN)
-#	include "../../../nCine/Threading/Thread.h"
-#	include "../../../nCine/Threading/ThreadSync.h"
-#	define SMART_TILES_THREAD
+#include "../../../nCine/Threading/Thread.h"
+#include "../../../nCine/Threading/ThreadSync.h"
+#define SMART_TILES_THREAD
 #endif
 
 #include <algorithm>
@@ -66,8 +66,10 @@ namespace Jazz2::Editor
 			}
 			for (std::size_t i = 0; i < a.size(); i++) {
 				char ca = a[i], cb = b[i];
-				if (ca >= 'A' && ca <= 'Z') ca = char(ca - 'A' + 'a');
-				if (cb >= 'A' && cb <= 'Z') cb = char(cb - 'A' + 'a');
+				if (ca >= 'A' && ca <= 'Z')
+					ca = char(ca - 'A' + 'a');
+				if (cb >= 'A' && cb <= 'Z')
+					cb = char(cb - 'A' + 'a');
 				if (ca != cb) {
 					return false;
 				}
@@ -123,20 +125,24 @@ namespace Jazz2::Editor
 		{
 			SmallVector<std::uint8_t, 0> Data;
 
-			void U8(std::uint8_t value) {
+			void U8(std::uint8_t value)
+			{
 				Data.push_back(value);
 			}
-			void U32(std::uint32_t value) {
+			void U32(std::uint32_t value)
+			{
 				for (std::int32_t i = 0; i < 4; i++) {
 					Data.push_back(std::uint8_t(value >> (i * 8)));
 				}
 			}
-			void U64(std::uint64_t value) {
+			void U64(std::uint64_t value)
+			{
 				for (std::int32_t i = 0; i < 8; i++) {
 					Data.push_back(std::uint8_t(value >> (i * 8)));
 				}
 			}
-			void Text(StringView text) {
+			void Text(StringView text)
+			{
 				U32(std::uint32_t(text.size()));
 				for (char c : text) {
 					Data.push_back(std::uint8_t(c));
@@ -150,17 +156,20 @@ namespace Jazz2::Editor
 			const std::uint8_t* Position;
 			const std::uint8_t* End;
 
-			std::size_t GetRemaining() const {
+			std::size_t GetRemaining() const
+			{
 				return std::size_t(End - Position);
 			}
-			bool U8(std::uint8_t& value) {
+			bool U8(std::uint8_t& value)
+			{
 				if (GetRemaining() < 1) {
 					return false;
 				}
 				value = *Position++;
 				return true;
 			}
-			bool U32(std::uint32_t& value) {
+			bool U32(std::uint32_t& value)
+			{
 				if (GetRemaining() < 4) {
 					return false;
 				}
@@ -171,7 +180,8 @@ namespace Jazz2::Editor
 				Position += 4;
 				return true;
 			}
-			bool U64(std::uint64_t& value) {
+			bool U64(std::uint64_t& value)
+			{
 				if (GetRemaining() < 8) {
 					return false;
 				}
@@ -182,7 +192,8 @@ namespace Jazz2::Editor
 				Position += 8;
 				return true;
 			}
-			bool Text(String& text) {
+			bool Text(String& text)
+			{
 				std::uint32_t length;
 				if (!U32(length) || length > MaxCachePath || GetRemaining() < length) {
 					return false;
@@ -248,7 +259,7 @@ namespace Jazz2::Editor
 		std::unique_ptr<Stream> CacheStream;
 		SmallVector<std::uint8_t, 0> CacheData;
 		std::size_t CacheFilled = 0;
-		CacheReader CacheParser{ nullptr, nullptr };
+		CacheReader CacheParser { nullptr, nullptr };
 		std::uint32_t CacheRecordsLeft = 0;
 
 		// Shared by the thread and the editor, under the lock
@@ -257,7 +268,7 @@ namespace Jazz2::Editor
 		Thread Worker;
 		bool Started = false;
 #endif
-		std::atomic<bool> Cancelled{false};
+		std::atomic<bool> Cancelled { false };
 		SmallVector<Contribution, 0> Outbox;
 		float Progress = 0.0f;
 		bool Done = false;
@@ -433,7 +444,7 @@ namespace Jazz2::Editor
 				}
 				CacheStream = nullptr;
 				CacheData = SmallVector<std::uint8_t, 0>();
-				CacheParser = CacheReader{ nullptr, nullptr };
+				CacheParser = CacheReader { nullptr, nullptr };
 				CacheStage = 3;
 				return true;
 			};
@@ -459,7 +470,7 @@ namespace Jazz2::Editor
 						return false;
 					}
 					CacheStream = nullptr;
-					CacheParser = CacheReader{ CacheData.data(), CacheData.data() + CacheData.size() };
+					CacheParser = CacheReader { CacheData.data(), CacheData.data() + CacheData.size() };
 					std::uint64_t magic;
 					if (!CacheParser.U64(magic) || magic != CacheMagic) {
 						// Another version, it's written anew
@@ -566,8 +577,7 @@ namespace Jazz2::Editor
 			record.Size = std::int64_t(size);
 			record.Time = std::int64_t(time);
 			record.UsesTileSet = (uses != 0);
-			return (!record.UsesTileSet || (readCounts(record.Data.Counts[0], false) && readCounts(record.Data.Counts[1], false) &&
-				readCounts(record.Data.RightPairs, true) && readCounts(record.Data.DownPairs, true)));
+			return (!record.UsesTileSet || (readCounts(record.Data.Counts[0], false) && readCounts(record.Data.Counts[1], false) && readCounts(record.Data.RightPairs, true) && readCounts(record.Data.DownPairs, true)));
 		}
 
 		// Partly written, the records of the cache not looked at yet stay, so they don't have to be read again either
@@ -689,10 +699,10 @@ namespace Jazz2::Editor
 
 	SmartTileModel::SmartTileModel()
 		: _requested(false), _ready(true), _library(nullptr), _progress(0.0f), _levelCount(0), _tileCount(-1), _revision(0),
-			_documentTileBands(0), _documentLearned(false), _documentHasTiles(false), _documentKey(0), _documentPass(false),
-			_documentPassLayer(0), _documentPassBand(0), _documentPassKey(0), _documentFrame(0), _documentFrameMs(0.0f),
-			_patternDirty{}, _sidesDirty{}, _mostUsed{ UINT32_MAX, UINT32_MAX }, _mostUsedDirty{ true, true }, _neighborsDirty(false),
-			_neighborsBuilt(false)
+		  _documentTileBands(0), _documentLearned(false), _documentHasTiles(false), _documentKey(0), _documentPass(false),
+		  _documentPassLayer(0), _documentPassBand(0), _documentPassKey(0), _documentFrame(0), _documentFrameMs(0.0f),
+		  _patternDirty {}, _sidesDirty {}, _mostUsed { UINT32_MAX, UINT32_MAX }, _mostUsedDirty { true, true }, _neighborsDirty(false),
+		  _neighborsBuilt(false)
 	{
 	}
 
@@ -787,7 +797,8 @@ namespace Jazz2::Editor
 			auto* job = static_cast<Job*>(arg);
 			while (!job->Step(1.0e9f)) {
 			}
-		}, _job.get());
+		},
+			_job.get());
 		_job->Started = true;
 #endif
 	}
@@ -1033,9 +1044,11 @@ namespace Jazz2::Editor
 			list.clear();
 			list.reserve(_counts[kind][pattern].size());
 			for (const auto& [tile, count] : _counts[kind][pattern]) {
-				list.push_back(Candidate{ tile, count });
+				list.push_back(Candidate { tile, count });
 			}
-			std::sort(list.begin(), list.end(), [](const Candidate& a, const Candidate& b) { return (a.Count != b.Count ? a.Count > b.Count : a.Tile < b.Tile); });
+			std::sort(list.begin(), list.end(), [](const Candidate& a, const Candidate& b) {
+				return (a.Count != b.Count ? a.Count > b.Count : a.Tile < b.Tile);
+			});
 		}
 		return list;
 	}
@@ -1058,9 +1071,11 @@ namespace Jazz2::Editor
 			list.clear();
 			list.reserve(totals.size());
 			for (const auto& [tile, count] : totals) {
-				list.push_back(Candidate{ tile, count });
+				list.push_back(Candidate { tile, count });
 			}
-			std::sort(list.begin(), list.end(), [](const Candidate& a, const Candidate& b) { return (a.Count != b.Count ? a.Count > b.Count : a.Tile < b.Tile); });
+			std::sort(list.begin(), list.end(), [](const Candidate& a, const Candidate& b) {
+				return (a.Count != b.Count ? a.Count > b.Count : a.Tile < b.Tile);
+			});
 		}
 		return list;
 	}
@@ -1296,9 +1311,11 @@ namespace Jazz2::Editor
 		}
 		SmallVector<Candidate, 0> sorted;
 		for (const auto& [tile, count] : totals) {
-			sorted.push_back(Candidate{ tile, count });
+			sorted.push_back(Candidate { tile, count });
 		}
-		std::sort(sorted.begin(), sorted.end(), [](const Candidate& a, const Candidate& b) { return (a.Count != b.Count ? a.Count > b.Count : a.Tile < b.Tile); });
+		std::sort(sorted.begin(), sorted.end(), [](const Candidate& a, const Candidate& b) {
+			return (a.Count != b.Count ? a.Count > b.Count : a.Tile < b.Tile);
+		});
 		for (const Candidate& candidate : sorted) {
 			if (std::int32_t(result.size()) >= maxCount || float(candidate.Count) < float(sorted[0].Count) * minShare) {
 				break;
@@ -1338,7 +1355,7 @@ namespace Jazz2::Editor
 
 	TileRef SmartTileModel::FromKey(std::uint32_t key)
 	{
-		return TileRef{ std::uint16_t(key & 0xFFFF), TileRef::DefaultTileSet, std::uint8_t((key >> 16) & 0x03) };
+		return TileRef { std::uint16_t(key & 0xFFFF), TileRef::DefaultTileSet, std::uint8_t((key >> 16) & 0x03) };
 	}
 
 	void SmartTileModel::EnsureNeighbors()
@@ -1357,15 +1374,17 @@ namespace Jazz2::Editor
 		}
 		for (const auto& [key, count] : _rightPairs) {
 			std::uint32_t first = std::uint32_t(key >> 32), second = std::uint32_t(key);
-			_neighborsOf[0][first].push_back(Candidate{ second, count });
-			_neighborsOf[1][second].push_back(Candidate{ first, count });
+			_neighborsOf[0][first].push_back(Candidate { second, count });
+			_neighborsOf[1][second].push_back(Candidate { first, count });
 		}
 		for (const auto& [key, count] : _downPairs) {
 			std::uint32_t first = std::uint32_t(key >> 32), second = std::uint32_t(key);
-			_neighborsOf[2][first].push_back(Candidate{ second, count });
-			_neighborsOf[3][second].push_back(Candidate{ first, count });
+			_neighborsOf[2][first].push_back(Candidate { second, count });
+			_neighborsOf[3][second].push_back(Candidate { first, count });
 		}
-		auto byCount = [](const Candidate& a, const Candidate& b) { return (a.Count != b.Count ? a.Count > b.Count : a.Tile < b.Tile); };
+		auto byCount = [](const Candidate& a, const Candidate& b) {
+			return (a.Count != b.Count ? a.Count > b.Count : a.Tile < b.Tile);
+		};
 		for (auto& lists : _neighborsOf) {
 			for (auto& [key, list] : lists) {
 				std::sort(list.begin(), list.end(), byCount);

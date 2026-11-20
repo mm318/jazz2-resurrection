@@ -31,45 +31,172 @@ namespace Jazz2::Editor
 				return "Mouse 5"_s;
 			}
 			switch (key) {
-				case Keys::A: return "A"_s; case Keys::B: return "B"_s; case Keys::C: return "C"_s; case Keys::D: return "D"_s;
-				case Keys::E: return "E"_s; case Keys::F: return "F"_s; case Keys::G: return "G"_s; case Keys::H: return "H"_s;
-				case Keys::I: return "I"_s; case Keys::J: return "J"_s; case Keys::K: return "K"_s; case Keys::L: return "L"_s;
-				case Keys::M: return "M"_s; case Keys::N: return "N"_s; case Keys::O: return "O"_s; case Keys::P: return "P"_s;
-				case Keys::Q: return "Q"_s; case Keys::R: return "R"_s; case Keys::S: return "S"_s; case Keys::T: return "T"_s;
-				case Keys::U: return "U"_s; case Keys::V: return "V"_s; case Keys::W: return "W"_s; case Keys::X: return "X"_s;
-				case Keys::Y: return "Y"_s; case Keys::Z: return "Z"_s;
-				case Keys::D0: return "0"_s; case Keys::D1: return "1"_s; case Keys::D2: return "2"_s; case Keys::D3: return "3"_s;
-				case Keys::D4: return "4"_s; case Keys::D5: return "5"_s; case Keys::D6: return "6"_s; case Keys::D7: return "7"_s;
-				case Keys::D8: return "8"_s; case Keys::D9: return "9"_s;
+				case Keys::A:
+					return "A"_s;
+				case Keys::B:
+					return "B"_s;
+				case Keys::C:
+					return "C"_s;
+				case Keys::D:
+					return "D"_s;
+				case Keys::E:
+					return "E"_s;
+				case Keys::F:
+					return "F"_s;
+				case Keys::G:
+					return "G"_s;
+				case Keys::H:
+					return "H"_s;
+				case Keys::I:
+					return "I"_s;
+				case Keys::J:
+					return "J"_s;
+				case Keys::K:
+					return "K"_s;
+				case Keys::L:
+					return "L"_s;
+				case Keys::M:
+					return "M"_s;
+				case Keys::N:
+					return "N"_s;
+				case Keys::O:
+					return "O"_s;
+				case Keys::P:
+					return "P"_s;
+				case Keys::Q:
+					return "Q"_s;
+				case Keys::R:
+					return "R"_s;
+				case Keys::S:
+					return "S"_s;
+				case Keys::T:
+					return "T"_s;
+				case Keys::U:
+					return "U"_s;
+				case Keys::V:
+					return "V"_s;
+				case Keys::W:
+					return "W"_s;
+				case Keys::X:
+					return "X"_s;
+				case Keys::Y:
+					return "Y"_s;
+				case Keys::Z:
+					return "Z"_s;
+				case Keys::D0:
+					return "0"_s;
+				case Keys::D1:
+					return "1"_s;
+				case Keys::D2:
+					return "2"_s;
+				case Keys::D3:
+					return "3"_s;
+				case Keys::D4:
+					return "4"_s;
+				case Keys::D5:
+					return "5"_s;
+				case Keys::D6:
+					return "6"_s;
+				case Keys::D7:
+					return "7"_s;
+				case Keys::D8:
+					return "8"_s;
+				case Keys::D9:
+					return "9"_s;
 				// The keys of the numeric keypad are keys of their own, they can be given to other actions than the digits
-				case Keys::NumPad0: return "Num 0"_s; case Keys::NumPad1: return "Num 1"_s; case Keys::NumPad2: return "Num 2"_s;
-				case Keys::NumPad3: return "Num 3"_s; case Keys::NumPad4: return "Num 4"_s; case Keys::NumPad5: return "Num 5"_s;
-				case Keys::NumPad6: return "Num 6"_s; case Keys::NumPad7: return "Num 7"_s; case Keys::NumPad8: return "Num 8"_s;
-				case Keys::NumPad9: return "Num 9"_s;
-				case Keys::NumPadPeriod: return "Num ."_s; case Keys::NumPadDivide: return "Num /"_s; case Keys::NumPadMultiply: return "Num *"_s;
-				case Keys::F1: return "F1"_s; case Keys::F2: return "F2"_s; case Keys::F3: return "F3"_s; case Keys::F4: return "F4"_s;
-				case Keys::F5: return "F5"_s; case Keys::F6: return "F6"_s; case Keys::F7: return "F7"_s; case Keys::F8: return "F8"_s;
-				case Keys::F9: return "F9"_s; case Keys::F10: return "F10"_s; case Keys::F11: return "F11"_s; case Keys::F12: return "F12"_s;
-				case Keys::Delete: return "Del"_s;
-				case Keys::Backspace: return "Backspace"_s;
-				case Keys::Return: case Keys::NumPadEnter: return "Enter"_s;
-				case Keys::Escape: return "Esc"_s;
-				case Keys::Space: return "Space"_s;
-				case Keys::Tab: return "Tab"_s;
-				case Keys::Home: return "Home"_s;
-				case Keys::End: return "End"_s;
-				case Keys::PageUp: return "PgUp"_s;
-				case Keys::PageDown: return "PgDn"_s;
-				case Keys::Plus: case Keys::NumPadPlus: case Keys::Equals: return "+"_s;
-				case Keys::Minus: case Keys::NumPadMinus: return "-"_s;
+				case Keys::NumPad0:
+					return "Num 0"_s;
+				case Keys::NumPad1:
+					return "Num 1"_s;
+				case Keys::NumPad2:
+					return "Num 2"_s;
+				case Keys::NumPad3:
+					return "Num 3"_s;
+				case Keys::NumPad4:
+					return "Num 4"_s;
+				case Keys::NumPad5:
+					return "Num 5"_s;
+				case Keys::NumPad6:
+					return "Num 6"_s;
+				case Keys::NumPad7:
+					return "Num 7"_s;
+				case Keys::NumPad8:
+					return "Num 8"_s;
+				case Keys::NumPad9:
+					return "Num 9"_s;
+				case Keys::NumPadPeriod:
+					return "Num ."_s;
+				case Keys::NumPadDivide:
+					return "Num /"_s;
+				case Keys::NumPadMultiply:
+					return "Num *"_s;
+				case Keys::F1:
+					return "F1"_s;
+				case Keys::F2:
+					return "F2"_s;
+				case Keys::F3:
+					return "F3"_s;
+				case Keys::F4:
+					return "F4"_s;
+				case Keys::F5:
+					return "F5"_s;
+				case Keys::F6:
+					return "F6"_s;
+				case Keys::F7:
+					return "F7"_s;
+				case Keys::F8:
+					return "F8"_s;
+				case Keys::F9:
+					return "F9"_s;
+				case Keys::F10:
+					return "F10"_s;
+				case Keys::F11:
+					return "F11"_s;
+				case Keys::F12:
+					return "F12"_s;
+				case Keys::Delete:
+					return "Del"_s;
+				case Keys::Backspace:
+					return "Backspace"_s;
+				case Keys::Return:
+				case Keys::NumPadEnter:
+					return "Enter"_s;
+				case Keys::Escape:
+					return "Esc"_s;
+				case Keys::Space:
+					return "Space"_s;
+				case Keys::Tab:
+					return "Tab"_s;
+				case Keys::Home:
+					return "Home"_s;
+				case Keys::End:
+					return "End"_s;
+				case Keys::PageUp:
+					return "PgUp"_s;
+				case Keys::PageDown:
+					return "PgDn"_s;
+				case Keys::Plus:
+				case Keys::NumPadPlus:
+				case Keys::Equals:
+					return "+"_s;
+				case Keys::Minus:
+				case Keys::NumPadMinus:
+					return "-"_s;
 				// The comma picks the tile under the pointer in the Multi-Layer Level Editor
-				case Keys::Comma: return ","_s;
-				case Keys::Period: return "."_s;
-				case Keys::Left: return "Left"_s;
-				case Keys::Right: return "Right"_s;
-				case Keys::Up: return "Up"_s;
-				case Keys::Down: return "Down"_s;
-				default: return {};
+				case Keys::Comma:
+					return ","_s;
+				case Keys::Period:
+					return "."_s;
+				case Keys::Left:
+					return "Left"_s;
+				case Keys::Right:
+					return "Right"_s;
+				case Keys::Up:
+					return "Up"_s;
+				case Keys::Down:
+					return "Down"_s;
+				default:
+					return {};
 			}
 		}
 
@@ -79,10 +206,15 @@ namespace Jazz2::Editor
 		{
 			auto normalize = [](Keys key) {
 				switch (key) {
-					case Keys::Equals: case Keys::NumPadPlus: return Keys::Plus;
-					case Keys::NumPadMinus: return Keys::Minus;
-					case Keys::NumPadEnter: return Keys::Return;
-					default: return key;
+					case Keys::Equals:
+					case Keys::NumPadPlus:
+						return Keys::Plus;
+					case Keys::NumPadMinus:
+						return Keys::Minus;
+					case Keys::NumPadEnter:
+						return Keys::Return;
+					default:
+						return key;
 				}
 			};
 			return (normalize(a) == normalize(b));
@@ -114,15 +246,22 @@ namespace Jazz2::Editor
 	Keys Shortcut::GetMouseButtonKey(MouseButton button)
 	{
 		switch (button) {
-			case MouseButton::Fourth: return Mouse4;
-			case MouseButton::Fifth: return Mouse5;
-			default: return Keys::Unknown;
+			case MouseButton::Fourth:
+				return Mouse4;
+			case MouseButton::Fifth:
+				return Mouse5;
+			default:
+				return Keys::Unknown;
 		}
 	}
 
 	bool Shortcut::Parse(StringView text, Shortcut& result)
 	{
-		struct Prefix { StringView Text; std::int32_t Modifier; };
+		struct Prefix
+		{
+			StringView Text;
+			std::int32_t Modifier;
+		};
 		static const Prefix Prefixes[] = {
 			{ "Ctrl+"_s, KeyMod::Ctrl }, { "Cmd+"_s, KeyMod::Ctrl }, { "Shift+"_s, KeyMod::Shift }, { "Alt+"_s, KeyMod::Alt }
 		};
@@ -459,12 +598,20 @@ namespace Jazz2::Editor
 	void ActionRegistry::ApplyPreset(KeymapPreset preset, SmallVectorImpl<String>* cleared)
 	{
 		// With Alternate the other shortcut of the action is set, the one it has stays
-		struct Binding { const char* Id; Keys Key; std::int32_t Modifiers; bool Alternate; };
+		struct Binding
+		{
+			const char* Id;
+			Keys Key;
+			std::int32_t Modifiers;
+			bool Alternate;
+		};
 		// Like Jazz Creation Station: F flips a tile horizontally and I vertically. The eyedropper leaves I, Alt picks
 		// with any tool anyway. The number keys choose the layers, B grabs a block and Ctrl+E / Shift+E take and place the
 		// event under the pointer as they do by default.
 		static const Binding JcsBindings[] = {
-			{ ActionIds::StampFlipX, Keys::F, 0, false }, { ActionIds::StampFlipY, Keys::I, 0, false }, { ActionIds::ToolEyedropper, Keys::Unknown, 0, false },
+			{ ActionIds::StampFlipX, Keys::F, 0, false },
+			{ ActionIds::StampFlipY, Keys::I, 0, false },
+			{ ActionIds::ToolEyedropper, Keys::Unknown, 0, false },
 		};
 		// Like the Multi-Layer Level Editor, as JCS and: Ctrl+C and Ctrl+X make the selection the brush (it has no other
 		// clipboard), Ctrl+V shows the events, Ctrl+R plays, Ctrl+Shift+R from the pointer, Ctrl+L and Shift+L go
@@ -472,13 +619,19 @@ namespace Jazz2::Editor
 		// too), Backspace makes the brush an empty tile, E chooses an event for the tile under the pointer and M held shows
 		// the masks. It can't turn the stamp, R stays the rectangle.
 		static const Binding MlleBindings[] = {
-			{ ActionIds::EditCopyToBrush, Keys::C, KeyMod::Ctrl, false }, { ActionIds::EditCutToBrush, Keys::X, KeyMod::Ctrl, false },
+			{ ActionIds::EditCopyToBrush, Keys::C, KeyMod::Ctrl, false },
+			{ ActionIds::EditCutToBrush, Keys::X, KeyMod::Ctrl, false },
 			{ ActionIds::ViewEvents, Keys::V, KeyMod::Ctrl, true },
-			{ ActionIds::PlayResume, Keys::R, KeyMod::Ctrl, true }, { ActionIds::PlayHere, Keys::R, KeyMod::Ctrl | KeyMod::Shift, true },
-			{ ActionIds::LayerPrevious, Keys::L, KeyMod::Ctrl, true }, { ActionIds::LayerNext, Keys::L, KeyMod::Shift, true },
-			{ ActionIds::ViewZoomIn, Keys::Plus, KeyMod::Ctrl, true }, { ActionIds::ViewZoomOut, Keys::Minus, KeyMod::Ctrl, true },
-			{ ActionIds::StampPickTile, Keys::Comma, 0, false }, { ActionIds::StampPickTileEvent, Keys::Comma, KeyMod::Shift, false },
-			{ ActionIds::StampBlank, Keys::Backspace, 0, false }, { ActionIds::EventsChooseAtPointer, Keys::E, 0, false },
+			{ ActionIds::PlayResume, Keys::R, KeyMod::Ctrl, true },
+			{ ActionIds::PlayHere, Keys::R, KeyMod::Ctrl | KeyMod::Shift, true },
+			{ ActionIds::LayerPrevious, Keys::L, KeyMod::Ctrl, true },
+			{ ActionIds::LayerNext, Keys::L, KeyMod::Shift, true },
+			{ ActionIds::ViewZoomIn, Keys::Plus, KeyMod::Ctrl, true },
+			{ ActionIds::ViewZoomOut, Keys::Minus, KeyMod::Ctrl, true },
+			{ ActionIds::StampPickTile, Keys::Comma, 0, false },
+			{ ActionIds::StampPickTileEvent, Keys::Comma, KeyMod::Shift, false },
+			{ ActionIds::StampBlank, Keys::Backspace, 0, false },
+			{ ActionIds::EventsChooseAtPointer, Keys::E, 0, false },
 			{ ActionIds::ViewPeekMasks, Keys::M, 0, false },
 		};
 
@@ -533,13 +686,27 @@ namespace Jazz2::Editor
 		std::int32_t problems = 0;
 
 		// Shortcuts written as text are read back the same, in any case of the letters
-		struct ParseCase { const char* Text; Keys Key; std::int32_t Modifiers; };
+		struct ParseCase
+		{
+			const char* Text;
+			Keys Key;
+			std::int32_t Modifiers;
+		};
 		static const ParseCase Cases[] = {
-			{ "Ctrl+S", Keys::S, KeyMod::Ctrl }, { "ctrl+shift+z", Keys::Z, KeyMod::Ctrl | KeyMod::Shift }, { "Ctrl++", Keys::Plus, KeyMod::Ctrl },
-			{ "F5", Keys::F5, 0 }, { "Alt+F5", Keys::F5, KeyMod::Alt }, { "Cmd+O", Keys::O, KeyMod::Ctrl }, { "PgDn", Keys::PageDown, 0 },
-			{ "Num 0", Keys::NumPad0, 0 }, { "ctrl+num 7", Keys::NumPad7, KeyMod::Ctrl }, { "Num *", Keys::NumPadMultiply, 0 },
-			{ ",", Keys::Comma, 0 }, { "Shift+,", Keys::Comma, KeyMod::Shift },
-			{ "Mouse 4", Shortcut::Mouse4, 0 }, { "ctrl+mouse 5", Shortcut::Mouse5, KeyMod::Ctrl },
+			{ "Ctrl+S", Keys::S, KeyMod::Ctrl },
+			{ "ctrl+shift+z", Keys::Z, KeyMod::Ctrl | KeyMod::Shift },
+			{ "Ctrl++", Keys::Plus, KeyMod::Ctrl },
+			{ "F5", Keys::F5, 0 },
+			{ "Alt+F5", Keys::F5, KeyMod::Alt },
+			{ "Cmd+O", Keys::O, KeyMod::Ctrl },
+			{ "PgDn", Keys::PageDown, 0 },
+			{ "Num 0", Keys::NumPad0, 0 },
+			{ "ctrl+num 7", Keys::NumPad7, KeyMod::Ctrl },
+			{ "Num *", Keys::NumPadMultiply, 0 },
+			{ ",", Keys::Comma, 0 },
+			{ "Shift+,", Keys::Comma, KeyMod::Shift },
+			{ "Mouse 4", Shortcut::Mouse4, 0 },
+			{ "ctrl+mouse 5", Shortcut::Mouse5, KeyMod::Ctrl },
 		};
 		for (const ParseCase& c : Cases) {
 			Shortcut shortcut;
@@ -564,11 +731,21 @@ namespace Jazz2::Editor
 
 		// A preset takes the key from what had it before, and starts from the defaults
 		ActionRegistry registry;
-		registry.Add("tool.eyedropper"_s, "Eyedropper"_s, EditorIcon::None, []() {}).Key = { Keys::I, 0 };
-		registry.Add("stamp.flipX"_s, "Flip X"_s, EditorIcon::None, []() {}).Key = { Keys::X, 0 };
-		registry.Add("stamp.flipY"_s, "Flip Y"_s, EditorIcon::None, []() {}).Key = { Keys::Y, 0 };
-		registry.Add("layer.select1"_s, "Layer 1"_s, EditorIcon::None, []() {}).Key = { Keys::D1, 0 };
-		registry.Add("file.save"_s, "Save"_s, EditorIcon::None, []() {}).Key = { Keys::S, KeyMod::Ctrl };
+		registry.Add("tool.eyedropper"_s, "Eyedropper"_s, EditorIcon::None, []() {
+				})
+			.Key = { Keys::I, 0 };
+		registry.Add("stamp.flipX"_s, "Flip X"_s, EditorIcon::None, []() {
+				})
+			.Key = { Keys::X, 0 };
+		registry.Add("stamp.flipY"_s, "Flip Y"_s, EditorIcon::None, []() {
+				})
+			.Key = { Keys::Y, 0 };
+		registry.Add("layer.select1"_s, "Layer 1"_s, EditorIcon::None, []() {
+				})
+			.Key = { Keys::D1, 0 };
+		registry.Add("file.save"_s, "Save"_s, EditorIcon::None, []() {
+				})
+			.Key = { Keys::S, KeyMod::Ctrl };
 		registry.Find("file.save"_s)->WorksWhileTyping = true;
 		registry.CaptureDefaults();
 		SmallVector<String, 4> cleared;
@@ -599,11 +776,18 @@ namespace Jazz2::Editor
 		// one; an action that ignores a key repeating runs once while the key is held
 		{
 			ActionRegistry mlle;
-			mlle.Add(ActionIds::EditCopy, "Copy"_s, EditorIcon::None, []() {}).Key = { Keys::C, KeyMod::Ctrl };
-			mlle.Add(ActionIds::EditCopyToBrush, "Copy into Brush"_s, EditorIcon::None, []() {});
-			mlle.Add(ActionIds::PlayResume, "Play"_s, EditorIcon::None, []() {}).Key = { Keys::F5, 0 };
+			mlle.Add(ActionIds::EditCopy, "Copy"_s, EditorIcon::None, []() {
+				})
+				.Key = { Keys::C, KeyMod::Ctrl };
+			mlle.Add(ActionIds::EditCopyToBrush, "Copy into Brush"_s, EditorIcon::None, []() {
+			});
+			mlle.Add(ActionIds::PlayResume, "Play"_s, EditorIcon::None, []() {
+				})
+				.Key = { Keys::F5, 0 };
 			std::int32_t grabbed = 0;
-			EditorAction& grab = mlle.Add(ActionIds::EditGrabBlock, "Grab Block"_s, EditorIcon::None, [&grabbed]() { grabbed++; });
+			EditorAction& grab = mlle.Add(ActionIds::EditGrabBlock, "Grab Block"_s, EditorIcon::None, [&grabbed]() {
+				grabbed++;
+			});
 			grab.Key = { Keys::B, 0 };
 			grab.IgnoresRepeat = true;
 			mlle.CaptureDefaults();
@@ -627,14 +811,20 @@ namespace Jazz2::Editor
 		// isn't taken from the game
 		ActionRegistry scoped;
 		std::int32_t edited = 0, played = 0;
-		EditorAction& editAction = scoped.Add("view.example"_s, "Edit Action"_s, EditorIcon::None, [&edited]() { edited++; });
+		EditorAction& editAction = scoped.Add("view.example"_s, "Edit Action"_s, EditorIcon::None, [&edited]() {
+			edited++;
+		});
 		editAction.Key = { Keys::F6, 0 };
-		EditorAction& teleport = scoped.Add("play.teleport"_s, "Teleport"_s, EditorIcon::None, [&played]() { played++; });
+		EditorAction& teleport = scoped.Add("play.teleport"_s, "Teleport"_s, EditorIcon::None, [&played]() {
+			played++;
+		});
 		teleport.Key = { Keys::F6, 0 };
 		teleport.Scope = ActionScope::Play;
-		EditorAction& undo = scoped.Add("edit.undo"_s, "Undo"_s, EditorIcon::None, []() {});
+		EditorAction& undo = scoped.Add("edit.undo"_s, "Undo"_s, EditorIcon::None, []() {
+		});
 		undo.Key = { Keys::Z, KeyMod::Ctrl };
-		EditorAction& help = scoped.Add("help.shortcuts"_s, "Shortcuts"_s, EditorIcon::None, []() {});
+		EditorAction& help = scoped.Add("help.shortcuts"_s, "Shortcuts"_s, EditorIcon::None, []() {
+		});
 		help.Key = { Keys::F6, 0 };
 		help.Scope = ActionScope::Both;
 		KeyboardEvent f6;
@@ -658,7 +848,9 @@ namespace Jazz2::Editor
 
 		// A side button of the mouse is passed on as the key that stands for it
 		std::int32_t pressed = 0;
-		EditorAction& byButton = scoped.Add("view.byButton"_s, "By Button"_s, EditorIcon::None, [&pressed]() { pressed++; });
+		EditorAction& byButton = scoped.Add("view.byButton"_s, "By Button"_s, EditorIcon::None, [&pressed]() {
+			pressed++;
+		});
 		byButton.Key = { Shortcut::Mouse4, KeyMod::Shift };
 		KeyboardEvent mouse4;
 		mouse4.Sym = Shortcut::GetMouseButtonKey(MouseButton::Fourth);

@@ -16,10 +16,10 @@ namespace nCine
 
 	Material::Material(RHI::ShaderProgram* program, RHI::Texture* texture)
 		: _isBlendingEnabled(false), _hasOpaqueContentHint(false), _sortKeyDirty(true), _usedTextureUnits(texture != nullptr ? 1 : 0),
-			_srcBlendingFactor(BlendingFactor::SrcAlpha), _destBlendingFactor(BlendingFactor::OneMinusSrcAlpha),
-			_srcAlphaBlendingFactor(BlendingFactor::One), _destAlphaBlendingFactor(BlendingFactor::OneMinusSrcAlpha),
-			_sortKey(0), _shaderChangeCounter(0),
-			_shaderProgramType(ShaderProgramType::Custom), _shaderProgram(program), _uniformsHostBufferSize(0)
+		  _srcBlendingFactor(BlendingFactor::SrcAlpha), _destBlendingFactor(BlendingFactor::OneMinusSrcAlpha),
+		  _srcAlphaBlendingFactor(BlendingFactor::One), _destAlphaBlendingFactor(BlendingFactor::OneMinusSrcAlpha),
+		  _sortKey(0), _shaderChangeCounter(0),
+		  _shaderProgramType(ShaderProgramType::Custom), _shaderProgram(program), _uniformsHostBufferSize(0)
 	{
 		for (std::uint32_t i = 0; i < RHI::Texture::MaxTextureUnits; i++) {
 			_textures[i] = nullptr;
@@ -248,21 +248,36 @@ namespace nCine
 		uint8_t blendingFactorToInt(BlendingFactor blendingFactor)
 		{
 			switch (blendingFactor) {
-				case BlendingFactor::Zero: return 0;
-				case BlendingFactor::One: return 1;
-				case BlendingFactor::SrcColor: return 2;
-				case BlendingFactor::OneMinusSrcColor: return 3;
-				case BlendingFactor::DstColor: return 4;
-				case BlendingFactor::OneMinusDstColor: return 5;
-				case BlendingFactor::SrcAlpha: return 6;
-				case BlendingFactor::OneMinusSrcAlpha: return 7;
-				case BlendingFactor::DstAlpha: return 8;
-				case BlendingFactor::OneMinusDstAlpha: return 9;
-				case BlendingFactor::ConstantColor: return 10;
-				case BlendingFactor::OneMinusConstantColor: return 11;
-				case BlendingFactor::ConstantAlpha: return 12;
-				case BlendingFactor::OneMinusConstantAlpha: return 13;
-				case BlendingFactor::SrcAlphaSaturate: return 14;
+				case BlendingFactor::Zero:
+					return 0;
+				case BlendingFactor::One:
+					return 1;
+				case BlendingFactor::SrcColor:
+					return 2;
+				case BlendingFactor::OneMinusSrcColor:
+					return 3;
+				case BlendingFactor::DstColor:
+					return 4;
+				case BlendingFactor::OneMinusDstColor:
+					return 5;
+				case BlendingFactor::SrcAlpha:
+					return 6;
+				case BlendingFactor::OneMinusSrcAlpha:
+					return 7;
+				case BlendingFactor::DstAlpha:
+					return 8;
+				case BlendingFactor::OneMinusDstAlpha:
+					return 9;
+				case BlendingFactor::ConstantColor:
+					return 10;
+				case BlendingFactor::OneMinusConstantColor:
+					return 11;
+				case BlendingFactor::ConstantAlpha:
+					return 12;
+				case BlendingFactor::OneMinusConstantAlpha:
+					return 13;
+				case BlendingFactor::SrcAlphaSaturate:
+					return 14;
 			}
 			return 0;
 		}

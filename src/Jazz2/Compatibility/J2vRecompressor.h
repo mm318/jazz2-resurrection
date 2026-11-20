@@ -46,7 +46,6 @@ namespace Jazz2::Compatibility
 			palette in effect (256 entries of R, G, B, X), whether the palette changed with this frame (always
 			for the first one), and returns `false` to stop. The frame buffer is reused for the next frame.
 		*/
-		static bool DecodeFrames(StringView sourcePath, Function<bool(const J2vVideoInfo& info, std::int32_t frameIndex,
-			const std::uint8_t* indices, const std::uint8_t* palette, bool paletteChanged)>&& onFrame, J2vVideoInfo* info = nullptr);
+		static bool DecodeFrames(StringView sourcePath, Function<bool(const J2vVideoInfo& info, std::int32_t frameIndex, const std::uint8_t* indices, const std::uint8_t* palette, bool paletteChanged)>&& onFrame, J2vVideoInfo* info = nullptr);
 	};
 }

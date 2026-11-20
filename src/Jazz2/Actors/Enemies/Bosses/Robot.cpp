@@ -13,7 +13,7 @@ namespace Jazz2::Actors::Bosses
 {
 	Robot::Robot()
 		: _state(StateWaiting), _ticks(0.0f), _gaitPhase(0.0f), _gaitBase(FastGaitSpeed), _tickAcc(0.0f), _counter(0), _shots(0),
-			_attackPhase(0), _ballThrown(false), _ballSpeed(0.0f), _deathAcc(0.0f)
+		  _attackPhase(0), _ballThrown(false), _ballSpeed(0.0f), _deathAcc(0.0f)
 	{
 	}
 
@@ -132,8 +132,12 @@ namespace Jazz2::Actors::Bosses
 				}
 				break;
 			}
-			case StateAttacking: UpdateAttack(timeMult); break;
-			case StateDying: UpdateDying(timeMult); break;
+			case StateAttacking:
+				UpdateAttack(timeMult);
+				break;
+			case StateDying:
+				UpdateDying(timeMult);
+				break;
 		}
 	}
 
@@ -306,8 +310,7 @@ namespace Jazz2::Actors::Bosses
 		spikeBall->OnActivated(ActorActivationDetails(
 			_levelHandler,
 			Vector3i((std::int32_t)_pos.X + (IsFacingLeft() ? -16 : 16), (std::int32_t)_pos.Y - 27, _renderer.GetLayer() + 2),
-			spikeBallParams
-		));
+			spikeBallParams));
 		_levelHandler->AddActor(spikeBall);
 	}
 

@@ -10,8 +10,8 @@
 #include "../../nCine/Input/IInputManager.h"
 
 #if defined(DEATH_TARGET_ANDROID)
-#	include "../../nCine/Backends/Android/AndroidApplication.h"
-#	include "../../nCine/Backends/Android/AndroidJniHelper.h"
+#include "../../nCine/Backends/Android/AndroidApplication.h"
+#include "../../nCine/Backends/Android/AndroidJniHelper.h"
 #endif
 
 #include <Containers/StringConcatenable.h>
@@ -19,7 +19,8 @@
 
 namespace Jazz2::UI
 {
-	struct LogLine {
+	struct LogLine
+	{
 		MessageLevel Level;
 		float TimeLeft;
 		FormattedTextBlock Message;
@@ -31,10 +32,11 @@ namespace Jazz2::UI
 	static SmallVector<String, 0> _commandHistory;
 
 	InGameConsole::InGameConsole(LevelHandler* levelHandler)
-		: _levelHandler(levelHandler), _currentLine{}, _textCursor(0), _carretAnim(0.0f), _scrollPos(0), _isVisible(false),
-			_keyboardVisible(false)
+		: _levelHandler(levelHandler), _currentLine {}, _textCursor(0), _carretAnim(0.0f), _scrollPos(0), _isVisible(false),
+		  _keyboardVisible(false)
 #if defined(DEATH_TARGET_ANDROID)
-			, _recalcVisibleBoundsTimeLeft(30.0f)
+		  ,
+		  _recalcVisibleBoundsTimeLeft(30.0f)
 #endif
 	{
 		PruneLogHistory();
@@ -136,7 +138,7 @@ namespace Jazz2::UI
 				Alignment::Left, color, 0.8f, 0.0f, 0.0f, 0.0f);
 
 			// Carret
-			Vector2f textToCursorSize = _smallFont->MeasureString(StringView{_currentLine, _textCursor}, 0.8f);
+			Vector2f textToCursorSize = _smallFont->MeasureString(StringView { _currentLine, _textCursor }, 0.8f);
 			DrawSolid(Vector2f(currentLinePos.X + textToCursorSize.X + 1.0f, currentLinePos.Y - 7.0f), FontLayer + 120, Vector2f(1.0f, 12.0f),
 				Colorf(1.0f, 1.0f, 1.0f, std::clamp(sinApprox(_carretAnim * 0.1f) * 1.4f, 0.0f, 0.8f)), BlendMode::Additive);
 		}
@@ -164,11 +166,23 @@ namespace Jazz2::UI
 
 			Colorf color;
 			switch (line.Level) {
-				default: color = Font::DefaultColor; color.A *= alpha; break;
-				case MessageLevel::Echo: color = Font::DefaultColor; color.A *= alpha; break;
-				case MessageLevel::Debug: color = Colorf(0.36f, 0.44f, 0.35f, 0.5f * sqrtf(alpha)); break;
-				case MessageLevel::Error: color = Colorf(0.6f, 0.41f, 0.40f, 0.5f * sqrtf(alpha)); break;
-				case MessageLevel::Fatal: color = Colorf(0.48f, 0.38f, 0.34f, 0.5f * sqrtf(alpha)); break;
+				default:
+					color = Font::DefaultColor;
+					color.A *= alpha;
+					break;
+				case MessageLevel::Echo:
+					color = Font::DefaultColor;
+					color.A *= alpha;
+					break;
+				case MessageLevel::Debug:
+					color = Colorf(0.36f, 0.44f, 0.35f, 0.5f * sqrtf(alpha));
+					break;
+				case MessageLevel::Error:
+					color = Colorf(0.6f, 0.41f, 0.40f, 0.5f * sqrtf(alpha));
+					break;
+				case MessageLevel::Fatal:
+					color = Colorf(0.48f, 0.38f, 0.34f, 0.5f * sqrtf(alpha));
+					break;
 			}
 
 			std::int32_t charOffset = 0;
@@ -181,7 +195,7 @@ namespace Jazz2::UI
 				std::int32_t charOffset = 0, charOffsetShadow = 0;
 				if constexpr (Font::ShadowsEnabled) {
 					_smallFont->DrawString(this, "›"_s, charOffsetShadow, historyLinePos.X - 13.0f, historyLinePos.Y + 2.0f, FontShadowLayer + 100,
-								Alignment::Left, Colorf(0.0f, 0.0f, 0.0f, 0.3f * sqrtf(alpha)), 0.8f, 0.0f, 0.0f, 0.0f);
+						Alignment::Left, Colorf(0.0f, 0.0f, 0.0f, 0.3f * sqrtf(alpha)), 0.8f, 0.0f, 0.0f, 0.0f);
 				}
 				_smallFont->DrawString(this, "›"_s, charOffset, historyLinePos.X - 13.0f, historyLinePos.Y, FontLayer + 100,
 					Alignment::Left, color, 0.8f, 0.0f, 0.0f, 0.0f);
@@ -225,7 +239,7 @@ namespace Jazz2::UI
 				_smallFont->DrawString(this, currentLine, charOffset, 120.0f, topLineY, KeyboardLayer + 12,
 					Alignment::Left, color, 1.0f, 0.0f, 0.0f, 0.0f);
 
-				Vector2f textToCursorSize = _smallFont->MeasureString(StringView{_currentLine, _textCursor}, 1.0f);
+				Vector2f textToCursorSize = _smallFont->MeasureString(StringView { _currentLine, _textCursor }, 1.0f);
 				DrawSolid(Vector2f(120.0f + textToCursorSize.X + 1.0f, topLineY - 8.0f), KeyboardLayer + 14, Vector2f(1.0f, 14.0f),
 					Colorf(1.0f, 1.0f, 1.0f, std::clamp(sinApprox(_carretAnim * 0.1f) * 1.4f, 0.0f, 0.8f)), BlendMode::Additive);
 			}
@@ -265,7 +279,7 @@ namespace Jazz2::UI
 					std::size_t lengthAfter = std::strlen(&_currentLine[_textCursor]);
 					std::size_t startPos;
 					if ((event.Mod & KeyMod::Ctrl) != KeyMod::None) {
-						auto found = StringView{_currentLine, _textCursor}.findLastOr(' ', _currentLine);
+						auto found = StringView { _currentLine, _textCursor }.findLastOr(' ', _currentLine);
 						startPos = found.begin() - _currentLine;
 					} else {
 						auto [_, prevPos] = Utf8::PrevChar(_currentLine, _textCursor);
@@ -282,7 +296,7 @@ namespace Jazz2::UI
 					std::size_t lengthAfter = std::strlen(&_currentLine[_textCursor]);
 					std::size_t endPos;
 					if ((event.Mod & KeyMod::Ctrl) != KeyMod::None) {
-						auto found = StringView{&_currentLine[_textCursor]}.findOr(' ', &_currentLine[_textCursor + lengthAfter]);
+						auto found = StringView { &_currentLine[_textCursor] }.findOr(' ', &_currentLine[_textCursor + lengthAfter]);
 						endPos = found.end() - _currentLine;
 					} else {
 						auto [_, nextPos] = Utf8::NextChar(_currentLine, _textCursor);
@@ -514,13 +528,25 @@ namespace Jazz2::UI
 #if defined(DEATH_TRACE)
 		switch (level) {
 			//case MessageLevel::Info: is skipped, because these messages are usually written to the log separately
-			case MessageLevel::Echo: __DEATH_TRACE(TraceLevel::Info, {}, "> │ {}", Font::StripFormatting(line)); break;
+			case MessageLevel::Echo:
+				__DEATH_TRACE(TraceLevel::Info, {}, "> │ {}", Font::StripFormatting(line));
+				break;
 			case MessageLevel::Chat:
-			case MessageLevel::Confirm: __DEATH_TRACE(TraceLevel::Info, {}, "< │ {}", Font::StripFormatting(line)); break;
-			case MessageLevel::Warning: __DEATH_TRACE(TraceLevel::Warning, {}, "< │ {}", Font::StripFormatting(line)); break;
-			case MessageLevel::Error: __DEATH_TRACE(TraceLevel::Error, {}, "< │ {}", Font::StripFormatting(line)); break;
-			case MessageLevel::Assert: __DEATH_TRACE(TraceLevel::Assert, {}, "< │ {}", Font::StripFormatting(line)); break;
-			case MessageLevel::Fatal: __DEATH_TRACE(TraceLevel::Fatal, {}, "< │ {}", Font::StripFormatting(line)); break;
+			case MessageLevel::Confirm:
+				__DEATH_TRACE(TraceLevel::Info, {}, "< │ {}", Font::StripFormatting(line));
+				break;
+			case MessageLevel::Warning:
+				__DEATH_TRACE(TraceLevel::Warning, {}, "< │ {}", Font::StripFormatting(line));
+				break;
+			case MessageLevel::Error:
+				__DEATH_TRACE(TraceLevel::Error, {}, "< │ {}", Font::StripFormatting(line));
+				break;
+			case MessageLevel::Assert:
+				__DEATH_TRACE(TraceLevel::Assert, {}, "< │ {}", Font::StripFormatting(line));
+				break;
+			case MessageLevel::Fatal:
+				__DEATH_TRACE(TraceLevel::Fatal, {}, "< │ {}", Font::StripFormatting(line));
+				break;
 		}
 #endif
 		// The history is shared, nothing of a level that isn't shown goes there

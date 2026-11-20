@@ -177,7 +177,7 @@ namespace Jazz2::Input
 					current[(std::int32_t)PlayerAction::Down].Targets.push_back(CreateTarget(i, AxisName::LeftY));
 					current[(std::int32_t)PlayerAction::Buttstomp].Targets.push_back(CreateTarget(i, AxisName::LeftY));
 				}
-				
+
 				current[(std::int32_t)PlayerAction::Fire].Targets.push_back(CreateTarget(i, FireButton));
 				current[(std::int32_t)PlayerAction::Fire].Targets.push_back(CreateTarget(i, FireShoulder));
 				current[(std::int32_t)PlayerAction::Jump].Targets.push_back(CreateTarget(i, ButtonName::A));
@@ -212,9 +212,7 @@ namespace Jazz2::Input
 							}
 
 							std::uint64_t maskedBits = (1ull << (std::uint32_t)i) | (1ull << (32 + (std::uint32_t)i));
-							if (analogAsButtons && axisValue >= (axisName >= AxisName::LeftTrigger
-									? IInputManager::TriggerButtonDeadZone
-									: ((prevPressedActions & maskedBits) != maskedBits ? IInputManager::AnalogInButtonDeadZone : IInputManager::AnalogOutButtonDeadZone))) {
+							if (analogAsButtons && axisValue >= (axisName >= AxisName::LeftTrigger ? IInputManager::TriggerButtonDeadZone : ((prevPressedActions & maskedBits) != maskedBits ? IInputManager::AnalogInButtonDeadZone : IInputManager::AnalogOutButtonDeadZone))) {
 								result.PressedActions |= maskedBits;
 							}
 
@@ -254,10 +252,18 @@ namespace Jazz2::Input
 								result.PressedActions |= (1ull << (std::uint32_t)i) | (1ull << (32 + (std::uint32_t)i));
 								if (analogAsButtons) {
 									switch ((PlayerAction)i) {
-										case PlayerAction::Left: result.Movement.X = -1.0f; break;
-										case PlayerAction::Right: result.Movement.X = 1.0f; break;
-										case PlayerAction::Up: result.Movement.Y = -1.0f; break;
-										case PlayerAction::Down: result.Movement.Y = 1.0f; break;
+										case PlayerAction::Left:
+											result.Movement.X = -1.0f;
+											break;
+										case PlayerAction::Right:
+											result.Movement.X = 1.0f;
+											break;
+										case PlayerAction::Up:
+											result.Movement.Y = -1.0f;
+											break;
+										case PlayerAction::Down:
+											result.Movement.Y = 1.0f;
+											break;
 									}
 								}
 								break;
@@ -270,10 +276,18 @@ namespace Jazz2::Input
 						result.PressedActions |= (1ull << (std::uint32_t)i);
 						if (analogAsButtons) {
 							switch ((PlayerAction)i) {
-								case PlayerAction::Left: result.Movement.X = -1.0f; break;
-								case PlayerAction::Right: result.Movement.X = 1.0f; break;
-								case PlayerAction::Up: result.Movement.Y = -1.0f; break;
-								case PlayerAction::Down: result.Movement.Y = 1.0f; break;
+								case PlayerAction::Left:
+									result.Movement.X = -1.0f;
+									break;
+								case PlayerAction::Right:
+									result.Movement.X = 1.0f;
+									break;
+								case PlayerAction::Up:
+									result.Movement.Y = -1.0f;
+									break;
+								case PlayerAction::Down:
+									result.Movement.Y = 1.0f;
+									break;
 							}
 						}
 						break;
@@ -329,8 +343,8 @@ namespace Jazz2::Input
 									axisValue = -axisValue;
 								}
 								if (axisValue >= (axisName >= AxisName::LeftTrigger
-										? IInputManager::TriggerButtonDeadZone
-										: IInputManager::AnalogOutButtonDeadZone)) {
+														 ? IInputManager::TriggerButtonDeadZone
+														 : IInputManager::AnalogOutButtonDeadZone)) {
 									pressedActions |= (1 << (std::uint32_t)i);
 								}
 							} else if (i == (std::size_t)PlayerAction::Up || i == (std::size_t)PlayerAction::Down ||

@@ -64,7 +64,7 @@ Declare Sub openmpt_module_ext_destroy(ByVal mod_ext As openmpt_module_ext Ptr)
 /'* \brief Retrieve the openmpt_module handle from an openmpt_module_ext handle.
 
   \param mod_ext The extension module handle to convert
-  \return An equivalent openmpt_module handle to pass to standard libopenmpt functions 
+  \return An equivalent openmpt_module handle to pass to standard libopenmpt functions
   \since 0.3.0
 '/
 Declare Function openmpt_module_ext_get_module(ByVal mod_ext As openmpt_module_ext Ptr) As openmpt_module Ptr

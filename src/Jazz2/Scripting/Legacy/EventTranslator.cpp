@@ -67,7 +67,9 @@ namespace Jazz2::Scripting
 		}
 
 		std::uint32_t word;
-		EventType generatedType; const std::uint8_t* generatedParams; std::uint8_t delay;
+		EventType generatedType;
+		const std::uint8_t* generatedParams;
+		std::uint8_t delay;
 		if (eventMap->GetGeneratorEvent(x, y, generatedType, generatedParams, delay)) {
 			// The generator says the event it spawns and its delay, the event itself has the same parameters
 			std::uint32_t generatedWord = GetEventTranslator().ToOriginal(generatedType, generatedParams);
@@ -199,7 +201,7 @@ namespace Jazz2::Scripting::Legacy
 
 				// The bit joins every group that decides one of its outputs, which merges them into one
 				BitGroup merged = { 1u << bit, outputs };
-				for (std::size_t i = 0; i < probe.Groups.size(); ) {
+				for (std::size_t i = 0; i < probe.Groups.size();) {
 					if ((probe.Groups[i].Outputs & merged.Outputs) != 0) {
 						merged.Bits |= probe.Groups[i].Bits;
 						merged.Outputs |= probe.Groups[i].Outputs;

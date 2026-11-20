@@ -37,7 +37,8 @@ namespace Jazz2::Actors::Collectibles
 		// Turns the coin into the gem a bonus warp makes of it
 		void Transmute();
 
-		std::int32_t GetCoinValue() const {
+		std::int32_t GetCoinValue() const
+		{
 			return (_transmuted ? 0 : (_isGold ? 5 : 1));
 		}
 	};

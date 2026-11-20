@@ -18,32 +18,33 @@
 #include <IO/MemoryStream.h>
 
 #if !defined(DEATH_TARGET_EMSCRIPTEN) && defined(WITH_ONLINE_MULTIPLAYER)
-#	include "../../nCine/Threading/Thread.h"
-#	if defined(DEATH_TARGET_WINDOWS) || defined(WITH_CURL)
-		// WebRequest exists only where it has an HTTP backend (WinHTTP or libcurl), without one the
-		// public-server-list functions below compile to no-ops
-#		include <IO/WebRequest.h>
-#	endif
+#include "../../nCine/Threading/Thread.h"
+#if defined(DEATH_TARGET_WINDOWS) || defined(WITH_CURL)
+// WebRequest exists only where it has an HTTP backend (WinHTTP or libcurl), without one the
+// public-server-list functions below compile to no-ops
+#include <IO/WebRequest.h>
+#endif
 #endif
 
 #if defined(DEATH_TARGET_ANDROID)
-#	include <enet/ifaddrs-android.h>
+#include <enet/ifaddrs-android.h>
 #elif defined(DEATH_TARGET_SWITCH) && ENET_IPV6
 // `ipv6_mreq` is not defined in Switch SDK, but it doesn't work well anyway
-struct ipv6_mreq {
+struct ipv6_mreq
+{
 	struct in6_addr ipv6mr_multiaddr; /* IPv6 multicast address */
-	unsigned int    ipv6mr_interface; /* Interface index */
+	unsigned int ipv6mr_interface; /* Interface index */
 };
 #elif (defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)) && !defined(DEATH_TARGET_EMSCRIPTEN)
-#	include <ifaddrs.h>
-#	include <net/if.h>
+#include <ifaddrs.h>
+#include <net/if.h>
 #elif defined(DEATH_TARGET_WINDOWS)
-#	include <iphlpapi.h>
-#	include <Utf8.h>
+#include <iphlpapi.h>
+#include <Utf8.h>
 #endif
 
 #if defined(DEATH_TARGET_PSP) && defined(WITH_ONLINE_MULTIPLAYER)
-#	include "../../nCine/Backends/Psp/PspNetwork.h"
+#include "../../nCine/Backends/Psp/PspNetwork.h"
 #endif
 
 #include <jsoncpp/json.h>
@@ -67,7 +68,7 @@ namespace Jazz2::Multiplayer
 #if ENET_IPV6
 	static std::int32_t GetDefaultIPv6MulticastIfIndex()
 	{
-#	if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
+#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
 		std::int32_t ifidx = 0;
 		struct ifaddrs* ifaddr;
 		struct ifaddrs* ifa;
@@ -78,8 +79,7 @@ namespace Jazz2::Multiplayer
 					(ifa->ifa_flags & IFF_UP) && !(ifa->ifa_flags & IFF_LOOPBACK) && (ifa->ifa_flags & IFF_MULTICAST)) {
 					ifidx = if_nametoindex(ifa->ifa_name);
 					if (ifidx > 0) {
-						LOGI("Using {} interface \"{}\" ({}) for local discovery", ifa->ifa_addr->sa_family == AF_INET6
-							? "IPv6" : "IPv4", ifa->ifa_name, ifidx);
+						LOGI("Using {} interface \"{}\" ({}) for local discovery", ifa->ifa_addr->sa_family == AF_INET6 ? "IPv6" : "IPv4", ifa->ifa_name, ifidx);
 						break;
 					}
 				}
@@ -91,7 +91,7 @@ namespace Jazz2::Multiplayer
 			ifidx = if_nametoindex("wlan0");
 		}
 		return ifidx;
-#	elif defined(DEATH_TARGET_WINDOWS)
+#elif defined(DEATH_TARGET_WINDOWS)
 		ULONG bufferSize = 0;
 		::GetAdaptersAddresses(AF_INET6, GAA_FLAG_INCLUDE_PREFIX, NULL, NULL, &bufferSize);
 		std::unique_ptr<std::uint8_t[]> buffer = std::make_unique<std::uint8_t[]>(bufferSize);
@@ -110,9 +110,9 @@ namespace Jazz2::Multiplayer
 		}
 		LOGI("No suitable network interface found for local discovery");
 		return 0;
-#	else
+#else
 		return 0;
-#	endif
+#endif
 	}
 #endif
 
@@ -133,7 +133,8 @@ namespace Jazz2::Multiplayer
 	ServerDiscovery::ServerDiscovery(IServerObserver* observer)
 		: _server(nullptr), _observer(observer), _onlineSuccess(false)
 #if defined(DEATH_TARGET_EMSCRIPTEN)
-			, _pendingFetch(nullptr), _refreshTimerId(0)
+		  ,
+		  _pendingFetch(nullptr), _refreshTimerId(0)
 #endif
 	{
 		DEATH_DEBUG_ASSERT(observer != nullptr, "observer is null", );
@@ -239,7 +240,8 @@ namespace Jazz2::Multiplayer
 		if (observer != nullptr && fetch->numBytes > 0) {
 			Json::CharReaderBuilder builder;
 			auto reader = std::unique_ptr<Json::CharReader>(builder.newCharReader());
-			Json::Value doc; std::string errors;
+			Json::Value doc;
+			std::string errors;
 			if (reader->parse(fetch->data, fetch->data + fetch->numBytes, &doc, &errors)) {
 				LOGI("Downloaded public server list with {} entries ({} bytes)",
 					(std::uint32_t)doc["s"].size(), (std::uint32_t)fetch->numBytes);
@@ -294,7 +296,7 @@ namespace Jazz2::Multiplayer
 
 		// TODO: It seems that the callback is triggered only with readyState==4
 		//if (fetch->readyState == 4 /*DONE*/) {
-			emscripten_fetch_close(fetch);
+		emscripten_fetch_close(fetch);
 		//}
 
 		// Schedule next refresh after 60 seconds
@@ -336,16 +338,16 @@ namespace Jazz2::Multiplayer
 
 	ENetSocket ServerDiscovery::TryCreateLocalSocket(const char* multicastAddress, ENetAddress& parsedAddress)
 	{
-#	if ENET_IPV6
+#if ENET_IPV6
 		std::int32_t ifidx = GetDefaultIPv6MulticastIfIndex();
 
 		ENetSocket socket = enet_socket_create(ENET_SOCKET_TYPE_DATAGRAM);
 		if (socket == ENET_SOCKET_NULL) {
-#		if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			std::int32_t error = ::WSAGetLastError();
-#		else
+#else
 			std::int32_t error = errno;
-#		endif
+#endif
 			LOGE("Failed to create socket for local server discovery (error: {})", error);
 			return ENET_SOCKET_NULL;
 		}
@@ -360,11 +362,11 @@ namespace Jazz2::Multiplayer
 			setsockopt(socket, IPPROTO_IPV6, IPV6_MULTICAST_IF, (const char*)&ifidx, sizeof(ifidx)) != 0 ||
 			setsockopt(socket, IPPROTO_IPV6, IPV6_MULTICAST_HOPS, (const char*)&hops, sizeof(hops)) != 0 ||
 			setsockopt(socket, IPPROTO_IPV6, IPV6_MULTICAST_LOOP, (const char*)&on, sizeof(on)) != 0) {
-#		if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			std::int32_t error = ::WSAGetLastError();
-#		else
+#else
 			std::int32_t error = errno;
-#		endif
+#endif
 			LOGE("Failed to enable multicast on socket for local server discovery (error: {})", error);
 			enet_socket_destroy(socket);
 			return ENET_SOCKET_NULL;
@@ -377,11 +379,11 @@ namespace Jazz2::Multiplayer
 		saddr.sin6_addr = in6addr_any;
 
 		if (bind(socket, (struct sockaddr*)&saddr, sizeof(saddr))) {
-#		if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			std::int32_t error = ::WSAGetLastError();
-#		else
+#else
 			std::int32_t error = errno;
-#		endif
+#endif
 			LOGE("Failed to bind socket for local server discovery (error: {})", error);
 			enet_socket_destroy(socket);
 			return ENET_SOCKET_NULL;
@@ -389,11 +391,11 @@ namespace Jazz2::Multiplayer
 
 		std::int32_t result = inet_pton(AF_INET6, multicastAddress, &parsedAddress.host);
 		if (result != 1) {
-#		if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			std::int32_t error = ::WSAGetLastError();
-#		else
+#else
 			std::int32_t error = errno;
-#		endif
+#endif
 			LOGE("Failed to parse multicast address for local server discovery (result: {}, error: {})", result, error);
 			enet_socket_destroy(socket);
 			return ENET_SOCKET_NULL;
@@ -407,16 +409,16 @@ namespace Jazz2::Multiplayer
 		mreq.ipv6mr_interface = ifidx;
 
 		if (setsockopt(socket, IPPROTO_IPV6, IPV6_JOIN_GROUP, (char*)&mreq, sizeof(mreq))) {
-#		if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			std::int32_t error = ::WSAGetLastError();
-#		else
+#else
 			std::int32_t error = errno;
-#		endif
+#endif
 			LOGE("Failed to join multicast group on socket for local server discovery (error: {})", error);
 			enet_socket_destroy(socket);
 			return ENET_SOCKET_NULL;
 		}
-#	else
+#else
 		// The IPv4-only platforms (see ENET_IPV6=0 in the build) have no multicast group to join, so this goes
 		// over the broadcast address instead: everyone binds the discovery port, requests go to
 		// 255.255.255.255 and reach the same link ff02::1 does. A build with IPv6 opens a second socket for
@@ -425,13 +427,13 @@ namespace Jazz2::Multiplayer
 		// IPv4 equivalent to parse, hence it is unused.
 		static_cast<void>(multicastAddress);
 
-#		if defined(DEATH_TARGET_PSP)
+#if defined(DEATH_TARGET_PSP)
 		if (Backends::PspNetwork::IsAdhocActive()) {
 			// In ad hoc mode the group is the announcement - a scan is what finds it (see AdhocScan) - and
 			// every socket is a PDP socket addressed by MAC, so there is no broadcast address to send to
 			return ENET_SOCKET_NULL;
 		}
-#		endif
+#endif
 
 		ENetSocket socket = enet_socket_create(ENET_SOCKET_TYPE_DATAGRAM);
 		if (socket == ENET_SOCKET_NULL) {
@@ -460,12 +462,12 @@ namespace Jazz2::Multiplayer
 		parsedAddress = {};
 		parsedAddress.host = ENET_HOST_BROADCAST;
 		parsedAddress.port = DiscoveryPort;
-#	endif
+#endif
 
 		return socket;
 	}
 
-#	if ENET_IPV6
+#if ENET_IPV6
 	// The IPv4 addresses below live in an ENetAddress in their IPv4-mapped form (::ffff:a.b.c.d), which is the
 	// only shape an address of this family has in an IPv6 build - the last four bytes of the host are the
 	// address the AF_INET socket actually needs
@@ -493,11 +495,11 @@ namespace Jazz2::Multiplayer
 		// which every platform does agree about.
 		ENetSocket socket = ::socket(AF_INET, SOCK_DGRAM, 0);
 		if (socket == ENET_SOCKET_NULL) {
-#		if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			std::int32_t error = ::WSAGetLastError();
-#		else
+#else
 			std::int32_t error = errno;
-#		endif
+#endif
 			LOGW("Failed to create IPv4 socket for local server discovery (error: {})", error);
 			return ENET_SOCKET_NULL;
 		}
@@ -505,11 +507,11 @@ namespace Jazz2::Multiplayer
 		std::int32_t on = 1;
 		if (setsockopt(socket, SOL_SOCKET, SO_REUSEADDR, (const char*)&on, sizeof(on)) != 0 ||
 			setsockopt(socket, SOL_SOCKET, SO_BROADCAST, (const char*)&on, sizeof(on)) != 0) {
-#		if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			std::int32_t error = ::WSAGetLastError();
-#		else
+#else
 			std::int32_t error = errno;
-#		endif
+#endif
 			LOGW("Failed to enable broadcast on IPv4 socket for local server discovery (error: {})", error);
 			enet_socket_destroy(socket);
 			return ENET_SOCKET_NULL;
@@ -522,11 +524,11 @@ namespace Jazz2::Multiplayer
 		saddr.sin_addr.s_addr = INADDR_ANY;
 
 		if (bind(socket, (struct sockaddr*)&saddr, sizeof(saddr))) {
-#		if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			std::int32_t error = ::WSAGetLastError();
-#		else
+#else
 			std::int32_t error = errno;
-#		endif
+#endif
 			LOGW("Failed to bind IPv4 socket for local server discovery (error: {})", error);
 			enet_socket_destroy(socket);
 			return ENET_SOCKET_NULL;
@@ -538,22 +540,22 @@ namespace Jazz2::Multiplayer
 		parsedAddress.port = DiscoveryPort;
 		return socket;
 	}
-#	endif
+#endif
 
 	// An address of a family ENet was not compiled for cannot go through enet_socket_send()/receive(): both
 	// build a sockaddr of ENet's own family. The IPv4 half of discovery therefore does its own two calls, and
 	// on the platforms where ENet is already IPv4 there is nothing to distinguish and the flag does nothing.
 	static std::int32_t SendDiscoveryPacket(ENetSocket socket, const ENetAddress& address, const void* data, std::size_t length, bool ipv4)
 	{
-#	if ENET_IPV6
+#if ENET_IPV6
 		if (ipv4) {
 			struct sockaddr_in sin;
 			SockAddrFromAddressV4(address, sin);
 			return (std::int32_t)sendto(socket, (const char*)data, (int)length, 0, (struct sockaddr*)&sin, sizeof(sin));
 		}
-#	else
+#else
 		static_cast<void>(ipv4);
-#	endif
+#endif
 
 		ENetBuffer sendbuf;
 		sendbuf.data = (void*)data;
@@ -563,23 +565,23 @@ namespace Jazz2::Multiplayer
 
 	static std::int32_t ReceiveDiscoveryPacket(ENetSocket socket, ENetAddress& address, void* data, std::size_t length, bool ipv4)
 	{
-#	if ENET_IPV6
+#if ENET_IPV6
 		if (ipv4) {
 			struct sockaddr_in sin;
-#		if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			int sinLength = sizeof(sin);
-#		else
+#else
 			socklen_t sinLength = sizeof(sin);
-#		endif
+#endif
 			std::int32_t result = (std::int32_t)recvfrom(socket, (char*)data, (int)length, 0, (struct sockaddr*)&sin, &sinLength);
 			if (result > 0) {
 				AddressFromSockAddrV4(sin, address);
 			}
 			return result;
 		}
-#	else
+#else
 		static_cast<void>(ipv4);
-#	endif
+#endif
 
 		ENetBuffer recvbuf;
 		recvbuf.data = data;
@@ -600,18 +602,18 @@ namespace Jazz2::Multiplayer
 		std::size_t length = packet.GetSize();
 		std::int32_t result = SendDiscoveryPacket(socket, address, packet.GetBuffer(), length, ipv4);
 		if (result != (std::int32_t)length) {
-#	if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			std::int32_t error = ::WSAGetLastError();
-#	else
+#else
 			std::int32_t error = errno;
-#	endif
+#endif
 			LOGE("Failed to send local discovery request (result: {}, error: {})", result, error);
 		}
 	}
 
 	void ServerDiscovery::DownloadPublicServerList(IServerObserver* observer)
 	{
-#	if defined(DEATH_TARGET_WINDOWS) || defined(WITH_CURL)
+#if defined(DEATH_TARGET_WINDOWS) || defined(WITH_CURL)
 		LOGD("Downloading public server list…");
 
 		String url = "https://de4th.dev/jazz2/servers?fetch&v=2&d="_s + PreferencesCache::GetDeviceID();
@@ -626,7 +628,8 @@ namespace Jazz2::Multiplayer
 
 			Json::CharReaderBuilder builder;
 			auto reader = std::unique_ptr<Json::CharReader>(builder.newCharReader());
-			Json::Value doc; std::string errors;
+			Json::Value doc;
+			std::string errors;
 			if (reader->parse(buffer.get(), buffer.get() + size, &doc, &errors)) {
 				LOGI("Downloaded public server list with {} entries ({} bytes)", (std::uint32_t)doc["s"].size(), (std::uint32_t)size);
 
@@ -648,7 +651,7 @@ namespace Jazz2::Multiplayer
 						std::int64_t serverFlags = 0;
 						serverItem["h"].get(serverFlags);
 
-						ServerDescription discoveredServer{};
+						ServerDescription discoveredServer {};
 						discoveredServer.Version = version;
 						if (!minVersion.empty() && !maxVersion.empty()) {
 							discoveredServer.MinSupportedVersion = parseVersion(StringView(minVersion));
@@ -660,14 +663,14 @@ namespace Jazz2::Multiplayer
 						discoveredServer.Flags = (std::uint32_t)serverFlags;
 						discoveredServer.CurrentPlayerCount = (std::uint32_t)currentPlayers;
 						discoveredServer.MaxPlayerCount = (std::uint32_t)maxPlayers;
-#	if defined(WITH_WEBSOCKET)
+#if defined(WITH_WEBSOCKET)
 						std::int64_t wsPort = 0;
 						serverItem["w"].get(wsPort);
 						discoveredServer.WsPort = (std::uint16_t)wsPort;
 						bool wsSecure = false;
 						serverItem["wss"].get(wsSecure);
 						discoveredServer.WsSecure = wsSecure;
-#	endif
+#endif
 						LOGD("-\tFound server \"{}\" at {}", discoveredServer.Name, discoveredServer.EndpointString);
 						observer->OnServerFound(Death::move(discoveredServer));
 					}
@@ -678,11 +681,11 @@ namespace Jazz2::Multiplayer
 		} else {
 			LOGE("Failed to download public server list: {}", result.error);
 		}
-#	else
+#else
 		// WebRequest has no HTTP backend on this platform (no WinHTTP, no libcurl), so the public
 		// server list is unreachable - the same availability condition as the update check in Main.cpp
 		static_cast<void>(observer);
-#	endif
+#endif
 	}
 
 	bool ServerDiscovery::ProcessLocalDiscoveryResponses(ENetSocket socket, ServerDescription& discoveredServer, std::int32_t timeoutMs, bool ipv4)
@@ -747,10 +750,10 @@ namespace Jazz2::Multiplayer
 			if (wsPort != 0 && packet.GetSize() - packet.GetPosition() >= 1) {
 				wsFlags = packet.ReadValue<std::uint8_t>();
 			}
-#	if defined(WITH_WEBSOCKET)
+#if defined(WITH_WEBSOCKET)
 			discoveredServer.WsPort = wsPort;
 			discoveredServer.WsSecure = (wsFlags & 0x01) != 0;
-#	endif
+#endif
 			if (packet.GetSize() - packet.GetPosition() >= 2) {
 				discoveredServer.MinSupportedVersion = packet.ReadVariableUint64();
 				discoveredServer.MaxSupportedVersion = packet.ReadVariableUint64();
@@ -818,13 +821,13 @@ namespace Jazz2::Multiplayer
 
 			std::uint32_t flags = 0;
 			if (!serverConfig.ServerPassword.empty()) {
-				flags |= 0x01;	// Password-protected
+				flags |= 0x01; // Password-protected
 			}
 			if (!serverConfig.WhitelistedUniquePlayerIDs.empty()) {
-				flags |= 0x02;	// Whitelisted
+				flags |= 0x02; // Whitelisted
 			}
 			if (serverConfig.ReforgedGameplay) {
-				flags |= 0x04;	// Reforged gameplay
+				flags |= 0x04; // Reforged gameplay
 			}
 			packet.WriteVariableUint32(flags);
 			packet.WriteValue<std::uint8_t>((std::uint8_t)serverConfig.GameMode);
@@ -840,19 +843,19 @@ namespace Jazz2::Multiplayer
 				packet.WriteValue<std::uint8_t>(0);
 			}
 
-#	if defined(WITH_WEBSOCKET)
+#if defined(WITH_WEBSOCKET)
 			packet.WriteValue<std::uint16_t>(serverConfig.WsPort);
 			if (serverConfig.WsPort != 0) {
 				std::uint8_t wsFlags = 0;
 				if (!serverConfig.WsCertPath.empty()) {
-					wsFlags |= 0x01;	// TLS/WSS
+					wsFlags |= 0x01; // TLS/WSS
 				}
 				packet.WriteValue<std::uint8_t>(wsFlags);
 			}
-#	else
+#else
 			// No WebSocket port, written anyway so the version range below is always found at the same place
 			packet.WriteValue<std::uint16_t>(0);
-#	endif
+#endif
 
 			// Appended, so older clients that stop reading earlier are not affected
 			constexpr std::uint64_t minVersion = parseVersion(NCINE_PROTOCOL_VERSION_MIN_s);
@@ -865,11 +868,11 @@ namespace Jazz2::Multiplayer
 			std::size_t length = packet.GetSize();
 			std::int32_t result = SendDiscoveryPacket(socket, address, packet.GetBuffer(), length, ipv4);
 			if (result != (std::int32_t)length) {
-#	if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 				std::int32_t error = ::WSAGetLastError();
-#	else
+#else
 				std::int32_t error = errno;
-#	endif
+#endif
 				LOGE("Failed to send local discovery response (result: {}, error: {})", result, error);
 			}
 		}
@@ -877,7 +880,7 @@ namespace Jazz2::Multiplayer
 
 	void ServerDiscovery::PublishToPublicServerList(NetworkManager* server)
 	{
-#	if defined(DEATH_TARGET_WINDOWS) || defined(WITH_CURL)
+#if defined(DEATH_TARGET_WINDOWS) || defined(WITH_CURL)
 		_onlineSuccess = false;
 
 		auto& serverConfig = server->GetServerConfiguration();
@@ -886,7 +889,9 @@ namespace Jazz2::Multiplayer
 		}
 
 		String serverName = StringUtils::replaceAll(StringUtils::replaceAll(StringUtils::replaceAll(serverConfig.ServerName,
-			"\\"_s, "\\\\"_s), "\""_s, "\\\""_s), "\f"_s, "\\f"_s);
+																				"\\"_s, "\\\\"_s),
+														"\""_s, "\\\""_s),
+			"\f"_s, "\\f"_s);
 
 		char input[2048];
 		std::size_t length = formatInto(input, "{{\"n\":\"{}\",\"u\":\"", serverName);
@@ -901,7 +906,8 @@ namespace Jazz2::Multiplayer
 		if (!serverConfig.ServerAddressOverrides.empty()) {
 			bool isFirst = true;
 			for (const auto& addressOverride : serverConfig.ServerAddressOverrides) {
-				StringView address; std::uint16_t port;
+				StringView address;
+				std::uint16_t port;
 				if (!NetworkManagerBase::TrySplitAddressAndPort(addressOverride, address, port)) {
 					continue;
 				}
@@ -915,7 +921,8 @@ namespace Jazz2::Multiplayer
 				}
 
 				String addressEscaped = StringUtils::replaceAll(StringUtils::replaceAll(address,
-					"\\"_s, "\\\\"_s), "\""_s, "\\\""_s);
+																	"\\"_s, "\\\\"_s),
+					"\""_s, "\\\""_s);
 				if (port == 0) {
 					port = server->_host->address.port;
 				}
@@ -951,18 +958,20 @@ namespace Jazz2::Multiplayer
 		String levelDisplayName;
 		if (auto statusProvider = _statusProvider.lock()) {
 			levelDisplayName = StringUtils::replaceAll(StringUtils::replaceAll(StringUtils::replaceAll(statusProvider->GetLevelDisplayName().trimmed(),
-				"\\"_s, "\\\\"_s), "\""_s, "\\\""_s), "\f"_s, "\\f"_s);
+																				   "\\"_s, "\\\\"_s),
+														   "\""_s, "\\\""_s),
+				"\f"_s, "\\f"_s);
 		}
 
 		std::uint32_t flags = 0;
 		if (!serverConfig.ServerPassword.empty()) {
-			flags |= 0x01;	// Password-protected
+			flags |= 0x01; // Password-protected
 		}
 		if (!serverConfig.WhitelistedUniquePlayerIDs.empty()) {
-			flags |= 0x02;	// Whitelisted
+			flags |= 0x02; // Whitelisted
 		}
 		if (serverConfig.ReforgedGameplay) {
-			flags |= 0x04;	// Reforged gameplay
+			flags |= 0x04; // Reforged gameplay
 		}
 
 		length += formatInto({ input + length, sizeof(input) - length },
@@ -971,13 +980,13 @@ namespace Jazz2::Multiplayer
 			server->GetPeerCount(), serverConfig.MaxPlayerCount, serverConfig.StartUnixTimestamp, serverLoad,
 			serverConfig.GameMode, flags, levelDisplayName);
 
-#	if defined(WITH_WEBSOCKET)
+#if defined(WITH_WEBSOCKET)
 		if (serverConfig.WsPort != 0) {
 			bool wsSecure = !serverConfig.WsCertPath.empty();
 			length += formatInto({ input + length, sizeof(input) - length },
 				",\"w\":{},\"wss\":{}", serverConfig.WsPort, wsSecure ? "true" : "false");
 		}
-#	endif
+#endif
 
 		length += formatInto({ input + length, sizeof(input) - length }, "}}");
 
@@ -993,9 +1002,11 @@ namespace Jazz2::Multiplayer
 
 			Json::CharReaderBuilder builder;
 			auto reader = std::unique_ptr<Json::CharReader>(builder.newCharReader());
-			Json::Value doc; std::string errors;
+			Json::Value doc;
+			std::string errors;
 			if (reader->parse(buffer.get(), buffer.get() + size, &doc, &errors)) {
-				std::int64_t result = -1; std::string_view endpoints;
+				std::int64_t result = -1;
+				std::string_view endpoints;
 				if (doc["r"].get(result) == Json::SUCCESS && result == 0 &&
 					doc["e"].get(endpoints) == Json::SUCCESS && !endpoints.empty()) {
 					_onlineSuccess = true;
@@ -1009,15 +1020,15 @@ namespace Jazz2::Multiplayer
 		} else {
 			LOGE("Failed to publish the server: {}", result.error);
 		}
-#	else
+#else
 		// See DownloadPublicServerList() - without an HTTP backend the server can only stay unlisted
 		static_cast<void>(server);
-#	endif
+#endif
 	}
 
 	void ServerDiscovery::DelistFromPublicServerList(NetworkManager* server)
 	{
-#	if defined(DEATH_TARGET_WINDOWS) || defined(WITH_CURL)
+#if defined(DEATH_TARGET_WINDOWS) || defined(WITH_CURL)
 		if (!_onlineSuccess) {
 			return;
 		}
@@ -1030,7 +1041,9 @@ namespace Jazz2::Multiplayer
 		}
 
 		String serverName = StringUtils::replaceAll(StringUtils::replaceAll(StringUtils::replaceAll(serverConfig.ServerName,
-			"\\"_s, "\\\\"_s), "\""_s, "\\\""_s), "\f"_s, "\\f"_s);
+																				"\\"_s, "\\\\"_s),
+														"\""_s, "\\\""_s),
+			"\f"_s, "\\f"_s);
 
 		char input[2048];
 		std::size_t length = formatInto(input, "{{\"n\":\"{}\",\"u\":\"", serverName);
@@ -1055,7 +1068,8 @@ namespace Jazz2::Multiplayer
 
 			Json::CharReaderBuilder builder;
 			auto reader = std::unique_ptr<Json::CharReader>(builder.newCharReader());
-			Json::Value doc; std::string errors;
+			Json::Value doc;
+			std::string errors;
 			if (reader->parse(buffer.get(), buffer.get() + size, &doc, &errors)) {
 				std::int64_t result = -1;
 				if (doc["r"].get(result) == Json::SUCCESS && result == 0) {
@@ -1069,10 +1083,10 @@ namespace Jazz2::Multiplayer
 		} else {
 			LOGE("Failed to delist the server: {}", result.error);
 		}
-#	else
+#else
 		// See DownloadPublicServerList() - a server that could never be published has nothing to delist
 		static_cast<void>(server);
-#	endif
+#endif
 	}
 
 	void ServerDiscovery::OnClientThread(void* param)
@@ -1080,10 +1094,14 @@ namespace Jazz2::Multiplayer
 		ServerDiscovery* _this = static_cast<ServerDiscovery*>(param);
 		// Marks the thread finished on every way out of here (the ad hoc arm below returns early), which is
 		// what HasFinished() reports to a caller that cannot afford to join
-		struct FinishedGuard {
+		struct FinishedGuard
+		{
 			std::atomic<bool>& Finished;
-			~FinishedGuard() { Finished.store(true, std::memory_order_release); }
-		} finishedGuard{_this->_finished};
+			~FinishedGuard()
+			{
+				Finished.store(true, std::memory_order_release);
+			}
+		} finishedGuard { _this->_finished };
 
 #if defined(DEATH_TARGET_PSP)
 		if (NetworkManagerBase::IsAdhocMode()) {
@@ -1100,10 +1118,10 @@ namespace Jazz2::Multiplayer
 					char mac[Backends::PspNetwork::MacAddressStringLength + 1];
 					Backends::PspNetwork::FormatMacAddress(groups[i].Mac, mac, sizeof(mac));
 
-					ServerDescription desc{};
+					ServerDescription desc {};
 					desc.Name = groups[i].Name;
 					desc.EndpointString = String(groups[i].Name) + "/"_s + mac;
-					desc.Flags = 0x80000000u;	// Local
+					desc.Flags = 0x80000000u; // Local
 					desc.IsCompatible = true;
 					adhocObserver->OnServerFound(Death::move(desc));
 				}
@@ -1126,10 +1144,10 @@ namespace Jazz2::Multiplayer
 
 		ENetSocket socket = TryCreateLocalSocket("ff02::1", _this->_localMulticastAddress);
 		_this->_socket = socket;
-#	if ENET_IPV6
+#if ENET_IPV6
 		ENetSocket socketV4 = TryCreateLocalBroadcastSocket(_this->_localBroadcastAddress);
 		_this->_socketV4 = socketV4;
-#	endif
+#endif
 
 		while (_this->_observer != nullptr) {
 			if (_this->_lastLocalRequestTime.GetSecondsSince() > 10) {
@@ -1138,9 +1156,9 @@ namespace Jazz2::Multiplayer
 				// is not reachable on the other - a server that answers both is folded back into one entry by
 				// the observer (see ServerSelectSection::OnServerFound)
 				_this->SendLocalDiscoveryRequest(socket, _this->_localMulticastAddress, false);
-#	if ENET_IPV6
+#if ENET_IPV6
 				_this->SendLocalDiscoveryRequest(socketV4, _this->_localBroadcastAddress, true);
-#	endif
+#endif
 			}
 
 			if (_this->_lastOnlineRequestTime.GetSecondsSince() > 60) {
@@ -1148,15 +1166,15 @@ namespace Jazz2::Multiplayer
 				_this->DownloadPublicServerList(observer);
 			}
 
-			ServerDescription discoveredServer{};
+			ServerDescription discoveredServer {};
 			bool found = _this->ProcessLocalDiscoveryResponses(socket, discoveredServer, 0, false);
-#	if ENET_IPV6
+#if ENET_IPV6
 			if (!found) {
 				// A refused packet can leave fields behind it, and none of them belong to the next answer
 				discoveredServer = {};
 				found = _this->ProcessLocalDiscoveryResponses(socketV4, discoveredServer, 0, true);
 			}
-#	endif
+#endif
 			if (found) {
 				observer->OnServerFound(Death::move(discoveredServer));
 			} else {
@@ -1169,12 +1187,12 @@ namespace Jazz2::Multiplayer
 			enet_socket_destroy(_this->_socket);
 			_this->_socket = ENET_SOCKET_NULL;
 		}
-#	if ENET_IPV6
+#if ENET_IPV6
 		if (_this->_socketV4 != ENET_SOCKET_NULL) {
 			enet_socket_destroy(_this->_socketV4);
 			_this->_socketV4 = ENET_SOCKET_NULL;
 		}
-#	endif
+#endif
 
 		LOGD("Server discovery thread exited");
 	}
@@ -1184,10 +1202,14 @@ namespace Jazz2::Multiplayer
 		ServerDiscovery* _this = static_cast<ServerDiscovery*>(param);
 		// Marks the thread finished on every way out of here (the ad hoc arm below returns early), which is
 		// what HasFinished() reports to a caller that cannot afford to join
-		struct FinishedGuard {
+		struct FinishedGuard
+		{
 			std::atomic<bool>& Finished;
-			~FinishedGuard() { Finished.store(true, std::memory_order_release); }
-		} finishedGuard{_this->_finished};
+			~FinishedGuard()
+			{
+				Finished.store(true, std::memory_order_release);
+			}
+		} finishedGuard { _this->_finished };
 
 #if defined(DEATH_TARGET_PSP)
 		// Nothing on this console has joined an access point yet, and the wait for one belongs on a thread
@@ -1196,16 +1218,16 @@ namespace Jazz2::Multiplayer
 #endif
 
 		NetworkManager* server = _this->_server;
-		std::int32_t delayCount = 30;	// Delay for 15 seconds before starting to send discovery responses
+		std::int32_t delayCount = 30; // Delay for 15 seconds before starting to send discovery responses
 
 		NetworkManagerBase::InitializeBackend();
 
 		ENetSocket socket = TryCreateLocalSocket("ff02::1", _this->_localMulticastAddress);
 		_this->_socket = socket;
-#	if ENET_IPV6
+#if ENET_IPV6
 		ENetSocket socketV4 = TryCreateLocalBroadcastSocket(_this->_localBroadcastAddress);
 		_this->_socketV4 = socketV4;
-#	endif
+#endif
 
 		while (_this->_server != nullptr) {
 			delayCount--;
@@ -1220,14 +1242,14 @@ namespace Jazz2::Multiplayer
 						_this->SendLocalDiscoveryResponse(socket, _this->_localMulticastAddress, server, false);
 					}
 				}
-#	if ENET_IPV6
+#if ENET_IPV6
 				while (_this->_localBroadcastAddress.port != 0 && _this->ProcessLocalDiscoveryRequests(socketV4, 0, true)) {
 					if (_this->_lastLocalRequestTimeV4.GetSecondsSince() > 15) {
 						_this->_lastLocalRequestTimeV4 = TimeStamp::Now();
 						_this->SendLocalDiscoveryResponse(socketV4, _this->_localBroadcastAddress, server, true);
 					}
 				}
-#	endif
+#endif
 
 				if (_this->_lastOnlineRequestTime.GetSecondsSince() > 300) {
 					_this->_lastOnlineRequestTime = TimeStamp::Now();
@@ -1244,12 +1266,12 @@ namespace Jazz2::Multiplayer
 			enet_socket_destroy(_this->_socket);
 			_this->_socket = ENET_SOCKET_NULL;
 		}
-#	if ENET_IPV6
+#if ENET_IPV6
 		if (_this->_socketV4 != ENET_SOCKET_NULL) {
 			enet_socket_destroy(_this->_socketV4);
 			_this->_socketV4 = ENET_SOCKET_NULL;
 		}
-#	endif
+#endif
 
 		LOGD("Server discovery thread exited");
 	}

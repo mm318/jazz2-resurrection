@@ -28,26 +28,50 @@ namespace Jazz2::AssetPacker
 		constexpr std::uint8_t CommandNone = 0xFF;
 
 		/** @brief Effect commands of the Galaxy format, as libopenmpt names them */
-		enum class Effect : std::uint8_t {
-			Arpeggio, PortamentoUp, PortamentoDown, TonePortamento, Vibrato, TonePortamentoVolume, VibratoVolume,
-			Tremolo, Panning, Offset, VolumeSlide, PositionJump, Volume, PatternBreak, Extended, Tempo,
-			GlobalVolume, GlobalVolumeSlide, KeyOff, EnvelopePosition, ChannelVolume, ChannelVolumeSlide,
-			PanningSlide, Retrigger, Tremor, ExtraFinePortamento, Count
+		enum class Effect : std::uint8_t
+		{
+			Arpeggio,
+			PortamentoUp,
+			PortamentoDown,
+			TonePortamento,
+			Vibrato,
+			TonePortamentoVolume,
+			VibratoVolume,
+			Tremolo,
+			Panning,
+			Offset,
+			VolumeSlide,
+			PositionJump,
+			Volume,
+			PatternBreak,
+			Extended,
+			Tempo,
+			GlobalVolume,
+			GlobalVolumeSlide,
+			KeyOff,
+			EnvelopePosition,
+			ChannelVolume,
+			ChannelVolumeSlide,
+			PanningSlide,
+			Retrigger,
+			Tremor,
+			ExtraFinePortamento,
+			Count
 		};
 
 		struct Cell
 		{
 			std::uint8_t Note = NoteNone;
 			std::uint8_t Instrument = 0;
-			std::uint8_t Volume = VolumeNone;		// 0-64
-			std::uint8_t Command = CommandNone;		// Effect
+			std::uint8_t Volume = VolumeNone; // 0-64
+			std::uint8_t Command = CommandNone; // Effect
 			std::uint8_t Param = 0;
 		};
 
 		struct Pattern
 		{
 			std::int32_t Rows = 0;
-			SmallVector<Cell, 0> Cells;				// Rows x channels
+			SmallVector<Cell, 0> Cells; // Rows x channels
 		};
 
 		struct Sample
@@ -56,27 +80,27 @@ namespace Jazz2::AssetPacker
 			std::uint32_t Length = 0, LoopStart = 0, LoopEnd = 0;
 			std::uint32_t C5Speed = 8363;
 			bool Is16Bit = false, Loop = false, PingPong = false, HasPanning = false;
-			std::int32_t Panning = 128;				// 0-256
-			std::int32_t Volume = 64;				// 0-64
-			Array<std::uint8_t> Data;				// Signed little-endian PCM
+			std::int32_t Panning = 128; // 0-256
+			std::int32_t Volume = 64; // 0-64
+			Array<std::uint8_t> Data; // Signed little-endian PCM
 		};
 
 		struct Envelope
 		{
 			bool Enabled = false, Sustain = false, Loop = false;
 			std::uint8_t SustainPoint = 0, LoopStart = 0, LoopEnd = 0;
-			SmallVector<std::pair<std::uint16_t, std::uint16_t>, 12> Points;	// tick, value 0-64
+			SmallVector<std::pair<std::uint16_t, std::uint16_t>, 12> Points; // tick, value 0-64
 		};
 
 		struct Instrument
 		{
 			bool Present = false;
 			String Name;
-			std::uint8_t SampleMap[128] = {};		// Sample index within the instrument per note - 1
+			std::uint8_t SampleMap[128] = {}; // Sample index within the instrument per note - 1
 			SmallVector<Sample, 1> Samples;
 			Envelope VolumeEnvelope, PanningEnvelope;
 			bool HasPitchEnvelope = false;
-			std::uint16_t Fadeout = 0;				// XM units
+			std::uint16_t Fadeout = 0; // XM units
 			std::uint8_t VibratoType = 0, VibratoSweep = 0, VibratoDepth = 0, VibratoRate = 0;
 		};
 
@@ -86,11 +110,11 @@ namespace Jazz2::AssetPacker
 			bool LinearSlides = true;
 			std::uint8_t Speed = 6, Tempo = 125;
 			std::int32_t ChannelCount = 0;
-			std::int32_t ChannelPanning[32] = {};	// 0-256
+			std::int32_t ChannelPanning[32] = {}; // 0-256
 			bool ChannelMuted[32] = {};
-			SmallVector<std::uint8_t, 0> Orders;	// Raw, with the 0xFE (skip) and 0xFF (end) markers
-			SmallVector<Pattern, 0> Patterns;		// By pattern number
-			SmallVector<Instrument, 0> Instruments;	// By instrument number - 1
+			SmallVector<std::uint8_t, 0> Orders; // Raw, with the 0xFE (skip) and 0xFF (end) markers
+			SmallVector<Pattern, 0> Patterns; // By pattern number
+			SmallVector<Instrument, 0> Instruments; // By instrument number - 1
 		};
 
 		// ── Reading ──────────────────────────────────────────────────────────────────────────────
@@ -98,25 +122,60 @@ namespace Jazz2::AssetPacker
 		class Reader
 		{
 		public:
-			Reader(const std::uint8_t* data, std::size_t size) : _data(data), _size(size), _pos(0) {}
+			Reader(const std::uint8_t* data, std::size_t size)
+				: _data(data), _size(size), _pos(0)
+			{
+			}
 
-			bool CanRead(std::size_t n) const { return _pos + n <= _size; }
-			std::size_t Position() const { return _pos; }
-			std::size_t Size() const { return _size; }
-			void Seek(std::size_t pos) { _pos = std::min(pos, _size); }
-			void Skip(std::size_t n) { Seek(_pos + n); }
-			const std::uint8_t* Current() const { return _data + _pos; }
+			bool CanRead(std::size_t n) const
+			{
+				return _pos + n <= _size;
+			}
+			std::size_t Position() const
+			{
+				return _pos;
+			}
+			std::size_t Size() const
+			{
+				return _size;
+			}
+			void Seek(std::size_t pos)
+			{
+				_pos = std::min(pos, _size);
+			}
+			void Skip(std::size_t n)
+			{
+				Seek(_pos + n);
+			}
+			const std::uint8_t* Current() const
+			{
+				return _data + _pos;
+			}
 
-			std::uint8_t U8() { return (CanRead(1) ? _data[_pos++] : 0); }
-			std::uint16_t U16() { std::uint16_t v = (CanRead(2) ? std::uint16_t(_data[_pos] | (_data[_pos + 1] << 8)) : 0); Skip(2); return v; }
-			std::int16_t S16() { return std::int16_t(U16()); }
-			std::uint32_t U32() {
+			std::uint8_t U8()
+			{
+				return (CanRead(1) ? _data[_pos++] : 0);
+			}
+			std::uint16_t U16()
+			{
+				std::uint16_t v = (CanRead(2) ? std::uint16_t(_data[_pos] | (_data[_pos + 1] << 8)) : 0);
+				Skip(2);
+				return v;
+			}
+			std::int16_t S16()
+			{
+				return std::int16_t(U16());
+			}
+			std::uint32_t U32()
+			{
 				std::uint32_t v = (CanRead(4) ? std::uint32_t(_data[_pos]) | (std::uint32_t(_data[_pos + 1]) << 8) |
-					(std::uint32_t(_data[_pos + 2]) << 16) | (std::uint32_t(_data[_pos + 3]) << 24) : 0);
+							(std::uint32_t(_data[_pos + 2]) << 16) | (std::uint32_t(_data[_pos + 3]) << 24)
+											  : 0);
 				Skip(4);
 				return v;
 			}
-			String FixedString(std::size_t n) {
+			String FixedString(std::size_t n)
+			{
 				std::size_t len = 0;
 				while (len < n && CanRead(len + 1) && _data[_pos + len] != 0) {
 					len++;
@@ -125,7 +184,8 @@ namespace Jazz2::AssetPacker
 				Skip(n);
 				return s;
 			}
-			Reader Sub(std::size_t n) {
+			Reader Sub(std::size_t n)
+			{
 				const std::size_t available = (CanRead(n) ? n : _size - _pos);
 				Reader r(_data + _pos, available);
 				Skip(available);
@@ -183,7 +243,7 @@ namespace Jazz2::AssetPacker
 				ticks[i] = r.U16();
 				values[i] = r.S16();
 			}
-			fadeout = r.U16();	// Only meaningful in the volume envelope
+			fadeout = r.U16(); // Only meaningful in the volume envelope
 
 			present = false;
 			if (numPoints == 0xFF || numPoints == 0) {
@@ -193,9 +253,11 @@ namespace Jazz2::AssetPacker
 			const std::int32_t count = std::min(numPoints + 1, 10);
 			std::int32_t scale = 32767 / 64, offset = 0;
 			if (kind == 1) {
-				scale = 8192 / 64; offset = 4096;
+				scale = 8192 / 64;
+				offset = 4096;
 			} else if (kind == 2) {
-				scale = 65536 / 64; offset = 32768;
+				scale = 65536 / 64;
+				offset = 32768;
 			}
 			std::int32_t lastTick = -1;
 			for (std::int32_t i = 0; i < count; i++) {
@@ -328,7 +390,7 @@ namespace Jazz2::AssetPacker
 				const std::uint32_t length = chunks.U32();
 				Reader chunk = chunks.Sub(length);
 				if (isAM && (length & 1) != 0) {
-					chunks.Skip(1);		// RIFF AM pads every chunk to an even size
+					chunks.Skip(1); // RIFF AM pads every chunk to an even size
 				}
 
 				if (id == (isAM ? FourCC("INIT") : FourCC("MAIN"))) {
@@ -337,9 +399,9 @@ namespace Jazz2::AssetPacker
 					module.ChannelCount = std::min<std::int32_t>(chunk.U8(), 32);
 					module.Speed = chunk.U8();
 					module.Tempo = chunk.U8();
-					chunk.U16();	// Minimum and maximum period, ignored by libopenmpt as well
+					chunk.U16(); // Minimum and maximum period, ignored by libopenmpt as well
 					chunk.U16();
-					chunk.U8();		// Global volume
+					chunk.U8(); // Global volume
 					module.LinearSlides = (flags & 0x01) == 0;
 					for (std::int32_t ch = 0; ch < module.ChannelCount; ch++) {
 						const std::uint8_t pan = chunk.U8();
@@ -389,8 +451,14 @@ namespace Jazz2::AssetPacker
 					const std::uint8_t envLoopStart = chunk.U8(), envLoopEnd = chunk.U8();
 					std::uint16_t volTicks[10], panTicks[10];
 					std::uint8_t volValues[10], panValues[10];
-					for (std::int32_t i = 0; i < 10; i++) { volTicks[i] = chunk.U16(); volValues[i] = chunk.U8(); }
-					for (std::int32_t i = 0; i < 10; i++) { panTicks[i] = chunk.U16(); panValues[i] = chunk.U8(); }
+					for (std::int32_t i = 0; i < 10; i++) {
+						volTicks[i] = chunk.U16();
+						volValues[i] = chunk.U8();
+					}
+					for (std::int32_t i = 0; i < 10; i++) {
+						panTicks[i] = chunk.U16();
+						panValues[i] = chunk.U8();
+					}
 					ReadAmffEnvelope(envFlags & 0x0F, envPoints & 0x0F, envSustain & 0x0F, envLoopStart & 0x0F, envLoopEnd & 0x0F,
 						volTicks, volValues, ins.VolumeEnvelope);
 					ReadAmffEnvelope(envFlags >> 4, envPoints >> 4, envSustain >> 4, envLoopStart >> 4, envLoopEnd >> 4,
@@ -402,7 +470,7 @@ namespace Jazz2::AssetPacker
 						if (chunk.U32() != FourCC("SAMP")) {
 							break;
 						}
-						chunk.U32();	// Chunk size
+						chunk.U32(); // Chunk size
 						smp.Name = chunk.FixedString(28);
 						smp.Panning = std::min(chunk.U8() * 4, 256);
 						smp.Volume = std::min<std::int32_t>(chunk.U8(), 64);
@@ -428,7 +496,7 @@ namespace Jazz2::AssetPacker
 					// the header - libopenmpt reads the 326 bytes regardless, and the samples follow right after them
 					chunk.U32();
 					Reader header = chunk.Sub(326);
-					header.U32();	// Header size
+					header.U32(); // Header size
 					header.U8();
 					const std::int32_t index = header.U8();
 					if (module.Instruments.size() <= std::size_t(index)) {
@@ -509,7 +577,7 @@ namespace Jazz2::AssetPacker
 					return std::min(cell.Param * 2, 256);
 				}
 				if (cell.Param == 0xA4) {
-					return 128;		// Surround, which XM has no notion of
+					return 128; // Surround, which XM has no notion of
 				}
 			} else if (cell.Command == std::uint8_t(Effect::Extended) && (cell.Param >> 4) == 0x8) {
 				return Pan4Bit(cell.Param & 0x0F);
@@ -525,16 +593,19 @@ namespace Jazz2::AssetPacker
 		/** @brief One instrument as written into the XM: an original one, played at one panning */
 		struct XmInstrument
 		{
-			std::int32_t Source = -1;		// Index into Module::Instruments
-			std::int32_t Panning = 128;		// 0-256, applied to every sample that has none of its own
-			std::int32_t NoteShift = 0;		// Octaves the notes are moved down by (samples up by) to fit XM's range
-			std::int32_t Distinguish = 0;	// Makes the sample data differ from the other copies, see DistinguishSeekedVariants()
+			std::int32_t Source = -1; // Index into Module::Instruments
+			std::int32_t Panning = 128; // 0-256, applied to every sample that has none of its own
+			std::int32_t NoteShift = 0; // Octaves the notes are moved down by (samples up by) to fit XM's range
+			std::int32_t Distinguish = 0; // Makes the sample data differ from the other copies, see DistinguishSeekedVariants()
 		};
 
 		class Converter
 		{
 		public:
-			Converter(Module& module) : _module(module) {}
+			Converter(Module& module)
+				: _module(module)
+			{
+			}
 
 			bool Convert(Stream& out)
 			{
@@ -560,13 +631,14 @@ namespace Jazz2::AssetPacker
 			SmallVector<SmallVector<std::int16_t, 0>, 0> _cellPanning;
 			SmallVector<XmInstrument, 0> _instruments;
 			/** @brief XM instrument of each (original instrument, panning) pair that got one */
-			SmallVector<SmallVector<std::pair<std::int32_t, std::int32_t>, 4>, 0> _variants;	// panning, XM index
+			SmallVector<SmallVector<std::pair<std::int32_t, std::int32_t>, 4>, 0> _variants; // panning, XM index
 			std::int32_t _droppedEffects[std::int32_t(Effect::Count)] = {};
 
 			const Pattern* GetPattern(std::int32_t index) const
 			{
 				return (index >= 0 && std::size_t(index) < _module.Patterns.size() && _module.Patterns[index].Rows > 0
-					? &_module.Patterns[index] : nullptr);
+						? &_module.Patterns[index]
+						: nullptr);
 			}
 
 			void BuildOrders()
@@ -638,7 +710,7 @@ namespace Jazz2::AssetPacker
 					if (jumpOrder >= 0 || breakRow >= 0) {
 						const std::int32_t nextOrder = (jumpOrder >= 0 ? jumpOrder : order + 1);
 						if (nextOrder <= order && nextOrder < std::int32_t(_orders.size()) && visitedOrder[nextOrder]) {
-							break;		// The song loops from here
+							break; // The song loops from here
 						}
 						order = nextOrder;
 						row = (breakRow >= 0 ? breakRow : 0);
@@ -685,7 +757,7 @@ namespace Jazz2::AssetPacker
 				_variants.resize(count);
 
 				// How often each instrument is heard at each panning
-				SmallVector<SmallVector<std::pair<std::int32_t, std::int32_t>, 4>, 0> usage(count);	// panning, count
+				SmallVector<SmallVector<std::pair<std::int32_t, std::int32_t>, 4>, 0> usage(count); // panning, count
 				for (std::size_t o = 0; o < _orders.size(); o++) {
 					const Pattern& pattern = *GetPattern(_orders[o]);
 					for (std::size_t i = 0; i < pattern.Cells.size(); i++) {
@@ -695,7 +767,9 @@ namespace Jazz2::AssetPacker
 						}
 						const std::int32_t pan = (InstrumentHasFixedPanning(_module.Instruments[ins]) ? 128 : _cellPanning[o][i]);
 						auto& list = usage[ins];
-						auto it = std::find_if(list.begin(), list.end(), [pan](const auto& p) { return p.first == pan; });
+						auto it = std::find_if(list.begin(), list.end(), [pan](const auto& p) {
+							return p.first == pan;
+						});
 						if (it != list.end()) {
 							it->second++;
 						} else {
@@ -708,17 +782,23 @@ namespace Jazz2::AssetPacker
 				// something anyone hears, while a variant costs the instrument's whole sample data again
 				for (std::size_t ins = 0; ins < count; ins++) {
 					auto& list = usage[ins];
-					std::sort(list.begin(), list.end(), [](const auto& a, const auto& b) { return a.second > b.second; });
+					std::sort(list.begin(), list.end(), [](const auto& a, const auto& b) {
+						return a.second > b.second;
+					});
 					SmallVector<std::pair<std::int32_t, std::int32_t>, 4> clusters;
 					for (const auto& u : list) {
-						auto it = std::find_if(clusters.begin(), clusters.end(), [&u](const auto& c) { return std::abs(c.first - u.first) <= PanningTolerance; });
+						auto it = std::find_if(clusters.begin(), clusters.end(), [&u](const auto& c) {
+							return std::abs(c.first - u.first) <= PanningTolerance;
+						});
 						if (it != clusters.end()) {
 							it->second += u.second;
 						} else {
 							clusters.push_back(u);
 						}
 					}
-					std::sort(clusters.begin(), clusters.end(), [](const auto& a, const auto& b) { return a.second > b.second; });
+					std::sort(clusters.begin(), clusters.end(), [](const auto& a, const auto& b) {
+						return a.second > b.second;
+					});
 					list = Death::move(clusters);
 				}
 
@@ -740,7 +820,10 @@ namespace Jazz2::AssetPacker
 				// Further pannings, most used first, as long as XM's 128 instruments and half as much sample data
 				// again allow. A panning heard on only a few notes is not worth a copy of the instrument either: it
 				// takes the nearest variant and a panning command, which is exact wherever the row has room for it.
-				struct Candidate { std::int32_t Instrument, Panning, Uses; };
+				struct Candidate
+				{
+					std::int32_t Instrument, Panning, Uses;
+				};
 				SmallVector<Candidate, 0> candidates;
 				for (std::size_t ins = 0; ins < count; ins++) {
 					std::int32_t total = 0;
@@ -753,7 +836,9 @@ namespace Jazz2::AssetPacker
 						}
 					}
 				}
-				std::sort(candidates.begin(), candidates.end(), [](const Candidate& a, const Candidate& b) { return a.Uses > b.Uses; });
+				std::sort(candidates.begin(), candidates.end(), [](const Candidate& a, const Candidate& b) {
+					return a.Uses > b.Uses;
+				});
 				std::size_t extraBytes = 0;
 				std::int32_t skipped = 0;
 				for (const Candidate& c : candidates) {
@@ -869,8 +954,10 @@ namespace Jazz2::AssetPacker
 					const auto& r = range[xmIns.Source];
 					std::int32_t shift = 0;
 					if (r.first <= r.second) {
-						while (r.second - shift > 108 && r.first - shift - 12 >= 13) shift += 12;
-						while (r.first - shift < 13 && r.second - shift + 12 <= 108) shift -= 12;
+						while (r.second - shift > 108 && r.first - shift - 12 >= 13)
+							shift += 12;
+						while (r.first - shift < 13 && r.second - shift + 12 <= 108)
+							shift -= 12;
 					}
 					xmIns.NoteShift = shift;
 				}
@@ -890,58 +977,107 @@ namespace Jazz2::AssetPacker
 				command = 0;
 				param = cell.Param;
 				switch (Effect(cell.Command)) {
-					case Effect::Arpeggio: command = 0x0; return true;
+					case Effect::Arpeggio:
+						command = 0x0;
+						return true;
 					case Effect::PortamentoUp:
 					case Effect::PortamentoDown: {
 						const bool up = (Effect(cell.Command) == Effect::PortamentoUp);
-						if (cell.Param >= 0xF0) {		// Fine, IT style
-							command = 0xE; param = std::uint8_t((up ? 0x10 : 0x20) | (cell.Param & 0x0F));
-						} else if (cell.Param >= 0xE0) {	// Extra fine
-							command = 0x21; param = std::uint8_t((up ? 0x10 : 0x20) | (cell.Param & 0x0F));
+						if (cell.Param >= 0xF0) { // Fine, IT style
+							command = 0xE;
+							param = std::uint8_t((up ? 0x10 : 0x20) | (cell.Param & 0x0F));
+						} else if (cell.Param >= 0xE0) { // Extra fine
+							command = 0x21;
+							param = std::uint8_t((up ? 0x10 : 0x20) | (cell.Param & 0x0F));
 						} else {
 							command = (up ? 0x1 : 0x2);
 						}
 						return true;
 					}
-					case Effect::TonePortamento: command = 0x3; return true;
-					case Effect::Vibrato: command = 0x4; return true;
-					case Effect::TonePortamentoVolume: command = 0x5; return true;
-					case Effect::VibratoVolume: command = 0x6; return true;
-					case Effect::Tremolo: command = 0x7; return true;
-					case Effect::Panning: command = 0x8; param = std::uint8_t(std::min(CellPanning(cell), 255)); return true;
-					case Effect::Offset: command = 0x9; return true;
-					case Effect::VolumeSlide: command = 0xA; return true;
+					case Effect::TonePortamento:
+						command = 0x3;
+						return true;
+					case Effect::Vibrato:
+						command = 0x4;
+						return true;
+					case Effect::TonePortamentoVolume:
+						command = 0x5;
+						return true;
+					case Effect::VibratoVolume:
+						command = 0x6;
+						return true;
+					case Effect::Tremolo:
+						command = 0x7;
+						return true;
+					case Effect::Panning:
+						command = 0x8;
+						param = std::uint8_t(std::min(CellPanning(cell), 255));
+						return true;
+					case Effect::Offset:
+						command = 0x9;
+						return true;
+					case Effect::VolumeSlide:
+						command = 0xA;
+						return true;
 					case Effect::PositionJump:
 						command = 0xB;
 						param = std::uint8_t(cell.Param < _orderRemap.size() ? std::min(_orderRemap[cell.Param], std::int32_t(_orders.size()) - 1) : 0);
 						return true;
-					case Effect::Volume: command = 0xC; param = std::min<std::uint8_t>(cell.Param, 64); return true;
-					case Effect::PatternBreak: command = 0xD; return true;
+					case Effect::Volume:
+						command = 0xC;
+						param = std::min<std::uint8_t>(cell.Param, 64);
+						return true;
+					case Effect::PatternBreak:
+						command = 0xD;
+						return true;
 					case Effect::Extended: {
 						const std::uint8_t sub = cell.Param >> 4;
 						switch (sub) {
-							case 0x8:	// Coarse panning, which FT2 does not know - a full panning command instead
-								command = 0x8; param = std::uint8_t(std::min(CellPanning(cell), 255)); return true;
-							case 0x0:	// Amiga filter
-							case 0xF:	// Invert loop
+							case 0x8: // Coarse panning, which FT2 does not know - a full panning command instead
+								command = 0x8;
+								param = std::uint8_t(std::min(CellPanning(cell), 255));
+								return true;
+							case 0x0: // Amiga filter
+							case 0xF: // Invert loop
 								_droppedEffects[std::int32_t(Effect::Extended)]++;
 								return false;
 							default:
-								command = 0xE; return true;
+								command = 0xE;
+								return true;
 						}
 					}
-					case Effect::Tempo: command = 0xF; return true;
-					case Effect::GlobalVolume: command = 0x10; param = std::uint8_t(std::min(cell.Param / 2, 64)); return true;
-					case Effect::GlobalVolumeSlide: command = 0x11; param = std::uint8_t(((cell.Param >> 5) << 4) | ((cell.Param & 0x0F) >> 1)); return true;
-					case Effect::KeyOff: command = 0x14; return true;
-					case Effect::EnvelopePosition: command = 0x15; return true;
-					case Effect::PanningSlide: command = 0x19; return true;
-					case Effect::Retrigger: command = 0x1B; return true;
-					case Effect::Tremor: command = 0x1D; return true;
+					case Effect::Tempo:
+						command = 0xF;
+						return true;
+					case Effect::GlobalVolume:
+						command = 0x10;
+						param = std::uint8_t(std::min(cell.Param / 2, 64));
+						return true;
+					case Effect::GlobalVolumeSlide:
+						command = 0x11;
+						param = std::uint8_t(((cell.Param >> 5) << 4) | ((cell.Param & 0x0F) >> 1));
+						return true;
+					case Effect::KeyOff:
+						command = 0x14;
+						return true;
+					case Effect::EnvelopePosition:
+						command = 0x15;
+						return true;
+					case Effect::PanningSlide:
+						command = 0x19;
+						return true;
+					case Effect::Retrigger:
+						command = 0x1B;
+						return true;
+					case Effect::Tremor:
+						command = 0x1D;
+						return true;
 					case Effect::ExtraFinePortamento: {
 						const std::uint8_t sub = cell.Param & 0xF0;
 						if (sub == 0x10 || sub == 0x20) {
-							command = 0x21; param = std::uint8_t(sub | (cell.Param & 0x0F)); return true;
+							command = 0x21;
+							param = std::uint8_t(sub | (cell.Param & 0x0F));
+							return true;
 						}
 						return false;
 					}
@@ -987,7 +1123,9 @@ namespace Jazz2::AssetPacker
 								if (!exact) {
 									// No variant at exactly this panning: say it with a command where the row has room
 									if (!hasCommand) {
-										hasCommand = true; command = 0x8; param = std::uint8_t(std::min<std::int32_t>(pan, 255));
+										hasCommand = true;
+										command = 0x8;
+										param = std::uint8_t(std::min<std::int32_t>(pan, 255));
 									} else if (volume == 0) {
 										volume = std::uint8_t(0xC0 | std::min(pan / 16, 15));
 									}
@@ -1004,21 +1142,34 @@ namespace Jazz2::AssetPacker
 						}
 
 						std::uint8_t mask = 0;
-						if (note != 0) mask |= 0x01;
-						if (instrument != 0) mask |= 0x02;
-						if (volume != 0) mask |= 0x04;
-						if (hasCommand && command != 0) mask |= 0x08;
-						if (hasCommand && param != 0) mask |= 0x10;
+						if (note != 0)
+							mask |= 0x01;
+						if (instrument != 0)
+							mask |= 0x02;
+						if (volume != 0)
+							mask |= 0x04;
+						if (hasCommand && command != 0)
+							mask |= 0x08;
+						if (hasCommand && param != 0)
+							mask |= 0x10;
 						if (mask == 0x1F) {
-							packed.push_back(note); packed.push_back(instrument); packed.push_back(volume);
-							packed.push_back(command); packed.push_back(param);
+							packed.push_back(note);
+							packed.push_back(instrument);
+							packed.push_back(volume);
+							packed.push_back(command);
+							packed.push_back(param);
 						} else {
 							packed.push_back(std::uint8_t(0x80 | mask));
-							if (mask & 0x01) packed.push_back(note);
-							if (mask & 0x02) packed.push_back(instrument);
-							if (mask & 0x04) packed.push_back(volume);
-							if (mask & 0x08) packed.push_back(command);
-							if (mask & 0x10) packed.push_back(param);
+							if (mask & 0x01)
+								packed.push_back(note);
+							if (mask & 0x02)
+								packed.push_back(instrument);
+							if (mask & 0x04)
+								packed.push_back(volume);
+							if (mask & 0x08)
+								packed.push_back(command);
+							if (mask & 0x10)
+								packed.push_back(param);
 						}
 					}
 				}
@@ -1214,9 +1365,9 @@ namespace Jazz2::AssetPacker
 				s.WriteValueAsLE<std::uint16_t>(0x0104);
 				s.WriteValueAsLE<std::uint32_t>(276);
 				s.WriteValueAsLE<std::uint16_t>(std::uint16_t(_orders.size()));
-				s.WriteValueAsLE<std::uint16_t>(0);		// Restart position
+				s.WriteValueAsLE<std::uint16_t>(0); // Restart position
 				s.WriteValueAsLE<std::uint16_t>(std::uint16_t(_module.ChannelCount));
-				s.WriteValueAsLE<std::uint16_t>(std::uint16_t(_orders.size()));		// One pattern per order position
+				s.WriteValueAsLE<std::uint16_t>(std::uint16_t(_orders.size())); // One pattern per order position
 				s.WriteValueAsLE<std::uint16_t>(std::uint16_t(_instruments.size()));
 				s.WriteValueAsLE<std::uint16_t>(_module.LinearSlides ? 1 : 0);
 				s.WriteValueAsLE<std::uint16_t>(_module.Speed);

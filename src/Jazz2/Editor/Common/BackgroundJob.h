@@ -11,8 +11,8 @@
 
 // Work is done on a thread of its own where the platform has threads
 #if defined(WITH_THREADS) && !defined(DEATH_TARGET_EMSCRIPTEN)
-#	define NCINE_BACKGROUND_JOB_THREADED
-#	include "../../../nCine/Threading/Thread.h"
+#define NCINE_BACKGROUND_JOB_THREADED
+#include "../../../nCine/Threading/Thread.h"
 #endif
 
 namespace Jazz2::Editor
@@ -20,9 +20,9 @@ namespace Jazz2::Editor
 #ifndef DOXYGEN_GENERATING_OUTPUT
 	using Death::Containers::Function;
 	using Death::Containers::StringView;
-#	if defined(NCINE_BACKGROUND_JOB_THREADED)
+#if defined(NCINE_BACKGROUND_JOB_THREADED)
 	using nCine::Thread;
-#	endif
+#endif
 #endif
 
 	/**
@@ -31,23 +31,30 @@ namespace Jazz2::Editor
 	class JobProgress
 	{
 	public:
-		JobProgress() : _value(0.0f), _cancelled(false) {}
+		JobProgress()
+			: _value(0.0f), _cancelled(false)
+		{
+		}
 
 		/** @brief Sets how far the work is, from 0 to 1, returns `false` if it should stop */
-		bool Report(float value) {
+		bool Report(float value)
+		{
 			_value.store(value, std::memory_order_relaxed);
 			return !_cancelled.load(std::memory_order_relaxed);
 		}
 		/** @brief Returns `true` if the work should stop */
-		bool IsCancelled() const {
+		bool IsCancelled() const
+		{
 			return _cancelled.load(std::memory_order_relaxed);
 		}
 		/** @brief Returns how far the work is, from 0 to 1 */
-		float GetValue() const {
+		float GetValue() const
+		{
 			return _value.load(std::memory_order_relaxed);
 		}
 		/** @brief Asks the work to stop */
-		void Cancel() {
+		void Cancel()
+		{
 			_cancelled.store(true, std::memory_order_relaxed);
 		}
 
@@ -83,17 +90,20 @@ namespace Jazz2::Editor
 		/** @brief Does the work right away, on the calling thread */
 		void RunHere(Function<void(JobProgress&)>&& work);
 		/** @brief Returns `true` once the work ended, done or stopped */
-		bool IsDone() const {
+		bool IsDone() const
+		{
 			return _done.load(std::memory_order_acquire);
 		}
 		/** @brief Waits for the work to end, the thread is joined then */
 		void Wait();
 		/** @brief Returns how far the work is */
-		JobProgress& GetProgress() {
+		JobProgress& GetProgress()
+		{
 			return _progress;
 		}
 		/** @brief Asks the work to stop, see @ref JobProgress::IsCancelled() */
-		void Cancel() {
+		void Cancel()
+		{
 			_progress.Cancel();
 		}
 

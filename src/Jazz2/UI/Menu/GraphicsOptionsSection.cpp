@@ -8,14 +8,14 @@
 #include "../../../nCine/Application.h"
 #include "../../../nCine/Base/FrameTimer.h"
 #include "../../../nCine/I18n.h"
-#include "../../../nCine/Graphics/RHI/RhiFwd.h"	// RHI_CAP_POSTPROCESSING (a header macro, not a build define)
+#include "../../../nCine/Graphics/RHI/RhiFwd.h" // RHI_CAP_POSTPROCESSING (a header macro, not a build define)
 
 #include <algorithm>
 #include <Environment.h>
 #include <Utf8.h>
 
 #if defined(DEATH_TARGET_ANDROID)
-#	include "../../../nCine/Backends/Android/AndroidApplication.h"
+#include "../../../nCine/Backends/Android/AndroidApplication.h"
 #endif
 
 namespace Jazz2::UI::Menu
@@ -47,17 +47,18 @@ namespace Jazz2::UI::Menu
 		// hidden there. `DISABLE_RESCALE_SHADERS` takes the same passes out of a build that does have the
 		// tier - the PS Vita's, where the section would list modes that then resolve to no program at all.
 		// TRANSLATORS: Menu item in Options > Graphics section
-		list->Add<ListItem>(_("Rescale Mode"), [root]() { root->SwitchToSection<RescaleModeSection>(); });
+		list->Add<ListItem>(_("Rescale Mode"), [root]() {
+			root->SwitchToSection<RescaleModeSection>();
+		});
 #endif
 
 		// Display-only row (no OnChange): shows the current drawable resolution without arrows
 		// TRANSLATORS: Menu item in Options > Graphics section
-		list->Add<ChoiceItem>(_("Screen Resolution"),
-			[this]() -> StringView {
-				Vector2i res = theApplication().GetGfxDevice().GetDrawableResolution();
-				_resolutionValue = format("{}x{}", res.X, res.Y);
-				return _resolutionValue;
-			},
+		list->Add<ChoiceItem>(_("Screen Resolution"), [this]() -> StringView {
+			Vector2i res = theApplication().GetGfxDevice().GetDrawableResolution();
+			_resolutionValue = format("{}x{}", res.X, res.Y);
+			return _resolutionValue;
+		},
 			nullptr);
 
 #if defined(RHI_CAP_POSTPROCESSING)
@@ -68,15 +69,14 @@ namespace Jazz2::UI::Menu
 		// the drawable. The direct rendering tier renders straight into the screen framebuffer at the display's
 		// own (small) size, where there is nothing left to lower, so the option is hidden there.
 		// TRANSLATORS: Menu item in Options > Graphics section
-		list->Add<ChoiceItem>(_("Rendering Resolution"),
-			[this]() -> StringView {
-				// The menu's view is computed by the same rule as the level's, so this is the size the scene will be
-				Vector2i viewSize = _root->GetViewSize();
-				_renderingResolutionValue = format("{}% ({}x{})", PreferencesCache::RenderingResolutionPercent, viewSize.X, viewSize.Y);
-				return _renderingResolutionValue;
-			},
+		list->Add<ChoiceItem>(_("Rendering Resolution"), [this]() -> StringView {
+			// The menu's view is computed by the same rule as the level's, so this is the size the scene will be
+			Vector2i viewSize = _root->GetViewSize();
+			_renderingResolutionValue = format("{}% ({}x{})", PreferencesCache::RenderingResolutionPercent, viewSize.X, viewSize.Y);
+			return _renderingResolutionValue;
+		},
 			[this](std::int32_t direction) {
-				// Ascending presets so Right increases and Left decreases; clamped at the ends (no wraparound)
+		// Ascending presets so Right increases and Left decreases; clamped at the ends (no wraparound)
 #if defined(WITH_RHI_GXM)
 				// The Vita's frame surface is the panel scaled by this, and 75% (720x408) already covers the
 				// logical view - the full panel would only resample that same scene into 960x544 for another
@@ -113,15 +113,17 @@ namespace Jazz2::UI::Menu
 #endif
 
 #if defined(NCINE_HAS_WINDOWS)
-#	if defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS_RT)
 		// Xbox is always fullscreen
 		if (Environment::CurrentDeviceType != DeviceType::Xbox)
-#	endif
+#endif
 		{
 			// TRANSLATORS: Menu item in Options > Graphics section
 			list->Add<ChoiceItem>(_("Fullscreen"),
 				// TRANSLATORS: Option for on/off items in Options > Graphics section
-				[]() -> StringView { return (PreferencesCache::EnableFullscreen ? _("Enabled") : _("Disabled")); },
+				[]() -> StringView {
+					return (PreferencesCache::EnableFullscreen ? _("Enabled") : _("Disabled"));
+				},
 				[this](std::int32_t) {
 					PreferencesCache::EnableFullscreen = !PreferencesCache::EnableFullscreen;
 					theApplication().GetGfxDevice().SetResolution(PreferencesCache::EnableFullscreen);
@@ -138,7 +140,9 @@ namespace Jazz2::UI::Menu
 		// TRANSLATORS: Menu item in Options > Graphics section
 		list->Add<ChoiceItem>(_("Antialiasing"),
 			// TRANSLATORS: Option for on/off items in Options > Graphics section
-			[]() -> StringView { return ((PreferencesCache::ActiveRescaleMode & RescaleMode::UseAntialiasing) == RescaleMode::UseAntialiasing ? _("Enabled") : _("Disabled")); },
+			[]() -> StringView {
+				return ((PreferencesCache::ActiveRescaleMode & RescaleMode::UseAntialiasing) == RescaleMode::UseAntialiasing ? _("Enabled") : _("Disabled"));
+			},
 			[this](std::int32_t) {
 				RescaleMode newMode = (PreferencesCache::ActiveRescaleMode & RescaleMode::TypeMask);
 				if ((PreferencesCache::ActiveRescaleMode & RescaleMode::UseAntialiasing) != RescaleMode::UseAntialiasing) {
@@ -156,19 +160,22 @@ namespace Jazz2::UI::Menu
 		// measured at a sixth of the frame rate over a full-screen background on the Vita's SGX543, so the option isn't
 		// there either, which covers both PS Vita backends and the OpenGL|ES 2.0 profile.
 		// TRANSLATORS: Menu item in Options > Graphics section
-		list->Add<ChoiceItem>(_("Dithering"),
-			[]() -> StringView {
-				switch (PreferencesCache::Dithering) {
-					// TRANSLATORS: Option for on/off items in Options > Graphics section
-					default: return _("Disabled");
-					// TRANSLATORS: Option for Dithering in Options > Graphics section, only the textured and translucent background layers are dithered
-					case DitheringScope::Layers: return _("Background Layers");
-					// TRANSLATORS: Option for Dithering in Options > Graphics section, everything behind the sprites is dithered
-					case DitheringScope::BehindSprites: return _("Behind Sprites");
-					// TRANSLATORS: Option for Dithering in Options > Graphics section, the whole scene is dithered
-					case DitheringScope::Screen: return _("Whole Screen");
-				}
-			},
+		list->Add<ChoiceItem>(_("Dithering"), []() -> StringView {
+			switch (PreferencesCache::Dithering) {
+				// TRANSLATORS: Option for on/off items in Options > Graphics section
+				default:
+					return _("Disabled");
+				// TRANSLATORS: Option for Dithering in Options > Graphics section, only the textured and translucent background layers are dithered
+				case DitheringScope::Layers:
+					return _("Background Layers");
+				// TRANSLATORS: Option for Dithering in Options > Graphics section, everything behind the sprites is dithered
+				case DitheringScope::BehindSprites:
+					return _("Behind Sprites");
+				// TRANSLATORS: Option for Dithering in Options > Graphics section, the whole scene is dithered
+				case DitheringScope::Screen:
+					return _("Whole Screen");
+			}
+		},
 			[this](std::int32_t direction) {
 				// Disabled, then each scope wider than the one before, clamped at the ends - a press goes around
 				constexpr std::int32_t Count = (std::int32_t)DitheringScope::Screen + 1;
@@ -185,7 +192,9 @@ namespace Jazz2::UI::Menu
 		// TRANSLATORS: Menu item in Options > Graphics section
 		list->Add<ChoiceItem>(_("Blur Effects"),
 			// TRANSLATORS: Option for on/off items in Options > Graphics section
-			[]() -> StringView { return (PreferencesCache::BlurEffects ? _("Enabled") : _("Disabled")); },
+			[]() -> StringView {
+				return (PreferencesCache::BlurEffects ? _("Enabled") : _("Disabled"));
+			},
 			[this](std::int32_t) {
 				PreferencesCache::BlurEffects = !PreferencesCache::BlurEffects;
 				_root->ApplyPreferencesChanges(ChangedPreferencesType::Graphics);
@@ -196,20 +205,19 @@ namespace Jazz2::UI::Menu
 		// Sizes the off-screen lighting buffer of the shader lighting path (see PlayerViewport), which the
 		// direct tier does not create at all - it composites a CPU lightmap of its own instead
 		// TRANSLATORS: Menu item in Options > Graphics section
-		list->Add<ChoiceItem>(_("Lighting Resolution"),
-			[this]() -> StringView {
-				// The pixel size is the one the buffer will actually have, so it is derived from the CURRENT
-				// view size rather than from LevelHandler::DefaultWidth/Height. Those are only the upper bound
-				// of the logical view: a display smaller than 720x405 (the PS Vita's 480x272, say) gets a view
-				// of its own size instead, and quoting the cap there claims a lighting buffer larger than the
-				// whole screen. The menu's view size is computed by the same rule from the same constants as
-				// the level's, so it is the same number the level will use
-				Vector2i viewSize = _root->GetViewSize();
-				_lightingResolutionValue = format("{}% ({}x{})", PreferencesCache::LightingResolutionPercent,
-					viewSize.X * PreferencesCache::LightingResolutionPercent / 100,
-					viewSize.Y * PreferencesCache::LightingResolutionPercent / 100);
-				return _lightingResolutionValue;
-			},
+		list->Add<ChoiceItem>(_("Lighting Resolution"), [this]() -> StringView {
+			// The pixel size is the one the buffer will actually have, so it is derived from the CURRENT
+			// view size rather than from LevelHandler::DefaultWidth/Height. Those are only the upper bound
+			// of the logical view: a display smaller than 720x405 (the PS Vita's 480x272, say) gets a view
+			// of its own size instead, and quoting the cap there claims a lighting buffer larger than the
+			// whole screen. The menu's view size is computed by the same rule from the same constants as
+			// the level's, so it is the same number the level will use
+			Vector2i viewSize = _root->GetViewSize();
+			_lightingResolutionValue = format("{}% ({}x{})", PreferencesCache::LightingResolutionPercent,
+				viewSize.X * PreferencesCache::LightingResolutionPercent / 100,
+				viewSize.Y * PreferencesCache::LightingResolutionPercent / 100);
+			return _lightingResolutionValue;
+		},
 			[this](std::int32_t direction) {
 				// Ascending presets so Right increases and Left decreases; clamped at the ends (no wraparound)
 				static const std::int32_t presets[] = { 12, 25, 50, 75, 100 };
@@ -236,17 +244,19 @@ namespace Jazz2::UI::Menu
 		// them. Ultra is reserved for a future tier and not offered yet, so the cycle stops at High and a
 		// configuration that carries Ultra reads as High.
 		// TRANSLATORS: Menu item in Options > Graphics section
-		list->Add<ChoiceItem>(_("Particle Quality"),
-			[]() -> StringView {
-				switch (PreferencesCache::Particles) {
-					// TRANSLATORS: Option for Particle Quality item in Options > Graphics section, no particles are shown
-					case ParticleQuality::Off: return _("Off");
-					// TRANSLATORS: Option for Particle Quality item in Options > Graphics section
-					case ParticleQuality::Low: return _("Low");
-					// TRANSLATORS: Option for Particle Quality item in Options > Graphics section
-					default: return _("High");
-				}
-			},
+		list->Add<ChoiceItem>(_("Particle Quality"), []() -> StringView {
+			switch (PreferencesCache::Particles) {
+				// TRANSLATORS: Option for Particle Quality item in Options > Graphics section, no particles are shown
+				case ParticleQuality::Off:
+					return _("Off");
+				// TRANSLATORS: Option for Particle Quality item in Options > Graphics section
+				case ParticleQuality::Low:
+					return _("Low");
+				// TRANSLATORS: Option for Particle Quality item in Options > Graphics section
+				default:
+					return _("High");
+			}
+		},
 			[this](std::int32_t direction) {
 				std::int32_t index = std::min((std::int32_t)PreferencesCache::Particles, (std::int32_t)ParticleQuality::High) + direction;
 				if (index < (std::int32_t)ParticleQuality::Off) {
@@ -263,7 +273,9 @@ namespace Jazz2::UI::Menu
 		// TRANSLATORS: Menu item in Options > Graphics section
 		list->Add<ChoiceItem>(_("Water Quality"),
 			// TRANSLATORS: Option for Water Quality item in Options > Graphics section
-			[]() -> StringView { return (PreferencesCache::LowWaterQuality ? _("Low") : _("High")); },
+			[]() -> StringView {
+				return (PreferencesCache::LowWaterQuality ? _("Low") : _("High"));
+			},
 			[this](std::int32_t) {
 				PreferencesCache::LowWaterQuality = !PreferencesCache::LowWaterQuality;
 				_root->ApplyPreferencesChanges(ChangedPreferencesType::Graphics);
@@ -273,7 +285,9 @@ namespace Jazz2::UI::Menu
 		// TRANSLATORS: Menu item in Options > Graphics section
 		list->Add<ChoiceItem>(_("Show Player Trails"),
 			// TRANSLATORS: Option for on/off items in Options > Graphics section
-			[]() -> StringView { return (PreferencesCache::ShowPlayerTrails ? _("Enabled") : _("Disabled")); },
+			[]() -> StringView {
+				return (PreferencesCache::ShowPlayerTrails ? _("Enabled") : _("Disabled"));
+			},
 			[this](std::int32_t) {
 				PreferencesCache::ShowPlayerTrails = !PreferencesCache::ShowPlayerTrails;
 				_isDirty = true;
@@ -282,7 +296,9 @@ namespace Jazz2::UI::Menu
 		// TRANSLATORS: Menu item in Options > Graphics section
 		list->Add<ChoiceItem>(_("Preferred Splitscreen"),
 			// TRANSLATORS: Option for Preferred Splitscreen item in Options > Graphics section, the direction the screen is split in
-			[]() -> StringView { return (PreferencesCache::PreferVerticalSplitscreen ? _("Vertical") : _("Horizontal")); },
+			[]() -> StringView {
+				return (PreferencesCache::PreferVerticalSplitscreen ? _("Vertical") : _("Horizontal"));
+			},
 			[this](std::int32_t) {
 				PreferencesCache::PreferVerticalSplitscreen = !PreferencesCache::PreferVerticalSplitscreen;
 				_root->ApplyPreferencesChanges(ChangedPreferencesType::Graphics);
@@ -291,7 +307,9 @@ namespace Jazz2::UI::Menu
 		// TRANSLATORS: Menu item in Options > Graphics section
 		list->Add<ChoiceItem>(_("Prefer Zoom Out"),
 			// TRANSLATORS: Option for on/off items in Options > Graphics section
-			[]() -> StringView { return (PreferencesCache::PreferZoomOut ? _("Enabled") : _("Disabled")); },
+			[]() -> StringView {
+				return (PreferencesCache::PreferZoomOut ? _("Enabled") : _("Disabled"));
+			},
 			[this](std::int32_t) {
 				PreferencesCache::PreferZoomOut = !PreferencesCache::PreferZoomOut;
 				_root->ApplyPreferencesChanges(ChangedPreferencesType::Graphics);
@@ -299,11 +317,15 @@ namespace Jazz2::UI::Menu
 			});
 #endif
 		// TRANSLATORS: Menu item in Options > Graphics section
-		list->Add<ListItem>(_("Safe Area"), [root]() { root->SwitchToSection<SafeAreaOptionsSection>(); });
+		list->Add<ListItem>(_("Safe Area"), [root]() {
+			root->SwitchToSection<SafeAreaOptionsSection>();
+		});
 		// TRANSLATORS: Menu item in Options > Graphics section
 		list->Add<ChoiceItem>(_("Keep Aspect Ratio In Cinematics"),
 			// TRANSLATORS: Option for on/off items in Options > Graphics section
-			[]() -> StringView { return (PreferencesCache::KeepAspectRatioInCinematics ? _("Enabled") : _("Disabled")); },
+			[]() -> StringView {
+				return (PreferencesCache::KeepAspectRatioInCinematics ? _("Enabled") : _("Disabled"));
+			},
 			[this](std::int32_t) {
 				PreferencesCache::KeepAspectRatioInCinematics = !PreferencesCache::KeepAspectRatioInCinematics;
 				_isDirty = true;
@@ -311,7 +333,9 @@ namespace Jazz2::UI::Menu
 		// TRANSLATORS: Menu item in Options > Graphics section
 		list->Add<ChoiceItem>(_("Unaligned Viewport"),
 			// TRANSLATORS: Option for on/off items in Options > Graphics section, keep the color tags \f[c:#d0705d] and \f[/c] as they are
-			[]() -> StringView { return (PreferencesCache::UnalignedViewport ? _("Enabled \f[c:#d0705d](Experimental)\f[/c]") : _("Disabled")); },
+			[]() -> StringView {
+				return (PreferencesCache::UnalignedViewport ? _("Enabled \f[c:#d0705d](Experimental)\f[/c]") : _("Disabled"));
+			},
 			[this](std::int32_t) {
 				PreferencesCache::UnalignedViewport = !PreferencesCache::UnalignedViewport;
 				_isDirty = true;
@@ -319,17 +343,19 @@ namespace Jazz2::UI::Menu
 		// Basic is the frame rate counter (and the round trip time online); Detailed adds where the time of a frame
 		// goes, the GPU and what the hardware reports, and the memory (see PerformanceOverlay)
 		// TRANSLATORS: Menu item in Options > Graphics section
-		list->Add<ChoiceItem>(_("Performance Metrics"),
-			[]() -> StringView {
-				switch (PreferencesCache::PerformanceMetrics) {
-					// TRANSLATORS: Option for Performance Metrics item in Options > Graphics section, nothing is shown
-					default: return _("Off");
-					// TRANSLATORS: Option for Performance Metrics item in Options > Graphics section, only the frame rate is shown
-					case PerformanceMetricsLevel::Basic: return _("Basic");
-					// TRANSLATORS: Option for Performance Metrics item in Options > Graphics section, the frame rate and the time each part of a frame takes
-					case PerformanceMetricsLevel::Detailed: return _("Detailed");
-				}
-			},
+		list->Add<ChoiceItem>(_("Performance Metrics"), []() -> StringView {
+			switch (PreferencesCache::PerformanceMetrics) {
+				// TRANSLATORS: Option for Performance Metrics item in Options > Graphics section, nothing is shown
+				default:
+					return _("Off");
+				// TRANSLATORS: Option for Performance Metrics item in Options > Graphics section, only the frame rate is shown
+				case PerformanceMetricsLevel::Basic:
+					return _("Basic");
+				// TRANSLATORS: Option for Performance Metrics item in Options > Graphics section, the frame rate and the time each part of a frame takes
+				case PerformanceMetricsLevel::Detailed:
+					return _("Detailed");
+			}
+		},
 			[this](std::int32_t direction) {
 				// 3 contiguous values (Off/Basic/Detailed); Left/Right step backward/forward with wraparound
 				PreferencesCache::PerformanceMetrics = (PerformanceMetricsLevel)(((std::int32_t)PreferencesCache::PerformanceMetrics + direction + 3) % 3);

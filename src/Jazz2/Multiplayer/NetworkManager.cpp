@@ -1,7 +1,7 @@
 ﻿#include "NetworkManager.h"
 
 #if defined(DEATH_TARGET_PSP)
-#	include "../../nCine/Backends/Psp/PspNetwork.h"
+#include "../../nCine/Backends/Psp/PspNetwork.h"
 #endif
 
 #if defined(WITH_MULTIPLAYER)
@@ -27,10 +27,10 @@
 #include <IO/MemoryStream.h>
 
 #if !defined(NCINE_PROTOCOL_VERSION_MIN_s)
-#	define NCINE_PROTOCOL_VERSION_MIN_s DEATH_PASTE(NCINE_PROTOCOL_VERSION_MIN, _s)
+#define NCINE_PROTOCOL_VERSION_MIN_s DEATH_PASTE(NCINE_PROTOCOL_VERSION_MIN, _s)
 #endif
 #if !defined(NCINE_PROTOCOL_VERSION_MAX_s)
-#	define NCINE_PROTOCOL_VERSION_MAX_s DEATH_PASTE(NCINE_PROTOCOL_VERSION_MAX, _s)
+#define NCINE_PROTOCOL_VERSION_MAX_s DEATH_PASTE(NCINE_PROTOCOL_VERSION_MAX, _s)
 #endif
 
 using namespace Death;
@@ -42,9 +42,9 @@ namespace Jazz2::Multiplayer
 {
 	PeerDescriptor::PeerDescriptor()
 		: IsAuthenticated(false), IsAdmin(false), EnableLedgeClimb(false), PreferredPlayerType(PlayerType::None),
-			FurColor(0), Points(0), LevelState(PeerLevelState::Unknown), Player(nullptr),
-			LastUpdated(0), IdleElapsedFrames(0.0f), JoinCooldownFrames(0.0f), IsSpectating(SpectateMode::None),
-			CarryOver{}, HasCarryOver(false)
+		  FurColor(0), Points(0), LevelState(PeerLevelState::Unknown), Player(nullptr),
+		  LastUpdated(0), IdleElapsedFrames(0.0f), JoinCooldownFrames(0.0f), IsSpectating(SpectateMode::None),
+		  CarryOver {}, HasCarryOver(false)
 	{
 		// The per-round game-mode statistics and team assignment are initialized by the MpPlayerState base constructor
 	}
@@ -61,7 +61,7 @@ namespace Jazz2::Multiplayer
 
 	void NetworkManager::CreateClient(INetworkHandler* handler, StringView endpoint, std::uint16_t defaultPort, std::uint32_t clientData)
 	{
-		_peerDesc.emplace(Peer{}, std::make_shared<PeerDescriptor>());
+		_peerDesc.emplace(Peer {}, std::make_shared<PeerDescriptor>());
 		_serverConfig = std::make_unique<ServerConfiguration>();
 
 		auto& resolver = ContentResolver::Get();
@@ -78,7 +78,7 @@ namespace Jazz2::Multiplayer
 		// Creating a server is not supported on Emscripten
 		return false;
 #else
-		_peerDesc.emplace(Peer{}, std::make_shared<PeerDescriptor>());
+		_peerDesc.emplace(Peer {}, std::make_shared<PeerDescriptor>());
 		_serverConfig = std::make_unique<ServerConfiguration>(Death::move(serverConfig));
 
 		std::uint16_t serverPort = _serverConfig->ServerPort; // Server port is part of Unique Server ID
@@ -87,7 +87,7 @@ namespace Jazz2::Multiplayer
 
 		_serverConfig->StartUnixTimestamp = DateTime::UtcNow().ToUnixMilliseconds() / 1000;
 
-#	if defined(DEATH_TARGET_PSP)
+#if defined(DEATH_TARGET_PSP)
 		if (_serverConfig->AdhocMode) {
 			// The console becomes the ad hoc group other consoles find by scanning: the group carries the
 			// server's name (as far as the firmware's 8 alphanumeric characters allow), and has to exist
@@ -103,16 +103,16 @@ namespace Jazz2::Multiplayer
 		} else {
 			SetAdhocMode(false);
 		}
-#	endif
+#endif
 
 		bool result = NetworkManagerBase::CreateServer(handler, serverPort);
 
 		if (result) {
-#	if defined(WITH_WEBSOCKET)
+#if defined(WITH_WEBSOCKET)
 			if (_serverConfig->WsPort != 0) {
 				StartWsServer(_serverConfig->WsPort, _serverConfig->WsCertPath, _serverConfig->WsKeyPath);
 			}
-#	endif
+#endif
 			// An ad hoc server is found by scanning for its group; there is no internet to publish it on and
 			// no IP network to broadcast into, so it runs no discovery of its own
 			if (!_serverConfig->IsPrivate && !_serverConfig->AdhocMode) {
@@ -130,7 +130,7 @@ namespace Jazz2::Multiplayer
 
 	bool NetworkManager::CreateLocalServer(INetworkHandler* handler, ServerConfiguration&& serverConfig)
 	{
-		_peerDesc.emplace(Peer{}, std::make_shared<PeerDescriptor>());
+		_peerDesc.emplace(Peer {}, std::make_shared<PeerDescriptor>());
 		_serverConfig = std::make_unique<ServerConfiguration>(Death::move(serverConfig));
 		_serverConfig->StartUnixTimestamp = DateTime::UtcNow().ToUnixMilliseconds() / 1000;
 
@@ -184,13 +184,13 @@ namespace Jazz2::Multiplayer
 	std::shared_ptr<PeerDescriptor> NetworkManager::GetPeerDescriptor(LocalPeerT)
 	{
 		std::unique_lock<Spinlock> l(_lock);
-		auto it = _peerDesc.find(Peer{});
+		auto it = _peerDesc.find(Peer {});
 		return (it != _peerDesc.end() ? it->second : nullptr);
 	}
 
 	std::shared_ptr<PeerDescriptor> NetworkManager::GetPeerDescriptor(LocalPeerT, std::int32_t index)
 	{
-		Peer key = (index <= 0 ? Peer{} : Peer::Local(index));
+		Peer key = (index <= 0 ? Peer {} : Peer::Local(index));
 		std::unique_lock<Spinlock> l(_lock);
 		auto it = _peerDesc.find(key);
 		return (it != _peerDesc.end() ? it->second : nullptr);
@@ -198,7 +198,7 @@ namespace Jazz2::Multiplayer
 
 	std::shared_ptr<PeerDescriptor> NetworkManager::AddLocalPlayer(std::int32_t index)
 	{
-		Peer key = (index <= 0 ? Peer{} : Peer::Local(index));
+		Peer key = (index <= 0 ? Peer {} : Peer::Local(index));
 		std::unique_lock<Spinlock> l(_lock);
 		auto it = _peerDesc.find(key);
 		if (it != _peerDesc.end()) {
@@ -223,7 +223,7 @@ namespace Jazz2::Multiplayer
 
 	bool NetworkManager::HasInboundConnections() const
 	{
-		if DEATH_UNLIKELY(GetState() == NetworkState::Local) {
+		if DEATH_UNLIKELY (GetState() == NetworkState::Local) {
 			// A local session binds no socket, so it can never have inbound connections. The peer map still holds
 			// one synthetic descriptor per local splitscreen player (see AddLocalPlayer()), so the size check below
 			// would report them as connected clients and make the server broadcast state nobody can receive.
@@ -307,7 +307,7 @@ namespace Jazz2::Multiplayer
 	{
 		HashMap<String, bool> includedFiles;
 
-		ServerConfiguration serverConfig{};
+		ServerConfiguration serverConfig {};
 		serverConfig.AllowAssetStreaming = true;
 		serverConfig.ColorizePlayersByTeam = true;
 		serverConfig.GameMode = MpGameMode::Cooperation;
@@ -410,7 +410,7 @@ namespace Jazz2::Multiplayer
 		serverConfig.FriendlyFireCostsTeamPoint = playlistEntry.FriendlyFireCostsTeamPoint;
 	}
 
-	template<class TJson, class TTarget>
+	template <class TJson, class TTarget>
 	static void ParseGameModeRules(TJson& json, TTarget& target)
 	{
 		// The same properties in the root and in a playlist entry
@@ -483,7 +483,8 @@ namespace Jazz2::Multiplayer
 
 			Json::CharReaderBuilder builder;
 			auto reader = std::unique_ptr<Json::CharReader>(builder.newCharReader());
-			Json::Value doc; std::string errors;
+			Json::Value doc;
+			std::string errors;
 			if (reader->parse(buffer.get(), buffer.get() + fileSize, &doc, &errors)) {
 				if (level == 0) {
 					LOGI("Loaded configuration from \"{}\"", configPath);
@@ -575,7 +576,7 @@ namespace Jazz2::Multiplayer
 				if (doc["AllowAssetStreaming"].get(allowAssetStreaming) == Json::SUCCESS) {
 					serverConfig.AllowAssetStreaming = allowAssetStreaming;
 				}
-				
+
 				bool requiresDiscordAuth;
 				if (doc["RequiresDiscordAuth"].get(requiresDiscordAuth) == Json::SUCCESS) {
 					serverConfig.RequiresDiscordAuth = requiresDiscordAuth;
@@ -809,7 +810,7 @@ namespace Jazz2::Multiplayer
 					serverConfig.Playlist.clear();
 					for (auto& entry : playlist) {
 						// Playlist entry inherits all properties from the main server configuration
-						PlaylistEntry playlistEntry{};
+						PlaylistEntry playlistEntry {};
 						playlistEntry.GameMode = serverConfig.GameMode;
 						playlistEntry.ReforgedGameplay = serverConfig.ReforgedGameplay;
 						playlistEntry.AllowLedgeClimb = serverConfig.AllowLedgeClimb;
@@ -979,7 +980,8 @@ namespace Jazz2::Multiplayer
 			return;
 		}
 
-		StringView address; std::uint16_t port;
+		StringView address;
+		std::uint16_t port;
 		if (!TrySplitAddressAndPort(trimmed, address, port) || (!IsAddressValid(address) && !IsDomainValid(address))) {
 			LOGW("Specified server address override \"{}\" is invalid, ignoring", trimmed);
 			return;
@@ -1035,25 +1037,44 @@ namespace Jazz2::Multiplayer
 	StringView NetworkManager::GameModeToString(MpGameMode mode)
 	{
 		switch (mode) {
-			case MpGameMode::Battle: return "Battle"_s;
-			case MpGameMode::TeamBattle: return "Team Battle"_s;
-			case MpGameMode::Race: return "Race"_s;
-			case MpGameMode::TeamRace: return "Team Race"_s;
-			case MpGameMode::TreasureHunt: return "Treasure Hunt"_s;
-			case MpGameMode::TeamTreasureHunt: return "Team Treasure Hunt"_s;
-			case MpGameMode::CaptureTheFlag: return "Capture The Flag"_s;
-			case MpGameMode::Cooperation: return "Cooperation"_s;
-			case MpGameMode::RoastTag: return "Roast Tag"_s;
-			case MpGameMode::LastRabbitStanding: return "Last Rabbit Standing"_s;
-			case MpGameMode::ExtendedLastRabbitStanding: return "Extended Last Rabbit Standing"_s;
-			case MpGameMode::Pestilence: return "Pestilence"_s;
-			case MpGameMode::TeamLastRabbitStanding: return "Team Last Rabbit Standing"_s;
-			case MpGameMode::Jailbreak: return "Jailbreak"_s;
-			case MpGameMode::DeathCaptureTheFlag: return "Death Capture The Flag"_s;
-			case MpGameMode::FlagRun: return "Flag Run"_s;
-			case MpGameMode::Domination: return "Domination"_s;
-			case MpGameMode::HeadHunters: return "Head Hunters"_s;
-			default: return "Unknown"_s;
+			case MpGameMode::Battle:
+				return "Battle"_s;
+			case MpGameMode::TeamBattle:
+				return "Team Battle"_s;
+			case MpGameMode::Race:
+				return "Race"_s;
+			case MpGameMode::TeamRace:
+				return "Team Race"_s;
+			case MpGameMode::TreasureHunt:
+				return "Treasure Hunt"_s;
+			case MpGameMode::TeamTreasureHunt:
+				return "Team Treasure Hunt"_s;
+			case MpGameMode::CaptureTheFlag:
+				return "Capture The Flag"_s;
+			case MpGameMode::Cooperation:
+				return "Cooperation"_s;
+			case MpGameMode::RoastTag:
+				return "Roast Tag"_s;
+			case MpGameMode::LastRabbitStanding:
+				return "Last Rabbit Standing"_s;
+			case MpGameMode::ExtendedLastRabbitStanding:
+				return "Extended Last Rabbit Standing"_s;
+			case MpGameMode::Pestilence:
+				return "Pestilence"_s;
+			case MpGameMode::TeamLastRabbitStanding:
+				return "Team Last Rabbit Standing"_s;
+			case MpGameMode::Jailbreak:
+				return "Jailbreak"_s;
+			case MpGameMode::DeathCaptureTheFlag:
+				return "Death Capture The Flag"_s;
+			case MpGameMode::FlagRun:
+				return "Flag Run"_s;
+			case MpGameMode::Domination:
+				return "Domination"_s;
+			case MpGameMode::HeadHunters:
+				return "Head Hunters"_s;
+			default:
+				return "Unknown"_s;
 		}
 	}
 
@@ -1140,7 +1161,7 @@ namespace Jazz2::Multiplayer
 
 	String NetworkManager::UuidToString(StaticArrayView<Uuid::Size, Uuid::Type> uuid)
 	{
-		String uuidStr{NoInit, 39};
+		String uuidStr { NoInit, 39 };
 		DEATH_UNUSED std::size_t uuidStrLength = formatInto(MutableStringView(uuidStr), "{:.2X}{:.2X}:{:.2X}{:.2X}:{:.2X}{:.2X}:{:.2X}{:.2X}:{:.2X}{:.2X}:{:.2X}{:.2X}:{:.2X}{:.2X}:{:.2X}{:.2X}",
 			uuid[0], uuid[1], uuid[2], uuid[3], uuid[4], uuid[5], uuid[6], uuid[7], uuid[8], uuid[9], uuid[10], uuid[11], uuid[12], uuid[13], uuid[14], uuid[15]);
 		DEATH_DEBUG_ASSERT(uuidStr.size() == uuidStrLength);
@@ -1205,12 +1226,12 @@ namespace Jazz2::Multiplayer
 				// The length comes from a peer that isn't authenticated yet, so it's bounded before anything is allocated
 				constexpr std::uint32_t MaxPasswordLength = 256;
 				std::uint32_t passwordLength = packet.ReadVariableUint32();
-				if DEATH_UNLIKELY(passwordLength > MaxPasswordLength || std::int64_t(passwordLength) > packet.GetSize() - packet.GetPosition()) {
+				if DEATH_UNLIKELY (passwordLength > MaxPasswordLength || std::int64_t(passwordLength) > packet.GetSize() - packet.GetPosition()) {
 					LOGI("Peer kicked ({}) [{}]: Invalid password", AddressToString(peer), peer);
 					Kick(peer, Reason::InvalidPassword);
 					return true;
 				}
-				String password{NoInit, passwordLength};
+				String password { NoInit, passwordLength };
 				packet.Read(password.data(), passwordLength);
 
 				std::uint8_t playerNameLength = packet.ReadValue<std::uint8_t>();
@@ -1222,7 +1243,7 @@ namespace Jazz2::Multiplayer
 					return true;
 				}
 
-				String playerName{NoInit, playerNameLength};
+				String playerName { NoInit, playerNameLength };
 				packet.Read(playerName.data(), playerNameLength);
 
 				const auto& serverConfig = GetServerConfiguration();
@@ -1244,7 +1265,7 @@ namespace Jazz2::Multiplayer
 				}
 
 				std::uint8_t deviceIdLength = packet.ReadValue<std::uint8_t>();
-				String deviceId{NoInit, deviceIdLength};
+				String deviceId { NoInit, deviceIdLength };
 				packet.Read(deviceId.data(), deviceIdLength);
 
 				std::uint64_t playerUserId = packet.ReadVariableUint64();
@@ -1295,9 +1316,9 @@ namespace Jazz2::Multiplayer
 						peerDesc->IsAdmin ? " [Admin]" : "", peer);
 
 					MemoryStream response(37);
-					response.WriteValue<std::uint8_t>(0x01);	// Flags (0x01 = accepted protocol version range follows)
+					response.WriteValue<std::uint8_t>(0x01); // Flags (0x01 = accepted protocol version range follows)
 					response.Write(PreferencesCache::UniqueServerID, PreferencesCache::UniqueServerID.size() - sizeof(std::uint16_t));
-					response.WriteValue<std::uint16_t>(GetServerPort());	// Server port is part of Unique Server ID
+					response.WriteValue<std::uint16_t>(GetServerPort()); // Server port is part of Unique Server ID
 					// Appended, so older clients that read only the fields above are not affected
 					response.WriteVariableUint64(minVersion);
 					response.WriteVariableUint64(maxVersion);

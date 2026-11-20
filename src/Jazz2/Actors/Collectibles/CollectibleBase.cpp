@@ -172,8 +172,7 @@ namespace Jazz2::Actors::Collectibles
 			OnCollect(player);
 			return true;
 		} else {
-			bool shouldDrop = _untouched && (runtime_cast<Weapons::ShotBase>(other) ||
-				runtime_cast<Weapons::TNT>(other) || runtime_cast<Enemies::TurtleShell>(other));
+			bool shouldDrop = _untouched && (runtime_cast<Weapons::ShotBase>(other) || runtime_cast<Weapons::TNT>(other) || runtime_cast<Enemies::TurtleShell>(other));
 			if (shouldDrop) {
 				Vector2f speed = other->GetSpeed();
 				_externalForce.X += speed.X / 2.0f * (0.9f + Random().NextFloat(0.0f, 0.2f));

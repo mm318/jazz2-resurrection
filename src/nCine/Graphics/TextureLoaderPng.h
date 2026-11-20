@@ -2,7 +2,8 @@
 
 #include "ITextureLoader.h"
 
-namespace nCine {
+namespace nCine
+{
 
 	/**
 		@brief Texture loader for the Portable Network Graphics (`.png`) format
@@ -16,4 +17,3 @@ namespace nCine {
 	};
 
 }
-

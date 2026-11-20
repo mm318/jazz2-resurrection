@@ -108,7 +108,7 @@ namespace Jazz2::Editor
 		public:
 			RecoveryList(IEditorContext& session, std::shared_ptr<RecoveryState> state, Dialog* dialog)
 				: Stack(Orientation::Vertical, 3.0f, Thickness(0.0f, 0.0f, 3.0f, 0.0f)), _session(session), _state(Death::move(state)),
-					_dialog(dialog), _shownGeneration(UINT32_MAX)
+				  _dialog(dialog), _shownGeneration(UINT32_MAX)
 			{
 			}
 
@@ -145,26 +145,28 @@ namespace Jazz2::Editor
 					String path = copy.Path;
 					// TRANSLATORS: Button next to a recovery copy in the Recovery Copies dialog, opens the level as the copy has it
 					row->Add<Button>(_x("editor", "Restore"), EditorIcon::None, [s, dialog, path]() {
-						dialog->Close();
-						s->OpenRecoveryCopy(path);
-					})->Tooltip = _x("editor", "Edit the level as the copy has it, with the history of its changes");
+						   dialog->Close();
+						   s->OpenRecoveryCopy(path);
+					   })
+						->Tooltip = _x("editor", "Edit the level as the copy has it, with the history of its changes");
 					row->Add<Button>(StringView(), EditorIcon::Delete, [s, state, path]() {
-						Surface* surface = s->GetSurface();
-						if (surface == nullptr) {
-							return;
-						}
-						// TRANSLATORS: Title and buttons of the message confirming that a recovery copy is removed
-						MessageDialog::Show(*surface, _x("editor", "Recovery Copies"), _x("editor", "The changes in this copy will be lost. Remove it?"), { _x("editor", "Remove"), _x("editor", "Cancel") },
-							[state, path](std::int32_t button) {
-							if (button == 0) {
-								fs::RemoveFile(path);
+						   Surface* surface = s->GetSurface();
+						   if (surface == nullptr) {
+							   return;
+						   }
+						   // TRANSLATORS: Title and buttons of the message confirming that a recovery copy is removed
+						   MessageDialog::Show(*surface, _x("editor", "Recovery Copies"), _x("editor", "The changes in this copy will be lost. Remove it?"), { _x("editor", "Remove"), _x("editor", "Cancel") },
+							   [state, path](std::int32_t button) {
+								   if (button == 0) {
+									   fs::RemoveFile(path);
 #if defined(DEATH_TARGET_EMSCRIPTEN)
-								fs::SyncToPersistent();
+									   fs::SyncToPersistent();
 #endif
-								ReadCopies(*state);
-							}
-						});
-					})->Tooltip = _x("editor", "Remove the copy");
+									   ReadCopies(*state);
+								   }
+							   });
+					   })
+						->Tooltip = _x("editor", "Remove the copy");
 
 					String details;
 					if (copy.SourcePath.empty()) {

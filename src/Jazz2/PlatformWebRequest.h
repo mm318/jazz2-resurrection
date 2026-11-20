@@ -5,12 +5,12 @@
 #include <IO/WebRequest.h>
 
 #if defined(WITH_CURL) && (defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_VITA))
-#	include "ContentResolver.h"
+#include "ContentResolver.h"
 
-#	include <Containers/String.h>
-#	include <IO/FileSystem.h>
+#include <Containers/String.h>
+#include <IO/FileSystem.h>
 
-#	include <curl/curl.h>
+#include <curl/curl.h>
 #endif
 
 namespace Jazz2

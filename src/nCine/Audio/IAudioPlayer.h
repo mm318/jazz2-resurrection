@@ -19,11 +19,12 @@ namespace nCine
 
 	public:
 		/** @brief Playback state */
-		enum class PlayerState {
-			Initial = 0,	/**< Created but never played */
-			Playing,		/**< Currently playing */
-			Paused,			/**< Paused, can be resumed from the current position */
-			Stopped			/**< Stopped and rewound to the beginning */
+		enum class PlayerState
+		{
+			Initial = 0, /**< Created but never played */
+			Playing, /**< Currently playing */
+			Paused, /**< Paused, can be resumed from the current position */
+			Stopped /**< Stopped and rewound to the beginning */
 		};
 
 		IAudioPlayer(ObjectType type);
@@ -33,7 +34,8 @@ namespace nCine
 		IAudioPlayer& operator=(IAudioPlayer&&) = default;
 
 		/** @brief Returns the backend id of the source */
-		inline std::uint32_t GetSourceId() const {
+		inline std::uint32_t GetSourceId() const
+		{
 			return _sourceId;
 		}
 
@@ -68,7 +70,8 @@ namespace nCine
 		virtual void Stop() = 0;
 
 		/** @brief Returns the current playback state */
-		inline PlayerState GetState() const {
+		inline PlayerState GetState() const
+		{
 			return _state;
 		}
 		/** @brief Returns `true` if the player is currently playing */
@@ -77,70 +80,83 @@ namespace nCine
 		 *
 		 * All user volumes are folded into the gain, so zero gain means muted.
 		 */
-		inline bool IsSilent() const {
+		inline bool IsSilent() const
+		{
 			// Written so that a NaN gain counts as silent rather than as audible
 			return !(_gain > 0.0f);
 		}
 
-		inline bool IsPlaying() const {
+		inline bool IsPlaying() const
+		{
 			return _state == PlayerState::Playing;
 		}
 		/** @brief Returns `true` if the player is paused */
-		inline bool IsPaused() const {
+		inline bool IsPaused() const
+		{
 			return _state == PlayerState::Paused;
 		}
 		/** @brief Returns `true` if the player is stopped */
-		inline bool IsStopped() const {
+		inline bool IsStopped() const
+		{
 			return _state == PlayerState::Stopped;
 		}
 
 		/** @brief Returns `true` if the player is looping */
-		inline bool IsLooping() const {
+		inline bool IsLooping() const
+		{
 			return GetFlags(PlayerFlags::Looping);
 		}
 		/** @brief Sets whether the player should loop */
-		virtual void SetLooping(bool value) {
+		virtual void SetLooping(bool value)
+		{
 			SetFlags(PlayerFlags::Looping, value);
 		}
 		/** @brief Returns `true` if the position is relative to the listener */
-		inline bool IsSourceRelative() const {
+		inline bool IsSourceRelative() const
+		{
 			return GetFlags(PlayerFlags::SourceRelative);
 		}
 		/** @brief Sets whether the position is relative to the listener */
 		virtual void SetSourceRelative(bool value);
 
 		/** @brief Returns `true` if the player is forced to behave as a 2D source */
-		inline bool IsAs2D() const {
+		inline bool IsAs2D() const
+		{
 			return GetFlags(PlayerFlags::As2D);
 		}
 		/** @brief Sets whether the player should behave as a 2D source */
-		virtual void SetAs2D(bool value) {
+		virtual void SetAs2D(bool value)
+		{
 			SetFlags(PlayerFlags::As2D, value);
 		}
 
 		/** @brief Returns the player gain */
-		inline float GetGain() const {
+		inline float GetGain() const
+		{
 			return _gain;
 		}
 		/** @brief Sets the player gain */
 		virtual void SetGain(float gain);
 
 		/** @brief Returns the player pitch */
-		inline float GetPitch() const {
+		inline float GetPitch() const
+		{
 			return _pitch;
 		}
 		/** @brief Sets the player pitch */
 		virtual void SetPitch(float pitch);
 
 		/** @brief Returns the player low-pass amount */
-		inline float GetLowPass() const {
+		inline float GetLowPass() const
+		{
 			return _lowPass;
 		}
 		/** @brief Sets the player low-pass amount */
 		virtual void SetLowPass(float value);
 
 		/** @brief Returns the player position */
-		inline Vector3f GetPosition() const {
+		inline Vector3f GetPosition() const
+		{
 			return _position;
 		}
 		/** @brief Sets the player position */
@@ -148,7 +164,8 @@ namespace nCine
 
 	protected:
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		enum class PlayerFlags {
+		enum class PlayerFlags
+		{
 			None = 0,
 			Looping = 0x01,
 			SourceRelative = 0x02,
@@ -172,11 +189,13 @@ namespace nCine
 		/** @brief Position in space */
 		Vector3f _position;
 
-		constexpr bool GetFlags(PlayerFlags flag) const noexcept {
+		constexpr bool GetFlags(PlayerFlags flag) const noexcept
+		{
 			return (_flags & flag) == flag;
 		}
 
-		constexpr void SetFlags(PlayerFlags flag, bool value) noexcept {
+		constexpr void SetFlags(PlayerFlags flag, bool value) noexcept
+		{
 			if (value) {
 				_flags = _flags | flag;
 			} else {

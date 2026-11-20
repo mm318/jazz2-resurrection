@@ -14,8 +14,8 @@
 #include "../../../nCine/Base/FrameTimer.h"
 
 #if defined(DEATH_TARGET_ANDROID)
-#	include "../../../nCine/Backends/Android/AndroidApplication.h"
-#	include "../../../nCine/Backends/Android/AndroidJniHelper.h"
+#include "../../../nCine/Backends/Android/AndroidApplication.h"
+#include "../../../nCine/Backends/Android/AndroidJniHelper.h"
 #endif
 
 #include <Containers/StringConcatenable.h>
@@ -32,14 +32,15 @@ namespace Jazz2::UI::Menu
 
 	ServerSelectSection::ServerSelectSection()
 		: _selectedIndex(0), _animation(0.0f), _y(0.0f), _height(0.0f), _availableHeight(0.0f), _pressedCount(0),
-		_touchTime(0.0f), _touchSpeed(0.0f), _noiseCooldown(0.0f), _discovery(std::make_unique<Jazz2::Multiplayer::ServerDiscovery>(this)),
-		_touchDirection(0), _transitionTime(0.0f), _shouldStart(false), _isConnecting(false),
+		  _touchTime(0.0f), _touchSpeed(0.0f), _noiseCooldown(0.0f), _discovery(std::make_unique<Jazz2::Multiplayer::ServerDiscovery>(this)),
+		  _touchDirection(0), _transitionTime(0.0f), _shouldStart(false), _isConnecting(false),
 #if defined(DEATH_TARGET_PSP)
-		_switchingMode(false),
+		  _switchingMode(false),
 #endif
-		_waitForIpInput(false), _keyboardVisible(false), _ipInput(64)
+		  _waitForIpInput(false), _keyboardVisible(false), _ipInput(64)
 #if defined(DEATH_TARGET_ANDROID)
-		, _recalcVisibleBoundsTimeLeft(30.0f)
+		  ,
+		  _recalcVisibleBoundsTimeLeft(30.0f)
 #endif
 	{
 #if defined(DEATH_TARGET_ANDROID)
@@ -815,8 +816,8 @@ namespace Jazz2::UI::Menu
 			// carries the endpoint of that family alone - so they are collected into the endpoint list the
 			// client already knows how to walk through in order, instead of becoming two entries
 			String endpoints = (sameEndpoint
-				? Death::move(desc.EndpointString)
-				: AppendEndpoint(item.Desc.EndpointString, desc.EndpointString));
+					? Death::move(desc.EndpointString)
+					: AppendEndpoint(item.Desc.EndpointString, desc.EndpointString));
 
 			item.Desc = Death::move(desc);
 			item.Desc.EndpointString = Death::move(endpoints);
@@ -944,7 +945,8 @@ namespace Jazz2::UI::Menu
 		String wsUrl;
 		if (_selectedServer.WsPort != 0) {
 			// Server from list: construct ws[s]://host:WsPort from the ENet endpoint
-			StringView host; std::uint16_t enetPort;
+			StringView host;
+			std::uint16_t enetPort;
 			if (Jazz2::Multiplayer::NetworkManagerBase::TrySplitAddressAndPort(firstEndpoint, host, enetPort)) {
 				StringView protocol = (_selectedServer.WsSecure ? "wss://"_s : "ws://"_s);
 				char portBuf[8];
@@ -961,7 +963,8 @@ namespace Jazz2::UI::Menu
 			// Manual IP entry or fallback: wrap in ws:// if not already a WebSocket URL
 			if (!firstEndpoint.hasPrefix("ws://"_s) && !firstEndpoint.hasPrefix("wss://"_s)) {
 				// Bare IPv6 (more than one colon, no brackets yet) needs to be enclosed in [...]
-				StringView host; std::uint16_t port = 0;
+				StringView host;
+				std::uint16_t port = 0;
 				bool isIpv6 = (Jazz2::Multiplayer::NetworkManagerBase::TrySplitAddressAndPort(firstEndpoint, host, port) && host.contains(':'));
 				if (isIpv6) {
 					char portBuf[12] {};

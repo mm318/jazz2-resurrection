@@ -202,7 +202,7 @@ namespace Jazz2::Editor
 
 	float PlayTestDebug::BeginFrame(float timeMult)
 	{
-		if DEATH_LIKELY(!_timeControlled) {
+		if DEATH_LIKELY (!_timeControlled) {
 			return timeMult;
 		}
 
@@ -263,7 +263,7 @@ namespace Jazz2::Editor
 
 	void PlayTestRootNode::OnUpdate(float timeMult)
 	{
-		if DEATH_LIKELY(!_debug._timeControlled) {
+		if DEATH_LIKELY (!_debug._timeControlled) {
 			SceneNode::OnUpdate(timeMult);
 			return;
 		}

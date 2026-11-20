@@ -44,15 +44,15 @@
 #include <Utf8.h>
 
 #if defined(DEATH_TARGET_WINDOWS)
-#	include <CommonWindows.h>
-#	include <d3dcompiler.h>
+#include <CommonWindows.h>
+#include <d3dcompiler.h>
 #else
-#	include <cerrno>
-#	include <fcntl.h>
-#	include <spawn.h>
-#	include <sys/types.h>
-#	include <sys/wait.h>
-#	include <unistd.h>
+#include <cerrno>
+#include <fcntl.h>
+#include <spawn.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
 // posix_spawn needs the caller's environment passed explicitly, and it is not declared by any header
 extern char** environ;
 #endif
@@ -75,7 +75,7 @@ namespace
 		if (size < 0) {
 			return false;
 		}
-		content = String{NoInit, static_cast<std::size_t>(size)};
+		content = String { NoInit, static_cast<std::size_t>(size) };
 		return (size == 0 || s->Read(content.data(), size) == size);
 	}
 
@@ -416,28 +416,45 @@ namespace
 	/** One non-sampler uniform of a transpiled shader's "<Program>_Uniforms" struct */
 	struct GeneratedUniformField
 	{
-		String Name;					// GLSL uniform name (== the emitted struct field name)
-		std::uint32_t ComponentCount;	// 1 for float/int/bool, N for vecN/ivecN/bvecN
+		String Name; // GLSL uniform name (== the emitted struct field name)
+		std::uint32_t ComponentCount; // 1 for float/int/bool, N for vecN/ivecN/bvecN
 	};
 
 	/** One shader the transpiler accepted, ready to be written into the aggregate header */
 	struct GeneratedShaderEntry
 	{
-		String Prefix;								// program prefix, e.g. "Colorized" or "Tinted_USE_PALETTE"
-		String Code;								// the transpiled struct + fragment function
-		SmallVector<GeneratedUniformField, 0> Fields;	// non-sampler uniform layout of the struct
-		bool HasComputeVaryings = false;			// a "<Prefix>_ComputeVaryings" was emitted (per-instance-constant varyings)
+		String Prefix; // program prefix, e.g. "Colorized" or "Tinted_USE_PALETTE"
+		String Code; // the transpiled struct + fragment function
+		SmallVector<GeneratedUniformField, 0> Fields; // non-sampler uniform layout of the struct
+		bool HasComputeVaryings = false; // a "<Prefix>_ComputeVaryings" was emitted (per-instance-constant varyings)
 	};
 
 	/** Scalar-component count of a reflected GLSL type (0 for matrices/structs/samplers - not a varying member) */
 	std::uint32_t ComponentCountOfGlslType(GlslType t)
 	{
 		switch (t) {
-			case GlslType::Float: case GlslType::Int: case GlslType::UInt: case GlslType::Bool: return 1;
-			case GlslType::Vec2: case GlslType::IVec2: case GlslType::UVec2: case GlslType::BVec2: return 2;
-			case GlslType::Vec3: case GlslType::IVec3: case GlslType::UVec3: case GlslType::BVec3: return 3;
-			case GlslType::Vec4: case GlslType::IVec4: case GlslType::UVec4: case GlslType::BVec4: return 4;
-			default: return 0;
+			case GlslType::Float:
+			case GlslType::Int:
+			case GlslType::UInt:
+			case GlslType::Bool:
+				return 1;
+			case GlslType::Vec2:
+			case GlslType::IVec2:
+			case GlslType::UVec2:
+			case GlslType::BVec2:
+				return 2;
+			case GlslType::Vec3:
+			case GlslType::IVec3:
+			case GlslType::UVec3:
+			case GlslType::BVec3:
+				return 3;
+			case GlslType::Vec4:
+			case GlslType::IVec4:
+			case GlslType::UVec4:
+			case GlslType::BVec4:
+				return 4;
+			default:
+				return 0;
 		}
 	}
 
@@ -492,10 +509,14 @@ namespace
 			return 1;
 		}
 		switch (type.back()) {
-			case '2': return 2;
-			case '3': return 3;
-			case '4': return 4;
-			default: return 1;		// float / int / bool
+			case '2':
+				return 2;
+			case '3':
+				return 3;
+			case '4':
+				return 4;
+			default:
+				return 1; // float / int / bool
 		}
 	}
 
@@ -525,12 +546,12 @@ namespace
 				continue;
 			}
 			if (line.front() == '}') {
-				break;					// the closing "};"
+				break; // the closing "};"
 			}
 			if (line.back() != ';') {
 				continue;
 			}
-			line = line.exceptSuffix(1).trimmed(Blanks);	// drop the trailing ';'
+			line = line.exceptSuffix(1).trimmed(Blanks); // drop the trailing ';'
 			StringView space = line.findLastAny(" \t"_s);
 			if (space.empty()) {
 				continue;
@@ -583,7 +604,7 @@ namespace
 			if (sw.size() == 1) {
 				ok = "xyrgst"_s.contains(sw[0]);
 			} else {
-				ok = (sw == "xy"_s || sw == "rg"_s);	// the only swizzle methods sw::vec2 provides
+				ok = (sw == "xy"_s || sw == "rg"_s); // the only swizzle methods sw::vec2 provides
 			}
 			if (!ok) {
 				reason = "reads '."_s + sw + "' of vTexCoords, which the software path only exposes as a 2D texture coordinate"_s;
@@ -714,7 +735,7 @@ namespace
 		HRESULT hr = g_D3DCompile(source.data(), source.size(), nullptr, nullptr, nullptr,
 			entry, target, flags, 0, &code, &errors);
 		if (errors != nullptr) {
-			log = String{reinterpret_cast<const char*>(errors->GetBufferPointer())};
+			log = String { reinterpret_cast<const char*>(errors->GetBufferPointer()) };
 			errors->Release();
 		}
 		if (code != nullptr) {
@@ -739,7 +760,7 @@ namespace
 	/** Matches @p name against @p pattern, where the pattern may contain "*" and "?" wildcards */
 	bool MatchesWildcard(StringView pattern, StringView name)
 	{
-		constexpr std::size_t Npos = ~std::size_t{0};
+		constexpr std::size_t Npos = ~std::size_t { 0 };
 		std::size_t p = 0, n = 0, star = Npos, mark = 0;
 		while (n < name.size()) {
 			if (p < pattern.size() && (pattern[p] == '?' || pattern[p] == name[n])) {
@@ -803,9 +824,7 @@ namespace
 					continue;
 				}
 				// The last component names the file to find, every earlier one a directory to descend into
-				for (StringView entry : fs::Directory(directory, lastComponent
-						? fs::EnumerationOptions::SkipDirectories | fs::EnumerationOptions::SkipSpecial
-						: fs::EnumerationOptions::SkipFiles | fs::EnumerationOptions::SkipSpecial)) {
+				for (StringView entry : fs::Directory(directory, lastComponent ? fs::EnumerationOptions::SkipDirectories | fs::EnumerationOptions::SkipSpecial : fs::EnumerationOptions::SkipFiles | fs::EnumerationOptions::SkipSpecial)) {
 					StringView name = fs::GetFileName(entry);
 					if (MatchesWildcard(component, name)) {
 						next.push_back(fs::CombinePath(directory, name));
@@ -894,7 +913,7 @@ namespace
 	*/
 	bool RunProcessCaptured(StringView commandLine, StringView logFile, DWORD& exitCode)
 	{
-		exitCode = ~DWORD{0};
+		exitCode = ~DWORD { 0 };
 		SECURITY_ATTRIBUTES security = {};
 		security.nLength = sizeof(security);
 		security.bInheritHandle = TRUE;
@@ -955,7 +974,7 @@ namespace
 
 		String command = "\""_s + glslangPath + "\" -V --target-env vulkan1.0 -S "_s +
 			(vertexStage ? "vert"_s : "frag"_s) + " \""_s + inputPath + "\" -o \""_s + spirvPath + "\""_s;
-		DWORD exitCode = ~DWORD{0};
+		DWORD exitCode = ~DWORD { 0 };
 		bool ran = RunProcessCaptured(command, logPath, exitCode);
 		{
 			String logContent;
@@ -970,7 +989,7 @@ namespace
 				std::size_t words = bytes.size() / 4;
 				spirv.resize(words);
 				std::memcpy(spirv.data(), bytes.data(), words * 4);
-				if (spirv.empty() || spirv[0] != 0x07230203u) {		// SPIR-V magic number
+				if (spirv.empty() || spirv[0] != 0x07230203u) { // SPIR-V magic number
 					spirv.clear();
 					ok = false;
 					if (log.empty()) {
@@ -992,9 +1011,19 @@ namespace
 #else
 	// D3DCompile is a Windows DLL entry point with no counterpart elsewhere, so the HLSL/DXBC paths stay
 	// unavailable; the child-process ones below do not have that excuse and are implemented for real.
-	bool LoadD3DCompiler(String& error) { error = "D3DCompile is only available on Windows"; return false; }
-	bool CompileHlslToDxbc(const String&, const char*, const char*, SmallVectorImpl<std::uint8_t>&, String&) { return false; }
-	bool CompileHlsl(const String&, const char*, const char*, String&) { return false; }
+	bool LoadD3DCompiler(String& error)
+	{
+		error = "D3DCompile is only available on Windows";
+		return false;
+	}
+	bool CompileHlslToDxbc(const String&, const char*, const char*, SmallVectorImpl<std::uint8_t>&, String&)
+	{
+		return false;
+	}
+	bool CompileHlsl(const String&, const char*, const char*, String&)
+	{
+		return false;
+	}
 
 	/** Runs @p argv with stdout+stderr redirected to @p logFile; false if the process could not start */
 	bool RunProcessCaptured(const SmallVectorImpl<String>& argv, StringView logFile, int& exitCode)
@@ -1042,7 +1071,7 @@ namespace
 	bool LocateGlslang(StringView explicitPath, String& outPath, StringView = {})
 	{
 		if (!explicitPath.empty()) {
-			outPath = String{explicitPath};
+			outPath = String { explicitPath };
 			return fs::FileExists(outPath);
 		}
 		String sdk;
@@ -1078,8 +1107,7 @@ namespace
 			return false;
 		}
 
-		SmallVector<String, 0> argv{InPlaceInit, { glslangPath, "-V"_s, "--target-env"_s, "vulkan1.0"_s, "-S"_s,
-			(vertexStage ? "vert"_s : "frag"_s), inputPath, "-o"_s, spirvPath }};
+		SmallVector<String, 0> argv { InPlaceInit, { glslangPath, "-V"_s, "--target-env"_s, "vulkan1.0"_s, "-S"_s, (vertexStage ? "vert"_s : "frag"_s), inputPath, "-o"_s, spirvPath } };
 		int exitCode = -1;
 		const bool ran = RunProcessCaptured(argv, logPath, exitCode);
 		{
@@ -1095,7 +1123,7 @@ namespace
 				std::size_t words = bytes.size() / 4;
 				spirv.resize(words);
 				std::memcpy(spirv.data(), bytes.data(), words * 4);
-				if (spirv.empty() || spirv[0] != 0x07230203u) {		// SPIR-V magic number
+				if (spirv.empty() || spirv[0] != 0x07230203u) { // SPIR-V magic number
 					spirv.clear();
 					ok = false;
 					if (log.empty()) {
@@ -1123,7 +1151,7 @@ namespace
 		while (nl < s.size() && s[nl] != '\n' && s[nl] != '\r') {
 			nl++;
 		}
-		return String{s.prefix(nl)};
+		return String { s.prefix(nl) };
 	}
 
 	/**
@@ -1141,7 +1169,7 @@ namespace
 
 		std::size_t stagesTotal = 0, stagesPassed = 0;
 		std::size_t variantsTotal = 0, variantsPassed = 0;
-		SmallVector<String, 0> failures;		// detailed "prefix STAGE: <reason>" lines
+		SmallVector<String, 0> failures; // detailed "prefix STAGE: <reason>" lines
 
 		for (int fi = 0; fi < inputCount; fi++) {
 			const char* inputPath = inputPaths[fi];
@@ -1235,7 +1263,7 @@ namespace
 		String glslang;
 		if (!LocateGlslang(glslangOverride, glslang)) {
 			std::fprintf(stderr, "error: glslang not found, cannot produce SPIR-V.\n"
-				"       Install the Vulkan SDK (sets VULKAN_SDK), put glslangValidator on PATH, or pass --glslang <path>.\n");
+								 "       Install the Vulkan SDK (sets VULKAN_SDK), put glslangValidator on PATH, or pass --glslang <path>.\n");
 			return 1;
 		}
 		std::fprintf(stdout, "[SpirvCheck] using glslang: %s\n", glslang.data());
@@ -1397,8 +1425,8 @@ namespace
 			out += "\t\t\treturn nullptr;\n\t\t}\n";
 		}
 
-		out += "\t}\n";	// anonymous namespace
-		out += "}\n";		// namespace nCine::RHI::Software
+		out += "\t}\n"; // anonymous namespace
+		out += "}\n"; // namespace nCine::RHI::Software
 		out += "\n#endif\n";
 		return out;
 	}
@@ -1408,13 +1436,13 @@ namespace
 	/** One (program, variant) table row of the aggregate header */
 	struct GeneratedEffectEntry
 	{
-		String Program;		// program name, e.g. "WhiteMask"
-		String Variant;		// variant name ("" for the base variant)
-		String Prefix;		// mangled prefix, e.g. "WhiteMask" or "WhiteMask_USE_PALETTE" (for the summary log)
-		String Intrinsic;	// FixedFunctionIntrinsic member name from a "pipeline <name>;" block ("" = none)
-		bool UsesOffsetColor = false;	// whether the function can ever write a pass offset colour
-		FixedFunctionRequirements Requirements = FixedFunctionRequirements::None;	// optional context facilities the function calls
-		std::int32_t FnIndex = -1;		// index into the unique-function list (-1 for a pipeline intrinsic)
+		String Program; // program name, e.g. "WhiteMask"
+		String Variant; // variant name ("" for the base variant)
+		String Prefix; // mangled prefix, e.g. "WhiteMask" or "WhiteMask_USE_PALETTE" (for the summary log)
+		String Intrinsic; // FixedFunctionIntrinsic member name from a "pipeline <name>;" block ("" = none)
+		bool UsesOffsetColor = false; // whether the function can ever write a pass offset colour
+		FixedFunctionRequirements Requirements = FixedFunctionRequirements::None; // optional context facilities the function calls
+		std::int32_t FnIndex = -1; // index into the unique-function list (-1 for a pipeline intrinsic)
 	};
 
 	/**
@@ -1425,18 +1453,18 @@ namespace
 	*/
 	struct GeneratedEffectFunction
 	{
-		String Name;			// function name, "<first prefix>_Effect"
-		String Body;			// the emitted body (statements at 3-tab indent, no signature) - the dedup key
-		String Provenance;		// "<File>:fixed_function(<target>)" of the first occurrence
-		SmallVector<String, 0> SharedBy;			// "<Program>" / "<Program> (<VARIANT>)" per sharing row, in table order
-		SmallVector<String, 0> SharedProvenance;	// each sharer's own provenance (programs from other files can share too)
+		String Name; // function name, "<first prefix>_Effect"
+		String Body; // the emitted body (statements at 3-tab indent, no signature) - the dedup key
+		String Provenance; // "<File>:fixed_function(<target>)" of the first occurrence
+		SmallVector<String, 0> SharedBy; // "<Program>" / "<Program> (<VARIANT>)" per sharing row, in table order
+		SmallVector<String, 0> SharedProvenance; // each sharer's own provenance (programs from other files can share too)
 	};
 
 	/** Renders a requirements bitmask as the runtime enum's member spelling for the generated table */
 	String RequirementsSpelling(FixedFunctionRequirements reqs)
 	{
 		if (std::uint8_t(reqs) == 0) {
-			return String{"FixedFunctionRequirements::None"};
+			return String { "FixedFunctionRequirements::None" };
 		}
 		static const std::pair<FixedFunctionRequirements, const char*> bits[] = {
 			{ FixedFunctionRequirements::NeedsTexelStep, "NeedsTexelStep" },
@@ -1467,7 +1495,7 @@ namespace
 				begin = i + 1;
 			}
 		}
-		return String{path.exceptPrefix(begin)};
+		return String { path.exceptPrefix(begin) };
 	}
 
 	/** Builds the aggregate "PvrGeneratedEffects.h" / "GxGeneratedEffects.h" / "GuGeneratedEffects.h" / "GsGeneratedEffects.h" / "RdpGeneratedEffects.h" / "LegacyGlGeneratedEffects.h" / "PicaGeneratedEffects.h" contents from the transpiled effects */
@@ -1485,25 +1513,39 @@ namespace
 		const char* ns;
 		switch (backend) {
 			case FixedFunctionBackend::Gx:
-				backendArg = "gx"; guard = "WITH_RHI_GX"; ns = "nCine::RHI::GX";
+				backendArg = "gx";
+				guard = "WITH_RHI_GX";
+				ns = "nCine::RHI::GX";
 				break;
 			case FixedFunctionBackend::Pica:
-				backendArg = "pica"; guard = "WITH_RHI_PICA"; ns = "nCine::RHI::PICA";
+				backendArg = "pica";
+				guard = "WITH_RHI_PICA";
+				ns = "nCine::RHI::PICA";
 				break;
 			case FixedFunctionBackend::Gu:
-				backendArg = "gu"; guard = "WITH_RHI_GU"; ns = "nCine::RHI::GU";
+				backendArg = "gu";
+				guard = "WITH_RHI_GU";
+				ns = "nCine::RHI::GU";
 				break;
 			case FixedFunctionBackend::Gs:
-				backendArg = "gs"; guard = "WITH_RHI_GS"; ns = "nCine::RHI::GS";
+				backendArg = "gs";
+				guard = "WITH_RHI_GS";
+				ns = "nCine::RHI::GS";
 				break;
 			case FixedFunctionBackend::Rdp:
-				backendArg = "rdp"; guard = "WITH_RHI_RDP"; ns = "nCine::RHI::RDP";
+				backendArg = "rdp";
+				guard = "WITH_RHI_RDP";
+				ns = "nCine::RHI::RDP";
 				break;
 			case FixedFunctionBackend::LegacyGl:
-				backendArg = "legacygl"; guard = "WITH_RHI_LEGACYGL"; ns = "nCine::RHI::LegacyGL";
+				backendArg = "legacygl";
+				guard = "WITH_RHI_LEGACYGL";
+				ns = "nCine::RHI::LegacyGL";
 				break;
 			default:
-				backendArg = "pvr"; guard = "WITH_RHI_PVR"; ns = "nCine::RHI::PVR";
+				backendArg = "pvr";
+				guard = "WITH_RHI_PVR";
+				ns = "nCine::RHI::PVR";
 				break;
 		}
 
@@ -1571,7 +1613,7 @@ namespace
 				out += "\t\t\t{ \""_s + e.Program + "\", \""_s + e.Variant + "\", "_s +
 					(e.UsesOffsetColor ? "true"_s : "false"_s) + ", "_s +
 					RequirementsSpelling(e.Requirements) + ", FixedFunctionIntrinsic::"_s +
-					(e.Intrinsic.empty() ? StringView{"None"} : StringView{e.Intrinsic}) + ", "_s;
+					(e.Intrinsic.empty() ? StringView { "None" } : StringView { e.Intrinsic }) + ", "_s;
 				if (e.FnIndex >= 0) {
 					out += "&"_s + functions[std::size_t(e.FnIndex)].Name;
 				} else {
@@ -1583,8 +1625,8 @@ namespace
 			out += "\t\tconstexpr std::size_t FixedFunctionGeneratedEffectCount = sizeof(FixedFunctionGeneratedEffects) / sizeof(FixedFunctionGeneratedEffects[0]);\n";
 		}
 
-		out += "\t}\n";	// anonymous namespace
-		out += "}\n";		// backend namespace
+		out += "\t}\n"; // anonymous namespace
+		out += "}\n"; // backend namespace
 		out += "\n#endif\n";
 		return out;
 	}
@@ -1688,10 +1730,10 @@ namespace
 				for (std::size_t vi = 0; vi < document.Variants.size() + 1; vi++) {
 					// The unnamed base variant first, then one entry per declared variant — the same
 					// per-variant expansion (and prefix mangling) the Sw generated functions use
-					String variant = (vi == 0 ? String{} : document.Variants[vi - 1].Name);
+					String variant = (vi == 0 ? String {} : document.Variants[vi - 1].Name);
 					String prefix = (variant.empty() ? document.ProgramName : String(document.ProgramName + "_" + variant));
 					FixedFunctionResult r = ConsoleFixedFunction::TranspileBlock(*block,
-						(vi == 0 ? StringView{} : StringView{document.Variants[vi - 1].Define}), backend);
+						(vi == 0 ? StringView {} : StringView { document.Variants[vi - 1].Define }), backend);
 					if (!r.Ok) {
 						std::fprintf(stderr, "%s:%d: error: %s\n", inputPath, r.Line, r.Error.data());
 						return 1;
@@ -1722,7 +1764,8 @@ namespace
 							functions.push_back(Death::move(fn));
 						}
 						String label = (e.Variant.empty()
-							? e.Program : String(e.Program + " ("_s + e.Variant + ")"_s));
+								? e.Program
+								: String(e.Program + " ("_s + e.Variant + ")"_s));
 						functions[fi].SharedBy.push_back(Death::move(label));
 						functions[fi].SharedProvenance.push_back(provenance);
 						e.FnIndex = std::int32_t(fi);
@@ -1830,7 +1873,7 @@ namespace
 	int RunEmitCg(const char* outputPath, char** inputPaths, int inputCount)
 	{
 		SmallVector<CgShaderEntry, 0> entries;
-		SmallVector<std::pair<String, String>, 0> declined;	// (prefix, reason)
+		SmallVector<std::pair<String, String>, 0> declined; // (prefix, reason)
 
 		for (int fi = 0; fi < inputCount; fi++) {
 			const char* inputPath = inputPaths[fi];
@@ -1912,7 +1955,7 @@ namespace
 	bool LocateCgcomp(StringView explicitPath, String& outPath)
 	{
 		if (!explicitPath.empty()) {
-			outPath = String{explicitPath};
+			outPath = String { explicitPath };
 			return fs::FileExists(outPath);
 		}
 		String ps3dev;
@@ -1965,11 +2008,11 @@ namespace
 #if defined(DEATH_TARGET_WINDOWS)
 		String command = "\""_s + cgcompPath + "\" "_s + (vertexStage ? "-v"_s : "-f"_s) +
 			" \""_s + inputPath + "\" \""_s + outputPath + "\""_s;
-		DWORD win32ExitCode = ~DWORD{0};
+		DWORD win32ExitCode = ~DWORD { 0 };
 		ran = RunProcessCaptured(command, logPath, win32ExitCode);
 		exitCode = static_cast<int>(win32ExitCode);
 #else
-		SmallVector<String, 0> argv{InPlaceInit, { cgcompPath, (vertexStage ? "-v"_s : "-f"_s), inputPath, outputPath }};
+		SmallVector<String, 0> argv { InPlaceInit, { cgcompPath, (vertexStage ? "-v"_s : "-f"_s), inputPath, outputPath } };
 		ran = RunProcessCaptured(argv, logPath, exitCode);
 #endif
 		{
@@ -2101,27 +2144,32 @@ namespace
 	bool AppendRsxBuiltinShaders(const String& cgcompPath, StringView shadersDir,
 		SmallVectorImpl<RsxShaderEntry>& entries, String& error)
 	{
-		struct Builtin { const char* Name; const char* VertexFile; const char* FragmentFile; };
+		struct Builtin
+		{
+			const char* Name;
+			const char* VertexFile;
+			const char* FragmentFile;
+		};
 		static const Builtin Builtins[] = {
 			{ "__Present", "Rsx/Present.vcg", "Rsx/Present.fcg" }
 		};
 
 		for (const Builtin& builtin : Builtins) {
-			String vertexPath = fs::CombinePath(String{shadersDir}, String{builtin.VertexFile});
-			String fragmentPath = fs::CombinePath(String{shadersDir}, String{builtin.FragmentFile});
+			String vertexPath = fs::CombinePath(String { shadersDir }, String { builtin.VertexFile });
+			String fragmentPath = fs::CombinePath(String { shadersDir }, String { builtin.FragmentFile });
 			String vertexSource, fragmentSource;
 			if (!ReadFileToString(vertexPath, vertexSource) ||
 				!ReadFileToString(fragmentPath, fragmentSource)) {
-				error = "cannot read the built-in shader \""_s + String{builtin.Name} + "\""_s;
+				error = "cannot read the built-in shader \""_s + String { builtin.Name } + "\""_s;
 				return false;
 			}
 
 			RsxShaderEntry e;
-			e.ProgramName = String{builtin.Name};
+			e.ProgramName = String { builtin.Name };
 			String log;
 			if (!CompileRsxMicrocode(cgcompPath, vertexSource, true, e.VertexUcode, log) ||
 				!CompileRsxMicrocode(cgcompPath, fragmentSource, false, e.FragmentUcode, log)) {
-				error = "the built-in shader \""_s + String{builtin.Name} + "\" failed to compile: "_s + FirstLine(log);
+				error = "the built-in shader \""_s + String { builtin.Name } + "\" failed to compile: "_s + FirstLine(log);
 				return false;
 			}
 			entries.push_back(Death::move(e));
@@ -2134,12 +2182,12 @@ namespace
 	{
 		String cgcompPath;
 		if (!LocateCgcomp(cgcompOption, cgcompPath)) {
-			std::fprintf(stderr, "error: cgcomp not found at \"%s\"\n", String{cgcompOption}.data());
+			std::fprintf(stderr, "error: cgcomp not found at \"%s\"\n", String { cgcompOption }.data());
 			return 1;
 		}
 
 		SmallVector<RsxShaderEntry, 0> entries;
-		SmallVector<std::pair<String, String>, 0> declined;	// (prefix, reason)
+		SmallVector<std::pair<String, String>, 0> declined; // (prefix, reason)
 
 		// The built-in present shader goes first, so a table that lost it is obvious at a glance
 		String builtinError;
@@ -2232,10 +2280,33 @@ namespace
 	/** @brief One stage of a compiled GX2 shader, taken out of the GFD file CafeGLSL writes */
 	struct Gx2Stage
 	{
-		struct Block { String Name; std::uint32_t Location; std::uint32_t Size; };
-		struct Var { String Name; std::uint32_t Type; std::uint32_t Count; std::uint32_t Offset; std::int32_t Block; };
-		struct Sampler { String Name; std::uint32_t Type; std::uint32_t Location; };
-		struct Attrib { String Name; std::uint32_t Type; std::uint32_t Count; std::uint32_t Location; };
+		struct Block
+		{
+			String Name;
+			std::uint32_t Location;
+			std::uint32_t Size;
+		};
+		struct Var
+		{
+			String Name;
+			std::uint32_t Type;
+			std::uint32_t Count;
+			std::uint32_t Offset;
+			std::int32_t Block;
+		};
+		struct Sampler
+		{
+			String Name;
+			std::uint32_t Type;
+			std::uint32_t Location;
+		};
+		struct Attrib
+		{
+			String Name;
+			std::uint32_t Type;
+			std::uint32_t Count;
+			std::uint32_t Location;
+		};
 
 		/** @brief The `regs` words of `GX2VertexShader` / `GX2PixelShader` */
 		SmallVector<std::uint32_t, 0> Registers;
@@ -2263,7 +2334,7 @@ namespace
 	bool LocateCafeglsl(StringView explicitPath, String& outPath)
 	{
 		if (!explicitPath.empty()) {
-			outPath = String{explicitPath};
+			outPath = String { explicitPath };
 			return fs::FileExists(outPath);
 		}
 		String root;
@@ -2326,7 +2397,7 @@ namespace
 			while (s + length < data + dataSize && s[length] != 0) {
 				length++;
 			}
-			return String{reinterpret_cast<const char*>(s), length};
+			return String { reinterpret_cast<const char*>(s), length };
 		};
 		const auto field = [&](std::uint32_t index) {
 			return ReadBe32(data + fieldsBase + index * 4);
@@ -2353,7 +2424,7 @@ namespace
 		std::int32_t looseBlock = -1;
 		for (std::uint32_t i = 0; blocks != nullptr && i < blockCount; i++) {
 			const std::uint8_t* b = blocks + i * 12;
-			Gx2Stage::Block block{stringAt(ReadBe32(b)), ReadBe32(b + 4), ReadBe32(b + 8)};
+			Gx2Stage::Block block { stringAt(ReadBe32(b)), ReadBe32(b + 4), ReadBe32(b + 8) };
 			if (block.Name == Gx2LooseUniformBlockName) {
 				looseBlock = std::int32_t(i);
 			}
@@ -2370,7 +2441,7 @@ namespace
 			if (block != looseBlock || looseBlock < 0) {
 				continue;
 			}
-			stage.Vars.push_back({stringAt(ReadBe32(v)), ReadBe32(v + 4), ReadBe32(v + 8), ReadBe32(v + 12), block});
+			stage.Vars.push_back({ stringAt(ReadBe32(v)), ReadBe32(v + 4), ReadBe32(v + 8), ReadBe32(v + 12), block });
 		}
 
 		if (field(7) != 0) {
@@ -2388,7 +2459,7 @@ namespace
 		const std::uint8_t* samplers = (samplerCount > 0 ? offsetOf(field(12), samplerCount * 12) : nullptr);
 		for (std::uint32_t i = 0; samplers != nullptr && i < samplerCount; i++) {
 			const std::uint8_t* s = samplers + i * 12;
-			stage.Samplers.push_back({stringAt(ReadBe32(s)), ReadBe32(s + 4), ReadBe32(s + 8)});
+			stage.Samplers.push_back({ stringAt(ReadBe32(s)), ReadBe32(s + 4), ReadBe32(s + 8) });
 		}
 
 		if (vertexStage) {
@@ -2396,7 +2467,7 @@ namespace
 			const std::uint8_t* attribs = (attribCount > 0 ? offsetOf(field(14), attribCount * 16) : nullptr);
 			for (std::uint32_t i = 0; attribs != nullptr && i < attribCount; i++) {
 				const std::uint8_t* a = attribs + i * 16;
-				stage.Attribs.push_back({stringAt(ReadBe32(a)), ReadBe32(a + 4), ReadBe32(a + 8), ReadBe32(a + 12)});
+				stage.Attribs.push_back({ stringAt(ReadBe32(a)), ReadBe32(a + 4), ReadBe32(a + 8), ReadBe32(a + 12) });
 			}
 			stage.RingItemSize = field(15);
 			if (field(16) != 0) {
@@ -2417,7 +2488,7 @@ namespace
 	{
 		const std::uint8_t* data = reinterpret_cast<const std::uint8_t*>(bytes.data());
 		const std::size_t size = bytes.size();
-		if (size < 32 || ReadBe32(data) != 0x47667832u) {	// "Gfx2"
+		if (size < 32 || ReadBe32(data) != 0x47667832u) { // "Gfx2"
 			error = "not a GFD file"_s;
 			return false;
 		}
@@ -2427,7 +2498,7 @@ namespace
 		std::size_t pos = ReadBe32(data + 4);
 		while (pos + 32 <= size) {
 			const std::uint8_t* header = data + pos;
-			if (ReadBe32(header) != 0x424C4B7Bu) {	// "BLK{"
+			if (ReadBe32(header) != 0x424C4B7Bu) { // "BLK{"
 				error = "malformed GFD block"_s;
 				return false;
 			}
@@ -2440,25 +2511,25 @@ namespace
 				return false;
 			}
 			switch (type) {
-				case 1:		// End of file
+				case 1: // End of file
 					pos = size;
 					continue;
-				case 3:		// Vertex shader header
+				case 3: // Vertex shader header
 					if (!ParseGfdShaderHeader(blockData, dataSize, true, vertex, vertexProgramSize, error)) {
 						return false;
 					}
 					haveVertex = true;
 					break;
-				case 5:		// Vertex shader program
+				case 5: // Vertex shader program
 					vertex.Program.assign(blockData, blockData + dataSize);
 					break;
-				case 6:		// Pixel shader header
+				case 6: // Pixel shader header
 					if (!ParseGfdShaderHeader(blockData, dataSize, false, pixel, pixelProgramSize, error)) {
 						return false;
 					}
 					havePixel = true;
 					break;
-				case 7:		// Pixel shader program
+				case 7: // Pixel shader program
 					pixel.Program.assign(blockData, blockData + dataSize);
 					break;
 				default:
@@ -2492,9 +2563,20 @@ namespace
 	bool SplitParamExportBursts(SmallVectorImpl<std::uint8_t>& program, String& error)
 	{
 		// R600/R700 control-flow opcodes (CF_INST, bits 23-29 of the second word; ALU clauses use 0x40 and up)
-		enum : std::uint32_t {
-			CfNop = 0x00, CfTex = 0x01, CfVtx = 0x02, CfVtxTc = 0x03, CfLoopStart = 0x04, CfPopPushElse = 0x11,
-			CfCall = 0x12, CfCallFs = 0x13, CfReturn = 0x14, CfExport = 0x27, CfExportDone = 0x28, CfAluFirst = 0x40
+		enum : std::uint32_t
+		{
+			CfNop = 0x00,
+			CfTex = 0x01,
+			CfVtx = 0x02,
+			CfVtxTc = 0x03,
+			CfLoopStart = 0x04,
+			CfPopPushElse = 0x11,
+			CfCall = 0x12,
+			CfCallFs = 0x13,
+			CfReturn = 0x14,
+			CfExport = 0x27,
+			CfExportDone = 0x28,
+			CfAluFirst = 0x40
 		};
 		constexpr std::uint32_t ExportTypeParam = 2;
 
@@ -2516,7 +2598,7 @@ namespace
 			if ((inst == CfExport || inst == CfExportDone) && ((w0 >> 13) & 0x3) == ExportTypeParam && ((w1 >> 17) & 0xF) != 0) {
 				hasBurst = true;
 			}
-			if ((w1 >> 21) & 1) {	// END_OF_PROGRAM
+			if ((w1 >> 21) & 1) { // END_OF_PROGRAM
 				foundEnd = true;
 				break;
 			}
@@ -2645,7 +2727,7 @@ namespace
 				continue;
 			}
 			std::size_t start = pos, after = pos + Id.size();
-			String dividend = String{Id};
+			String dividend = String { Id };
 			// "(gl_VertexID + K)"
 			std::size_t open = start;
 			while (open > 0 && (source[open - 1] == ' ' || source[open - 1] == '\t')) {
@@ -2665,7 +2747,7 @@ namespace
 					if (!k.empty() && close < source.size() && source[close] == ')') {
 						start = open - 1;
 						after = close + 1;
-						dividend = String{Id} + " + "_s + k;
+						dividend = String { Id } + " + "_s + k;
 					}
 				}
 			}
@@ -2735,14 +2817,13 @@ namespace
 #if defined(DEATH_TARGET_WINDOWS)
 		String command = "\""_s + compilerPath + "\" -vs \""_s + vertexPath + "\" -ps \""_s + fragmentPath +
 			"\" -o \""_s + outputPath + "\" --uniform-mode block"_s;
-		DWORD win32ExitCode = ~DWORD{0};
+		DWORD win32ExitCode = ~DWORD { 0 };
 		ran = RunProcessCaptured(command, logPath, win32ExitCode);
 		exitCode = static_cast<int>(win32ExitCode);
 #else
 		// Uniform-block mode throughout: register mode allows only 1024 scalar components, cannot hold the
 		// explicit std140 blocks at all, and the device sets one shader mode for every program
-		SmallVector<String, 0> argv{InPlaceInit, { compilerPath, "-vs"_s, vertexPath, "-ps"_s, fragmentPath,
-			"-o"_s, outputPath, "--uniform-mode"_s, "block"_s }};
+		SmallVector<String, 0> argv { InPlaceInit, { compilerPath, "-vs"_s, vertexPath, "-ps"_s, fragmentPath, "-o"_s, outputPath, "--uniform-mode"_s, "block"_s } };
 		ran = RunProcessCaptured(argv, logPath, exitCode);
 #endif
 		{
@@ -2757,7 +2838,7 @@ namespace
 			String error;
 			if (!ReadFileToString(outputPath, bytes) || !ParseGfdShaders(bytes, entry.Vertex, entry.Pixel, error) ||
 				!SplitParamExportBursts(entry.Vertex.Program, error)) {
-				log = (error.empty() ? String{"CafeGLSL produced no output"_s} : error);
+				log = (error.empty() ? String { "CafeGLSL produced no output"_s } : error);
 				ok = false;
 			}
 		} else if (log.empty()) {
@@ -2773,7 +2854,7 @@ namespace
 	/** Strips CafeGLSL's diagnostics down to the first line that names a problem */
 	String FirstCafeglslError(StringView log)
 	{
-		for (StringView rest = log; !rest.empty(); ) {
+		for (StringView rest = log; !rest.empty();) {
 			String line = FirstLine(rest);
 			std::size_t skip = line.size();
 			while (skip < rest.size() && (rest[skip] == '\n' || rest[skip] == '\r')) {
@@ -2847,7 +2928,7 @@ namespace
 	String Gx2StageInitializer(const Gx2Stage& stage, StringView prefix)
 	{
 		const auto table = [&](bool present, StringView suffix) {
-			return (present ? String{String{prefix} + suffix} : String{"nullptr"_s});
+			return (present ? String { String { prefix } + suffix } : String { "nullptr"_s });
 		};
 		return Death::format("{{ {}Regs, {}, {}Program, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {} }}",
 			prefix, stage.Registers.size(), prefix, stage.Program.size(),
@@ -2903,7 +2984,8 @@ namespace
 		out += "\t\t\tGeneratedGx2Stage Pixel;\n"_s;
 		out += "\t\t};\n\n"_s;
 		out += Death::format("\t\t/** @brief Batch size the batched programs were compiled for */\n"
-			"\t\tconstexpr std::int32_t GeneratedGx2MaxBatchSize = {};\n\n", Gx2MaxBatchSize);
+							 "\t\tconstexpr std::int32_t GeneratedGx2MaxBatchSize = {};\n\n",
+			Gx2MaxBatchSize);
 
 		for (std::size_t i = 0; i < entries.size(); i++) {
 			const Gx2ShaderEntry& e = entries[i];
@@ -2964,7 +3046,7 @@ namespace
 	{
 		String compilerPath;
 		if (!LocateCafeglsl(compilerOption, compilerPath)) {
-			std::fprintf(stderr, "error: CafeGLSL's glslcompiler not found at \"%s\"\n", String{compilerOption}.data());
+			std::fprintf(stderr, "error: CafeGLSL's glslcompiler not found at \"%s\"\n", String { compilerOption }.data());
 			return 1;
 		}
 		// Every variant would fail without a working compiler, and the header would be replaced by an empty table
@@ -2976,7 +3058,7 @@ namespace
 		}
 
 		SmallVector<Gx2ShaderEntry, 0> entries;
-		SmallVector<std::pair<String, String>, 0> declined;	// (prefix, reason)
+		SmallVector<std::pair<String, String>, 0> declined; // (prefix, reason)
 
 		for (int fi = 0; fi < inputCount; fi++) {
 			const char* inputPath = inputPaths[fi];
@@ -3008,7 +3090,8 @@ namespace
 							}
 							if (batchSize < Gx2MaxBatchSize) {
 								declined.emplace_back(prefix, Death::format("instance stride {} leaves room for only {} of the {} "
-									"instances the device publishes", b.InstanceStride, batchSize, Gx2MaxBatchSize));
+																			"instances the device publishes",
+																  b.InstanceStride, batchSize, Gx2MaxBatchSize));
 							}
 							e.BatchSize = batchSize;
 							prelude += Death::format("#define BATCH_SIZE ({})\n", batchSize);
@@ -3023,8 +3106,7 @@ namespace
 					prelude += "#define ceil(x) (-floor(-(x)))\n"_s;
 					prelude += "#line 0\n"_s;
 
-					String vertexSource = prelude + MakeVertexIdDivisionsFloat(
-						ShaderParser::BuildStageSource(*program.Document, true, v.Define));
+					String vertexSource = prelude + MakeVertexIdDivisionsFloat(ShaderParser::BuildStageSource(*program.Document, true, v.Define));
 					String fragmentSource = prelude + ShaderParser::BuildStageSource(*program.Document, false, v.Define);
 					String log;
 					if (!CompileGx2Shaders(compilerPath, vertexSource, fragmentSource, e, log)) {
@@ -3057,7 +3139,7 @@ namespace
 	int RunEmitSwGenerated(const char* outputPath, char** inputPaths, int inputCount)
 	{
 		SmallVector<GeneratedShaderEntry, 0> supported;
-		SmallVector<std::pair<String, String>, 0> declined;	// (prefix, reason)
+		SmallVector<std::pair<String, String>, 0> declined; // (prefix, reason)
 
 		for (int fi = 0; fi < inputCount; fi++) {
 			const char* inputPath = inputPaths[fi];
@@ -3144,11 +3226,11 @@ namespace
 	*/
 	struct GenerateAllOptions
 	{
-		String ShadersDirectory;		// Empty: auto-detected from the executable, then the working directory
-		String OutputDirectory;			// Empty: "<ShadersDirectory>/Generated"
+		String ShadersDirectory; // Empty: auto-detected from the executable, then the working directory
+		String OutputDirectory; // Empty: "<ShadersDirectory>/Generated"
 		const char* GlslangOverride = nullptr;
-		const char* CgcompPath = nullptr;	// Empty: "$PS3DEV/bin", then PATH
-		const char* CafeglslPath = nullptr;	// Empty: "$CAFEGLSL/bin", then PATH
+		const char* CgcompPath = nullptr; // Empty: "$PS3DEV/bin", then PATH
+		const char* CafeglslPath = nullptr; // Empty: "$CAFEGLSL/bin", then PATH
 		bool Check = false;
 		bool NoDxbc = false;
 		bool GlOnly = false;
@@ -3202,7 +3284,12 @@ namespace
 		// The generated shader data namespaces carry no public API and are excluded from the API
 		// documentation (Doxygen defines `DOXYGEN_GENERATING_OUTPUT`), keeping this header out of it
 		out += "#ifndef DOXYGEN_GENERATING_OUTPUT\n";
-		const struct { const char* Namespace; const char* Comment; const SmallVectorImpl<String>* Programs; } sections[] = {
+		const struct
+		{
+			const char* Namespace;
+			const char* Comment;
+			const SmallVectorImpl<String>* Programs;
+		} sections[] = {
 			{ "Jazz2::ShadersGen", "All generated Jazz2 shader programs, sorted by name", &jazz2Programs },
 			{ "nCine::ShadersGen", "All generated nCine default shader programs, sorted by name", &ncinePrograms }
 		};
@@ -3242,14 +3329,14 @@ namespace
 		String output;
 		output += "// Generated by ShaderCompiler (--generate-all). Do not edit manually.\n";
 		output += "//\n";
-		output += "// " + String{what} + " stage artifacts for every shader, kept apart from the per-shader headers because\n";
+		output += "// " + String { what } + " stage artifacts for every shader, kept apart from the per-shader headers because\n";
 		output += "// producing them needs a compiler that is not available everywhere. A regeneration on a machine\n";
 		output += "// without it leaves this file alone rather than replacing its contents with nulls.\n";
 		output += "#pragma once\n";
 		output += "\n";
 		output += "#include \"ShaderCompilerTypes.h\"\n";
 		output += "\n";
-		output += "#if defined(" + String{guard} + ")\n";
+		output += "#if defined(" + String { guard } + ")\n";
 		output += "#ifndef DOXYGEN_GENERATING_OUTPUT\n";
 		for (const auto& body : bodies) {
 			output += "\n";
@@ -3305,9 +3392,9 @@ namespace
 				std::fprintf(stderr, "%s:%d: error: %s\n", inputPath.data(), diag.Line, diag.Message.data());
 				return 1;
 			}
-			d3d11Bodies.emplace_back(String{ns}, Death::move(artifacts.D3d11));
-			vulkanBodies.emplace_back(String{ns}, Death::move(artifacts.Vulkan));
-			metalBodies.emplace_back(String{ns}, Death::move(artifacts.Metal));
+			d3d11Bodies.emplace_back(String { ns }, Death::move(artifacts.D3d11));
+			vulkanBodies.emplace_back(String { ns }, Death::move(artifacts.Vulkan));
+			metalBodies.emplace_back(String { ns }, Death::move(artifacts.Metal));
 			String headerName = stem + ".h"_s;
 			String headerPath = fs::CombinePath(outputDirectory, headerName);
 			if (!WriteStringToFile(headerPath, output)) {
@@ -3343,9 +3430,14 @@ namespace
 				compileDxbc("float4 VSMain() : SV_Position { return 0; }"_s, true, probeBytes, probeLog) &&
 				!probeBytes.empty();
 
-			const struct {
-				const char* What; const char* Guard; const char* FileName;
-				const SmallVectorImpl<std::pair<String, String>>* Bodies; bool Rebuildable; const char* Missing;
+			const struct
+			{
+				const char* What;
+				const char* Guard;
+				const char* FileName;
+				const SmallVectorImpl<std::pair<String, String>>* Bodies;
+				bool Rebuildable;
+				const char* Missing;
 			} aggregates[] = {
 				{ "Direct3D 11", "WITH_RHI_D3D11", "D3d11GeneratedShaders.h", &d3d11Bodies,
 					dxbcWorks, "no working DXBC compiler (D3DCompile is Windows-only)" },
@@ -3467,7 +3559,11 @@ namespace
 			}
 		}
 
-		const struct { const char* Backend; const char* FileName; } fixedFunctionTargets[] = {
+		const struct
+		{
+			const char* Backend;
+			const char* FileName;
+		} fixedFunctionTargets[] = {
 			{ "pvr", "PvrGeneratedEffects.h" }, { "gx", "GxGeneratedEffects.h" }, { "pica", "PicaGeneratedEffects.h" },
 			{ "gu", "GuGeneratedEffects.h" }, { "gs", "GsGeneratedEffects.h" }, { "rdp", "RdpGeneratedEffects.h" },
 			{ "legacygl", "LegacyGlGeneratedEffects.h" }
@@ -3495,7 +3591,8 @@ namespace
 			return 1;
 		}
 		String committedDirectory = (options.OutputDirectory.empty()
-			? fs::CombinePath(shadersDirectory, "Generated"_s) : options.OutputDirectory);
+				? fs::CombinePath(shadersDirectory, "Generated"_s)
+				: options.OutputDirectory);
 
 		SmallVector<String, 0> shaderNames;
 		if (!ListFilesInDirectory(shadersDirectory, ".shader"_s, shaderNames) || shaderNames.empty()) {
@@ -3508,18 +3605,18 @@ namespace
 		SpirvCompileFn compileSpirv;
 		{
 			String glslang;
-			StringView override = (options.GlslangOverride != nullptr ? StringView{options.GlslangOverride} : StringView{});
+			StringView override = (options.GlslangOverride != nullptr ? StringView { options.GlslangOverride } : StringView {});
 			if (!options.GlOnly && LocateGlslang(override, glslang, fs::GetDirectoryName(fs::GetDirectoryName(shadersDirectory)))) {
 				std::fprintf(stdout, "using glslang: %s\n", glslang.data());
 				compileSpirv = [glslang](StringView vulkanGlsl, bool vertexStage, SmallVectorImpl<std::uint32_t>& spirv, String& log) {
-					return CompileSpirvWithGlslang(glslang, String{vulkanGlsl}, vertexStage, spirv, log);
+					return CompileSpirvWithGlslang(glslang, String { vulkanGlsl }, vertexStage, spirv, log);
 				};
 			} else if (!options.GlOnly && !override.empty()) {
 				std::fprintf(stderr, "warning: glslangValidator not found at \"%s\" - Vulkan SPIR-V will be omitted\n",
 					options.GlslangOverride);
 			} else if (!options.GlOnly) {
 				std::fprintf(stderr, "warning: glslangValidator not found - Vulkan SPIR-V will be omitted "
-					"(install the Vulkan SDK for the Vulkan backend)\n");
+									 "(install the Vulkan SDK for the Vulkan backend)\n");
 			}
 		}
 
@@ -3532,7 +3629,7 @@ namespace
 			String loadError;
 			if (LoadD3DCompiler(loadError)) {
 				compileDxbc = [](StringView hlsl, bool vertexStage, SmallVectorImpl<std::uint8_t>& dxbc, String& log) {
-					bool ok = CompileHlslToDxbc(String{hlsl}, vertexStage ? "VSMain" : "PSMain",
+					bool ok = CompileHlslToDxbc(String { hlsl }, vertexStage ? "VSMain" : "PSMain",
 						vertexStage ? "vs_4_0" : "ps_4_0", dxbc, log);
 					if (!ok) {
 						std::fprintf(stderr, "warning: D3DCompile (%s) failed - embedding the HLSL source instead: %s\n",
@@ -3570,8 +3667,8 @@ namespace
 
 		SmallVector<String, 0> writtenNames;
 		int result = GenerateAllArtifacts(shadersDirectory, shaderNames, outputDirectory, compileSpirv,
-			compileDxbc, (options.CgcompPath != nullptr ? StringView{options.CgcompPath} : StringView{}),
-			(options.CafeglslPath != nullptr ? StringView{options.CafeglslPath} : StringView{}), writtenNames, options.GlOnly);
+			compileDxbc, (options.CgcompPath != nullptr ? StringView { options.CgcompPath } : StringView {}),
+			(options.CafeglslPath != nullptr ? StringView { options.CafeglslPath } : StringView {}), writtenNames, options.GlOnly);
 
 		if (!options.Check) {
 			if (result == 0) {
@@ -3596,7 +3693,9 @@ namespace
 			ListFilesInDirectory(committedDirectory, ".h"_s, committedNames);
 			for (const String& name : committedNames) {
 				const bool generated = std::any_of(writtenNames.begin(), writtenNames.end(),
-					[&name](const String& written) { return written == name; });
+					[&name](const String& written) {
+						return written == name;
+					});
 				if (!generated) {
 					stale.push_back(name + " (committed but no longer generated)"_s);
 				}
@@ -3729,7 +3828,7 @@ int main(int argc, char* argv[])
 		}
 		// The built-in present shader is read relative to the shader directory, so it has to be resolved
 		// even when every input was named explicitly
-		String shadersDirectory{shadersDirOption};
+		String shadersDirectory { shadersDirOption };
 		if (shadersDirectory.empty() && !AutoDetectShadersDirectory(shadersDirectory)) {
 			std::fprintf(stderr, "error: cannot locate the shaders directory, pass --shaders-dir\n");
 			return 1;
@@ -3986,9 +4085,9 @@ int main(int argc, char* argv[])
 	SpirvCompileFn compileSpirv;
 	{
 		String glslang;
-		if (LocateGlslang(glslangOverride != nullptr ? StringView(glslangOverride) : StringView{}, glslang)) {
+		if (LocateGlslang(glslangOverride != nullptr ? StringView(glslangOverride) : StringView {}, glslang)) {
 			compileSpirv = [glslang](StringView vulkanGlsl, bool vertexStage, SmallVectorImpl<std::uint32_t>& spirv, String& log) {
-				return CompileSpirvWithGlslang(glslang, String{vulkanGlsl}, vertexStage, spirv, log);
+				return CompileSpirvWithGlslang(glslang, String { vulkanGlsl }, vertexStage, spirv, log);
 			};
 		}
 	}
@@ -4003,7 +4102,7 @@ int main(int argc, char* argv[])
 		String loadError;
 		if (LoadD3DCompiler(loadError)) {
 			compileDxbc = [](StringView hlsl, bool vertexStage, SmallVectorImpl<std::uint8_t>& dxbc, String& log) {
-				bool ok = CompileHlslToDxbc(String{hlsl}, vertexStage ? "VSMain" : "PSMain",
+				bool ok = CompileHlslToDxbc(String { hlsl }, vertexStage ? "VSMain" : "PSMain",
 					vertexStage ? "vs_4_0" : "ps_4_0", dxbc, log);
 				if (!ok) {
 					// A lowered stage that fails D3DCompile falls back to embedding its HLSL source (the
@@ -4036,7 +4135,7 @@ int main(int argc, char* argv[])
 	// shader whose stage artifacts changed means running --generate-all on a machine that can rebuild them.
 	if (!artifacts.D3d11.empty() || !artifacts.Vulkan.empty() || !artifacts.Metal.empty()) {
 		std::fprintf(stdout, "note: Direct3D 11 / Vulkan / Metal stage artifacts were not written "
-			"(they live in the aggregates, which only --generate-all produces)\n");
+							 "(they live in the aggregates, which only --generate-all produces)\n");
 	}
 	return 0;
 }

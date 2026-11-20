@@ -39,7 +39,8 @@ namespace Jazz2::Compatibility
 
 	public:
 		/** @brief Episode name and level name */
-		struct LevelToken {
+		struct LevelToken
+		{
 			/** @brief Episode name */
 			String Episode;
 			/** @brief Level name */
@@ -47,7 +48,8 @@ namespace Jazz2::Compatibility
 		};
 
 		/** @brief Alternate palette */
-		struct AlternatePalette {
+		struct AlternatePalette
+		{
 			/** @brief Palette name */
 			String Name;
 			/** @brief Colors (24-bit) */
@@ -55,15 +57,17 @@ namespace Jazz2::Compatibility
 		};
 
 		/** @brief Color mode of tile set */
-		enum class TilesetColorMode : std::uint8_t {
-			Original8bit,					/**< Original 8-bit palette is used */
-			Remapped8bit,					/**< 8-bit palette is remapped according to @ref PaletteRemapping */
-			Original24bit,					/**< Original 24-bit palette is used */
-			AlternatePalette24bit			/**< Alternate 24-bit palette is used */
+		enum class TilesetColorMode : std::uint8_t
+		{
+			Original8bit, /**< Original 8-bit palette is used */
+			Remapped8bit, /**< 8-bit palette is remapped according to @ref PaletteRemapping */
+			Original24bit, /**< Original 24-bit palette is used */
+			AlternatePalette24bit /**< Alternate 24-bit palette is used */
 		};
 
 		/** @brief Extra tileset used in the level */
-		struct ExtraTilesetEntry {
+		struct ExtraTilesetEntry
+		{
 			/** @brief Tile set name */
 			String Name;
 			/** @brief Offset tile index */
@@ -73,7 +77,8 @@ namespace Jazz2::Compatibility
 			/** @brief Color mode */
 			TilesetColorMode ColorMode;
 
-			union {
+			union
+			{
 				/** @brief Palette remapping */
 				std::uint8_t PaletteRemapping[256];
 				/** @brief Alternate palette mapping ID for 24-bit */
@@ -116,7 +121,10 @@ namespace Jazz2::Compatibility
 		Function<String(StringView)> MusicPathMapping;
 
 		/** @brief Creates a new instance */
-		JJ2Level() : _version(JJ2Version::Unknown), _animCount(0), _verticalMPSplitscreen(false), _isMpLevel(false), _hasPit(false), _hasPitInstantDeath(false), _hasCTF(false), _hasLaps(false), _useLevelPalette(false) { }
+		JJ2Level()
+			: _version(JJ2Version::Unknown), _animCount(0), _verticalMPSplitscreen(false), _isMpLevel(false), _hasPit(false), _hasPitInstantDeath(false), _hasCTF(false), _hasLaps(false), _useLevelPalette(false)
+		{
+		}
 
 		/** @brief Opens and parses the specified level file */
 		bool Open(StringView path, bool strictParser);
@@ -152,16 +160,19 @@ namespace Jazz2::Compatibility
 			The level's own track (@ref Music) is not among them. A boss fight plays one of its own, and only the
 			activating event names it, so a content tree that carries only what the levels name has to ask here.
 		*/
-		ArrayView<const String> GetEventMusic() const {
+		ArrayView<const String> GetEventMusic() const
+		{
 			return _eventMusic;
 		}
 
 		/** @brief Returns target version of the level */
-		JJ2Version GetVersion() const {
+		JJ2Version GetVersion() const
+		{
 			return _version;
 		}
 		/** @brief Returns maximum number of supported tiles */
-		std::int32_t GetMaxSupportedTiles() const {
+		std::int32_t GetMaxSupportedTiles() const
+		{
 			return (_version == JJ2Version::BaseGame ? 1024 : 4096);
 		}
 		/**
@@ -173,11 +184,13 @@ namespace Jazz2::Compatibility
 		static constexpr std::int32_t MaxAnimationFrames = 64;
 
 		/** @brief Returns maximum number of supported animations */
-		std::int32_t GetMaxSupportedAnims() const {
+		std::int32_t GetMaxSupportedAnims() const
+		{
 			return (_version == JJ2Version::BaseGame ? 128 : 256);
 		}
 		/** @brief Returns the first tile ID of the animated tiles, the IDs below it are the tiles of the tile sets */
-		std::int32_t GetAnimatedTilesOffset() const {
+		std::int32_t GetAnimatedTilesOffset() const
+		{
 			return GetMaxSupportedTiles() - _animCount;
 		}
 
@@ -202,7 +215,8 @@ namespace Jazz2::Compatibility
 		// The tile type of JJ2+ whose rows of pixels are drawn wavily, as if seen through heat (see Tiles::LayerTileFlags::Heat)
 		static constexpr std::uint8_t TileTypeHeatEffect = 5;
 
-		enum class LayerSectionSpeedModel {
+		enum class LayerSectionSpeedModel
+		{
 			Normal,
 			Legacy,
 			BothSpeeds,
@@ -213,12 +227,13 @@ namespace Jazz2::Compatibility
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
-		struct LayerSection {
+		struct LayerSection
+		{
 			std::uint32_t Flags;
-			std::uint8_t Type;				// Ignored
+			std::uint8_t Type; // Ignored
 			bool Used;
 			bool Visible;
-			std::uint8_t DetailLevel;		// Ignored
+			std::uint8_t DetailLevel; // Ignored
 			std::int32_t Width;
 			std::int32_t InternalWidth;
 			std::int32_t Height;
@@ -257,30 +272,34 @@ namespace Jazz2::Compatibility
 			String Name;
 		};
 
-		struct TileEventSection {
+		struct TileEventSection
+		{
 			JJ2Event EventType;
 			std::uint8_t GeneratorFlags;
 			std::uint8_t Difficulty;
 			bool Illuminate;
-			std::uint32_t TileParams;		// Partially supported
+			std::uint32_t TileParams; // Partially supported
 
 			std::int32_t GeneratorDelay;
 			ConversionResult Converted;
 		};
 
 		// An event of the grid that isn't empty, by its tile index (x + y * width of the sprite layer)
-		struct GridEventSection {
+		struct GridEventSection
+		{
 			std::int32_t Index;
 			TileEventSection Event;
 		};
 
-		struct TilePropertiesSection {
+		struct TilePropertiesSection
+		{
 			TileEventSection Event;
 			bool Flipped;
 			std::uint8_t Type;
 		};
 
-		struct AnimatedTileSection {
+		struct AnimatedTileSection
+		{
 			std::uint16_t Delay;
 			std::uint16_t DelayJitter;
 			std::uint16_t ReverseDelay;
@@ -290,25 +309,28 @@ namespace Jazz2::Compatibility
 			std::uint16_t Frames[MaxAnimationFrames];
 		};
 
-		struct OverridenTileDiffuse {
+		struct OverridenTileDiffuse
+		{
 			std::uint16_t TileID;
 			std::uint8_t Diffuse[32 * 32];
 		};
 
-		struct OverridenTileMask {
+		struct OverridenTileMask
+		{
 			std::uint16_t TileID;
 			std::uint8_t Mask[32 * 32];
 		};
 
-		struct OffGridEvent {
+		struct OffGridEvent
+		{
 			std::uint16_t X;
 			std::uint16_t Y;
-			
+
 			JJ2Event EventType;
 			std::uint8_t GeneratorFlags;
 			std::uint8_t Difficulty;
 			bool Illuminate;
-			std::uint32_t TileParams;		// Partially supported
+			std::uint32_t TileParams; // Partially supported
 
 			std::int32_t GeneratorDelay;
 			ConversionResult Converted;

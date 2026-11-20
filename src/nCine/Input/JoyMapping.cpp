@@ -4,7 +4,7 @@
 #include "../Base/Algorithms.h"
 #include "../Primitives/Vector2.h"
 
-#include <cstring>	// for memcpy()
+#include <cstring> // for memcpy()
 
 #include <Containers/SmallVector.h>
 #include <Containers/StaticArray.h>
@@ -14,11 +14,11 @@
 #include <IO/FileSystem.h>
 
 #if defined(DEATH_TARGET_WINDOWS)
-#	include <CommonWindows.h>
-#	include <Utf8.h>
+#include <CommonWindows.h>
+#include <Utf8.h>
 #endif
 #if defined(DEATH_TARGET_IOS) && defined(WITH_SDL2)
-#	include <SDL.h>	// SDL_GameControllerMappingForDeviceIndex(), see OnJoyConnected()
+#include <SDL.h> // SDL_GameControllerMappingForDeviceIndex(), see OnJoyConnected()
 #endif
 
 using namespace Death::Containers;
@@ -67,7 +67,7 @@ namespace nCine
 			ButtonName::RightStick,
 			ButtonName::A,
 			ButtonName::B,
-			ButtonName::Unknown,	// Center, which the engine has no name for
+			ButtonName::Unknown, // Center, which the engine has no name for
 			ButtonName::Guide,
 			ButtonName::Back,
 			ButtonName::Start,
@@ -205,25 +205,25 @@ namespace nCine
 			}
 		}
 
-#	if defined(DEATH_TRACE)
+#if defined(DEATH_TRACE)
 		wchar_t envAllowSteamVirtualGamepad[2] = {};
 		envLength = ::GetEnvironmentVariable(L"SDL_GAMECONTROLLER_ALLOW_STEAM_VIRTUAL_GAMEPAD", envAllowSteamVirtualGamepad, 2);
 		if (envLength == 1 && envAllowSteamVirtualGamepad[0] == L'1') {
 			LOGI("Steam Input detected");
 		}
-#	endif
+#endif
 #elif !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_IOS) && !defined(DEATH_TARGET_SWITCH)
 		StringView envGameControllerConfig = ::getenv("SDL_GAMECONTROLLERCONFIG");
 		if (envGameControllerConfig != nullptr) {
 			AddMappingsFromStringInternal(envGameControllerConfig, "SDL_GAMECONTROLLERCONFIG variable"_s);
 		}
 
-#	if defined(DEATH_TRACE)
+#if defined(DEATH_TRACE)
 		StringView envAllowSteamVirtualGamepad = ::getenv("SDL_GAMECONTROLLER_ALLOW_STEAM_VIRTUAL_GAMEPAD");
 		if (envAllowSteamVirtualGamepad == "1"_s) {
 			LOGI("Steam Input detected");
 		}
-#	endif
+#endif
 #endif
 
 		CheckConnectedJoystics();
@@ -583,7 +583,7 @@ namespace nCine
 				return false;
 			}
 
-			const std::uint8_t * g = joyGuid.data;
+			const std::uint8_t* g = joyGuid.data;
 			LOGI("Gamepad mapping not found for \"{}\" [{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}] ({}), using Android default mapping", joyName, g[0], g[1], g[2], g[3], g[4], g[5], g[6], g[7], g[8], g[9], g[10], g[11], g[12], g[13], g[14], g[15], event.JoyId);
 
 			mapping.isValid = true;
@@ -636,7 +636,8 @@ namespace nCine
 
 			for (std::int32_t i = 0; i < std::int32_t(arraySize(mapping.desc.buttons)); i++) {
 				mapping.desc.buttons[i] = (i < std::int32_t(arraySize(Qt5ButtonNameMapping))
-					? Qt5ButtonNameMapping[i] : ButtonName::Unknown);
+						? Qt5ButtonNameMapping[i]
+						: ButtonName::Unknown);
 			}
 
 			for (std::int32_t i = 0; i < std::int32_t(arraySize(Qt5DpadButtonNameMapping)); i++) {
@@ -644,7 +645,7 @@ namespace nCine
 			}
 		}
 #elif !defined(DEATH_TARGET_EMSCRIPTEN)
-#	if defined(DEATH_TARGET_IOS) && defined(WITH_SDL2)
+#if defined(DEATH_TARGET_IOS) && defined(WITH_SDL2)
 		// The database has no iOS entries, and the MFi driver's button order depends on which buttons the controller
 		// has, so a mapping matched by name (from another platform) or the XInput one is wrong; SDL generates the exact
 		// one from the driver (joyId is the SDL device index here)
@@ -659,7 +660,7 @@ namespace nCine
 				SDL_free(sdlMapping);
 			}
 		}
-#	endif
+#endif
 		if (!mapping.isValid) {
 			const std::int32_t index = FindMappingByName(joyName);
 			if (index != -1) {
@@ -672,7 +673,7 @@ namespace nCine
 		}
 
 		if (!mapping.isValid) {
-#	if defined(DEATH_TARGET_UNIX)
+#if defined(DEATH_TARGET_UNIX)
 			// Keyboards, mice and touchpads (SynPS/2 Synaptics TouchPad), and also VMware virtual devices on Linux/BSD
 			// are incorrectly recognized as joystick in some cases, don't assign XInput mapping to them
 			auto joyNameLower = StringUtils::lowercase(StringView(joyName));
@@ -682,7 +683,7 @@ namespace nCine
 				(joyNameLower == "vmware virtual usb mouse"_s)) {
 				return false;
 			}
-#	endif
+#endif
 			const std::int32_t index = FindMappingByGuid(JoystickGuidType::Xinput);
 			if (index != -1) {
 				mapping.isValid = true;
@@ -934,13 +935,17 @@ namespace nCine
 					// Determine the output range this binding drives the logical axis across
 					float outMin, outMax;
 					if (axisName == AxisName::LeftTrigger || axisName == AxisName::RightTrigger) {
-						outMin = 0.0f; outMax = 1.0f;
+						outMin = 0.0f;
+						outMax = 1.0f;
 					} else if (outputHalf > 0) {
-						outMin = 0.0f; outMax = 1.0f;
+						outMin = 0.0f;
+						outMax = 1.0f;
 					} else if (outputHalf < 0) {
-						outMin = 0.0f; outMax = -1.0f;
+						outMin = 0.0f;
+						outMax = -1.0f;
 					} else {
-						outMin = -1.0f; outMax = 1.0f;
+						outMin = -1.0f;
+						outMax = 1.0f;
 					}
 
 					MappingDescription::Axis axis;
@@ -951,8 +956,10 @@ namespace nCine
 						auto& dst = map.desc.axes[axisMapping];
 						if (dst.name == axisName && outputHalf != 0) {
 							// The opposite half was already bound to this physical axis, so widen to full travel
-							dst.inMin = -1.0f; dst.inMax = 1.0f;
-							dst.min = -1.0f; dst.max = 1.0f;
+							dst.inMin = -1.0f;
+							dst.inMax = 1.0f;
+							dst.min = -1.0f;
+							dst.max = 1.0f;
 						} else {
 							dst.name = axisName;
 							dst.inMin = axis.inMin;
@@ -1016,7 +1023,6 @@ namespace nCine
 									{
 										const std::uint8_t* g = map.guid.data;
 										LOGW("Unsupported assignment in mapping source \"{}\" in \"{}\" [{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}{:.2x}]", keyValue[0], map.name, g[0], g[1], g[2], g[3], g[4], g[5], g[6], g[7], g[8], g[9], g[10], g[11], g[12], g[13], g[14], g[15]);
-
 									}
 								}
 							}
@@ -1043,17 +1049,17 @@ namespace nCine
 #if defined(DEATH_TARGET_EMSCRIPTEN) || defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_WINDOWS_RT)
 		return false;
 #else
-#	if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 		return (value == "Windows"_s);
-#	elif defined(DEATH_TARGET_ANDROID)
+#elif defined(DEATH_TARGET_ANDROID)
 		return (value == "Android"_s);
-#	elif defined(DEATH_TARGET_IOS)
+#elif defined(DEATH_TARGET_IOS)
 		return (value == "iOS"_s);
-#	elif defined(DEATH_TARGET_APPLE)
+#elif defined(DEATH_TARGET_APPLE)
 		return (value == "Mac OS X"_s);
-#	else
+#else
 		return (value == "Linux"_s);
-#	endif
+#endif
 #endif
 	}
 
@@ -1155,11 +1161,21 @@ namespace nCine
 		std::int32_t hatIndex;
 
 		switch (hatState) {
-			case 1: hatIndex = 0; break;
-			case 2: hatIndex = 1; break;
-			case 4: hatIndex = 2; break;
-			case 8: hatIndex = 3; break;
-			default: hatIndex = -1; break;
+			case 1:
+				hatIndex = 0;
+				break;
+			case 2:
+				hatIndex = 1;
+				break;
+			case 4:
+				hatIndex = 2;
+				break;
+			case 8:
+				hatIndex = 3;
+				break;
+			default:
+				hatIndex = -1;
+				break;
 		}
 
 		return hatIndex;

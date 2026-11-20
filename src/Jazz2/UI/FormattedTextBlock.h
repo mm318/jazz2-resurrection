@@ -73,7 +73,8 @@ namespace Jazz2::UI
 		float GetCachedHeight() const;
 
 		/** @brief Returns the text alignment */
-		Alignment GetAlignment() const {
+		Alignment GetAlignment() const
+		{
 			return _alignment;
 		}
 
@@ -81,7 +82,8 @@ namespace Jazz2::UI
 		void SetAlignment(Alignment value);
 
 		/** @brief Returns the default text color */
-		Colorf GetDefaultColor() const {
+		Colorf GetDefaultColor() const
+		{
 			return _defaultColor;
 		}
 
@@ -89,7 +91,8 @@ namespace Jazz2::UI
 		void SetDefaultColor(Colorf color);
 
 		/** @brief Returns the font used to render the text */
-		Font* GetFont() {
+		Font* GetFont()
+		{
 			return _font;
 		}
 
@@ -97,7 +100,8 @@ namespace Jazz2::UI
 		void SetFont(Font* value);
 
 		/** @brief Returns the text scale */
-		float GetScale() const {
+		float GetScale() const
+		{
 			return _defaultScale;
 		}
 
@@ -105,7 +109,8 @@ namespace Jazz2::UI
 		void SetScale(float value);
 
 		/** @brief Returns the character spacing */
-		float GetCharSpacing() const {
+		float GetCharSpacing() const
+		{
 			return _defaultCharSpacing;
 		}
 
@@ -113,7 +118,8 @@ namespace Jazz2::UI
 		void SetCharSpacing(float value);
 
 		/** @brief Returns the line spacing */
-		float GetLineSpacing() const {
+		float GetLineSpacing() const
+		{
 			return _defaultLineSpacing;
 		}
 
@@ -121,7 +127,8 @@ namespace Jazz2::UI
 		void SetLineSpacing(float value);
 
 		/** @brief Returns the proposed width used for layout */
-		constexpr float GetProposedWidth() const {
+		constexpr float GetProposedWidth() const
+		{
 			return _proposedWidth;
 		}
 
@@ -129,7 +136,8 @@ namespace Jazz2::UI
 		void SetProposedWidth(float value);
 
 		/** @brief Returns the displayed text */
-		StringView GetText() const {
+		StringView GetText() const
+		{
 			return _text;
 		}
 
@@ -139,21 +147,24 @@ namespace Jazz2::UI
 		void SetText(String&& value);
 
 		/** @brief Returns `true` if multiline text is enabled */
-		constexpr bool IsMultiline() const {
+		constexpr bool IsMultiline() const
+		{
 			return (_flags & FormattedTextBlockFlags::Multiline) == FormattedTextBlockFlags::Multiline;
 		}
 		/** @brief Sets whether multiline text is enabled */
 		void SetMultiline(bool value);
 
 		/** @brief Returns `true` if word wrapping is enabled */
-		constexpr bool GetWrapping() const {
+		constexpr bool GetWrapping() const
+		{
 			return (_flags & FormattedTextBlockFlags::Wrapping) == FormattedTextBlockFlags::Wrapping;
 		}
 		/** @brief Sets whether word wrapping is enabled */
 		void SetWrapping(bool value);
 
 		/** @brief Returns `true` if the text is ellipsized to fit the bounds */
-		constexpr bool IsEllipsized() const {
+		constexpr bool IsEllipsized() const
+		{
 			return (_flags & FormattedTextBlockFlags::Ellipsized) == FormattedTextBlockFlags::Ellipsized;
 		}
 
@@ -174,7 +185,7 @@ namespace Jazz2::UI
 			bool AllowVariance;
 
 			Part(std::uint32_t begin, std::uint32_t length, Vector2f location, float height, Colorf color, float scale, float charSpacing, bool allowVariance) noexcept;
-			
+
 			Part(const Part& other) noexcept;
 			Part(Part&& other) noexcept;
 			Part& operator=(const Part& other) noexcept;
@@ -190,7 +201,8 @@ namespace Jazz2::UI
 		};
 #endif
 
-		enum class FormattedTextBlockFlags : std::uint16_t {
+		enum class FormattedTextBlockFlags : std::uint16_t
+		{
 			None = 0,
 			Multiline = 0x01,
 			Wrapping = 0x02,

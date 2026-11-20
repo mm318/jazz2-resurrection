@@ -58,8 +58,8 @@ namespace Jazz2::UI::Windows
 	}
 
 	Skin::Skin()
-		: _atlasWidth(0), _atlasHeight(0), _scale(0.0f), _roundFill{}, _roundRing{}, _shadow{}, _shadowSpread(0), _iconSize(Icons::PixelArtSize),
-			_iconsPerRow(1), _iconsRevision(0)
+		: _atlasWidth(0), _atlasHeight(0), _scale(0.0f), _roundFill {}, _roundRing {}, _shadow {}, _shadowSpread(0), _iconSize(Icons::PixelArtSize),
+		  _iconsPerRow(1), _iconsRevision(0)
 	{
 	}
 

@@ -26,7 +26,8 @@ namespace Jazz2::Editor
 		void Draw(Painter& painter) override;
 
 		/** @brief Returns the number of patterns without any tile to choose */
-		std::int32_t GetMissingCount() const {
+		std::int32_t GetMissingCount() const
+		{
 			return _missing;
 		}
 

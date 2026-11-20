@@ -9,41 +9,41 @@ extern "C"
 #endif
 
 #if defined(DEATH_TARGET_WINDOWS) && !defined(ZIG_BUILD)
-#	pragma comment(lib, "opengl32.lib")
-#	pragma comment(lib, "winmm.lib")
-#	if defined(_M_X64)
-#		if defined(WITH_GLEW)
-#			pragma comment(lib, "../Libs/Windows/x64/glew32.lib")
-#		endif
-#		if defined(WITH_GLFW)
-#			pragma comment(lib, "../Libs/Windows/x64/glfw3dll.lib")
-#		endif
-#		if defined(WITH_SDL3)
-#			pragma comment(lib, "../Libs/Windows/x64/SDL3.lib")
-#		elif defined(WITH_SDL2)
-#			pragma comment(lib, "../Libs/Windows/x64/SDL2.lib")
-#		endif
-#		if defined(WITH_AUDIO)
-#			pragma comment(lib, "../Libs/Windows/x64/OpenAL32.lib")
-#		endif
-#	elif defined(_M_IX86)
-#		if defined(WITH_GLEW)
-#			pragma comment(lib, "../Libs/Windows/x86/glew32.lib")
-#		endif
-#		if defined(WITH_GLFW)
-#			pragma comment(lib, "../Libs/Windows/x86/glfw3dll.lib")
-#		endif
-#		if defined(WITH_SDL3)
-#			pragma comment(lib, "../Libs/Windows/x86/SDL3.lib")
-#		elif defined(WITH_SDL2)
-#			pragma comment(lib, "../Libs/Windows/x86/SDL2.lib")
-#		endif
-#		if defined(WITH_AUDIO)
-#			pragma comment(lib, "../Libs/Windows/x86/OpenAL32.lib")
-#		endif
-#	else
-#		error Unsupported architecture
-#	endif
+#pragma comment(lib, "opengl32.lib")
+#pragma comment(lib, "winmm.lib")
+#if defined(_M_X64)
+#if defined(WITH_GLEW)
+#pragma comment(lib, "../Libs/Windows/x64/glew32.lib")
+#endif
+#if defined(WITH_GLFW)
+#pragma comment(lib, "../Libs/Windows/x64/glfw3dll.lib")
+#endif
+#if defined(WITH_SDL3)
+#pragma comment(lib, "../Libs/Windows/x64/SDL3.lib")
+#elif defined(WITH_SDL2)
+#pragma comment(lib, "../Libs/Windows/x64/SDL2.lib")
+#endif
+#if defined(WITH_AUDIO)
+#pragma comment(lib, "../Libs/Windows/x64/OpenAL32.lib")
+#endif
+#elif defined(_M_IX86)
+#if defined(WITH_GLEW)
+#pragma comment(lib, "../Libs/Windows/x86/glew32.lib")
+#endif
+#if defined(WITH_GLFW)
+#pragma comment(lib, "../Libs/Windows/x86/glfw3dll.lib")
+#endif
+#if defined(WITH_SDL3)
+#pragma comment(lib, "../Libs/Windows/x86/SDL3.lib")
+#elif defined(WITH_SDL2)
+#pragma comment(lib, "../Libs/Windows/x86/SDL2.lib")
+#endif
+#if defined(WITH_AUDIO)
+#pragma comment(lib, "../Libs/Windows/x86/OpenAL32.lib")
+#endif
+#else
+#error Unsupported architecture
+#endif
 #endif
 
 #include "Base/Algorithms.h"
@@ -61,7 +61,7 @@ extern "C"
 #include "Input/JoyMapping.h"
 #include "Threading/Thread.h"
 #if defined(WITH_THREADS)
-#	include "Threading/ThreadSync.h"
+#include "Threading/ThreadSync.h"
 #endif
 #include "ServiceLocator.h"
 #include "tracy.h"
@@ -79,85 +79,86 @@ extern "C"
 #include <Utf8.h>
 
 #if defined(DEATH_TARGET_WINDOWS)
-	// Nothing more, but not <unistd.h> below either
+// Nothing more, but not <unistd.h> below either
 #elif defined(DEATH_TARGET_ANDROID)
-#	include "Backends/Android/AndroidJniHelper.h"
+#include "Backends/Android/AndroidJniHelper.h"
 #elif defined(DEATH_TARGET_SWITCH)
-#	include <switch.h>
+#include <switch.h>
 #elif defined(DEATH_TARGET_DREAMCAST)
-#	include <dc/syscalls.h>
-#	include "Backends/Dc/DcPlatform.h"
+#include <dc/syscalls.h>
+#include "Backends/Dc/DcPlatform.h"
 #elif defined(DEATH_TARGET_WII)
-#	include <ogc/conf.h>
-#	include <ogc/es.h>
+#include <ogc/conf.h>
+#include <ogc/es.h>
 #elif defined(DEATH_TARGET_3DS)
-#	include <3ds.h>
-#	include "Backends/Ctr/CtrPlatform.h"
+#include <3ds.h>
+#include "Backends/Ctr/CtrPlatform.h"
 #elif defined(DEATH_TARGET_PS2)
-extern "C" {
-#	include <libcdvd.h>
-#	include <debug.h>
+extern "C"
+{
+#include <libcdvd.h>
+#include <debug.h>
 }
 #elif defined(DEATH_TARGET_PS3)
-#	include <ppu-lv2.h>
+#include <ppu-lv2.h>
 #elif defined(DEATH_TARGET_PSP)
-#	include <pspwlan.h>
-#	if defined(WITH_CURL)
-#		include "Backends/Psp/PspNetwork.h"
-#	endif
+#include <pspwlan.h>
+#if defined(WITH_CURL)
+#include "Backends/Psp/PspNetwork.h"
+#endif
 #elif defined(DEATH_TARGET_VITA)
-#	include <psp2/kernel/openpsid.h>
+#include <psp2/kernel/openpsid.h>
 #elif defined(DEATH_TARGET_N64)
-#	include <backtrace.h>
-#	include <n64sys.h>
+#include <backtrace.h>
+#include <n64sys.h>
 #elif !defined(DEATH_TARGET_GAMECUBE)
-#	include <unistd.h>
+#include <unistd.h>
 #endif
 
 #if defined(WITH_AUDIO)
-#	if defined(WITH_OPENAL)
-#		include "Audio/Backends/AL/ALAudioDevice.h"
-#	elif defined(WITH_ASND)
-#		include "Audio/Backends/ASND/AsndAudioDevice.h"
-#	elif defined(WITH_AICA)
-#		include "Audio/Backends/AICA/AicaAudioDevice.h"
-#	elif defined(WITH_N64AUDIO)
-#		include "Audio/Backends/N64/N64AudioDevice.h"
-#	elif defined(WITH_PS3AUDIO)
-#		include "Audio/Backends/PS3/Ps3AudioDevice.h"
-#	elif defined(WITH_AHIAUDIO)
-#		include "Audio/Backends/Amiga/AmigaAudioDevice.h"
-#	elif defined(WITH_SDLAUDIO)
-#		include "Audio/Backends/SDL/SdlAudioDevice.h"
-#	elif defined(WITH_PSPAUDIO)
-#		include "Audio/Backends/Psp/PspAudioDevice.h"
-#	elif defined(WITH_PS2AUDIO)
-#		include "Audio/Backends/Ps2/Ps2AudioDevice.h"
-#	elif defined(WITH_NDSP)
-#		include "Audio/Backends/Ndsp/NdspAudioDevice.h"
-#	endif
+#if defined(WITH_OPENAL)
+#include "Audio/Backends/AL/ALAudioDevice.h"
+#elif defined(WITH_ASND)
+#include "Audio/Backends/ASND/AsndAudioDevice.h"
+#elif defined(WITH_AICA)
+#include "Audio/Backends/AICA/AicaAudioDevice.h"
+#elif defined(WITH_N64AUDIO)
+#include "Audio/Backends/N64/N64AudioDevice.h"
+#elif defined(WITH_PS3AUDIO)
+#include "Audio/Backends/PS3/Ps3AudioDevice.h"
+#elif defined(WITH_AHIAUDIO)
+#include "Audio/Backends/Amiga/AmigaAudioDevice.h"
+#elif defined(WITH_SDLAUDIO)
+#include "Audio/Backends/SDL/SdlAudioDevice.h"
+#elif defined(WITH_PSPAUDIO)
+#include "Audio/Backends/Psp/PspAudioDevice.h"
+#elif defined(WITH_PS2AUDIO)
+#include "Audio/Backends/Ps2/Ps2AudioDevice.h"
+#elif defined(WITH_NDSP)
+#include "Audio/Backends/Ndsp/NdspAudioDevice.h"
+#endif
 #endif
 
 #if defined(WITH_THREADS)
-#	include "Threading/Thread.h"
-#	include "Threading/ThreadPool.h"
+#include "Threading/Thread.h"
+#include "Threading/ThreadPool.h"
 #endif
 
 #if defined(WITH_LUA)
-#	include "LuaStatistics.h"
+#include "LuaStatistics.h"
 #endif
 
 #if defined(WITH_IMGUI)
-#	include "Graphics/ImGuiDrawing.h"
-#	include "Graphics/ImGuiDebugOverlay.h"
+#include "Graphics/ImGuiDrawing.h"
+#include "Graphics/ImGuiDebugOverlay.h"
 #endif
 
 #if defined(WITH_RENDERDOC)
-#	include "Graphics/RenderDocCapture.h"
+#include "Graphics/RenderDocCapture.h"
 #endif
 
 #if defined(WITH_BACKWARD)
-#	include <Core/Backward.h>
+#include <Core/Backward.h>
 Backward::ExceptionHandling __eh(Backward::Flags::UseStdError | Backward::Flags::IncludeSnippet | Backward::Flags::CreateMemoryDump);
 #endif
 
@@ -170,39 +171,39 @@ using namespace Death::IO;
 #include <Core/Logger.h>
 #include <IO/MemoryStream.h>
 #if defined(DEATH_TARGET_WINDOWS)
-#	include <Environment.h>
-#	include <Utf8.h>
+#include <Environment.h>
+#include <Utf8.h>
 #elif defined(DEATH_TARGET_ANDROID)
-#	include <stdarg.h>
-#	include <time.h>
-#	include <unistd.h>
-#	include <android/log.h>
-#	include "Backends/Android/AndroidJniHelper.h"
+#include <stdarg.h>
+#include <time.h>
+#include <unistd.h>
+#include <android/log.h>
+#include "Backends/Android/AndroidJniHelper.h"
 #else
-#	include <cstdarg>
-#	include <unistd.h>
-#	if defined(DEATH_TARGET_SWITCH)
-#		include <time.h>
-#		include <switch.h>
-#	elif defined(DEATH_TARGET_VITA)
-#		include <psp2/kernel/clib.h>
-#	elif defined(DEATH_TARGET_WIIU)
-#		include <coreinit/debug.h>
-#	elif defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_GAMECUBE)
-#		include <ogc/exi.h>
-#		include <ogc/usbgecko.h>
-#	elif defined(DEATH_TARGET_DREAMCAST)
-#		include <kos/dbgio.h>
-#	elif defined(DEATH_TARGET_PSP)
-#		include <pspdebug.h>
-#	elif defined(DEATH_TARGET_PS3)
-#		include <sys/tty.h>
-#	endif
+#include <cstdarg>
+#include <unistd.h>
+#if defined(DEATH_TARGET_SWITCH)
+#include <time.h>
+#include <switch.h>
+#elif defined(DEATH_TARGET_VITA)
+#include <psp2/kernel/clib.h>
+#elif defined(DEATH_TARGET_WIIU)
+#include <coreinit/debug.h>
+#elif defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_GAMECUBE)
+#include <ogc/exi.h>
+#include <ogc/usbgecko.h>
+#elif defined(DEATH_TARGET_DREAMCAST)
+#include <kos/dbgio.h>
+#elif defined(DEATH_TARGET_PSP)
+#include <pspdebug.h>
+#elif defined(DEATH_TARGET_PS3)
+#include <sys/tty.h>
+#endif
 #endif
 
 #if defined(DEATH_TRACE_ASYNC) && (!defined(WITH_THREADS) || defined(DEATH_TARGET_EMSCRIPTEN))
-#	pragma message("DEATH_TRACE_ASYNC is not supported on this platform")
-#	undef DEATH_TRACE_ASYNC
+#pragma message("DEATH_TRACE_ASYNC is not supported on this platform")
+#undef DEATH_TRACE_ASYNC
 #endif
 
 static constexpr std::int32_t MaxLogEntryLength = 4096;
@@ -219,14 +220,14 @@ static const char ColorLightString[] = "\x1B[0;38;2;145;109;94m";
 static const char ColorDimString[] = "\x1B[0;38;2;177;150;132m";
 
 #if defined(DEATH_TARGET_EMSCRIPTEN)
-#	include <emscripten/emscripten.h>
+#include <emscripten/emscripten.h>
 #else
-#	include <IO/FileStream.h>
+#include <IO/FileStream.h>
 // The owner belongs to whoever attaches or detaches the target, the pointer is the only thing the sink follows -
 // with DEATH_TRACE_ASYNC those are two different threads. Published once the header and the startup history are
 // already in the file, which keeps them at the very beginning of it.
 static std::unique_ptr<Death::IO::Stream> __logFileOwner;
-static std::atomic<Death::IO::Stream*> __logFile{nullptr};
+static std::atomic<Death::IO::Stream*> __logFile { nullptr };
 
 // When the session started, for the log file header.
 static std::int64_t __startupTimestampMs = 0;
@@ -238,7 +239,8 @@ static std::int64_t __startupTimestampMs = 0;
 // The buffer belongs to the sink - the only one appending to it, so also the one that frees it, once it notices
 // that the history was closed. Closing happens on the thread that attaches the target, which cannot know whether
 // an append is in progress at that moment.
-enum class LogHistoryState : std::uint8_t {
+enum class LogHistoryState : std::uint8_t
+{
 	// Entries with nowhere else to go are appended to the buffer
 	Open,
 	// A target took the entries over, or none is coming - the buffer is not written to anymore
@@ -249,8 +251,8 @@ enum class LogHistoryState : std::uint8_t {
 
 static constexpr std::uint32_t MaxLogHistoryLength = 16 * 1024;
 static Death::Containers::Array<char> __logHistory;
-static std::atomic<std::uint32_t> __logHistoryLength{0};
-static std::atomic<LogHistoryState> __logHistoryState{LogHistoryState::Open};
+static std::atomic<std::uint32_t> __logHistoryLength { 0 };
+static std::atomic<LogHistoryState> __logHistoryState { LogHistoryState::Open };
 
 static void AppendLogHistory(const char* entry, std::uint32_t length)
 {
@@ -289,9 +291,9 @@ static void DiscardLogHistory()
 #endif
 
 #if defined(DEATH_TRACE) && !defined(DEATH_TARGET_EMSCRIPTEN) && (defined(WITH_ZLIB) || defined(WITH_MINIZ))
-#	include <Containers/SmallVector.h>
-#	include <IO/Compression/DeflateStream.h>
-#	define NCINE_HAS_LOG_ARCHIVE
+#include <Containers/SmallVector.h>
+#include <IO/Compression/DeflateStream.h>
+#define NCINE_HAS_LOG_ARCHIVE
 
 // What the previous session left in the log file is kept next to it as "<log file>.gz", a plain gzip file
 // holding one member per session, oldest first. Concatenated members are what the format is specified to
@@ -343,7 +345,8 @@ namespace
 	constexpr std::int32_t LogArchiveBufferSize = 16 * 1024;
 #endif
 
-	struct LogArchivePart {
+	struct LogArchivePart
+	{
 		std::int64_t Offset;
 		std::int64_t Size;
 	};
@@ -396,12 +399,12 @@ namespace
 		output.WriteValueAsLE<std::uint32_t>(std::uint32_t(__startupTimestampMs > 0 ? __startupTimestampMs / 1000 : 0));
 		// The XFL byte the level above corresponds to
 		output.WriteValue<std::uint8_t>(LogArchiveCompressionLevel >= 9 ? 0x02 : (LogArchiveCompressionLevel <= 1 ? 0x04 : 0x00));
-		output.WriteValue<std::uint8_t>(0xFF);	// Unknown operating system
+		output.WriteValue<std::uint8_t>(0xFF); // Unknown operating system
 
 		output.WriteValueAsLE<std::uint16_t>(ExtraFieldLength);
 		const std::uint8_t subfield[4] = { MemberSizeFieldId0, MemberSizeFieldId1, MemberSizeFieldLength, 0 };
 		output.Write(subfield, sizeof(subfield));
-		output.WriteValueAsLE<std::uint32_t>(0);	// Size of the member, filled in at the end
+		output.WriteValueAsLE<std::uint32_t>(0); // Size of the member, filled in at the end
 
 		// The original name, so the archive still says what it is an archive of
 		output.Write(originalName.data(), originalName.size());
@@ -514,14 +517,14 @@ namespace
 		auto archive = fs::Open(archivePath, FileAccess::Read);
 		const std::int64_t archiveSize = (archive->IsValid() ? archive->GetSize() : 0);
 		std::int64_t parsedSize = 0, totalPartSize = 0;
-		for (std::int64_t offset = 0; offset < archiveSize; ) {
+		for (std::int64_t offset = 0; offset < archiveSize;) {
 			const std::int64_t partSize = ReadLogArchivePartSize(*archive, offset, archiveSize);
 			if (partSize <= 0) {
 				// Not something written here, or the file ends in the middle of a member - either way
 				// nothing beyond this point can be skipped over safely, so none of it is kept
 				break;
 			}
-			parts.push_back(LogArchivePart{offset, partSize});
+			parts.push_back(LogArchivePart { offset, partSize });
 			offset += partSize;
 			parsedSize = offset;
 			totalPartSize += partSize;
@@ -617,7 +620,8 @@ namespace
 }
 #endif
 
-enum class ConsoleType {
+enum class ConsoleType
+{
 	None,
 	Redirect,
 	WinApi,
@@ -636,12 +640,12 @@ static bool __consoleSixelSupported = false;
 #endif
 
 #if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
-#	if !defined(ENABLE_VIRTUAL_TERMINAL_INPUT)
-#		define ENABLE_VIRTUAL_TERMINAL_INPUT 0x0200
-#	endif
-#	if !defined(ENABLE_VIRTUAL_TERMINAL_PROCESSING)
-#		define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
-#	endif
+#if !defined(ENABLE_VIRTUAL_TERMINAL_INPUT)
+#define ENABLE_VIRTUAL_TERMINAL_INPUT 0x0200
+#endif
+#if !defined(ENABLE_VIRTUAL_TERMINAL_PROCESSING)
+#define ENABLE_VIRTUAL_TERMINAL_PROCESSING 0x0004
+#endif
 
 extern "C" IMAGE_DOS_HEADER __ImageBase;
 
@@ -657,10 +661,10 @@ static bool EnableVirtualTerminalProcessing(HANDLE consoleHandleOut)
 
 	DWORD dwMode = 0;
 	return (::GetConsoleMode(consoleHandleOut, &dwMode) &&
-			::SetConsoleMode(consoleHandleOut, dwMode | ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING));
+		::SetConsoleMode(consoleHandleOut, dwMode | ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING));
 }
 
-template<typename TCallback>
+template <typename TCallback>
 static bool FillBufferWithTimeout(HANDLE handle, OVERLAPPED& ov, char* buffer, std::uint32_t bufferSize, TCallback callback)
 {
 	constexpr std::uint64_t TimeoutMs = 100;
@@ -714,7 +718,7 @@ static void CheckConsoleCapabilities()
 		return;
 	}
 
-	OVERLAPPED ov{};
+	OVERLAPPED ov {};
 	ov.hEvent = ::CreateEvent(NULL, TRUE, FALSE, NULL);
 	if (ov.hEvent == NULL) {
 		::CloseHandle(hStdIn);
@@ -752,7 +756,7 @@ static void CheckConsoleCapabilities()
 	static const char bgColorRequest[] = "\x1B]11;?\x07";
 	::WriteConsoleA(hStdOut, bgColorRequest, sizeof(bgColorRequest) - 1, &bytesWritten, nullptr);
 	::FlushConsoleInputBuffer(hStdIn);
-	
+
 	FillBufferWithTimeout(hStdIn, ov, buffer, sizeof(buffer), [](StringView bufferView) {
 		if (StringView end = bufferView.find("\x1B\\"_s)) {
 			if (StringView begin = bufferView.find("\x1B]11;rgb:"_s)) {
@@ -775,13 +779,12 @@ static void CheckConsoleCapabilities()
 		return false;
 	});
 
-
 	::SetConsoleMode(hStdIn, stdInMode);
 }
 
 #elif defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
-#	include <termios.h>
-#	include <sys/select.h>
+#include <termios.h>
+#include <sys/select.h>
 
 static void CheckConsoleCapabilities()
 {
@@ -860,8 +863,8 @@ static void CheckConsoleCapabilities()
 
 #endif
 
-template<std::int32_t N>
-static DEATH_ALWAYS_INLINE void AppendPart(char* dest, std::int32_t& length, const char(&newPart)[N])
+template <std::int32_t N>
+static DEATH_ALWAYS_INLINE void AppendPart(char* dest, std::int32_t& length, const char (&newPart)[N])
 {
 	length += nCine::copyStringFirst(dest + length, MaxLogEntryLength - length - 1, newPart, N - 1);
 }
@@ -899,12 +902,24 @@ static void AppendLevel(char* dest, std::int32_t& length, TraceLevel level, Stri
 
 	char levelIdentifier;
 	switch (level) {
-		case TraceLevel::Fatal:		levelIdentifier = 'F'; break;
-		case TraceLevel::Assert:	levelIdentifier = 'A'; break;
-		case TraceLevel::Error:		levelIdentifier = 'E'; break;
-		case TraceLevel::Warning:	levelIdentifier = 'W'; break;
-		case TraceLevel::Info:		levelIdentifier = 'I'; break;
-		default:					levelIdentifier = 'D'; break;
+		case TraceLevel::Fatal:
+			levelIdentifier = 'F';
+			break;
+		case TraceLevel::Assert:
+			levelIdentifier = 'A';
+			break;
+		case TraceLevel::Error:
+			levelIdentifier = 'E';
+			break;
+		case TraceLevel::Warning:
+			levelIdentifier = 'W';
+			break;
+		case TraceLevel::Info:
+			levelIdentifier = 'I';
+			break;
+		default:
+			levelIdentifier = 'D';
+			break;
 	}
 
 	std::int32_t partLength = (std::int32_t)formatInto({ dest + length, (std::size_t)(MaxLogEntryLength - length - 1) },
@@ -926,15 +941,15 @@ static void AppendLevel(char* dest, std::int32_t& length, TraceLevel level, Stri
 // and reports __PRETTY_FUNCTION__, so it belongs to the Clang case.
 static void AppendFunctionNamePart(char* dest, std::int32_t& length, const char* functionName, std::int32_t functionNameLength)
 {
-#	if defined(DEATH_TARGET_CLANG) || defined(DEATH_TARGET_MSVC)
+#if defined(DEATH_TARGET_CLANG) || defined(DEATH_TARGET_MSVC)
 	static constexpr StringView AnonymousNamespace = "{anonymous}"_s;
-#		if defined(DEATH_TARGET_CLANG)
+#if defined(DEATH_TARGET_CLANG)
 	// Appears in the middle of __PRETTY_FUNCTION__, e.g. "void nCine::(anonymous namespace)::Function()"
 	static constexpr StringView AnonymousNamespaceForeign = "(anonymous namespace)"_s;
-#		elif defined(DEATH_TARGET_MSVC)
+#elif defined(DEATH_TARGET_MSVC)
 	// Appears in the middle of __FUNCTION__ and is spelled with a hyphen, e.g. "nCine::`anonymous-namespace'::Function"
 	static constexpr StringView AnonymousNamespaceForeign = "`anonymous-namespace'"_s;
-#		endif
+#endif
 
 	// A name can carry more than one such segment, because on some compilers it includes the return type as well
 	StringView remaining = StringView(functionName, functionNameLength);
@@ -945,15 +960,15 @@ static void AppendFunctionNamePart(char* dest, std::int32_t& length, const char*
 	}
 
 	AppendPart(dest, length, remaining.data(), (std::int32_t)remaining.size());
-#	else
+#else
 	// GCC already uses the target notation, and the remaining compilers report only the bare function name
 	AppendPart(dest, length, functionName, functionNameLength);
-#	endif
+#endif
 }
 
 static void AppendShortenedFunctionName(char* dest, std::int32_t& length, const char* functionName, std::int32_t functionNameLength)
 {
-#	if defined(DEATH_TARGET_GCC) || defined(DEATH_TARGET_CLANG)
+#if defined(DEATH_TARGET_GCC) || defined(DEATH_TARGET_CLANG)
 	// Strip function specifiers, return type and arguments from function name, because GCC/Clang includes full function signature
 	static constexpr StringView LambdaSuffix = "::<lambda()>"_s;
 	static constexpr StringView OperatorPrefix = "operator"_s;
@@ -971,18 +986,19 @@ static void AppendShortenedFunctionName(char* dest, std::int32_t& length, const 
 	// "operator()()", and matching the arguments too would silently skip every such lambda. The same holds
 	// for GCC's "<lambda(int)>". The parenthesis scan below walks from the marker back to the enclosing
 	// function either way, so the arguments need no handling here.
-#		if defined(DEATH_TARGET_CLANG)
-#			if __clang_major__ >= 22
+#if defined(DEATH_TARGET_CLANG)
+#if __clang_major__ >= 22
 	static constexpr StringView LambdaMarker = "::(lambda)::operator("_s;
-#			else
+#else
 	static constexpr StringView LambdaMarker = "::(anonymous class)::operator("_s;
-#			endif
-#		else
+#endif
+#else
 	static constexpr StringView LambdaMarker = "::<lambda("_s;
-#		endif
+#endif
 
 	StringView functionNameView = StringView(functionName, functionNameLength);
-	std::int32_t i = functionNameLength - 1; bool isLambda = false;
+	std::int32_t i = functionNameLength - 1;
+	bool isLambda = false;
 	// The first occurrence is the outermost closure, which is the enclosing function a nested lambda should
 	// be reported against as well
 	if (auto lambdaMarker = functionNameView.find(LambdaMarker)) {
@@ -1051,7 +1067,7 @@ static void AppendShortenedFunctionName(char* dest, std::int32_t& length, const 
 	} else {
 		AppendFunctionNamePart(dest, length, functionName, functionNameLength);
 	}
-#	else
+#else
 	// MSVC reports a bare qualified name with no return type and no arguments, and the trailing "()" is already part
 	// of __DEATH_CURRENT_FUNCTION, so the only thing left to shorten is a lambda. Its closure type is spelled
 	// "<lambda_1>" (a hash in older releases) and everything from there on is noise, e.g.
@@ -1082,7 +1098,7 @@ static void AppendShortenedFunctionName(char* dest, std::int32_t& length, const 
 	}
 
 	AppendFunctionNamePart(dest, length, functionName, functionNameLength);
-#	endif
+#endif
 }
 #endif
 
@@ -1198,7 +1214,7 @@ static void InstallShutdownHandlers()
 }
 
 #elif defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
-#	include <signal.h>
+#include <signal.h>
 
 static void OnHandleTerminationSignal(int sig)
 {
@@ -1248,7 +1264,8 @@ namespace nCine
 	Application::Application()
 		: _isSuspended(false), _autoSuspension(false), _hasFocus(true), _shouldQuit(false)
 #if defined(DEATH_TRACE)
-			, _mainThreadId(Death::Trace::Implementation::GetNativeThreadId())
+		  ,
+		  _mainThreadId(Death::Trace::Implementation::GetNativeThreadId())
 #endif
 	{
 	}
@@ -1448,27 +1465,27 @@ namespace nCine
 
 #if defined(WITH_AUDIO)
 		if (_appCfg.WithAudio) {
-#	if defined(WITH_OPENAL)
+#if defined(WITH_OPENAL)
 			theServiceLocator().RegisterAudioDevice(std::make_unique<ALAudioDevice>());
-#	elif defined(WITH_ASND)
+#elif defined(WITH_ASND)
 			theServiceLocator().RegisterAudioDevice(std::make_unique<AsndAudioDevice>());
-#	elif defined(WITH_AICA)
+#elif defined(WITH_AICA)
 			theServiceLocator().RegisterAudioDevice(std::make_unique<AicaAudioDevice>());
-#	elif defined(WITH_N64AUDIO)
+#elif defined(WITH_N64AUDIO)
 			theServiceLocator().RegisterAudioDevice(std::make_unique<N64AudioDevice>());
-#	elif defined(WITH_PS3AUDIO)
+#elif defined(WITH_PS3AUDIO)
 			theServiceLocator().RegisterAudioDevice(std::make_unique<Ps3AudioDevice>());
-#	elif defined(WITH_AHIAUDIO)
+#elif defined(WITH_AHIAUDIO)
 			theServiceLocator().RegisterAudioDevice(std::make_unique<AmigaAudioDevice>());
-#	elif defined(WITH_SDLAUDIO)
+#elif defined(WITH_SDLAUDIO)
 			theServiceLocator().RegisterAudioDevice(std::make_unique<SdlAudioDevice>());
-#	elif defined(WITH_PSPAUDIO)
+#elif defined(WITH_PSPAUDIO)
 			theServiceLocator().RegisterAudioDevice(std::make_unique<PspAudioDevice>());
-#	elif defined(WITH_PS2AUDIO)
+#elif defined(WITH_PS2AUDIO)
 			theServiceLocator().RegisterAudioDevice(std::make_unique<Ps2AudioDevice>());
-#	elif defined(WITH_NDSP)
+#elif defined(WITH_NDSP)
 			theServiceLocator().RegisterAudioDevice(std::make_unique<NdspAudioDevice>());
-#	endif
+#endif
 		}
 #endif
 #if defined(WITH_THREADS)
@@ -1493,7 +1510,7 @@ namespace nCine
 				if ((vendor == "Imagination Technologies"_s && (renderer == "PowerVR Rogue GE8300"_s || renderer == "PowerVR Rogue GE8320"_s || renderer == "PowerVR Rogue GE9215"_s)) ||
 					(vendor == "ARM"_s && renderer == "Mali-T830"_s)) {
 					const StringView vendorPrefix = vendor.findOr(' ', vendor.end());
-					if DEATH_UNLIKELY(renderer.hasPrefix(vendor.prefix(vendorPrefix.begin()))) {
+					if DEATH_UNLIKELY (renderer.hasPrefix(vendor.prefix(vendorPrefix.begin()))) {
 						LOGW("Detected {}: Using fixed batch size", renderer);
 					} else {
 						LOGW("Detected {} {}: Using fixed batch size", vendor, renderer);
@@ -1532,7 +1549,7 @@ namespace nCine
 
 			// Debug overlay is available even when scenegraph is not
 			if (_appCfg.WithDebugOverlay) {
-				_debugOverlay = std::make_unique<ImGuiDebugOverlay>(0.5f);	// 2 updates per second
+				_debugOverlay = std::make_unique<ImGuiDebugOverlay>(0.5f); // 2 updates per second
 			}
 #endif
 		} else {
@@ -1607,13 +1624,13 @@ namespace nCine
 #if defined(WITH_IMGUI)
 		if (_appCfg.WithGraphics) {
 			ZoneScopedN("ImGui newFrame");
-#	if defined(NCINE_PROFILING)
+#if defined(NCINE_PROFILING)
 			_profileStartTime = TimeStamp::Now();
-#	endif
+#endif
 			_imguiDrawing->NewFrame();
-#	if defined(NCINE_PROFILING)
+#if defined(NCINE_PROFILING)
 			_timings[(std::int32_t)Timings::ImGui] = _profileStartTime.GetSecondsSince();
-#	endif
+#endif
 		}
 #endif
 #if defined(WITH_LUA)
@@ -1676,14 +1693,14 @@ namespace nCine
 #if defined(WITH_IMGUI)
 				{
 					ZoneScopedN("ImGui endFrame");
-#	if defined(NCINE_PROFILING)
+#if defined(NCINE_PROFILING)
 					_profileStartTime = TimeStamp::Now();
-#	endif
+#endif
 					RenderQueue& imguiRenderQueue = (_guiSettings.ImguiViewport ? _guiSettings.ImguiViewport->_renderQueue : _screenViewport->_renderQueue);
 					_imguiDrawing->EndFrame(imguiRenderQueue);
-#	if defined(NCINE_PROFILING)
+#if defined(NCINE_PROFILING)
 					_timings[(std::int32_t)Timings::ImGui] += _profileStartTime.GetSecondsSince();
-#	endif
+#endif
 				}
 #endif
 
@@ -1707,13 +1724,13 @@ namespace nCine
 #if defined(WITH_IMGUI)
 			if (_appCfg.WithGraphics) {
 				ZoneScopedN("ImGui endFrame");
-#	if defined(NCINE_PROFILING)
+#if defined(NCINE_PROFILING)
 				_profileStartTime = TimeStamp::Now();
-#	endif
+#endif
 				_imguiDrawing->EndFrame();
-#	if defined(NCINE_PROFILING)
+#if defined(NCINE_PROFILING)
 				_timings[(std::int32_t)Timings::ImGui] += _profileStartTime.GetSecondsSince();
-#	endif
+#endif
 			}
 #endif
 		}
@@ -1798,8 +1815,7 @@ namespace nCine
 
 #if defined(DEATH_TARGET_WINDOWS)
 			// It can wait longer than necessary, so subtract 1 ms to compensate
-			const std::int64_t remainingTime100ns = ((((std::int64_t)frameTimeDuration - (std::int64_t)_frameTimer->GetFrameDurationAsTicks())
-				* 10'000'000LL) / (std::int64_t)clock().GetFrequency()) - 10'000; // 1 ms
+			const std::int64_t remainingTime100ns = ((((std::int64_t)frameTimeDuration - (std::int64_t)_frameTimer->GetFrameDurationAsTicks()) * 10'000'000LL) / (std::int64_t)clock().GetFrequency()) - 10'000; // 1 ms
 			if (remainingTime100ns > 0) {
 				LARGE_INTEGER dueTime;
 				dueTime.QuadPart = -remainingTime100ns;
@@ -1813,7 +1829,7 @@ namespace nCine
 			const std::int64_t remainingTimeNs = (1'000'000'000LL / (std::int64_t)_appCfg.FrameLimit) -
 				((std::int64_t)_frameTimer->GetFrameDurationAsTicks() * 1'000'000'000LL / (std::int64_t)clock().GetFrequency()) - 500'000LL;
 			if (remainingTimeNs > 0) {
-				timespec dueTime{};
+				timespec dueTime {};
 				dueTime.tv_nsec += remainingTimeNs;
 				if (dueTime.tv_nsec >= 1'000'000'000L) {
 					dueTime.tv_sec += dueTime.tv_nsec / 1'000'000'000L;
@@ -1839,8 +1855,7 @@ namespace nCine
 			// Generic fallback for platforms without a dedicated high-precision arm (console ports and other
 			// new targets): a coarse millisecond sleep covers the bulk of the wait so the spin below only tops
 			// up the last couple of milliseconds instead of burning a full core for the whole frame remainder
-			const std::int64_t remainingTimeMs = (((std::int64_t)frameTimeDuration - (std::int64_t)_frameTimer->GetFrameDurationAsTicks())
-				* 1'000LL) / (std::int64_t)clock().GetFrequency() - 2; // 2 ms slack for coarse sleep granularity
+			const std::int64_t remainingTimeMs = (((std::int64_t)frameTimeDuration - (std::int64_t)_frameTimer->GetFrameDurationAsTicks()) * 1'000LL) / (std::int64_t)clock().GetFrequency() - 2; // 2 ms slack for coarse sleep granularity
 			if (remainingTimeMs > 0) {
 				Thread::Sleep((std::uint32_t)remainingTimeMs);
 			}
@@ -1910,7 +1925,7 @@ namespace nCine
 	}
 
 #if defined(DEATH_TRACE)
-#	if !defined(DEATH_TRACE_ASYNC) && defined(WITH_THREADS)
+#if !defined(DEATH_TRACE_ASYNC) && defined(WITH_THREADS)
 	namespace
 	{
 		/**
@@ -1937,10 +1952,12 @@ namespace nCine
 		class TraceSinkGuard
 		{
 		public:
-			TraceSinkGuard() {
+			TraceSinkGuard()
+			{
 				TraceSinkLock().Lock();
 			}
-			~TraceSinkGuard() {
+			~TraceSinkGuard()
+			{
 				TraceSinkLock().Unlock();
 			}
 
@@ -1948,13 +1965,13 @@ namespace nCine
 			TraceSinkGuard& operator=(const TraceSinkGuard&) = delete;
 		};
 	}
-#	endif
+#endif
 
 	void Application::OnTraceReceived(TraceLevel level, std::uint64_t timestamp, StringView threadId, StringView functionName, StringView content)
 	{
-#	if !defined(DEATH_TRACE_ASYNC) && defined(WITH_THREADS)
+#if !defined(DEATH_TRACE_ASYNC) && defined(WITH_THREADS)
 		TraceSinkGuard sinkGuard;
-#	endif
+#endif
 
 		char logEntryWithColors[MaxLogEntryLength + 24];
 
@@ -1969,12 +1986,22 @@ namespace nCine
 
 		android_LogPriority priority;
 		switch (level) {
-			case TraceLevel::Fatal:		priority = ANDROID_LOG_FATAL; break;
-			case TraceLevel::Assert:	// Android doesn't support this priority, use ANDROID_LOG_ERROR instead
-			case TraceLevel::Error:		priority = ANDROID_LOG_ERROR; break;
-			case TraceLevel::Warning:	priority = ANDROID_LOG_WARN; break;
-			case TraceLevel::Info:		priority = ANDROID_LOG_INFO; break;
-			default:					priority = ANDROID_LOG_DEBUG; break;
+			case TraceLevel::Fatal:
+				priority = ANDROID_LOG_FATAL;
+				break;
+			case TraceLevel::Assert: // Android doesn't support this priority, use ANDROID_LOG_ERROR instead
+			case TraceLevel::Error:
+				priority = ANDROID_LOG_ERROR;
+				break;
+			case TraceLevel::Warning:
+				priority = ANDROID_LOG_WARN;
+				break;
+			case TraceLevel::Info:
+				priority = ANDROID_LOG_INFO;
+				break;
+			default:
+				priority = ANDROID_LOG_DEBUG;
+				break;
 		}
 
 		std::int32_t result = __android_log_write(priority, NCINE_APP, logEntryWithColors);
@@ -2184,20 +2211,20 @@ namespace nCine
 		logEntryWithColors[length2++] = '\n';
 		logEntryWithColors[length2] = '\0';
 		::OutputDebugStringA(logEntryWithColors);
-#elif !defined(DEATH_TRACE_LOG_PATH)	// Log to stdout only if file logging is not force enabled
-#	if defined(DEATH_TARGET_WINDOWS) && defined(DEATH_DEBUG)
+#elif !defined(DEATH_TRACE_LOG_PATH) // Log to stdout only if file logging is not force enabled
+#if defined(DEATH_TARGET_WINDOWS) && defined(DEATH_DEBUG)
 		if (__consoleType >= ConsoleType::Redirect) {
-#	endif
+#endif
 			// Colorize the output
 			std::int32_t length2 = 0;
 			AppendMessagePrefixIfAny(logEntryWithColors, length2, level, functionName);
 
 			if (__consoleType >= ConsoleType::EscapeCodes) {
-#	if defined(DEATH_TARGET_EMSCRIPTEN)
+#if defined(DEATH_TARGET_EMSCRIPTEN)
 				bool shouldResetBefore = (level != TraceLevel::Warning && level != TraceLevel::Debug && level != TraceLevel::Deferred);
-#	else
-				bool shouldResetBefore = true;
-#	endif
+#else
+			bool shouldResetBefore = true;
+#endif
 				bool shouldResetAfter = (level == TraceLevel::Debug || level == TraceLevel::Deferred || level == TraceLevel::Warning || level == TraceLevel::Error || level == TraceLevel::Assert || level == TraceLevel::Fatal);
 
 				if (level < TraceLevel::Error && __consoleType >= ConsoleType::EscapeCodes24bit) {
@@ -2262,7 +2289,7 @@ namespace nCine
 				length2 = MaxLogEntryLength - 2;
 			}
 
-#	if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			// Try to restore previous cursor position (this doesn't work correctly in Windows Terminal v1.19)
 			if (__consoleHandleOut != NULL) {
 				CONSOLE_SCREEN_BUFFER_INFO csbi;
@@ -2290,12 +2317,12 @@ namespace nCine
 					__consoleCursorY = csbi.dwCursorPosition.Y;
 				}
 			}
-#	else
-			logEntryWithColors[length2++] = '\n';
-			::fwrite(logEntryWithColors, 1, length2, level == TraceLevel::Error || level == TraceLevel::Fatal ? stderr : stdout);
-#	endif
+#else
+		logEntryWithColors[length2++] = '\n';
+		::fwrite(logEntryWithColors, 1, length2, level == TraceLevel::Error || level == TraceLevel::Fatal ? stderr : stdout);
+#endif
 
-#	if defined(DEATH_TARGET_WINDOWS) && defined(DEATH_DEBUG)
+#if defined(DEATH_TARGET_WINDOWS) && defined(DEATH_DEBUG)
 		} else {
 			// Use OutputDebugStringA() to avoid conversion UTF-8 => UTF-16 => current code page
 			std::int32_t length2 = 0;
@@ -2311,14 +2338,14 @@ namespace nCine
 			logEntryWithColors[length2] = '\0';
 			::OutputDebugStringA(logEntryWithColors);
 		}
-#	endif
+#endif
 #endif
 
 #if !defined(DEATH_TARGET_EMSCRIPTEN)
 		// The startup history is closed by another thread, but freeing the buffer is left to this one, which is
 		// the only one that appends to it - whichever entry gets here first claims it
 		LogHistoryState historyState = __logHistoryState.load(std::memory_order_acquire);
-		if DEATH_UNLIKELY(historyState == LogHistoryState::Closed) {
+		if DEATH_UNLIKELY (historyState == LogHistoryState::Closed) {
 			if (__logHistoryState.compare_exchange_strong(historyState, LogHistoryState::Released,
 					std::memory_order_acq_rel, std::memory_order_acquire)) {
 				__logHistory = {};
@@ -2335,7 +2362,7 @@ namespace nCine
 		Stream* logFile = __logFile.load(std::memory_order_acquire);
 		if (logFile != nullptr || historyState == LogHistoryState::Open) {
 			std::int32_t length3 = 0;
-			static std::atomic<std::int32_t> logFileLastDay{-1};
+			static std::atomic<std::int32_t> logFileLastDay { -1 };
 			AppendDateTime(logEntryWithColors, length3, timestamp, &logFileLastDay);
 			logEntryWithColors[length3++] = ' ';
 			AppendLevel(logEntryWithColors, length3, level, threadId);
@@ -2345,8 +2372,8 @@ namespace nCine
 
 			if (logFile != nullptr) {
 				logFile->Write(logEntryWithColors, length3);
-#	if defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PS2) || \
-		defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_VITA)
+#if defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PS2) || \
+	defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_VITA)
 				// This file is effectively the only debugging channel these consoles have, and a hard kill
 				// (the PS button, vitacompanion's "destroy", the PS2's reset switch) runs no shutdown code,
 				// so an unflushed buffer is exactly the log that would have said why. Flushing every entry
@@ -2361,7 +2388,7 @@ namespace nCine
 				// libcalls devkitPPC does not ship, and the Wii and GameCube fail to link. Only the
 				// difference is ever read, so truncating is harmless across the 49-day wrap.
 				constexpr std::uint32_t FlushIntervalMs = 250;
-				static std::atomic<std::uint32_t> lastFlushMs{0};
+				static std::atomic<std::uint32_t> lastFlushMs { 0 };
 				const std::uint32_t nowMs = (std::uint32_t)(timestamp / 1000000);
 				if (level >= TraceLevel::Info) {
 					lastFlushMs.store(nowMs, std::memory_order_relaxed);
@@ -2374,7 +2401,7 @@ namespace nCine
 						logFile->Flush();
 					}
 				}
-#	endif
+#endif
 			} else {
 				AppendLogHistory(logEntryWithColors, std::uint32_t(length3));
 			}
@@ -2393,12 +2420,24 @@ namespace nCine
 #if defined(WITH_TRACY)
 		std::uint32_t colorTracy;
 		switch (level) {
-			case TraceLevel::Fatal:		colorTracy = 0xEC3E40; break;
-			case TraceLevel::Assert:	colorTracy = 0xD651B0; break;
-			case TraceLevel::Error:		colorTracy = 0xD85050; break;
-			case TraceLevel::Warning:	colorTracy = 0xEBC77A; break;
-			case TraceLevel::Info:		colorTracy = 0xD2D2D2; break;
-			default:					colorTracy = 0x969696; break;
+			case TraceLevel::Fatal:
+				colorTracy = 0xEC3E40;
+				break;
+			case TraceLevel::Assert:
+				colorTracy = 0xD651B0;
+				break;
+			case TraceLevel::Error:
+				colorTracy = 0xD85050;
+				break;
+			case TraceLevel::Warning:
+				colorTracy = 0xEBC77A;
+				break;
+			case TraceLevel::Info:
+				colorTracy = 0xD2D2D2;
+				break;
+			default:
+				colorTracy = 0x969696;
+				break;
 		}
 
 		TracyMessageC(content.data(), content.size(), colorTracy);
@@ -2407,11 +2446,11 @@ namespace nCine
 
 	void Application::OnTraceFlushed()
 	{
-#	if !defined(DEATH_TARGET_EMSCRIPTEN)
+#if !defined(DEATH_TARGET_EMSCRIPTEN)
 		if (Stream* logFile = __logFile.load(std::memory_order_acquire)) {
 			logFile->Flush();
 		}
-#	endif
+#endif
 	}
 #endif
 
@@ -2511,7 +2550,8 @@ namespace nCine
 	String Application::GetDeviceHostname()
 	{
 #if defined(DEATH_TARGET_WINDOWS)
-		wchar_t hostNameW[128]; DWORD hostNameWLength = (DWORD)arraySize(hostNameW);
+		wchar_t hostNameW[128];
+		DWORD hostNameWLength = (DWORD)arraySize(hostNameW);
 		if (::GetComputerNameW(hostNameW, &hostNameWLength) && hostNameWLength > 0) {
 			return Utf8::FromUtf16(hostNameW, hostNameWLength);
 		}
@@ -2556,7 +2596,8 @@ namespace nCine
 		if (CONF_Init() >= 0) {
 			u8 nickname[32] {};
 			if (CONF_GetNickName(nickname) >= 0) {
-				char sanitized[sizeof(nickname)]; std::size_t length = 0;
+				char sanitized[sizeof(nickname)];
+				std::size_t length = 0;
 				for (std::size_t i = 0; i < sizeof(nickname) - 1 && nickname[i] != '\0'; i++) {
 					if (nickname[i] >= 0x20 && nickname[i] < 0x7F) {
 						sanitized[length++] = (char)nickname[i];
@@ -2602,7 +2643,8 @@ namespace nCine
 		// physical port - stands in for it. It comes over the CDVD RPC, which MainApplication brings up long
 		// before a trace file or a device ID is asked for. The call answers 1 when it succeeded, the status
 		// it fills in describes what went wrong otherwise.
-		u8 id[8] {}; u32 status = 0;
+		u8 id[8] {};
+		u32 status = 0;
 		if (sceCdRI(id, &status) == 1) {
 			return FormatIdentifierBytes(id, sizeof(id), '\0');
 		}
@@ -2653,7 +2695,7 @@ namespace nCine
 		// Not implemented in base class
 		return false;
 	}
-	
+
 	bool Application::CanShowScreenKeyboard()
 	{
 		return false;
@@ -2673,12 +2715,12 @@ namespace nCine
 	{
 		return false;
 	}
-	
+
 	bool Application::ShowScreenKeyboard(Containers::StringView initialText, Containers::Function<void(Containers::StringView)>&& onCompleted)
 	{
 		return false;
 	}
-	
+
 	bool Application::HideScreenKeyboard()
 	{
 		return false;
@@ -2723,24 +2765,24 @@ namespace nCine
 					__consoleType = ConsoleType::Redirect;
 				}
 
-#	if defined(WITH_BACKWARD)
+#if defined(WITH_BACKWARD)
 				if (__consoleType >= ConsoleType::EscapeCodes) {
 					__eh.FeatureFlags |= Backward::Flags::Colorized;
 				}
-#	endif
+#endif
 			}
 			return;
 		}
 #endif
 
 #if defined(DEATH_TRACE) && !defined(DEATH_TARGET_EMSCRIPTEN)
-#	if defined(NCINE_HAS_LOG_ARCHIVE)
+#if defined(NCINE_HAS_LOG_ARCHIVE)
 		// Opening the file for writing below discards what the previous session wrote, so this is the last
 		// moment at which it can be kept
 		if (archivePrevious) {
 			ArchivePreviousLogFile(targetPath);
 		}
-#	endif
+#endif
 
 		auto logFile = fs::Open(targetPath, FileAccess::Write);
 		if (logFile->IsValid()) {
@@ -2787,17 +2829,17 @@ namespace nCine
 			__logFile.store(__logFileOwner.get(), std::memory_order_release);
 			DiscardLogHistory();
 
-#	if defined(WITH_BACKWARD)
+#if defined(WITH_BACKWARD)
 			// Try to save crash info to log file
 			__eh.Destination = __logFileOwner.get();
-#	endif
+#endif
 		} else {
 			// Another target may still be attached later, so the history is deliberately kept
 			__logFile.store(nullptr, std::memory_order_release);
 			__logFileOwner = nullptr;
-#	if defined(WITH_BACKWARD)
+#if defined(WITH_BACKWARD)
 			__eh.Destination = nullptr;
-#	endif
+#endif
 		}
 #endif
 	}
@@ -2823,20 +2865,21 @@ namespace nCine
 		}
 		__traceInitialized = true;
 
-#	if !defined(DEATH_TARGET_EMSCRIPTEN)
+#if !defined(DEATH_TARGET_EMSCRIPTEN)
 		if (__startupTimestampMs == 0) {
 			// A millisecond back, so the header can never land after the first entry it belongs to - the entries
 			// are stamped from a clock of their own (rdtsc with DEATH_TRACE_ASYNC) and truncated to milliseconds
 			std::int64_t timestampMs = DateTime::UtcNow().ToUnixMilliseconds() - 1;
 			__startupTimestampMs = (timestampMs > 0 ? timestampMs : 0);
 		}
-#	endif
+#endif
 
-#	if defined(DEATH_TARGET_EMSCRIPTEN)
+#if defined(DEATH_TARGET_EMSCRIPTEN)
 		char* userAgent = (char*)EM_ASM_PTR({
-			return (typeof navigator !== 'undefined' && navigator !== null &&
-					typeof navigator.userAgent !== 'undefined' && navigator.userAgent !== null
-						? stringToNewUTF8(navigator.userAgent) : 0);
+			return (typeof navigator != = 'undefined' && navigator != = null &&
+					typeof navigator.userAgent != = 'undefined' && navigator.userAgent != = null
+					? stringToNewUTF8(navigator.userAgent)
+					: 0);
 		});
 		if (userAgent != nullptr) {
 			// Only Chrome supports ANSI escape sequences for now
@@ -2845,11 +2888,11 @@ namespace nCine
 		} else {
 			__consoleType = ConsoleType::Redirect;
 		}
-#	elif defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
-#		if defined(DEATH_TARGET_UNIX)
+#elif defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
+#if defined(DEATH_TARGET_UNIX)
 		::setvbuf(stdout, nullptr, _IONBF, 0);
 		::setvbuf(stderr, nullptr, _IONBF, 0);
-#		endif
+#endif
 
 		// Xcode's console reports that it is a TTY, but it doesn't support colors, TERM is not defined in this case
 		__consoleType = ConsoleType::Redirect;
@@ -2884,7 +2927,7 @@ namespace nCine
 			__consoleType = ConsoleType::EscapeCodes24bit;
 		}
 
-#	elif defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#elif defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
 		DWORD NO_COLOR = ::GetEnvironmentVariable(L"NO_COLOR", nullptr, 0);
 		if (NO_COLOR) {
 			// Don't use colors if NO_COLOR is set, even if the console supports it
@@ -2914,55 +2957,56 @@ namespace nCine
 					break;
 			}
 		}
-#	endif
+#endif
 
-#	if defined(WITH_BACKWARD)
+#if defined(WITH_BACKWARD)
 		if (__consoleType >= ConsoleType::EscapeCodes) {
 			__eh.FeatureFlags |= Backward::Flags::Colorized;
 		}
-#	endif
+#endif
 
 		Trace::AttachSink(this);
-#	if !defined(DEATH_DEBUG)
+#if !defined(DEATH_DEBUG)
 		Trace::InitializeBacktrace(8, TraceLevel::Warning);
-#	endif
+#endif
 	}
 
 	void Application::ShutdownTrace()
 	{
-#	if !defined(DEATH_TARGET_EMSCRIPTEN)
+#if !defined(DEATH_TARGET_EMSCRIPTEN)
 		if (__logFileOwner != nullptr) {
 			Trace::Flush();
-#		if defined(WITH_BACKWARD)
+#if defined(WITH_BACKWARD)
 			__eh.Destination = nullptr;
-#		endif
+#endif
 			__logFile.store(nullptr, std::memory_order_release);
 		}
-#	endif
+#endif
 
 		Trace::RemoveSink(this);
 		__traceInitialized = false;
 
-#	if !defined(DEATH_TARGET_EMSCRIPTEN)
+#if !defined(DEATH_TARGET_EMSCRIPTEN)
 		// Detaching the sink joins the tracing worker thread, so from here on nothing can be inside a write
 		// to the file or an append to the startup history and both of them can finally be released
 		__logFileOwner = nullptr;
 		__logHistoryState.store(LogHistoryState::Released, std::memory_order_relaxed);
 		__logHistoryLength.store(0, std::memory_order_relaxed);
 		__logHistory = {};
-#	endif
+#endif
 
-#	if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
 		if (__consoleType >= ConsoleType::WinApi) {
 			DestroyTraceConsole();
 		}
-#	endif
+#endif
 	}
 
-#	if !defined(DEATH_TARGET_EMSCRIPTEN)
+#if !defined(DEATH_TARGET_EMSCRIPTEN)
 	// Operating system reported in the TraceDigger metadata header, the values must match `MetadataPlatform`
 	// on the reader side - they are part of the wire format, so they must never be reassigned
-	enum class MetadataPlatform : std::uint32_t {
+	enum class MetadataPlatform : std::uint32_t
+	{
 		Unknown = 0,
 		Other = 1,
 
@@ -2990,7 +3034,8 @@ namespace nCine
 
 	// How the application version is stored in the TraceDigger metadata header, the values are part
 	// of the wire format, so they must never be reassigned
-	enum class MetadataVersionForm : std::uint32_t {
+	enum class MetadataVersionForm : std::uint32_t
+	{
 		// The version doesn't match any of the known patterns, it's stored as the last string instead
 		Raw = 0,
 		// `<major>.<minor>.<patch>` --- stored as 3 variable-length integers
@@ -3002,7 +3047,8 @@ namespace nCine
 
 	// How a single string is stored in the TraceDigger metadata header, the values are part of the wire
 	// format, so they must never be reassigned
-	enum class MetadataStringEncoding : std::uint32_t {
+	enum class MetadataStringEncoding : std::uint32_t
+	{
 		// UTF-8 bytes as they are, used if the string contains any multi-byte sequence
 		Raw = 0,
 		// 7 bits per character, used if the string fits neither of the two alphabets below
@@ -3079,88 +3125,88 @@ namespace nCine
 
 		std::uint32_t flags = 0;
 		if (Environment::GetCurrentElevation() == Environment::ElevationState::Full) {
-			flags |= 0x01;	// Elevated
+			flags |= 0x01; // Elevated
 		}
-#		if defined(DEATH_TARGET_32BIT)
-		flags |= 0x40;		// Is32Bit
-#		endif
-#		if defined(DEATH_TARGET_BIG_ENDIAN)
-		flags |= 0x80;		// IsBigEndian
-#		endif
-#		if defined(WITH_LIBRETRO)
-		flags |= 0x4000;	// IsHosted
-#		endif
+#if defined(DEATH_TARGET_32BIT)
+		flags |= 0x40; // Is32Bit
+#endif
+#if defined(DEATH_TARGET_BIG_ENDIAN)
+		flags |= 0x80; // IsBigEndian
+#endif
+#if defined(WITH_LIBRETRO)
+		flags |= 0x4000; // IsHosted
+#endif
 		// Always reported, even for UTC itself - the flag is what tells a header that knows its timezone from one
 		// written before there was a field for it, which the reader must not take for UTC
-		flags |= 0x08;		// HasTimeZoneOffset
+		flags |= 0x08; // HasTimeZoneOffset
 
-#		if defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS_RT)
 		constexpr MetadataPlatform platform = MetadataPlatform::WindowsRT;
-#		elif defined(DEATH_TARGET_WINDOWS)
+#elif defined(DEATH_TARGET_WINDOWS)
 		constexpr MetadataPlatform platform = MetadataPlatform::Windows;
-#		elif defined(DEATH_TARGET_ANDROID)
+#elif defined(DEATH_TARGET_ANDROID)
 		constexpr MetadataPlatform platform = MetadataPlatform::Android;
-#		elif defined(DEATH_TARGET_SWITCH)
+#elif defined(DEATH_TARGET_SWITCH)
 		constexpr MetadataPlatform platform = MetadataPlatform::Switch;
-		#		elif defined(DEATH_TARGET_N64)
-				constexpr MetadataPlatform platform = MetadataPlatform::Nintendo64;
-#		elif defined(DEATH_TARGET_GAMECUBE)
+#elif defined(DEATH_TARGET_N64)
+		constexpr MetadataPlatform platform = MetadataPlatform::Nintendo64;
+#elif defined(DEATH_TARGET_GAMECUBE)
 		constexpr MetadataPlatform platform = MetadataPlatform::GameCube;
-#		elif defined(DEATH_TARGET_WII)
+#elif defined(DEATH_TARGET_WII)
 		constexpr MetadataPlatform platform = MetadataPlatform::Wii;
-#		elif defined(DEATH_TARGET_3DS)
+#elif defined(DEATH_TARGET_3DS)
 		constexpr MetadataPlatform platform = MetadataPlatform::Nintendo3DS;
-#		elif defined(DEATH_TARGET_DREAMCAST)
+#elif defined(DEATH_TARGET_DREAMCAST)
 		constexpr MetadataPlatform platform = MetadataPlatform::SegaDreamcast;
-#		elif defined(DEATH_TARGET_PSP)
+#elif defined(DEATH_TARGET_PSP)
 		constexpr MetadataPlatform platform = MetadataPlatform::PlayStationPortable;
-#		elif defined(DEATH_TARGET_VITA)
+#elif defined(DEATH_TARGET_VITA)
 		constexpr MetadataPlatform platform = MetadataPlatform::PlayStationVita;
-#		elif defined(DEATH_TARGET_AMIGAOS) || defined(DEATH_TARGET_AMIGAOS4) || defined(DEATH_TARGET_MORPHOS)
+#elif defined(DEATH_TARGET_AMIGAOS) || defined(DEATH_TARGET_AMIGAOS4) || defined(DEATH_TARGET_MORPHOS)
 		constexpr MetadataPlatform platform = MetadataPlatform::Amiga;
-#		elif defined(DEATH_TARGET_IOS)
+#elif defined(DEATH_TARGET_IOS)
 		constexpr MetadataPlatform platform = MetadataPlatform::iOS;
-#		elif defined(DEATH_TARGET_APPLE)
+#elif defined(DEATH_TARGET_APPLE)
 		constexpr MetadataPlatform platform = MetadataPlatform::Apple;
-#		elif defined(DEATH_TARGET_EMSCRIPTEN)
+#elif defined(DEATH_TARGET_EMSCRIPTEN)
 		constexpr MetadataPlatform platform = MetadataPlatform::Web;
-#		elif defined(__linux__)
+#elif defined(__linux__)
 		constexpr MetadataPlatform platform = MetadataPlatform::Linux;
-#		elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
+#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
 		constexpr MetadataPlatform platform = MetadataPlatform::Bsd;
-#		elif defined(DEATH_TARGET_UNIX)
+#elif defined(DEATH_TARGET_UNIX)
 		constexpr MetadataPlatform platform = MetadataPlatform::Unix;
-#		else
+#else
 		constexpr MetadataPlatform platform = MetadataPlatform::Unknown;
-#		endif
+#endif
 
-#		if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 		std::uint32_t processId = (std::uint32_t)::GetCurrentProcessId();
 		wchar_t bufferW[128];
 		DWORD compatLayerLength = ::GetEnvironmentVariable(L"__COMPAT_LAYER", bufferW, (DWORD)arraySize(bufferW));
 		if (compatLayerLength > 0) {
-			flags |= 0x1000;	// HasAppCompatLayer
+			flags |= 0x1000; // HasAppCompatLayer
 		}
 		if (Environment::IsWine()) {
-			flags |= 0x2000;	// IsWine
+			flags |= 0x2000; // IsWine
 		}
-#		elif defined(DEATH_TARGET_ANDROID)
-		flags |= 0x04 | 0x20;	// ProcessIdEqualsToMainThreadId | RemoteDevice
+#elif defined(DEATH_TARGET_ANDROID)
+		flags |= 0x04 | 0x20; // ProcessIdEqualsToMainThreadId | RemoteDevice
 		std::uint32_t processId = (std::uint32_t)::getpid();
-#		elif defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || \
-				defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_PS3) || \
-				defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_VITA)
-		flags |= 0x20;	// RemoteDevice
+#elif defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || \
+	defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_PS3) ||   \
+	defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_VITA)
+		flags |= 0x20; // RemoteDevice
 		std::uint32_t processId = (std::uint32_t)::getpid();
-#		else
-#			if !defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_EMSCRIPTEN)
-			flags |= 0x04;	// ProcessIdEqualsToMainThreadId
-#			endif
-#			if defined(DEATH_TARGET_SWITCH)
-			flags |= 0x20;	// RemoteDevice
-#			endif
+#else
+#if !defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_EMSCRIPTEN)
+		flags |= 0x04; // ProcessIdEqualsToMainThreadId
+#endif
+#if defined(DEATH_TARGET_SWITCH)
+		flags |= 0x20; // RemoteDevice
+#endif
 		std::uint32_t processId = (std::uint32_t)getpid();
-#		endif
+#endif
 
 		String hostName = GetDeviceHostname();
 
@@ -3213,15 +3259,15 @@ namespace nCine
 			}
 		}
 
-#		if defined(DEATH_TARGET_ANDROID)
+#if defined(DEATH_TARGET_ANDROID)
 		auto executableFileName = nCine::Backends::AndroidJniWrap_Activity::GetPackageName();
-#		else
+#else
 		auto executablePath = fs::GetExecutablePath();
 		auto executableFileName = fs::GetFileName(executablePath);
 		if (executableFileName.empty()) {
 			executableFileName = NCINE_APP;
 		}
-#		endif
+#endif
 
 		// The executable itself is not among the arguments, it's stripped when they are parsed
 		std::string arguments;
@@ -3234,7 +3280,7 @@ namespace nCine
 
 		char buffer[256];
 		MemoryStream ms(buffer, sizeof(buffer));
-		ms.WriteValue<std::uint8_t>((std::uint8_t)(1 |					// Format version
+		ms.WriteValue<std::uint8_t>((std::uint8_t)(1 | // Format version
 			((std::uint32_t)versionForm << 5)));
 		ms.WriteVariableUint32(flags);
 		ms.WriteValue<std::uint8_t>((std::uint8_t)platform);
@@ -3305,8 +3351,8 @@ namespace nCine
 					}
 				}
 				encoding = (fitsLowercase ? MetadataStringEncoding::LowercaseSet
-					: (fitsMixedCase ? MetadataStringEncoding::MixedCaseSet
-						: (isAscii ? MetadataStringEncoding::Ascii : MetadataStringEncoding::Raw)));
+										  : (fitsMixedCase ? MetadataStringEncoding::MixedCaseSet
+														   : (isAscii ? MetadataStringEncoding::Ascii : MetadataStringEncoding::Raw)));
 			}
 
 			ms.WriteVariableUint32((std::uint32_t)((length << 2) | (std::int64_t)encoding));
@@ -3317,13 +3363,15 @@ namespace nCine
 				}
 			} else {
 				const char* alphabet = (encoding == MetadataStringEncoding::MixedCaseSet
-					? MetadataStringMixedCaseAlphabet : MetadataStringAlphabet);
+						? MetadataStringMixedCaseAlphabet
+						: MetadataStringAlphabet);
 				std::int32_t bitsPerCharacter = (encoding == MetadataStringEncoding::Ascii ? 7 : 6);
-				std::uint32_t accumulator = 0; std::int32_t accumulatorBits = 0;
+				std::uint32_t accumulator = 0;
+				std::int32_t accumulatorBits = 0;
 				for (std::int64_t i = 0; i < length; i++) {
 					std::uint32_t code = (bitsPerCharacter == 7
-						? (std::uint32_t)(value[i] & 0x7F)
-						: (std::uint32_t)indexInAlphabet(alphabet, value[i]));
+							? (std::uint32_t)(value[i] & 0x7F)
+							: (std::uint32_t)indexInAlphabet(alphabet, value[i]));
 					accumulator |= (code << accumulatorBits);
 					accumulatorBits += bitsPerCharacter;
 					while (accumulatorBits >= 8) {
@@ -3339,21 +3387,21 @@ namespace nCine
 		};
 
 		String compatLayer;
-#		if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 		if (compatLayerLength > 0) {
 			if (compatLayerLength > (std::uint32_t)arraySize(bufferW)) {
 				compatLayerLength = (std::uint32_t)arraySize(bufferW);
 			}
 			compatLayer = Utf8::FromUtf16(bufferW, compatLayerLength);
 		}
-#		endif
+#endif
 
 		StringView strings[5];
 		std::int32_t stringCount = 0;
 		strings[stringCount++] = executableFileName;
 		strings[stringCount++] = hostName;
 		strings[stringCount++] = { arguments.data(), arguments.size() };
-		if ((flags & 0x1000) != 0) {	// HasAppCompatLayer
+		if ((flags & 0x1000) != 0) { // HasAppCompatLayer
 			strings[stringCount++] = compatLayer;
 		}
 		if (versionForm == MetadataVersionForm::Raw) {
@@ -3379,9 +3427,9 @@ namespace nCine
 		s.Write(metadataBase64.data(), (std::int64_t)metadataBase64.size());
 		s.Write("\n", 1);
 	}
-#	endif
+#endif
 
-#	if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
 	bool Application::CreateTraceConsole(StringView title, bool& hasVirtualTerminal)
 	{
 		FILE* fDummy = nullptr;
@@ -3474,8 +3522,10 @@ namespace nCine
 				HINSTANCE inst = ((HINSTANCE)&__ImageBase);
 				HICON windowIcon = (HICON)::LoadImage(inst, L"WINDOW_ICON", IMAGE_ICON, ::GetSystemMetrics(SM_CXICON), ::GetSystemMetrics(SM_CYICON), LR_DEFAULTSIZE);
 				HICON windowIconSmall = (HICON)::LoadImage(inst, L"WINDOW_ICON", IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), LR_DEFAULTSIZE);
-				if (windowIconSmall != NULL) ::SendMessage(hWnd, WM_SETICON, ICON_SMALL, (LPARAM)windowIconSmall);
-				if (windowIcon != NULL) ::SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)windowIcon);
+				if (windowIconSmall != NULL)
+					::SendMessage(hWnd, WM_SETICON, ICON_SMALL, (LPARAM)windowIconSmall);
+				if (windowIcon != NULL)
+					::SendMessage(hWnd, WM_SETICON, ICON_BIG, (LPARAM)windowIcon);
 			}
 
 			return true;
@@ -3506,6 +3556,6 @@ namespace nCine
 
 		::FreeConsole();
 	}
-#	endif
+#endif
 #endif
 }

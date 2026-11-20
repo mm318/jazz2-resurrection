@@ -31,9 +31,11 @@ namespace Jazz2::Scripting
 		_engine->SetUserData(this, EngineToOwner);
 		_engine->SetContextCallbacks(RequestContextCallback, ReturnContextCallback, this);
 
-		std::int32_t r = _engine->SetMessageCallback(asMETHOD(ScriptLoader, Message), this, asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		std::int32_t r = _engine->SetMessageCallback(asMETHOD(ScriptLoader, Message), this, asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 
-		_module = _engine->GetModule("Main", asGM_ALWAYS_CREATE); RETURN_ASSERT(_module != nullptr);
+		_module = _engine->GetModule("Main", asGM_ALWAYS_CREATE);
+		RETURN_ASSERT(_module != nullptr);
 	}
 
 	ScriptLoader::~ScriptLoader()
@@ -199,7 +201,7 @@ namespace Jazz2::Scripting
 
 			// Check if end of class
 			if (!currentClass.empty() && token == "}"_s) {
-				currentClass = { };
+				currentClass = {};
 				pos += len;
 				continue;
 			}
@@ -238,7 +240,7 @@ namespace Jazz2::Scripting
 				if (found != nullptr) {
 					currentNamespace = currentNamespace.prefix(found.begin());
 				} else {
-					currentNamespace = { };
+					currentNamespace = {};
 				}
 				pos += len;
 				continue;
@@ -290,7 +292,8 @@ namespace Jazz2::Scripting
 						}
 					} else if (token == "pragma"_s) {
 						pos += len;
-						for (; pos < scriptSize && scriptContent[pos] != '\n'; pos++);
+						for (; pos < scriptSize && scriptContent[pos] != '\n'; pos++)
+							;
 
 						OnProcessPragma(scriptContent.slice(start + 7, pos).trimmed(), contextType);
 
@@ -304,7 +307,8 @@ namespace Jazz2::Scripting
 					// Check for lines starting with #!, e.g., shebang interpreter directive. These will be treated as comments and removed by the preprocessor
 					if (scriptContent[pos] == '!') {
 						pos += len;
-						for (; pos < scriptSize && scriptContent[pos] != '\n'; pos++);
+						for (; pos < scriptSize && scriptContent[pos] != '\n'; pos++)
+							;
 
 						for (std::int32_t i = start; i < pos; i++) {
 							if (scriptContent[i] != '\n') {
@@ -447,7 +451,7 @@ namespace Jazz2::Scripting
 					break;
 				}
 				case MetadataType::FunctionOrVariable: {
-					if (decl.ParentClass .empty()) {
+					if (decl.ParentClass.empty()) {
 						std::int32_t varIdx = _module->GetGlobalVarIndexByName(decl.Name.data());
 						if (varIdx >= 0) {
 							auto entry = _varMetadataMap.emplace(varIdx, Array<String>(NoInit, decl.Metadata.size())).first;
@@ -735,8 +739,8 @@ namespace Jazz2::Scripting
 			t = _engine->ParseToken(&scriptContent[pos], scriptSize - pos, &len);
 			token = scriptContent.sliceSize(pos, len);
 		} while (t == asTC_WHITESPACE || t == asTC_COMMENT ||
-				  token == "private"_s || token == "protected"_s || token == "shared"_s ||
-				  token == "external"_s || token == "final"_s || token == "abstract"_s);
+			token == "private"_s || token == "protected"_s || token == "shared"_s ||
+			token == "external"_s || token == "final"_s || token == "abstract"_s);
 
 		// We're expecting, either a class, interface, function, or variable declaration
 		if (t == asTC_KEYWORD || t == asTC_IDENTIFIER) {
@@ -754,7 +758,7 @@ namespace Jazz2::Scripting
 					return pos;
 				}
 			} else {
-				// For function declarations, store everything up to the start of the 
+				// For function declarations, store everything up to the start of the
 				// statement block, except for succeeding decorators (final, override, etc)
 				// For variable declaration store just the name as there can only be one
 
@@ -871,7 +875,8 @@ namespace Jazz2::Scripting
 
 	String ScriptLoader::MakeRelativePath(StringView path, StringView relativeToFile)
 	{
-		if (path.empty() || path.size() > fs::MaxPathLength) return {};
+		if (path.empty() || path.size() > fs::MaxPathLength)
+			return {};
 
 		char result[fs::MaxPathLength + 1];
 		std::size_t length = 0;
@@ -936,7 +941,8 @@ namespace Jazz2::Scripting
 		} else {
 			// Relative path to script file
 			String dirPath = fs::GetDirectoryName(relativeToFile);
-			if (dirPath.empty()) return {};
+			if (dirPath.empty())
+				return {};
 
 			const char* src = &path[0];
 			const char* srcLast = src;
@@ -1045,9 +1051,15 @@ namespace Jazz2::Scripting
 #if defined(DEATH_TRACE)
 		TraceLevel level;
 		switch (msg.type) {
-			case asMSGTYPE_ERROR: level = TraceLevel::Error; break;
-			case asMSGTYPE_WARNING: level = TraceLevel::Warning; break;
-			default: level = TraceLevel::Info; break;
+			case asMSGTYPE_ERROR:
+				level = TraceLevel::Error;
+				break;
+			case asMSGTYPE_WARNING:
+				level = TraceLevel::Warning;
+				break;
+			default:
+				level = TraceLevel::Info;
+				break;
 		}
 
 		if (msg.section != nullptr && msg.section[0] != '\0') {

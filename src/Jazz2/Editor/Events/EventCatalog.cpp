@@ -52,7 +52,8 @@ namespace Jazz2::Editor
 			EventDescriptor NativeDescriptor;
 			SmallVector<EventParamField, 0> NativeFields;
 
-			bool IsNative() const {
+			bool IsNative() const
+			{
 				return (ConvertedType != EventType::Empty && ConvertedType != EventType::PassthroughEvent);
 			}
 		};
@@ -98,7 +99,7 @@ namespace Jazz2::Editor
 			{
 				std::fill(std::begin(BuiltInByType), std::end(BuiltInByType), nullptr);
 				for (auto part : { EventCatalogParts::GetBasicEvents(), EventCatalogParts::GetAreaEvents(), EventCatalogParts::GetEnvironmentEvents(),
-						EventCatalogParts::GetEnemyEvents(), EventCatalogParts::GetItemEvents() }) {
+						 EventCatalogParts::GetEnemyEvents(), EventCatalogParts::GetItemEvents() }) {
 					for (const EventDescriptor& descriptor : part) {
 						BuiltIn.push_back(&descriptor);
 						if (std::size_t(descriptor.Type) < std::size_t(EventType::Count)) {
@@ -257,7 +258,7 @@ namespace Jazz2::Editor
 			CatalogIndex& catalog = GetIndex();
 			// A broken file shouldn't fill the list with the same complaint over and over
 			if (catalog.Errors.size() < 256) {
-				catalog.Errors.push_back(EventExtensionError{ scope, String(source), Death::move(message) });
+				catalog.Errors.push_back(EventExtensionError { scope, String(source), Death::move(message) });
 			}
 			catalog.Revision++;
 		}
@@ -343,12 +344,12 @@ namespace Jazz2::Editor
 			if (key.empty()) {
 				char buffer[16];
 				std::int32_t length = (original != 0 ? std::snprintf(buffer, sizeof(buffer), "Original%i", original)
-					: std::snprintf(buffer, sizeof(buffer), "Ext%i", type));
+													 : std::snprintf(buffer, sizeof(buffer), "Ext%i", type));
 				key = String(buffer, std::size_t(std::max<std::int32_t>(length, 0)));
 			}
-			texts.push_back(Death::move(key));														// 0: key
-			texts.push_back(name);																	// 1: name
-			texts.push_back(GetString(value, "Description"));										// 2: description
+			texts.push_back(Death::move(key)); // 0: key
+			texts.push_back(name); // 1: name
+			texts.push_back(GetString(value, "Description")); // 2: description
 			const Json::Value& preview = Member(value, "Preview");
 			String metadata = GetString(preview, "Metadata");
 			if (!metadata.empty() && !IsValidMetadataPath(metadata)) {
@@ -357,7 +358,7 @@ namespace Jazz2::Editor
 				metadata = {};
 			}
 			bool hasPreviewMetadata = !metadata.empty();
-			texts.push_back(Death::move(metadata));													// 3: preview
+			texts.push_back(Death::move(metadata)); // 3: preview
 			descriptor.PreviewAnimation = GetUInt(preview, "Animation", 0);
 
 			// Looks by the value of a parameter, "PreviewByParam", and a mirrored or moved sprite of "Preview" itself
@@ -560,7 +561,7 @@ namespace Jazz2::Editor
 							nextValue = (paramType == ParamType::Flags ? std::uint32_t(optionValue) << 1 : std::uint32_t(optionValue) + 1);
 							field.OptionTexts.push_back(texts.size());
 							texts.push_back(Death::move(label));
-							list.push_back(ParamOption{ nullptr, optionValue });
+							list.push_back(ParamOption { nullptr, optionValue });
 						}
 					}
 
@@ -820,7 +821,7 @@ namespace Jazz2::Editor
 			CatalogIndex& catalog = GetIndex();
 			for (std::size_t i = 0; i < catalog.Extensions.size(); i++) {
 				if (catalog.Extensions[i]->Scope == scope && catalog.Extensions[i]->Descriptor.Type == extension->Descriptor.Type &&
-						catalog.Extensions[i]->Descriptor.OriginalEvent == extension->Descriptor.OriginalEvent) {
+					catalog.Extensions[i]->Descriptor.OriginalEvent == extension->Descriptor.OriginalEvent) {
 					catalog.Extensions.erase(catalog.Extensions.begin() + i);
 					break;
 				}
@@ -921,7 +922,8 @@ namespace Jazz2::Editor
 
 	std::int32_t EventCatalog::LoadExtensions(StringView json, StringView source, EventExtensionScope scope)
 	{
-		Json::Value doc; std::string errors;
+		Json::Value doc;
+		std::string errors;
 		if (!Utils::JsonFile::Parse(json, doc, &errors)) {
 			// TRANSLATORS: Error in event descriptions, {} is the error message of the JSON parser
 			ReportError(scope, source, _fx("editor", "The event descriptions can't be read - {}", StringView(errors.data(), errors.size()).trimmed()));
@@ -966,7 +968,7 @@ namespace Jazz2::Editor
 			auto definition = line.exceptPrefix(Prefix.size()).partition('=');
 			std::int32_t number = ParseMlleNumber(definition[0].trimmed());
 			SmallVector<StringView, 16> fields;
-			for (StringView field = definition[2]; !field.empty() || fields.empty(); ) {
+			for (StringView field = definition[2]; !field.empty() || fields.empty();) {
 				auto fieldParts = field.partition('|');
 				fields.push_back(fieldParts[0].trimmed());
 				if (fieldParts[1].empty()) {
@@ -979,7 +981,7 @@ namespace Jazz2::Editor
 				// Nothing after `=` hides the event of the original game from the list of MLLE, here the event it becomes
 				EventType hidden = (number > 0 && number <= 255 ? ConvertOriginal(number).Type : EventType::Empty);
 				if (hidden != EventType::Empty && hidden != EventType::PassthroughEvent && std::size_t(hidden) < std::size_t(EventType::Count)) {
-					catalog.Hidden.push_back(HiddenEvent{ scope, hidden });
+					catalog.Hidden.push_back(HiddenEvent { scope, hidden });
 					anyHidden = true;
 				}
 				continue;
@@ -1008,7 +1010,7 @@ namespace Jazz2::Editor
 					param["Type"] = "Enum";
 					Json::Value& list = param["Options"];
 					list = Json::Value(Json::arrayValue);
-					for (StringView option = options[0]; ; ) {
+					for (StringView option = options[0];;) {
 						auto optionParts = option.partition(',');
 						StringView label = optionParts[0].trimmed();
 						list.append(std::string_view(label.data(), label.size()));
@@ -1043,12 +1045,21 @@ namespace Jazz2::Editor
 		CatalogIndex& catalog = GetIndex();
 		std::size_t errorCount = catalog.Errors.size();
 		catalog.Errors.erase(std::remove_if(catalog.Errors.begin(), catalog.Errors.end(),
-			[scope](const EventExtensionError& error) { return error.Scope == scope; }), catalog.Errors.end());
+								 [scope](const EventExtensionError& error) {
+									 return error.Scope == scope;
+								 }),
+			catalog.Errors.end());
 		std::size_t count = catalog.Extensions.size() + catalog.Hidden.size();
 		catalog.Extensions.erase(std::remove_if(catalog.Extensions.begin(), catalog.Extensions.end(),
-			[scope](const std::unique_ptr<ExtensionEvent>& extension) { return extension->Scope == scope; }), catalog.Extensions.end());
+									 [scope](const std::unique_ptr<ExtensionEvent>& extension) {
+										 return extension->Scope == scope;
+									 }),
+			catalog.Extensions.end());
 		catalog.Hidden.erase(std::remove_if(catalog.Hidden.begin(), catalog.Hidden.end(),
-			[scope](const HiddenEvent& hidden) { return hidden.Scope == scope; }), catalog.Hidden.end());
+								 [scope](const HiddenEvent& hidden) {
+									 return hidden.Scope == scope;
+								 }),
+			catalog.Hidden.end());
 		if (catalog.Extensions.size() + catalog.Hidden.size() != count) {
 			catalog.Rebuild();
 		} else if (catalog.Errors.size() != errorCount) {
@@ -1083,8 +1094,7 @@ namespace Jazz2::Editor
 			return false;
 		}
 		for (const auto& extension : GetIndex().Extensions) {
-			if (extension->Scope == EventExtensionScope::Level && (descriptor == &extension->Descriptor ||
-				descriptor == &extension->PickDescriptor || descriptor == &extension->NativeDescriptor)) {
+			if (extension->Scope == EventExtensionScope::Level && (descriptor == &extension->Descriptor || descriptor == &extension->PickDescriptor || descriptor == &extension->NativeDescriptor)) {
 				return true;
 			}
 		}
@@ -1145,19 +1155,32 @@ namespace Jazz2::Editor
 	{
 		switch (category) {
 			// TRANSLATORS: Names of categories of events in the list of events
-			case EventCategory::Basic: return _x("editor", "Basic");
-			case EventCategory::Scenery: return _x("editor", "Scenery");
-			case EventCategory::Modifier: return _x("editor", "Tile modifiers");
-			case EventCategory::Area: return _x("editor", "Areas");
-			case EventCategory::Trigger: return _x("editor", "Triggers");
-			case EventCategory::Warp: return _x("editor", "Warps");
-			case EventCategory::Light: return _x("editor", "Lights");
-			case EventCategory::Environment: return _x("editor", "Environment");
-			case EventCategory::Enemy: return _x("editor", "Enemies");
-			case EventCategory::Boss: return _x("editor", "Bosses");
-			case EventCategory::Collectible: return _x("editor", "Collectibles");
-			case EventCategory::Container: return _x("editor", "Containers");
-			default: return _x("editor", "Other");
+			case EventCategory::Basic:
+				return _x("editor", "Basic");
+			case EventCategory::Scenery:
+				return _x("editor", "Scenery");
+			case EventCategory::Modifier:
+				return _x("editor", "Tile modifiers");
+			case EventCategory::Area:
+				return _x("editor", "Areas");
+			case EventCategory::Trigger:
+				return _x("editor", "Triggers");
+			case EventCategory::Warp:
+				return _x("editor", "Warps");
+			case EventCategory::Light:
+				return _x("editor", "Lights");
+			case EventCategory::Environment:
+				return _x("editor", "Environment");
+			case EventCategory::Enemy:
+				return _x("editor", "Enemies");
+			case EventCategory::Boss:
+				return _x("editor", "Bosses");
+			case EventCategory::Collectible:
+				return _x("editor", "Collectibles");
+			case EventCategory::Container:
+				return _x("editor", "Containers");
+			default:
+				return _x("editor", "Other");
 		}
 	}
 
@@ -1271,9 +1294,12 @@ namespace Jazz2::Editor
 		}
 		std::int32_t value = ReadField(event, descriptor.Fields[field.VisibleIfField]);
 		switch (field.VisibleIfMode) {
-			case FieldCondition::NotEquals: return (value != field.VisibleIfValue);
-			case FieldCondition::AnyBits: return ((value & field.VisibleIfValue) != 0);
-			default: return (value == field.VisibleIfValue);
+			case FieldCondition::NotEquals:
+				return (value != field.VisibleIfValue);
+			case FieldCondition::AnyBits:
+				return ((value & field.VisibleIfValue) != 0);
+			default:
+				return (value == field.VisibleIfValue);
 		}
 	}
 

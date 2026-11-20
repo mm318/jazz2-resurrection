@@ -16,7 +16,7 @@
 #include "Weapons/Thunderbolt.h"
 
 #if !defined(WITH_COROUTINES)
-#	pragma message("WITH_COROUTINES is not defined, building without asynchronous loading support")
+#pragma message("WITH_COROUTINES is not defined, building without asynchronous loading support")
 #endif
 
 #include "../../nCine/tracy.h"
@@ -36,7 +36,11 @@ namespace Jazz2::Actors
 		inline std::uint32_t FloatBits(float value)
 		{
 			// Not std::memcpy(), the Nintendo 64 compiler expands it into byte loads and stores
-			union { float f; std::uint32_t i; } u;
+			union
+			{
+				float f;
+				std::uint32_t i;
+			} u;
 			u.f = value;
 			return u.i;
 		}
@@ -63,9 +67,9 @@ namespace Jazz2::Actors
 
 	ActorBase::ActorBase()
 		: _levelHandler(nullptr), _metadata(nullptr), _currentAnimation(nullptr), _currentTransition(nullptr),
-			_internalForceY(0.0f), _elasticity(0.0f), _friction(1.5f), _unstuckCooldown(0.0f), _frozenTimeLeft(0.0f), _maxHealth(1), _health(1),
-			_spawnFrames(0.0f), _spawnPos(0, 0, 0), _spawnEventParams{}, _spawnEventType(EventType::Empty), _currentTransitionCancellable(false),
-			_renderer(this), _collisionProxyID(Collisions::NullNode), _state(ActorState::None)
+		  _internalForceY(0.0f), _elasticity(0.0f), _friction(1.5f), _unstuckCooldown(0.0f), _frozenTimeLeft(0.0f), _maxHealth(1), _health(1),
+		  _spawnFrames(0.0f), _spawnPos(0, 0, 0), _spawnEventParams {}, _spawnEventType(EventType::Empty), _currentTransitionCancellable(false),
+		  _renderer(this), _collisionProxyID(Collisions::NullNode), _state(ActorState::None)
 	{
 	}
 
@@ -83,7 +87,7 @@ namespace Jazz2::Actors
 	void ActorBase::EmitLights(SmallVectorImpl<LightEmitter>& lights)
 	{
 #if defined(WITH_ANGELSCRIPT)
-		if DEATH_UNLIKELY(_updateOverride != nullptr) {
+		if DEATH_UNLIKELY (_updateOverride != nullptr) {
 			if (!_updateOverride->OwnsLights()) {
 				OnEmitLights(lights);
 			}
@@ -107,7 +111,7 @@ namespace Jazz2::Actors
 
 		SetState(ActorState::IsFacingLeft, value);
 		_renderer.SetFlippedX(value);
-		
+
 		// The anchor follows the flip
 		GraphicResource* res = (_currentTransition != nullptr ? _currentTransition : _currentAnimation);
 		if (res != nullptr) {
@@ -207,8 +211,10 @@ namespace Jazz2::Actors
 		dest.WriteValueAsLE<float>(_currentTransition == nullptr ? _renderer.AnimTime : 0.0f);
 
 		std::uint8_t rendererFlags = 0;
-		if (_renderer.IsDrawEnabled()) rendererFlags |= 0x01;
-		if (_renderer.AnimPaused) rendererFlags |= 0x02;
+		if (_renderer.IsDrawEnabled())
+			rendererFlags |= 0x01;
+		if (_renderer.AnimPaused)
+			rendererFlags |= 0x02;
 		dest.WriteValue<std::uint8_t>(rendererFlags);
 		dest.WriteValueAsLE<std::uint16_t>(_renderer.GetLayer());
 		dest.WriteValueAsLE<float>(_renderer.GetRotation());
@@ -303,7 +309,7 @@ namespace Jazz2::Actors
 	void ActorBase::OnUpdateHitbox()
 	{
 		if (_metadata != nullptr) {
-			if DEATH_UNLIKELY(_metadata->BoundingBox == Vector2i(ContentResolver::InvalidValue, ContentResolver::InvalidValue)) {
+			if DEATH_UNLIKELY (_metadata->BoundingBox == Vector2i(ContentResolver::InvalidValue, ContentResolver::InvalidValue)) {
 				// Metadata without a box (first sheet unreadable) falls back to the current sprite
 				if (_currentAnimation != nullptr && _currentAnimation->Base != nullptr) {
 					Vector2i boundingBox = GenericGraphicResource::GetDefaultBoundingBox(_currentAnimation->Base->FrameDimensions);
@@ -402,8 +408,8 @@ namespace Jazz2::Actors
 		if (_frozenTimeLeft > 0.0f) {
 			effectiveSpeedX = std::clamp(GetFrozenMomentumX() + _externalForce.X * timeMult, -16.0f, 16.0f);
 			effectiveSpeedY = ((_state & ActorState::ApplyGravitation) == ActorState::ApplyGravitation
-				? (_speed.Y + 0.5f * accelY)
-				: std::clamp(((currentGravity * 2.0f) + _internalForceY) * timeMult, -16.0f, 16.0f));
+					? (_speed.Y + 0.5f * accelY)
+					: std::clamp(((currentGravity * 2.0f) + _internalForceY) * timeMult, -16.0f, 16.0f));
 		} else {
 			effectiveSpeedX = _speed.X + _externalForce.X * timeMult;
 			effectiveSpeedY = _speed.Y + 0.5f * accelY;
@@ -422,7 +428,7 @@ namespace Jazz2::Actors
 		// and before the rise cap, otherwise a capped rise is slowed twice
 		if (currentGravity > 0.0f && (_state & ActorState::ApplyGravitation) == ActorState::ApplyGravitation &&
 			(_speed.Y < 0.0f || (_state & ActorState::CanJump) != ActorState::CanJump)) {
-			float gravityStep = GetGravityModifier(currentGravity, /*isRising:*/_speed.Y < 0.0f);
+			float gravityStep = GetGravityModifier(currentGravity, /*isRising:*/ _speed.Y < 0.0f);
 			effectiveSpeedY += 0.5f * gravityStep * timeMult;
 			// The original moves by the speed after each tick's gravity, half a tick more than the average
 			if (_gravityBeforeMove) {
@@ -524,8 +530,7 @@ namespace Jazz2::Actors
 					}
 					// Measured in the original: this landing keeps its fall speed, so a fall faster than the
 					// step height loses the next tick's whole move
-					if (_landingStall && _speed.Y / Player::LegacyFrameRateScale >
-						LandingStepHeight + std::floor(std::abs(_speed.X) / Player::LegacyFrameRateScale)) {
+					if (_landingStall && _speed.Y / Player::LegacyFrameRateScale > LandingStepHeight + std::floor(std::abs(_speed.X) / Player::LegacyFrameRateScale)) {
 						_moveStallLeft = 1.0f / Player::LegacyFrameRateScale;
 					}
 				}
@@ -591,7 +596,7 @@ namespace Jazz2::Actors
 				if (!footingTickAgo && _levelHandler->IsPositionEmpty(this, aabb, params)) {
 					// There is still some space below - only apply gravity
 					SetState(ActorState::CanJump, false);
-					_speed.Y += GetGravityModifier(currentGravity, /*isRising:*/false) * timeMult;
+					_speed.Y += GetGravityModifier(currentGravity, /*isRising:*/ false) * timeMult;
 				} else {
 					// Actor is on the floor
 					OnHitFloor(timeMult);
@@ -606,7 +611,7 @@ namespace Jazz2::Actors
 			} else {
 				// Actor is going up - only apply gravity
 				SetState(ActorState::CanJump, false);
-				_speed.Y += GetGravityModifier(currentGravity, /*isRising:*/true) * timeMult;
+				_speed.Y += GetGravityModifier(currentGravity, /*isRising:*/ true) * timeMult;
 			}
 
 			_externalForce.Y = std::min(_externalForce.Y + currentGravity * 0.33f * timeMult, 0.0f);
@@ -796,7 +801,7 @@ namespace Jazz2::Actors
 	{
 #if defined(WITH_ANGELSCRIPT)
 		// A script-driven object can size its own hitbox
-		if DEATH_UNLIKELY(_updateOverride != nullptr && _updateOverride->OnUpdateHitbox(this)) {
+		if DEATH_UNLIKELY (_updateOverride != nullptr && _updateOverride->OnUpdateHitbox(this)) {
 			return;
 		}
 #endif
@@ -811,16 +816,14 @@ namespace Jazz2::Actors
 				_pos.X - base->Hotspot.X + base->Coldspot.X - (w / 2),
 				_pos.Y - base->Hotspot.Y + base->Coldspot.Y - h,
 				_pos.X - base->Hotspot.X + base->Coldspot.X + (w / 2),
-				_pos.Y - base->Hotspot.Y + base->Coldspot.Y
-			);
+				_pos.Y - base->Hotspot.Y + base->Coldspot.Y);
 		} else {
 			// Collision base at the bottom of the sprite's pixels, without the frame border
 			AABBInner = AABBf(
 				_pos.X - (w / 2),
 				_pos.Y - base->Hotspot.Y + base->FrameDimensions.Y - GenericGraphicResource::FrameBorder - h,
 				_pos.X + (w / 2),
-				_pos.Y - base->Hotspot.Y + base->FrameDimensions.Y - GenericGraphicResource::FrameBorder
-			);
+				_pos.Y - base->Hotspot.Y + base->FrameDimensions.Y - GenericGraphicResource::FrameBorder);
 		}
 	}
 
@@ -845,7 +848,8 @@ namespace Jazz2::Actors
 		} else if (runtime_cast<Weapons::Thunderbolt>(collider)) {
 			speed = _pos - collider->_pos;
 		} else if (collider != nullptr) {
-			speed = collider->_speed;;
+			speed = collider->_speed;
+			;
 		}
 
 		CreateParticleDebrisOnPerish(effect, speed);
@@ -854,7 +858,7 @@ namespace Jazz2::Actors
 	void ActorBase::CreateParticleDebrisOnPerish(ParticleDebrisEffect effect, Vector2f speed)
 	{
 #if defined(WITH_ANGELSCRIPT)
-		if DEATH_UNLIKELY(_updateOverride != nullptr && _updateOverride->OwnsDebris()) {
+		if DEATH_UNLIKELY (_updateOverride != nullptr && _updateOverride->OwnsDebris()) {
 			return;
 		}
 #endif
@@ -910,7 +914,7 @@ namespace Jazz2::Actors
 					float currentSize = particleSize * Random().FastFloat(0.8f, 1.1f);
 					float spreadX = float(fx - debrisRect.W / 2) / float(debrisRect.W);
 
-					Tiles::TileMap::DestructibleDebris debris{};
+					Tiles::TileMap::DestructibleDebris debris {};
 					debris.Pos = Vector2f(x + (facingLeft ? res->Base->FrameDimensions.X - frameOffset.X - fx : frameOffset.X + fx), y + frameOffset.Y + fy);
 					debris.Depth = _renderer.GetLayer();
 					debris.Size = Vector2f(currentSize, currentSize);
@@ -992,8 +996,7 @@ namespace Jazz2::Actors
 			// Smoke rising from what's left
 			std::int32_t smokeCount = std::clamp<std::int32_t>(debrisRect.W * debrisRect.H / 600, 1, 3);
 			for (std::int32_t i = 0; i < smokeCount; i++) {
-				Explosion::Create(_levelHandler, Vector3i((std::int32_t)(_pos.X + Random().FastFloat(-0.3f, 0.3f) * debrisRect.W),
-					(std::int32_t)(y + frameOffset.Y + Random().FastFloat(0.0f, 0.4f) * debrisRect.H), _renderer.GetLayer() + 10), Explosion::Type::SmokeGray, 1.0f);
+				Explosion::Create(_levelHandler, Vector3i((std::int32_t)(_pos.X + Random().FastFloat(-0.3f, 0.3f) * debrisRect.W), (std::int32_t)(y + frameOffset.Y + Random().FastFloat(0.0f, 0.4f) * debrisRect.H), _renderer.GetLayer() + 10), Explosion::Type::SmokeGray, 1.0f);
 			}
 			return;
 		}
@@ -1014,12 +1017,12 @@ namespace Jazz2::Actors
 				for (std::int32_t fx = 0; fx < debrisRect.W; fx += step) {
 					float currentSize = particleSize * Random().FastFloat(0.4f, 1.1f);
 
-					Tiles::TileMap::DestructibleDebris debris{};
+					Tiles::TileMap::DestructibleDebris debris {};
 					debris.Pos = Vector2f(x + (IsFacingLeft() ? res->Base->FrameDimensions.X - frameOffset.X - fx : frameOffset.X + fx), y + frameOffset.Y + fy);
 					debris.Depth = _renderer.GetLayer();
 					debris.Size = Vector2f(currentSize, currentSize);
 					debris.Speed = Vector2f(((fx - debrisRect.W / 2) + Random().FastFloat(-2.0f, 2.0f)) * (IsFacingLeft() ? -1.0f : 1.0f) * Random().FastFloat(2.0f, 4.0f) / debrisRect.W,
-						 ((fy - debrisRect.H / 2) + Random().FastFloat(-2.0f, 2.0f)) * (IsFacingLeft() ? -1.0f : 1.0f) * Random().FastFloat(2.0f, 4.0f) / debrisRect.H);
+						((fy - debrisRect.H / 2) + Random().FastFloat(-2.0f, 2.0f)) * (IsFacingLeft() ? -1.0f : 1.0f) * Random().FastFloat(2.0f, 4.0f) / debrisRect.H);
 					debris.Acceleration = Vector2f::Zero;
 
 					debris.Scale = 1.0f;
@@ -1063,12 +1066,12 @@ namespace Jazz2::Actors
 				for (std::int32_t fx = 0; fx < debrisRect.W; fx += step) {
 					float currentSize = particleSize * Random().FastFloat(0.4f, 1.1f);
 
-					Tiles::TileMap::DestructibleDebris debris = { };
+					Tiles::TileMap::DestructibleDebris debris = {};
 					debris.Pos = Vector2f(x + (IsFacingLeft() ? res->Base->FrameDimensions.X - frameOffset.X - fx : frameOffset.X + fx), y + frameOffset.Y + fy);
 					debris.Depth = _renderer.GetLayer();
 					debris.Size = Vector2f(currentSize, currentSize);
 					debris.Speed = Vector2f(((fx - debrisRect.W / 2) + Random().FastFloat(-2.0f, 2.0f)) * (IsFacingLeft() ? -1.0f : 1.0f) * Random().FastFloat(2.0f, 5.0f) / debrisRect.W,
-							((fy - debrisRect.H / 2) + Random().FastFloat(-2.0f, 2.0f)) * (IsFacingLeft() ? -1.0f : 1.0f) * Random().FastFloat(2.0f, 5.0f) / debrisRect.H);
+						((fy - debrisRect.H / 2) + Random().FastFloat(-2.0f, 2.0f)) * (IsFacingLeft() ? -1.0f : 1.0f) * Random().FastFloat(2.0f, 5.0f) / debrisRect.H);
 					debris.Acceleration = Vector2f::Zero;
 
 					debris.Scale = 1.2f;
@@ -1109,19 +1112,20 @@ namespace Jazz2::Actors
 				for (std::int32_t fx = 0; fx < debrisRect.W; fx += step) {
 					float currentSize = particleSize * Random().FastFloat(0.2f, 1.1f);
 
-					Tiles::TileMap::DestructibleDebris debris{};
+					Tiles::TileMap::DestructibleDebris debris {};
 					debris.Pos = Vector2f(x + (IsFacingLeft() ? res->Base->FrameDimensions.X - frameOffset.X - fx : frameOffset.X + fx), y + frameOffset.Y + fy);
 					debris.Depth = _renderer.GetLayer();
 					debris.Size = Vector2f(currentSize, currentSize);
 					debris.Speed = Vector2f(((fx - debrisRect.W / 2) + Random().FastFloat(-2.0f, 2.0f)) * (IsFacingLeft() ? -1.0f : 1.0f) * Random().FastFloat(1.0f, 3.0f) / debrisRect.W,
-						 ((fy - debrisRect.H / 2) + Random().FastFloat(-2.0f, 2.0f)) * (IsFacingLeft() ? -1.0f : 1.0f) * Random().FastFloat(1.0f, 3.0f) / debrisRect.H);
+						((fy - debrisRect.H / 2) + Random().FastFloat(-2.0f, 2.0f)) * (IsFacingLeft() ? -1.0f : 1.0f) * Random().FastFloat(1.0f, 3.0f) / debrisRect.H);
 					debris.Acceleration = Vector2f::Zero;
 
 					debris.Scale = 1.0f;
 					debris.Alpha = 1.0f;
 					debris.AlphaSpeed = -0.004f;
 
-					debris.Time = Random().FastFloat(300.0f, 340.0f);;
+					debris.Time = Random().FastFloat(300.0f, 340.0f);
+					;
 
 					debris.TexScaleX = (currentSize / float(texSize.X));
 					debris.TexBiasX = ((float(debrisRect.X) + (float)fx) / float(texSize.X));
@@ -1156,7 +1160,7 @@ namespace Jazz2::Actors
 	void ActorBase::CreateSpriteDebris(AnimState state, std::int32_t count, float elasticity)
 	{
 #if defined(WITH_ANGELSCRIPT)
-		if DEATH_UNLIKELY(_updateOverride != nullptr && _updateOverride->OwnsDebris()) {
+		if DEATH_UNLIKELY (_updateOverride != nullptr && _updateOverride->OwnsDebris()) {
 			return;
 		}
 #endif
@@ -1271,7 +1275,7 @@ namespace Jazz2::Actors
 
 		_currentTransition = anim;
 		_currentTransitionCancellable = cancellable;
-		_currentTransitionCallback = Death::move(callback);		
+		_currentTransitionCallback = Death::move(callback);
 		RefreshAnimation();
 
 		return true;
@@ -1851,7 +1855,7 @@ namespace Jazz2::Actors
 	void ActorBase::UpdateRendererPosition()
 	{
 		// An invalid position traps in floorFast() on the Nintendo 64, restore the actor and log it
-		if DEATH_UNLIKELY(!IsUsablePosition(_pos)) {
+		if DEATH_UNLIKELY (!IsUsablePosition(_pos)) {
 			RestoreFromInvalidPosition();
 		}
 
@@ -1926,7 +1930,7 @@ namespace Jazz2::Actors
 				AABB.B = AABB.T + size.Y;
 			}
 		} else {
-			OnUpdateHitbox(); 
+			OnUpdateHitbox();
 			AABB = AABBInner;
 		}
 	}
@@ -2108,7 +2112,7 @@ namespace Jazz2::Actors
 
 		if (_health <= 0) {
 #if defined(WITH_ANGELSCRIPT)
-			if DEATH_UNLIKELY(_updateOverride != nullptr && _updateOverride->OnPerish(this, collider)) {
+			if DEATH_UNLIKELY (_updateOverride != nullptr && _updateOverride->OnPerish(this, collider)) {
 				return;
 			}
 #endif
@@ -2156,8 +2160,8 @@ namespace Jazz2::Actors
 
 	ActorBase::ActorRenderer::ActorRenderer(ActorBase* owner)
 		: BaseSprite(nullptr, nullptr, 0.0f, 0.0f), FrameSource(nullptr), LoopMode(AnimationLoopMode::Loop), FirstFrame(0),
-			FrameCount(0), AnimDuration(0.0f), AnimTime(0.0f), CurrentFrame(0), AnimPaused(false), _baseIndexed(false),
-			_rendererType((ActorRendererType)-1), _owner(owner), _rendererTransition(0.0f), _paletteOffset(-1), _basePaletteOffset(0)
+		  FrameCount(0), AnimDuration(0.0f), AnimTime(0.0f), CurrentFrame(0), AnimPaused(false), _baseIndexed(false),
+		  _rendererType((ActorRendererType)-1), _owner(owner), _rendererTransition(0.0f), _paletteOffset(-1), _basePaletteOffset(0)
 	{
 		_type = ObjectType::Sprite;
 		_renderCommand.SetType(RenderCommand::Type::Sprite);
@@ -2182,15 +2186,23 @@ namespace Jazz2::Actors
 		bool hasPalette = (_paletteOffset >= 0 || _baseIndexed);
 		bool shaderChanged;
 		switch (type) {
-			case ActorRendererType::Outline: shaderChanged = _renderCommand.GetMaterial().SetShader(resolver.GetShader(hasPalette ? PrecompiledShader::OutlinePalette : PrecompiledShader::Outline)); break;
-			case ActorRendererType::WhiteMask: shaderChanged = _renderCommand.GetMaterial().SetShader(resolver.GetShader(hasPalette ? PrecompiledShader::WhiteMaskPalette : PrecompiledShader::WhiteMask)); break;
-			case ActorRendererType::PartialWhiteMask: shaderChanged = _renderCommand.GetMaterial().SetShader(resolver.GetShader(hasPalette ? PrecompiledShader::PartialWhiteMaskPalette : PrecompiledShader::PartialWhiteMask)); break;
-			case ActorRendererType::FrozenMask: shaderChanged = _renderCommand.GetMaterial().SetShader(resolver.GetShader(hasPalette ? PrecompiledShader::FrozenMaskPalette : PrecompiledShader::FrozenMask)); break;
+			case ActorRendererType::Outline:
+				shaderChanged = _renderCommand.GetMaterial().SetShader(resolver.GetShader(hasPalette ? PrecompiledShader::OutlinePalette : PrecompiledShader::Outline));
+				break;
+			case ActorRendererType::WhiteMask:
+				shaderChanged = _renderCommand.GetMaterial().SetShader(resolver.GetShader(hasPalette ? PrecompiledShader::WhiteMaskPalette : PrecompiledShader::WhiteMask));
+				break;
+			case ActorRendererType::PartialWhiteMask:
+				shaderChanged = _renderCommand.GetMaterial().SetShader(resolver.GetShader(hasPalette ? PrecompiledShader::PartialWhiteMaskPalette : PrecompiledShader::PartialWhiteMask));
+				break;
+			case ActorRendererType::FrozenMask:
+				shaderChanged = _renderCommand.GetMaterial().SetShader(resolver.GetShader(hasPalette ? PrecompiledShader::FrozenMaskPalette : PrecompiledShader::FrozenMask));
+				break;
 			default:
 				// Without a palette, the built-in Sprite program is used
 				shaderChanged = (hasPalette
-					? _renderCommand.GetMaterial().SetShader(resolver.GetShader(PrecompiledShader::PaletteRemap))
-					: _renderCommand.GetMaterial().SetShaderProgramType(Material::ShaderProgramType::Sprite));
+						? _renderCommand.GetMaterial().SetShader(resolver.GetShader(PrecompiledShader::PaletteRemap))
+						: _renderCommand.GetMaterial().SetShaderProgramType(Material::ShaderProgramType::Sprite));
 				break;
 		}
 		if (shaderChanged) {
@@ -2265,7 +2277,7 @@ namespace Jazz2::Actors
 
 #if defined(WITH_ANGELSCRIPT)
 		// A script-driven object updates through the script
-		if DEATH_UNLIKELY(_owner->_updateOverride != nullptr) {
+		if DEATH_UNLIKELY (_owner->_updateOverride != nullptr) {
 			_owner->_updateOverride->OnUpdate(_owner, timeMult);
 		} else {
 			_owner->OnUpdate(timeMult);
@@ -2278,7 +2290,7 @@ namespace Jazz2::Actors
 
 #if defined(WITH_ANGELSCRIPT)
 		// A level script can make the graphics true color while they're drawn
-		if DEATH_UNLIKELY(FrameSource != nullptr && _baseIndexed != ((FrameSource->Flags & GenericGraphicResourceFlags::Indexed) == GenericGraphicResourceFlags::Indexed)) {
+		if DEATH_UNLIKELY (FrameSource != nullptr && _baseIndexed != ((FrameSource->Flags & GenericGraphicResourceFlags::Indexed) == GenericGraphicResourceFlags::Indexed)) {
 			SetIndexed(!_baseIndexed, _basePaletteOffset);
 		}
 #endif
@@ -2288,7 +2300,7 @@ namespace Jazz2::Actors
 				case AnimationLoopMode::Loop:
 					AnimTime += timeMult * FrameTimer::SecondsPerFrame;
 					if (AnimTime > AnimDuration) {
-						if DEATH_LIKELY(AnimDuration > 0.0f) {
+						if DEATH_LIKELY (AnimDuration > 0.0f) {
 							std::int32_t n = (std::int32_t)(AnimTime / AnimDuration);
 							AnimTime -= AnimDuration * n;
 						} else {
@@ -2338,7 +2350,7 @@ namespace Jazz2::Actors
 	{
 #if defined(WITH_ANGELSCRIPT)
 		// A script-driven object is drawn only when the script asks
-		if DEATH_UNLIKELY(_owner->_updateOverride != nullptr && !_owner->_updateOverride->IsDrawn()) {
+		if DEATH_UNLIKELY (_owner->_updateOverride != nullptr && !_owner->_updateOverride->IsDrawn()) {
 			return true;
 		}
 #endif
@@ -2403,8 +2415,8 @@ namespace Jazz2::Actors
 
 		// Set current animation frame rectangle, a packed sheet gives every frame its own area and hotspot
 		SetTexRect(FrameSource != nullptr ? FrameSource->GetFrameRect(CurrentFrame)
-			: Recti(FrameDimensions.X * (CurrentFrame % FrameConfiguration.X),
-				FrameDimensions.Y * (CurrentFrame / FrameConfiguration.X), FrameDimensions.X, FrameDimensions.Y));
+										  : Recti(FrameDimensions.X * (CurrentFrame % FrameConfiguration.X),
+												FrameDimensions.Y * (CurrentFrame / FrameConfiguration.X), FrameDimensions.X, FrameDimensions.Y));
 		UpdateAnchor();
 	}
 

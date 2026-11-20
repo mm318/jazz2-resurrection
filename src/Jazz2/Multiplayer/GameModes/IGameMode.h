@@ -38,10 +38,10 @@ namespace Jazz2::Multiplayer::GameModes
 	/** @brief What should happen when a player reaches the level exit, as decided by the game mode */
 	enum class LevelExitAction
 	{
-		Ignore,						/**< Ignore the exit (competitive modes without a level-exit win condition) */
-		ChangeToNextLevel,			/**< Proceed to the next level (Cooperation) */
-		EndGameForInitiator,		/**< End the round with the initiator as the winner (Treasure Hunt with enough treasure) */
-		WarpToStartIncrementLap		/**< Warp the initiator back to the start and count a lap (Race) */
+		Ignore, /**< Ignore the exit (competitive modes without a level-exit win condition) */
+		ChangeToNextLevel, /**< Proceed to the next level (Cooperation) */
+		EndGameForInitiator, /**< End the round with the initiator as the winner (Treasure Hunt with enough treasure) */
+		WarpToStartIncrementLap /**< Warp the initiator back to the start and count a lap (Race) */
 	};
 
 	/** @brief Result of @ref IGameMode::DecideRespawn */
@@ -72,23 +72,28 @@ namespace Jazz2::Multiplayer::GameModes
 		bool StartOvertime;
 
 		/** @brief Returns a result meaning "the round does not end" */
-		static GameEndResult None() {
+		static GameEndResult None()
+		{
 			return { false, false, nullptr, 0, false };
 		}
 		/** @brief Returns a result meaning "the round ends in a draw" */
-		static GameEndResult Draw() {
+		static GameEndResult Draw()
+		{
 			return { true, false, nullptr, 0, false };
 		}
 		/** @brief Returns a result meaning "the round ends with the specified player as the winner" */
-		static GameEndResult PlayerWins(Actors::Player* winner) {
+		static GameEndResult PlayerWins(Actors::Player* winner)
+		{
 			return { true, false, winner, 0, false };
 		}
 		/** @brief Returns a result meaning "the round ends with the specified team as the winner" */
-		static GameEndResult TeamWins(std::uint8_t team) {
+		static GameEndResult TeamWins(std::uint8_t team)
+		{
 			return { true, true, nullptr, team, false };
 		}
 		/** @brief Returns a result meaning "the round goes into overtime" */
-		static GameEndResult Overtime() {
+		static GameEndResult Overtime()
+		{
 			return { false, false, nullptr, 0, true };
 		}
 	};
@@ -96,13 +101,13 @@ namespace Jazz2::Multiplayer::GameModes
 	/** @brief Role of a player in a game mode, a bitwise combination is stored in @ref MpPlayerState::ModeFlags */
 	enum class PlayerModeFlags : std::uint8_t
 	{
-		None = 0,				/**< None */
-		It = 0x01,				/**< The player who is "it" in Roast Tag */
-		Zombie = 0x02,			/**< Infected player in Pestilence */
-		Jailed = 0x04,			/**< Player locked in the jail in Jailbreak */
-		Eliminated = 0x08,		/**< Player out of the round for good */
-		CarriesFlag = 0x10,		/**< Player carrying the flag in Flag Run */
-		BottomFeeder = 0x20		/**< Player with the fewest points in Roast Tag, anyone can roast them */
+		None = 0, /**< None */
+		It = 0x01, /**< The player who is "it" in Roast Tag */
+		Zombie = 0x02, /**< Infected player in Pestilence */
+		Jailed = 0x04, /**< Player locked in the jail in Jailbreak */
+		Eliminated = 0x08, /**< Player out of the round for good */
+		CarriesFlag = 0x10, /**< Player carrying the flag in Flag Run */
+		BottomFeeder = 0x20 /**< Player with the fewest points in Roast Tag, anyone can roast them */
 	};
 
 	DEATH_ENUM_FLAGS(PlayerModeFlags);
@@ -110,10 +115,10 @@ namespace Jazz2::Multiplayer::GameModes
 	/** @brief Type of @ref GameModeObject */
 	enum class GameModeObjectType : std::uint8_t
 	{
-		ControlPoint,	/**< Point to hold in Domination */
-		Jail,			/**< Jail of a team in Jailbreak */
-		Flag,			/**< Neutral flag in Flag Run */
-		Base			/**< Base of a team where something is delivered (Flag Run, Head Hunters) */
+		ControlPoint, /**< Point to hold in Domination */
+		Jail, /**< Jail of a team in Jailbreak */
+		Flag, /**< Neutral flag in Flag Run */
+		Base /**< Base of a team where something is delivered (Flag Run, Head Hunters) */
 	};
 
 	/**
@@ -171,7 +176,9 @@ namespace Jazz2::Multiplayer::GameModes
 	class IGameModeContext
 	{
 	public:
-		virtual ~IGameModeContext() { }
+		virtual ~IGameModeContext()
+		{
+		}
 
 		/** @brief Returns the active server configuration (win targets, elimination, invulnerability, ...) */
 		virtual const ServerConfiguration& GetServerConfiguration() const = 0;
@@ -270,16 +277,16 @@ namespace Jazz2::Multiplayer::GameModes
 	/** @brief Selects which HUD font a game mode draws text with */
 	enum class GameModeFontType
 	{
-		Small,		/**< Small font */
-		Medium		/**< Medium font */
+		Small, /**< Small font */
+		Medium /**< Medium font */
 	};
 
 	/** @brief A semantic HUD icon a game mode can draw; the HUD maps it to a concrete sprite */
 	enum class GameModeHudIcon
 	{
-		Food,		/**< Food / score pickup icon */
-		GemRed,		/**< Red gem (treasure not yet sufficient) */
-		GemGreen	/**< Green gem (enough treasure collected) */
+		Food, /**< Food / score pickup icon */
+		GemRed, /**< Red gem (treasure not yet sufficient) */
+		GemGreen /**< Green gem (enough treasure collected) */
 	};
 
 	/**
@@ -293,7 +300,9 @@ namespace Jazz2::Multiplayer::GameModes
 	class IGameModeHUD
 	{
 	public:
-		virtual ~IGameModeHUD() { }
+		virtual ~IGameModeHUD()
+		{
+		}
 
 		/**
 			@brief Draws a text string (shadow + main) with the small or medium HUD font
@@ -325,7 +334,9 @@ namespace Jazz2::Multiplayer::GameModes
 	class IGameMode
 	{
 	public:
-		virtual ~IGameMode() { }
+		virtual ~IGameMode()
+		{
+		}
 
 		/** @brief Returns the game mode identifier */
 		virtual MpGameMode GetMode() const = 0;

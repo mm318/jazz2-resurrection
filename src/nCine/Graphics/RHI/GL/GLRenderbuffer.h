@@ -30,16 +30,19 @@ namespace nCine::RHI::GL
 		GLRenderbuffer& operator=(const GLRenderbuffer&) = delete;
 
 		/** @brief Returns the OpenGL handle of the renderbuffer object */
-		inline GLuint GetGLHandle() const {
+		inline GLuint GetGLHandle() const
+		{
 			return _glHandle;
 		}
 
 		/** @brief Sets the framebuffer attachment point this renderbuffer is associated with */
-		inline void SetAttachment(GLenum attachment) {
+		inline void SetAttachment(GLenum attachment)
+		{
 			_attachment = attachment;
 		}
 		/** @brief Returns the framebuffer attachment point this renderbuffer is associated with */
-		inline GLenum GetAttachment() const {
+		inline GLenum GetAttachment() const
+		{
 			return _attachment;
 		}
 

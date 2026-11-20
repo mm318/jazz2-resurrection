@@ -103,7 +103,7 @@ namespace nCine
 					(blueMask == 0x00FF0000 && greenMask == 0x0000FF00 && redMask == 0x000000FF && alphaMask == 0x0)) { // 888
 					internalFormat = PixelFormat::RGB8;
 				} else if ((alphaMask == 0xFF000000 && redMask == 0x00FF0000 && greenMask == 0x0000FF00 && blueMask == 0x000000FF) ||
-						 (alphaMask == 0xFF000000 && blueMask == 0x00FF0000 && greenMask == 0x0000FF00 && redMask == 0x000000FF)) { // 8888
+					(alphaMask == 0xFF000000 && blueMask == 0x00FF0000 && greenMask == 0x0000FF00 && redMask == 0x000000FF)) { // 8888
 					internalFormat = PixelFormat::RGBA8;
 				}
 #if 0

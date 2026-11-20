@@ -40,7 +40,8 @@ namespace nCine
 			std::uint32_t TransparentBegin, TransparentEnd;
 
 			/** @brief Returns `true` if the part has no commands */
-			bool IsEmpty() const {
+			bool IsEmpty() const
+			{
 				return (OpaqueBegin == OpaqueEnd && TransparentBegin == TransparentEnd);
 			}
 		};

@@ -10,8 +10,8 @@
 #include "../../../nCine/I18n.h"
 
 #if defined(DEATH_TARGET_ANDROID)
-#	include "../../../nCine/Backends/Android/AndroidApplication.h"
-#	include "../../../nCine/Backends/Android/AndroidJniHelper.h"
+#include "../../../nCine/Backends/Android/AndroidApplication.h"
+#include "../../../nCine/Backends/Android/AndroidJniHelper.h"
 #endif
 
 #include <algorithm>
@@ -44,10 +44,12 @@ namespace Jazz2::UI::Menu
 	UserProfileOptionsSection::UserProfileOptionsSection()
 		: _isDirty(false), _nameInput(nullptr)
 #if defined(WITH_MULTIPLAYER)
-			, _uniqueIdItem(nullptr)
+		  ,
+		  _uniqueIdItem(nullptr)
 #endif
 #if defined(DEATH_TARGET_ANDROID)
-			, _recalcVisibleBoundsTimeLeft(30.0f)
+		  ,
+		  _recalcVisibleBoundsTimeLeft(30.0f)
 #endif
 	{
 		_localPlayerName = PreferencesCache::PlayerName;
@@ -106,7 +108,9 @@ namespace Jazz2::UI::Menu
 		// TRANSLATORS: Menu item in Options > User Profile section
 		auto* discordItem = list->Add<ChoiceItem>(_("Discord Integration"),
 			// TRANSLATORS: Option for on/off items in Options > User Profile section
-			[]() -> StringView { return (PreferencesCache::EnableDiscordIntegration ? _("Enabled") : _("Disabled")); },
+			[]() -> StringView {
+				return (PreferencesCache::EnableDiscordIntegration ? _("Enabled") : _("Disabled"));
+			},
 			[this](std::int32_t) {
 				PreferencesCache::EnableDiscordIntegration = !PreferencesCache::EnableDiscordIntegration;
 				if (PreferencesCache::EnableDiscordIntegration) {
@@ -115,7 +119,8 @@ namespace Jazz2::UI::Menu
 					DiscordRpcClient::Get().Disconnect();
 				}
 				_isDirty = true;
-			}, isInGame);
+			},
+			isInGame);
 		discordItem->Height = 64.0f;
 #endif
 
@@ -174,14 +179,16 @@ namespace Jazz2::UI::Menu
 		for (std::int32_t section = 0; section < 4; section++) {
 			auto* furItem = list->Add<CustomValueItem>(furLabels[section], 52.0f);
 			furItem->ReadOnly = isInGame;
-			furItem->OnChange = [this, section](std::int32_t direction) { CycleFurSection(section, direction); };
+			furItem->OnChange = [this, section](std::int32_t direction) {
+				CycleFurSection(section, direction);
+			};
 			furItem->DrawValue = [this, section](IMenuContainer* r, float centerX, float y, std::int32_t& charOffset, bool selected, bool readOnly) {
 				std::uint32_t packed = (_furColor >> (section * 8)) & 0xFF;
 				std::uint32_t base = packed & ~(std::uint32_t)ContentResolver::FurHueShiftFlag;
 				bool hueShift = (packed & ContentResolver::FurHueShiftFlag) != 0;
 				Colorf labelColor = (selected
-					? Colorf(0.46f, 0.46f, 0.46f, readOnly ? 0.36f : 0.5f)
-					: (readOnly ? Font::TransparentDefaultColor : Font::DefaultColor));
+						? Colorf(0.46f, 0.46f, 0.46f, readOnly ? 0.36f : 0.5f)
+						: (readOnly ? Font::TransparentDefaultColor : Font::DefaultColor));
 
 				if (base == 0) {
 					// TRANSLATORS: Option for fur/weapon color items in Options > User Profile section, the original colors of the character
@@ -205,19 +212,23 @@ namespace Jazz2::UI::Menu
 		}
 
 		// TRANSLATORS: Menu item in Options > User Profile section
-		list->Add<ChoiceItem>(_("Apply Custom Colors"),
-			[this]() -> StringView {
-				switch (_colorMode) {
-					default:
-					// TRANSLATORS: Value of "Apply Custom Colors" in Options > User Profile
-					case PlayerColorMode::OnlineOnly: return _("Online only");
-					// TRANSLATORS: Value of "Apply Custom Colors" in Options > User Profile
-					case PlayerColorMode::FirstLocalPlayer: return _("Online and first local player");
-					// TRANSLATORS: Value of "Apply Custom Colors" in Options > User Profile
-					case PlayerColorMode::AllLocalPlayers: return _("Online and all local players");
-				}
+		list->Add<ChoiceItem>(_("Apply Custom Colors"), [this]() -> StringView {
+			switch (_colorMode) {
+				default:
+				// TRANSLATORS: Value of "Apply Custom Colors" in Options > User Profile
+				case PlayerColorMode::OnlineOnly:
+					return _("Online only");
+				// TRANSLATORS: Value of "Apply Custom Colors" in Options > User Profile
+				case PlayerColorMode::FirstLocalPlayer:
+					return _("Online and first local player");
+				// TRANSLATORS: Value of "Apply Custom Colors" in Options > User Profile
+				case PlayerColorMode::AllLocalPlayers:
+					return _("Online and all local players");
+			}
+		},
+			[this](std::int32_t direction) {
+				CycleColorMode(direction);
 			},
-			[this](std::int32_t direction) { CycleColorMode(direction); },
 			isInGame);
 
 #if defined(WITH_MULTIPLAYER)
@@ -241,11 +252,11 @@ namespace Jazz2::UI::Menu
 			r->DrawStringShadow({ uniquePlayerId, length }, charOffset, centerX, y, IMenuContainer::FontLayer - 10, Alignment::Center, c, 0.8f);
 			// The second line is only drawn where HasSecondaryPlayerId() says there is one, because that is
 			// what the row reserved the extra line of height for
-#	if defined(DEATH_TARGET_ANDROID)
+#if defined(DEATH_TARGET_ANDROID)
 			if (!_deviceId.empty()) {
 				r->DrawStringShadow(_deviceId, charOffset, centerX, y + SecondaryIdLineHeight, IMenuContainer::FontLayer - 10, Alignment::Center, c, 0.8f);
 			}
-#	elif (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || defined(DEATH_TARGET_UNIX)
+#elif (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || defined(DEATH_TARGET_UNIX)
 			if (DiscordRpcClient::Get().IsSupported()) {
 				std::uint64_t userId = DiscordRpcClient::Get().GetUserId();
 				if (userId != 0) {
@@ -254,7 +265,7 @@ namespace Jazz2::UI::Menu
 					r->DrawStringShadow({ discordId, discordLength }, charOffset, centerX, y + SecondaryIdLineHeight, IMenuContainer::FontLayer - 10, Alignment::Center, c, 0.8f);
 				}
 			}
-#	endif
+#endif
 		};
 		_uniqueIdItem = uniqueIdItem;
 		RefreshUniqueIdItemHeight();
@@ -484,13 +495,13 @@ namespace Jazz2::UI::Menu
 #if defined(WITH_MULTIPLAYER)
 	bool UserProfileOptionsSection::HasSecondaryPlayerId() const
 	{
-#	if defined(DEATH_TARGET_ANDROID)
+#if defined(DEATH_TARGET_ANDROID)
 		return !_deviceId.empty();
-#	elif (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || defined(DEATH_TARGET_UNIX)
+#elif (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || defined(DEATH_TARGET_UNIX)
 		return (DiscordRpcClient::Get().IsSupported() && DiscordRpcClient::Get().GetUserId() != 0);
-#	else
+#else
 		return false;
-#	endif
+#endif
 	}
 
 	void UserProfileOptionsSection::RefreshUniqueIdItemHeight()

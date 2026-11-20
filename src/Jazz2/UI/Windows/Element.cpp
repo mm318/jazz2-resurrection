@@ -47,7 +47,7 @@ namespace Jazz2::UI::Windows
 
 	Element::Element()
 		: Bounds(), Visible(true), Enabled(true), Width(Auto), Height(Auto), Flex(0.0f), _parent(nullptr), _surface(nullptr),
-			_hovered(false), _pressed(false), _focused(false), _hoverAmount(0.0f), _measureFrame(0), _measureScale(0.0f)
+		  _hovered(false), _pressed(false), _focused(false), _hoverAmount(0.0f), _measureFrame(0), _measureScale(0.0f)
 	{
 	}
 
@@ -418,8 +418,8 @@ namespace Jazz2::UI::Windows
 			}
 			float mainSize = (child->Flex > 0.0f ? std::floor(leftover * child->Flex / flexTotal) : sizes[i]);
 			Rectf childBounds = (horizontal
-				? Rectf(pos, inner.Y, mainSize, inner.H)
-				: Rectf(inner.X, pos, inner.W, mainSize));
+					? Rectf(pos, inner.Y, mainSize, inner.H)
+					: Rectf(inner.X, pos, inner.W, mainSize));
 			child->Arrange(context, childBounds);
 			pos += mainSize + spacing;
 		}

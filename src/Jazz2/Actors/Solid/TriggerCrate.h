@@ -10,10 +10,11 @@ namespace Jazz2::Actors::Solid
 		Selects the action a @ref TriggerCrate performs on its level trigger when the crate is destroyed: turn the
 		trigger off, turn it on, or toggle its current value.
 	*/
-	enum class TriggerCrateState {
-		Off,	/**< Sets the trigger off */
-		On,		/**< Sets the trigger on */
-		Toggle	/**< Toggles the trigger */
+	enum class TriggerCrateState
+	{
+		Off, /**< Sets the trigger off */
+		On, /**< Sets the trigger on */
+		Toggle /**< Toggles the trigger */
 	};
 
 	/**

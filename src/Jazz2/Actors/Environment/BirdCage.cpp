@@ -9,8 +9,7 @@
 namespace Jazz2::Actors::Environment
 {
 	BirdCage::BirdCage()
-		:
-		_activated(false)
+		: _activated(false)
 	{
 	}
 

@@ -9,7 +9,7 @@ namespace Jazz2::Actors::Multiplayer
 {
 	RemotePlayerOnServer::RemotePlayerOnServer(std::shared_ptr<PeerDescriptor> peerDesc)
 		: Flags(PlayerFlags::None), PressedKeys(0),
-			PressedKeysLast(0), UpdatedFrame(0)
+		  PressedKeysLast(0), UpdatedFrame(0)
 	{
 		_peerDesc = Death::move(peerDesc);
 		_peerDesc->Player = this;
@@ -80,7 +80,7 @@ namespace Jazz2::Actors::Multiplayer
 	PlayerCarryOver RemotePlayerOnServer::PrepareLevelCarryOver()
 	{
 		// Skip all remote players
-		return PlayerCarryOver{};
+		return PlayerCarryOver {};
 	}
 
 	void RemotePlayerOnServer::UpdateRendererPosition()

@@ -41,7 +41,8 @@ namespace Jazz2::Editor
 		EventStamp Events;
 
 		/** @brief Returns `true` if there's nothing to paste */
-		bool IsEmpty() const {
+		bool IsEmpty() const
+		{
 			return (Width <= 0 || Height <= 0 || (Layers.empty() && Events.IsEmpty()));
 		}
 	};

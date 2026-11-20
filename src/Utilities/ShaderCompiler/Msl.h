@@ -65,7 +65,7 @@
 	diagnostic rather than emit invalid MSL.
 */
 
-#include "GlslReflect.h"		// StageReflection (texture units, block strides), Diagnostic, StringView
+#include "GlslReflect.h" // StageReflection (texture units, block strides), Diagnostic, StringView
 
 namespace ShaderCompiler
 {

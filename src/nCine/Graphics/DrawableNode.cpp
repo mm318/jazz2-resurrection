@@ -16,8 +16,8 @@ namespace nCine
 
 	DrawableNode::DrawableNode(SceneNode* parent, float xx, float yy)
 		: SceneNode(parent, xx, yy), _width(0.0f), _height(0.0f),
-		_renderCommand(),
-		_lastFrameRendered(0)
+		  _renderCommand(),
+		  _lastFrameRendered(0)
 	{
 		_renderCommand.SetIdSortKey(GetId());
 	}

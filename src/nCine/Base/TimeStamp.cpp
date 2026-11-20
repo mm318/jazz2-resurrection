@@ -9,7 +9,7 @@ namespace nCine
 	}
 
 	TimeStamp::TimeStamp(std::uint64_t counter)
-		:_counter(counter)
+		: _counter(counter)
 	{
 	}
 

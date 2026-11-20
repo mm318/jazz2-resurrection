@@ -42,25 +42,25 @@ namespace nCine
 		}
 
 		const RHI::IRhiCapabilities& caps = theServiceLocator().GetRhiCapabilities();
-#	if defined(RHI_GL_PROFILE_ES) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_UNIX) && !defined(DEATH_TARGET_IOS)
+#if defined(RHI_GL_PROFILE_ES) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_UNIX) && !defined(DEATH_TARGET_IOS)
 		const bool isSupported = caps.HasExtension(RHI::IRhiCapabilities::Extensions::ArbGetProgramBinary) ||
-								 caps.HasExtension(RHI::IRhiCapabilities::Extensions::OesGetProgramBinary);
-#	else
+			caps.HasExtension(RHI::IRhiCapabilities::Extensions::OesGetProgramBinary);
+#else
 		const bool isSupported = caps.HasExtension(RHI::IRhiCapabilities::Extensions::ArbGetProgramBinary);
-#	endif
+#endif
 		if (!isSupported) {
 			LOGW("GL_ARB_get_program_binary extensions not supported, binary shader cache is disabled");
 			return;
 		}
 
-#	if defined(RHI_GL_PROFILE_ES) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_UNIX) && !defined(DEATH_TARGET_IOS) && (!defined(DEATH_TARGET_WINDOWS_RT) || defined(WITH_ANGLE))
+#if defined(RHI_GL_PROFILE_ES) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_UNIX) && !defined(DEATH_TARGET_IOS) && (!defined(DEATH_TARGET_WINDOWS_RT) || defined(WITH_ANGLE))
 		// (iOS is left out as well: Apple's OpenGL|ES headers have no OES_get_program_binary spelling, only the core one)
 		if (caps.HasExtension(RHI::IRhiCapabilities::Extensions::OesGetProgramBinary)) {
 			_glGetProgramBinary = glGetProgramBinaryOES;
 			_glProgramBinary = glProgramBinaryOES;
 			_glProgramBinaryLength = GL_PROGRAM_BINARY_LENGTH_OES;
 		} else
-#	endif
+#endif
 		{
 #if defined(RHI_GL_PROFILE_ES2)
 			// The core program-binary entry points (glGetProgramBinary/glProgramBinary) and GL_PROGRAM_BINARY_LENGTH
@@ -186,7 +186,7 @@ namespace nCine
 		if (bufferSize < std::uint32_t(shaderLength)) {
 			bufferSize = std::uint32_t(shaderLength);
 			bufferPtr = std::make_unique<std::uint8_t[]>(bufferSize);
-		} 
+		}
 
 		shaderLength = 0;
 		unsigned int binaryFormat = 0;

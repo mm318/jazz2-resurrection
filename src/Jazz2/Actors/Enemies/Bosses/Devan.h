@@ -34,7 +34,8 @@ namespace Jazz2::Actors::Bosses
 		float GetGravityModifier(float baseGravity, bool isRising) const override;
 
 	private:
-		enum class State {
+		enum class State
+		{
 			Transition = -1,
 			Waiting = 0,
 			WarpingIn,

@@ -88,7 +88,7 @@ namespace Jazz2::Actors::Weapons
 		}
 		RevealPastMuzzle(_gunspotPos);
 	}
-	
+
 	void PepperShot::OnEmitLights(SmallVectorImpl<LightEmitter>& lights)
 	{
 		if (_fired >= 2 && (_upgrades & 0x1) != 0) {

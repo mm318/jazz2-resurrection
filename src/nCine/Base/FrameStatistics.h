@@ -24,26 +24,26 @@ namespace nCine
 		/** @brief Phase of a frame, in the order @ref Application::Step() runs them */
 		enum class Phase : std::uint8_t
 		{
-			BeginFrame,		/**< @ref IAppEventHandler::OnBeginFrame() */
-			Update,			/**< Scene graph update */
-			PostUpdate,		/**< @ref IAppEventHandler::OnPostUpdate() */
-			Visit,			/**< Scene graph visit, which culls the nodes and collects their render commands */
-			Draw,			/**< Sorting, batching and submitting the render commands */
-			Audio,			/**< Updating the audio players, which is also where the streams are decoded */
-			EndFrame,		/**< @ref IAppEventHandler::OnEndFrame() */
-			Present,		/**< Presenting the frame, including any wait for the GPU or the vertical blank */
-			Wait,			/**< Frame rate limiter */
+			BeginFrame, /**< @ref IAppEventHandler::OnBeginFrame() */
+			Update, /**< Scene graph update */
+			PostUpdate, /**< @ref IAppEventHandler::OnPostUpdate() */
+			Visit, /**< Scene graph visit, which culls the nodes and collects their render commands */
+			Draw, /**< Sorting, batching and submitting the render commands */
+			Audio, /**< Updating the audio players, which is also where the streams are decoded */
+			EndFrame, /**< @ref IAppEventHandler::OnEndFrame() */
+			Present, /**< Presenting the frame, including any wait for the GPU or the vertical blank */
+			Wait, /**< Frame rate limiter */
 
-			Count			/**< Count of phases */
+			Count /**< Count of phases */
 		};
 
 		/** @brief Unit of a counter value */
 		enum class Unit : std::uint8_t
 		{
-			Milliseconds,	/**< Time in milliseconds */
-			Percent,		/**< Percentage */
-			Bytes,			/**< Size in bytes */
-			Number			/**< Plain number */
+			Milliseconds, /**< Time in milliseconds */
+			Percent, /**< Percentage */
+			Bytes, /**< Size in bytes */
+			Number /**< Plain number */
 		};
 
 		/** @brief Counter reported by a backend, averaged over an interval */
@@ -104,7 +104,8 @@ namespace nCine
 		~FrameStatistics() = delete;
 
 		/** @brief Returns `true` while the statistics are being collected */
-		static inline bool IsEnabled() {
+		static inline bool IsEnabled()
+		{
 			return _enabled;
 		}
 		/**
@@ -135,7 +136,8 @@ namespace nCine
 		static void EndFrame(const float* phaseTimes, float frameTime);
 
 		/** @brief Returns the values averaged over the last complete interval */
-		static inline const Snapshot& GetSnapshot() {
+		static inline const Snapshot& GetSnapshot()
+		{
 			return _snapshot;
 		}
 

@@ -169,12 +169,13 @@ namespace Jazz2::Scripting
 			float getYPosition(const jjPLAYER* play) const;
 
 			/** @brief Where a textured layer is drawn, values of @ref SURFACE::Surface */
-			enum TextureSurfaceStyles : std::int32_t {
-				Untextured,		/**< Drawn as tiles */
-				Legacy,			/**< Over the whole view, as layer 8 of the original game */
-				FullScreen,		/**< Over the whole view */
-				InnerWindow,	/**< Only where the layer is, as a window into one over the whole view */
-				InnerLayer		/**< Only where the layer is, the horizon and the vanishing point a fraction of the layer */
+			enum TextureSurfaceStyles : std::int32_t
+			{
+				Untextured, /**< Drawn as tiles */
+				Legacy, /**< Over the whole view, as layer 8 of the original game */
+				FullScreen, /**< Over the whole view */
+				InnerWindow, /**< Only where the layer is, as a window into one over the whole view */
+				InnerLayer /**< Only where the layer is, the horizon and the vanishing point a fraction of the layer */
 			};
 
 			/**
@@ -186,7 +187,8 @@ namespace Jazz2::Scripting
 			 * color is a reflection's own. The fade color and the stars, which each style takes in its own way too, are of
 			 * the layer as well (see `ApplyTexture()`).
 			 */
-			struct TextureStyleParams {
+			struct TextureStyleParams
+			{
 				/** @brief Layer the parameters are of */
 				jjLAYER* Owner = nullptr;
 				/** @brief Horizontal value, as a fraction of the view (of the layer for `InnerLayer`), or the horizontal amplitude */
@@ -310,13 +312,15 @@ namespace Jazz2::Scripting
 			bool SetBlend(Tiles::LayerDescription& description) const;
 
 			/** @brief Returns a value of the parameters of a texture style */
-			template<float TextureStyleParams::*Member>
-			static float GetStyleValue(const TextureStyleParams* params) {
+			template <float TextureStyleParams::*Member>
+			static float GetStyleValue(const TextureStyleParams* params)
+			{
 				return params->*Member;
 			}
 			/** @brief Sets a value of the parameters of a texture style, shared by all styles of the layer */
-			template<float TextureStyleParams::*Member>
-			static float SetStyleValue(TextureStyleParams* params, float value) {
+			template <float TextureStyleParams::*Member>
+			static float SetStyleValue(TextureStyleParams* params, float value)
+			{
 				if (params->*Member != value) {
 					jjLAYER* owner = params->Owner;
 					for (TextureStyleParams* style : { &owner->warpHorizon, &owner->tunnel, &owner->menu, &owner->tileMenu, &owner->wave, &owner->cylinder, &owner->reflection }) {
@@ -327,11 +331,13 @@ namespace Jazz2::Scripting
 				return value;
 			}
 			/** @brief Returns whether a texture style fades */
-			static bool GetStyleFade(const TextureStyleParams* params) {
+			static bool GetStyleFade(const TextureStyleParams* params)
+			{
 				return params->Fade;
 			}
 			/** @brief Sets whether a texture style fades, shared by all styles of the layer */
-			static bool SetStyleFade(TextureStyleParams* params, bool value) {
+			static bool SetStyleFade(TextureStyleParams* params, bool value)
+			{
 				if (params->Fade != value) {
 					jjLAYER* owner = params->Owner;
 					for (TextureStyleParams* style : { &owner->warpHorizon, &owner->tunnel, &owner->menu, &owner->tileMenu, &owner->wave, &owner->cylinder, &owner->reflection }) {
@@ -342,11 +348,13 @@ namespace Jazz2::Scripting
 				return value;
 			}
 			/** @brief Returns the palette entry a reflection is tinted with */
-			static std::uint8_t GetStyleTintColor(const TextureStyleParams* params) {
+			static std::uint8_t GetStyleTintColor(const TextureStyleParams* params)
+			{
 				return params->TintColor;
 			}
 			/** @brief Sets the palette entry a reflection is tinted with */
-			static std::uint8_t SetStyleTintColor(TextureStyleParams* params, std::uint8_t value) {
+			static std::uint8_t SetStyleTintColor(TextureStyleParams* params, std::uint8_t value)
+			{
 				if (params->TintColor != value) {
 					params->TintColor = value;
 					params->Owner->ApplyTexture();
@@ -354,31 +362,37 @@ namespace Jazz2::Scripting
 				return value;
 			}
 			/** @brief Returns a component of the fade color, or what the style takes it as */
-			template<std::int32_t Index>
-			static std::uint8_t GetTextureComponent(const TextureStyleParams* params) {
+			template <std::int32_t Index>
+			static std::uint8_t GetTextureComponent(const TextureStyleParams* params)
+			{
 				return params->Owner->_textureColor[Index];
 			}
 			/** @brief Sets a component of the fade color, or what the style takes it as */
-			template<std::int32_t Index>
-			static std::uint8_t SetTextureComponent(TextureStyleParams* params, std::uint8_t value) {
+			template <std::int32_t Index>
+			static std::uint8_t SetTextureComponent(TextureStyleParams* params, std::uint8_t value)
+			{
 				params->Owner->SetTextureColor(Index, value);
 				return value;
 			}
 			/** @brief Returns the speed of a wave, the blue of the fade color as a signed byte */
-			static std::int8_t GetWaveSpeed(const TextureStyleParams* params) {
+			static std::int8_t GetWaveSpeed(const TextureStyleParams* params)
+			{
 				return std::int8_t(params->Owner->_textureColor[2]);
 			}
 			/** @brief Sets the speed of a wave, the blue of the fade color as a signed byte */
-			static std::int8_t SetWaveSpeed(TextureStyleParams* params, std::int8_t value) {
+			static std::int8_t SetWaveSpeed(TextureStyleParams* params, std::int8_t value)
+			{
 				params->Owner->SetTextureColor(2, std::uint8_t(value));
 				return value;
 			}
 			/** @brief Returns the stars of a warp horizon, or what the style takes them as */
-			static bool GetTextureStars(const TextureStyleParams* params) {
+			static bool GetTextureStars(const TextureStyleParams* params)
+			{
 				return params->Owner->_textureStars;
 			}
 			/** @brief Sets the stars of a warp horizon, or what the style takes them as */
-			static bool SetTextureStars(TextureStyleParams* params, bool value) {
+			static bool SetTextureStars(TextureStyleParams* params, bool value)
+			{
 				if (params->Owner->_textureStars != value) {
 					params->Owner->_textureStars = value;
 					params->Owner->ApplyTexture();
@@ -567,7 +581,7 @@ namespace Jazz2::Scripting
 			void BindTextureParams();
 
 			friend class Scripting::LevelScriptLoader;
-			friend class jjPIXELMAP;	// A pixel map can be made of the tiles of a layer
+			friend class jjPIXELMAP; // A pixel map can be made of the tiles of a layer
 			friend class jjCOLORMAP;
 		};
 

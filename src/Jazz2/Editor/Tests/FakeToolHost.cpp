@@ -94,12 +94,12 @@ namespace Jazz2::Editor
 
 	void FakeToolHost::PreviewTile(std::int32_t layer, std::int32_t x, std::int32_t y, const TileRef& tile)
 	{
-		Previews.push_back(PreviewedTile{ layer, Vector2i(x, y), tile });
+		Previews.push_back(PreviewedTile { layer, Vector2i(x, y), tile });
 	}
 
 	void FakeToolHost::RevertPreview(std::int32_t layer, const Recti& area)
 	{
-		Reverts.push_back(RevertedArea{ layer, area });
+		Reverts.push_back(RevertedArea { layer, area });
 	}
 
 	Tiles::TileMap* FakeToolHost::GetTileMap()

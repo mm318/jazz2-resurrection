@@ -35,7 +35,8 @@ namespace Jazz2::Collisions
 		DynamicTreeBroadPhase::UpdatePairs(). It identifies candidates that the client should examine with an exact
 		narrow-phase test, rather than a confirmed collision.
 	*/
-	struct CollisionPair {
+	struct CollisionPair
+	{
 		/** @brief Proxy ID of the first node */
 		std::int32_t ProxyIdA;
 		/** @brief Proxy ID of the second node */
@@ -135,7 +136,7 @@ namespace Jazz2::Collisions
 
 	private:
 		static constexpr std::int32_t DefaultPairCapacity = 16;
-		static constexpr std::int32_t DefaultMoveCapacity = /*16*/64;
+		static constexpr std::int32_t DefaultMoveCapacity = /*16*/ 64;
 
 		DynamicTree _tree;
 

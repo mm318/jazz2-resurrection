@@ -40,7 +40,8 @@ namespace Jazz2::Actors::Solid
 		void OnPacketReceived(MemoryStream& packet) override;
 
 	private:
-		enum class BridgeType {
+		enum class BridgeType
+		{
 			Rope = 0,
 			Stone = 1,
 			Vine = 2,
@@ -54,7 +55,8 @@ namespace Jazz2::Actors::Solid
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
-		struct BridgePiece {
+		struct BridgePiece
+		{
 			Vector2f Pos;
 			std::unique_ptr<RenderCommand> Command;
 		};

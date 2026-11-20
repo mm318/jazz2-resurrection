@@ -19,7 +19,8 @@
 
 // libxm is C and declares its structures with C11 static assertions
 #define _Static_assert static_assert
-extern "C" {
+extern "C"
+{
 #include "../../../deps/libxm/xm.h"
 #include "../../../deps/libxm/xm_internal.h"
 }
@@ -210,31 +211,36 @@ namespace Jazz2::AssetPacker
 				if (literals == 15) {
 					std::uint8_t b;
 					do {
-						if (i >= block.size()) return false;
+						if (i >= block.size())
+							return false;
 						b = block[i++];
 						literals += b;
 					} while (b == 255);
 				}
-				if (i + literals > block.size()) return false;
+				if (i + literals > block.size())
+					return false;
 				out.append(&block[i], &block[i] + literals);
 				i += literals;
 				if (i == block.size()) {
 					break;
 				}
-				if (i + 2 > block.size()) return false;
+				if (i + 2 > block.size())
+					return false;
 				const std::size_t offset = block[i] | (block[i + 1] << 8);
 				i += 2;
 				std::size_t length = (token & 15);
 				if (length == 15) {
 					std::uint8_t b;
 					do {
-						if (i >= block.size()) return false;
+						if (i >= block.size())
+							return false;
 						b = block[i++];
 						length += b;
 					} while (b == 255);
 				}
 				length += Lz4MinMatch;
-				if (offset == 0 || offset > out.size() || offset > std::size_t(maxDistance)) return false;
+				if (offset == 0 || offset > out.size() || offset > std::size_t(maxDistance))
+					return false;
 				for (std::size_t k = 0; k < length; k++) {
 					out.push_back(out[out.size() - offset]);
 				}
@@ -245,10 +251,14 @@ namespace Jazz2::AssetPacker
 		std::uint8_t GetWindowSizeFlags(std::int32_t windowSize)
 		{
 			switch (windowSize) {
-				case 2 * 1024: return 0x03;
-				case 4 * 1024: return 0x02;
-				case 8 * 1024: return 0x01;
-				default: return 0x00;		// 16 KiB
+				case 2 * 1024:
+					return 0x03;
+				case 4 * 1024:
+					return 0x02;
+				case 8 * 1024:
+					return 0x01;
+				default:
+					return 0x00; // 16 KiB
 			}
 		}
 
@@ -276,7 +286,7 @@ namespace Jazz2::AssetPacker
 			margin = (std::int32_t(compressed.size()) >> 8) + 32;
 
 			out.Write("DCA5", 4);
-			out.Write8(std::uint8_t(GetWindowSizeFlags(windowSize) | (1 << 4)));		// Algorithm 1 is LZ4
+			out.Write8(std::uint8_t(GetWindowSizeFlags(windowSize) | (1 << 4))); // Algorithm 1 is LZ4
 			out.WriteLeb128(compressed.size());
 			out.WriteLeb128(std::uint64_t(size));
 			out.WriteLeb128(std::uint64_t(margin));
@@ -397,28 +407,28 @@ namespace Jazz2::AssetPacker
 						Array<std::uint8_t> data;
 						switch (s->loop_type) {
 							case XM_NO_LOOP: {
-								data = Array<std::uint8_t>{NoInit, length};
+								data = Array<std::uint8_t> { NoInit, length };
 								std::memcpy(data.data(), original, length);
 								break;
 							}
 							case XM_FORWARD_LOOP: {
 								if (bps == 1 && (loopLength % 2) == 1 && loopLength < ShortOddLoopLength) {
 									length = loopEnd + loopLength;
-									data = Array<std::uint8_t>{NoInit, length};
+									data = Array<std::uint8_t> { NoInit, length };
 									std::memcpy(data.data(), original, loopEnd);
 									std::memmove(data.data() + loopEnd, original + loopEnd - loopLength, loopLength);
 									loopEnd += loopLength;
 									loopLength *= 2;
 								} else {
 									length = loopEnd;
-									data = Array<std::uint8_t>{NoInit, length};
+									data = Array<std::uint8_t> { NoInit, length };
 									std::memcpy(data.data(), original, loopEnd);
 								}
 								break;
 							}
 							case XM_PING_PONG_LOOP: {
 								length = loopEnd + loopLength;
-								data = Array<std::uint8_t>{NoInit, length};
+								data = Array<std::uint8_t> { NoInit, length };
 								std::memcpy(data.data(), original, loopEnd);
 								// Mirrored sample by sample, so the bytes of a 16-bit sample stay in order
 								for (std::uint32_t x = 0; x < loopLength; x++) {
@@ -436,7 +446,9 @@ namespace Jazz2::AssetPacker
 						}
 
 						if (length != s->length * bps) {
-							const auto align8 = [](std::uint32_t n) { return (n + 7) / 8 * 8; };
+							const auto align8 = [](std::uint32_t n) {
+								return (n + 7) / 8 * 8;
+							};
 							Context->ctx_size -= align8(s->length * bps);
 							Context->ctx_size_all_samples -= align8(s->length * bps);
 							Context->ctx_size += align8(length);
@@ -816,10 +828,14 @@ namespace Jazz2::AssetPacker
 				meta.Write32(ctx->ctx_size_all_patterns);
 				meta.Write32(ctx->ctx_size_all_samples);
 				const std::size_t patternBufferField = meta.Reserve32();
-				for (std::int32_t i = 0; i < 32; i++) meta.Write32(ctx->ctx_stream_buf_rate[i]);
-				for (std::int32_t i = 0; i < 32; i++) meta.Write32(ctx->ctx_stream_buf_base[i]);
-				for (std::int32_t i = 0; i < 32; i++) meta.Write32(ctx->ctx_stream_buf_min[i]);
-				for (std::int32_t i = 0; i < 32; i++) meta.Write32(ctx->ctx_stream_buf_cap[i]);
+				for (std::int32_t i = 0; i < 32; i++)
+					meta.Write32(ctx->ctx_stream_buf_rate[i]);
+				for (std::int32_t i = 0; i < 32; i++)
+					meta.Write32(ctx->ctx_stream_buf_base[i]);
+				for (std::int32_t i = 0; i < 32; i++)
+					meta.Write32(ctx->ctx_stream_buf_min[i]);
+				for (std::int32_t i = 0; i < 32; i++)
+					meta.Write32(ctx->ctx_stream_buf_cap[i]);
 
 				meta.Write16(ctx->module.tempo);
 				meta.Write16(ctx->module.bpm);
@@ -883,7 +899,7 @@ namespace Jazz2::AssetPacker
 						meta.Write32(sampleOffsets[i][j]);
 					}
 				}
-				meta.Write8(0);		// The samples are inside the file
+				meta.Write8(0); // The samples are inside the file
 
 				// Patterns, compressed one by one, channel by channel - the player loads one at a time
 				std::int32_t maxInPlaceMargin = 0;
@@ -939,7 +955,7 @@ namespace Jazz2::AssetPacker
 			LOGE("Cannot read \"{}\"", sourcePath);
 			return false;
 		}
-		Array<char> data{NoInit, std::size_t(size)};
+		Array<char> data { NoInit, std::size_t(size) };
 		if (s->Read(data.data(), size) != size || std::memcmp(data.data(), "Extended Module: ", 17) != 0) {
 			LOGE("\"{}\" is not a FastTracker II module", sourcePath);
 			return false;

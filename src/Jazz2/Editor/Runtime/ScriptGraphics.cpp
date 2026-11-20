@@ -37,9 +37,13 @@ namespace Jazz2::Editor
 		{
 			using namespace Scripting::Legacy;
 			switch (eventId) {
-				case aREDGEM: case aRECTREDGEM: case aREDGEMTEMP:
-				case aGREENGEM: case aRECTGREENGEM:
-				case aBLUEGEM: case aRECTBLUEGEM:
+				case aREDGEM:
+				case aRECTREDGEM:
+				case aREDGEMTEMP:
+				case aGREENGEM:
+				case aRECTGREENGEM:
+				case aBLUEGEM:
+				case aRECTBLUEGEM:
 				case aPURPLEGEM:
 				case aGEMRING:
 					return true;
@@ -220,12 +224,17 @@ namespace Jazz2::Editor
 			for (std::int32_t x = 0; x < levelSize.X; x++) {
 				std::uint32_t word = scripts.GetOriginalEvent(x, y);
 				if (scripted[word & 0xFF]) {
-					placements.push_back(Placement{MakeKey(std::uint8_t(word & 0xFF), word >> EventTranslator::ParamsShift), x, y});
+					placements.push_back(Placement { MakeKey(std::uint8_t(word & 0xFF), word >> EventTranslator::ParamsShift), x, y });
 				}
 			}
 		}
-		std::stable_sort(placements.begin(), placements.end(), [](const Placement& a, const Placement& b) { return a.Key < b.Key; });
-		placements.erase(std::unique(placements.begin(), placements.end(), [](const Placement& a, const Placement& b) { return a.Key == b.Key; }), placements.end());
+		std::stable_sort(placements.begin(), placements.end(), [](const Placement& a, const Placement& b) {
+			return a.Key < b.Key;
+		});
+		placements.erase(std::unique(placements.begin(), placements.end(), [](const Placement& a, const Placement& b) {
+			return a.Key == b.Key;
+		}),
+			placements.end());
 
 		// Every template is tried once, the other parameters share what's left of the probes
 		std::size_t extraProbes = MaxLookProbes;
@@ -281,7 +290,7 @@ namespace Jazz2::Editor
 				if (!found[i]) {
 					// It looks as the game has it with these
 					if (hasBase) {
-						_variants.push_back(Variant{placements[first + i].Key, nullptr});
+						_variants.push_back(Variant { placements[first + i].Key, nullptr });
 					}
 					continue;
 				}
@@ -303,7 +312,7 @@ namespace Jazz2::Editor
 					}
 				}
 				if (shared != nullptr) {
-					_variants.push_back(Variant{placements[first + i].Key, shared});
+					_variants.push_back(Variant { placements[first + i].Key, shared });
 				}
 			}
 		}
@@ -351,7 +360,9 @@ namespace Jazz2::Editor
 		std::uint32_t frame = start.CurFrame;
 		std::uint32_t animFrameCount = 0, animFirstFrame = 0;
 		bool animValid = (anim != 0 && tables.GetAnimationFrames(anim, animFrameCount, animFirstFrame) && animFrameCount > 0);
-		auto isInAnim = [&](std::uint32_t f) { return (f >= animFirstFrame && f < animFirstFrame + animFrameCount); };
+		auto isInAnim = [&](std::uint32_t f) {
+			return (f >= animFirstFrame && f < animFirstFrame + animFrameCount);
+		};
 		if (animValid && !isInAnim(frame)) {
 			frame = animFirstFrame;
 		}
@@ -500,7 +511,9 @@ namespace Jazz2::Editor
 		std::uint8_t id = std::uint8_t(word & 0xFF);
 		if (!_variants.empty()) {
 			std::uint32_t key = MakeKey(id, word >> Scripting::Legacy::EventTranslator::ParamsShift);
-			auto it = std::lower_bound(_variants.begin(), _variants.end(), key, [](const Variant& variant, std::uint32_t key) { return variant.Key < key; });
+			auto it = std::lower_bound(_variants.begin(), _variants.end(), key, [](const Variant& variant, std::uint32_t key) {
+				return variant.Key < key;
+			});
 			if (it != _variants.end() && it->Key == key) {
 				return it->Look;
 			}

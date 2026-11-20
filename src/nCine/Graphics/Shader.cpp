@@ -7,7 +7,7 @@
 #include "../../Main.h"
 #include "../../Utilities/ShaderCompiler/RuntimeShader.h"
 #if defined(RHI_GL_PROFILE_ES2)
-#	include "../../Utilities/ShaderCompiler/Essl100.h"
+#include "../../Utilities/ShaderCompiler/Essl100.h"
 #endif
 
 #include <IO/FileSystem.h>
@@ -115,7 +115,9 @@ namespace nCine
 		_glShaderProgram->SetBatchSize(batchSize);
 		_glShaderProgram->SetObjectLabel(shaderName);
 
-		StringView strings[MaxShaderStrings]; std::size_t stringsCount; char backingStore[256];
+		StringView strings[MaxShaderStrings];
+		std::size_t stringsCount;
+		char backingStore[256];
 
 		stringsCount = populateShaderStrings(strings, backingStore, vertex, batchSize, defines);
 		_glShaderProgram->AttachShaderFromStringsAndFile(ShaderStage::Vertex, arrayView(strings, stringsCount), {});
@@ -189,7 +191,9 @@ namespace nCine
 		_glShaderProgram->SetBatchSize(batchSize);
 		_glShaderProgram->SetObjectLabel(shaderName);
 
-		StringView strings[MaxShaderStrings]; std::size_t stringsCount; char backingStore[256];
+		StringView strings[MaxShaderStrings];
+		std::size_t stringsCount;
+		char backingStore[256];
 
 		stringsCount = populateShaderStrings(strings, backingStore, vsSource, batchSize, {});
 		_glShaderProgram->AttachShaderFromStringsAndFile(ShaderStage::Vertex, arrayView(strings, stringsCount), {});
@@ -223,7 +227,9 @@ namespace nCine
 		_glShaderProgram->SetBatchSize(batchSize);
 		_glShaderProgram->SetObjectLabel(shaderName);
 
-		StringView strings[MaxShaderStrings]; std::size_t stringsCount; char backingStore[256];
+		StringView strings[MaxShaderStrings];
+		std::size_t stringsCount;
+		char backingStore[256];
 
 		stringsCount = populateShaderStrings(strings, backingStore, {}, batchSize, defines);
 		_glShaderProgram->AttachShaderFromStringsAndFile(ShaderStage::Vertex, arrayView(strings, stringsCount), vertexPath);
@@ -279,7 +285,7 @@ namespace nCine
 				return false;
 			}
 			std::int64_t fileSize = fileHandle->GetSize();
-			content = String{NoInit, static_cast<std::size_t>(fileSize)};
+			content = String { NoInit, static_cast<std::size_t>(fileSize) };
 			if (fileSize > 0) {
 				fileHandle->Read(content.data(), fileSize);
 			}

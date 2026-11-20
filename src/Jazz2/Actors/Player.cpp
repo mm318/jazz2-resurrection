@@ -78,20 +78,19 @@ namespace Jazz2::Actors
 	}
 
 	Player::Player()
-		:
-		// 0 = original colors; remote players get theirs from the network
-		_furColor(PreferencesCache::PlayerFurColor), _tubeCurled(false), _lastSpring(nullptr), _pushObjectHoldTime(0.0f), _pushGapTicks(0.0f), _birdPose(0), _birdChargeDirY(0),
-		_isActivelyPushing(false), _wasActivelyPushing(false), _wasOnAccBelt(false), _pushContactThisFrame(false),
-		_kickPushedThisFrame(false), _kickWasPushing(false), _controllable(true), _controllableExternal(true),
-		_wasUpPressed(false), _wasDownPressed(false), _wasJumpPressed(false), _wasFirePressed(false), _isRunPressed(false),
-		_runActionSeeded(false), _fireReleasedWhileFrozen(false), _inDeathEvent(false), _revUpSfxActive(false), _isAttachedToPole(false),
-		_canPushFurther(false), _isFreefall(false), _inWater(false), _isLifting(false), _isSpring(false), _flyCheatActive(false),
-		_inIdleTransition(false), _inLedgeTransition(false), _stopPhaseChanging(false), _inHookIdleFlavor(false),
-		_copterCarried(false), _riseOwnedByJump(false), _copterPressAllowed(true), _loriKickShotUsed(false),
-		_stackCarrying(false), _beingStoodOn(false), _hPoleCarry(false), _springCarry(false), _revUpCarry(false),
-		_jumpReleased(false), _poleEnteredOnSpring(false), _riseFromFloatUp(false), _inFloatUpArea(false),
-		_crouchHeldBefore(false), _weaponAllowed(true), _birdPerched(false), _birdStanding(false), _birdCharging(false),
-		_levelExitSuppressed(false), _lightHiddenByScript(false)
+		: // 0 = original colors; remote players get theirs from the network
+		  _furColor(PreferencesCache::PlayerFurColor), _tubeCurled(false), _lastSpring(nullptr), _pushObjectHoldTime(0.0f), _pushGapTicks(0.0f), _birdPose(0), _birdChargeDirY(0),
+		  _isActivelyPushing(false), _wasActivelyPushing(false), _wasOnAccBelt(false), _pushContactThisFrame(false),
+		  _kickPushedThisFrame(false), _kickWasPushing(false), _controllable(true), _controllableExternal(true),
+		  _wasUpPressed(false), _wasDownPressed(false), _wasJumpPressed(false), _wasFirePressed(false), _isRunPressed(false),
+		  _runActionSeeded(false), _fireReleasedWhileFrozen(false), _inDeathEvent(false), _revUpSfxActive(false), _isAttachedToPole(false),
+		  _canPushFurther(false), _isFreefall(false), _inWater(false), _isLifting(false), _isSpring(false), _flyCheatActive(false),
+		  _inIdleTransition(false), _inLedgeTransition(false), _stopPhaseChanging(false), _inHookIdleFlavor(false),
+		  _copterCarried(false), _riseOwnedByJump(false), _copterPressAllowed(true), _loriKickShotUsed(false),
+		  _stackCarrying(false), _beingStoodOn(false), _hPoleCarry(false), _springCarry(false), _revUpCarry(false),
+		  _jumpReleased(false), _poleEnteredOnSpring(false), _riseFromFloatUp(false), _inFloatUpArea(false),
+		  _crouchHeldBefore(false), _weaponAllowed(true), _birdPerched(false), _birdStanding(false), _birdCharging(false),
+		  _levelExitSuppressed(false), _lightHiddenByScript(false)
 	{
 	}
 
@@ -131,13 +130,20 @@ namespace Jazz2::Actors
 		};
 
 		switch (type) {
-			case PlayerType::Jazz: return Traits[0];
-			case PlayerType::Spaz: return Traits[1];
-			case PlayerType::Lori: return Traits[2];
-			case PlayerType::Frog: return Traits[3];
-			case PlayerType::Bird: return Traits[4];
-			case PlayerType::Bird2: return Traits[5];
-			default: return Traits[6];
+			case PlayerType::Jazz:
+				return Traits[0];
+			case PlayerType::Spaz:
+				return Traits[1];
+			case PlayerType::Lori:
+				return Traits[2];
+			case PlayerType::Frog:
+				return Traits[3];
+			case PlayerType::Bird:
+				return Traits[4];
+			case PlayerType::Bird2:
+				return Traits[5];
+			default:
+				return Traits[6];
 		}
 	}
 
@@ -163,9 +169,12 @@ namespace Jazz2::Actors
 			return furColor;
 		}
 		switch (PreferencesCache::PlayerColors) {
-			case PlayerColorMode::FirstLocalPlayer: return (_playerIndex == 0 ? furColor : 0);
-			case PlayerColorMode::AllLocalPlayers: return furColor;
-			default: return 0; // OnlineOnly
+			case PlayerColorMode::FirstLocalPlayer:
+				return (_playerIndex == 0 ? furColor : 0);
+			case PlayerColorMode::AllLocalPlayers:
+				return furColor;
+			default:
+				return 0; // OnlineOnly
 		}
 	}
 
@@ -246,13 +255,14 @@ namespace Jazz2::Actors
 			_health = 0;
 			_maxHealth = 0;
 			_renderer.SetDrawEnabled(false);
-			
+
 			// Empty hitbox for spectate mode
 			AABB = {};
 			AABBInner = {};
 		} else {
 			SetState(ActorState::PreserveOnRollback | ActorState::CollideWithTilesetReduced | ActorState::CollideWithSolidObjects |
-				ActorState::IsSolidObject | ActorState::ExcludeSimilar | ActorState::KeepsMomentumWhenFrozen | ActorState::CollideWithTilesetLegacy, true);
+					ActorState::IsSolidObject | ActorState::ExcludeSimilar | ActorState::KeepsMomentumWhenFrozen | ActorState::CollideWithTilesetLegacy,
+				true);
 
 			_health = 5;
 			_maxHealth = _health;
@@ -375,7 +385,7 @@ namespace Jazz2::Actors
 		}
 #endif
 
-		if DEATH_UNLIKELY(_playerType == PlayerType::Spectate) {
+		if DEATH_UNLIKELY (_playerType == PlayerType::Spectate) {
 			OnHandleSpectate(timeMult);
 			return;
 		}
@@ -556,8 +566,8 @@ namespace Jazz2::Actors
 			return LegacyRiseGravity;
 		}
 		return (std::abs(_speed.Y) > LegacyRiseBrakeEaseSpeed
-			? LegacyRiseGravityReleased
-			: LegacyRiseGravityReleasedNearApex);
+				? LegacyRiseGravityReleased
+				: LegacyRiseGravityReleasedNearApex);
 	}
 
 	void Player::OnUpdatePhysics(float timeMult, bool frozenFrictionApplied)
@@ -576,15 +586,15 @@ namespace Jazz2::Actors
 			_verticalSpeedLimit = ((_inTubeTime > 0.0f || _speed.Y < -16.0f) ? LegacyVerticalSpeedLimit : 16.0f);
 			// Same limit on both axes as in the original, so horizontal springs aren't clamped; a sidekick needs more
 			_horizontalSpeedLimit = (_currentSpecialMove == SpecialMoveType::Sidekick
-				? std::max(LegacyLoriSidekickSpeed, LegacySpazSidekickSpeed)
-				: LegacyVerticalSpeedLimit);
+					? std::max(LegacyLoriSidekickSpeed, LegacySpazSidekickSpeed)
+					: LegacyVerticalSpeedLimit);
 			// Applied movement is capped like the rise. Lori's kick is exempt (measured in the original);
 			// both sidekicks also use the cap to not overshoot their fixed distance.
 			if (_currentSpecialMove == SpecialMoveType::Sidekick && _sidekickDistanceLeft > 0.0f) {
 				float remainingPerTick = _sidekickDistanceLeft / std::max(timeMult, 0.01f);
 				_maxAppliedSpeedX = (_playerType == PlayerType::Lori
-					? remainingPerTick
-					: std::min(LegacyAppliedSpeedCap, remainingPerTick));
+						? remainingPerTick
+						: std::min(LegacyAppliedSpeedCap, remainingPerTick));
 
 				// Her kick ramps up; direction from facing, since a stop mid-kick zeroes the speed
 				if (_playerType == PlayerType::Lori) {
@@ -606,8 +616,8 @@ namespace Jazz2::Actors
 				_hPoleCarry = false;
 				// So is a script's ball roll, as measured in JJ2+
 				_maxAppliedSpeedX = (_ballCarryLeft > 0.0f
-					? std::max(LegacyAppliedSpeedCap, std::abs(_speed.X))
-					: LegacyAppliedSpeedCap);
+						? std::max(LegacyAppliedSpeedCap, std::abs(_speed.X))
+						: LegacyAppliedSpeedCap);
 			}
 			if (!GetState(ActorState::CollideWithTileset) && _inTubeTime <= 0.0f) {
 				// Noclip travels the whole speed on both axes, as measured in JJ2+
@@ -625,7 +635,7 @@ namespace Jazz2::Actors
 		// a held spring launch counts at the run cap, the original has clamped it to that by then (measured in JJ2+)
 		float snapSpeedX = (_springHoldLeft > 0.0f ? std::min(std::abs(_speed.X), LegacyCarryExitRunSpeed) : std::abs(_speed.X));
 		_airFloorSnapReach = (!legacyFooting ? 0.0f
-			: std::max(LegacyAirFloorSnap, std::floor(snapSpeedX / LegacyFrameRateScale) + LegacyAirFloorSnapDashExtra));
+											 : std::max(LegacyAirFloorSnap, std::floor(snapSpeedX / LegacyFrameRateScale) + LegacyAirFloorSnapDashExtra));
 
 		// Tubes are exempt from speed clamps in both modes; only existing limits are raised (0 means no cap)
 		if (_inTubeTime > 0.0f) {
@@ -818,7 +828,7 @@ namespace Jazz2::Actors
 							Recti frameRect = res->Base->GetFrameRect(res->FrameOffset);
 							Vector2i frameOffset = res->Base->GetFrameOffset(res->FrameOffset);
 
-							Tiles::TileMap::DestructibleDebris debris = { };
+							Tiles::TileMap::DestructibleDebris debris = {};
 							debris.Pos = _pos;
 							debris.Depth = _renderer.GetLayer() - 2;
 							debris.Size = Vector2f((float)frameRect.W, (float)frameRect.H);
@@ -1290,7 +1300,7 @@ namespace Jazz2::Actors
 		const WeaponDefinition& definition = _levelHandler->GetWeaponDefinition(_weaponSoundType);
 		String customSound = (definition.Kind == WeaponKind::Custom ? _levelHandler->GetWeapons().GetFireSoundIdentifier(definition.GetCustom().Fire) : String());
 		StringView identifier = (!customSound.empty() ? StringView(customSound)
-			: (_weaponSoundType == WeaponType::Thunderbolt ? "WeaponThunderbolt"_s : "WeaponToaster"_s));
+													  : (_weaponSoundType == WeaponType::Thunderbolt ? "WeaponThunderbolt"_s : "WeaponToaster"_s));
 		_weaponSoundType = WeaponType::Unknown;
 
 #if defined(WITH_AUDIO)
@@ -1737,8 +1747,7 @@ namespace Jazz2::Actors
 			}
 
 			bool canWalk = (_controllable && _controllableExternal && !_isLifting && _suspendType != SuspendType::SwingingVine &&
-				(_playerType != PlayerType::Frog || (_levelHandler->IsReforged()
-					? !_levelHandler->PlayerActionPressed(this, PlayerAction::Fire) : _frogTongueLockLeft <= 0.0f)));
+				(_playerType != PlayerType::Frog || (_levelHandler->IsReforged() ? !_levelHandler->PlayerActionPressed(this, PlayerAction::Fire) : _frogTongueLockLeft <= 0.0f)));
 
 			float playerMovement = _levelHandler->PlayerHorizontalMovement(this);
 			float playerMovementVelocity = std::abs(playerMovement);
@@ -1820,7 +1829,7 @@ namespace Jazz2::Actors
 
 				// The original has one acceleration for ground and air, depending only on the dash
 				float acceleration = (_levelHandler->IsReforged() ? Acceleration
-					: (IsDashActive() ? LegacyDashAccel : LegacyWalkAccel));
+																  : (IsDashActive() ? LegacyDashAccel : LegacyWalkAccel));
 				// Run speeds up from the next tick, so a frame longer than a tick spends the rest of it dashing
 				bool dashStarting = (!_levelHandler->IsReforged() && !IsDashActive() && _isRunPressed);
 				float frameTicks = timeMult * LegacyFrameRateScale;
@@ -1835,8 +1844,7 @@ namespace Jazz2::Actors
 					// Slower in shallow water in Reforged, except Lori, who can't ledge climb or double jump
 					_speed.X = std::clamp(_speed.X + acceleration * timeMult * (isFacingLeft ? -1 : 1), -MaxShallowWaterSpeed * playerMovementVelocity, MaxShallowWaterSpeed * playerMovementVelocity);
 				} else {
-					if (_suspendType == SuspendType::None && !_inWater && (_levelHandler->IsReforged() ? _isRunPressed
-						: (IsDashActive() || (dashStarting && frameTicks > 1.0f)))) {
+					if (_suspendType == SuspendType::None && !_inWater && (_levelHandler->IsReforged() ? _isRunPressed : (IsDashActive() || (dashStarting && frameTicks > 1.0f)))) {
 						float maxDashSpeed = (_levelHandler->IsReforged() ? MaxDashingSpeed : LegacyDashSpeed);
 						if (_ballCarryLeft > 0.0f && !_levelHandler->IsReforged()) {
 							// A rolling ball keeps speeding up past the dash speed (measured in JJ2+)
@@ -1884,8 +1892,8 @@ namespace Jazz2::Actors
 					std::int32_t slideStrength = GetSlideStrength();
 					if (slideStrength >= 0) {
 						deceleration = (IsDashActive()
-							? LegacySlideDashDecel - slideStrength * LegacySlideDashDecelStep
-							: LegacySlideWalkDecel - slideStrength * LegacySlideWalkDecelStep);
+								? LegacySlideDashDecel - slideStrength * LegacySlideDashDecelStep
+								: LegacySlideWalkDecel - slideStrength * LegacySlideWalkDecelStep);
 					} else {
 						deceleration = (IsDashActive() ? LegacyDashDecel : LegacyWalkDecel);
 					}
@@ -2140,11 +2148,23 @@ namespace Jazz2::Actors
 
 		std::uint8_t next;
 		switch (_birdPose) {
-			case 2: next = 3; break;
-			case 3: next = (Random().NextFloat() < 0.67f ? 3 : 4); break;
-			case 5: next = 6; break;
-			case 6: next = (Random().NextFloat() < 0.67f ? 6 : 7); break;
-			case 4: case 7: case 8: next = 1; break;
+			case 2:
+				next = 3;
+				break;
+			case 3:
+				next = (Random().NextFloat() < 0.67f ? 3 : 4);
+				break;
+			case 5:
+				next = 6;
+				break;
+			case 6:
+				next = (Random().NextFloat() < 0.67f ? 6 : 7);
+				break;
+			case 4:
+			case 7:
+			case 8:
+				next = 1;
+				break;
 			default: {
 				// From the idle, and also as the first pose
 				float r = Random().NextFloat();
@@ -2159,8 +2179,8 @@ namespace Jazz2::Actors
 		}
 		// One whole cycle of the pose
 		_birdPoseTime = (_currentAnimation != nullptr && _currentAnimation->AnimDuration > 0.0f
-			? _currentAnimation->AnimDuration / FrameTimer::SecondsPerFrame
-			: FrameTimer::FramesPerSecond);
+				? _currentAnimation->AnimDuration / FrameTimer::SecondsPerFrame
+				: FrameTimer::FramesPerSecond);
 	}
 
 	void Player::TriggerLoriKick()
@@ -2245,7 +2265,8 @@ namespace Jazz2::Actors
 			} else if (_speed.Y < 0.0f) {
 				// Held/released brake like a jump, clamped at zero
 				float brake = (_levelHandler->PlayerActionPressed(this, PlayerAction::Jump)
-					? LegacyFlyRiseBrakeHeld : LegacyFlyRiseBrake);
+						? LegacyFlyRiseBrakeHeld
+						: LegacyFlyRiseBrake);
 				_speed.Y = std::min(_speed.Y + brake * timeMult, 0.0f);
 			} else {
 				_speed.Y = std::min(_speed.Y + LegacyFlyFallAccel * timeMult, LegacyFlyTerminalSpeed);
@@ -2304,9 +2325,18 @@ namespace Jazz2::Actors
 			if (playerMovementVelocity > 0.3f) {
 				float mult, max;
 				switch (_activeModifier) {
-					case Modifier::Airboard: mult = (playerMovement > 0 ? 1.0f : -0.2f); max = MaxRunningSpeed; break;
-					case Modifier::LizardCopter: mult = (playerMovement > 0 ? 2.0f : -4.0f); max = (playerMovement > 0 ? MaxRunningSpeed : 2.0f * MaxRunningSpeed); break;
-					default: mult = (playerMovement > 0 ? 1.0f : -1.0f); max = MaxRunningSpeed; break;
+					case Modifier::Airboard:
+						mult = (playerMovement > 0 ? 1.0f : -0.2f);
+						max = MaxRunningSpeed;
+						break;
+					case Modifier::LizardCopter:
+						mult = (playerMovement > 0 ? 2.0f : -4.0f);
+						max = (playerMovement > 0 ? MaxRunningSpeed : 2.0f * MaxRunningSpeed);
+						break;
+					default:
+						mult = (playerMovement > 0 ? 1.0f : -1.0f);
+						max = MaxRunningSpeed;
+						break;
 				}
 
 				_speed.Y = std::clamp(_speed.Y + Acceleration * timeMult * mult, -max * playerMovementVelocity, max * playerMovementVelocity);
@@ -2387,11 +2417,11 @@ namespace Jazz2::Actors
 					// The original crouches once no direction is held, even while sliding; spring and run-in-place
 					// carries refuse it for their whole length, a pole only for a while
 					bool canCrouch = (_levelHandler->IsReforged()
-						? std::abs(_speed.X) < std::numeric_limits<float>::epsilon()
-						: (std::abs(_levelHandler->PlayerHorizontalMovement(this)) <= 0.4f &&
-							!((_springCarry || _revUpCarry) && _keepRunningTime > 0.0f) &&
-							// The carry counts down only once control is back
-							!(_hPoleCarry && _keepRunningTime > HPoleKeepRunningTime - (LegacyHPoleCrouchBlockTime - PoleLaunchControlTimeout))));
+							? std::abs(_speed.X) < std::numeric_limits<float>::epsilon()
+							: (std::abs(_levelHandler->PlayerHorizontalMovement(this)) <= 0.4f &&
+								  !((_springCarry || _revUpCarry) && _keepRunningTime > 0.0f) &&
+								  // The carry counts down only once control is back
+								  !(_hPoleCarry && _keepRunningTime > HPoleKeepRunningTime - (LegacyHPoleCrouchBlockTime - PoleLaunchControlTimeout))));
 					if (!_isLifting && canCrouch) {
 						_wasDownPressed = true;
 						if (_fireFramesLeft > 0.0f) {
@@ -2407,8 +2437,8 @@ namespace Jazz2::Actors
 					if (!_levelHandler->IsReforged() && _revUpCarry && _keepRunningTime > 0.0f) {
 						float cost = RevUpMaxLaunchSpeed * LegacyRevUpButtstompCostFraction;
 						_speed.X = (_speed.X > 0.0f
-							? std::max(_speed.X - cost, 0.0f)
-							: std::min(_speed.X + cost, 0.0f));
+								? std::max(_speed.X - cost, 0.0f)
+								: std::min(_speed.X + cost, 0.0f));
 					} else {
 						_speed.X = 0.0f;
 					}
@@ -2548,7 +2578,7 @@ namespace Jazz2::Actors
 				if (_copterFramesLeft > 0.0f && !_copterCarried) {
 					SetCopterFlight(GetCopterFlightTime(), IsFlyCheatActive() ? FlightType::Cheat : FlightType::Normal);
 				}
-			// The Down gate isn't the original's rule, but it's closer than none until the real one is known
+				// The Down gate isn't the original's rule, but it's closer than none until the real one is known
 			} else if (_currentSpecialMove == SpecialMoveType::None && _jumpTime <= 0.0f && !_levelHandler->PlayerActionPressed(this, PlayerAction::Down)) {
 				// Standard jump
 				if (IsContinuousJumpAllowed() || _levelHandler->PlayerActionHit(this, PlayerAction::Jump)) {
@@ -2619,7 +2649,7 @@ namespace Jazz2::Actors
 			_riseOwnedByJump = true;
 			// The launch tick has no gravity in the original, the move of this frame applies one
 			if (!IsBird()) {
-				_speed.Y -= GetGravityModifier(_levelHandler->GetGravity(), /*isRising:*/true) / LegacyFrameRateScale;
+				_speed.Y -= GetGravityModifier(_levelHandler->GetGravity(), /*isRising:*/ true) / LegacyFrameRateScale;
 			}
 		}
 	}
@@ -2707,14 +2737,20 @@ namespace Jazz2::Actors
 					BeginStandardJump(timeMult);
 					break;
 				}
-				default: break;
+				default:
+					break;
 			}
 		} else if (_onPinballPaddleTime <= 0.0f) {
 			// On a pinball paddle the press is the paddle's, it doesn't start a copter or a double jump
 			switch (profile.AirJump) {
-				case CharacterAirJump::Copter: TryStartCopter(profile); break;
-				case CharacterAirJump::DoubleJump: TryDoubleJump(profile, timeMult); break;
-				default: break;
+				case CharacterAirJump::Copter:
+					TryStartCopter(profile);
+					break;
+				case CharacterAirJump::DoubleJump:
+					TryDoubleJump(profile, timeMult);
+					break;
+				default:
+					break;
 			}
 		}
 	}
@@ -2727,8 +2763,7 @@ namespace Jazz2::Actors
 		bool alreadyFlying = ((_currentAnimation->State & AnimState::Copter) == AnimState::Copter);
 		// `_copterPressAllowed` is the deaf window every press re-arms, see HandleJump()
 		bool copterSpeedAllowed = (_levelHandler->IsReforged() ? copterSpeedY > 0.01f
-			: (copterSpeedY > LegacyCopterEngageMinSpeed && (alreadyFlying ||
-				(_copterPressAllowed && copterSpeedY < LegacyCopterEngageMaxSpeed))));
+															   : (copterSpeedY > LegacyCopterEngageMinSpeed && (alreadyFlying || (_copterPressAllowed && copterSpeedY < LegacyCopterEngageMaxSpeed))));
 		bool copterTimeLeft = (_copterAirTime < profile.CopterDurationMax / LegacyFrameRateScale);
 		if (copterSpeedAllowed && copterTimeLeft && !CanJump() && (_currentAnimation->State & (AnimState::Fall | AnimState::Copter)) != AnimState::Idle) {
 			SetState(ActorState::ApplyGravitation, false);
@@ -2776,8 +2811,8 @@ namespace Jazz2::Actors
 			_isFreefall = false;
 
 			float speedX = (profile.DoubleJumpSpeedX != 0.0f
-				? profile.DoubleJumpSpeedX * LegacyFrameRateScale * (IsFacingLeft() ? -1.0f : 1.0f)
-				: 0.0f);
+					? profile.DoubleJumpSpeedX * LegacyFrameRateScale * (IsFacingLeft() ? -1.0f : 1.0f)
+					: 0.0f);
 			if (_levelHandler->IsReforged()) {
 				// Scaled by the vertical speed against its default of 8
 				float jumpScale = profile.DoubleJumpSpeedY / CharacterProfile::GetDefault(PlayerType::Spaz).DoubleJumpSpeedY;
@@ -2795,7 +2830,7 @@ namespace Jazz2::Actors
 				_riseFromFloatUp = false;
 				_riseOwnedByJump = true;
 				// No gravity on the launch tick, as in BeginStandardJump()
-				_speed.Y -= GetGravityModifier(_levelHandler->GetGravity(), /*isRising:*/true) / LegacyFrameRateScale;
+				_speed.Y -= GetGravityModifier(_levelHandler->GetGravity(), /*isRising:*/ true) / LegacyFrameRateScale;
 				// A horizontal spring's speed rebuilds instead, at a rate set by the launch speed (measured)
 				if (_springLaunchSpeedX > 0.0f) {
 					_springRebuildAccel = _springLaunchSpeedX * LegacyFrameRateScale / LegacySpringRebuildTicks;
@@ -2861,8 +2896,8 @@ namespace Jazz2::Actors
 		float sign = (IsFacingLeft() ? -1.0f : 1.0f) * (_characterProfile.CopterSpeedX < 0.0f ? -1.0f : 1.0f);
 		float along = std::min(_speed.X * sign, push * LegacyFrameRateScale) + (push / 32.0f) * LegacyFrameRateScaleSqr * timeMult;
 		float cap = (_levelHandler->IsReforged()
-			? (_isRunPressed ? MaxDashingSpeed : MaxRunningSpeed)
-			: (IsDashActive() ? LegacyDashSpeed : LegacyWalkSpeed));
+				? (_isRunPressed ? MaxDashingSpeed : MaxRunningSpeed)
+				: (IsDashActive() ? LegacyDashSpeed : LegacyWalkSpeed));
 		_speed.X = std::clamp(along * sign, -cap, cap);
 	}
 
@@ -3004,8 +3039,8 @@ namespace Jazz2::Actors
 				}
 
 				bool shaderChanged = (flareIndexed
-					? command->GetMaterial().SetShader(ContentResolver::Get().GetShader(PrecompiledShader::PaletteRemap))
-					: command->GetMaterial().SetShaderProgramType(Material::ShaderProgramType::Sprite));
+						? command->GetMaterial().SetShader(ContentResolver::Get().GetShader(PrecompiledShader::PaletteRemap))
+						: command->GetMaterial().SetShaderProgramType(Material::ShaderProgramType::Sprite));
 				if (shaderChanged) {
 					command->GetMaterial().ReserveUniformsDataMemory();
 					command->GetMaterial().SetBlendingFactors(BlendingFactor::SrcAlpha, BlendingFactor::One);
@@ -3108,7 +3143,7 @@ namespace Jazz2::Actors
 		Vector2i frameOffset = res->Base->GetFrameOffset(frame);
 		float speedX = Random().FastFloat(-4.0f, 4.0f);
 
-		Tiles::TileMap::DestructibleDebris debris = { };
+		Tiles::TileMap::DestructibleDebris debris = {};
 		debris.Pos = pos;
 		debris.Depth = baseLayer - 2;
 		debris.Size = Vector2f((float)frameRect.W, (float)frameRect.H);
@@ -3189,9 +3224,7 @@ namespace Jazz2::Actors
 						}
 
 						auto instanceBlock = command->GetInstanceBlock();
-						instanceBlock->GetUniform(Material::TexRectUniformName)->SetFloatValue(
-							frames * -0.008f + _pos.X * PosMultiplier, frames * 0.006f - sinApprox(frames * 0.006f),
-							-sinApprox(frames * 0.015f), frames * 0.006f + _pos.Y * PosMultiplier);
+						instanceBlock->GetUniform(Material::TexRectUniformName)->SetFloatValue(frames * -0.008f + _pos.X * PosMultiplier, frames * 0.006f - sinApprox(frames * 0.006f), -sinApprox(frames * 0.015f), frames * 0.006f + _pos.Y * PosMultiplier);
 						instanceBlock->GetUniform(Material::SpriteSizeUniformName)->SetFloatValue(shieldSize, shieldSize);
 						instanceBlock->GetUniform(Material::ColorUniformName)->SetFloatValue(2.0f, 2.0f, 0.8f, 0.9f * shieldAlpha);
 
@@ -3220,9 +3253,7 @@ namespace Jazz2::Actors
 						}
 
 						auto instanceBlock = command->GetInstanceBlock();
-						instanceBlock->GetUniform(Material::TexRectUniformName)->SetFloatValue(
-							frames * 0.006f, sinApprox(frames * 0.006f) + _pos.Y * PosMultiplier,
-							sinApprox(frames * 0.015f) + _pos.X * PosMultiplier, frames * -0.006f);
+						instanceBlock->GetUniform(Material::TexRectUniformName)->SetFloatValue(frames * 0.006f, sinApprox(frames * 0.006f) + _pos.Y * PosMultiplier, sinApprox(frames * 0.015f) + _pos.X * PosMultiplier, frames * -0.006f);
 						instanceBlock->GetUniform(Material::SpriteSizeUniformName)->SetFloatValue(shieldSize, shieldSize);
 						instanceBlock->GetUniform(Material::ColorUniformName)->SetFloatValue(2.0f, 2.0f, 1.0f, 1.0f * shieldAlpha);
 
@@ -3327,9 +3358,7 @@ namespace Jazz2::Actors
 						}
 
 						auto instanceBlock = command->GetInstanceBlock();
-						instanceBlock->GetUniform(Material::TexRectUniformName)->SetFloatValue(
-							frames * -0.008f + _pos.X * PosMultiplier, frames * 0.006f - sinApprox(frames * 0.006f) + _pos.Y * PosMultiplier,
-							-sinApprox(frames * 0.015f), frames * 0.006f);
+						instanceBlock->GetUniform(Material::TexRectUniformName)->SetFloatValue(frames * -0.008f + _pos.X * PosMultiplier, frames * 0.006f - sinApprox(frames * 0.006f) + _pos.Y * PosMultiplier, -sinApprox(frames * 0.015f), frames * 0.006f);
 						instanceBlock->GetUniform(Material::SpriteSizeUniformName)->SetFloatValue(shieldSize, shieldSize);
 						instanceBlock->GetUniform(Material::ColorUniformName)->SetFloatValue(2.0f, 2.0f, 0.8f, 0.9f * shieldAlpha);
 
@@ -3358,9 +3387,7 @@ namespace Jazz2::Actors
 						}
 
 						auto* instanceBlock = command->GetInstanceBlock();
-						instanceBlock->GetUniform(Material::TexRectUniformName)->SetFloatValue(
-							frames * 0.006f + _pos.X * PosMultiplier, sinApprox(frames * 0.006f) + _pos.Y * PosMultiplier,
-							sinApprox(frames * 0.015f), frames * -0.006f);
+						instanceBlock->GetUniform(Material::TexRectUniformName)->SetFloatValue(frames * 0.006f + _pos.X * PosMultiplier, sinApprox(frames * 0.006f) + _pos.Y * PosMultiplier, sinApprox(frames * 0.015f), frames * -0.006f);
 						instanceBlock->GetUniform(Material::SpriteSizeUniformName)->SetFloatValue(shieldSize, shieldSize);
 						instanceBlock->GetUniform(Material::ColorUniformName)->SetFloatValue(2.0f, 2.0f, 1.0f, shieldAlpha);
 
@@ -3564,8 +3591,8 @@ namespace Jazz2::Actors
 			// Hitbox in Reforged, outside it more than 7 shared sprite pixels like the original, plus the path taken,
 			// a spring can be skipped over at a low frame rate
 			bool touching = (_levelHandler->IsReforged()
-				? spring->AABBInner.Overlaps(AABBInner)
-				: GetOverlappingPixelCount(spring, LegacySpringMinOverlapPixels) >= LegacySpringMinOverlapPixels);
+					? spring->AABBInner.Overlaps(AABBInner)
+					: GetOverlappingPixelCount(spring, LegacySpringMinOverlapPixels) >= LegacySpringMinOverlapPixels);
 			// The wait is for the spring that just fired, another one fires at once like in the original (bouncing between two)
 			bool cooledDown = (_springCooldown <= 0.0f || (!_levelHandler->IsReforged() && spring != _lastSpring));
 			if (_controllableExternal && (_currentTransition == nullptr || _currentTransition->State != AnimState::TransitionLedgeClimb) && cooledDown &&
@@ -3606,8 +3633,8 @@ namespace Jazz2::Actors
 			// Players bump each other apart (both alive and not warping), vertical contact is left to stacking
 			if (_levelHandler->CanPlayersCollide() && _health > 0 && otherPlayer->_health > 0 &&
 				(_currentTransition == nullptr ||
-				 (_currentTransition->State != AnimState::TransitionWarpIn && _currentTransition->State != AnimState::TransitionWarpInFreefall &&
-				  _currentTransition->State != AnimState::TransitionWarpOut && _currentTransition->State != AnimState::TransitionWarpOutFreefall))) {
+					(_currentTransition->State != AnimState::TransitionWarpIn && _currentTransition->State != AnimState::TransitionWarpInFreefall &&
+						_currentTransition->State != AnimState::TransitionWarpOut && _currentTransition->State != AnimState::TransitionWarpOutFreefall))) {
 				ApplyPlayerBump(*otherPlayer, /*stackingEnabled:*/ true);
 				// Handled, so the reverse collision doesn't bump both players again
 				handled = true;
@@ -3762,17 +3789,17 @@ namespace Jazz2::Actors
 					SetState(ActorState::CollideWithTilesetReduced, false);
 
 					float x = (IsFacingLeft() ? -8.0f : 8.0f);
-					AABBf hitbox1 = AABBInner + Vector2f(x, -42.0f - MaxTolerancePixels);				// Empty space to climb to
-					AABBf hitbox2 = AABBInner + Vector2f(x, -42.0f + 2.0f);								// Wall below the empty space
-					AABBf hitbox3 = AABBInner + Vector2f(x, -42.0f + 2.0f + 24.0f);						// Wall between the player and the wall above (vertically)
-					AABBf hitbox4 = AABBInner + Vector2f(x, 20.0f);										// Wall below the player
-					AABBf hitbox5 = AABBf(AABBInner.L + 2, hitbox1.T, AABBInner.R - 2, AABBInner.B);	// Player can't climb through walls
+					AABBf hitbox1 = AABBInner + Vector2f(x, -42.0f - MaxTolerancePixels); // Empty space to climb to
+					AABBf hitbox2 = AABBInner + Vector2f(x, -42.0f + 2.0f); // Wall below the empty space
+					AABBf hitbox3 = AABBInner + Vector2f(x, -42.0f + 2.0f + 24.0f); // Wall between the player and the wall above (vertically)
+					AABBf hitbox4 = AABBInner + Vector2f(x, 20.0f); // Wall below the player
+					AABBf hitbox5 = AABBf(AABBInner.L + 2, hitbox1.T, AABBInner.R - 2, AABBInner.B); // Player can't climb through walls
 					TileCollisionParams params = { TileDestructType::None, false };
 					if (_levelHandler->IsPositionEmpty(this, hitbox1, params) &&
 						!_levelHandler->IsPositionEmpty(this, hitbox2, params) &&
 						!_levelHandler->IsPositionEmpty(this, hitbox3, params) &&
 						!_levelHandler->IsPositionEmpty(this, hitbox4, params) &&
-						 _levelHandler->IsPositionEmpty(this, hitbox5, params)) {
+						_levelHandler->IsPositionEmpty(this, hitbox5, params)) {
 
 						uint8_t* wallParams;
 						if (_levelHandler->EventMap()->GetEventByPosition(IsFacingLeft() ? hitbox2.L : hitbox2.R, hitbox2.B, &wallParams) != EventType::ModifierNoClimb &&
@@ -3904,8 +3931,8 @@ namespace Jazz2::Actors
 				_springLaunchSpeedX = std::abs(force.X);
 				// The launch is carried for a few ticks, then clamps like every other carry
 				_springHoldLeft = (std::abs(force.X) > LegacyCarryExitRunSpeed
-					? LegacySpringHoldTicks / LegacyFrameRateScale
-					: 0.0f);
+						? LegacySpringHoldTicks / LegacyFrameRateScale
+						: 0.0f);
 			} else {
 				_speed.X = (1.0f + std::abs(force.X)) * sign;
 				_externalForce.X = force.X * 0.6f;
@@ -4165,7 +4192,7 @@ namespace Jazz2::Actors
 					composite |= AnimState::Run;
 				} else if (_keepRunningTime > 0.0f) {
 					composite |= AnimState::Run;
-				} else if (absSpeedX > (_fireFramesLeft > 0.0f ? 1.0f : 0.0f)) {	// Shooting needs higher threshold to fix pushing into a wall
+				} else if (absSpeedX > (_fireFramesLeft > 0.0f ? 1.0f : 0.0f)) { // Shooting needs higher threshold to fix pushing into a wall
 					composite |= AnimState::Walk;
 				}
 			}
@@ -4267,8 +4294,8 @@ namespace Jazz2::Actors
 						AABBf aabbR = AABBf(AABBInner.R - 4, AABBInner.B - 10, AABBInner.R - 2, AABBInner.B + 28);
 						TileCollisionParams params = { TileDestructType::None, true };
 						if (IsFacingLeft()
-							? (_levelHandler->IsPositionEmpty(this, aabbL, params) && !_levelHandler->IsPositionEmpty(this, aabbR, params))
-							: (!_levelHandler->IsPositionEmpty(this, aabbL, params) && _levelHandler->IsPositionEmpty(this, aabbR, params))) {
+								? (_levelHandler->IsPositionEmpty(this, aabbL, params) && !_levelHandler->IsPositionEmpty(this, aabbR, params))
+								: (!_levelHandler->IsPositionEmpty(this, aabbL, params) && _levelHandler->IsPositionEmpty(this, aabbR, params))) {
 
 							_inLedgeTransition = true;
 							if (_playerType == PlayerType::Spaz) {
@@ -4440,15 +4467,23 @@ namespace Jazz2::Actors
 		// Measured in the original: skids on `walk_stop`, slides on `dash_stop` and settles on `run_stop`
 		AnimState pose;
 		switch (phase) {
-			case StopPhase::Slide: pose = AnimState::TransitionDashToIdle; break;
-			case StopPhase::Settle: pose = AnimState::TransitionRunToIdle; break;
-			default: pose = AnimState::TransitionWalkToIdle; break;
+			case StopPhase::Slide:
+				pose = AnimState::TransitionDashToIdle;
+				break;
+			case StopPhase::Settle:
+				pose = AnimState::TransitionRunToIdle;
+				break;
+			default:
+				pose = AnimState::TransitionWalkToIdle;
+				break;
 		}
 
 		// The next pose is issued from the finish callback, the flag ignores the outgoing transition's callback
 		_stopPhaseChanging = true;
 		_inIdleTransition = true;
-		SetTransition(pose, true, [this]() { OnStopPoseFinished(); });
+		SetTransition(pose, true, [this]() {
+			OnStopPoseFinished();
+		});
 		_stopPhaseChanging = false;
 		_stopPhase = phase;
 
@@ -4673,8 +4708,9 @@ namespace Jazz2::Actors
 			float travelled;
 			if (_kickPushedThisFrame) {
 				travelled = (_playerType == PlayerType::Lori
-					? LegacyLoriKickPushDrain
-					: LegacyAppliedSpeedCap) * timeMult;
+									? LegacyLoriKickPushDrain
+									: LegacyAppliedSpeedCap) *
+					timeMult;
 			} else {
 				travelled = std::abs(_pos.X - _frameStartPos.X);
 			}
@@ -5043,8 +5079,8 @@ namespace Jazz2::Actors
 		Vector2f delta = _pos - _frameStartPos;
 		float distance = std::max(std::abs(delta.X), std::abs(delta.Y));
 		std::int32_t sampleCount = (distance > SweepStep
-			? std::min<std::int32_t>((std::int32_t)(distance / SweepStep) + 1, MaxSweepSamples)
-			: 1);
+				? std::min<std::int32_t>((std::int32_t)(distance / SweepStep) + 1, MaxSweepSamples)
+				: 1);
 
 		// Only the sample that first enters a tile may act on its event
 		Vector2i lastTile = Vector2i(INT32_MIN, INT32_MIN);
@@ -5144,8 +5180,7 @@ namespace Jazz2::Actors
 				(events->GetEventByPosition(AABBInner.L - ExtendedHitbox, AABBInner.T - ExtendedHitbox, &p) == EventType::AreaHForce) ||
 				(events->GetEventByPosition(AABBInner.R + ExtendedHitbox, AABBInner.T - ExtendedHitbox, &p) == EventType::AreaHForce) ||
 				(events->GetEventByPosition(AABBInner.R + ExtendedHitbox, AABBInner.B + ExtendedHitbox, &p) == EventType::AreaHForce) ||
-				(events->GetEventByPosition(AABBInner.L - ExtendedHitbox, AABBInner.B + ExtendedHitbox, &p) == EventType::AreaHForce)
-			   ) {
+				(events->GetEventByPosition(AABBInner.L - ExtendedHitbox, AABBInner.B + ExtendedHitbox, &p) == EventType::AreaHForce)) {
 				std::uint8_t p1 = p[4];
 				std::uint8_t p2 = p[5];
 				if ((p2 != 0 || p1 != 0)) {
@@ -5219,7 +5254,7 @@ namespace Jazz2::Actors
 			case EventType::WarpOrigin: { // Warp ID, Fast, Set Lap
 				// Allow warping only if not in non-cancellable transition, except for some cosmetic but non-cancellable ones
 				if (_currentTransition == nullptr || _currentTransitionCancellable ||
-					   (_currentTransition->State == (AnimState::Dash | AnimState::Jump) ||
+					(_currentTransition->State == (AnimState::Dash | AnimState::Jump) ||
 						_currentTransition->State == AnimState::Spring ||
 						_currentTransition->State == AnimState::TransitionCopterShootToCopter ||
 						_currentTransition->State == AnimState::TransitionFallShootToFall ||
@@ -5289,8 +5324,7 @@ namespace Jazz2::Actors
 				}
 
 				// The warp-out pose a player can still be in from a warp just before isn't drawn over the ball
-				if (_currentTransition != nullptr && (_currentTransition->State == AnimState::TransitionWarpOut ||
-					_currentTransition->State == AnimState::TransitionWarpOutFreefall)) {
+				if (_currentTransition != nullptr && (_currentTransition->State == AnimState::TransitionWarpOut || _currentTransition->State == AnimState::TransitionWarpOutFreefall)) {
 					_currentTransitionCancellable = true;
 					CancelTransition();
 				}
@@ -5390,7 +5424,7 @@ namespace Jazz2::Actors
 				// Skip AreaCallbacks if player is currently warping
 				if (_currentTransition == nullptr ||
 					(_currentTransition->State != AnimState::TransitionWarpIn && _currentTransition->State != AnimState::TransitionWarpOut &&
-					 _currentTransition->State != AnimState::TransitionWarpInFreefall && _currentTransition->State != AnimState::TransitionWarpOutFreefall)) {
+						_currentTransition->State != AnimState::TransitionWarpInFreefall && _currentTransition->State != AnimState::TransitionWarpOutFreefall)) {
 					// Called once on entering the tile, not on every frame the player stays in it
 					Vector2i tile = Vector2i((std::int32_t)x / Tiles::TileSet::DefaultTileSize, (std::int32_t)y / Tiles::TileSet::DefaultTileSize);
 					if (tile != _lastCallbackTile) {
@@ -5439,8 +5473,12 @@ namespace Jazz2::Actors
 			case EventType::AreaNoFire: {
 				// Only the permanent switches, the temporary block (0) is handled in the state pass
 				switch (p[0]) {
-					case 1: _weaponAllowed = true; break;
-					case 2: _weaponAllowed = false; break;
+					case 1:
+						_weaponAllowed = true;
+						break;
+					case 2:
+						_weaponAllowed = false;
+						break;
 				}
 				break;
 			}
@@ -5466,7 +5504,11 @@ namespace Jazz2::Actors
 		}
 
 		// The area of the body each side is judged on, as left, top, right, bottom around the position
-		struct HurtScan { Direction Dir; float L, T, R, B; };
+		struct HurtScan
+		{
+			Direction Dir;
+			float L, T, R, B;
+		};
 		static const HurtScan Scans[] = {
 			{ Direction::Up, -12.0f, -16.0f, 12.0f, 16.0f },
 			{ Direction::Down, -12.0f, -28.0f, 12.0f, 4.0f },
@@ -5574,7 +5616,7 @@ namespace Jazz2::Actors
 			} else {
 				buffer = nullptr;
 			}
-			
+
 			return _levelHandler->PlaySfx(this, identifier, buffer, Vector3f::Zero, true, gain, pitch);
 		}
 
@@ -5677,8 +5719,7 @@ namespace Jazz2::Actors
 				corpse->OnActivated(ActorActivationDetails(
 					_levelHandler,
 					Vector3i(_pos.X, _pos.Y, _renderer.GetLayer() - 40),
-					playerParams
-				));
+					playerParams));
 				_levelHandler->AddActor(corpse);
 
 				// Revert the player type too, a morph monitor could have changed it since the checkpoint
@@ -5782,7 +5823,7 @@ namespace Jazz2::Actors
 		}
 	}
 
-	template<typename T, WeaponType weaponType>
+	template <typename T, WeaponType weaponType>
 	void Player::FireWeapon(float cooldownBase, float cooldownUpgrade, bool emitFlare)
 	{
 		// NOTE: cooldownBase and cooldownUpgrade cannot be template parameters in Emscripten
@@ -5797,8 +5838,7 @@ namespace Jazz2::Actors
 		shot->OnActivated(ActorActivationDetails(
 			_levelHandler,
 			initialPos,
-			shotParams
-		));
+			shotParams));
 		shot->OnFire(shared_from_this(), gunspotPos, _speed, angle, IsFacingLeft());
 		_levelHandler->AddActor(shot);
 
@@ -5810,7 +5850,7 @@ namespace Jazz2::Actors
 		}
 	}
 
-	template<typename T, WeaponType weaponType>
+	template <typename T, WeaponType weaponType>
 	void Player::FireBirdShotPair(float spread)
 	{
 		Vector3i initialPos;
@@ -5826,8 +5866,7 @@ namespace Jazz2::Actors
 			shot->OnActivated(ActorActivationDetails(
 				_levelHandler,
 				initialPos,
-				shotParams
-			));
+				shotParams));
 			shot->OnFire(shared_from_this(), gunspotPos, _speed, angle + offset, IsFacingLeft());
 			_levelHandler->AddActor(shot);
 		}
@@ -5842,10 +5881,18 @@ namespace Jazz2::Actors
 		float spread = (IsFacingLeft() ? -BirdShotSpread : BirdShotSpread);
 		std::uint16_t ammoDecrease = 256;
 		switch (_currentWeapon) {
-			case WeaponType::Bouncer: FireBirdShotPair<Weapons::BouncerShot, WeaponType::Bouncer>(spread); break;
-			case WeaponType::Freezer: FireBirdShotPair<Weapons::FreezerShot, WeaponType::Freezer>(spread); break;
-			case WeaponType::Seeker: FireBirdShotPair<Weapons::SeekerShot, WeaponType::Seeker>(spread); break;
-			case WeaponType::Electro: FireBirdShotPair<Weapons::ElectroShot, WeaponType::Electro>(spread); break;
+			case WeaponType::Bouncer:
+				FireBirdShotPair<Weapons::BouncerShot, WeaponType::Bouncer>(spread);
+				break;
+			case WeaponType::Freezer:
+				FireBirdShotPair<Weapons::FreezerShot, WeaponType::Freezer>(spread);
+				break;
+			case WeaponType::Seeker:
+				FireBirdShotPair<Weapons::SeekerShot, WeaponType::Seeker>(spread);
+				break;
+			case WeaponType::Electro:
+				FireBirdShotPair<Weapons::ElectroShot, WeaponType::Electro>(spread);
+				break;
 			default: {
 				FireBirdShotPair<Weapons::BlasterShot, WeaponType::Blaster>(spread);
 				if (_levelHandler->GetWeaponDefinition(WeaponType::Blaster).Options.DefaultSample) {
@@ -5900,8 +5947,7 @@ namespace Jazz2::Actors
 			shot->OnActivated(ActorActivationDetails(
 				_levelHandler,
 				initialPos,
-				shotParams
-			));
+				shotParams));
 			shot->SetSpread(spread);
 			shot->OnFire(shared_from_this(), gunspotPos, _speed, angle, IsFacingLeft());
 			_levelHandler->AddActor(shot);
@@ -5930,8 +5976,7 @@ namespace Jazz2::Actors
 			shot->OnActivated(ActorActivationDetails(
 				_levelHandler,
 				initialPos,
-				shotParams
-			));
+				shotParams));
 			if (poweredUp) {
 				shot->SetWavePhase(i == 0 ? 0.0f : 512.0f);
 			}
@@ -5986,8 +6031,7 @@ namespace Jazz2::Actors
 			shot->OnActivated(ActorActivationDetails(
 				_levelHandler,
 				initialPos,
-				shotParams
-			));
+				shotParams));
 			shot->OnFire(shared_from_this(), gunspotPos, _speed, shotAngle, facingLeft);
 			_levelHandler->AddActor(shot);
 		}
@@ -6001,8 +6045,7 @@ namespace Jazz2::Actors
 		std::shared_ptr<Weapons::TNT> tnt = std::make_shared<Weapons::TNT>();
 		tnt->OnActivated(ActorActivationDetails(
 			_levelHandler,
-			Vector3i((std::int32_t)_pos.X, (std::int32_t)_pos.Y, _renderer.GetLayer() - 2)
-		));
+			Vector3i((std::int32_t)_pos.X, (std::int32_t)_pos.Y, _renderer.GetLayer() - 2)));
 		tnt->OnFire(shared_from_this());
 		_levelHandler->AddActor(tnt);
 
@@ -6027,8 +6070,7 @@ namespace Jazz2::Actors
 		shot->OnActivated(ActorActivationDetails(
 			_levelHandler,
 			initialPos,
-			shotParams
-		));
+			shotParams));
 		shot->OnFire(shared_from_this(), gunspotPos, _speed, angle, IsFacingLeft());
 		_levelHandler->AddActor(shot);
 
@@ -6094,41 +6136,43 @@ namespace Jazz2::Actors
 			} else if (definition.Kind == WeaponKind::Custom) {
 				ammoDecrease = definition.GetCustom().Fire.AmmoPerShot;
 			}
-		} else if (definition.Kind == WeaponKind::Custom && !(weaponType == WeaponType::Blaster && _activeShield != ShieldType::None &&
-			definition.Options.ReplacedByShield)) {
+		} else if (definition.Kind == WeaponKind::Custom && !(weaponType == WeaponType::Blaster && _activeShield != ShieldType::None && definition.Options.ReplacedByShield)) {
 			if (!FireCustomWeapon(weaponType, definition, ammoDecrease)) {
 				return false;
 			}
-		} else switch (weaponType) {
-			case WeaponType::Blaster:
-				switch (definition.Options.ReplacedByShield ? _activeShield : ShieldType::None) {
-					case ShieldType::Fire: {
-						if (_inWater) {
-							return false;
+		} else
+			switch (weaponType) {
+				case WeaponType::Blaster:
+					switch (definition.Options.ReplacedByShield ? _activeShield : ShieldType::None) {
+						case ShieldType::Fire: {
+							if (_inWater) {
+								return false;
+							}
+							FireWeapon<Weapons::ShieldFireShot, WeaponType::Blaster>(ShieldFireInterval, 0.0f, true);
+							break;
 						}
-						FireWeapon<Weapons::ShieldFireShot, WeaponType::Blaster>(ShieldFireInterval, 0.0f, true);
-						break;
-					}
-					case ShieldType::Water: {
-						FireWeapon<Weapons::ShieldWaterShot, WeaponType::Blaster>(ShieldFireInterval, 0.0f);
-						break;
-					}
-					case ShieldType::Lightning: {
-						FireWeapon<Weapons::ShieldLightningShot, WeaponType::Blaster>(ShieldFireInterval, 0.0f);
-						break;
-					}
-					default: {
-						FireWeapon<Weapons::BlasterShot, WeaponType::Blaster>(30.0f, 2.76f, true);
-						if (_levelHandler->GetWeaponDefinition(WeaponType::Blaster).Options.DefaultSample) {
-							PlayPlayerSfx("WeaponBlaster"_s);
+						case ShieldType::Water: {
+							FireWeapon<Weapons::ShieldWaterShot, WeaponType::Blaster>(ShieldFireInterval, 0.0f);
+							break;
 						}
-						break;
+						case ShieldType::Lightning: {
+							FireWeapon<Weapons::ShieldLightningShot, WeaponType::Blaster>(ShieldFireInterval, 0.0f);
+							break;
+						}
+						default: {
+							FireWeapon<Weapons::BlasterShot, WeaponType::Blaster>(30.0f, 2.76f, true);
+							if (_levelHandler->GetWeaponDefinition(WeaponType::Blaster).Options.DefaultSample) {
+								PlayPlayerSfx("WeaponBlaster"_s);
+							}
+							break;
+						}
 					}
-				}
-				ammoDecrease = 0;
-				break;
+					ammoDecrease = 0;
+					break;
 
-			case WeaponType::Bouncer: FireWeapon<Weapons::BouncerShot, WeaponType::Bouncer>(30.0f, 2.76f, true); break;
+				case WeaponType::Bouncer:
+					FireWeapon<Weapons::BouncerShot, WeaponType::Bouncer>(30.0f, 2.76f, true);
+					break;
 				case WeaponType::Freezer:
 					FireWeaponFreezer();
 					break;
@@ -6163,9 +6207,15 @@ namespace Jazz2::Actors
 					break;
 				}
 
-				case WeaponType::TNT: FireWeaponTNT(); break;
-				case WeaponType::Pepper: FireWeaponPepper(); break;
-				case WeaponType::Electro: FireWeapon<Weapons::ElectroShot, WeaponType::Electro>(30.0f, 2.76f, true); break;
+				case WeaponType::TNT:
+					FireWeaponTNT();
+					break;
+				case WeaponType::Pepper:
+					FireWeaponPepper();
+					break;
+				case WeaponType::Electro:
+					FireWeapon<Weapons::ElectroShot, WeaponType::Electro>(30.0f, 2.76f, true);
+					break;
 
 				case WeaponType::Thunderbolt: {
 					if (!FireWeaponThunderbolt()) {
@@ -6175,9 +6225,9 @@ namespace Jazz2::Actors
 					break;
 				}
 
-			default:
-				return false;
-		}
+				default:
+					return false;
+			}
 
 		auto& currentAmmo = _inventory.WeaponAmmo[(std::int32_t)weaponType];
 		if (currentAmmo == UINT16_MAX) {
@@ -6311,7 +6361,7 @@ namespace Jazz2::Actors
 
 		AnimState withoutMuzzle = AnimState::Idle;
 		bool hasWithoutMuzzle = false;
-		for (std::int32_t i = 0; ; i++) {
+		for (std::int32_t i = 0;; i++) {
 			AnimState candidate = state | AnimState::Shoot;
 			if (hasMuzzle(candidate)) {
 				return SetAnimation(candidate);
@@ -6382,7 +6432,7 @@ namespace Jazz2::Actors
 	bool Player::OnLevelChanging(Actors::ActorBase* initiator, ExitType exitType)
 	{
 		// A spectator isn't simulated, so it could never finish the transitions below
-		if DEATH_UNLIKELY(_playerType == PlayerType::Spectate) {
+		if DEATH_UNLIKELY (_playerType == PlayerType::Spectate) {
 			_levelExiting = LevelExitingState::Ready;
 			return true;
 		}
@@ -6406,9 +6456,9 @@ namespace Jazz2::Actors
 					ForceCancelTransition();
 
 					if (!SetPlayerTransition(AnimState::TransitionEndOfLevel, false, true, SpecialMoveType::None, [this]() {
-						_renderer.SetDrawEnabled(false);
-						_levelExiting = LevelExitingState::Ready;
-					})) {
+							_renderer.SetDrawEnabled(false);
+							_levelExiting = LevelExitingState::Ready;
+						})) {
 						// The sheet couldn't be loaded and the callback already ran, keep the player visible
 						_renderer.SetDrawEnabled(true);
 					}
@@ -6807,8 +6857,7 @@ namespace Jazz2::Actors
 		OnActivated(Actors::ActorActivationDetails(
 			levelHandler,
 			Vector3i((std::int32_t)checkpointPosX, (std::int32_t)checkpointPosY, ILevelHandler::PlayerZ - playerIndex),
-			playerParams
-		));
+			playerParams));
 
 		_playerTypeOriginal = playerTypeOriginal;
 
@@ -7226,12 +7275,12 @@ namespace Jazz2::Actors
 				_activeModifier = Modifier::Airboard;
 
 #if defined(WITH_AUDIO)
-			if (_airboardSound == nullptr) {
-				_airboardSound = PlaySfx("Airboard"_s, 0.6f, 1.0f);
-				if (_airboardSound != nullptr) {
-					_airboardSound->SetLooping(true);
+				if (_airboardSound == nullptr) {
+					_airboardSound = PlaySfx("Airboard"_s, 0.6f, 1.0f);
+					if (_airboardSound != nullptr) {
+						_airboardSound->SetLooping(true);
+					}
 				}
-			}
 #endif
 
 				MoveInstantly(Vector2f(0.0f, -16.0f), MoveType::Relative);
@@ -7250,7 +7299,7 @@ namespace Jazz2::Actors
 
 				// Ten seconds in Reforged, the original flies until a Fly Off area or a death
 				SetCopterFlight(_flyCheatActive ? 1e6f
-						: (_levelHandler->IsReforged() ? (10.0f * FrameTimer::FramesPerSecond) : LegacyFlyDuration),
+												: (_levelHandler->IsReforged() ? (10.0f * FrameTimer::FramesPerSecond) : LegacyFlyDuration),
 					_flyCheatActive ? FlightType::Cheat : FlightType::Normal);
 
 #if defined(WITH_AUDIO)
@@ -7279,10 +7328,9 @@ namespace Jazz2::Actors
 					_activeModifierDecor->OnDetach(this);
 				}
 
-
 				float copterDuration = (_levelHandler->IsReforged()
-					? 3.0f * FrameTimer::FramesPerSecond
-					: LegacyLizardCopterDuration);
+						? 3.0f * FrameTimer::FramesPerSecond
+						: LegacyLizardCopterDuration);
 				// The time a level gives the copter is ignored, as measured in the original
 				SetCopterFlight(copterDuration, FlightType::Normal);
 				break;
@@ -7377,8 +7425,8 @@ namespace Jazz2::Actors
 					float facing = (IsFacingLeft() ? -1.0f : 1.0f);
 					_externalForce.X = 0.0f;
 					_speed.X = (std::abs(speedXBeforeHit) <= LegacyHurtKnockBase
-						? -facing * LegacyHurtKnockSpeed
-						: -facing * LegacyHurtKnockBase - speedXBeforeHit * 0.5f);
+							? -facing * LegacyHurtKnockSpeed
+							: -facing * LegacyHurtKnockBase - speedXBeforeHit * 0.5f);
 					if (_speed.Y >= 0.0f) {
 						_speed.Y = -LegacyHurtHopSpeed;
 					}
@@ -7712,18 +7760,39 @@ namespace Jazz2::Actors
 			String customPath = (definition.Kind == WeaponKind::Custom ? _levelHandler->GetWeapons().GetSpriteMetadataPath(definition.GetCustom().Shot.Sprite) : String());
 			if (!customPath.empty()) {
 				PreloadMetadataAsync(customPath);
-			} else switch (_currentWeapon) {
-				case WeaponType::Blaster: PreloadMetadataAsync("Weapon/Blaster"_s); break;
-				case WeaponType::Bouncer: PreloadMetadataAsync("Weapon/Bouncer"_s); break;
-				case WeaponType::Freezer: PreloadMetadataAsync("Weapon/Freezer"_s); break;
-				case WeaponType::Seeker: PreloadMetadataAsync("Weapon/Seeker"_s); break;
-				case WeaponType::RF: PreloadMetadataAsync("Weapon/RF"_s); break;
-				case WeaponType::Toaster: PreloadMetadataAsync("Weapon/Toaster"_s); break;
-				case WeaponType::TNT: PreloadMetadataAsync("Weapon/TNT"_s); break;
-				case WeaponType::Pepper: PreloadMetadataAsync("Weapon/Pepper"_s); break;
-				case WeaponType::Electro: PreloadMetadataAsync("Weapon/Electro"_s); break;
-				case WeaponType::Thunderbolt: PreloadMetadataAsync("Weapon/Thunderbolt"_s); break;
-			}
+			} else
+				switch (_currentWeapon) {
+					case WeaponType::Blaster:
+						PreloadMetadataAsync("Weapon/Blaster"_s);
+						break;
+					case WeaponType::Bouncer:
+						PreloadMetadataAsync("Weapon/Bouncer"_s);
+						break;
+					case WeaponType::Freezer:
+						PreloadMetadataAsync("Weapon/Freezer"_s);
+						break;
+					case WeaponType::Seeker:
+						PreloadMetadataAsync("Weapon/Seeker"_s);
+						break;
+					case WeaponType::RF:
+						PreloadMetadataAsync("Weapon/RF"_s);
+						break;
+					case WeaponType::Toaster:
+						PreloadMetadataAsync("Weapon/Toaster"_s);
+						break;
+					case WeaponType::TNT:
+						PreloadMetadataAsync("Weapon/TNT"_s);
+						break;
+					case WeaponType::Pepper:
+						PreloadMetadataAsync("Weapon/Pepper"_s);
+						break;
+					case WeaponType::Electro:
+						PreloadMetadataAsync("Weapon/Electro"_s);
+						break;
+					case WeaponType::Thunderbolt:
+						PreloadMetadataAsync("Weapon/Thunderbolt"_s);
+						break;
+				}
 		}
 
 		PlayPlayerSfx("PickupAmmo"_s);
@@ -8102,8 +8171,7 @@ namespace Jazz2::Actors
 		_spawnedBird->OnActivated(ActorActivationDetails(
 			_levelHandler,
 			Vector3i((std::int32_t)pos.X, (std::int32_t)pos.Y, _renderer.GetLayer() + 80),
-			birdParams
-		));
+			birdParams));
 		_levelHandler->AddActor(_spawnedBird);
 		return true;
 	}
@@ -8141,7 +8209,7 @@ namespace Jazz2::Actors
 		_checkpointLight = ambientLight;
 		// Frog and Bird are only temporary forms
 		_checkpointPlayerType = GetPlayerTypeBeforeMorph();
-		
+
 		_inventoryCheckpoint = _inventory;
 	}
 
@@ -8262,4 +8330,3 @@ namespace Jazz2::Actors
 		return false;
 	}
 }
-

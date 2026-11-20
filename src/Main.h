@@ -3,15 +3,15 @@
 // Set default name and version if not provided by the build
 /** @brief Application name */
 #if !defined(NCINE_APP)
-#	define NCINE_APP "jazz2"
+#define NCINE_APP "jazz2"
 #endif
 /** @brief Application full name */
 #if !defined(NCINE_APP_NAME)
-#	define NCINE_APP_NAME "Jazz² Resurrection"
+#define NCINE_APP_NAME "Jazz² Resurrection"
 #endif
 /** @brief Application version */
 #if !defined(NCINE_VERSION)
-#	define NCINE_VERSION "3.9.0"
+#define NCINE_VERSION "3.9.0"
 #endif
 
 /**
@@ -24,7 +24,7 @@
 	the region (NTSC-U, which every loader and optical drive emulator boots), and "JR" is the maker code.
 */
 #if !defined(NCINE_GAMECUBE_GAME_ID)
-#	define NCINE_GAMECUBE_GAME_ID "GJJEJR"
+#define NCINE_GAMECUBE_GAME_ID "GJJEJR"
 #endif
 
 /**
@@ -42,7 +42,7 @@
 	is only this version unless set otherwise.
 */
 #if !defined(NCINE_PROTOCOL_VERSION)
-#	define NCINE_PROTOCOL_VERSION "3.9.0"
+#define NCINE_PROTOCOL_VERSION "3.9.0"
 #endif
 /**
 	@brief Oldest client multiplayer protocol version the server accepts
@@ -57,7 +57,7 @@
 	only in ways they don't notice, or the server handles those clients differently. Both bounds are inclusive.
 */
 #if !defined(NCINE_PROTOCOL_VERSION_MIN)
-#	define NCINE_PROTOCOL_VERSION_MIN NCINE_PROTOCOL_VERSION
+#define NCINE_PROTOCOL_VERSION_MIN NCINE_PROTOCOL_VERSION
 #endif
 /**
 	@brief Newest client multiplayer protocol version the server accepts
@@ -66,43 +66,43 @@
 	version already known to stay compatible with this one.
 */
 #if !defined(NCINE_PROTOCOL_VERSION_MAX)
-#	define NCINE_PROTOCOL_VERSION_MAX NCINE_PROTOCOL_VERSION
+#define NCINE_PROTOCOL_VERSION_MAX NCINE_PROTOCOL_VERSION
 #endif
 
 /** @brief Application build year */
 #if !defined(NCINE_BUILD_YEAR)
-#	define NCINE_BUILD_YEAR "2026"
+#define NCINE_BUILD_YEAR "2026"
 #endif
 /** @brief Application package name on Linux */
 #if !defined(NCINE_LINUX_PACKAGE)
-#	define NCINE_LINUX_PACKAGE NCINE_APP_NAME
+#define NCINE_LINUX_PACKAGE NCINE_APP_NAME
 #endif
 
 // Prefer local version of shared libraries in the Zig build
 #if defined(ZIG_BUILD) && defined(__has_include)
-#	if __has_include("../Shared/Common.h")
-#		define __HAS_LOCAL_COMMON
-#	endif
+#if __has_include("../Shared/Common.h")
+#define __HAS_LOCAL_COMMON
+#endif
 #endif
 #ifdef __HAS_LOCAL_COMMON
-#	include "../Shared/Common.h"
-#	include "../Shared/Asserts.h"
+#include "../Shared/Common.h"
+#include "../Shared/Asserts.h"
 #else
-#	include <Common.h>
-#	include <Asserts.h>
+#include <Common.h>
+#include <Asserts.h>
 #endif
 
 #include <stdlib.h>
 
 /** @brief Install prefix on Unix systems, usually `"/usr/local"` */
 #if (!defined(NCINE_INSTALL_PREFIX) && defined(DEATH_TARGET_UNIX)) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define NCINE_INSTALL_PREFIX "/usr/local"
+#define NCINE_INSTALL_PREFIX "/usr/local"
 #endif
 
 // Check platform-specific capabilities
 /** @brief Whether the current platform supports a gamepad rumble, see @relativeref{nCine,IInputManager::JoystickRumble()} */
 #if (defined(WITH_SDL2) || defined(WITH_SDL3)) || defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_WINDOWS_RT) || defined(DEATH_TARGET_N64) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define NCINE_HAS_GAMEPAD_RUMBLE
+#define NCINE_HAS_GAMEPAD_RUMBLE
 #endif
 /**
 	@brief Whether the current platform can deliver keyboard input
@@ -112,25 +112,26 @@
 	event, so a key binding on them can never fire. It would still be built into the mapping tables and listed
 	in the controls screen, which is why the defaults skip them entirely.
 */
-#if (!defined(DEATH_TARGET_N64) && !defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_GAMECUBE) && \
+#if (!defined(DEATH_TARGET_N64) && !defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_GAMECUBE) &&                    \
 	!defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_PSP) && \
-	!defined(DEATH_TARGET_PS2) && !defined(DEATH_TARGET_PS3)) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define NCINE_HAS_KEYBOARD
+	!defined(DEATH_TARGET_PS2) && !defined(DEATH_TARGET_PS3)) ||                                                             \
+	defined(DOXYGEN_GENERATING_OUTPUT)
+#define NCINE_HAS_KEYBOARD
 #endif
 /** @brief Whether the current platform has a native (hardware) back button */
 #if defined(DEATH_TARGET_ANDROID) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define NCINE_HAS_NATIVE_BACK_BUTTON
+#define NCINE_HAS_NATIVE_BACK_BUTTON
 #endif
 /** @brief Whether the current platform supports vibrations of the device */
 #if defined(DEATH_TARGET_ANDROID)
-#	define NCINE_HAS_VIBRATIONS
+#define NCINE_HAS_VIBRATIONS
 #endif
 /** @brief Whether the current platform has non-fullscreen windows */
-#if !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_IOS) && !defined(DEATH_TARGET_SWITCH) && \
-		!defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && \
-		!defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_VITA) && !defined(DEATH_TARGET_PS2) && \
-		!defined(DEATH_TARGET_PS3) && !defined(DEATH_TARGET_N64) && !defined(DEATH_TARGET_AMIGAOS)
-#	define NCINE_HAS_WINDOWS
+#if !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_IOS) && !defined(DEATH_TARGET_SWITCH) &&                                    \
+	!defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && \
+	!defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_VITA) && !defined(DEATH_TARGET_PS2) &&            \
+	!defined(DEATH_TARGET_PS3) && !defined(DEATH_TARGET_N64) && !defined(DEATH_TARGET_AMIGAOS)
+#define NCINE_HAS_WINDOWS
 #endif
 /**
 	@brief Whether the current platform can have a touchscreen
@@ -146,9 +147,9 @@
 	held, so they only ever fire by accident - it is played with the sticks and buttons.
 */
 #if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_IOS) || defined(DEATH_TARGET_EMSCRIPTEN) || \
-		defined(DEATH_TARGET_SWITCH) || \
-		defined(DEATH_TARGET_WINDOWS) || defined(DEATH_TARGET_UNIX) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define NCINE_HAS_TOUCH_CONTROLS
+	defined(DEATH_TARGET_SWITCH) ||                                                                   \
+	defined(DEATH_TARGET_WINDOWS) || defined(DEATH_TARGET_UNIX) || defined(DOXYGEN_GENERATING_OUTPUT)
+#define NCINE_HAS_TOUCH_CONTROLS
 #endif
 /**
 	@brief Whether the current platform can drive the RGB lighting of connected devices
@@ -158,9 +159,9 @@
 	@relativeref{Jazz2::Input,RgbLights} could gain a backend without the option having to reappear.
 */
 #if (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || defined(DEATH_TARGET_EMSCRIPTEN) || \
-		defined(DEATH_TARGET_UNIX) || (defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_IOS)) || \
-		defined(DOXYGEN_GENERATING_OUTPUT)
-#	define NCINE_HAS_RGB_LIGHTS
+	defined(DEATH_TARGET_UNIX) || (defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_IOS)) ||                \
+	defined(DOXYGEN_GENERATING_OUTPUT)
+#define NCINE_HAS_RGB_LIGHTS
 #endif
 /**
 	@brief Whether the current platform can convert the original game data into a cache of its own
@@ -177,7 +178,7 @@
 	@relativeref{Jazz2,ContentResolver::IsContentPrebaked()}.
 */
 #if !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_GAMECUBE) && !defined(DEATH_TARGET_PS2) && !defined(DEATH_TARGET_N64)
-#	define NCINE_HAS_WRITABLE_CACHE
+#define NCINE_HAS_WRITABLE_CACHE
 #endif
 /**
 	@brief Whether the current platform can store a resumable mid-level session
@@ -194,7 +195,7 @@
 	was left --- only continuing from the middle of a level is unavailable there.
 */
 #if !defined(DEATH_TARGET_N64)
-#	define NCINE_HAS_RESUMABLE_STATE
+#define NCINE_HAS_RESUMABLE_STATE
 #endif
 /**
 	@brief Whether the audio device plays sound in formats of its own instead of samples the engine decodes
@@ -207,39 +208,51 @@
 	Everywhere else it is the other way around, and the native playback interface does not exist.
 */
 #if defined(DEATH_TARGET_N64)
-#	define NCINE_HAS_NATIVE_AUDIO
+#define NCINE_HAS_NATIVE_AUDIO
 #endif
 
 /** @brief Function name */
 #if defined(__DEATH_CURRENT_FUNCTION)
-#	define NCINE_CURRENT_FUNCTION __DEATH_CURRENT_FUNCTION
+#define NCINE_CURRENT_FUNCTION __DEATH_CURRENT_FUNCTION
 #else
-#	define NCINE_CURRENT_FUNCTION ""
+#define NCINE_CURRENT_FUNCTION ""
 #endif
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
 
 // Return assert macros
-#define RETURN_ASSERT(x) do { if DEATH_UNLIKELY(!(x)) { LOGE("RETURN_ASSERT(" #x ")"); return; } } while (false)
-
-// Return false assert macros
-#define RETURNF_ASSERT(x) do { if DEATH_UNLIKELY(!(x)) { LOGE("RETURNF_ASSERT(" #x ")"); return false; } } while (false)
-
-// Fatal assert macros
-#define FATAL_ASSERT(x)						\
-	do {									\
-		if DEATH_UNLIKELY(!(x)) {			\
-			LOGF("FATAL_ASSERT(" #x ")");	\
-			DEATH_ASSERT_BREAK();			\
-		}									\
+#define RETURN_ASSERT(x)                   \
+	do {                                   \
+		if DEATH_UNLIKELY (!(x)) {         \
+			LOGE("RETURN_ASSERT(" #x ")"); \
+			return;                        \
+		}                                  \
 	} while (false)
 
-#define FATAL_ASSERT_MSG(x, fmt, ...)		\
-	do {									\
-		if DEATH_UNLIKELY(!(x)) {			\
-			LOGF(fmt, ##__VA_ARGS__);		\
-			DEATH_ASSERT_BREAK();			\
-		}									\
+// Return false assert macros
+#define RETURNF_ASSERT(x)                   \
+	do {                                    \
+		if DEATH_UNLIKELY (!(x)) {          \
+			LOGE("RETURNF_ASSERT(" #x ")"); \
+			return false;                   \
+		}                                   \
+	} while (false)
+
+// Fatal assert macros
+#define FATAL_ASSERT(x)                   \
+	do {                                  \
+		if DEATH_UNLIKELY (!(x)) {        \
+			LOGF("FATAL_ASSERT(" #x ")"); \
+			DEATH_ASSERT_BREAK();         \
+		}                                 \
+	} while (false)
+
+#define FATAL_ASSERT_MSG(x, fmt, ...) \
+	do {                              \
+		if DEATH_UNLIKELY (!(x)) {    \
+			LOGF(fmt, ##__VA_ARGS__); \
+			DEATH_ASSERT_BREAK();     \
+		}                             \
 	} while (false)
 
 #endif

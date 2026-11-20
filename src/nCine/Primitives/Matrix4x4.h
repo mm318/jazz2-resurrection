@@ -21,14 +21,18 @@ namespace nCine
 			in-place and standalone transform builders (translation, rotation, scaling) and the
 			@ref Ortho(), @ref Frustum() and @ref Perspective() projection builders.
 		*/
-		template<class T>
+		template <class T>
 		class Matrix4x4
 		{
 		public:
 			constexpr Matrix4x4() noexcept
-				: _vecs{Vector4<T>(T(1), T(0), T(0), T(0)), Vector4<T>(T(0), T(1), T(0), T(0)), Vector4<T>(T(0), T(0), T(1), T(0)), Vector4<T>(T(0), T(0), T(0), T(1))} {}
+				: _vecs { Vector4<T>(T(1), T(0), T(0), T(0)), Vector4<T>(T(0), T(1), T(0), T(0)), Vector4<T>(T(0), T(0), T(1), T(0)), Vector4<T>(T(0), T(0), T(0), T(1)) }
+			{
+			}
 
-			explicit Matrix4x4(NoInitT) noexcept {}
+			explicit Matrix4x4(NoInitT) noexcept
+			{
+			}
 
 			constexpr Matrix4x4(const Vector4<T>& v0, const Vector4<T>& v1, const Vector4<T>& v2, const Vector4<T>& v3) noexcept;
 
@@ -57,9 +61,9 @@ namespace nCine
 			Vector4<T> operator*(const Vector4<T>& v) const;
 			Vector3<T> operator*(const Vector3<T>& v) const;
 
-			template<class S>
+			template <class S>
 			friend Vector4<S> operator*(const Vector4<S>& v, const Matrix4x4<S>& m);
-			template<class S>
+			template <class S>
 			friend Vector3<S> operator*(const Vector3<S>& v, const Matrix4x4<S>& m);
 
 			Matrix4x4 operator+(const Matrix4x4& m) const;
@@ -72,7 +76,7 @@ namespace nCine
 			Matrix4x4 operator*(T s) const;
 			Matrix4x4 operator/(T s) const;
 
-			template<class S>
+			template <class S>
 			friend Matrix4x4<S> operator*(S s, const Matrix4x4<S>& m);
 
 			/** @brief Returns the transpose of the matrix */
@@ -116,9 +120,9 @@ namespace nCine
 			// FPU runs in software: on the PSP that measured ~18 us per call in PPSSPP against ~0.3 us for
 			// `cosf()`, and the reforged HUD alone rotates up to fifteen elements every frame (its health carrots).
 #if defined(DEATH_TARGET_DREAMCAST)
-#	define DEATH_MATRIX_ROTATION_BUILDER DEATH_NEVER_INLINE
+#define DEATH_MATRIX_ROTATION_BUILDER DEATH_NEVER_INLINE
 #else
-#	define DEATH_MATRIX_ROTATION_BUILDER
+#define DEATH_MATRIX_ROTATION_BUILDER
 #endif
 			/** @brief Creates a rotation matrix around the X axis */
 			DEATH_MATRIX_ROTATION_BUILDER static Matrix4x4 RotationX(T radians);
@@ -156,13 +160,13 @@ namespace nCine
 		/** @brief Four-by-four matrix of floats */
 		using Matrix4x4f = Matrix4x4<float>;
 
-		template<class T>
+		template <class T>
 		constexpr Matrix4x4<T>::Matrix4x4(const Vector4<T>& v0, const Vector4<T>& v1, const Vector4<T>& v2, const Vector4<T>& v3) noexcept
-			: _vecs{v0, v1, v2, v3}
+			: _vecs { v0, v1, v2, v3 }
 		{
 		}
 
-		template<class T>
+		template <class T>
 		inline void Matrix4x4<T>::Set(const Vector4<T>& v0, const Vector4<T>& v1, const Vector4<T>& v2, const Vector4<T>& v3)
 		{
 			_vecs[0] = v0;
@@ -171,51 +175,51 @@ namespace nCine
 			_vecs[3] = v3;
 		}
 
-		template<class T>
+		template <class T>
 		inline T* Matrix4x4<T>::Data()
 		{
 			return &_vecs[0][0];
 		}
 
-		template<class T>
+		template <class T>
 		inline const T* Matrix4x4<T>::Data() const
 		{
 			return &_vecs[0][0];
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector4<T>& Matrix4x4<T>::operator[](std::size_t index)
 		{
 			DEATH_ASSERT(index < 4);
 			return _vecs[index];
 		}
 
-		template<class T>
+		template <class T>
 		inline const Vector4<T>& Matrix4x4<T>::operator[](std::size_t index) const
 		{
 			DEATH_ASSERT(index < 4);
 			return _vecs[index];
 		}
 
-		template<class T>
+		template <class T>
 		inline bool Matrix4x4<T>::operator==(const Matrix4x4& m) const
 		{
 			return (_vecs[0] == m[0] && _vecs[1] == m[1] && _vecs[2] == m[2] && _vecs[3] == m[3]);
 		}
 
-		template<class T>
+		template <class T>
 		inline bool Matrix4x4<T>::operator!=(const Matrix4x4& m) const
 		{
 			return (_vecs[0] != m[0] || _vecs[1] != m[1] || _vecs[2] != m[2] || _vecs[3] != m[3]);
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T> Matrix4x4<T>::operator-() const
 		{
 			return Matrix4x4(-_vecs[0], -_vecs[1], -_vecs[2], -_vecs[3]);
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T>& Matrix4x4<T>::operator+=(const Matrix4x4& m)
 		{
 			_vecs[0] += m[0];
@@ -226,7 +230,7 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T>& Matrix4x4<T>::operator-=(const Matrix4x4& m)
 		{
 			_vecs[0] -= m[0];
@@ -237,13 +241,13 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T>& Matrix4x4<T>::operator*=(const Matrix4x4& m)
 		{
 			return (*this = *this * m);
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T>& Matrix4x4<T>::operator/=(const Matrix4x4& m)
 		{
 			_vecs[0] /= m[0];
@@ -254,7 +258,7 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T>& Matrix4x4<T>::operator+=(T s)
 		{
 			_vecs[0] += s;
@@ -265,7 +269,7 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T>& Matrix4x4<T>::operator-=(T s)
 		{
 			_vecs[0] -= s;
@@ -276,7 +280,7 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T>& Matrix4x4<T>::operator*=(T s)
 		{
 			_vecs[0] *= s;
@@ -287,7 +291,7 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T>& Matrix4x4<T>::operator/=(T s)
 		{
 			_vecs[0] /= s;
@@ -298,7 +302,7 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector4<T> Matrix4x4<T>::operator*(const Vector4<T>& v) const
 		{
 			const Matrix4x4& m = *this;
@@ -309,7 +313,7 @@ namespace nCine
 				m[3][0] * v[0] + m[3][1] * v[1] + m[3][2] * v[2] + m[3][3] * v[3]);
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector3<T> Matrix4x4<T>::operator*(const Vector3<T>& v) const
 		{
 			const Matrix4x4& m = *this;
@@ -319,7 +323,7 @@ namespace nCine
 				m[2][0] * v[0] + m[2][1] * v[1] + m[2][2] * v[2] + m[3][2]);
 		}
 
-		template<class S>
+		template <class S>
 		inline Vector4<S> operator*(const Vector4<S>& v, const Matrix4x4<S>& m)
 		{
 			return Vector4<S>(m[0][0] * v[0] + m[1][0] * v[1] + m[2][0] * v[2] + m[3][0] * v[3],
@@ -328,7 +332,7 @@ namespace nCine
 				m[0][3] * v[0] + m[1][3] * v[1] + m[2][3] * v[2] + m[3][3] * v[3]);
 		}
 
-		template<class S>
+		template <class S>
 		inline Vector3<S> operator*(const Vector3<S>& v, const Matrix4x4<S>& m)
 		{
 			return Vector3<S>(m[0][0] * v[0] + m[1][0] * v[1] + m[2][0] * v[2] + m[3][0],
@@ -336,7 +340,7 @@ namespace nCine
 				m[0][2] * v[0] + m[1][2] * v[1] + m[2][2] * v[2] + m[3][2]);
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T> Matrix4x4<T>::operator+(const Matrix4x4& m) const
 		{
 			return Matrix4x4(_vecs[0] + m[0],
@@ -345,7 +349,7 @@ namespace nCine
 				_vecs[3] + m[3]);
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T> Matrix4x4<T>::operator-(const Matrix4x4& m) const
 		{
 			return Matrix4x4(_vecs[0] - m[0],
@@ -354,7 +358,7 @@ namespace nCine
 				_vecs[3] - m[3]);
 		}
 
-		template<class T>
+		template <class T>
 		// Not inlined on Dreamcast, and written over the flat storage rather than as four Vector4
 		// expressions: both keep the composition of a freshly built rotation from being folded into the
 		// caller, where its negated sine term loses its sign (see the note next to RotationZ's declaration).
@@ -362,7 +366,8 @@ namespace nCine
 #if defined(DEATH_TARGET_DREAMCAST)
 		DEATH_NEVER_INLINE
 #endif
-		inline Matrix4x4<T> Matrix4x4<T>::operator*(const Matrix4x4& m2) const
+			inline Matrix4x4<T>
+			Matrix4x4<T>::operator*(const Matrix4x4& m2) const
 		{
 			Matrix4x4 result;
 			const T* DEATH_RESTRICT a = Data();
@@ -381,7 +386,7 @@ namespace nCine
 			return result;
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T> Matrix4x4<T>::operator/(const Matrix4x4& m) const
 		{
 			return Matrix4x4(_vecs[0] / m[0],
@@ -390,7 +395,7 @@ namespace nCine
 				_vecs[3] / m[3]);
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T> Matrix4x4<T>::operator+(T s) const
 		{
 			return Matrix4x4(_vecs[0] + s,
@@ -399,7 +404,7 @@ namespace nCine
 				_vecs[3] + s);
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T> Matrix4x4<T>::operator-(T s) const
 		{
 			return Matrix4x4(_vecs[0] - s,
@@ -408,7 +413,7 @@ namespace nCine
 				_vecs[3] - s);
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T> Matrix4x4<T>::operator*(T s) const
 		{
 			return Matrix4x4(_vecs[0] * s,
@@ -417,7 +422,7 @@ namespace nCine
 				_vecs[3] * s);
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T> Matrix4x4<T>::operator/(T s) const
 		{
 			return Matrix4x4(_vecs[0] / s,
@@ -426,7 +431,7 @@ namespace nCine
 				_vecs[3] / s);
 		}
 
-		template<class S>
+		template <class S>
 		inline Matrix4x4<S> operator*(S s, const Matrix4x4<S>& m)
 		{
 			return Matrix4x4<S>(s * m._vecs[0],
@@ -435,7 +440,7 @@ namespace nCine
 				s * m._vecs[3]);
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T> Matrix4x4<T>::Transposed() const
 		{
 			const Matrix4x4& m = *this;
@@ -464,7 +469,7 @@ namespace nCine
 			return result;
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T>& Matrix4x4<T>::Transpose()
 		{
 			Matrix4x4& m = *this;
@@ -482,7 +487,7 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T> Matrix4x4<T>::Inverse() const
 		{
 			const Matrix4x4& m = *this;
@@ -542,7 +547,7 @@ namespace nCine
 			return inverse * oneOverDeterminant;
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T>& Matrix4x4<T>::Translate(T xx, T yy, T zz)
 		{
 			Matrix4x4& m = *this;
@@ -554,13 +559,13 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T>& Matrix4x4<T>::Translate(const Vector3<T>& v)
 		{
 			return Translate(v.X, v.Y, v.Z);
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T>& Matrix4x4<T>::RotateX(T radians)
 		{
 #if defined(DEATH_TARGET_DREAMCAST)
@@ -598,7 +603,7 @@ namespace nCine
 #endif
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T>& Matrix4x4<T>::RotateY(T radians)
 		{
 #if defined(DEATH_TARGET_DREAMCAST)
@@ -636,7 +641,7 @@ namespace nCine
 #endif
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T>& Matrix4x4<T>::RotateZ(T radians)
 		{
 #if defined(DEATH_TARGET_DREAMCAST)
@@ -674,7 +679,7 @@ namespace nCine
 #endif
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T>& Matrix4x4<T>::Scale(T xx, T yy, T zz)
 		{
 			Matrix4x4& m = *this;
@@ -694,19 +699,19 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T>& Matrix4x4<T>::Scale(const Vector3<T>& v)
 		{
 			return Scale(v.X, v.Y, v.Z);
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T>& Matrix4x4<T>::Scale(T s)
 		{
 			return Scale(s, s, s);
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T> Matrix4x4<T>::Translation(T xx, T yy, T zz)
 		{
 			return Matrix4x4(Vector4<T>(1, 0, 0, 0),
@@ -715,19 +720,19 @@ namespace nCine
 				Vector4<T>(xx, yy, zz, 1));
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T> Matrix4x4<T>::Translation(const Vector3<T>& v)
 		{
 			return Translation(v.X, v.Y, v.Z);
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T> Matrix4x4<T>::RotationX(T radians)
 		{
 			const T c = std::cos(radians);
 			const T s = std::sin(radians);
 #if defined(DEATH_TARGET_DREAMCAST)
-			const T ns = std::sin(-radians);	// Never "-s", see the note next to the declarations
+			const T ns = std::sin(-radians); // Never "-s", see the note next to the declarations
 #else
 			const T ns = -s;
 #endif
@@ -738,13 +743,13 @@ namespace nCine
 				Vector4<T>(0, 0, 0, 1));
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T> Matrix4x4<T>::RotationY(T radians)
 		{
 			const T c = std::cos(radians);
 			const T s = std::sin(radians);
 #if defined(DEATH_TARGET_DREAMCAST)
-			const T ns = std::sin(-radians);	// Never "-s", see the note next to the declarations
+			const T ns = std::sin(-radians); // Never "-s", see the note next to the declarations
 #else
 			const T ns = -s;
 #endif
@@ -755,13 +760,13 @@ namespace nCine
 				Vector4<T>(0, 0, 0, 1));
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T> Matrix4x4<T>::RotationZ(T radians)
 		{
 			const T c = std::cos(radians);
 			const T s = std::sin(radians);
 #if defined(DEATH_TARGET_DREAMCAST)
-			const T ns = std::sin(-radians);	// Never "-s", see the note next to the declarations
+			const T ns = std::sin(-radians); // Never "-s", see the note next to the declarations
 #else
 			const T ns = -s;
 #endif
@@ -772,7 +777,7 @@ namespace nCine
 				Vector4<T>(0, 0, 0, 1));
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T> Matrix4x4<T>::Scaling(T xx, T yy, T zz)
 		{
 			return Matrix4x4(Vector4<T>(xx, 0, 0, 0),
@@ -781,19 +786,19 @@ namespace nCine
 				Vector4<T>(0, 0, 0, 1));
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T> Matrix4x4<T>::Scaling(const Vector3<T>& v)
 		{
 			return Scaling(v.X, v.Y, v.Z);
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T> Matrix4x4<T>::Scaling(T s)
 		{
 			return Scaling(s, s, s);
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T> Matrix4x4<T>::Ortho(T left, T right, T bottom, T top, T zNear, T zFar)
 		{
 			float invRL = 1.0f / (right - left);
@@ -806,7 +811,7 @@ namespace nCine
 				Vector4<T>(-(right + left) * invRL, -(top + bottom) * invTB, -(zFar + zNear) * invFN, 1));
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T> Matrix4x4<T>::Frustum(T left, T right, T bottom, T top, T zNear, T zFar)
 		{
 			return Matrix4x4(Vector4<T>((2 * zNear) / (right - left), 0, 0, 0),
@@ -815,7 +820,7 @@ namespace nCine
 				Vector4<T>(0, 0, (-2 * zFar * zNear) / (zFar - zNear), 0));
 		}
 
-		template<class T>
+		template <class T>
 		inline Matrix4x4<T> Matrix4x4<T>::Perspective(T fovY, T aspect, T zNear, T zFar)
 		{
 			const T yMax = zNear * tan(fovY * static_cast<T>(Pi) / 360);
@@ -826,9 +831,9 @@ namespace nCine
 			return Frustum(xMin, xMax, yMin, yMax, zNear, zFar);
 		}
 
-		template<class T>
+		template <class T>
 		const Matrix4x4<T> Matrix4x4<T>::Zero(Vector4<T>(0, 0, 0, 0), Vector4<T>(0, 0, 0, 0), Vector4<T>(0, 0, 0, 0), Vector4<T>(0, 0, 0, 0));
-		template<class T>
+		template <class T>
 		const Matrix4x4<T> Matrix4x4<T>::Identity(Vector4<T>(1, 0, 0, 0), Vector4<T>(0, 1, 0, 0), Vector4<T>(0, 0, 1, 0), Vector4<T>(0, 0, 0, 1));
 	}
 }

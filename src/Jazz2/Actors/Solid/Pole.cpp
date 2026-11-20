@@ -19,11 +19,21 @@ namespace Jazz2::Actors::Solid
 		std::uint8_t theme = details.Params[0];
 		switch (theme) {
 			default:
-			case 0: PreloadMetadataAsync("Pole/Carrotus"_s); break;
-			case 1: PreloadMetadataAsync("Pole/Diamondus"_s); break;
-			case 2: PreloadMetadataAsync("Pole/DiamondusTree"_s); break;
-			case 3: PreloadMetadataAsync("Pole/Jungle"_s); break;
-			case 4: PreloadMetadataAsync("Pole/Psych"_s); break;
+			case 0:
+				PreloadMetadataAsync("Pole/Carrotus"_s);
+				break;
+			case 1:
+				PreloadMetadataAsync("Pole/Diamondus"_s);
+				break;
+			case 2:
+				PreloadMetadataAsync("Pole/DiamondusTree"_s);
+				break;
+			case 3:
+				PreloadMetadataAsync("Pole/Jungle"_s);
+				break;
+			case 4:
+				PreloadMetadataAsync("Pole/Psych"_s);
+				break;
 		}
 	}
 
@@ -43,11 +53,22 @@ namespace Jazz2::Actors::Solid
 		bool isSolid = true;
 		switch (theme) {
 			default:
-			case 0: async_await RequestMetadataAsync("Pole/Carrotus"_s); break;
-			case 1: async_await RequestMetadataAsync("Pole/Diamondus"_s); break;
-			case 2: async_await RequestMetadataAsync("Pole/DiamondusTree"_s); isSolid = false; break;
-			case 3: async_await RequestMetadataAsync("Pole/Jungle"_s); break;
-			case 4: async_await RequestMetadataAsync("Pole/Psych"_s); break;
+			case 0:
+				async_await RequestMetadataAsync("Pole/Carrotus"_s);
+				break;
+			case 1:
+				async_await RequestMetadataAsync("Pole/Diamondus"_s);
+				break;
+			case 2:
+				async_await RequestMetadataAsync("Pole/DiamondusTree"_s);
+				isSolid = false;
+				break;
+			case 3:
+				async_await RequestMetadataAsync("Pole/Jungle"_s);
+				break;
+			case 4:
+				async_await RequestMetadataAsync("Pole/Psych"_s);
+				break;
 		}
 
 		if (isSolid) {

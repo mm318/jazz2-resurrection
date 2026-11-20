@@ -7,26 +7,26 @@
 #include <Containers/SmallVector.h>
 
 #if !defined(ZIG_BUILD) && defined(__has_include)
-#	if defined(WITH_SDL3) && __has_include("SDL3/SDL.h")
-#		define __HAS_LOCAL_SDL3
-#	elif __has_include("SDL2/SDL.h")
-#		define __HAS_LOCAL_SDL
-#	endif
+#if defined(WITH_SDL3) && __has_include("SDL3/SDL.h")
+#define __HAS_LOCAL_SDL3
+#elif __has_include("SDL2/SDL.h")
+#define __HAS_LOCAL_SDL
+#endif
 #endif
 #if defined(WITH_SDL3)
-#	if defined(__HAS_LOCAL_SDL3)
-#		include "SDL3/SDL_events.h"
-#		include "SDL3/SDL_mouse.h"
-#	else
-#		include <SDL3/SDL_events.h>
-#		include <SDL3/SDL_mouse.h>
-#	endif
-#elif defined(__HAS_LOCAL_SDL)
-#	include "SDL2/SDL_events.h"
-#	include "SDL2/SDL_mouse.h"
+#if defined(__HAS_LOCAL_SDL3)
+#include "SDL3/SDL_events.h"
+#include "SDL3/SDL_mouse.h"
 #else
-#	include <SDL_events.h>
-#	include <SDL_mouse.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_mouse.h>
+#endif
+#elif defined(__HAS_LOCAL_SDL)
+#include "SDL2/SDL_events.h"
+#include "SDL2/SDL_mouse.h"
+#else
+#include <SDL_events.h>
+#include <SDL_mouse.h>
 #endif
 
 using namespace Death::Containers;
@@ -67,7 +67,9 @@ namespace nCine::Backends
 	class SdlScrollEvent : public ScrollEvent
 	{
 	public:
-		SdlScrollEvent() {}
+		SdlScrollEvent()
+		{
+		}
 
 		friend class SdlInputManager;
 	};
@@ -98,9 +100,9 @@ namespace nCine::Backends
 	private:
 #if defined(WITH_SDL3)
 		// SDL3: SDL_GetKeyboardState returns a const bool array (was const Uint8 in SDL2)
-		const bool *_keyState;
+		const bool* _keyState;
 #else
-		const unsigned char *_keyState;
+		const unsigned char* _keyState;
 #endif
 	};
 
@@ -111,7 +113,9 @@ namespace nCine::Backends
 	{
 	public:
 		SdlJoystickState()
-			: _sdlJoystick(nullptr) {}
+			: _sdlJoystick(nullptr)
+		{
+		}
 
 		/** @brief Maximum absolute value reported by a joystick axis */
 		static constexpr short int MaxAxisValue = 32767;
@@ -121,7 +125,7 @@ namespace nCine::Backends
 		float GetAxisValue(int axisId) const override;
 
 	private:
-		SDL_Joystick *_sdlJoystick;
+		SDL_Joystick* _sdlJoystick;
 
 		friend class SdlInputManager;
 	};
@@ -146,7 +150,7 @@ namespace nCine::Backends
 		 *
 		 * @param event		SDL2 event to process
 		 */
-		static void ParseEvent(const SDL_Event &event);
+		static void ParseEvent(const SDL_Event& event);
 
 		inline const MouseState& GetMouseState() const override
 		{
@@ -162,19 +166,22 @@ namespace nCine::Backends
 			return _mouseState;
 		}
 
-		inline const KeyboardState& GetKeyboardState() const override { return _keyboardState; }
+		inline const KeyboardState& GetKeyboardState() const override
+		{
+			return _keyboardState;
+		}
 
 		String GetClipboardText() const override;
 		bool SetClipboardText(StringView text) override;
 		StringView GetKeyName(Keys key) const override;
 
 		bool IsJoyPresent(int joyId) const override;
-		const char *GetJoyName(int joyId) const override;
+		const char* GetJoyName(int joyId) const override;
 		const JoystickGuid GetJoyGuid(int joyId) const override;
 		int GetJoyButtonCount(int joyId) const override;
 		int GetJoyHatCount(int joyId) const override;
 		int GetJoyAxisCount(int joyId) const override;
-		const JoystickState &GetJoystickState(int joyId) const override;
+		const JoystickState& GetJoystickState(int joyId) const override;
 		bool JoystickRumble(int joyId, float lowFreqIntensity, float highFreqIntensity, uint32_t durationMs) override;
 		bool JoystickRumbleTriggers(int joyId, float left, float right, uint32_t durationMs) override;
 
@@ -191,7 +198,7 @@ namespace nCine::Backends
 		static KeyboardEvent _keyboardEvent;
 		static TextInputEvent _textInputEvent;
 
-		static SDL_Joystick *_sdlJoysticks[MaxNumJoysticks];
+		static SDL_Joystick* _sdlJoysticks[MaxNumJoysticks];
 		static SmallVector<SdlJoystickState, MaxNumJoysticks> _joystickStates;
 		static JoyButtonEvent _joyButtonEvent;
 		static JoyHatEvent _joyHatEvent;
@@ -201,11 +208,11 @@ namespace nCine::Backends
 		static char _joyGuidString[33];
 
 		/** @brief Deleted copy constructor */
-		SdlInputManager(const SdlInputManager &) = delete;
+		SdlInputManager(const SdlInputManager&) = delete;
 		/** @brief Deleted assignment operator */
-		SdlInputManager &operator=(const SdlInputManager &) = delete;
+		SdlInputManager& operator=(const SdlInputManager&) = delete;
 
-		static void HandleJoyDeviceEvent(const SDL_Event &event);
+		static void HandleJoyDeviceEvent(const SDL_Event& event);
 		static int JoyInstanceIdToDeviceIndex(SDL_JoystickID instanceId);
 	};
 }

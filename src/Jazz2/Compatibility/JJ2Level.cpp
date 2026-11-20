@@ -36,7 +36,7 @@ namespace Jazz2::Compatibility
 
 	bool JJ2Level::Open(StringView path, bool strictParser)
 	{
-		auto s = fs::Open(path, FileAccess::Read);	
+		auto s = fs::Open(path, FileAccess::Read);
 		if (!s->IsValid()) {
 			LOGE("Cannot open file \"{}\" for reading", path);
 			return false;
@@ -80,7 +80,7 @@ namespace Jazz2::Compatibility
 		// Get the CRC; would check here if it matches if we knew what variant it is AND what it applies to
 		// Test file across all CRC32 variants + Adler had no matches to the value obtained from the file
 		// so either the variant is something else or the CRC is not applied to the whole file but on a part
-		/*int recordedCRC =*/ headerBlock.ReadInt32();
+		/*int recordedCRC =*/headerBlock.ReadInt32();
 
 		// Read the lengths, uncompress the blocks and bail if any block could not be uncompressed
 		// This could look better without all the copy-paste, but meh.
@@ -179,7 +179,7 @@ namespace Jazz2::Compatibility
 		_isMpLevel = block.ReadBool();
 
 		// This should be the same as size of block in the start?
-		/*std::int32_t headerSize =*/ block.ReadInt32();
+		/*std::int32_t headerSize =*/block.ReadInt32();
 
 		String secondLevelName = block.ReadString(32, true);
 		//DEATH_ASSERT(!strictParser || DisplayName == secondLevelName, "Level name mismatch", );
@@ -196,7 +196,7 @@ namespace Jazz2::Compatibility
 
 		LoadLayerMetadata(block, strictParser);
 
-		/*uint16_t staticTilesCount =*/ block.ReadUInt16();
+		/*uint16_t staticTilesCount =*/block.ReadUInt16();
 		//DEATH_ASSERT(!strictParser || GetMaxSupportedTiles() - _animCount == staticTilesCount, "Tile count mismatch", );
 
 		LoadStaticTileData(block, strictParser);
@@ -413,7 +413,8 @@ namespace Jazz2::Compatibility
 
 	bool JJ2Level::LoadLayers(JJ2Block& dictBlock, JJ2Block& layoutBlock, bool strictParser)
 	{
-		struct DictionaryEntry {
+		struct DictionaryEntry
+		{
 			std::uint16_t Tiles[4];
 		};
 
@@ -514,9 +515,15 @@ namespace Jazz2::Compatibility
 		_mlleWaterLayer = block.ReadInt32();
 		// `WATERLIGHT::wl`, NONE 0, GLOBAL 1 and LAGUNICUS 3
 		switch (block.ReadByte()) {
-			case 1: _mlleSettings.Lighting = Formats::LevelSettingsChunk::WaterLighting::Global; break;
-			case 3: _mlleSettings.Lighting = Formats::LevelSettingsChunk::WaterLighting::Depth; break;
-			default: _mlleSettings.Lighting = Formats::LevelSettingsChunk::WaterLighting::None; break;
+			case 1:
+				_mlleSettings.Lighting = Formats::LevelSettingsChunk::WaterLighting::Global;
+				break;
+			case 3:
+				_mlleSettings.Lighting = Formats::LevelSettingsChunk::WaterLighting::Depth;
+				break;
+			default:
+				_mlleSettings.Lighting = Formats::LevelSettingsChunk::WaterLighting::None;
+				break;
 		}
 		// Clamped first, a float outside of the range of the integer it's converted to is undefined behavior
 		_waterLevel = (std::uint16_t)std::clamp(ReadFiniteFloat(block), 0.0f, 65535.0f);
@@ -833,7 +840,7 @@ namespace Jazz2::Compatibility
 		if (size <= 0 || size > 16 * 1024 * 1024) {
 			return;
 		}
-		String text{NoInit, std::size_t(size)};
+		String text { NoInit, std::size_t(size) };
 		if (s->Read(text.data(), size) != size) {
 			return;
 		}
@@ -919,7 +926,7 @@ namespace Jazz2::Compatibility
 				if (librarySize <= 0 || librarySize > 16 * 1024 * 1024) {
 					continue;
 				}
-				String libraryText{NoInit, std::size_t(librarySize)};
+				String libraryText { NoInit, std::size_t(librarySize) };
 				if (ls->Read(libraryText.data(), librarySize) != librarySize || !libraryText.contains(String("namespace "_s + names[0]))) {
 					continue;
 				}
@@ -958,10 +965,11 @@ namespace Jazz2::Compatibility
 				// Generators are converted differently
 				std::uint8_t eventParams[16];
 				EventConverter::ConvertParamInt(tileEvent.TileParams, {
-					{ JJ2ParamUInt, 8 },	// Event
-					{ JJ2ParamUInt, 8 },	// Delay
-					{ JJ2ParamBool, 1 }		// Initial Delay
-				}, eventParams);
+																		  { JJ2ParamUInt, 8 }, // Event
+																		  { JJ2ParamUInt, 8 }, // Delay
+																		  { JJ2ParamBool, 1 } // Initial Delay
+																	  },
+					eventParams);
 
 				eventType = (JJ2Event)eventParams[0];
 				tileEvent.GeneratorDelay = eventParams[1];
@@ -993,10 +1001,11 @@ namespace Jazz2::Compatibility
 				// Generators are converted differently
 				std::uint8_t eventParams[16];
 				EventConverter::ConvertParamInt(offGridEvent.TileParams, {
-					{ JJ2ParamUInt, 8 },	// Event
-					{ JJ2ParamUInt, 8 },	// Delay
-					{ JJ2ParamBool, 1 }		// Initial Delay
-				}, eventParams);
+																			 { JJ2ParamUInt, 8 }, // Event
+																			 { JJ2ParamUInt, 8 }, // Delay
+																			 { JJ2ParamBool, 1 } // Initial Delay
+																		 },
+					eventParams);
 
 				eventType = (JJ2Event)eventParams[0];
 				offGridEvent.GeneratorDelay = eventParams[1];
@@ -1658,11 +1667,16 @@ namespace Jazz2::Compatibility
 	{
 		// NORMAL is the default model too, without the speed of a layer that has an auto speed (see Convert())
 		switch (speedModel) {
-			case LayerSectionSpeedModel::Legacy: return Tiles::LayerSpeedModel::AlwaysOnTop;
-			case LayerSectionSpeedModel::FromStart: return Tiles::LayerSpeedModel::FromStart;
-			case LayerSectionSpeedModel::FitLevel: return Tiles::LayerSpeedModel::FitLevel;
-			case LayerSectionSpeedModel::SpeedMultipliers: return Tiles::LayerSpeedModel::SpeedMultipliers;
-			default: return Tiles::LayerSpeedModel::Default;
+			case LayerSectionSpeedModel::Legacy:
+				return Tiles::LayerSpeedModel::AlwaysOnTop;
+			case LayerSectionSpeedModel::FromStart:
+				return Tiles::LayerSpeedModel::FromStart;
+			case LayerSectionSpeedModel::FitLevel:
+				return Tiles::LayerSpeedModel::FitLevel;
+			case LayerSectionSpeedModel::SpeedMultipliers:
+				return Tiles::LayerSpeedModel::SpeedMultipliers;
+			default:
+				return Tiles::LayerSpeedModel::Default;
 		}
 	}
 
@@ -1732,8 +1746,7 @@ namespace Jazz2::Compatibility
 		// LEGACY of another layer, which JJ2+ draws with properties of layer 8, keep the look the sky layers always had here.
 		const bool hasPlusStyle = (look.TexturedBackgroundType == TexturedStyleWarpHorizon ||
 			look.TexturedBackgroundType == TexturedStyleTunnel || look.TexturedBackgroundType == TexturedStyleCylinder);
-		const bool hasPlusPerspective = (hasTexturedSpeeds && hasPlusStyle && (layer.TextureSurface == 2 || isLegacyOfSky ||
-			look.TexturedBackgroundType == TexturedStyleCylinder || (forPlusLevel && isSky && layer.TextureSurface <= 1)));
+		const bool hasPlusPerspective = (hasTexturedSpeeds && hasPlusStyle && (layer.TextureSurface == 2 || isLegacyOfSky || look.TexturedBackgroundType == TexturedStyleCylinder || (forPlusLevel && isSky && layer.TextureSurface <= 1)));
 		if (hasTexturedSpeeds && hasPlusStyle && !hasPlusPerspective && !isSky && layer.TextureSurface == 1) {
 			LOGW("Layer {} of level \"{}\" is textured as SURFACE::LEGACY, which JJ2+ draws with properties of layer 8, it's drawn as the sky layers always were here instead", index, LevelName);
 		}
@@ -1783,23 +1796,24 @@ namespace Jazz2::Compatibility
 		record.RendererType = look.TexturedBackgroundType + (std::uint8_t)Tiles::LayerRendererType::Sky;
 		// Drawn over what is behind it as by a script (see Scripting::Legacy::jjLAYER::SetBlend())
 		switch (layer.SpriteMode) {
-			case 0: break;
-			case 1:		// SPRITE::TRANSLUCENT
-			case 46:	// SPRITE::TRANSLUCENTTILE
+			case 0:
+				break;
+			case 1: // SPRITE::TRANSLUCENT
+			case 46: // SPRITE::TRANSLUCENTTILE
 				record.Blend = std::uint8_t(Tiles::LayerBlend::Translucent);
 				record.BlendParam = 128;
 				break;
-			case 10:	// SPRITE::INVISIBLE
-			case 29:	// SPRITE::BLEND_NORMAL
+			case 10: // SPRITE::INVISIBLE
+			case 29: // SPRITE::BLEND_NORMAL
 				record.Blend = std::uint8_t(Tiles::LayerBlend::Translucent);
 				record.BlendParam = (layer.SpriteMode == 10 ? 0 : layer.SpriteParam);
 				break;
-			case 47:	// SPRITE::CHROMAKEY
+			case 47: // SPRITE::CHROMAKEY
 				record.Blend = std::uint8_t(Tiles::LayerBlend::ChromaKey);
 				record.BlendParam = layer.SpriteParam;
 				break;
-			case 48:	// SPRITE::MAPPING
-			case 49:	// SPRITE::TRANSLUCENTMAPPING, half as opaque
+			case 48: // SPRITE::MAPPING
+			case 49: // SPRITE::TRANSLUCENTMAPPING, half as opaque
 				// Through the additional palette of the parameter
 				record.Textured.Mapping = std::uint8_t(layer.SpriteParam + 1);
 				if (layer.SpriteMode == 49) {
@@ -1860,8 +1874,7 @@ namespace Jazz2::Compatibility
 		if (isInnerSurface) {
 			// SURFACE::INNERWINDOW or SURFACE::INNERLAYER, the speeds place the layer then and the inner speeds move its
 			// texture inside it
-			record.Textured.Flags = std::uint8_t(record.Textured.Flags | (layer.TextureSurface == 3
-				? Formats::TexturedLayerParams::InnerWindow : Formats::TexturedLayerParams::InnerLayer));
+			record.Textured.Flags = std::uint8_t(record.Textured.Flags | (layer.TextureSurface == 3 ? Formats::TexturedLayerParams::InnerWindow : Formats::TexturedLayerParams::InnerLayer));
 			// All of them finite already, see ReadFiniteFloat(), the auto speeds per tick of the original as those of the layer
 			record.Textured.InnerSpeedX = layer.InnerSpeedX;
 			record.Textured.InnerSpeedY = layer.InnerSpeedY;
@@ -1964,51 +1977,51 @@ namespace Jazz2::Compatibility
 
 		// The values of `SPRITE::Mode` of JJ2+, which aren't consecutive
 		switch (spriteMode) {
-			case 1:		// SPRITE::TRANSLUCENT
-			case 46:	// SPRITE::TRANSLUCENTTILE
+			case 1: // SPRITE::TRANSLUCENT
+			case 46: // SPRITE::TRANSLUCENTTILE
 				record.Color[3] = 192;
 				break;
-			case 2:		// SPRITE::TINTED
+			case 2: // SPRITE::TINTED
 				record.RendererType = (std::uint8_t)Tiles::LayerRendererType::Tinted;
 				record.Color[0] = spriteParam;
 				record.Color[1] = 0;
 				record.Color[2] = 0;
 				break;
-			case 10:	// SPRITE::INVISIBLE
+			case 10: // SPRITE::INVISIBLE
 				record.Color[3] = 0;
 				break;
-			case 11:	// SPRITE::SINGLECOLOR
-			case 23:	// SPRITE::TRANSLUCENTCOLOR
+			case 11: // SPRITE::SINGLECOLOR
+			case 23: // SPRITE::TRANSLUCENTCOLOR
 				record.RendererType = (std::uint8_t)Tiles::LayerRendererType::SingleColor;
 				record.Color[0] = spriteParam;
 				record.Color[1] = 0;
 				record.Color[2] = 0;
 				record.Color[3] = (spriteMode == 23 ? 192 : 255);
 				break;
-			case 47:	// SPRITE::CHROMAKEY
+			case 47: // SPRITE::CHROMAKEY
 				record.Blend = std::uint8_t(Tiles::LayerBlend::ChromaKey);
 				record.BlendParam = spriteParam;
 				break;
-			case 18:	// SPRITE::PALSHIFT
-			case 25:	// SPRITE::TRANSLUCENTPALSHIFT
+			case 18: // SPRITE::PALSHIFT
+			case 25: // SPRITE::TRANSLUCENTPALSHIFT
 				record.RendererType = (std::uint8_t)Tiles::LayerRendererType::PaletteShift;
 				record.Color[0] = spriteParam;
 				record.Color[3] = (spriteMode == 25 ? 192 : 255);
 				break;
-			case 22:	// SPRITE::BRIGHTNESS, 128 as it is
+			case 22: // SPRITE::BRIGHTNESS, 128 as it is
 				record.Color[0] = record.Color[1] = record.Color[2] = std::uint8_t(std::min<std::int32_t>(spriteParam * 2, 255));
 				break;
-			case 27:	// SPRITE::ALPHAMAP
+			case 27: // SPRITE::ALPHAMAP
 				record.RendererType = (std::uint8_t)Tiles::LayerRendererType::AlphaMap;
 				record.Color[0] = spriteParam;
 				record.Color[1] = 0;
 				record.Color[2] = 0;
 				break;
-			case 29:	// SPRITE::BLEND_NORMAL, the parameter is how opaque it is
+			case 29: // SPRITE::BLEND_NORMAL, the parameter is how opaque it is
 				record.Color[3] = spriteParam;
 				break;
-			case 48:	// SPRITE::MAPPING
-			case 49:	// SPRITE::TRANSLUCENTMAPPING, half as opaque (compared with JJ2+)
+			case 48: // SPRITE::MAPPING
+			case 49: // SPRITE::TRANSLUCENTMAPPING, half as opaque (compared with JJ2+)
 				// The parameter is the index of the additional palette (MLLE maps its own list onto the mappings of JJ2+)
 				record.RendererType = (std::uint8_t)Tiles::LayerRendererType::PaletteMapping;
 				record.Color[0] = spriteParam;
@@ -2121,7 +2134,8 @@ namespace Jazz2::Compatibility
 	{
 		const std::size_t size = value.size();
 		const std::size_t suffixSize = suffix.size();
-		if (size < suffixSize) return false;
+		if (size < suffixSize)
+			return false;
 
 		for (std::size_t i = 0; i < suffixSize; i++) {
 			if (tolower(value[size - suffixSize + i]) != suffix[i]) {

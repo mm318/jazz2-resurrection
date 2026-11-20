@@ -45,7 +45,8 @@ namespace Jazz2::Actors::Solid
 		static constexpr float LengthTowards = 0.3f;
 
 		// A frame of the swing, the catch area follows it
-		struct LegacyFrame {
+		struct LegacyFrame
+		{
 			float HotspotY;
 			float Width;
 			float Height;

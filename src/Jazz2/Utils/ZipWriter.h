@@ -42,7 +42,8 @@ namespace Jazz2::Utils
 		bool Finish();
 
 		/** @brief Returns the number of files added */
-		std::size_t GetCount() const {
+		std::size_t GetCount() const
+		{
 			return _entries.size();
 		}
 

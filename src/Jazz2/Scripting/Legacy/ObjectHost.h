@@ -44,11 +44,13 @@ namespace Jazz2::Scripting::Legacy
 		ScriptSceneryObject();
 
 		/** @brief Returns `true` for the update the tile collapses in, until the next one */
-		bool IsCollapsing() const {
+		bool IsCollapsing() const
+		{
 			return (_phase == Phase::Collapsing);
 		}
 		/** @brief Returns `true` once the tile is broken */
-		bool IsBroken() const {
+		bool IsBroken() const
+		{
 			return (_phase == Phase::Broken);
 		}
 
@@ -58,7 +60,8 @@ namespace Jazz2::Scripting::Legacy
 		bool OnDraw(RenderQueue& renderQueue) override;
 
 	private:
-		enum class Phase : std::uint8_t {
+		enum class Phase : std::uint8_t
+		{
 			Whole,
 			Collapsing,
 			Broken
@@ -106,7 +109,8 @@ namespace Jazz2::Scripting::Legacy
 	bool GetSolidObjectBox(LevelScriptLoader* levelScripts, const jjOBJ& obj, AABBf& box);
 
 	/** @brief Returns the box a player touches objects by in JJ2+ when its frame isn't known (measured on a pole) */
-	inline AABBf GetLegacyPlayerBox(Actors::ActorBase& player) {
+	inline AABBf GetLegacyPlayerBox(Actors::ActorBase& player)
+	{
 		Vector2f pos = player.GetPos();
 		float left = (player.IsFacingLeft() ? 18.0f : 17.0f);
 		return AABBf(pos.X - left, pos.Y - 14.0f, pos.X + 35.0f - left, pos.Y + 9.0f);

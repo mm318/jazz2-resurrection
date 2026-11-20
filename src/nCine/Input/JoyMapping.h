@@ -30,13 +30,16 @@ namespace nCine
 		static const std::int32_t MaxNumJoysticks = 6;
 
 		JoyMapping();
-		~JoyMapping() {}
+		~JoyMapping()
+		{
+		}
 
 		/** @brief Initializes the mapping layer with the specified input manager and loads the built-in mappings */
 		void Init(const IInputManager* inputManager);
 
 		/** @brief Sets the input event handler that receives mapped events */
-		inline void SetHandler(IInputEventHandler* inputEventHandler) {
+		inline void SetHandler(IInputEventHandler* inputEventHandler)
+		{
 			_inputEventHandler = inputEventHandler;
 		}
 
@@ -46,7 +49,8 @@ namespace nCine
 		bool AddMappingsFromFile(StringView path);
 
 		/** @brief Returns the current number of loaded mappings */
-		inline std::int32_t GetMappingCount() const {
+		inline std::int32_t GetMappingCount() const
+		{
 			return (std::int32_t)_mappings.size();
 		}
 

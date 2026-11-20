@@ -1,25 +1,25 @@
 #include "Clock.h"
 
 #if defined(DEATH_TARGET_WINDOWS)
-#	include <winsync.h>
-#	include <profileapi.h>
+#include <winsync.h>
+#include <profileapi.h>
 #elif defined(DEATH_TARGET_APPLE)
-#	include <Availability.h>
-#	if __MAC_10_12
-#		include <time.h>
-#	else
-#		include <mach/mach_time.h>
-#	endif
-#elif defined(DEATH_TARGET_N64)
-#	include <n64sys.h>		// libdragon's COP0 tick counter, this newlib has no clock_gettime()
-#elif defined(DEATH_TARGET_AMIGAOS)
-#	include "../Backends/Amiga/AmigaPlatform.h"	// timer.device's EClock (~709 kHz), libnix has no monotonic clock_gettime()
+#include <Availability.h>
+#if __MAC_10_12
+#include <time.h>
 #else
-#	include <time.h>		// for clock_gettime()
-#	if defined(DEATH_TARGET_PS3)
-#		include <sys/systime.h>	// lv2's clock, this newlib has no clock_gettime()
-#	endif
-#	include <sys/time.h>	// for gettimeofday()
+#include <mach/mach_time.h>
+#endif
+#elif defined(DEATH_TARGET_N64)
+#include <n64sys.h> // libdragon's COP0 tick counter, this newlib has no clock_gettime()
+#elif defined(DEATH_TARGET_AMIGAOS)
+#include "../Backends/Amiga/AmigaPlatform.h" // timer.device's EClock (~709 kHz), libnix has no monotonic clock_gettime()
+#else
+#include <time.h> // for clock_gettime()
+#if defined(DEATH_TARGET_PS3)
+#include <sys/systime.h> // lv2's clock, this newlib has no clock_gettime()
+#endif
+#include <sys/time.h> // for gettimeofday()
 #endif
 
 namespace nCine
@@ -43,13 +43,13 @@ namespace nCine
 			_hasPerfCounter = false;
 		}
 #elif defined(DEATH_TARGET_APPLE)
-#	if __MAC_10_12
+#if __MAC_10_12
 		_frequency = 1.0e9L;
-#	else
+#else
 		mach_timebase_info_data_t info;
 		mach_timebase_info(&info);
 		_frequency = (info.denom * 1.0e9L) / info.numer;
-#	endif
+#endif
 #elif defined(DEATH_TARGET_N64)
 		// libdragon's newlib has no clock_gettime() either; the COP0 count register ticks at half the CPU
 		// clock (TICKS_PER_SECOND) and libdragon extends it to 64 bits, so it is the monotonic clock here
@@ -88,11 +88,11 @@ namespace nCine
 			return ::GetTickCount64();
 		}
 #elif defined(DEATH_TARGET_APPLE)
-#	if __MAC_10_12
+#if __MAC_10_12
 		return clock_gettime_nsec_np(CLOCK_MONOTONIC_RAW);
-#	else
+#else
 		return mach_absolute_time();
-#	endif
+#endif
 #elif defined(DEATH_TARGET_N64)
 		return get_ticks();
 #elif defined(DEATH_TARGET_AMIGAOS)

@@ -21,7 +21,7 @@ namespace Jazz2::Scripting
 		// The entries of the tables
 
 		jjANIMFRAME::jjANIMFRAME(std::uint32_t index)
-			: _refCount(1), _index(index), _transparent(false), _watched(false), _source(-1), _owner(0), _version(0), _seenSpots{}
+			: _refCount(1), _index(index), _transparent(false), _watched(false), _source(-1), _owner(0), _version(0), _seenSpots {}
 		{
 		}
 
@@ -235,7 +235,7 @@ namespace Jazz2::Scripting
 			for (std::uint64_t top = startY; top + frameHeight <= sheet.height; top += std::uint64_t(frameHeight) + frameSpacingY) {
 				std::uint32_t count = 0;
 				for (std::uint64_t left = startX; left + frameWidth <= sheet.width && !isCellEmpty(std::uint32_t(left), std::uint32_t(top));
-					left += std::uint64_t(frameWidth) + frameSpacingX) {
+					 left += std::uint64_t(frameWidth) + frameSpacingX) {
 					count++;
 				}
 				if (count == 0) {
@@ -308,7 +308,8 @@ namespace Jazz2::Scripting
 		return *_animTables;
 	}
 
-	std::uint32_t getCustomSetID(std::uint8_t index) {
+	std::uint32_t getCustomSetID(std::uint8_t index)
+	{
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		return owner->GetAnimationTables().GetCustomFirstSetID() + index;
 	}

@@ -32,7 +32,8 @@ namespace Jazz2::Actors::Solid
 	private:
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
-		struct ChainPiece {
+		struct ChainPiece
+		{
 			Vector2f Pos;
 			float Scale;
 			std::unique_ptr<RenderCommand> Command;

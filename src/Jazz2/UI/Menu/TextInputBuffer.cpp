@@ -104,7 +104,8 @@ namespace Jazz2::UI::Menu
 				_caretAnim = 0.0f;
 				return true;
 			}
-			default: return false;
+			default:
+				return false;
 		}
 	}
 

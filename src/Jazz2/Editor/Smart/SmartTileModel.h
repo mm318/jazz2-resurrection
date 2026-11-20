@@ -75,15 +75,18 @@ namespace Jazz2::Editor
 		/** @brief Takes in what the levels read tell and reads more of them without threads, call it every frame */
 		void Update();
 		/** @brief Returns `true` if all levels were read */
-		bool IsReady() const {
+		bool IsReady() const
+		{
 			return _ready;
 		}
 		/** @brief Returns the tile set learned */
-		StringView GetTileSet() const {
+		StringView GetTileSet() const
+		{
 			return _tileSet;
 		}
 		/** @brief Returns the number of levels learned from, not counting the one being edited */
-		std::int32_t GetLevelCount() const {
+		std::int32_t GetLevelCount() const
+		{
 			return _levelCount;
 		}
 		/** @brief Returns how far reading the levels is, from 0 to 1 */
@@ -126,7 +129,8 @@ namespace Jazz2::Editor
 		/** @brief Returns whether a tile fits its neighbors, it's one of the rule for them or the levels use it so */
 		bool Fits(std::uint8_t neighbors, bool spriteLayer, const TileRef& tile) const;
 		/** @brief Returns the tiles chosen by hand, which are taken before those learned */
-		TerrainRules& GetRules() {
+		TerrainRules& GetRules()
+		{
 			return _rules;
 		}
 		/** @brief Returns how many times the levels have a tile right of another one */
@@ -164,7 +168,8 @@ namespace Jazz2::Editor
 		static bool IsModelTile(const TileRef& tile);
 
 		/** @brief Returns a number that changes whenever the tiles picked can, with what's learned or with the rules */
-		std::uint64_t GetRevision() const {
+		std::uint64_t GetRevision() const
+		{
 			return (std::uint64_t(_revision) << 32) | _rules.GetRevision();
 		}
 

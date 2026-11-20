@@ -20,4 +20,3 @@ namespace nCine
 		class Eq = phmap::priv::hash_default_eq<K>>
 	using HashMap = phmap::flat_hash_map<K, V, Hash, Eq>;
 }
-

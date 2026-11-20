@@ -1,28 +1,28 @@
 ﻿#include "Main.h"
 
 #if defined(DEATH_TARGET_ANDROID)
-#	include "nCine/Backends/Android/AndroidApplication.h"
-#	include "nCine/Backends/Android/AndroidJniHelper.h"
+#include "nCine/Backends/Android/AndroidApplication.h"
+#include "nCine/Backends/Android/AndroidJniHelper.h"
 #elif defined(WITH_LIBRETRO)
-#	include "nCine/Backends/Libretro/LibretroApplication.h"
+#include "nCine/Backends/Libretro/LibretroApplication.h"
 #elif defined(DEATH_TARGET_WINDOWS_RT)
-#	include "nCine/Backends/Uwp/UwpApplication.h"
+#include "nCine/Backends/Uwp/UwpApplication.h"
 #else
-#	include "nCine/MainApplication.h"
-#	if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
-#		include <unistd.h>
-#	endif
+#include "nCine/MainApplication.h"
+#if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
+#include <unistd.h>
+#endif
 #endif
 
 #if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
-#	include <cerrno>
-#	include <cstring>
-#	include <unistd.h>
+#include <cerrno>
+#include <cstring>
+#include <unistd.h>
 #endif
 
 #include "nCine/I18n.h"
 #if defined(DEATH_TARGET_PSP)
-#	include "nCine/Backends/Psp/PspNetwork.h"
+#include "nCine/Backends/Psp/PspNetwork.h"
 #endif
 #include "nCine/IAppEventHandler.h"
 #include "nCine/ServiceLocator.h"
@@ -47,32 +47,31 @@
 #include "Jazz2/UI/Menu/HighscoresSection.h"
 #include "Jazz2/UI/Menu/SimpleMessageSection.h"
 
-
 #if defined(WITH_EDITOR)
-#	include "Jazz2/Editor/EditorSession.h"
-#	if defined(DEATH_DEBUG)
-#		include "Jazz2/Editor/EditorSelfTest.h"
-#	endif
+#include "Jazz2/Editor/EditorSession.h"
+#if defined(DEATH_DEBUG)
+#include "Jazz2/Editor/EditorSelfTest.h"
+#endif
 #endif
 
 #if defined(WITH_LEVEL_PACKS)
-#	include "Jazz2/LevelPacks/LevelPackLibrary.h"
+#include "Jazz2/LevelPacks/LevelPackLibrary.h"
 #endif
 
 #if defined(WITH_MULTIPLAYER)
-#	include "Jazz2/Multiplayer/NetworkManager.h"
-#	include "Jazz2/Multiplayer/INetworkHandler.h"
-#	include "Jazz2/Multiplayer/MpLevelHandler.h"
-#	include "Jazz2/Multiplayer/PacketTypes.h"
+#include "Jazz2/Multiplayer/NetworkManager.h"
+#include "Jazz2/Multiplayer/INetworkHandler.h"
+#include "Jazz2/Multiplayer/MpLevelHandler.h"
+#include "Jazz2/Multiplayer/PacketTypes.h"
 using namespace Jazz2::Multiplayer;
 #endif
 
 #if defined(DEATH_TRACE) && (defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX))
-#	include "TermLogo.h"
+#include "TermLogo.h"
 #endif
 
 #if defined(DEATH_TARGET_WINDOWS) && !defined(WITH_QT5)
-#	include <cstdlib> // for `__argc` and `__argv`
+#include <cstdlib> // for `__argc` and `__argv`
 #endif
 
 #include <atomic>
@@ -88,12 +87,12 @@ using namespace Jazz2::Multiplayer;
 #include <Utf8.h>
 
 #if defined(WITH_THREADS)
-#	include <mutex>
+#include <mutex>
 #endif
 
 #if !defined(DEATH_TARGET_EMSCRIPTEN) && (defined(DEATH_TARGET_WINDOWS) || defined(WITH_CURL))
 // The update check needs a WebRequest HTTP backend (WinHTTP or curl)
-#	define WITH_UPDATE_CHECK
+#define WITH_UPDATE_CHECK
 #endif
 
 /** @brief @ref Death::Containers::StringView from @ref NCINE_VERSION */
@@ -121,7 +120,7 @@ namespace
 	// they are released. The intro cinematic's full-screen PSMCT32 frame alone is 140 of the 422 pages the
 	// texture cache has.
 #if defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_DREAMCAST) || \
-		defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PS2)
+	defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PS2)
 	constexpr bool ReleaseAssetsBeforeLoading = true;
 #else
 	constexpr bool ReleaseAssetsBeforeLoading = false;
@@ -130,7 +129,8 @@ namespace
 
 class GameEventHandler : public IAppEventHandler, public IInputEventHandler, public IRootController
 #if defined(WITH_MULTIPLAYER)
-	, public INetworkHandler
+	,
+						 public INetworkHandler
 #endif
 {
 public:
@@ -189,14 +189,15 @@ public:
 	void OnPacketReceived(const Peer& peer, std::uint8_t channelId, std::uint8_t packetType, ArrayView<const std::uint8_t> data) override;
 #endif
 
-	Flags GetFlags() const override {
+	Flags GetFlags() const override
+	{
 		return _flags;
 	}
 
-	StringView GetNewestVersion() const override {
+	StringView GetNewestVersion() const override
+	{
 		return _newestVersion;
 	}
-
 
 private:
 #if defined(WITH_MULTIPLAYER)
@@ -219,12 +220,12 @@ private:
 	// both keeps the handler alive for the whole call and can't observe a half-written pointer. Anything that
 	// mutates the level (the stdin console commands) is marshaled to the main thread with `InvokeAsync()` instead
 	std::shared_ptr<MpLevelHandler> _networkLevelHandler;
-#	if defined(WITH_THREADS)
+#if defined(WITH_THREADS)
 	std::mutex _networkLevelHandlerLock;
-#	endif
+#endif
 	// Set by the network thread once the client has found the server incompatible (see `ServerPacketType::AuthResponse`),
 	// the rest of what the server sends is then ignored until the connection is torn down; reset for each new connection
-	std::atomic<bool> _serverRejected{false};
+	std::atomic<bool> _serverRejected { false };
 #endif
 
 	void OnBeginInitialize();
@@ -298,7 +299,8 @@ static bool OverridePathsFromHost()
 	String systemBase;
 	if (!hostPaths.System.empty()) {
 		systemBase = (fs::DirectoryExists(fs::CombinePath(hostPaths.System, "assets"_s))
-			? hostPaths.System : fs::CombinePath(hostPaths.System, "jazz2"_s));
+				? hostPaths.System
+				: fs::CombinePath(hostPaths.System, "jazz2"_s));
 	}
 
 	String baseDir = FindGameRoot(hostPaths, systemBase);
@@ -335,10 +337,10 @@ void GameEventHandler::OnPreInitialize(AppConfiguration& config)
 	for (std::int32_t i = 0; i < config.GetArgc(); i++) {
 		auto arg = config.GetArgv(i);
 		if (arg == "/extract-pak"_s && i + 2 < config.GetArgc()) {
-#	if defined(DEATH_TRACE) && defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TRACE) && defined(DEATH_TARGET_WINDOWS)
 			// Always attach to console in this case
 			theApplication().AttachTraceTarget(Application::ConsoleTarget);
-#	endif
+#endif
 			auto pakFile = config.GetArgv(i + 1);
 			if (fs::FileExists(pakFile)) {
 				ExtractPakFile(pakFile, config.GetArgv(i + 2));
@@ -349,11 +351,11 @@ void GameEventHandler::OnPreInitialize(AppConfiguration& config)
 			theApplication().Quit();
 			return;
 		}
-#	if defined(WITH_MULTIPLAYER) && (!defined(DEATH_TARGET_WINDOWS) || defined(DEATH_DEBUG))
+#if defined(WITH_MULTIPLAYER) && (!defined(DEATH_TARGET_WINDOWS) || defined(DEATH_DEBUG))
 		if (arg == "/server"_s || arg == "--server"_s) {
 			isServer = true;
 		}
-#	endif
+#endif
 	}
 #else
 	constexpr bool isServer = false;
@@ -449,21 +451,22 @@ void GameEventHandler::OnInitialize()
 		DEATH_ASSERT(handler != nullptr);
 
 		handler->OnAfterInitialize();
-#	if defined(WITH_UPDATE_CHECK)
+#if defined(WITH_UPDATE_CHECK)
 		handler->CheckUpdates();
-#	endif
-	}, this);
+#endif
+	},
+		this);
 #else
 	OnAfterInitialize();
-#	if defined(WITH_UPDATE_CHECK)
+#if defined(WITH_UPDATE_CHECK)
 	CheckUpdates();
-#	endif
+#endif
 #endif
 
 #if defined(WITH_MULTIPLAYER) && defined(DEDICATED_SERVER)
 	const AppConfiguration& config = theApplication().GetAppConfiguration();
 	StringView configPath;
-#	if defined(WITH_LEVEL_PACKS)
+#if defined(WITH_LEVEL_PACKS)
 	for (std::int32_t i = 0; i < config.GetArgc(); i++) {
 		bool takesValue;
 		if (IsLevelPackSwitch(config.GetArgv(i), takesValue)) {
@@ -473,16 +476,16 @@ void GameEventHandler::OnInitialize()
 		configPath = config.GetArgv(i);
 		break;
 	}
-#	else
+#else
 	if (config.GetArgc() > 0) {
 		configPath = config.GetArgv(0);
 	}
-#	endif
+#endif
 	RunDedicatedServer(configPath);
 #else
-#	if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_AMIGAOS) || (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT))
+#if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_AMIGAOS) || (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT))
 	const AppConfiguration& config = theApplication().GetAppConfiguration();
-#		if defined(WITH_EDITOR)
+#if defined(WITH_EDITOR)
 	// Checked first, because a level file given to it would otherwise be played
 	for (std::int32_t i = 0; i < config.GetArgc(); i++) {
 		if (config.GetArgv(i) == "/edit"_s) {
@@ -508,7 +511,7 @@ void GameEventHandler::OnInitialize()
 			return;
 		}
 	}
-#		endif
+#endif
 	for (std::int32_t i = 0; i < config.GetArgc(); i++) {
 		auto arg = config.GetArgv(i);
 		if (arg.size() > 4) {
@@ -529,7 +532,7 @@ void GameEventHandler::OnInitialize()
 				}
 			}
 		}
-#		if defined(DEATH_DEBUG)
+#if defined(DEATH_DEBUG)
 		if (arg == "/level"_s && i + 1 < config.GetArgc()) {
 			String levelName = config.GetArgv(i + 1);
 			StringUtils::lowercaseInPlace(levelName);
@@ -545,7 +548,7 @@ void GameEventHandler::OnInitialize()
 				return;
 			}
 		}
-#			if defined(WITH_EDITOR)
+#if defined(WITH_EDITOR)
 		if (arg == "/editor-selftest"_s) {
 			WaitForVerify();
 			// With "--unit" only the tests that need no game data, otherwise the levels of a directory too
@@ -555,9 +558,9 @@ void GameEventHandler::OnInitialize()
 			theApplication().Quit();
 			return;
 		}
-#			endif
-#		endif
-#		if defined(WITH_MULTIPLAYER)
+#endif
+#endif
+#if defined(WITH_MULTIPLAYER)
 		if ((arg == "/connect"_s || arg == "--connect"_s || arg == "-c"_s) && i + 1 < config.GetArgc()) {
 			auto endpoint = config.GetArgv(i + 1);
 			if (!endpoint.empty()) {
@@ -567,7 +570,7 @@ void GameEventHandler::OnInitialize()
 				return;
 			}
 		}
-#			if (!defined(DEATH_TARGET_WINDOWS) || defined(DEATH_DEBUG)) && !defined(DEATH_TARGET_EMSCRIPTEN)
+#if (!defined(DEATH_TARGET_WINDOWS) || defined(DEATH_DEBUG)) && !defined(DEATH_TARGET_EMSCRIPTEN)
 		else if (arg == "/server"_s || arg == "--server"_s) {
 			StringView configPath;
 			if (i + 1 < config.GetArgc()) {
@@ -576,12 +579,12 @@ void GameEventHandler::OnInitialize()
 			RunDedicatedServer(configPath);
 			return;
 		}
-#			endif
-#		endif
+#endif
+#endif
 	}
-#	endif
+#endif
 
-#	if defined(WITH_THREADS) && !defined(DEATH_TARGET_EMSCRIPTEN)
+#if defined(WITH_THREADS) && !defined(DEATH_TARGET_EMSCRIPTEN)
 	SetStateHandler(std::make_shared<Cinematics>(this, "intro"_s, [](IRootController* root, bool endOfStream) mutable {
 		if ((root->GetFlags() & Flags::IsVerified) == Flags::IsVerified) {
 			root->GoToMainMenu(endOfStream);
@@ -603,12 +606,12 @@ void GameEventHandler::OnInitialize()
 
 		return true;
 	}));
-#	else
+#else
 	SetStateHandler(std::make_shared<Cinematics>(this, "intro"_s, [](IRootController* root, bool endOfStream) {
 		root->GoToMainMenu(endOfStream);
 		return true;
 	}));
-#	endif
+#endif
 
 	Vector2i viewSize;
 	if (_currentHandler != nullptr) {
@@ -688,7 +691,7 @@ void GameEventHandler::OnPostUpdate()
 	if (_backInvokedTimeLeft > 0) {
 		_backInvokedTimeLeft--;
 		if (_backInvokedTimeLeft <= 0) {
-			KeyboardEvent event{};
+			KeyboardEvent event {};
 			event.Sym = Keys::Back;
 			_currentHandler->OnKeyReleased(event);
 		}
@@ -783,7 +786,7 @@ void GameEventHandler::OnBackInvoked()
 		// The back button needs to be pressed for at least 2 frames
 		_backInvokedTimeLeft = 2;
 
-		KeyboardEvent event{};
+		KeyboardEvent event {};
 		event.Sym = Keys::Back;
 		_currentHandler->OnKeyPressed(event);
 	}
@@ -801,12 +804,12 @@ void GameEventHandler::OnKeyPressed(const KeyboardEvent& event)
 	// Allow F11 and Alt+Enter to switch fullscreen
 	// TODO: Don't override F11 in web browser with newer version of `contrib.glfw3`
 	if (event.Sym == Keys::F11 || (event.Sym == Keys::Return && (event.Mod & KeyMod::Mask) == KeyMod::LAlt)) {
-#	if defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS_RT)
 		// Xbox is always fullscreen
 		if (Environment::CurrentDeviceType == DeviceType::Xbox) {
 			return;
 		}
-#	endif
+#endif
 		PreferencesCache::EnableFullscreen = !PreferencesCache::EnableFullscreen;
 		theApplication().GetGfxDevice().SetResolution(PreferencesCache::EnableFullscreen);
 		ApplyCursorPolicy();
@@ -880,16 +883,22 @@ void GameEventHandler::ApplyCursorPolicy()
 	IStateHandler::CursorPolicy policy = (_currentHandler != nullptr ? _currentHandler->GetCursorPolicy() : IStateHandler::CursorPolicy::Default);
 	bool visible;
 	switch (policy) {
-		case IStateHandler::CursorPolicy::Visible: visible = true; break;
-		case IStateHandler::CursorPolicy::Hidden: visible = false; break;
-		default: visible = !PreferencesCache::EnableFullscreen; break;
+		case IStateHandler::CursorPolicy::Visible:
+			visible = true;
+			break;
+		case IStateHandler::CursorPolicy::Hidden:
+			visible = false;
+			break;
+		default:
+			visible = !PreferencesCache::EnableFullscreen;
+			break;
 	}
-#	if defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS_RT)
 	// Xbox is always fullscreen and has no mouse
 	if (Environment::CurrentDeviceType == DeviceType::Xbox) {
 		visible = false;
 	}
-#	endif
+#endif
 	theApplication().GetInputManager().SetCursor(visible ? IInputManager::Cursor::Arrow : IInputManager::Cursor::Hidden);
 #endif
 }
@@ -901,7 +910,7 @@ void GameEventHandler::InvokeAsync(Function<void()>&& callback)
 #if defined(WITH_THREADS)
 	std::unique_lock<std::mutex> lock(_pendingCallbacksLock);
 #endif
-	_pendingCallbacks.emplace_back(std::weak_ptr<void>{}, Death::move(callback));
+	_pendingCallbacks.emplace_back(std::weak_ptr<void> {}, Death::move(callback));
 }
 
 void GameEventHandler::InvokeAsync(std::weak_ptr<void> reference, Function<void()>&& callback)
@@ -947,13 +956,13 @@ void GameEventHandler::OpenEditor(Editor::EditorInitialization&& editorInit)
 
 		LOGI("Opening level editor");
 
-#	if defined(WITH_MULTIPLAYER)
+#if defined(WITH_MULTIPLAYER)
 		if (_networkManager != nullptr) {
 			_networkManager->Dispose();
 			_networkManager = nullptr;
 			_streamedAsset = nullptr;
 		}
-#	endif
+#endif
 		ReleasePreviousHandler();
 		InGameConsole::Clear();
 
@@ -1165,8 +1174,8 @@ void GameEventHandler::ResumeStateFromStream(std::shared_ptr<Stream> src)
 
 			if (version == 1) {
 				// Version 1 included compressedSize and decompressedSize, it's not needed anymore
-				/*std::int32_t compressedSize =*/ s->ReadVariableInt32();
-				/*std::int32_t decompressedSize =*/ s->ReadVariableInt32();
+				/*std::int32_t compressedSize =*/s->ReadVariableInt32();
+				/*std::int32_t decompressedSize =*/s->ReadVariableInt32();
 			}
 
 			DeflateStream uc(*s);
@@ -1223,7 +1232,7 @@ bool GameEventHandler::SaveStateToStream(Stream& dest)
 		return false;
 	}
 
-	dest.WriteValueAsLE<std::uint64_t>(0x2095A59FF0BFBBEF);	// Signature
+	dest.WriteValueAsLE<std::uint64_t>(0x2095A59FF0BFBBEF); // Signature
 	dest.WriteValue<std::uint8_t>(ContentFileType::State);
 	dest.WriteValueAsLE<std::uint16_t>(StateVersion);
 
@@ -1368,7 +1377,7 @@ void GameEventHandler::RunDedicatedServer(StringView configPath)
 		LOGE("Server cannot be started because of invalid configuration");
 		theApplication().Quit();
 		return;
-	} 
+	}
 
 	StartProcessingStdin();
 }
@@ -1379,7 +1388,7 @@ static bool ReadLineFromStdin(String& line)
 {
 	static char buffer[4096];
 
-#	if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
+#if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
 	// Reading the descriptor directly instead of using `fgets()` on purpose --- a thread parked in stdio keeps
 	// the lock of `stdin` held, and the stream cleanup that runs when the process exits then blocks on it, so
 	// the server would never finish shutting down unless the input happened to be closed first
@@ -1411,13 +1420,13 @@ static bool ReadLineFromStdin(String& line)
 			return false;
 		}
 	}
-#	else
+#else
 	if (::fgets(buffer, sizeof(buffer), stdin) == nullptr) {
 		return false;
 	}
 	line = buffer;
 	return true;
-#	endif
+#endif
 }
 #endif
 
@@ -1427,26 +1436,26 @@ void GameEventHandler::StartProcessingStdin()
 		auto _this = static_cast<GameEventHandler*>(arg);
 		DEATH_ASSERT(_this != nullptr);
 
-#		if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 		wchar_t bufferW[4096];
 		HANDLE hStdIn = ::GetStdHandle(STD_INPUT_HANDLE);
-#		endif
+#endif
 
 		while (true) {
-#		if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			DWORD charsRead;
 			if (!::ReadConsoleW(hStdIn, bufferW, DWORD(arraySize(bufferW)), &charsRead, nullptr)) {
 				LOGW("Failed to read from stdin");
 				break;
 			}
 			String buffer = Utf8::FromUtf16(arrayView(bufferW, charsRead));
-#		else
+#else
 			String buffer;
 			if (!ReadLineFromStdin(buffer)) {
 				LOGW("Failed to read from stdin");
 				break;
 			}
-#		endif
+#endif
 
 			StringView line = buffer;
 			line = line.trimmed();
@@ -1462,7 +1471,7 @@ void GameEventHandler::StartProcessingStdin()
 					// The command runs on the main thread, because it reaches deep into the level handler and the
 					// network manager, neither of which is safe to touch from here - the line has to be copied,
 					// because `buffer` is gone by the time the callback runs
-					_this->InvokeAsync([_this, command = String{line}]() {
+					_this->InvokeAsync([_this, command = String { line }]() {
 						if (auto levelHandler = runtime_cast<MpLevelHandler>(_this->_currentHandler)) {
 							if (!levelHandler->ProcessCommand({}, command, true) && !command.hasPrefix('/')) {
 								levelHandler->SendMessageToAll(command, true);
@@ -1472,7 +1481,8 @@ void GameEventHandler::StartProcessingStdin()
 				}
 			}
 		}
-	}, this);
+	},
+		this);
 }
 #endif
 
@@ -1492,10 +1502,10 @@ void GameEventHandler::ConnectToServer(StringView endpoint, std::uint16_t defaul
 
 bool GameEventHandler::CreateServer(ServerInitialization&& serverInit)
 {
-#	if defined(DEATH_TARGET_EMSCRIPTEN)
+#if defined(DEATH_TARGET_EMSCRIPTEN)
 	// Creating a server is not supported on Emscripten
 	return false;
-#	else
+#else
 	_networkManager = std::make_unique<NetworkManager>();
 
 	if (serverInit.Configuration.ServerName.empty()) {
@@ -1541,7 +1551,7 @@ bool GameEventHandler::CreateServer(ServerInitialization&& serverInit)
 	});
 
 	return true;
-#	endif
+#endif
 }
 
 ConnectionResult GameEventHandler::OnPeerConnected(const Peer& peer, std::uint32_t clientData)
@@ -1578,21 +1588,21 @@ ConnectionResult GameEventHandler::OnPeerConnected(const Peer& peer, std::uint32
 		packet.WriteValue<std::uint8_t>((std::uint8_t)playerName.size());
 		packet.Write(playerName.data(), (std::uint32_t)playerName.size());
 
-#	if defined(DEATH_TARGET_ANDROID)
+#if defined(DEATH_TARGET_ANDROID)
 		auto androidId = Backends::AndroidJniWrap_Secure::GetAndroidId();
 		std::size_t androidIdLength = std::min(androidId.size(), (std::size_t)UINT8_MAX);
 		packet.WriteValue<std::uint8_t>((std::uint8_t)androidIdLength);
 		packet.Write(androidId.data(), (std::uint32_t)androidIdLength);
-#	else
-		packet.WriteValue<std::uint8_t>(0);	// Device ID
-#	endif
+#else
+		packet.WriteValue<std::uint8_t>(0); // Device ID
+#endif
 
 		std::uint64_t playerUserId = 0;
-#	if (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || defined(DEATH_TARGET_UNIX)
+#if (defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || defined(DEATH_TARGET_UNIX)
 		if (PreferencesCache::EnableDiscordIntegration && UI::DiscordRpcClient::Get().IsSupported()) {
 			playerUserId = UI::DiscordRpcClient::Get().GetUserId();
 		}
-#	endif
+#endif
 		packet.WriteVariableUint64(playerUserId);
 
 		// Player character recolor (so other peers see the correct colors)
@@ -1642,28 +1652,72 @@ void GameEventHandler::OnPeerDisconnected(const Peer& peer, Reason reason)
 			}
 
 			switch (reason) {
-				case Reason::InvalidParameter: mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nInvalid parameter specified."), true); break;
-				case Reason::IncompatibleVersion: mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nYour client version is not compatible with the server."), true); break;
-				case Reason::ProtocolViolation: mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Connection has been closed!\f[/c]\n\n\nThe client was rejected due to malformed communication protocol."), true); break;
-				case Reason::SecurityPolicyViolation: mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nThe connection was denied by the web browser.\nOne of the reasons may be connecting to an unsecured WebSocket."), true); break;
-				case Reason::AuthFailed: mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nAuthentication failed.\nContact server administrators for more information."), true); break;
-				case Reason::InvalidPassword: mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nInvalid password specified."), true); break;
-				case Reason::InvalidPlayerName: mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nInvalid player name specified.\nPlease check your profile and try it again."), true); break;
-				case Reason::NotInWhitelist: mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nThis client is not in the server whitelist.\nContact server administrators for more information."), true); break;
-				case Reason::Requires3rdPartyAuthProvider: mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nServer requires 3rd party authentication provider.\nContact server administrators for more information."), true); break;
-				case Reason::ServerIsFull: mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nServer capacity is full.\nPlease try it later."), true); break;
-				case Reason::ServerNotReady: mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nServer is not in a state where it can process your request.\nPlease try again in a few seconds."), true); break;
-				case Reason::ServerStopped: mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Connection has been closed!\f[/c]\n\n\nServer is shutting down.\nPlease try it later."), true); break;
-				case Reason::ServerStoppedForMaintenance: mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Connection has been closed!\f[/c]\n\n\nServer is shutting down for maintenance.\nPlease try it again later."), true); break;
-				case Reason::ServerStoppedForReconfiguration: mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Connection has been closed!\f[/c]\n\n\nServer is shutting down for reconfiguration.\nPlease try it again later."), true); break;
-				case Reason::ServerStoppedForUpdate: mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Connection has been closed!\f[/c]\n\n\nServer is shutting down for update.\nPlease check your client version and try it again in a minute."), true); break;
-				case Reason::ConnectionLost: mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Connection has been lost!\f[/c]\n\n\nPlease try it again and if the problem persists,\ncheck your network connection."), true); break;
-				case Reason::ConnectionTimedOut: mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nThe server is not responding for connection request."), true); break;
-				case Reason::Kicked: mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Connection has been closed!\f[/c]\n\n\nYou have been \f[c:#907050]kicked\f[/c] off the server.\nContact server administrators for more information."), true); break;
-				case Reason::Banned: mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Connection has been closed!\f[/c]\n\n\nYou have been \f[c:#725040]banned\f[/c] off the server.\nContact server administrators for more information."), true); break;
-				case Reason::CheatingDetected: mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Connection has been closed!\f[/c]\n\n\nCheating detected."), true); break;
-				case Reason::AssetStreamingNotAllowed: mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nYour client doesn't contain required assets.\nPlease download the required files and try it again."), true); break;
-				case Reason::Idle: mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Connection has been closed!\f[/c]\n\n\nThe server has disconnected you due to inactivity."), true); break;
+				case Reason::InvalidParameter:
+					mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nInvalid parameter specified."), true);
+					break;
+				case Reason::IncompatibleVersion:
+					mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nYour client version is not compatible with the server."), true);
+					break;
+				case Reason::ProtocolViolation:
+					mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Connection has been closed!\f[/c]\n\n\nThe client was rejected due to malformed communication protocol."), true);
+					break;
+				case Reason::SecurityPolicyViolation:
+					mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nThe connection was denied by the web browser.\nOne of the reasons may be connecting to an unsecured WebSocket."), true);
+					break;
+				case Reason::AuthFailed:
+					mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nAuthentication failed.\nContact server administrators for more information."), true);
+					break;
+				case Reason::InvalidPassword:
+					mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nInvalid password specified."), true);
+					break;
+				case Reason::InvalidPlayerName:
+					mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nInvalid player name specified.\nPlease check your profile and try it again."), true);
+					break;
+				case Reason::NotInWhitelist:
+					mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nThis client is not in the server whitelist.\nContact server administrators for more information."), true);
+					break;
+				case Reason::Requires3rdPartyAuthProvider:
+					mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nServer requires 3rd party authentication provider.\nContact server administrators for more information."), true);
+					break;
+				case Reason::ServerIsFull:
+					mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nServer capacity is full.\nPlease try it later."), true);
+					break;
+				case Reason::ServerNotReady:
+					mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nServer is not in a state where it can process your request.\nPlease try again in a few seconds."), true);
+					break;
+				case Reason::ServerStopped:
+					mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Connection has been closed!\f[/c]\n\n\nServer is shutting down.\nPlease try it later."), true);
+					break;
+				case Reason::ServerStoppedForMaintenance:
+					mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Connection has been closed!\f[/c]\n\n\nServer is shutting down for maintenance.\nPlease try it again later."), true);
+					break;
+				case Reason::ServerStoppedForReconfiguration:
+					mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Connection has been closed!\f[/c]\n\n\nServer is shutting down for reconfiguration.\nPlease try it again later."), true);
+					break;
+				case Reason::ServerStoppedForUpdate:
+					mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Connection has been closed!\f[/c]\n\n\nServer is shutting down for update.\nPlease check your client version and try it again in a minute."), true);
+					break;
+				case Reason::ConnectionLost:
+					mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Connection has been lost!\f[/c]\n\n\nPlease try it again and if the problem persists,\ncheck your network connection."), true);
+					break;
+				case Reason::ConnectionTimedOut:
+					mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nThe server is not responding for connection request."), true);
+					break;
+				case Reason::Kicked:
+					mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Connection has been closed!\f[/c]\n\n\nYou have been \f[c:#907050]kicked\f[/c] off the server.\nContact server administrators for more information."), true);
+					break;
+				case Reason::Banned:
+					mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Connection has been closed!\f[/c]\n\n\nYou have been \f[c:#725040]banned\f[/c] off the server.\nContact server administrators for more information."), true);
+					break;
+				case Reason::CheatingDetected:
+					mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Connection has been closed!\f[/c]\n\n\nCheating detected."), true);
+					break;
+				case Reason::AssetStreamingNotAllowed:
+					mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Cannot connect to the server!\f[/c]\n\n\nYour client doesn't contain required assets.\nPlease download the required files and try it again."), true);
+					break;
+				case Reason::Idle:
+					mainMenu->SwitchToSection<Menu::SimpleMessageSection>(_("\f[c:#704a4a]Connection has been closed!\f[/c]\n\n\nThe server has disconnected you due to inactivity."), true);
+					break;
 			}
 		});
 	}
@@ -1719,7 +1773,7 @@ void GameEventHandler::OnPacketReceived(const Peer& peer, std::uint8_t channelId
 				for (std::uint32_t i = 0; i < assetCount; i++) {
 					MpLevelHandler::AssetType type = (MpLevelHandler::AssetType)packet.ReadValue<std::uint8_t>();
 					std::uint32_t pathLength = packet.ReadVariableUint32();
-					String path{NoInit, pathLength};
+					String path { NoInit, pathLength };
 					packet.Read(path.data(), pathLength);
 
 					packetOut.WriteValue<std::uint8_t>((std::uint8_t)type);
@@ -1749,17 +1803,27 @@ void GameEventHandler::OnPacketReceived(const Peer& peer, std::uint8_t channelId
 					case 1: { // Begin
 						MpLevelHandler::AssetType type = (MpLevelHandler::AssetType)packet.ReadValue<std::uint8_t>();
 						std::uint32_t pathLength = packet.ReadVariableUint32();
-						String path{NoInit, pathLength};
+						String path { NoInit, pathLength };
 						packet.Read(path.data(), pathLength);
 						std::int64_t size = packet.ReadVariableInt64();
 
 						StringView typeName;
 						switch (type) {
-							case MpLevelHandler::AssetType::Level: typeName = "Level"_s; break;
-							case MpLevelHandler::AssetType::TileSet: typeName = "TileSet"_s; break;
-							case MpLevelHandler::AssetType::Music: typeName = "Music"_s; break;
-							case MpLevelHandler::AssetType::Script: typeName = "Script"_s; break;
-							default: typeName = "Unknown"_s; break;
+							case MpLevelHandler::AssetType::Level:
+								typeName = "Level"_s;
+								break;
+							case MpLevelHandler::AssetType::TileSet:
+								typeName = "TileSet"_s;
+								break;
+							case MpLevelHandler::AssetType::Music:
+								typeName = "Music"_s;
+								break;
+							case MpLevelHandler::AssetType::Script:
+								typeName = "Script"_s;
+								break;
+							default:
+								typeName = "Unknown"_s;
+								break;
 						}
 
 						LOGI("Downloading asset \"{}\" ({}) with {} bytes", path, typeName, size);
@@ -1806,7 +1870,7 @@ void GameEventHandler::OnPacketReceived(const Peer& peer, std::uint8_t channelId
 				MpGameMode gameMode = (MpGameMode)packet.ReadValue<std::uint8_t>();
 				ExitType lastExitType = (ExitType)packet.ReadValue<std::uint8_t>();
 				std::uint32_t levelNameLength = packet.ReadVariableUint32();
-				String levelName{NoInit, levelNameLength};
+				String levelName { NoInit, levelNameLength };
 				packet.Read(levelName.data(), levelNameLength);
 				std::int32_t initialPlayerHealth = packet.ReadVariableInt32();
 				std::uint32_t maxGameTimeSecs = packet.ReadVariableUint32();
@@ -1962,12 +2026,12 @@ void GameEventHandler::OnBeginInitialize()
 #endif
 
 #if defined(NCINE_HAS_WINDOWS)
-#	if defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS_RT)
 	// Xbox is always fullscreen
 	if (PreferencesCache::EnableFullscreen || Environment::CurrentDeviceType == DeviceType::Xbox) {
-#	else
+#else
 	if (PreferencesCache::EnableFullscreen) {
-#	endif
+#endif
 		theApplication().GetGfxDevice().SetResolution(true);
 	}
 	ApplyCursorPolicy();
@@ -2062,9 +2126,9 @@ void GameEventHandler::RefreshNetworkLevelHandler()
 	// is never destroyed under the lock
 	std::shared_ptr<MpLevelHandler> previousHandler;
 	{
-#	if defined(WITH_THREADS)
+#if defined(WITH_THREADS)
 		std::unique_lock<std::mutex> lock(_networkLevelHandlerLock);
-#	endif
+#endif
 		previousHandler = Death::move(_networkLevelHandler);
 		_networkLevelHandler = Death::move(nextHandler);
 	}
@@ -2072,9 +2136,9 @@ void GameEventHandler::RefreshNetworkLevelHandler()
 
 std::shared_ptr<MpLevelHandler> GameEventHandler::AcquireNetworkLevelHandler()
 {
-#	if defined(WITH_THREADS)
+#if defined(WITH_THREADS)
 	std::unique_lock<std::mutex> lock(_networkLevelHandlerLock);
-#	endif
+#endif
 	return _networkLevelHandler;
 }
 #endif
@@ -2093,16 +2157,16 @@ void GameEventHandler::WaitForVerify()
 #if defined(WITH_UPDATE_CHECK)
 void GameEventHandler::CheckUpdates()
 {
-#	if !defined(DEATH_DEBUG)
+#if !defined(DEATH_DEBUG)
 	ZoneScopedC(0x888888);
 
-#	if defined(DEATH_TARGET_PSP)
+#if defined(DEATH_TARGET_PSP)
 	// Nothing on this console has joined an access point yet, and the wait for one belongs on a thread that
 	// is not the main one - which this is, the whole check runs on the parallel initialization thread. The
 	// association lasts no longer than this one request: unless the player goes looking for a game, the
 	// update check is all a session does with the network, and the radio has no reason to stay up for it.
 	Backends::PspNetwork::ScopedConnection connection;
-#	endif
+#endif
 
 	String url = "https://de4th.dev/downloads/games/jazz2/updates?v=" NCINE_VERSION "&d=" + PreferencesCache::GetDeviceID();
 	if (auto session = WebSession::GetDefault()) {
@@ -2120,7 +2184,7 @@ void GameEventHandler::CheckUpdates()
 		}
 		LOGW("Failed to check for updates: {}", result.error);
 	}
-#	endif
+#endif
 }
 #endif
 
@@ -2148,7 +2212,7 @@ bool GameEventHandler::SetLevelHandler(const LevelInitialization& levelInit)
 		serverConfig.GameMode = (MpGameMode)levelInit.LocalMultiplayerGameMode;
 		serverConfig.ReforgedGameplay = levelInit.IsReforged;
 		serverConfig.MinPlayerCount = 1;
-		serverConfig.PreGameSecs = 0;	// Start the round immediately, no waiting for remote players
+		serverConfig.PreGameSecs = 0; // Start the round immediately, no waiting for remote players
 		// There is no server to restrict anything in a local session, so the local preference decides alone
 		serverConfig.AllowLedgeClimb = PreferencesCache::EnableLedgeClimb;
 
@@ -2248,9 +2312,15 @@ void GameEventHandler::SaveEpisodeEnd(const LevelInitialization& levelInit)
 		if (!shouldSaveEpisodeEnd) {
 			switch (PreferencesCache::OverwriteEpisodeEnd) {
 				// Don't overwrite existing data in multiplayer/split-screen
-				default: shouldSaveEpisodeEnd = (playerCount == 1); break;
-				case EpisodeEndOverwriteMode::NoCheatsOnly: shouldSaveEpisodeEnd = (playerCount == 1 && !levelInit.CheatsUsed); break;
-				case EpisodeEndOverwriteMode::HigherScoreOnly: shouldSaveEpisodeEnd = (playerCount == 1 && !levelInit.CheatsUsed && firstPlayer->Score >= prevEnd->Score); break;
+				default:
+					shouldSaveEpisodeEnd = (playerCount == 1);
+					break;
+				case EpisodeEndOverwriteMode::NoCheatsOnly:
+					shouldSaveEpisodeEnd = (playerCount == 1 && !levelInit.CheatsUsed);
+					break;
+				case EpisodeEndOverwriteMode::HigherScoreOnly:
+					shouldSaveEpisodeEnd = (playerCount == 1 && !levelInit.CheatsUsed && firstPlayer->Score >= prevEnd->Score);
+					break;
 			}
 		}
 
@@ -2335,7 +2405,7 @@ void GameEventHandler::ExtractPakFile(StringView pakFile, StringView targetPath)
 	LOGI("Extracting files from \"{}\" to \"{}\"...", pakFile, targetPath);
 
 	SmallVector<String> queue;
-	queue.emplace_back();	// Root
+	queue.emplace_back(); // Root
 
 	std::int32_t successCount = 0, errorCount = 0;
 	for (std::size_t i = 0; i < queue.size(); i++) {
@@ -2390,9 +2460,9 @@ bool GameEventHandler::RunLevelPackCommands(const AppConfiguration& config, bool
 		}
 		if (!handled) {
 			handled = true;
-#	if defined(DEATH_TRACE) && defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TRACE) && defined(DEATH_TARGET_WINDOWS)
 			theApplication().AttachTraceTarget(Application::ConsoleTarget);
-#	endif
+#endif
 			library.CleanUp();
 		}
 		if (takesValue && i + 1 >= config.GetArgc()) {
@@ -2481,21 +2551,23 @@ int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdSh
 	});
 }
 #elif defined(DEATH_TARGET_WINDOWS) && !defined(WITH_QT5)
-#	if defined(WITH_MULTIPLAYER) && defined(DEDICATED_SERVER)
+#if defined(WITH_MULTIPLAYER) && defined(DEDICATED_SERVER)
 int wmain(int argc, wchar_t* argv[])
 {
 	return MainApplication::Run([]() -> std::unique_ptr<IAppEventHandler> {
 		return std::make_unique<GameEventHandler>();
-	}, argc, argv);
+	},
+		argc, argv);
 }
-#	else
+#else
 int APIENTRY wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int nCmdShow)
 {
 	return MainApplication::Run([]() -> std::unique_ptr<IAppEventHandler> {
 		return std::make_unique<GameEventHandler>();
-	}, __argc, __wargv);
+	},
+		__argc, __wargv);
 }
-#	endif
+#endif
 #else
 #if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
 int PrintVersion(bool logoVisible)
@@ -2532,36 +2604,36 @@ int PrintVersion(bool logoVisible)
 #if defined(DEATH_TARGET_IOS)
 // SDL2 owns the process entry point on iOS: its SDL2main starts the UIApplication and calls this function
 // (renamed to `SDL_main` by the header) from the application delegate once UIKit is up
-#	include <SDL_main.h>
+#include <SDL_main.h>
 #endif
 
 int main(int argc, char** argv)
 {
 #if !defined(DEATH_TARGET_SWITCH)
 	bool logoVisible = false;
-#	if defined(DEATH_TRACE) && (defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX))
+#if defined(DEATH_TRACE) && (defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX))
 	bool hasVirtualTerminal = ::isatty(1);
 	if (hasVirtualTerminal) {
 		const char* term = ::getenv("TERM");
-		if (term != nullptr && (strstr(term, "truecolor") || strstr(term, "24bit") ||
-			strstr(term, "256color") || strstr(term, "rxvt-xpm"))) {
+		if (term != nullptr && (strstr(term, "truecolor") || strstr(term, "24bit") || strstr(term, "256color") || strstr(term, "rxvt-xpm"))) {
 			fwrite(TermLogo, sizeof(unsigned char), arraySize(TermLogo), stdout);
 			logoVisible = true;
 		}
 	}
-#	endif
-#	if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
+#endif
+#if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
 	for (std::size_t i = 1; i < argc; i++) {
 		if (strcmp(argv[i], "--version") == 0) {
 			// Just print current version below the logo and quit
 			return PrintVersion(logoVisible);
 		}
 	}
-#	endif
+#endif
 #endif
 
 	return MainApplication::Run([]() -> std::unique_ptr<IAppEventHandler> {
 		return std::make_unique<GameEventHandler>();
-	}, argc, argv);
+	},
+		argc, argv);
 }
 #endif

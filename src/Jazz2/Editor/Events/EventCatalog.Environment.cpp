@@ -23,18 +23,15 @@ namespace Jazz2::Editor::EventCatalogParts
 			// TRANSLATORS: Parameter of an event in the event properties
 			UIntField(_x("editor", "Intensity"), 0, 8, 0, 255, 255).WithDescription(_x("editor", "How much it lights up the darkness")),
 			UIntField(_x("editor", "Brightness"), 1, 8, 0, 255, 10).WithDescription(_x("editor", "How much it glows above the normal light")),
-			UIntField(_x("editor", "Near Radius"), 2, 16, 0, 65535, 60).WithUnit(ParamUnit::Pixels).WithDescription(_x("editor", "Fully lit up to this distance"))
-				.WithGizmo(FieldGizmo::Radius),
-			UIntField(_x("editor", "Far Radius"), 4, 16, 0, 65535, 100).WithUnit(ParamUnit::Pixels).WithDescription(_x("editor", "Fades out up to this distance"))
-				.WithGizmo(FieldGizmo::Radius),
+			UIntField(_x("editor", "Near Radius"), 2, 16, 0, 65535, 60).WithUnit(ParamUnit::Pixels).WithDescription(_x("editor", "Fully lit up to this distance")).WithGizmo(FieldGizmo::Radius),
+			UIntField(_x("editor", "Far Radius"), 4, 16, 0, 65535, 100).WithUnit(ParamUnit::Pixels).WithDescription(_x("editor", "Fades out up to this distance")).WithGizmo(FieldGizmo::Radius),
 		};
 
 		static const EventParamField LightPulseFields[] = {
 			// TRANSLATORS: Parameter of an event in the event properties
 			UIntField(_x("editor", "Intensity"), 0, 8, 0, 255, 255).WithDescription(_x("editor", "How much it lights up the darkness")),
 			UIntField(_x("editor", "Brightness"), 1, 8, 0, 255, 10).WithDescription(_x("editor", "How much it glows above the normal light")),
-			UIntField(_x("editor", "Near Radius"), 2, 16, 0, 65535, 40).WithUnit(ParamUnit::Pixels).WithDescription(_x("editor", "Fully lit up to this distance"))
-				.WithGizmo(FieldGizmo::Radius),
+			UIntField(_x("editor", "Near Radius"), 2, 16, 0, 65535, 40).WithUnit(ParamUnit::Pixels).WithDescription(_x("editor", "Fully lit up to this distance")).WithGizmo(FieldGizmo::Radius),
 			// TRANSLATORS: Parameter of a pulsing light in the event properties, a noun, how much its radius grows and shrinks
 			UIntField(_x("editor", "Pulse"), 4, 16, 0, 65535, 20).WithUnit(ParamUnit::Pixels).WithDescription(_x("editor", "How much the near radius grows and shrinks")),
 			// TRANSLATORS: Parameter of a pulsing light in the event properties, a noun, the distance over which it fades out
@@ -48,10 +45,8 @@ namespace Jazz2::Editor::EventCatalogParts
 			// TRANSLATORS: Parameter of an event in the event properties
 			UIntField(_x("editor", "Intensity"), 0, 8, 0, 255, 110).WithDescription(_x("editor", "How much it lights up the darkness")),
 			UIntField(_x("editor", "Brightness"), 1, 8, 0, 255, 40).WithDescription(_x("editor", "How much it glows above the normal light")),
-			UIntField(_x("editor", "Near Radius"), 2, 16, 0, 65535, 60).WithUnit(ParamUnit::Pixels).WithDescription(_x("editor", "Fully lit up to this distance"))
-				.WithGizmo(FieldGizmo::Radius),
-			UIntField(_x("editor", "Far Radius"), 4, 16, 0, 65535, 110).WithUnit(ParamUnit::Pixels).WithDescription(_x("editor", "Flickers up to this distance"))
-				.WithGizmo(FieldGizmo::Radius),
+			UIntField(_x("editor", "Near Radius"), 2, 16, 0, 65535, 60).WithUnit(ParamUnit::Pixels).WithDescription(_x("editor", "Fully lit up to this distance")).WithGizmo(FieldGizmo::Radius),
+			UIntField(_x("editor", "Far Radius"), 4, 16, 0, 65535, 110).WithUnit(ParamUnit::Pixels).WithDescription(_x("editor", "Flickers up to this distance")).WithGizmo(FieldGizmo::Radius),
 		};
 
 		// Environment
@@ -70,8 +65,7 @@ namespace Jazz2::Editor::EventCatalogParts
 		static const EventParamField SpringFields[] = {
 			// TRANSLATORS: Parameter of an event in the event properties
 			EnumField(_x("editor", "Type"), 0, 8, SpringTypes),
-			EnumField(_x("editor", "Orientation"), 1, 8, SpringOrientations).WithDescription(_x("editor", "Where it launches the player, auto turns away from the wall"))
-				.MirroredXPairs(SpringMirrorX).MirroredYPairs(SpringMirrorY),
+			EnumField(_x("editor", "Orientation"), 1, 8, SpringOrientations).WithDescription(_x("editor", "Where it launches the player, auto turns away from the wall")).MirroredXPairs(SpringMirrorX).MirroredYPairs(SpringMirrorY),
 			BoolField(_x("editor", "Gravity"), 2, 0, true).WithDescription(_x("editor", "Falls onto the ground below it")),
 			BoolField(_x("editor", "Frozen"), 2, 1).WithDescription(_x("editor", "Starts frozen, only fire melts it")),
 			BoolField(_x("editor", "Keep Speed X"), 2, 2).WithDescription(_x("editor", "The player keeps their horizontal speed")),
@@ -87,8 +81,7 @@ namespace Jazz2::Editor::EventCatalogParts
 			// From 0, the converter makes a bridge of no width of an original one that has none; stored in steps of 16 px,
 			// see Bridge::OnActivatedAsync()
 			// TRANSLATORS: Parameter of an event in the event properties
-			UIntField(_x("editor", "Width"), 0, 16, 0, 65535, 8).WithUnit(ParamUnit::Pixels).WithScale(16).WithDescription(_x("editor", "It extends to the right, in steps of 16 px"))
-				.WithGizmo(FieldGizmo::WidthRight, 16),
+			UIntField(_x("editor", "Width"), 0, 16, 0, 65535, 8).WithUnit(ParamUnit::Pixels).WithScale(16).WithDescription(_x("editor", "It extends to the right, in steps of 16 px")).WithGizmo(FieldGizmo::WidthRight, 16),
 			EnumField(_x("editor", "Type"), 2, 8, BridgeTypes),
 			UIntField(_x("editor", "Toughness"), 3, 8, 0, 255, 4).WithDescription(_x("editor", "It sags by the width divided by this, at most 38 px, 0 doesn't sag")),
 		};
@@ -107,12 +100,9 @@ namespace Jazz2::Editor::EventCatalogParts
 			// TRANSLATORS: Parameter of an event in the event properties
 			EnumField(_x("editor", "Type"), 0, 8, PlatformTypes, 1),
 			// TRANSLATORS: Parameter of an event in the event properties, short for synchronization, its starting phase
-			UIntField(_x("editor", "Sync"), 1, 8, 0, 255).WithDescription(_x("editor", "Starting position, in quarter turns, 4 is a whole turn"))
-				.MirroredXPairs(ChainSyncMirrorX).MirroredYPairs(ChainSyncMirrorY),
-			IntField(_x("editor", "Speed"), 2, 8, -128, 127, 8).WithDescription(_x("editor", "How fast it turns, negative turns the other way"))
-				.MirroredX(MirrorMode::Negate).MirroredY(MirrorMode::Negate),
-			UIntField(_x("editor", "Length"), 3, 8, 0, 255, 4).WithDescription(_x("editor", "Number of chain links, 25 px each"))
-				.WithGizmo(FieldGizmo::LengthDown, 25),
+			UIntField(_x("editor", "Sync"), 1, 8, 0, 255).WithDescription(_x("editor", "Starting position, in quarter turns, 4 is a whole turn")).MirroredXPairs(ChainSyncMirrorX).MirroredYPairs(ChainSyncMirrorY),
+			IntField(_x("editor", "Speed"), 2, 8, -128, 127, 8).WithDescription(_x("editor", "How fast it turns, negative turns the other way")).MirroredX(MirrorMode::Negate).MirroredY(MirrorMode::Negate),
+			UIntField(_x("editor", "Length"), 3, 8, 0, 255, 4).WithDescription(_x("editor", "Number of chain links, 25 px each")).WithGizmo(FieldGizmo::LengthDown, 25),
 			// TRANSLATORS: Checkbox of an event in the event properties, it swings to and fro on its chain instead of going round
 			BoolField(_x("editor", "Swing"), 4).WithDescription(_x("editor", "Swings to and fro instead of going round")),
 		};
@@ -151,11 +141,9 @@ namespace Jazz2::Editor::EventCatalogParts
 		static const EventParamField PoleFields[] = {
 			// TRANSLATORS: Parameter of an event in the event properties
 			EnumField(_x("editor", "Theme"), 0, 8, PoleThemes),
-			IntField(_x("editor", "Offset X"), 1, 16, -32768, 32767, 14).WithUnit(ParamUnit::Pixels).WithDescription(_x("editor", "From the centre of the tile"))
-				.MirroredX(MirrorMode::Negate).WithGizmo(FieldGizmo::OffsetX),
+			IntField(_x("editor", "Offset X"), 1, 16, -32768, 32767, 14).WithUnit(ParamUnit::Pixels).WithDescription(_x("editor", "From the centre of the tile")).MirroredX(MirrorMode::Negate).WithGizmo(FieldGizmo::OffsetX),
 			// It stands on the ground, it isn't mirrored vertically
-			IntField(_x("editor", "Offset Y"), 3, 16, -32768, 32767, 22).WithUnit(ParamUnit::Pixels).WithDescription(_x("editor", "From the centre of the tile"))
-				.WithGizmo(FieldGizmo::OffsetY),
+			IntField(_x("editor", "Offset Y"), 3, 16, -32768, 32767, 22).WithUnit(ParamUnit::Pixels).WithDescription(_x("editor", "From the centre of the tile")).WithGizmo(FieldGizmo::OffsetY),
 		};
 
 		static const ParamOption SignExitTypes[] = {
@@ -209,8 +197,7 @@ namespace Jazz2::Editor::EventCatalogParts
 		static const std::int32_t PinballPaddleMirrorX[] = { 0, 1 };
 		static const EventParamField PinballPaddleFields[] = {
 			// TRANSLATORS: Parameter of a pinball paddle in the event properties, followed by the side it's mounted on, Left or Right
-			EnumField(_x("editor", "Mounted On"), 0, 8, PinballPaddleSides).WithDescription(_x("editor", "The side it's mounted on, it points to the other one"))
-				.MirroredXPairs(PinballPaddleMirrorX),
+			EnumField(_x("editor", "Mounted On"), 0, 8, PinballPaddleSides).WithDescription(_x("editor", "The side it's mounted on, it points to the other one")).MirroredXPairs(PinballPaddleMirrorX),
 		};
 		// Facing left when it's mounted on the right, see PinballPaddle::OnActivatedAsync()
 		static const EventPreviewCase PinballPaddlePreview[] = {
@@ -244,12 +231,9 @@ namespace Jazz2::Editor::EventCatalogParts
 		// As a moving platform, see SpikeBall::GetPhasePosition()
 		static const EventParamField SpikeBallFields[] = {
 			// TRANSLATORS: Parameter of an event in the event properties, short for synchronization, its starting phase
-			UIntField(_x("editor", "Sync"), 0, 8, 0, 255).WithDescription(_x("editor", "Starting position, in quarter turns, 4 is a whole turn"))
-				.MirroredXPairs(ChainSyncMirrorX).MirroredYPairs(ChainSyncMirrorY),
-			IntField(_x("editor", "Speed"), 1, 8, -128, 127, 8).WithDescription(_x("editor", "How fast it turns, negative turns the other way"))
-				.MirroredX(MirrorMode::Negate).MirroredY(MirrorMode::Negate),
-			UIntField(_x("editor", "Length"), 2, 8, 0, 255, 4).WithDescription(_x("editor", "Number of chain links, 12 px each"))
-				.WithGizmo(FieldGizmo::LengthDown, 12),
+			UIntField(_x("editor", "Sync"), 0, 8, 0, 255).WithDescription(_x("editor", "Starting position, in quarter turns, 4 is a whole turn")).MirroredXPairs(ChainSyncMirrorX).MirroredYPairs(ChainSyncMirrorY),
+			IntField(_x("editor", "Speed"), 1, 8, -128, 127, 8).WithDescription(_x("editor", "How fast it turns, negative turns the other way")).MirroredX(MirrorMode::Negate).MirroredY(MirrorMode::Negate),
+			UIntField(_x("editor", "Length"), 2, 8, 0, 255, 4).WithDescription(_x("editor", "Number of chain links, 12 px each")).WithGizmo(FieldGizmo::LengthDown, 12),
 			// TRANSLATORS: Checkbox of an event in the event properties, it swings to and fro on its chain instead of going round
 			BoolField(_x("editor", "Swing"), 3).WithDescription(_x("editor", "Swings to and fro instead of going round")),
 			// TRANSLATORS: Checkbox of a spike ball in the event properties, a verb, it darkens the ball and chain as they turn away
@@ -266,18 +250,14 @@ namespace Jazz2::Editor::EventCatalogParts
 
 		static const EventParamField RollingRockFields[] = {
 			// TRANSLATORS: Parameter of a rolling rock in the event properties, short for identifier, links it to its triggers
-			UIntField(_x("editor", "ID"), 0, 8, 0, 255).WithDescription(_x("editor", "A rolling rock trigger with the same ID sets it rolling"))
-				.WithLink(RollingRockChannel, EventLinkRole::Target),
-			IntField(_x("editor", "Speed X"), 1, 8, -128, 127).WithDescription(_x("editor", "Starting speed in px per frame, negative rolls to the left"))
-				.MirroredX(MirrorMode::Negate).WithDirection(DirectionAxis::X),
-			IntField(_x("editor", "Speed Y"), 2, 8, -128, 127).WithDescription(_x("editor", "Starting vertical speed in px per frame"))
-				.MirroredY(MirrorMode::Negate).WithDirection(DirectionAxis::Y),
+			UIntField(_x("editor", "ID"), 0, 8, 0, 255).WithDescription(_x("editor", "A rolling rock trigger with the same ID sets it rolling")).WithLink(RollingRockChannel, EventLinkRole::Target),
+			IntField(_x("editor", "Speed X"), 1, 8, -128, 127).WithDescription(_x("editor", "Starting speed in px per frame, negative rolls to the left")).MirroredX(MirrorMode::Negate).WithDirection(DirectionAxis::X),
+			IntField(_x("editor", "Speed Y"), 2, 8, -128, 127).WithDescription(_x("editor", "Starting vertical speed in px per frame")).MirroredY(MirrorMode::Negate).WithDirection(DirectionAxis::Y),
 		};
 
 		static const EventParamField RollingRockTriggerFields[] = {
 			// TRANSLATORS: Parameter of an event in the event properties, the identifier of the rolling rocks it sets rolling
-			UIntField(_x("editor", "Rock ID"), 0, 8, 0, 255).WithDescription(_x("editor", "Sets the rolling rocks with this ID rolling"))
-				.WithLink(RollingRockChannel, EventLinkRole::Source),
+			UIntField(_x("editor", "Rock ID"), 0, 8, 0, 255).WithDescription(_x("editor", "Sets the rolling rocks with this ID rolling")).WithLink(RollingRockChannel, EventLinkRole::Source),
 		};
 
 		static const EventDescriptor Events[] = {

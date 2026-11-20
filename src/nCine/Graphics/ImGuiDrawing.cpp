@@ -13,11 +13,11 @@
 // A backend without an ImGui input glue (Qt5, every console) simply has no branch here, and the
 // overlay then draws without receiving input
 #if defined(WITH_GLFW)
-#	include "../Backends/ImGuiGlfwInput.h"
+#include "../Backends/ImGuiGlfwInput.h"
 #elif (defined(WITH_SDL2) || defined(WITH_SDL3))
-#	include "../Backends/ImGuiSdlInput.h"
+#include "../Backends/ImGuiSdlInput.h"
 #elif defined(DEATH_TARGET_ANDROID)
-#	include "../Backends/Android/ImGuiAndroidInput.h"
+#include "../Backends/Android/ImGuiAndroidInput.h"
 #endif
 
 #include <Shaders/Generated/DefaultImGui.h>
@@ -27,16 +27,16 @@ using namespace Death::IO;
 using namespace nCine::Backends;
 
 #if defined(DEATH_TRACE_VERBOSE_GL)
-#	define GL_CALL(op)													\
-		do {															\
-			op;															\
-			GLenum _glErr = glGetError();								\
-			if (_glErr != 0) {											\
-				LOGE("GL error 0x{:x} returned from {}", _glErr, #op);	\
-			}															\
-		} while (0)
+#define GL_CALL(op)                                                \
+	do {                                                           \
+		op;                                                        \
+		GLenum _glErr = glGetError();                              \
+		if (_glErr != 0) {                                         \
+			LOGE("GL error 0x{:x} returned from {}", _glErr, #op); \
+		}                                                          \
+	} while (0)
 #else
-#	define GL_CALL(op) op
+#define GL_CALL(op) op
 #endif
 
 namespace nCine
@@ -48,16 +48,15 @@ namespace nCine
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NavEnableGamepad;
 
 #if defined(IMGUI_HAS_DOCK)
-		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;		// Enable Docking
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable; // Enable Docking
 #endif
-#if defined(IMGUI_HAS_VIEWPORT) && (defined(WITH_RHI_GL) || defined(WITH_RHI_D3D11) || \
-		((defined(WITH_RHI_VULKAN) || defined(WITH_RHI_METAL)) && (defined(WITH_SDL2) || defined(WITH_SDL3))))
+#if defined(IMGUI_HAS_VIEWPORT) && (defined(WITH_RHI_GL) || defined(WITH_RHI_D3D11) || ((defined(WITH_RHI_VULKAN) || defined(WITH_RHI_METAL)) && (defined(WITH_SDL2) || defined(WITH_SDL3))))
 		// Multi-viewport platform windows need the renderer to draw into a window of its own: the OpenGL backend
 		// renders with raw GL into per-window GL contexts, Direct3D 11 into a per-window swap chain, Vulkan and Metal
 		// into an off-screen target presented into a per-window swap chain / layer. The remaining backends have no such path, so the
 		// feature is not offered there (a panel dragged out of the main window stays docked instead of opening an
 		// empty one).
-		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;		// Enable Multi-Viewport / Platform Windows
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; // Enable Multi-Viewport / Platform Windows
 #endif
 
 		io.BackendRendererUserData = this;
@@ -67,27 +66,27 @@ namespace nCine
 		io.BackendRendererName = "nCine_OpenGL";
 #endif
 
-/*#if defined(DEATH_TARGET_ANDROID)
+		/*#if defined(DEATH_TARGET_ANDROID)
 		static char iniFilename[512];
 		nctl::strncpy(iniFilename, fs::joinPath(fs::savePath(), "imgui.ini").data(), 512);
 		io.IniFilename = iniFilename;
 #endif*/
 
 #if !(defined(RHI_GL_PROFILE_ES) && !GL_ES_VERSION_3_2) && !defined(DEATH_TARGET_EMSCRIPTEN)
-		io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;	// We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.
+		io.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset; // We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.
 #endif
-		io.BackendFlags |= ImGuiBackendFlags_RendererHasTextures;	// We can honor ImGuiPlatformIO::Textures[] requests during render.
+		io.BackendFlags |= ImGuiBackendFlags_RendererHasTextures; // We can honor ImGuiPlatformIO::Textures[] requests during render.
 
 		_imguiShaderProgram = std::make_unique<RHI::ShaderProgram>(RHI::ShaderProgram::QueryPhase::Immediate);
 #if defined(WITH_RHI_GL)
-#	if defined(RHI_GL_PROFILE_ES2)
+#if defined(RHI_GL_PROFILE_ES2)
 		// The ES2 profile compiles with "#version 100", so it needs the ESSL 100 (Essl100Emitter) sources
 		_imguiShaderProgram->AttachShaderFromString(ShaderStage::Vertex, ShadersGen::DefaultImGui.Variants[0].VsSource100);
 		_imguiShaderProgram->AttachShaderFromString(ShaderStage::Fragment, ShadersGen::DefaultImGui.Variants[0].FsSource100);
-#	else
+#else
 		_imguiShaderProgram->AttachShaderFromString(ShaderStage::Vertex, ShadersGen::DefaultImGui.Variants[0].VsSource);
 		_imguiShaderProgram->AttachShaderFromString(ShaderStage::Fragment, ShadersGen::DefaultImGui.Variants[0].FsSource);
-#	endif
+#endif
 #else
 		// Non-GL backends consume their own precompiled artifact from the offline reflection (D3D11: HLSL,
 		// Vulkan: SPIR-V, software: transpiled C++) - the same route RenderResources uses for the engine's
@@ -102,8 +101,7 @@ namespace nCine
 			SetupBuffersAndShader();
 		}
 
-#if defined(IMGUI_HAS_VIEWPORT) && (defined(WITH_RHI_GL) || defined(WITH_RHI_D3D11) || \
-		((defined(WITH_RHI_VULKAN) || defined(WITH_RHI_METAL)) && (defined(WITH_SDL2) || defined(WITH_SDL3))))
+#if defined(IMGUI_HAS_VIEWPORT) && (defined(WITH_RHI_GL) || defined(WITH_RHI_D3D11) || ((defined(WITH_RHI_VULKAN) || defined(WITH_RHI_METAL)) && (defined(WITH_SDL2) || defined(WITH_SDL3))))
 		PrepareForViewports();
 #endif
 
@@ -170,8 +168,6 @@ namespace nCine
 		colors[ImGuiCol_DockingPreview] = ImVec4(0.17f, 0.46f, 0.68f, 0.70f);
 		colors[ImGuiCol_TextSelectedBg] = ImVec4(0.26f, 0.79f, 0.98f, 0.35f);
 		colors[ImGuiCol_NavHighlight] = ImVec4(0.26f, 0.79f, 0.98f, 1.00f);*/
-
-
 
 		// Try to use system font
 #if defined(DEATH_TARGET_WINDOWS)
@@ -493,7 +489,7 @@ namespace nCine
 
 				// Apply scissor/clipping rectangle (top-left origin, like ImGui's own - see RhiFwd.h)
 				currCmd.SetScissor(static_cast<std::int32_t>(clipMin.x), static_cast<std::int32_t>(clipMin.y),
-								   static_cast<std::int32_t>(clipMax.x - clipMin.x), static_cast<std::int32_t>(clipMax.y - clipMin.y));
+					static_cast<std::int32_t>(clipMax.x - clipMin.x), static_cast<std::int32_t>(clipMax.y - clipMin.y));
 
 				if (cmdIdx > 0) {
 					currCmd.GetGeometry().ShareVbo(&firstCmd.GetGeometry());
@@ -635,8 +631,7 @@ namespace nCine
 		RHI::Device::SetBlendingState(blendingState);
 	}
 
-#if defined(IMGUI_HAS_VIEWPORT) && !defined(WITH_RHI_GL) && (defined(WITH_RHI_D3D11) || \
-		((defined(WITH_RHI_VULKAN) || defined(WITH_RHI_METAL)) && (defined(WITH_SDL2) || defined(WITH_SDL3))))
+#if defined(IMGUI_HAS_VIEWPORT) && !defined(WITH_RHI_GL) && (defined(WITH_RHI_D3D11) || ((defined(WITH_RHI_VULKAN) || defined(WITH_RHI_METAL)) && (defined(WITH_SDL2) || defined(WITH_SDL3))))
 	namespace
 	{
 		// Viewport sizes are in ImGui units, a swap chain needs pixels
@@ -709,7 +704,7 @@ namespace nCine
 			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 			glClear(GL_COLOR_BUFFER_BIT);
 		}
-		
+
 		ImDrawData* drawData = viewport->DrawData;
 
 		// Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
@@ -727,7 +722,7 @@ namespace nCine
 		SetupRenderStateForPlatformWindow(drawData, fbWidth, fbHeight, vertexArrayObject);
 
 		// Will project scissor/clipping rectangles into framebuffer space
-		ImVec2 clipOff = drawData->DisplayPos;         // (0,0) unless using multi-viewports
+		ImVec2 clipOff = drawData->DisplayPos; // (0,0) unless using multi-viewports
 		ImVec2 clipScale = drawData->FramebufferScale; // (1,1) unless using retina display which are often (2,2)
 
 		for (std::int32_t n = 0; n < drawData->CmdListsCount; n++) {
@@ -791,10 +786,10 @@ namespace nCine
 		float B = drawData->DisplayPos.y + drawData->DisplaySize.y;
 
 		const float ortho_projection[4][4] = {
-			{ 2.0f / (R - L),		0.0f,				0.0f,		0.0f },
-			{ 0.0f,					2.0f / (T - B),		0.0f,		0.0f },
-			{ 0.0f,					0.0f,				-1.0f,		0.0f },
-			{ (R + L) / (L - R),	(T + B) / (B - T),  0.0f,		1.0f },
+			{ 2.0f / (R - L), 0.0f, 0.0f, 0.0f },
+			{ 0.0f, 2.0f / (T - B), 0.0f, 0.0f },
+			{ 0.0f, 0.0f, -1.0f, 0.0f },
+			{ (R + L) / (L - R), (T + B) / (B - T), 0.0f, 1.0f },
 		};
 
 		// TODO: Use nCine shaders directly instead
@@ -962,7 +957,7 @@ namespace nCine
 	{
 		if (PlatformWindowData* data = static_cast<PlatformWindowData*>(viewport->RendererUserData)) {
 			RHI::Device::DestroyAuxiliarySwapchain(data->Swapchain);
-			delete data;	// releases the render target and the texture behind it
+			delete data; // releases the render target and the texture behind it
 		}
 		viewport->RendererUserData = nullptr;
 	}

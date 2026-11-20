@@ -41,14 +41,14 @@ namespace Jazz2::Input
 	RgbLights::RgbLights()
 	{
 #if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
-#	if defined(DEATH_TARGET_32BIT)
+#if defined(DEATH_TARGET_32BIT)
 		_hLib = ::LoadLibrary(L"RzChromaSDK.dll");
-#	else
+#else
 		_hLib = ::LoadLibrary(L"RzChromaSDK64.dll");
 		if (_hLib == NULL) {
 			_hLib = ::LoadLibrary(L"RzChromaSDK.dll");
 		}
-#	endif
+#endif
 		if (_hLib != NULL) {
 			RzInit init = (RzInit)::GetProcAddress(_hLib, "Init");
 			_UnInit = (RzUnInit)::GetProcAddress(_hLib, "UnInit");
@@ -122,7 +122,7 @@ namespace Jazz2::Input
 
 		std::memcpy(_lastColors, colors, sizeof(_lastColors));
 
-		ChromaSDK::Keyboard::CUSTOM_EFFECT_TYPE param = { };
+		ChromaSDK::Keyboard::CUSTOM_EFFECT_TYPE param = {};
 		for (std::int32_t i = COLORS_LIMITED_SIZE; i < ColorsSize; i++) {
 			std::int32_t idx = KeyLayout[i - COLORS_LIMITED_SIZE];
 			param.Color[idx / KEYBOARD_WIDTH][idx % KEYBOARD_WIDTH] = colors[i].Abgr();
@@ -140,7 +140,7 @@ namespace Jazz2::Input
 
 		std::memcpy(_lastColors, colors, sizeof(_lastColors));
 
-		std::uint32_t buffer[KEYBOARD_WIDTH * KEYBOARD_HEIGHT] { };
+		std::uint32_t buffer[KEYBOARD_WIDTH * KEYBOARD_HEIGHT] {};
 		for (std::int32_t i = COLORS_LIMITED_SIZE; i < ColorsSize; i++) {
 			buffer[KeyLayout[i - COLORS_LIMITED_SIZE]] = colors[i].Abgr();
 		}

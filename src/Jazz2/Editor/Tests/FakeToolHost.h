@@ -80,11 +80,13 @@ namespace Jazz2::Editor
 		const TileShapes& GetTileShapes() override;
 
 		/** @brief Returns the history of the document */
-		CommandHistory& GetHistory() {
+		CommandHistory& GetHistory()
+		{
 			return _history;
 		}
 		/** @brief Sets the layer being edited */
-		void SetCurrentLayer(std::int32_t layer) {
+		void SetCurrentLayer(std::int32_t layer)
+		{
 			_currentLayer = layer;
 		}
 

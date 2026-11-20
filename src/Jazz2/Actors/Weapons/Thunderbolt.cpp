@@ -78,7 +78,9 @@ namespace Jazz2::Actors::Weapons
 			}
 
 			if (!_firedUp) {
-				Vector3i initialPos; Vector2f gunspotPos; float angle;
+				Vector3i initialPos;
+				Vector2f gunspotPos;
+				float angle;
 				player->GetFirePointAndAngle(initialPos, gunspotPos, angle);
 				float scale = 1.0f - std::abs(gunspotPos.X - _pos.X) / _currentAnimation->Base->FrameDimensions.X;
 				MoveInstantly(gunspotPos, MoveType::Absolute | MoveType::Force);

@@ -326,8 +326,7 @@ namespace Jazz2::Rendering
 			for (std::int32_t t = 0; t < subdivisions; t++) {
 				float u = (float)t / subdivisions;
 				float u2 = u * u, u3 = u2 * u;
-				Vector2f pt = (p1 * 2.0f + (p2 - p0) * u + (p0 * 2.0f - p1 * 5.0f + p2 * 4.0f - p3) * u2
-					+ (p1 * 3.0f - p0 - p2 * 3.0f + p3) * u3) * 0.5f;
+				Vector2f pt = (p1 * 2.0f + (p2 - p0) * u + (p0 * 2.0f - p1 * 5.0f + p2 * 4.0f - p3) * u2 + (p1 * 3.0f - p0 - p2 * 3.0f + p3) * u3) * 0.5f;
 				out.push_back(pt);
 			}
 		}
@@ -351,7 +350,8 @@ namespace Jazz2::Rendering
 		keep[count - 1] = 1;
 
 		// Iterative, so a long path can't run out of stack
-		struct Span {
+		struct Span
+		{
 			std::size_t First, Last;
 		};
 		SmallVector<Span, 32> spans;

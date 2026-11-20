@@ -23,11 +23,13 @@ namespace Jazz2::Actors::Weapons
 		/** @brief Called when the shot is fired */
 		void OnFire(const std::shared_ptr<ActorBase>& owner, Vector2f gunspotPos, Vector2f speed, float angle, bool isFacingLeft);
 		/** @brief Sets which of the rockets fired together this is, -1 flies up from the aim, +1 down, 0 straight on, set before @ref OnFire() */
-		void SetSpread(float spread) {
+		void SetSpread(float spread)
+		{
 			_spread = spread;
 		}
 
-		WeaponType GetWeaponType() override {
+		WeaponType GetWeaponType() override
+		{
 			return WeaponType::RF;
 		}
 

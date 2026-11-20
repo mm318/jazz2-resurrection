@@ -22,7 +22,8 @@ namespace Jazz2::Actors::Solid
 		static void Preload(const ActorActivationDetails& details);
 
 		/** @brief Returns how long until the bumper can throw a player again, more than zero right after it threw one */
-		float GetCooldown() const {
+		float GetCooldown() const
+		{
 			return _cooldown;
 		}
 

@@ -66,9 +66,16 @@ namespace nCine
 		bool Unfilter(std::uint8_t filter, std::uint8_t* row, const std::uint8_t* previous, std::size_t size, std::size_t bpp)
 		{
 			switch (filter) {
-				case 0: return true;
-				case 1: for (std::size_t i = bpp; i < size; i++) row[i] = std::uint8_t(row[i] + row[i - bpp]); return true;
-				case 2: for (std::size_t i = 0; i < size; i++) row[i] = std::uint8_t(row[i] + previous[i]); return true;
+				case 0:
+					return true;
+				case 1:
+					for (std::size_t i = bpp; i < size; i++)
+						row[i] = std::uint8_t(row[i] + row[i - bpp]);
+					return true;
+				case 2:
+					for (std::size_t i = 0; i < size; i++)
+						row[i] = std::uint8_t(row[i] + previous[i]);
+					return true;
 				case 3:
 					for (std::size_t i = 0; i < size; i++) {
 						std::int32_t left = (i >= bpp ? row[i - bpp] : 0);
@@ -110,8 +117,10 @@ namespace nCine
 		std::uint32_t GetSample(const std::uint8_t* row, std::int32_t index, std::int32_t bitDepth)
 		{
 			switch (bitDepth) {
-				case 16: return (std::uint32_t(row[index * 2]) << 8) | row[index * 2 + 1];
-				case 8: return row[index];
+				case 16:
+					return (std::uint32_t(row[index * 2]) << 8) | row[index * 2 + 1];
+				case 8:
+					return row[index];
 				default: {
 					std::int32_t bit = index * bitDepth;
 					std::int32_t shift = 8 - bitDepth - (bit & 7);
@@ -271,7 +280,7 @@ namespace nCine
 		 * its size. An indexed image is decoded into RGBA if `expandPalette` is set. The palette is returned as the
 		 * file has it, entries it doesn't list zero.
 		 */
-		template<class Allocate>
+		template <class Allocate>
 		PngError DecodeImage(Stream& s, const PngDecodeOptions& options, bool expandPalette, std::uint32_t (&palette)[256],
 			std::int32_t& paletteSize, Allocate&& allocate)
 		{
@@ -331,10 +340,18 @@ namespace nCine
 
 				std::uint32_t maxLength;
 				switch (type) {
-					case ChunkTag('I', 'H', 'D', 'R'): maxLength = 13; break;
-					case ChunkTag('P', 'L', 'T', 'E'): maxLength = 768; break;
-					case ChunkTag('t', 'R', 'N', 'S'): maxLength = 256; break;
-					case ChunkTag('I', 'E', 'N', 'D'): maxLength = 0; break;
+					case ChunkTag('I', 'H', 'D', 'R'):
+						maxLength = 13;
+						break;
+					case ChunkTag('P', 'L', 'T', 'E'):
+						maxLength = 768;
+						break;
+					case ChunkTag('t', 'R', 'N', 'S'):
+						maxLength = 256;
+						break;
+					case ChunkTag('I', 'E', 'N', 'D'):
+						maxLength = 0;
+						break;
 					default: {
 						if (critical) {
 							return PngError::Unsupported;
@@ -386,16 +403,27 @@ namespace nCine
 						return PngError::UnknownKind;
 					}
 					switch (header.ColorType) {
-						case Gray: header.Channels = 1; break;
-						case Rgb: header.Channels = 3; break;
-						case Palette: header.Channels = 1; break;
-						case GrayAlpha: header.Channels = 2; break;
-						case Rgba: header.Channels = 4; break;
-						default: return PngError::UnknownKind;
+						case Gray:
+							header.Channels = 1;
+							break;
+						case Rgb:
+							header.Channels = 3;
+							break;
+						case Palette:
+							header.Channels = 1;
+							break;
+						case GrayAlpha:
+							header.Channels = 2;
+							break;
+						case Rgba:
+							header.Channels = 4;
+							break;
+						default:
+							return PngError::UnknownKind;
 					}
 					bool validDepth = (header.ColorType == Gray ? (header.BitDepth == 1 || header.BitDepth == 2 || header.BitDepth == 4 || header.BitDepth == 8 || header.BitDepth == 16)
-						: (header.ColorType == Palette ? (header.BitDepth == 1 || header.BitDepth == 2 || header.BitDepth == 4 || header.BitDepth == 8)
-						: (header.BitDepth == 8 || header.BitDepth == 16)));
+																: (header.ColorType == Palette ? (header.BitDepth == 1 || header.BitDepth == 2 || header.BitDepth == 4 || header.BitDepth == 8)
+																							   : (header.BitDepth == 8 || header.BitDepth == 16)));
 					if (!validDepth) {
 						return PngError::UnknownKind;
 					}
@@ -437,7 +465,10 @@ namespace nCine
 			}
 
 			// Passes of Adam7, or a single one of the whole image
-			struct Pass { std::int32_t X, Y, StepX, StepY; };
+			struct Pass
+			{
+				std::int32_t X, Y, StepX, StepY;
+			};
 			static const Pass Adam7[7] = { { 0, 0, 8, 8 }, { 4, 0, 8, 8 }, { 0, 4, 4, 8 }, { 2, 0, 4, 4 }, { 0, 2, 2, 4 }, { 1, 0, 2, 2 }, { 0, 1, 1, 2 } };
 			static const Pass Single[1] = { { 0, 0, 1, 1 } };
 			const Pass* passes = (header.Interlace != 0 ? Adam7 : Single);
@@ -540,11 +571,21 @@ namespace nCine
 				std::int32_t upLeft = (i >= bpp ? previous[i - bpp] : 0);
 				std::int32_t predicted;
 				switch (filter) {
-					case 1: predicted = left; break;
-					case 2: predicted = up; break;
-					case 3: predicted = (left + up) >> 1; break;
-					case 4: predicted = Paeth(left, up, upLeft); break;
-					default: predicted = 0; break;
+					case 1:
+						predicted = left;
+						break;
+					case 2:
+						predicted = up;
+						break;
+					case 3:
+						predicted = (left + up) >> 1;
+						break;
+					case 4:
+						predicted = Paeth(left, up, upLeft);
+						break;
+					default:
+						predicted = 0;
+						break;
 				}
 				out[1 + i] = std::uint8_t(row[i] - predicted);
 			}
@@ -706,47 +747,56 @@ namespace nCine
 	const char* PngCodec::GetErrorText(PngError error)
 	{
 		switch (error) {
-			case PngError::None: return "No error";
-			case PngError::NotPng: return "It isn't a PNG image";
-			case PngError::EndsTooSoon: return "The image ends too soon";
-			case PngError::Damaged: return "The image is damaged";
-			case PngError::TooLarge: return "The image is too large";
-			case PngError::UnknownKind: return "The image is of an unknown kind";
-			case PngError::Unsupported: return "The image uses a feature that isn't supported";
-			case PngError::NoPalette: return "The image has no palette";
-			default: return "Unknown error";
+			case PngError::None:
+				return "No error";
+			case PngError::NotPng:
+				return "It isn't a PNG image";
+			case PngError::EndsTooSoon:
+				return "The image ends too soon";
+			case PngError::Damaged:
+				return "The image is damaged";
+			case PngError::TooLarge:
+				return "The image is too large";
+			case PngError::UnknownKind:
+				return "The image is of an unknown kind";
+			case PngError::Unsupported:
+				return "The image uses a feature that isn't supported";
+			case PngError::NoPalette:
+				return "The image has no palette";
+			default:
+				return "Unknown error";
 		}
 	}
 
 #if defined(WITH_PNG_ENCODER)
 	bool PngCodec::Encode(Stream& s, const PngImage& image)
 	{
-#	if defined(WITH_ZLIB) || defined(WITH_MINIZ)
+#if defined(WITH_ZLIB) || defined(WITH_MINIZ)
 		if (image.Width <= 0 || image.Height <= 0 || image.Pixels.size() != std::size_t(image.Width) * std::size_t(image.Height) * (image.Indexed ? 1 : 4)) {
 			return false;
 		}
 		return EncodeImage(s, image.Width, image.Height, image.Pixels.data(), image.Indexed, image.Palette, image.PaletteSize);
-#	else
+#else
 		static_cast<void>(s);
 		static_cast<void>(image);
 		return false;
-#	endif
+#endif
 	}
 
 	bool PngCodec::EncodeRgba(Stream& s, std::int32_t width, std::int32_t height, const std::uint8_t* pixels)
 	{
-#	if defined(WITH_ZLIB) || defined(WITH_MINIZ)
+#if defined(WITH_ZLIB) || defined(WITH_MINIZ)
 		if (width <= 0 || height <= 0 || pixels == nullptr) {
 			return false;
 		}
 		return EncodeImage(s, width, height, pixels, false, nullptr, 0);
-#	else
+#else
 		static_cast<void>(s);
 		static_cast<void>(width);
 		static_cast<void>(height);
 		static_cast<void>(pixels);
 		return false;
-#	endif
+#endif
 	}
 #endif
 }

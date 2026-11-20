@@ -38,7 +38,8 @@ namespace Jazz2::Editor
 		LayerResizeHandles(IEditorContext& session, Function<Rectf()>&& getViewRect, Function<Rectf(const LayerView&)>&& getFrame);
 
 		/** @brief Returns `true` while a handle is dragged */
-		bool IsDragging() const {
+		bool IsDragging() const
+		{
 			return _dragging;
 		}
 

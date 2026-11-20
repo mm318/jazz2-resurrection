@@ -26,10 +26,12 @@ namespace Jazz2::Actors::Enemies
 		Task<bool> OnActivatedAsync(const ActorActivationDetails& details) override;
 		void OnUpdate(float timeMult) override;
 		// Measured in JJ2+: it walks through Stop Enemy and turns only at walls and ledges
-		bool StopsAtStopEnemy() const override {
+		bool StopsAtStopEnemy() const override
+		{
 			return false;
 		}
-		float GetTurnLookAhead() const override {
+		float GetTurnLookAhead() const override
+		{
 			return 0.0f;
 		}
 		void OnUpdateHitbox() override;

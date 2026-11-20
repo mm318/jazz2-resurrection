@@ -47,17 +47,35 @@ namespace Jazz2::Editor
 		void CountObject(LevelStatistics& stats, EventType type, const std::uint8_t* params, std::int32_t count)
 		{
 			switch (type) {
-				case EventType::Gem: stats.Gems += GetGemValue(params[0]) * count; break;
-				case EventType::GemGiant: stats.GiantGems += count; break;
-				case EventType::GemRing: stats.Gems += (params[0] != 0 ? params[0] : 8) * count; break;
-				case EventType::GemStomp: stats.Gems += 8 * count; break;
-				case EventType::Coin: stats.Coins += GetCoinValue(params[0]) * count; break;
-				case EventType::Food: stats.Food += count; break;
+				case EventType::Gem:
+					stats.Gems += GetGemValue(params[0]) * count;
+					break;
+				case EventType::GemGiant:
+					stats.GiantGems += count;
+					break;
+				case EventType::GemRing:
+					stats.Gems += (params[0] != 0 ? params[0] : 8) * count;
+					break;
+				case EventType::GemStomp:
+					stats.Gems += 8 * count;
+					break;
+				case EventType::Coin:
+					stats.Coins += GetCoinValue(params[0]) * count;
+					break;
+				case EventType::Food:
+					stats.Food += count;
+					break;
 				case EventType::Carrot:
 				case EventType::CarrotFly:
-				case EventType::CarrotInvincible: stats.Carrots += count; break;
-				case EventType::OneUp: stats.ExtraLives += count; break;
-				case EventType::Ammo: stats.Ammo += count; break;
+				case EventType::CarrotInvincible:
+					stats.Carrots += count;
+					break;
+				case EventType::OneUp:
+					stats.ExtraLives += count;
+					break;
+				case EventType::Ammo:
+					stats.Ammo += count;
+					break;
 				default: {
 					if (const EventDescriptor* descriptor = EventCatalog::Find(type)) {
 						if (descriptor->Category == EventCategory::Enemy) {
@@ -88,9 +106,15 @@ namespace Jazz2::Editor
 						}
 					}
 					break;
-				case EventType::Checkpoint: stats.Checkpoints++; break;
-				case EventType::WarpOrigin: stats.Warps++; break;
-				case EventType::AreaEndOfLevel: stats.Exits++; break;
+				case EventType::Checkpoint:
+					stats.Checkpoints++;
+					break;
+				case EventType::WarpOrigin:
+					stats.Warps++;
+					break;
+				case EventType::AreaEndOfLevel:
+					stats.Exits++;
+					break;
 				case EventType::Crate:
 				case EventType::Barrel: {
 					// The content and how many of it, its parameters follow
@@ -215,7 +239,9 @@ namespace Jazz2::Editor
 				}
 				row.Color = Theme::Text;
 				row.Tooltip = Death::move(tooltip);
-				row.Counted = std::make_shared<Function<bool(const LevelStatistics&)>>([member](const LevelStatistics& single) { return (single.*member > 0); });
+				row.Counted = std::make_shared<Function<bool(const LevelStatistics&)>>([member](const LevelStatistics& single) {
+					return (single.*member > 0);
+				});
 			};
 			// TRANSLATORS: Rows of the Statistics dialog, what is counted in the level for each difficulty, with tooltips of some of them
 			addCount(_x("editor", "Enemies"), &LevelStatistics::Enemies);
@@ -242,7 +268,9 @@ namespace Jazz2::Editor
 						row.Values[i] = FormatInteger(stats[i].Starts[c]);
 					}
 					row.Color = (stats[1].Starts[c] == 0 ? Theme::TextDanger : Theme::Text);
-					row.Counted = std::make_shared<Function<bool(const LevelStatistics&)>>([c](const LevelStatistics& single) { return (single.Starts[c] > 0); });
+					row.Counted = std::make_shared<Function<bool(const LevelStatistics&)>>([c](const LevelStatistics& single) {
+						return (single.Starts[c] > 0);
+					});
 				}
 			}
 			// TRANSLATORS: Last row of the Statistics dialog, the number of all events in the level, and its tooltip
@@ -295,7 +323,9 @@ namespace Jazz2::Editor
 					std::uint8_t bit = DifficultyBits[i];
 					auto counted = countRow.Counted;
 					auto* button = row->Add<Button>(countRow.Values[i], EditorIcon::None, [s, bit, counted]() {
-						SelectCounted(*s, bit, [counted](const LevelStatistics& single) { return (*counted)(single); });
+						SelectCounted(*s, bit, [counted](const LevelStatistics& single) {
+							return (*counted)(single);
+						});
 					});
 					button->Style = ButtonStyle::Flat;
 					button->TextAlign = Alignment::Right;

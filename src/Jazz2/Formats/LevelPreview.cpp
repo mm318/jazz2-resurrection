@@ -91,7 +91,7 @@ namespace Jazz2::Formats
 
 		// Calls `sample(sx, sy, tx, ty, px, py)` for every point of the preview a layer of tiles covers, row by row, with the
 		// tile of the layer there and the pixel of the layer
-		template<class Func>
+		template <class Func>
 		void ForEachTileSample(LevelPreview::ISource& source, std::int32_t l, const Rectf& view, Vector2i levelSize, Func&& sample)
 		{
 			const LayerRecord& layer = source.GetLayer(l);
@@ -266,7 +266,9 @@ namespace Jazz2::Formats
 		if (_overridesSorted < 0) {
 			_overridesSorted = (std::is_sorted(DiffuseOverrides.begin(), DiffuseOverrides.end(), [](const TileDiffuseOverride& a, const TileDiffuseOverride& b) {
 				return (a.TileId < b.TileId);
-			}) ? 1 : 0);
+			})
+					? 1
+					: 0);
 		}
 		if (_overridesSorted != 0) {
 			auto it = std::lower_bound(DiffuseOverrides.begin(), DiffuseOverrides.end(), tileId, [](const TileDiffuseOverride& diffuse, std::uint16_t tileId) {

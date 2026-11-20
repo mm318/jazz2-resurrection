@@ -26,13 +26,27 @@ namespace Jazz2::Actors::Solid
 		PlatformType platformType = (PlatformType)details.Params[0];
 		switch (platformType) {
 			default:
-			case PlatformType::CarrotusFruit: PreloadMetadataAsync("MovingPlatform/CarrotusFruit"_s); break;
-			case PlatformType::Ball: PreloadMetadataAsync("MovingPlatform/Ball"_s); break;
-			case PlatformType::CarrotusGrass: PreloadMetadataAsync("MovingPlatform/CarrotusGrass"_s); break;
-			case PlatformType::Lab: PreloadMetadataAsync("MovingPlatform/Lab"_s); break;
-			case PlatformType::Sonic: PreloadMetadataAsync("MovingPlatform/Sonic"_s); break;
-			case PlatformType::Spike: PreloadMetadataAsync("MovingPlatform/Spike"_s); break;
-			case PlatformType::SpikeBall: PreloadMetadataAsync("MovingPlatform/SpikeBall"_s); break;
+			case PlatformType::CarrotusFruit:
+				PreloadMetadataAsync("MovingPlatform/CarrotusFruit"_s);
+				break;
+			case PlatformType::Ball:
+				PreloadMetadataAsync("MovingPlatform/Ball"_s);
+				break;
+			case PlatformType::CarrotusGrass:
+				PreloadMetadataAsync("MovingPlatform/CarrotusGrass"_s);
+				break;
+			case PlatformType::Lab:
+				PreloadMetadataAsync("MovingPlatform/Lab"_s);
+				break;
+			case PlatformType::Sonic:
+				PreloadMetadataAsync("MovingPlatform/Sonic"_s);
+				break;
+			case PlatformType::Spike:
+				PreloadMetadataAsync("MovingPlatform/Spike"_s);
+				break;
+			case PlatformType::SpikeBall:
+				PreloadMetadataAsync("MovingPlatform/SpikeBall"_s);
+				break;
 		}
 	}
 
@@ -56,12 +70,24 @@ namespace Jazz2::Actors::Solid
 
 		switch (_type) {
 			default:
-			case PlatformType::CarrotusFruit: async_await RequestMetadataAsync("MovingPlatform/CarrotusFruit"_s); break;
-			case PlatformType::Ball: async_await RequestMetadataAsync("MovingPlatform/Ball"_s); break;
-			case PlatformType::CarrotusGrass: async_await RequestMetadataAsync("MovingPlatform/CarrotusGrass"_s); break;
-			case PlatformType::Lab: async_await RequestMetadataAsync("MovingPlatform/Lab"_s); break;
-			case PlatformType::Sonic: async_await RequestMetadataAsync("MovingPlatform/Sonic"_s); break;
-			case PlatformType::Spike: async_await RequestMetadataAsync("MovingPlatform/Spike"_s); break;
+			case PlatformType::CarrotusFruit:
+				async_await RequestMetadataAsync("MovingPlatform/CarrotusFruit"_s);
+				break;
+			case PlatformType::Ball:
+				async_await RequestMetadataAsync("MovingPlatform/Ball"_s);
+				break;
+			case PlatformType::CarrotusGrass:
+				async_await RequestMetadataAsync("MovingPlatform/CarrotusGrass"_s);
+				break;
+			case PlatformType::Lab:
+				async_await RequestMetadataAsync("MovingPlatform/Lab"_s);
+				break;
+			case PlatformType::Sonic:
+				async_await RequestMetadataAsync("MovingPlatform/Sonic"_s);
+				break;
+			case PlatformType::Spike:
+				async_await RequestMetadataAsync("MovingPlatform/Spike"_s);
+				break;
 			case PlatformType::SpikeBall:
 				async_await RequestMetadataAsync("MovingPlatform/SpikeBall"_s);
 				_maxHealth = _health = 8;
@@ -352,15 +378,22 @@ namespace Jazz2::Actors::Solid
 
 		float linkDistance;
 		switch (_type) {
-			case PlatformType::CarrotusFruit: linkDistance = 13.0f; break;
-			case PlatformType::CarrotusGrass: linkDistance = 25.0f; break;
-			case PlatformType::Lab: linkDistance = 12.0f; break;
-			default: linkDistance = 11.0f; break;
+			case PlatformType::CarrotusFruit:
+				linkDistance = 13.0f;
+				break;
+			case PlatformType::CarrotusGrass:
+				linkDistance = 25.0f;
+				break;
+			case PlatformType::Lab:
+				linkDistance = 12.0f;
+				break;
+			default:
+				linkDistance = 11.0f;
+				break;
 		}
 
 		return Vector2f(
 			_originPos.X + multiX * distance * linkDistance,
-			_originPos.Y + multiY * distance * linkDistance
-		);
+			_originPos.Y + multiY * distance * linkDistance);
 	}
 }

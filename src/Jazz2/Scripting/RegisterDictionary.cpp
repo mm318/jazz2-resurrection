@@ -59,7 +59,7 @@ namespace Jazz2::Scripting
 	{
 		// Use the custom memory routine from AngelScript to allow application to better control how much memory is used
 		CScriptDictionary* obj = static_cast<CScriptDictionary*>(asAllocMem(sizeof(CScriptDictionary)));
-		new(obj) CScriptDictionary(engine);
+		new (obj) CScriptDictionary(engine);
 		return obj;
 	}
 
@@ -67,7 +67,7 @@ namespace Jazz2::Scripting
 	{
 		// Use the custom memory routine from AngelScript to allow application to better control how much memory is used
 		CScriptDictionary* obj = static_cast<CScriptDictionary*>(asAllocMem(sizeof(CScriptDictionary)));
-		new(obj) CScriptDictionary(buffer);
+		new (obj) CScriptDictionary(buffer);
 		return obj;
 	}
 
@@ -137,16 +137,36 @@ namespace Jazz2::Scripting
 				std::int64_t i64;
 				double d;
 				switch (typeId) {
-					case asTYPEID_INT8:   i64 = *(std::int8_t*)ref; break;
-					case asTYPEID_INT16:  i64 = *(std::int16_t*)ref; break;
-					case asTYPEID_INT32:  i64 = *(std::int32_t*)ref; break;
-					case asTYPEID_INT64:  i64 = *(std::int64_t*)ref; break;
-					case asTYPEID_UINT8:  i64 = *(std::uint8_t*)ref; break;
-					case asTYPEID_UINT16: i64 = *(std::uint16_t*)ref; break;
-					case asTYPEID_UINT32: i64 = *(std::uint32_t*)ref; break;
-					case asTYPEID_UINT64: i64 = *(std::uint64_t*)ref; break;
-					case asTYPEID_FLOAT:  d = *(float*)ref; break;
-					case asTYPEID_DOUBLE: d = *(double*)ref; break;
+					case asTYPEID_INT8:
+						i64 = *(std::int8_t*)ref;
+						break;
+					case asTYPEID_INT16:
+						i64 = *(std::int16_t*)ref;
+						break;
+					case asTYPEID_INT32:
+						i64 = *(std::int32_t*)ref;
+						break;
+					case asTYPEID_INT64:
+						i64 = *(std::int64_t*)ref;
+						break;
+					case asTYPEID_UINT8:
+						i64 = *(std::uint8_t*)ref;
+						break;
+					case asTYPEID_UINT16:
+						i64 = *(std::uint16_t*)ref;
+						break;
+					case asTYPEID_UINT32:
+						i64 = *(std::uint32_t*)ref;
+						break;
+					case asTYPEID_UINT64:
+						i64 = *(std::uint64_t*)ref;
+						break;
+					case asTYPEID_FLOAT:
+						d = *(float*)ref;
+						break;
+					case asTYPEID_DOUBLE:
+						d = *(double*)ref;
+						break;
 				}
 
 				if (typeId >= asTYPEID_FLOAT) {
@@ -693,7 +713,7 @@ namespace Jazz2::Scripting
 
 	static void CScriptDictValue_Construct(void* mem)
 	{
-		new(mem) CScriptDictValue();
+		new (mem) CScriptDictValue();
 	}
 
 	static void CScriptDictValue_Destruct(CScriptDictValue* obj)
@@ -788,68 +808,84 @@ namespace Jazz2::Scripting
 		 * cast, e.g. `int x = int(dict["count"]);` or `@obj = cast<Foo>(dict["obj"]);`. If the stored
 		 * value can't be converted to the requested type, the result is 0 or null.
 		 */
-		r = engine->RegisterObjectType("dictionaryValue", sizeof(CScriptDictValue), asOBJ_VALUE | asOBJ_ASHANDLE | asOBJ_GC | asGetTypeTraits<CScriptDictValue>()); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectType("dictionaryValue", sizeof(CScriptDictValue), asOBJ_VALUE | asOBJ_ASHANDLE | asOBJ_GC | asGetTypeTraits<CScriptDictValue>());
+		RETURN_ASSERT(r >= 0);
 #else
-		r = engine->RegisterObjectType("dictionaryValue", sizeof(CScriptDictValue), asOBJ_VALUE | asOBJ_ASHANDLE | asOBJ_GC | asOBJ_APP_CLASS_CD); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectType("dictionaryValue", sizeof(CScriptDictValue), asOBJ_VALUE | asOBJ_ASHANDLE | asOBJ_GC | asOBJ_APP_CLASS_CD);
+		RETURN_ASSERT(r >= 0);
 #endif
 		/** @brief Creates an empty value */
-		r = engine->RegisterObjectBehaviour("dictionaryValue", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(CScriptDictValue_Construct), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectBehaviour("dictionaryValue", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(CScriptDictValue_Destruct), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectBehaviour("dictionaryValue", asBEHAVE_ENUMREFS, "void f(int&in)", asMETHOD(CScriptDictValue, EnumReferences), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectBehaviour("dictionaryValue", asBEHAVE_RELEASEREFS, "void f(int&in)", asMETHOD(CScriptDictValue, FreeValue), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectBehaviour("dictionaryValue", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(CScriptDictValue_Construct), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectBehaviour("dictionaryValue", asBEHAVE_DESTRUCT, "void f()", asFUNCTION(CScriptDictValue_Destruct), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectBehaviour("dictionaryValue", asBEHAVE_ENUMREFS, "void f(int&in)", asMETHOD(CScriptDictValue, EnumReferences), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectBehaviour("dictionaryValue", asBEHAVE_RELEASEREFS, "void f(int&in)", asMETHOD(CScriptDictValue, FreeValue), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Copies the content of another value */
-		r = engine->RegisterObjectMethod("dictionaryValue", "dictionaryValue &opAssign(const dictionaryValue &in)", asFUNCTIONPR(CScriptDictValue_opAssign, (const CScriptDictValue&, CScriptDictValue*), CScriptDictValue&), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionaryValue", "dictionaryValue &opAssign(const dictionaryValue &in)", asFUNCTIONPR(CScriptDictValue_opAssign, (const CScriptDictValue&, CScriptDictValue*), CScriptDictValue&), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Stores a handle
 		 *
 		 * Used by `@dict["key"] = obj;`, the dictionary then refers to the same object instead of a copy.
 		 */
-		r = engine->RegisterObjectMethod("dictionaryValue", "dictionaryValue &opHndlAssign(const ?&in)", asFUNCTIONPR(CScriptDictValue_opAssign, (void*, int, CScriptDictValue*), CScriptDictValue&), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionaryValue", "dictionaryValue &opHndlAssign(const ?&in)", asFUNCTIONPR(CScriptDictValue_opAssign, (void*, int, CScriptDictValue*), CScriptDictValue&), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Copies the content of another value, used by handle assignment */
-		r = engine->RegisterObjectMethod("dictionaryValue", "dictionaryValue &opHndlAssign(const dictionaryValue &in)", asFUNCTIONPR(CScriptDictValue_opAssign, (const CScriptDictValue&, CScriptDictValue*), CScriptDictValue&), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionaryValue", "dictionaryValue &opHndlAssign(const dictionaryValue &in)", asFUNCTIONPR(CScriptDictValue_opAssign, (const CScriptDictValue&, CScriptDictValue*), CScriptDictValue&), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Stores a value of any type
 		 *
 		 * Objects are stored as copies, handles keep referring to the same object.
 		 */
-		r = engine->RegisterObjectMethod("dictionaryValue", "dictionaryValue &opAssign(const ?&in)", asFUNCTIONPR(CScriptDictValue_opAssign, (void*, int, CScriptDictValue*), CScriptDictValue&), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionaryValue", "dictionaryValue &opAssign(const ?&in)", asFUNCTIONPR(CScriptDictValue_opAssign, (void*, int, CScriptDictValue*), CScriptDictValue&), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Stores a floating-point number
 		 *
 		 * All floating-point types are stored as `double`.
 		 */
-		r = engine->RegisterObjectMethod("dictionaryValue", "dictionaryValue &opAssign(double)", asFUNCTIONPR(CScriptDictValue_opAssign, (double, CScriptDictValue*), CScriptDictValue&), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionaryValue", "dictionaryValue &opAssign(double)", asFUNCTIONPR(CScriptDictValue_opAssign, (double, CScriptDictValue*), CScriptDictValue&), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Stores an integer
 		 *
 		 * All integer types are stored as `int64`.
 		 */
-		r = engine->RegisterObjectMethod("dictionaryValue", "dictionaryValue &opAssign(int64)", asFUNCTIONPR(CScriptDictValue_opAssign, (std::int64_t, CScriptDictValue*), CScriptDictValue&), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionaryValue", "dictionaryValue &opAssign(int64)", asFUNCTIONPR(CScriptDictValue_opAssign, (std::int64_t, CScriptDictValue*), CScriptDictValue&), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Retrieves the stored value as a handle with an explicit cast
 		 *
 		 * Used by `cast<T>(value)`. Returns null if the stored object isn't of a compatible type.
 		 */
-		r = engine->RegisterObjectMethod("dictionaryValue", "void opCast(?&out)", asFUNCTIONPR(CScriptDictValue_opCast, (void*, int, CScriptDictValue*), void), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionaryValue", "void opCast(?&out)", asFUNCTIONPR(CScriptDictValue_opCast, (void*, int, CScriptDictValue*), void), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Retrieves the stored value as the requested type
 		 *
 		 * Used by conversions such as `T(value)`. A stored number, boolean or enum can be read as `int64`,
 		 * `double`, `bool` or an enum, objects are copied only if the stored type matches exactly.
 		 */
-		r = engine->RegisterObjectMethod("dictionaryValue", "void opConv(?&out)", asFUNCTIONPR(CScriptDictValue_opCast, (void*, int, CScriptDictValue*), void), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionaryValue", "void opConv(?&out)", asFUNCTIONPR(CScriptDictValue_opCast, (void*, int, CScriptDictValue*), void), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Converts the stored value to an integer
 		 *
 		 * A floating-point value is truncated towards zero, `true` gives 1. Returns 0 if the stored value isn't numeric.
 		 */
-		r = engine->RegisterObjectMethod("dictionaryValue", "int64 opConv()", asFUNCTIONPR(CScriptDictValue_opConvInt, (CScriptDictValue*), std::int64_t), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionaryValue", "int64 opConv()", asFUNCTIONPR(CScriptDictValue_opConvInt, (CScriptDictValue*), std::int64_t), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Converts the stored value to a floating-point number
 		 *
 		 * `true` gives 1.0. Returns 0 if the stored value isn't numeric.
 		 */
-		r = engine->RegisterObjectMethod("dictionaryValue", "double opConv()", asFUNCTIONPR(CScriptDictValue_opConvDouble, (CScriptDictValue*), double), asCALL_CDECL_OBJLAST); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionaryValue", "double opConv()", asFUNCTIONPR(CScriptDictValue_opConvDouble, (CScriptDictValue*), double), asCALL_CDECL_OBJLAST);
+		RETURN_ASSERT(r >= 0);
 
 		/**
 		 * @brief Collection of values of any type, stored under string keys
@@ -859,25 +895,31 @@ namespace Jazz2::Scripting
 		 * Integers are always stored as `int64` and floating-point numbers as `double`. Keys are kept in
 		 * no particular order. Can be created from an initialization list, e.g. `dictionary d = {{"a", 1}, {"b", 2.5}};`.
 		 */
-		r = engine->RegisterObjectType("dictionary", sizeof(CScriptDictionary), asOBJ_REF | asOBJ_GC); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectType("dictionary", sizeof(CScriptDictionary), asOBJ_REF | asOBJ_GC);
+		RETURN_ASSERT(r >= 0);
 		// Use the generic interface to construct the object since we need the engine pointer, we could also have retrieved the engine pointer from the active context
 		/** @brief Creates an empty dictionary */
-		r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_FACTORY, "dictionary@ f()", asFUNCTION(ScriptDictionaryFactory_Generic), asCALL_GENERIC); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_FACTORY, "dictionary@ f()", asFUNCTION(ScriptDictionaryFactory_Generic), asCALL_GENERIC);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Creates a dictionary from an initialization list
 		 *
 		 * Each item of the list is a pair of a key and a value, e.g. `{{"lives", 3}, {"name", "Spaz"}}`.
 		 */
-		r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_LIST_FACTORY, "dictionary @f(int &in) {repeat {string, ?}}", asFUNCTION(ScriptDictionaryListFactory_Generic), asCALL_GENERIC); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_ADDREF, "void f()", asMETHOD(CScriptDictionary, AddRef), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_RELEASE, "void f()", asMETHOD(CScriptDictionary, Release), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_LIST_FACTORY, "dictionary @f(int &in) {repeat {string, ?}}", asFUNCTION(ScriptDictionaryListFactory_Generic), asCALL_GENERIC);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_ADDREF, "void f()", asMETHOD(CScriptDictionary, AddRef), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_RELEASE, "void f()", asMETHOD(CScriptDictionary, Release), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 
 		/**
 		 * @brief Replaces the content with the entries of another dictionary
 		 *
 		 * Stored objects are copied, stored handles keep referring to the same objects.
 		 */
-		r = engine->RegisterObjectMethod("dictionary", "dictionary &opAssign(const dictionary &in)", asMETHODPR(CScriptDictionary, operator=, (const CScriptDictionary&), CScriptDictionary&), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionary", "dictionary &opAssign(const dictionary &in)", asMETHODPR(CScriptDictionary, operator=, (const CScriptDictionary&), CScriptDictionary&), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 
 		/**
 		 * @brief Stores a value of any type under a key
@@ -885,7 +927,8 @@ namespace Jazz2::Scripting
 		 * Takes the key and the value. Replaces any previous value of the key. Objects are stored as copies,
 		 * pass a handle (e.g. `@obj`) to store a reference to the object instead.
 		 */
-		r = engine->RegisterObjectMethod("dictionary", "void set(const string &in, const ?&in)", asMETHODPR(CScriptDictionary, Set, (const dictKey_t&, void*, int), void), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionary", "void set(const string &in, const ?&in)", asMETHODPR(CScriptDictionary, Set, (const dictKey_t&, void*, int), void), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Retrieves the value of a key
 		 *
@@ -894,50 +937,60 @@ namespace Jazz2::Scripting
 		 * unchanged if it fails.
 		 * @return `true` if the key exists and its value could be converted to the type of the variable
 		 */
-		r = engine->RegisterObjectMethod("dictionary", "bool get(const string &in, ?&out) const", asMETHODPR(CScriptDictionary, Get, (const dictKey_t&, void*, int) const, bool), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionary", "bool get(const string &in, ?&out) const", asMETHODPR(CScriptDictionary, Get, (const dictKey_t&, void*, int) const, bool), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 
 		/**
 		 * @brief Stores an integer under a key
 		 *
 		 * Takes the key and the value. Replaces any previous value of the key.
 		 */
-		r = engine->RegisterObjectMethod("dictionary", "void set(const string &in, const int64&in)", asMETHODPR(CScriptDictionary, Set, (const dictKey_t&, const std::int64_t&), void), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionary", "void set(const string &in, const int64&in)", asMETHODPR(CScriptDictionary, Set, (const dictKey_t&, const std::int64_t&), void), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Retrieves the value of a key as an integer
 		 *
 		 * Takes the key and a variable that receives the value. A stored floating-point number is truncated.
 		 * @return `true` if the key exists and holds a numeric value
 		 */
-		r = engine->RegisterObjectMethod("dictionary", "bool get(const string &in, int64&out) const", asMETHODPR(CScriptDictionary, Get, (const dictKey_t&, std::int64_t&) const, bool), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionary", "bool get(const string &in, int64&out) const", asMETHODPR(CScriptDictionary, Get, (const dictKey_t&, std::int64_t&) const, bool), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 
 		/**
 		 * @brief Stores a floating-point number under a key
 		 *
 		 * Takes the key and the value. Replaces any previous value of the key.
 		 */
-		r = engine->RegisterObjectMethod("dictionary", "void set(const string &in, const double&in)", asMETHODPR(CScriptDictionary, Set, (const dictKey_t&, const double&), void), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionary", "void set(const string &in, const double&in)", asMETHODPR(CScriptDictionary, Set, (const dictKey_t&, const double&), void), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Retrieves the value of a key as a floating-point number
 		 *
 		 * Takes the key and a variable that receives the value.
 		 * @return `true` if the key exists and holds a numeric value
 		 */
-		r = engine->RegisterObjectMethod("dictionary", "bool get(const string &in, double&out) const", asMETHODPR(CScriptDictionary, Get, (const dictKey_t&, double&) const, bool), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionary", "bool get(const string &in, double&out) const", asMETHODPR(CScriptDictionary, Get, (const dictKey_t&, double&) const, bool), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 
 		/** @brief Returns `true` if the key is in the dictionary */
-		r = engine->RegisterObjectMethod("dictionary", "bool exists(const string &in) const", asMETHOD(CScriptDictionary, Exists), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionary", "bool exists(const string &in) const", asMETHOD(CScriptDictionary, Exists), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Returns `true` if the dictionary has no entries */
-		r = engine->RegisterObjectMethod("dictionary", "bool isEmpty() const", asMETHOD(CScriptDictionary, IsEmpty), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionary", "bool isEmpty() const", asMETHOD(CScriptDictionary, IsEmpty), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Returns the number of entries */
-		r = engine->RegisterObjectMethod("dictionary", "uint getSize() const", asMETHOD(CScriptDictionary, GetSize), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionary", "uint getSize() const", asMETHOD(CScriptDictionary, GetSize), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Removes a key and its value
 		 *
 		 * @return `true` if the key existed
 		 */
-		r = engine->RegisterObjectMethod("dictionary", "bool delete(const string &in)", asMETHOD(CScriptDictionary, Delete), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionary", "bool delete(const string &in)", asMETHOD(CScriptDictionary, Delete), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Removes all entries */
-		r = engine->RegisterObjectMethod("dictionary", "void deleteAll()", asMETHOD(CScriptDictionary, DeleteAll), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionary", "void deleteAll()", asMETHOD(CScriptDictionary, DeleteAll), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 
 		/**
 		 * @brief Returns all keys
@@ -945,7 +998,8 @@ namespace Jazz2::Scripting
 		 * The keys are in no particular order, sort the array with @ref array::sortAsc() if needed.
 		 * @return New array of the keys
 		 */
-		r = engine->RegisterObjectMethod("dictionary", "array<string> @getKeys() const", asMETHOD(CScriptDictionary, GetKeys), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionary", "array<string> @getKeys() const", asMETHOD(CScriptDictionary, GetKeys), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 
 		/**
 		 * @brief Accesses the value of a key
@@ -953,30 +1007,41 @@ namespace Jazz2::Scripting
 		 * If the key doesn't exist yet, it's added with an empty value, so this can be used for assignment.
 		 * @see dictionaryValue
 		 */
-		r = engine->RegisterObjectMethod("dictionary", "dictionaryValue &opIndex(const string &in)", asMETHODPR(CScriptDictionary, operator[], (const dictKey_t&), CScriptDictValue*), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionary", "dictionaryValue &opIndex(const string &in)", asMETHODPR(CScriptDictionary, operator[], (const dictKey_t&), CScriptDictValue*), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Reads the value of a key from a read-only dictionary
 		 *
 		 * A key that doesn't exist raises a script exception.
 		 */
-		r = engine->RegisterObjectMethod("dictionary", "const dictionaryValue &opIndex(const string &in) const", asMETHODPR(CScriptDictionary, operator[], (const dictKey_t&) const, const CScriptDictValue*), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionary", "const dictionaryValue &opIndex(const string &in) const", asMETHODPR(CScriptDictionary, operator[], (const dictKey_t&) const, const CScriptDictValue*), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 
 		// Register GC behaviours
-		r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_GETREFCOUNT, "int f()", asMETHOD(CScriptDictionary, GetRefCount), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_SETGCFLAG, "void f()", asMETHOD(CScriptDictionary, SetGCFlag), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_GETGCFLAG, "bool f()", asMETHOD(CScriptDictionary, GetGCFlag), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_ENUMREFS, "void f(int&in)", asMETHOD(CScriptDictionary, EnumReferences), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_RELEASEREFS, "void f(int&in)", asMETHOD(CScriptDictionary, ReleaseAllReferences), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_GETREFCOUNT, "int f()", asMETHOD(CScriptDictionary, GetRefCount), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_SETGCFLAG, "void f()", asMETHOD(CScriptDictionary, SetGCFlag), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_GETGCFLAG, "bool f()", asMETHOD(CScriptDictionary, GetGCFlag), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_ENUMREFS, "void f(int&in)", asMETHOD(CScriptDictionary, EnumReferences), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectBehaviour("dictionary", asBEHAVE_RELEASEREFS, "void f(int&in)", asMETHOD(CScriptDictionary, ReleaseAllReferences), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 
 #if AS_USE_STLNAMES == 1
 		// Same as isEmpty
-		r = engine->RegisterObjectMethod("dictionary", "bool empty() const", asMETHOD(CScriptDictionary, IsEmpty), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionary", "bool empty() const", asMETHOD(CScriptDictionary, IsEmpty), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 		// Same as getSize
-		r = engine->RegisterObjectMethod("dictionary", "uint size() const", asMETHOD(CScriptDictionary, GetSize), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionary", "uint size() const", asMETHOD(CScriptDictionary, GetSize), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 		// Same as delete
-		r = engine->RegisterObjectMethod("dictionary", "void erase(const string &in)", asMETHOD(CScriptDictionary, Delete), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionary", "void erase(const string &in)", asMETHOD(CScriptDictionary, Delete), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 		// Same as deleteAll
-		r = engine->RegisterObjectMethod("dictionary", "void clear()", asMETHOD(CScriptDictionary, DeleteAll), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod("dictionary", "void clear()", asMETHOD(CScriptDictionary, DeleteAll), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 #endif
 
 		// Cache some things the dictionary will need at runtime
@@ -998,7 +1063,8 @@ namespace Jazz2::Scripting
 		return CIterator(*this, dict.find(key));
 	}
 
-	CScriptDictionary::CIterator::CIterator(const CScriptDictionary& dict, dictMap_t::const_iterator it): m_it(it), m_dict(dict)
+	CScriptDictionary::CIterator::CIterator(const CScriptDictionary& dict, dictMap_t::const_iterator it)
+		: m_it(it), m_dict(dict)
 	{
 	}
 

@@ -12,7 +12,7 @@ namespace nCine
 		Wraps an unsigned integral type `T` and exposes per-bit query and manipulation methods as well
 		as the usual bitwise and shift operators. The number of bits equals `sizeof(T) * 8`.
 	*/
-	template<class T>
+	template <class T>
 	class BitSet
 	{
 	public:
@@ -66,15 +66,18 @@ namespace nCine
 		void flip(std::uint32_t pos);
 
 		/** @brief Returns the bitwise AND of two bitsets */
-		friend BitSet operator&(const BitSet& lhs, const BitSet& rhs) {
+		friend BitSet operator&(const BitSet& lhs, const BitSet& rhs)
+		{
 			return BitSet(lhs._bits & rhs._bits);
 		}
 		/** @brief Returns the bitwise OR of two bitsets */
-		friend BitSet operator|(const BitSet& lhs, const BitSet& rhs) {
+		friend BitSet operator|(const BitSet& lhs, const BitSet& rhs)
+		{
 			return BitSet(lhs._bits | rhs._bits);
 		}
 		/** @brief Returns the bitwise XOR of two bitsets */
-		friend BitSet operator^(const BitSet& lhs, const BitSet& rhs) {
+		friend BitSet operator^(const BitSet& lhs, const BitSet& rhs)
+		{
 			return BitSet(lhs._bits ^ rhs._bits);
 		}
 
@@ -82,7 +85,7 @@ namespace nCine
 		T _bits;
 	};
 
-	template<class T>
+	template <class T>
 	BitSet<T>::BitSet()
 		: _bits(T(0))
 	{
@@ -90,7 +93,7 @@ namespace nCine
 		static_assert(T(0) < T(-1), "Unsigned type is required");
 	}
 
-	template<class T>
+	template <class T>
 	BitSet<T>::BitSet(T value)
 		: _bits(value)
 	{
@@ -98,56 +101,56 @@ namespace nCine
 		static_assert(T(0) < T(-1), "Unsigned type is required");
 	}
 
-	template<class T>
+	template <class T>
 	inline bool BitSet<T>::operator==(const BitSet& other) const
 	{
 		return other._bits == _bits;
 	}
 
-	template<class T>
+	template <class T>
 	inline bool BitSet<T>::operator!=(const BitSet& other) const
 	{
 		return other._bits != _bits;
 	}
 
-	template<class T>
+	template <class T>
 	inline bool BitSet<T>::test(std::uint32_t pos) const
 	{
 		return ((_bits >> pos) & T(1)) != T(0);
 	}
 
-	template<class T>
+	template <class T>
 	inline bool BitSet<T>::all() const
 	{
 		return ~_bits == T(0);
 	}
 
-	template<class T>
+	template <class T>
 	inline bool BitSet<T>::any() const
 	{
 		return _bits != T(0);
 	}
 
-	template<class T>
+	template <class T>
 	inline bool BitSet<T>::none() const
 	{
 		return _bits == T(0);
 	}
 
-	template<>
+	template <>
 	inline std::uint32_t BitSet<uint8_t>::count() const
 	{
 		static const uint8_t splitLookup[] = { 0, 1, 1, 2, 1, 2, 2, 3, 1, 2, 2, 3, 2, 3, 3, 4 };
 		return splitLookup[_bits & 0xF] + splitLookup[_bits >> 4];
 	}
 
-	template<>
+	template <>
 	inline std::uint32_t BitSet<uint16_t>::count() const
 	{
 		return BitSet<uint8_t>(_bits & 0xFF).count() + BitSet<uint8_t>(_bits >> 8).count();
 	}
 
-	template<>
+	template <>
 	inline std::uint32_t BitSet<uint32_t>::count() const
 	{
 		uint32_t bits = _bits;
@@ -156,7 +159,7 @@ namespace nCine
 		return (((bits + (bits >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;
 	}
 
-	template<>
+	template <>
 	inline std::uint32_t BitSet<uint64_t>::count() const
 	{
 		uint64_t bits = _bits;
@@ -165,96 +168,96 @@ namespace nCine
 		return (((bits + (bits >> 4)) & 0x0F0F0F0F0F0F0F0F) * 0x0101010101010101) >> 56;
 	}
 
-	template<class T>
+	template <class T>
 	inline std::uint32_t BitSet<T>::size() const
 	{
 		return sizeof(T) * 8;
 	}
 
-	template<class T>
+	template <class T>
 	inline BitSet<T>& BitSet<T>::operator&=(const BitSet& other)
 	{
 		_bits &= other._bits;
 		return *this;
 	}
 
-	template<class T>
+	template <class T>
 	inline BitSet<T>& BitSet<T>::operator|=(const BitSet& other)
 	{
 		_bits |= other._bits;
 		return *this;
 	}
 
-	template<class T>
+	template <class T>
 	inline BitSet<T>& BitSet<T>::operator^=(const BitSet& other)
 	{
 		_bits ^= other._bits;
 		return *this;
 	}
 
-	template<class T>
+	template <class T>
 	inline BitSet<T> BitSet<T>::operator~() const
 	{
 		return BitSet(~_bits);
 	}
 
-	template<class T>
+	template <class T>
 	inline BitSet<T>& BitSet<T>::operator<<=(std::uint32_t pos)
 	{
 		_bits <<= pos;
 		return *this;
 	}
 
-	template<class T>
+	template <class T>
 	inline BitSet<T>& BitSet<T>::operator>>=(std::uint32_t pos)
 	{
 		_bits >>= pos;
 		return *this;
 	}
 
-	template<class T>
+	template <class T>
 	inline BitSet<T> BitSet<T>::operator<<(std::uint32_t pos) const
 	{
 		return BitSet(_bits << pos);
 	}
 
-	template<class T>
+	template <class T>
 	inline BitSet<T> BitSet<T>::operator>>(std::uint32_t pos) const
 	{
 		return BitSet(_bits >> pos);
 	}
 
-	template<class T>
+	template <class T>
 	inline void BitSet<T>::set()
 	{
 		_bits = ~T(0);
 	}
 
-	template<class T>
+	template <class T>
 	inline void BitSet<T>::set(std::uint32_t pos)
 	{
 		_bits |= T(1) << pos;
 	}
 
-	template<class T>
+	template <class T>
 	inline void BitSet<T>::set(std::uint32_t pos, bool value)
 	{
 		value ? set(pos) : reset(pos);
 	}
 
-	template<class T>
+	template <class T>
 	inline void BitSet<T>::reset()
 	{
 		_bits = T(0);
 	}
 
-	template<class T>
+	template <class T>
 	inline void BitSet<T>::reset(std::uint32_t pos)
 	{
 		_bits &= ~(T(1) << pos);
 	}
 
-	template<class T>
+	template <class T>
 	inline void BitSet<T>::flip(std::uint32_t pos)
 	{
 		_bits ^= (T(1) << pos);

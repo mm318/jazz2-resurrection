@@ -15,7 +15,7 @@
 namespace Jazz2::Multiplayer::GameModes
 {
 	FlagRunMode::FlagRunMode()
-		: _carrierIndex(UINT32_MAX), _timeLeft(0.0f), _extraPoints(0), _teamPoints{}
+		: _carrierIndex(UINT32_MAX), _timeLeft(0.0f), _extraPoints(0), _teamPoints {}
 	{
 	}
 
@@ -241,7 +241,8 @@ namespace Jazz2::Multiplayer::GameModes
 		auto& objects = ctx.GetGameModeObjects();
 		objects.erase(std::remove_if(objects.begin(), objects.end(), [](const GameModeObject& obj) {
 			return (obj.Type == GameModeObjectType::Flag);
-		}), objects.end());
+		}),
+			objects.end());
 
 		if (_carrierIndex != UINT32_MAX) {
 			AddObject(ctx, GameModeObjectType::Flag, carrierTeam, carrierPos).CarrierPlayerIndex = _carrierIndex;

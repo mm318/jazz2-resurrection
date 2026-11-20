@@ -113,7 +113,7 @@ namespace Jazz2::Multiplayer
 		 * contains a @cpp "$include" @ce directive, it recursively loads the referenced files.
 		 */
 		static ServerConfiguration CreateDefaultServerConfiguration();
-		
+
 		/**
 		 * @brief Loads a server configuration from the specified file
 		 *

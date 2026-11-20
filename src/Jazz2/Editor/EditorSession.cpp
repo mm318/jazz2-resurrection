@@ -15,8 +15,8 @@ namespace Jazz2::Editor
 
 	EditorSession::EditorSession(IRootController* root)
 		: _root(root), _shell(nullptr), _showPlayPath(true), _playReforged(PreferencesCache::EnableReforgedGameplay),
-			_playLedgeClimb(PreferencesCache::EnableLedgeClimb), _currentLayer(0), _showGrid(true), _maskMode(0), _showEvents(true),
-			_pickerPanel(PickerPanel::Tiles)
+		  _playLedgeClimb(PreferencesCache::EnableLedgeClimb), _currentLayer(0), _showGrid(true), _maskMode(0), _showEvents(true),
+		  _pickerPanel(PickerPanel::Tiles)
 	{
 		_playTest = std::make_unique<PlayTestController>(static_cast<IPlayTestHost&>(*this));
 		_maskOverlay = std::make_unique<MaskOverlay>();
@@ -90,13 +90,13 @@ namespace Jazz2::Editor
 		}
 
 #if defined(SHAREWARE_DEMO_ONLY)
-#	if defined(DEATH_TARGET_EMSCRIPTEN)
+#if defined(DEATH_TARGET_EMSCRIPTEN)
 		// The editor needs at least one imported episode, episodes can be imported only in the web version
 		if (PreferencesCache::UnlockedEpisodes == UnlockableEpisodes::None) {
 			LOGE("No episode was imported, the level editor isn't available");
 			return false;
 		}
-#	endif
+#endif
 		// Levels of locked episodes stay closed as in EpisodeSelectSection
 		if (!fullPath.empty() && !PreferencesCache::IsEpisodeUnlocked(MakeLevelName(fullPath).partition('/')[0])) {
 			LOGE("Level \"{}\" is in a locked episode", fullPath);
@@ -148,7 +148,7 @@ namespace Jazz2::Editor
 
 		CreateHistory();
 		_currentLayer = std::max<std::int32_t>(_document.GetSpriteLayerIndex(), 0);
-		_stamp = TileStamp::FromTile(TileRef{ 1, TileRef::DefaultTileSet, 0 });
+		_stamp = TileStamp::FromTile(TileRef { 1, TileRef::DefaultTileSet, 0 });
 		_files->LoadEventExtensions(true);
 
 		_editHandler = std::make_shared<EditorLevelHandler>(this);
@@ -199,7 +199,9 @@ namespace Jazz2::Editor
 		_surface = std::make_unique<Surface>();
 		_surface->TouchInput = (_input->GetInputModality() == InputModality::Touch);
 		// Saving works while a text is typed, see EditorAction::WorksWhileTyping
-		_surface->IsPassThroughKey = [this](const KeyboardEvent& event) { return _actions.MatchesWhileTyping(event); };
+		_surface->IsPassThroughKey = [this](const KeyboardEvent& event) {
+			return _actions.MatchesWhileTyping(event);
+		};
 		// A function key that has an action, as the help or playing, does it while typing too, a key that types a character
 		// is typed whatever it does otherwise
 		_surface->IsKeyLeftByText = [this](const KeyboardEvent& event) {
@@ -485,7 +487,7 @@ namespace Jazz2::Editor
 
 	void EditorSession::NotifyChangeObservers(const DocumentChanges& changes)
 	{
-		for (std::size_t i = 0; i < _changeObservers.size(); ) {
+		for (std::size_t i = 0; i < _changeObservers.size();) {
 			std::shared_ptr<ChangeObserver> observer = _changeObservers[i].lock();
 			if (observer == nullptr) {
 				_changeObservers.erase(_changeObservers.begin() + i);
@@ -1130,8 +1132,7 @@ namespace Jazz2::Editor
 	{
 		// A reflection with an image of its own doesn't show its tiles at all, so it's shown as it is, rippling as in the game,
 		// and any textured layer is if the settings say so - moving as in the game too, it's seen rather than painted then
-		if (RuntimeSync::IsTexturedBackground(layer) && (_settings.PreviewTexturedLayers ||
-			(Tiles::LayerRendererType(layer.Record.RendererType) == Tiles::LayerRendererType::Reflection && !layer.Texture.empty()))) {
+		if (RuntimeSync::IsTexturedBackground(layer) && (_settings.PreviewTexturedLayers || (Tiles::LayerRendererType(layer.Record.RendererType) == Tiles::LayerRendererType::Reflection && !layer.Texture.empty()))) {
 			return false;
 		}
 		return (RuntimeSync::IsTexturedBackground(layer) || layer.Record.AutoSpeedX != 0.0f || layer.Record.AutoSpeedY != 0.0f);

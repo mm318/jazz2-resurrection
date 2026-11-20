@@ -57,7 +57,7 @@ namespace nCine::RHI::GL
 	{
 		return LoadFromStringsAndFile(arrayView({ string }), {});
 	}
-	
+
 	bool GLShader::LoadFromStringAndFile(StringView string, StringView filename)
 	{
 		return LoadFromStringsAndFile(arrayView({ string }), filename);
@@ -73,7 +73,7 @@ namespace nCine::RHI::GL
 		if (strings.empty() && filename.empty()) {
 			return false;
 		}
-		
+
 		SmallVector<const char*, 10> sourceStrings;
 		SmallVector<GLint, 10> sourceLengths;
 
@@ -93,11 +93,11 @@ namespace nCine::RHI::GL
 			if (!fileHandle->IsValid()) {
 				return false;
 			}
-			
+
 			const GLint fileLength = static_cast<GLint>(fileHandle->GetSize());
-			fileSource = String{NoInit, static_cast<std::size_t>(fileLength)};
+			fileSource = String { NoInit, static_cast<std::size_t>(fileLength) };
 			fileHandle->Read(fileSource.data(), fileLength);
-			
+
 			sourceStrings.push_back(fileSource.data());
 			sourceLengths.push_back(static_cast<GLint>(fileLength));
 
@@ -108,7 +108,7 @@ namespace nCine::RHI::GL
 		glShaderSource(_glHandle, GLsizei(count), sourceStrings.data(), sourceLengths.data());
 		return (count > 1);
 	}
-	
+
 	bool GLShader::LoadFromFile(StringView filename)
 	{
 		return LoadFromStringsAndFile({}, filename);

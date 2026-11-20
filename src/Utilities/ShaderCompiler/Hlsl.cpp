@@ -28,30 +28,55 @@ namespace ShaderCompiler
 		String HlslType(const TyRef& t)
 		{
 			switch (t.T) {
-				case Ty::Void: return "void"_s;
-				case Ty::Float: return "float"_s;
-				case Ty::Int: return "int"_s;
-				case Ty::UInt: return "uint"_s;
-				case Ty::Bool: return "bool"_s;
-				case Ty::Vec2: return "float2"_s;
-				case Ty::Vec3: return "float3"_s;
-				case Ty::Vec4: return "float4"_s;
-				case Ty::IVec2: return "int2"_s;
-				case Ty::IVec3: return "int3"_s;
-				case Ty::IVec4: return "int4"_s;
-				case Ty::UVec2: return "uint2"_s;
-				case Ty::UVec3: return "uint3"_s;
-				case Ty::UVec4: return "uint4"_s;
-				case Ty::BVec2: return "bool2"_s;
-				case Ty::BVec3: return "bool3"_s;
-				case Ty::BVec4: return "bool4"_s;
-				case Ty::Mat2: return "float2x2"_s;
-				case Ty::Mat3: return "float3x3"_s;
-				case Ty::Mat4: return "float4x4"_s;
-				case Ty::Sampler2D: case Ty::Sampler3D: return "Texture2D"_s;
-				case Ty::SamplerCube: return "TextureCube"_s;
-				case Ty::Struct: return t.S;
-				default: return "float"_s;
+				case Ty::Void:
+					return "void"_s;
+				case Ty::Float:
+					return "float"_s;
+				case Ty::Int:
+					return "int"_s;
+				case Ty::UInt:
+					return "uint"_s;
+				case Ty::Bool:
+					return "bool"_s;
+				case Ty::Vec2:
+					return "float2"_s;
+				case Ty::Vec3:
+					return "float3"_s;
+				case Ty::Vec4:
+					return "float4"_s;
+				case Ty::IVec2:
+					return "int2"_s;
+				case Ty::IVec3:
+					return "int3"_s;
+				case Ty::IVec4:
+					return "int4"_s;
+				case Ty::UVec2:
+					return "uint2"_s;
+				case Ty::UVec3:
+					return "uint3"_s;
+				case Ty::UVec4:
+					return "uint4"_s;
+				case Ty::BVec2:
+					return "bool2"_s;
+				case Ty::BVec3:
+					return "bool3"_s;
+				case Ty::BVec4:
+					return "bool4"_s;
+				case Ty::Mat2:
+					return "float2x2"_s;
+				case Ty::Mat3:
+					return "float3x3"_s;
+				case Ty::Mat4:
+					return "float4x4"_s;
+				case Ty::Sampler2D:
+				case Ty::Sampler3D:
+					return "Texture2D"_s;
+				case Ty::SamplerCube:
+					return "TextureCube"_s;
+				case Ty::Struct:
+					return t.S;
+				default:
+					return "float"_s;
 			}
 		}
 
@@ -65,11 +90,16 @@ namespace ShaderCompiler
 		String CgType(const TyRef& t)
 		{
 			switch (t.T) {
-				case Ty::UInt: return "float"_s;
-				case Ty::UVec2: return "float2"_s;
-				case Ty::UVec3: return "float3"_s;
-				case Ty::UVec4: return "float4"_s;
-				default: return HlslType(t);
+				case Ty::UInt:
+					return "float"_s;
+				case Ty::UVec2:
+					return "float2"_s;
+				case Ty::UVec3:
+					return "float3"_s;
+				case Ty::UVec4:
+					return "float4"_s;
+				default:
+					return HlslType(t);
 			}
 		}
 
@@ -112,7 +142,8 @@ namespace ShaderCompiler
 				"radians", "degrees", "any", "all", "sample", "texture"
 			};
 			for (const char* n : kReserved) {
-				if (name == n) return true;
+				if (name == n)
+					return true;
 			}
 			return false;
 		}
@@ -127,15 +158,17 @@ namespace ShaderCompiler
 				"interface", "pixelfragment", "vertexfragment", "pixelshader", "vertexshader", "sampler_state", "shared"
 			};
 			for (const char* n : kCgReserved) {
-				if (name == n) return true;
+				if (name == n)
+					return true;
 			}
 			return false;
 		}
 
 		String SanitizeIdent(StringView name, bool cg)
 		{
-			if (IsReservedIdent(name) || (cg && IsCgReservedIdent(name))) return String{name} + "_"_s;
-			return String{name};
+			if (IsReservedIdent(name) || (cg && IsCgReservedIdent(name)))
+				return String { name } + "_"_s;
+			return String { name };
 		}
 
 		bool IsComparisonOrLogical(StringView op)
@@ -150,47 +183,75 @@ namespace ShaderCompiler
 		{
 		public:
 			Emitter(Parser& parser, bool vertexStage, const StageReflection& reflection,
-					HlslEmitter::Dialect dialect = HlslEmitter::Dialect::Hlsl, std::int32_t maxBatchSize = 0)
+				HlslEmitter::Dialect dialect = HlslEmitter::Dialect::Hlsl, std::int32_t maxBatchSize = 0)
 				: _p(parser), _vertexStage(vertexStage), _reflection(reflection),
-					_cg(dialect == HlslEmitter::Dialect::Cg), _maxBatchSize(maxBatchSize)
+				  _cg(dialect == HlslEmitter::Dialect::Cg), _maxBatchSize(maxBatchSize)
 			{
-				for (const StructDecl& s : _p.Structs) _structByName[s.Name] = &s;
+				for (const StructDecl& s : _p.Structs)
+					_structByName[s.Name] = &s;
 				for (const BlockDecl& b : _p.Blocks) {
-					if (!b.Instance.empty()) _blockInstances.insert(b.Instance);
+					if (!b.Instance.empty())
+						_blockInstances.insert(b.Instance);
 					for (const Field& m : b.Members) {
 						_memberType[m.Name] = m.Type;
 						_blockMemberNames.insert(m.Name);
-						if (m.SymbolicArray) _hasSymbolicArray = true;
+						if (m.SymbolicArray)
+							_hasSymbolicArray = true;
 					}
 				}
-				for (const UniformDecl& u : _p.Uniforms) _uniformByName[u.Name] = u.Type;
-				for (const SamplerDecl& s : _p.Samplers) _samplerNames.insert(s.Name);
-				for (const VaryingDecl& v : _p.Varyings) _varyingType[v.Name] = v.Type;
-				for (const AttributeDecl& a : _p.Attributes) _attributeType[a.Name] = a.Type;
-				for (const GlobalVarDecl& g : _p.GlobalVars) _globalVarType[g.Name] = g.Type;
-				for (const Function& f : _p.Functions) if (f.Name != "main") _funcRet[f.Name] = f.RetType;
+				for (const UniformDecl& u : _p.Uniforms)
+					_uniformByName[u.Name] = u.Type;
+				for (const SamplerDecl& s : _p.Samplers)
+					_samplerNames.insert(s.Name);
+				for (const VaryingDecl& v : _p.Varyings)
+					_varyingType[v.Name] = v.Type;
+				for (const AttributeDecl& a : _p.Attributes)
+					_attributeType[a.Name] = a.Type;
+				for (const GlobalVarDecl& g : _p.GlobalVars)
+					_globalVarType[g.Name] = g.Type;
+				for (const Function& f : _p.Functions)
+					if (f.Name != "main")
+						_funcRet[f.Name] = f.RetType;
 			}
 
-			bool Ok() const { return _ok; }
-			const String& Reason() const { return _reason; }
+			bool Ok() const
+			{
+				return _ok;
+			}
+			const String& Reason() const
+			{
+				return _reason;
+			}
 
 			String Emit()
 			{
 				const Function* main = nullptr;
-				for (const Function& fn : _p.Functions) if (fn.Name == "main") { main = &fn; break; }
-				if (main == nullptr) { Fail("no main() function found"_s); return {}; }
-				if (!_vertexStage && _p.FragOutputs.empty()) { Fail("fragment shader has no color output"_s); return {}; }
+				for (const Function& fn : _p.Functions)
+					if (fn.Name == "main") {
+						main = &fn;
+						break;
+					}
+				if (main == nullptr) {
+					Fail("no main() function found"_s);
+					return {};
+				}
+				if (!_vertexStage && _p.FragOutputs.empty()) {
+					Fail("fragment shader has no color output"_s);
+					return {};
+				}
 
 				// Emit helper + entry bodies FIRST: this records gl_VertexID / gl_FragCoord usage that the I/O
 				// structs and copy-in prologue depend on.
 				String helpersOut;
 				for (const Function& fn : _p.Functions) {
-					if (fn.Name == "main") continue;
+					if (fn.Name == "main")
+						continue;
 					helpersOut += EmitHelper(fn);
 					helpersOut += "\n"_s;
 				}
 				String entryOut = EmitEntry(*main);
-				if (!_ok) return {};
+				if (!_ok)
+					return {};
 
 				String out;
 				if (_hasSymbolicArray) {
@@ -213,15 +274,17 @@ namespace ShaderCompiler
 				// in both dialects, which is what makes the member accesses below identical.
 				std::int32_t cbSlot = 0;
 				if (!_p.Uniforms.empty()) {
-					if (!_cg) out += "cbuffer _Globals : register(b"_s + Death::format("{}", cbSlot++) + ")\n{\n"_s;
+					if (!_cg)
+						out += "cbuffer _Globals : register(b"_s + Death::format("{}", cbSlot++) + ")\n{\n"_s;
 					for (const UniformDecl& u : _p.Uniforms) {
 						out += (_cg ? "uniform "_s : "\t"_s) + TypeName(u.Type) + " "_s + u.Name +
-							(u.ArraySize > 0 ? String("["_s + Death::format("{}", u.ArraySize) + "]"_s) : String{}) + ";\n"_s;
+							(u.ArraySize > 0 ? String("["_s + Death::format("{}", u.ArraySize) + "]"_s) : String {}) + ";\n"_s;
 					}
 					out += (_cg ? "\n"_s : "};\n\n"_s);
 				}
 				for (const BlockDecl& b : _p.Blocks) {
-					if (!_cg) out += "cbuffer "_s + b.Name + " : register(b"_s + Death::format("{}", cbSlot++) + ")\n{\n"_s;
+					if (!_cg)
+						out += "cbuffer "_s + b.Name + " : register(b"_s + Death::format("{}", cbSlot++) + ")\n{\n"_s;
 					for (const Field& m : b.Members) {
 						out += (_cg ? "uniform "_s : "\t"_s) + TypeName(m.Type) + " "_s + m.Name + ArraySuffix(m) + ";\n"_s;
 					}
@@ -242,17 +305,20 @@ namespace ShaderCompiler
 						out += "SamplerState "_s + s.Name + "_sampler : register(s"_s + Death::format("{}", unit) + ");\n"_s;
 					}
 				}
-				if (!_p.Samplers.empty()) out += "\n"_s;
+				if (!_p.Samplers.empty())
+					out += "\n"_s;
 
 				// File-scope const/mutable globals (folded away from the cbuffers; e.g. bayer matrices)
 				for (const GlobalVarDecl& g : _p.GlobalVars) {
 					_locals.clear();
 					_arrayVars.clear();
-					out += "static "_s + (g.IsConst ? String("const ") : String{}) + TypeName(g.Type) + " "_s + g.Name;
-					if (g.Init != nullptr) out += " = "_s + EmitExpr(g.Init.get(), 0);
+					out += "static "_s + (g.IsConst ? String("const ") : String {}) + TypeName(g.Type) + " "_s + g.Name;
+					if (g.Init != nullptr)
+						out += " = "_s + EmitExpr(g.Init.get(), 0);
 					out += ";\n"_s;
 				}
-				if (!_p.GlobalVars.empty()) out += "\n"_s;
+				if (!_p.GlobalVars.empty())
+					out += "\n"_s;
 
 				// Attributes / varyings / gl_* / the fragment color are file-scope static globals, so helper
 				// functions read them exactly as the GLSL globals they were.
@@ -284,17 +350,23 @@ namespace ShaderCompiler
 			std::map<String, const StructDecl*> _structByName;
 			std::set<String> _blockInstances;
 			std::set<String> _blockMemberNames;
-			std::map<String, TyRef> _memberType;		// block member -> type (element type for arrays)
+			std::map<String, TyRef> _memberType; // block member -> type (element type for arrays)
 			std::map<String, TyRef> _uniformByName;
 			std::set<String> _samplerNames;
 			std::map<String, TyRef> _varyingType;
 			std::map<String, TyRef> _attributeType;
 			std::map<String, TyRef> _globalVarType;
 			std::map<String, TyRef> _funcRet;
-			std::map<String, TyRef> _locals;			// current-function locals + params (for type inference)
-			std::set<String> _arrayVars;				// locals/params that are arrays (Index yields the element type, not a swizzle)
+			std::map<String, TyRef> _locals; // current-function locals + params (for type inference)
+			std::set<String> _arrayVars; // locals/params that are arrays (Index yields the element type, not a swizzle)
 
-			void Fail(String why) { if (_ok) { _ok = false; _reason = Death::move(why); } }
+			void Fail(String why)
+			{
+				if (_ok) {
+					_ok = false;
+					_reason = Death::move(why);
+				}
+			}
 
 			std::int32_t BatchSize() const
 			{
@@ -303,7 +375,8 @@ namespace ShaderCompiler
 				const std::int32_t cap = (_maxBatchSize > 0 ? _maxBatchSize : 4096);
 				for (const BlockDecl& b : _p.Blocks) {
 					for (const Field& m : b.Members) {
-						if (!m.SymbolicArray) continue;
+						if (!m.SymbolicArray)
+							continue;
 						for (const BlockInfo& rb : _reflection.Blocks) {
 							if (rb.Name == b.Name && rb.InstanceStride > 0) {
 								std::int32_t n = static_cast<std::int32_t>(65536u / rb.InstanceStride);
@@ -312,21 +385,24 @@ namespace ShaderCompiler
 						}
 					}
 				}
-				return (512 > cap ? cap : 512);		// safe default when the stride is not reflected
+				return (512 > cap ? cap : 512); // safe default when the stride is not reflected
 			}
 
 			std::int32_t ReflectedUnit(StringView name, std::int32_t fallback) const
 			{
 				for (const TextureInfo& t : _reflection.Textures) {
-					if (t.Name == name && t.Unit >= 0) return t.Unit;
+					if (t.Name == name && t.Unit >= 0)
+						return t.Unit;
 				}
 				return fallback;
 			}
 
 			String ArraySuffix(const Field& f) const
 			{
-				if (f.SymbolicArray) return "[BATCH_SIZE]"_s;
-				if (f.ArraySize > 0) return "["_s + Death::format("{}", f.ArraySize) + "]"_s;
+				if (f.SymbolicArray)
+					return "[BATCH_SIZE]"_s;
+				if (f.ArraySize > 0)
+					return "["_s + Death::format("{}", f.ArraySize) + "]"_s;
 				return {};
 			}
 
@@ -336,14 +412,20 @@ namespace ShaderCompiler
 			{
 				String out;
 				if (_vertexStage) {
-					if (_usedVertexID) out += "static uint gl_VertexID;\n"_s;
-					if (_usedInstanceID) out += "static uint gl_InstanceID;\n"_s;
-					for (const AttributeDecl& a : _p.Attributes) out += "static "_s + TypeName(a.Type) + " "_s + a.Name + ";\n"_s;
+					if (_usedVertexID)
+						out += "static uint gl_VertexID;\n"_s;
+					if (_usedInstanceID)
+						out += "static uint gl_InstanceID;\n"_s;
+					for (const AttributeDecl& a : _p.Attributes)
+						out += "static "_s + TypeName(a.Type) + " "_s + a.Name + ";\n"_s;
 					out += "static float4 gl_Position;\n"_s;
-					for (const VaryingDecl& v : _p.Varyings) out += "static "_s + TypeName(v.Type) + " "_s + v.Name + ";\n"_s;
+					for (const VaryingDecl& v : _p.Varyings)
+						out += "static "_s + TypeName(v.Type) + " "_s + v.Name + ";\n"_s;
 				} else {
-					if (_usedFragCoord) out += "static float4 gl_FragCoord;\n"_s;
-					for (const VaryingDecl& v : _p.Varyings) out += "static "_s + TypeName(v.Type) + " "_s + v.Name + ";\n"_s;
+					if (_usedFragCoord)
+						out += "static float4 gl_FragCoord;\n"_s;
+					for (const VaryingDecl& v : _p.Varyings)
+						out += "static "_s + TypeName(v.Type) + " "_s + v.Name + ";\n"_s;
 					for (const Parser::FragOutputDecl& o : _p.FragOutputs) {
 						out += "static "_s + TypeName(o.Type) + " "_s + o.Name + ";\n"_s;
 					}
@@ -353,7 +435,8 @@ namespace ShaderCompiler
 			}
 
 			/** @brief Type name for the dialect being emitted */
-			String TypeName(const TyRef& t) const {
+			String TypeName(const TyRef& t) const
+			{
 				return (_cg ? CgType(t) : HlslType(t));
 			}
 
@@ -365,9 +448,12 @@ namespace ShaderCompiler
 			static String CgSamplerType(Ty t)
 			{
 				switch (t) {
-					case Ty::Sampler3D: return "sampler3D"_s;
-					case Ty::SamplerCube: return "samplerCUBE"_s;
-					default: return "sampler2D"_s;
+					case Ty::Sampler3D:
+						return "sampler3D"_s;
+					case Ty::SamplerCube:
+						return "samplerCUBE"_s;
+					default:
+						return "sampler2D"_s;
 				}
 			}
 
@@ -375,7 +461,8 @@ namespace ShaderCompiler
 			static String InterpQualifier(const VaryingDecl& v)
 			{
 				Ty base = BaseScalar(v.Type.T);
-				if (v.Flat || base == Ty::Int || base == Ty::UInt || base == Ty::Bool) return "nointerpolation "_s;
+				if (v.Flat || base == Ty::Int || base == Ty::UInt || base == Ty::Bool)
+					return "nointerpolation "_s;
 				return {};
 			}
 
@@ -384,14 +471,16 @@ namespace ShaderCompiler
 				String out;
 				if (_vertexStage) {
 					out += "struct VsInput\n{\n"_s;
-					if (_usedVertexID) out += "\tuint _vertexID : SV_VertexID;\n"_s;
-					if (_usedInstanceID) out += "\tuint _instanceID : SV_InstanceID;\n"_s;
+					if (_usedVertexID)
+						out += "\tuint _vertexID : SV_VertexID;\n"_s;
+					if (_usedInstanceID)
+						out += "\tuint _instanceID : SV_InstanceID;\n"_s;
 					for (std::size_t i = 0; i < _p.Attributes.size(); i++) {
 						out += "\t"_s + TypeName(_p.Attributes[i].Type) + " "_s + _p.Attributes[i].Name +
 							" : TEXCOORD"_s + Death::format("{}", i) + ";\n"_s;
 					}
 					if (!_usedVertexID && !_usedInstanceID && _p.Attributes.empty()) {
-						out += "\tuint _vertexID : SV_VertexID;\n"_s;		// a VS input struct must not be empty
+						out += "\tuint _vertexID : SV_VertexID;\n"_s; // a VS input struct must not be empty
 					}
 					out += "};\n\n"_s;
 
@@ -455,7 +544,8 @@ namespace ShaderCompiler
 				_inEntryMain = true;
 				EmitBlockInner(main.Body.get(), "\t"_s, body);
 				_inEntryMain = false;
-				if (!_ok) return {};
+				if (!_ok)
+					return {};
 
 				String out;
 				if (_vertexStage) {
@@ -464,14 +554,17 @@ namespace ShaderCompiler
 					// Transform() cannot be expressed and is refused rather than silently mis-emitted
 					if (_cg && (_usedVertexID || _usedInstanceID)) {
 						Fail(_usedVertexID
-							? "Cg has no vertex-ID input and the stage still uses gl_VertexID after the quad-synthesis substitution"_s
-							: "Cg has no instance-ID input and the stage uses gl_InstanceID"_s);
+								? "Cg has no vertex-ID input and the stage still uses gl_VertexID after the quad-synthesis substitution"_s
+								: "Cg has no instance-ID input and the stage uses gl_InstanceID"_s);
 						return {};
 					}
 					out += (_cg ? "VsOutput main(VsInput _input)\n{\n"_s : "VsOutput VSMain(VsInput _input)\n{\n"_s);
-					if (_usedVertexID) out += "\tgl_VertexID = _input._vertexID;\n"_s;
-					if (_usedInstanceID) out += "\tgl_InstanceID = _input._instanceID;\n"_s;
-					for (const AttributeDecl& a : _p.Attributes) out += "\t"_s + a.Name + " = _input."_s + a.Name + ";\n"_s;
+					if (_usedVertexID)
+						out += "\tgl_VertexID = _input._vertexID;\n"_s;
+					if (_usedInstanceID)
+						out += "\tgl_InstanceID = _input._instanceID;\n"_s;
+					for (const AttributeDecl& a : _p.Attributes)
+						out += "\t"_s + a.Name + " = _input."_s + a.Name + ";\n"_s;
 				} else {
 					if (_p.FragOutputs.size() > 1) {
 						out += (_cg ? "PsOutput main(PsInput _input)\n{\n"_s : "PsOutput PSMain(PsInput _input)\n{\n"_s);
@@ -480,8 +573,10 @@ namespace ShaderCompiler
 					} else {
 						out += "float4 PSMain(PsInput _input) : SV_Target\n{\n"_s;
 					}
-					if (_usedFragCoord) out += "\tgl_FragCoord = _input._fragCoord;\n"_s;
-					for (const VaryingDecl& v : _p.Varyings) out += "\t"_s + v.Name + " = _input."_s + v.Name + ";\n"_s;
+					if (_usedFragCoord)
+						out += "\tgl_FragCoord = _input._fragCoord;\n"_s;
+					for (const VaryingDecl& v : _p.Varyings)
+						out += "\t"_s + v.Name + " = _input."_s + v.Name + ";\n"_s;
 				}
 				out += body;
 				out += ReturnEpilogue("\t"_s);
@@ -495,15 +590,17 @@ namespace ShaderCompiler
 				_arrayVars.clear();
 				for (const Param& p : fn.Params) {
 					_locals[p.Name] = p.Type;
-					if (p.ArraySize > 0) _arrayVars.insert(p.Name);
+					if (p.ArraySize > 0)
+						_arrayVars.insert(p.Name);
 				}
 				String out;
 				out += TypeName(fn.RetType) + " "_s + SanitizeIdent(fn.Name, _cg) + "("_s;
 				for (std::size_t i = 0; i < fn.Params.size(); i++) {
-					if (i != 0) out += ", "_s;
+					if (i != 0)
+						out += ", "_s;
 					const Param& pp = fn.Params[i];
-					out += (pp.Qualifier.empty() ? String{} : pp.Qualifier + " "_s) + TypeName(pp.Type) + " "_s + SanitizeIdent(pp.Name, _cg) +
-						(pp.ArraySize > 0 ? String("["_s + Death::format("{}", pp.ArraySize) + "]"_s) : String{});
+					out += (pp.Qualifier.empty() ? String {} : pp.Qualifier + " "_s) + TypeName(pp.Type) + " "_s + SanitizeIdent(pp.Name, _cg) +
+						(pp.ArraySize > 0 ? String("["_s + Death::format("{}", pp.ArraySize) + "]"_s) : String {});
 				}
 				out += ")\n{\n"_s;
 				EmitBlockInner(fn.Body.get(), "\t"_s, out);
@@ -513,22 +610,27 @@ namespace ShaderCompiler
 
 			void EmitBlockInner(const Stmt* block, const String& indent, String& out)
 			{
-				if (block == nullptr) return;
-				for (const StmtPtr& s : block->Body) EmitStmt(s.get(), indent, out);
+				if (block == nullptr)
+					return;
+				for (const StmtPtr& s : block->Body)
+					EmitStmt(s.get(), indent, out);
 			}
 
 			void EmitBranch(const Stmt* s, const String& indent, String& out)
 			{
 				String inner = indent + "\t"_s;
 				out += "{\n"_s;
-				if (s != nullptr && s->Kind == StmtKind::Block) EmitBlockInner(s, inner, out);
-				else if (s != nullptr) EmitStmt(s, inner, out);
+				if (s != nullptr && s->Kind == StmtKind::Block)
+					EmitBlockInner(s, inner, out);
+				else if (s != nullptr)
+					EmitStmt(s, inner, out);
 				out += indent + "}"_s;
 			}
 
 			void EmitStmt(const Stmt* s, const String& indent, String& out)
 			{
-				if (s == nullptr) return;
+				if (s == nullptr)
+					return;
 				switch (s->Kind) {
 					case StmtKind::Block:
 						out += indent + "{\n"_s;
@@ -537,15 +639,18 @@ namespace ShaderCompiler
 						break;
 					case StmtKind::VarDecl:
 						_locals[s->DeclName] = s->DeclType;
-						if (s->DeclArraySize > 0) _arrayVars.insert(s->DeclName);
-						out += indent + (s->DeclConst ? String("const ") : String{}) + TypeName(s->DeclType) + " "_s + SanitizeIdent(s->DeclName, _cg) +
-							(s->DeclArraySize > 0 ? String("["_s + Death::format("{}", s->DeclArraySize) + "]"_s) : String{});
-						if (s->Init != nullptr) out += " = "_s + EmitExpr(s->Init.get(), 0);
+						if (s->DeclArraySize > 0)
+							_arrayVars.insert(s->DeclName);
+						out += indent + (s->DeclConst ? String("const ") : String {}) + TypeName(s->DeclType) + " "_s + SanitizeIdent(s->DeclName, _cg) +
+							(s->DeclArraySize > 0 ? String("["_s + Death::format("{}", s->DeclArraySize) + "]"_s) : String {});
+						if (s->Init != nullptr)
+							out += " = "_s + EmitExpr(s->Init.get(), 0);
 						out += ";\n"_s;
 						for (const std::pair<String, ExprPtr>& d : s->ExtraDecls) {
 							_locals[d.first] = s->DeclType;
-							out += indent + (s->DeclConst ? String("const ") : String{}) + TypeName(s->DeclType) + " "_s + SanitizeIdent(d.first, _cg);
-							if (d.second != nullptr) out += " = "_s + EmitExpr(d.second.get(), 0);
+							out += indent + (s->DeclConst ? String("const ") : String {}) + TypeName(s->DeclType) + " "_s + SanitizeIdent(d.first, _cg);
+							if (d.second != nullptr)
+								out += " = "_s + EmitExpr(d.second.get(), 0);
 							out += ";\n"_s;
 						}
 						break;
@@ -557,21 +662,27 @@ namespace ShaderCompiler
 							out += ReturnEpilogue(indent);
 						} else {
 							out += indent + "return"_s;
-							if (s->E != nullptr) out += " "_s + EmitExpr(s->E.get(), 0);
+							if (s->E != nullptr)
+								out += " "_s + EmitExpr(s->E.get(), 0);
 							out += ";\n"_s;
 						}
 						break;
 					case StmtKind::If:
 						out += indent + "if ("_s + EmitExpr(s->Cond.get(), 0) + ") "_s;
 						EmitBranch(s->Then.get(), indent, out);
-						if (s->Else != nullptr) { out += " else "_s; EmitBranch(s->Else.get(), indent, out); }
+						if (s->Else != nullptr) {
+							out += " else "_s;
+							EmitBranch(s->Else.get(), indent, out);
+						}
 						out += "\n"_s;
 						break;
 					case StmtKind::For:
 						out += indent + "for ("_s + EmitForInit(s->ForInit.get()) + "; "_s;
-						if (s->ForCond != nullptr) out += EmitExpr(s->ForCond.get(), 0);
+						if (s->ForCond != nullptr)
+							out += EmitExpr(s->ForCond.get(), 0);
 						out += "; "_s;
-						if (s->ForUpdate != nullptr) out += EmitExpr(s->ForUpdate.get(), 0);
+						if (s->ForUpdate != nullptr)
+							out += EmitExpr(s->ForUpdate.get(), 0);
 						out += ") "_s;
 						EmitBranch(s->ForBody.get(), indent, out);
 						out += "\n"_s;
@@ -581,19 +692,23 @@ namespace ShaderCompiler
 
 			String EmitForInit(const Stmt* s)
 			{
-				if (s == nullptr) return {};
+				if (s == nullptr)
+					return {};
 				if (s->Kind == StmtKind::VarDecl) {
 					_locals[s->DeclName] = s->DeclType;
 					String r = TypeName(s->DeclType) + " "_s + SanitizeIdent(s->DeclName, _cg);
-					if (s->Init != nullptr) r += " = "_s + EmitExpr(s->Init.get(), 0);
+					if (s->Init != nullptr)
+						r += " = "_s + EmitExpr(s->Init.get(), 0);
 					for (const std::pair<String, ExprPtr>& d : s->ExtraDecls) {
 						_locals[d.first] = s->DeclType;
 						r += ", "_s + SanitizeIdent(d.first, _cg);
-						if (d.second != nullptr) r += " = "_s + EmitExpr(d.second.get(), 0);
+						if (d.second != nullptr)
+							r += " = "_s + EmitExpr(d.second.get(), 0);
 					}
 					return r;
 				}
-				if (s->Kind == StmtKind::ExprStmt) return EmitExpr(s->E.get(), 0);
+				if (s->Kind == StmtKind::ExprStmt)
+					return EmitExpr(s->E.get(), 0);
 				return {};
 			}
 
@@ -601,43 +716,60 @@ namespace ShaderCompiler
 
 			TyRef InferIdent(StringView name)
 			{
-				auto lit = _locals.find(String{name});
-				if (lit != _locals.end()) return lit->second;
-				auto uit = _uniformByName.find(String{name});
-				if (uit != _uniformByName.end()) return uit->second;
-				auto mit = _memberType.find(String{name});
-				if (mit != _memberType.end()) return mit->second;
-				auto vit = _varyingType.find(String{name});
-				if (vit != _varyingType.end()) return vit->second;
-				auto ait = _attributeType.find(String{name});
-				if (ait != _attributeType.end()) return ait->second;
-				auto git = _globalVarType.find(String{name});
-				if (git != _globalVarType.end()) return git->second;
-				if (name == "gl_Position") return { Ty::Vec4, {} };
-				if (name == "gl_FragCoord") return { Ty::Vec4, {} };
-				if (name == "gl_VertexID" || name == "gl_InstanceID") return { Ty::UInt, {} };
+				auto lit = _locals.find(String { name });
+				if (lit != _locals.end())
+					return lit->second;
+				auto uit = _uniformByName.find(String { name });
+				if (uit != _uniformByName.end())
+					return uit->second;
+				auto mit = _memberType.find(String { name });
+				if (mit != _memberType.end())
+					return mit->second;
+				auto vit = _varyingType.find(String { name });
+				if (vit != _varyingType.end())
+					return vit->second;
+				auto ait = _attributeType.find(String { name });
+				if (ait != _attributeType.end())
+					return ait->second;
+				auto git = _globalVarType.find(String { name });
+				if (git != _globalVarType.end())
+					return git->second;
+				if (name == "gl_Position")
+					return { Ty::Vec4, {} };
+				if (name == "gl_FragCoord")
+					return { Ty::Vec4, {} };
+				if (name == "gl_VertexID" || name == "gl_InstanceID")
+					return { Ty::UInt, {} };
 				if (!_vertexStage) {
 					for (const Parser::FragOutputDecl& o : _p.FragOutputs) {
-						if (name == o.Name) return o.Type;
+						if (name == o.Name)
+							return o.Type;
 					}
 				}
-				if (_samplerNames.find(String{name}) != _samplerNames.end()) return { Ty::Sampler2D, {} };
+				if (_samplerNames.find(String { name }) != _samplerNames.end())
+					return { Ty::Sampler2D, {} };
 				return { Ty::Unknown, {} };
 			}
 
 			const Field* FindStructField(StringView structName, StringView field) const
 			{
-				auto it = _structByName.find(String{structName});
-				if (it == _structByName.end()) return nullptr;
-				for (const Field& f : it->second->Fields) if (f.Name == field) return &f;
+				auto it = _structByName.find(String { structName });
+				if (it == _structByName.end())
+					return nullptr;
+				for (const Field& f : it->second->Fields)
+					if (f.Name == field)
+						return &f;
 				return nullptr;
 			}
 
 			bool IsBlockInstanceMember(const Expr* e, StringView& outMember) const
 			{
-				if (e->Kind != ExprKind::Member || e->A == nullptr || e->A->Kind != ExprKind::Ident) return false;
-				if (_blockInstances.find(e->A->Text) == _blockInstances.end()) return false;
-				if (_blockMemberNames.find(e->Text) == _blockMemberNames.end()) return false;
+				if (e->Kind != ExprKind::Member || e->A == nullptr || e->A->Kind != ExprKind::Ident)
+					return false;
+				if (_blockInstances.find(e->A->Text) == _blockInstances.end())
+					return false;
+				if (_blockMemberNames.find(e->Text) == _blockMemberNames.end())
+					return false;
 				outMember = e->Text;
 				return true;
 			}
@@ -650,23 +782,29 @@ namespace ShaderCompiler
 
 			TyRef InferTy(const Expr* e)
 			{
-				if (e == nullptr) return {};
+				if (e == nullptr)
+					return {};
 				switch (e->Kind) {
-					case ExprKind::IntLit: return { Ty::Int, {} };
-					case ExprKind::UIntLit: return { Ty::UInt, {} };
-					case ExprKind::FloatLit: return { Ty::Float, {} };
-					case ExprKind::BoolLit: return { Ty::Bool, {} };
-					case ExprKind::Ident: return InferIdent(e->Text);
+					case ExprKind::IntLit:
+						return { Ty::Int, {} };
+					case ExprKind::UIntLit:
+						return { Ty::UInt, {} };
+					case ExprKind::FloatLit:
+						return { Ty::Float, {} };
+					case ExprKind::BoolLit:
+						return { Ty::Bool, {} };
+					case ExprKind::Ident:
+						return InferIdent(e->Text);
 					case ExprKind::Member: {
 						StringView member;
 						if (IsBlockInstanceMember(e, member)) {
-							auto it = _memberType.find(String{member});
-							return (it != _memberType.end() ? it->second : TyRef{});
+							auto it = _memberType.find(String { member });
+							return (it != _memberType.end() ? it->second : TyRef {});
 						}
 						TyRef bt = InferTy(e->A.get());
 						if (bt.T == Ty::Struct) {
 							const Field* f = FindStructField(bt.S, e->Text);
-							return (f != nullptr ? f->Type : TyRef{});
+							return (f != nullptr ? f->Type : TyRef {});
 						}
 						return SwizzleType(bt.T, e->Text);
 					}
@@ -674,64 +812,87 @@ namespace ShaderCompiler
 						// Indexing a local/param array yields its element type (stored in _locals for arrays)
 						if (e->A != nullptr && e->A->Kind == ExprKind::Ident && _arrayVars.find(e->A->Text) != _arrayVars.end()) {
 							auto it = _locals.find(e->A->Text);
-							return (it != _locals.end() ? it->second : TyRef{});
+							return (it != _locals.end() ? it->second : TyRef {});
 						}
 						TyRef bt = InferTy(e->A.get());
-						if (IsMatrix(bt.T)) return { MatrixColumn(bt.T), {} };
-						if (IsVector(bt.T)) return { BaseScalar(bt.T), {} };
-						return bt;		// array element (struct) passthrough
+						if (IsMatrix(bt.T))
+							return { MatrixColumn(bt.T), {} };
+						if (IsVector(bt.T))
+							return { BaseScalar(bt.T), {} };
+						return bt; // array element (struct) passthrough
 					}
 					case ExprKind::Call: {
 						TyRef ct;
 						Ty bt;
-						if (TryBuiltinType(e->Text, bt)) return { bt, {} };
-						if (_structByName.find(e->Text) != _structByName.end()) return { Ty::Struct, e->Text };
-						if (e->Text == "texture" || e->Text == "textureLod" || e->Text == "texelFetch") return { Ty::Vec4, {} };
-						if (e->Text == "dot" || e->Text == "length" || e->Text == "distance" || e->Text == "determinant") return { Ty::Float, {} };
-						if (e->Text == "cross") return { Ty::Vec3, {} };
+						if (TryBuiltinType(e->Text, bt))
+							return { bt, {} };
+						if (_structByName.find(e->Text) != _structByName.end())
+							return { Ty::Struct, e->Text };
+						if (e->Text == "texture" || e->Text == "textureLod" || e->Text == "texelFetch")
+							return { Ty::Vec4, {} };
+						if (e->Text == "dot" || e->Text == "length" || e->Text == "distance" || e->Text == "determinant")
+							return { Ty::Float, {} };
+						if (e->Text == "cross")
+							return { Ty::Vec3, {} };
 						{
 							auto it = _funcRet.find(e->Text);
-							if (it != _funcRet.end()) return it->second;
+							if (it != _funcRet.end())
+								return it->second;
 						}
 						// Most element-wise built-ins return the type of their first argument
-						if (!e->Args.empty()) return InferTy(e->Args[0].get());
+						if (!e->Args.empty())
+							return InferTy(e->Args[0].get());
 						return { Ty::Float, {} };
 					}
 					case ExprKind::Unary:
-						if (e->Text == "!") return { Ty::Bool, {} };
+						if (e->Text == "!")
+							return { Ty::Bool, {} };
 						return InferTy(e->A.get());
 					case ExprKind::Binary: {
-						if (IsComparisonOrLogical(e->Text)) return { Ty::Bool, {} };
+						if (IsComparisonOrLogical(e->Text))
+							return { Ty::Bool, {} };
 						TyRef a = InferTy(e->A.get());
 						TyRef b = InferTy(e->B.get());
-						if (e->Text == "*" && NeedsMul(a.T, b.T)) return MulResult(a, b);
+						if (e->Text == "*" && NeedsMul(a.T, b.T))
+							return MulResult(a, b);
 						return Wider(a, b);
 					}
-					case ExprKind::Assign: return InferTy(e->A.get());
-					case ExprKind::Conditional: return Wider(InferTy(e->B.get()), InferTy(e->C.get()));
+					case ExprKind::Assign:
+						return InferTy(e->A.get());
+					case ExprKind::Conditional:
+						return Wider(InferTy(e->B.get()), InferTy(e->C.get()));
 				}
 				return {};
 			}
 
 			static bool NeedsMul(Ty a, Ty b)
 			{
-				if (IsMatrix(a) && (IsMatrix(b) || IsVector(b))) return true;
-				if (IsVector(a) && IsMatrix(b)) return true;
+				if (IsMatrix(a) && (IsMatrix(b) || IsVector(b)))
+					return true;
+				if (IsVector(a) && IsMatrix(b))
+					return true;
 				return false;
 			}
 			static TyRef MulResult(const TyRef& a, const TyRef& b)
 			{
-				if (IsMatrix(a.T) && IsMatrix(b.T)) return a;
-				if (IsMatrix(a.T) && IsVector(b.T)) return b;
-				if (IsVector(a.T) && IsMatrix(b.T)) return a;
+				if (IsMatrix(a.T) && IsMatrix(b.T))
+					return a;
+				if (IsMatrix(a.T) && IsVector(b.T))
+					return b;
+				if (IsVector(a.T) && IsMatrix(b.T))
+					return a;
 				return a;
 			}
 			static TyRef Wider(const TyRef& a, const TyRef& b)
 			{
-				if (a.T == Ty::Unknown) return b;
-				if (b.T == Ty::Unknown) return a;
-				if (IsMatrix(a.T)) return a;
-				if (IsMatrix(b.T)) return b;
+				if (a.T == Ty::Unknown)
+					return b;
+				if (b.T == Ty::Unknown)
+					return a;
+				if (IsMatrix(a.T))
+					return a;
+				if (IsMatrix(b.T))
+					return b;
 				return (Comps(a.T) >= Comps(b.T) ? a : b);
 			}
 
@@ -740,19 +901,26 @@ namespace ShaderCompiler
 			std::int32_t EmitPrec(const Expr* e) const
 			{
 				switch (e->Kind) {
-					case ExprKind::Binary: return BinPrec(e->Text);
-					case ExprKind::Assign: return 1;
-					case ExprKind::Conditional: return 2;
-					case ExprKind::Unary: return 90;
-					default: return 100;
+					case ExprKind::Binary:
+						return BinPrec(e->Text);
+					case ExprKind::Assign:
+						return 1;
+					case ExprKind::Conditional:
+						return 2;
+					case ExprKind::Unary:
+						return 90;
+					default:
+						return 100;
 				}
 			}
 
 			String EmitExpr(const Expr* e, std::int32_t minPrec)
 			{
-				if (e == nullptr) return {};
+				if (e == nullptr)
+					return {};
 				String s = EmitCore(e);
-				if (EmitPrec(e) < minPrec) return "("_s + s + ")"_s;
+				if (EmitPrec(e) < minPrec)
+					return "("_s + s + ")"_s;
 				return s;
 			}
 
@@ -762,11 +930,29 @@ namespace ShaderCompiler
 				String out;
 				for (char c : field) {
 					switch (c) {
-						case 'x': case 'r': case 's': out += "x"_s; break;
-						case 'y': case 'g': case 't': out += "y"_s; break;
-						case 'z': case 'b': case 'p': out += "z"_s; break;
-						case 'w': case 'a': case 'q': out += "w"_s; break;
-						default: out += String{&c, 1}; break;
+						case 'x':
+						case 'r':
+						case 's':
+							out += "x"_s;
+							break;
+						case 'y':
+						case 'g':
+						case 't':
+							out += "y"_s;
+							break;
+						case 'z':
+						case 'b':
+						case 'p':
+							out += "z"_s;
+							break;
+						case 'w':
+						case 'a':
+						case 'q':
+							out += "w"_s;
+							break;
+						default:
+							out += String { &c, 1 };
+							break;
 					}
 				}
 				return out;
@@ -775,7 +961,8 @@ namespace ShaderCompiler
 			bool IsSwizzle(StringView field) const
 			{
 				for (char c : field) {
-					if (!"xyzwrgbastpq"_s.contains(c)) return false;
+					if (!"xyzwrgbastpq"_s.contains(c))
+						return false;
 				}
 				return (field.size() >= 1 && field.size() <= 4);
 			}
@@ -784,7 +971,7 @@ namespace ShaderCompiler
 			{
 				StringView member;
 				if (IsBlockInstanceMember(e, member)) {
-					return String{member};		// "block.instances" -> "instances" (cbuffer member is global)
+					return String { member }; // "block.instances" -> "instances" (cbuffer member is global)
 				}
 				String base = EmitExpr(e->A.get(), 100);
 				TyRef bt = InferTy(e->A.get());
@@ -802,7 +989,8 @@ namespace ShaderCompiler
 			{
 				String r;
 				for (std::size_t i = 0; i < call->Args.size(); i++) {
-					if (i != 0) r += ", "_s;
+					if (i != 0)
+						r += ", "_s;
 					r += EmitExpr(call->Args[i].get(), 0);
 				}
 				return r;
@@ -821,12 +1009,15 @@ namespace ShaderCompiler
 					}
 					return TypeName({ ct, {} }) + "("_s + EmitArgs(e) + ")"_s;
 				}
-				if (_structByName.find(String{name}) != _structByName.end()) {
-					return String{name} + "("_s + EmitArgs(e) + ")"_s;
+				if (_structByName.find(String { name }) != _structByName.end()) {
+					return String { name } + "("_s + EmitArgs(e) + ")"_s;
 				}
 
 				if (name == "texture" || name == "textureLod") {
-					if (e->Args.size() < 2) { Fail("texture() needs at least (sampler, uv)"_s); return {}; }
+					if (e->Args.size() < 2) {
+						Fail("texture() needs at least (sampler, uv)"_s);
+						return {};
+					}
 					const Expr* sampler = e->Args[0].get();
 					if (sampler->Kind != ExprKind::Ident || _samplerNames.find(sampler->Text) == _samplerNames.end()) {
 						Fail("first argument to texture() must be a sampler uniform"_s);
@@ -837,7 +1028,10 @@ namespace ShaderCompiler
 						// Combined samplers of the older model: tex2D(s, uv), and the explicit-LOD form takes
 						// the level in the w component of a float4 rather than as a separate argument
 						if (name == "textureLod") {
-							if (e->Args.size() < 3) { Fail("textureLod() needs (sampler, uv, lod)"_s); return {}; }
+							if (e->Args.size() < 3) {
+								Fail("textureLod() needs (sampler, uv, lod)"_s);
+								return {};
+							}
 							return "tex2Dlod("_s + sampler->Text + ", float4("_s + uv + ", 0.0, "_s +
 								EmitExpr(e->Args[2].get(), 0) + "))"_s;
 						}
@@ -845,7 +1039,8 @@ namespace ShaderCompiler
 					}
 					String method = (name == "textureLod" ? "SampleLevel"_s : "Sample"_s);
 					String args = uv;
-					for (std::size_t i = 2; i < e->Args.size(); i++) args += ", "_s + EmitExpr(e->Args[i].get(), 0);
+					for (std::size_t i = 2; i < e->Args.size(); i++)
+						args += ", "_s + EmitExpr(e->Args[i].get(), 0);
 					return sampler->Text + "."_s + method + "("_s + sampler->Text + "_sampler, "_s + args + ")"_s;
 				}
 
@@ -864,12 +1059,18 @@ namespace ShaderCompiler
 					}
 					return "lerp("_s + EmitArgs(e) + ")"_s;
 				}
-				if (name == "fract") return "frac("_s + EmitArgs(e) + ")"_s;
-				if (name == "dFdx") return "ddx("_s + EmitArgs(e) + ")"_s;
-				if (name == "dFdy") return "ddy("_s + EmitArgs(e) + ")"_s;
-				if (name == "inversesqrt") return "rsqrt("_s + EmitArgs(e) + ")"_s;
-				if (name == "atan" && e->Args.size() == 2) return "atan2("_s + EmitArgs(e) + ")"_s;
-				if (name == "atan") return "atan("_s + EmitArgs(e) + ")"_s;
+				if (name == "fract")
+					return "frac("_s + EmitArgs(e) + ")"_s;
+				if (name == "dFdx")
+					return "ddx("_s + EmitArgs(e) + ")"_s;
+				if (name == "dFdy")
+					return "ddy("_s + EmitArgs(e) + ")"_s;
+				if (name == "inversesqrt")
+					return "rsqrt("_s + EmitArgs(e) + ")"_s;
+				if (name == "atan" && e->Args.size() == 2)
+					return "atan2("_s + EmitArgs(e) + ")"_s;
+				if (name == "atan")
+					return "atan("_s + EmitArgs(e) + ")"_s;
 				if (name == "mod" && e->Args.size() == 2) {
 					// GLSL mod(a,b) = a - b*floor(a/b) (HLSL fmod truncates toward zero for negatives)
 					String a = EmitExpr(e->Args[0].get(), 0);
@@ -879,22 +1080,31 @@ namespace ShaderCompiler
 				// GLSL component-wise relational built-ins -> HLSL operators (each yields a bool vector)
 				if (e->Args.size() == 2) {
 					const char* relOp = nullptr;
-					if (name == "lessThan") relOp = "<";
-					else if (name == "lessThanEqual") relOp = "<=";
-					else if (name == "greaterThan") relOp = ">";
-					else if (name == "greaterThanEqual") relOp = ">=";
-					else if (name == "equal") relOp = "==";
-					else if (name == "notEqual") relOp = "!=";
+					if (name == "lessThan")
+						relOp = "<";
+					else if (name == "lessThanEqual")
+						relOp = "<=";
+					else if (name == "greaterThan")
+						relOp = ">";
+					else if (name == "greaterThanEqual")
+						relOp = ">=";
+					else if (name == "equal")
+						relOp = "==";
+					else if (name == "notEqual")
+						relOp = "!=";
 					if (relOp != nullptr) {
 						return "("_s + EmitExpr(e->Args[0].get(), 0) + " "_s + relOp + " "_s + EmitExpr(e->Args[1].get(), 0) + ")"_s;
 					}
 				}
-				if (name == "not" && e->Args.size() == 1) return "(!"_s + EmitExpr(e->Args[0].get(), 90) + ")"_s;
+				if (name == "not" && e->Args.size() == 1)
+					return "(!"_s + EmitExpr(e->Args[0].get(), 90) + ")"_s;
 
-				if (IsPassthroughBuiltin(name)) return String{name} + "("_s + EmitArgs(e) + ")"_s;
+				if (IsPassthroughBuiltin(name))
+					return String { name } + "("_s + EmitArgs(e) + ")"_s;
 
-				auto it = _funcRet.find(String{name});
-				if (it != _funcRet.end()) return SanitizeIdent(name, _cg) + "("_s + EmitArgs(e) + ")"_s;
+				auto it = _funcRet.find(String { name });
+				if (it != _funcRet.end())
+					return SanitizeIdent(name, _cg) + "("_s + EmitArgs(e) + ")"_s;
 
 				Fail("unknown function '"_s + name + "'"_s);
 				return {};
@@ -903,19 +1113,28 @@ namespace ShaderCompiler
 			String EmitCore(const Expr* e)
 			{
 				switch (e->Kind) {
-					case ExprKind::IntLit: return e->Text;
-					case ExprKind::UIntLit: return e->Text;
-					case ExprKind::FloatLit: return e->Text;
-					case ExprKind::BoolLit: return e->Text;
-					case ExprKind::Ident: return EmitIdent(e->Text);
-					case ExprKind::Member: return EmitMember(e);
+					case ExprKind::IntLit:
+						return e->Text;
+					case ExprKind::UIntLit:
+						return e->Text;
+					case ExprKind::FloatLit:
+						return e->Text;
+					case ExprKind::BoolLit:
+						return e->Text;
+					case ExprKind::Ident:
+						return EmitIdent(e->Text);
+					case ExprKind::Member:
+						return EmitMember(e);
 					case ExprKind::Index:
 						return EmitExpr(e->A.get(), 100) + "["_s + EmitExpr(e->B.get(), 0) + "]"_s;
-					case ExprKind::Call: return EmitCall(e);
+					case ExprKind::Call:
+						return EmitCall(e);
 					case ExprKind::Unary: {
 						String inner = EmitExpr(e->A.get(), 90);
-						if (e->Postfix) return inner + e->Text;
-						if (e->Text == "-" && !inner.empty() && inner[0] == '-') return "- "_s + inner;
+						if (e->Postfix)
+							return inner + e->Text;
+						if (e->Text == "-" && !inner.empty() && inner[0] == '-')
+							return "- "_s + inner;
 						return e->Text + inner;
 					}
 					case ExprKind::Binary: {
@@ -937,7 +1156,7 @@ namespace ShaderCompiler
 							}
 						}
 						std::int32_t p = BinPrec(e->Text);
-						String op = (e->Text == "^^" ? String{"!="_s} : e->Text);
+						String op = (e->Text == "^^" ? String { "!="_s } : e->Text);
 						return EmitExpr(e->A.get(), p) + " "_s + op + " "_s + EmitExpr(e->B.get(), p + 1);
 					}
 					case ExprKind::Assign:
@@ -950,12 +1169,22 @@ namespace ShaderCompiler
 
 			String EmitIdent(StringView name)
 			{
-				if (name == "gl_VertexID") { _usedVertexID = true; return "gl_VertexID"_s; }
-				if (name == "gl_InstanceID") { _usedInstanceID = true; return "gl_InstanceID"_s; }
-				if (name == "gl_FragCoord") { _usedFragCoord = true; return "gl_FragCoord"_s; }
+				if (name == "gl_VertexID") {
+					_usedVertexID = true;
+					return "gl_VertexID"_s;
+				}
+				if (name == "gl_InstanceID") {
+					_usedInstanceID = true;
+					return "gl_InstanceID"_s;
+				}
+				if (name == "gl_FragCoord") {
+					_usedFragCoord = true;
+					return "gl_FragCoord"_s;
+				}
 				// Locals/params may carry reserved names (e.g. "frac", "point"); rename them consistently.
-				if (_locals.find(String{name}) != _locals.end()) return SanitizeIdent(name, _cg);
-				return String{name};
+				if (_locals.find(String { name }) != _locals.end())
+					return SanitizeIdent(name, _cg);
+				return String { name };
 			}
 
 			bool _inEntryMain = false;
@@ -983,8 +1212,10 @@ namespace ShaderCompiler
 			// Declared the way the lowered stage source spells a vertex input (modern GLSL "in", not the
 			// legacy "attribute" keyword the ES 2.0 profile emits after its own interface rewrite)
 			String extra;
-			if (usedCorner) extra += "in vec2 aQuadCorner;\n"_s;
-			if (usedInstance) extra += "in float aInstanceIndex;\n"_s;
+			if (usedCorner)
+				extra += "in vec2 aQuadCorner;\n"_s;
+			if (usedInstance)
+				extra += "in float aInstanceIndex;\n"_s;
 			if (!extra.empty()) {
 				prepared = extra + prepared;
 			}

@@ -20,10 +20,12 @@ namespace Jazz2::Multiplayer::GameModes
 	public:
 		RoastTagMode();
 
-		MpGameMode GetMode() const override {
+		MpGameMode GetMode() const override
+		{
 			return MpGameMode::RoastTag;
 		}
-		bool IsTeamBased() const override {
+		bool IsTeamBased() const override
+		{
 			return false;
 		}
 
@@ -31,10 +33,12 @@ namespace Jazz2::Multiplayer::GameModes
 		void OnUpdate(IGameModeContext& ctx, float timeMult) override;
 		void OnPlayerKilled(IGameModeContext& ctx, Actors::Player* victim, Actors::Player* killer) override;
 		bool CanDamagePlayer(IGameModeContext& ctx, Actors::Player* victim, Actors::Player* attacker) override;
-		bool CanPlayersPush(IGameModeContext& ctx, Actors::Player* a, Actors::Player* b) override {
+		bool CanPlayersPush(IGameModeContext& ctx, Actors::Player* a, Actors::Player* b) override
+		{
 			return CanDamagePlayer(ctx, a, b);
 		}
-		bool HasDamageAmplifierInOvertime() const override {
+		bool HasDamageAmplifierInOvertime() const override
+		{
 			return true;
 		}
 		void OnDrawHUD(IGameModeContext& ctx, IGameModeHUD& hud, Actors::Player* player, const Rectf& view) override;

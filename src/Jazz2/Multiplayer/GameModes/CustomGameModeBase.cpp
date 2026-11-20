@@ -262,8 +262,8 @@ namespace Jazz2::Multiplayer::GameModes
 	{
 		char stringBuffer[64];
 		std::size_t length = (withTarget
-			? formatInto(stringBuffer, "{}: {}  /{}", label, value, GetScoreTarget(ctx))
-			: formatInto(stringBuffer, "{}: {}", label, value));
+				? formatInto(stringBuffer, "{}: {}  /{}", label, value, GetScoreTarget(ctx))
+				: formatInto(stringBuffer, "{}: {}", label, value));
 		// The cap of the overtime is shown in blue
 		Colorf color = (withTarget && ctx.GetOvertimeScoreCap() > 0 ? Colorf(0.42f, 0.52f, 0.8f) : UI::Font::DefaultColor);
 		hud.DrawHudText(GameModeFontType::Medium, { stringBuffer, length }, view.X + 14.0f, view.Y + 5.0f, 2.0f,

@@ -30,14 +30,14 @@ namespace Jazz2::Multiplayer
 	*/
 	enum class PeerLevelState
 	{
-		Unknown,				/**< Unknown */
-		ValidatingAssets,		/**< Peer received list of required assets, the server is waiting for response */
-		StreamingMissingAssets,	/**< Missing assets are being streamed to peer */
-		LevelLoaded,			/**< Peer finished loading of the level */
-		LevelSynchronized,		/**< Peer finished synchronized entities in the level */
-		Spectating,				/**< Peer is spectating */
-		PlayerReady,			/**< Player is ready to spawn */
-		PlayerSpawned			/**< Player is spawned */
+		Unknown, /**< Unknown */
+		ValidatingAssets, /**< Peer received list of required assets, the server is waiting for response */
+		StreamingMissingAssets, /**< Missing assets are being streamed to peer */
+		LevelLoaded, /**< Peer finished loading of the level */
+		LevelSynchronized, /**< Peer finished synchronized entities in the level */
+		Spectating, /**< Peer is spectating */
+		PlayerReady, /**< Player is ready to spawn */
+		PlayerSpawned /**< Player is spawned */
 	};
 
 	/**
@@ -47,14 +47,15 @@ namespace Jazz2::Multiplayer
 		(not spectating, forced by the server, or requested by the client), while the @ref SpectateMode::FreeCamera
 		flag selects a free-roaming camera over a player-following one.
 	*/
-	enum class SpectateMode : std::uint8_t {
-		None,					/**< Not spectating */
-		Forced,					/**< Spectate mode is forced by the server, the client cannot disable it */
-		Requested,				/**< Spectate mode is requested by the client, the server can accept or reject it */
+	enum class SpectateMode : std::uint8_t
+	{
+		None, /**< Not spectating */
+		Forced, /**< Spectate mode is forced by the server, the client cannot disable it */
+		Requested, /**< Spectate mode is requested by the client, the server can accept or reject it */
 
-		FreeCamera = 0x10,		/**< Spectate with free camera, otherwise spectate with player camera */
+		FreeCamera = 0x10, /**< Spectate with free camera, otherwise spectate with player camera */
 
-		Mask = 0x0F				/**< Mask for spectate mode flags */
+		Mask = 0x0F /**< Mask for spectate mode flags */
 	};
 
 	DEATH_ENUM_FLAGS(SpectateMode);
@@ -103,13 +104,15 @@ namespace Jazz2::Multiplayer
 		std::int64_t ClockPrevMinOffset = INT64_MAX;
 
 		/** @brief Forgets the movement history, the next update is checked only against the server position */
-		void ResetMovement() {
+		void ResetMovement()
+		{
 			HasLastAcceptedPos = false;
 			MoveBudgetUpdatedMs = 0;
 		}
 
 		/** @brief Forgets the movement history and anchors it to the specified position with a full budget */
-		void ResetMovement(Vector2f pos) {
+		void ResetMovement(Vector2f pos)
+		{
 			LastAcceptedPos = pos;
 			HasLastAcceptedPos = true;
 			MoveBudgetUpdatedMs = 0;

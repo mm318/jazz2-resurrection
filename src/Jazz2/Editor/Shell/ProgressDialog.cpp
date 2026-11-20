@@ -83,9 +83,14 @@ namespace Jazz2::Editor
 			Dialog* dialogPtr = dialog.get();
 			auto* content = dialog->GetContent();
 			content->Add<Label>(_x("editor", "It may take a moment for a large image or many levels"), Theme::TextDim);
-			content->Add<JobProgressBar>(job, Death::move(onDone), [dialogPtr]() { dialogPtr->Close(); });
+			content->Add<JobProgressBar>(job, Death::move(onDone), [dialogPtr]() {
+				dialogPtr->Close();
+			});
 			// TRANSLATORS: Button in the dialog with the progress of a long task, cancels the task
-			dialog->AddButton(_x("editor", "Stop"), [job]() { job->Cancel(); }, true);
+			dialog->AddButton(_x("editor", "Stop"), [job]() {
+				job->Cancel();
+			},
+				true);
 
 			ShowModal(*surface, Death::move(dialog));
 

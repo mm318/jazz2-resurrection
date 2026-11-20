@@ -30,27 +30,31 @@ namespace Jazz2::UI::Menu
 		{
 		public:
 			std::int32_t PlayerIndex = 0;
-			std::int32_t* PlayerType = nullptr;		// &section._playerTypes[PlayerIndex]
-			std::int32_t* FocusedPlayer = nullptr;	// &section._currentPlayer (updated when this row is selected)
+			std::int32_t* PlayerType = nullptr; // &section._playerTypes[PlayerIndex]
+			std::int32_t* FocusedPlayer = nullptr; // &section._currentPlayer (updated when this row is selected)
 			std::int32_t AvailableCharacters = 3;
 			AnimatedValue Animation;
 			float RowHeight = 32.0f;
 
-			PlayerCharacterWidget() {
+			PlayerCharacterWidget()
+			{
 				Focusable = true;
 			}
 
-			float GetHeight() const override {
+			float GetHeight() const override
+			{
 				return RowHeight;
 			}
 
-			void OnUpdate(float timeMult) override {
+			void OnUpdate(float timeMult) override
+			{
 				if (Selected) {
 					Animation.Update(timeMult);
 				}
 			}
 
-			void OnSelected() override {
+			void OnSelected() override
+			{
 				Animation.Restart(0.0f);
 				if (FocusedPlayer != nullptr) {
 					*FocusedPlayer = PlayerIndex;
@@ -59,7 +63,8 @@ namespace Jazz2::UI::Menu
 
 			// On-screen x of character option `j` within the current row bounds; shared by Draw and touch hit-testing
 			// so the tappable areas always match what's drawn
-			float GetCharacterX(std::int32_t j) const {
+			float GetCharacterX(std::int32_t j) const
+			{
 				float centerX = Bounds.X + Bounds.W * 0.5f;
 				float offset, spacing;
 				if (AvailableCharacters <= 1) {
@@ -75,7 +80,8 @@ namespace Jazz2::UI::Menu
 				return centerX - offset + j * spacing;
 			}
 
-			void Draw(IMenuContainer* root, Canvas* canvas, const Rectf& bounds, std::int32_t& charOffset) override {
+			void Draw(IMenuContainer* root, Canvas* canvas, const Rectf& bounds, std::int32_t& charOffset) override
+			{
 				Bounds = bounds;
 				float optionsY = bounds.Y + bounds.H * 0.5f;
 
@@ -109,7 +115,8 @@ namespace Jazz2::UI::Menu
 				}
 			}
 
-			bool OnNavigate(const WidgetInput& input, IMenuContainer* root) override {
+			bool OnNavigate(const WidgetInput& input, IMenuContainer* root) override
+			{
 				if (input.Left || input.Right) {
 					if (PlayerType != nullptr && AvailableCharacters > 0) {
 						std::int32_t dir = (input.Left ? -1 : 1);
@@ -122,7 +129,8 @@ namespace Jazz2::UI::Menu
 				return false;
 			}
 
-			bool OnTouchEvent(const nCine::TouchEvent& event, Vector2i viewSize, IMenuContainer* root) override {
+			bool OnTouchEvent(const nCine::TouchEvent& event, Vector2i viewSize, IMenuContainer* root) override
+			{
 				// A tap selects the character nearest the touched position (so tapping a name picks that character
 				// directly), but only once the row is selected; the first tap just selects the row (return false so
 				// the container handles selection), matching ChoiceItem/CustomValueItem and the keyboard flow.
@@ -157,11 +165,14 @@ namespace Jazz2::UI::Menu
 			switch (difficulty) {
 				default:
 				// TRANSLATORS: Option for Difficulty item in Create Local Splitscreen Game section
-				case 0: return _("Easy");
+				case 0:
+					return _("Easy");
 				// TRANSLATORS: Option for Difficulty item in Create Local Splitscreen Game section
-				case 1: return _("Medium");
+				case 1:
+					return _("Medium");
 				// TRANSLATORS: Option for Difficulty item in Create Local Splitscreen Game section
-				case 2: return _("Hard");
+				case 2:
+					return _("Hard");
 			}
 		}
 
@@ -169,51 +180,70 @@ namespace Jazz2::UI::Menu
 		{
 			switch (mode) {
 				// TRANSLATORS: Option for Game Mode item in Create Local Splitscreen Game section
-				case MpGameMode::Battle: return _("Battle");
+				case MpGameMode::Battle:
+					return _("Battle");
 				// TRANSLATORS: Option for Game Mode item in Create Local Splitscreen Game section
-				case MpGameMode::TeamBattle: return _("Team Battle");
+				case MpGameMode::TeamBattle:
+					return _("Team Battle");
 				// TRANSLATORS: Option for Game Mode item in Create Local Splitscreen Game section
-				case MpGameMode::Race: return _("Race");
+				case MpGameMode::Race:
+					return _("Race");
 				// TRANSLATORS: Option for Game Mode item in Create Local Splitscreen Game section
-				case MpGameMode::TeamRace: return _("Team Race");
+				case MpGameMode::TeamRace:
+					return _("Team Race");
 				// TRANSLATORS: Option for Game Mode item in Create Local Splitscreen Game section
-				case MpGameMode::TreasureHunt: return _("Treasure Hunt");
+				case MpGameMode::TreasureHunt:
+					return _("Treasure Hunt");
 				// TRANSLATORS: Option for Game Mode item in Create Local Splitscreen Game section
-				case MpGameMode::TeamTreasureHunt: return _("Team Treasure Hunt");
+				case MpGameMode::TeamTreasureHunt:
+					return _("Team Treasure Hunt");
 				// TRANSLATORS: Option for Game Mode item in Create Local Splitscreen Game section
-				case MpGameMode::CaptureTheFlag: return _("Capture The Flag");
+				case MpGameMode::CaptureTheFlag:
+					return _("Capture The Flag");
 				// TRANSLATORS: Option for Game Mode item in Create Local Splitscreen Game section
-				case MpGameMode::Cooperation: return _("Cooperation");
+				case MpGameMode::Cooperation:
+					return _("Cooperation");
 				// TRANSLATORS: Option for Game Mode item in Create Local Splitscreen Game section
-				case MpGameMode::RoastTag: return _("Roast Tag");
+				case MpGameMode::RoastTag:
+					return _("Roast Tag");
 				// TRANSLATORS: Option for Game Mode item in Create Local Splitscreen Game section
-				case MpGameMode::LastRabbitStanding: return _("Last Rabbit Standing");
+				case MpGameMode::LastRabbitStanding:
+					return _("Last Rabbit Standing");
 				// TRANSLATORS: Option for Game Mode item in Create Local Splitscreen Game section
-				case MpGameMode::ExtendedLastRabbitStanding: return _("Extended Last Rabbit Standing");
+				case MpGameMode::ExtendedLastRabbitStanding:
+					return _("Extended Last Rabbit Standing");
 				// TRANSLATORS: Option for Game Mode item in Create Local Splitscreen Game section
-				case MpGameMode::Pestilence: return _("Pestilence");
+				case MpGameMode::Pestilence:
+					return _("Pestilence");
 				// TRANSLATORS: Option for Game Mode item in Create Local Splitscreen Game section
-				case MpGameMode::TeamLastRabbitStanding: return _("Team Last Rabbit Standing");
+				case MpGameMode::TeamLastRabbitStanding:
+					return _("Team Last Rabbit Standing");
 				// TRANSLATORS: Option for Game Mode item in Create Local Splitscreen Game section
-				case MpGameMode::Jailbreak: return _("Jailbreak");
+				case MpGameMode::Jailbreak:
+					return _("Jailbreak");
 				// TRANSLATORS: Option for Game Mode item in Create Local Splitscreen Game section
-				case MpGameMode::DeathCaptureTheFlag: return _("Death Capture The Flag");
+				case MpGameMode::DeathCaptureTheFlag:
+					return _("Death Capture The Flag");
 				// TRANSLATORS: Option for Game Mode item in Create Local Splitscreen Game section
-				case MpGameMode::FlagRun: return _("Flag Run");
+				case MpGameMode::FlagRun:
+					return _("Flag Run");
 				// TRANSLATORS: Option for Game Mode item in Create Local Splitscreen Game section
-				case MpGameMode::Domination: return _("Domination");
+				case MpGameMode::Domination:
+					return _("Domination");
 				// TRANSLATORS: Option for Game Mode item in Create Local Splitscreen Game section
-				case MpGameMode::HeadHunters: return _("Head Hunters");
+				case MpGameMode::HeadHunters:
+					return _("Head Hunters");
 				// TRANSLATORS: Option for Game Mode item in Create Local Splitscreen Game section
-				default: return _("Battle");
+				default:
+					return _("Battle");
 			}
 		}
 	}
 
 	CreateLocalGameOptionsSection::CreateLocalGameOptionsSection(StringView levelName, StringView previousEpisodeName, StringView resumeEpisodeName)
 		: _levelName(levelName), _previousEpisodeName(previousEpisodeName), _resumeEpisodeName(resumeEpisodeName), _availableCharacters(3),
-			_playerCount(2), _playerTypes{}, _currentPlayer(0), _difficulty(1), _gameMode(MpGameMode::Cooperation),
-			_characterRows{}, _shouldStart(false), _transitionTime(0.0f)
+		  _playerCount(2), _playerTypes {}, _currentPlayer(0), _difficulty(1), _gameMode(MpGameMode::Cooperation),
+		  _characterRows {}, _shouldStart(false), _transitionTime(0.0f)
 	{
 	}
 
@@ -252,17 +282,18 @@ namespace Jazz2::UI::Menu
 		auto list = std::make_unique<ScrollView>();
 
 		// TRANSLATORS: Menu item to select the number of local splitscreen players
-		list->Add<ChoiceItem>(_("Number of Players"),
-			[this]() -> StringView {
-				static const StringView labels[] = { "1"_s, "2"_s, "3"_s, "4"_s };
-				std::int32_t index = _playerCount - 1;
-				return (index >= 0 && index < (std::int32_t)arraySize(labels) ? labels[index] : "?"_s);
-			},
-			[this](std::int32_t direction) { ChangePlayerCount(direction); });
+		list->Add<ChoiceItem>(_("Number of Players"), [this]() -> StringView {
+			static const StringView labels[] = { "1"_s, "2"_s, "3"_s, "4"_s };
+			std::int32_t index = _playerCount - 1;
+			return (index >= 0 && index < (std::int32_t)arraySize(labels) ? labels[index] : "?"_s);
+		},
+			[this](std::int32_t direction) {
+				ChangePlayerCount(direction);
+			});
 
 		// A single "Character" header (so the label isn't repeated) followed by one focusable character row per player.
 		// The rows are shown/hidden by the player count, so the character area grows and shrinks with it.
-		auto* characterHeader = list->Add<CanvasWidget>(28.0f, /*focusable*/false);
+		auto* characterHeader = list->Add<CanvasWidget>(28.0f, /*focusable*/ false);
 		characterHeader->OnDrawContent = [](IMenuContainer* root, Canvas* canvas, const Rectf& bounds, std::int32_t& charOffset, bool selected, float animation) {
 			// TRANSLATORS: Label in Create Local Splitscreen Game section above the character selected for each player
 			root->DrawStringShadow(_("Character"), charOffset, bounds.X + bounds.W * 0.5f, bounds.Y + bounds.H * 0.5f,
@@ -280,8 +311,9 @@ namespace Jazz2::UI::Menu
 		}
 
 		// TRANSLATORS: Menu item to select difficulty
-		list->Add<ChoiceItem>(_("Difficulty"),
-			[this]() -> StringView { return GetDifficultyName(_difficulty); },
+		list->Add<ChoiceItem>(_("Difficulty"), [this]() -> StringView {
+			return GetDifficultyName(_difficulty);
+		},
 			[this](std::int32_t direction) {
 				_difficulty = std::clamp<std::int32_t>(_difficulty + direction, 0, 2);
 			});
@@ -292,7 +324,9 @@ namespace Jazz2::UI::Menu
 		gameModeItem->DrawValue = [this](IMenuContainer* root, float centerX, float y, std::int32_t& charOffset, bool selected, bool readOnly) {
 			root->DrawMenuValue(charOffset, GetGameModeName(_gameMode), centerX, y, selected, readOnly, false, 0.0f);
 		};
-		gameModeItem->OnActivate = [root]() { root->SwitchToSection<MultiplayerGameModeSelectSection>(); };
+		gameModeItem->OnActivate = [root]() {
+			root->SwitchToSection<MultiplayerGameModeSelectSection>();
+		};
 
 		// Episode continue only applies to cooperation, so lock the game mode when resuming a saved episode
 		if (!_resumeEpisodeName.empty()) {
@@ -333,9 +367,15 @@ namespace Jazz2::UI::Menu
 		AnimState characterImage;
 		switch (_playerTypes[focusedPlayer]) {
 			default:
-			case 0: characterImage = MenuDifficultyJazz; break;
-			case 1: characterImage = MenuDifficultySpaz; break;
-			case 2: characterImage = MenuDifficultyLori; break;
+			case 0:
+				characterImage = MenuDifficultyJazz;
+				break;
+			case 1:
+				characterImage = MenuDifficultySpaz;
+				break;
+			case 2:
+				characterImage = MenuDifficultyLori;
+				break;
 		}
 
 		Recti contentBounds = _root->GetContentBounds();

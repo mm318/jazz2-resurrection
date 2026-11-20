@@ -3,7 +3,7 @@
 #include "InGameMenu.h"
 #include "Tweening.h"
 #if defined(WITH_MULTIPLAYER)
-#	include "ScoreboardSection.h"
+#include "ScoreboardSection.h"
 #endif
 
 #include "../../../nCine/I18n.h"
@@ -123,7 +123,8 @@ namespace Jazz2::UI::Menu
 				}
 			}
 #endif
-			if (navSound) _root->PlaySfx("MenuSelect"_s, 0.5f);
+			if (navSound)
+				_root->PlaySfx("MenuSelect"_s, 0.5f);
 			_animation = 0.0f;
 			if (_selectedIndex > 0) {
 				_selectedIndex--;
@@ -131,7 +132,8 @@ namespace Jazz2::UI::Menu
 				_selectedIndex = (std::int32_t)_items.size() - 1;
 			}
 		} else if (navDown) {
-			if (navSound) _root->PlaySfx("MenuSelect"_s, 0.5f);
+			if (navSound)
+				_root->PlaySfx("MenuSelect"_s, 0.5f);
 			_animation = 0.0f;
 			if (_selectedIndex < (std::int32_t)_items.size() - 1) {
 				_selectedIndex++;
@@ -193,7 +195,7 @@ namespace Jazz2::UI::Menu
 				Vector2f last = _touchLast;
 				_touchStart = Vector2f::Zero;
 
-				float deltaY = last.Y - start.Y;	// View pixels; positive = downward
+				float deltaY = last.Y - start.Y; // View pixels; positive = downward
 
 #if defined(WITH_MULTIPLAYER)
 				// A downward swipe opens the scoreboard (multiplayer, non-local) - the mirror of the swipe-up that

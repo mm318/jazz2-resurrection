@@ -74,9 +74,10 @@ namespace Jazz2::Rendering
 
 		/** @brief Creates a new instance */
 		UpscaleRenderPass()
-			: _supersample(1), _resizeAtLogicalScale(false)	
+			: _supersample(1), _resizeAtLogicalScale(false)
 #if !defined(DISABLE_RESCALE_SHADERS)
-				, _resizeShader(nullptr)
+			  ,
+			  _resizeShader(nullptr)
 #endif
 		{
 			SetVisitOrderState(VisitOrderState::Disabled);
@@ -123,27 +124,32 @@ namespace Jazz2::Rendering
 		bool OnDraw(RenderQueue& renderQueue) override;
 
 		/** @brief Returns the input scene node */
-		SceneNode* GetNode() const {
+		SceneNode* GetNode() const
+		{
 			return _node.get();
 		}
 
 		/** @brief Returns the viewport the input scene is drawn through, into @ref GetTargetTexture() */
-		Viewport* GetView() const {
+		Viewport* GetView() const
+		{
 			return _view.get();
 		}
 
 		/** @brief Returns the texture the input scene is drawn into, it keeps the last image after @ref Detach() */
-		Texture* GetTargetTexture() const {
+		Texture* GetTargetTexture() const
+		{
 			return _target.get();
 		}
 
 		/** @brief Returns size of the input image (the logical coordinate space, not the supersampled texture) */
-		Vector2i GetViewSize() const {
+		Vector2i GetViewSize() const
+		{
 			return _logicalSize;
 		}
 
 		/** @brief Returns size of the upscaled target image */
-		Vector2f GetTargetSize() const {
+		Vector2f GetTargetSize() const
+		{
 			return (_antialiasing._target != nullptr ? _antialiasing._targetSize : _targetSize);
 		}
 
@@ -153,7 +159,8 @@ namespace Jazz2::Rendering
 		 * Not necessarily the value requested in @ref Initialize() - supersampling is refused on the direct
 		 * tier (no framebuffers) and on Vita, so callers that adapt to it must ask the pass, not assume.
 		 */
-		std::int32_t GetSupersample() const {
+		std::int32_t GetSupersample() const
+		{
 			return _supersample;
 		}
 
@@ -187,18 +194,18 @@ namespace Jazz2::Rendering
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Members shared with UpscaleRenderPassWithClipping (its clipped/overlay views reuse the target and camera)
-		std::unique_ptr<Texture> _target;	// The (possibly supersampled) render target the input scene is drawn into
-		std::unique_ptr<Viewport> _view;	// Renders the input scene node into the target
-		Camera _camera;						// View/projection shared by the target view (and the clipping variant's views)
-		AntialiasingSubpass _antialiasing;	// Optional resolve pass that smooths the final upscale (see Initialize)
-		std::int32_t _supersample;			// Render-resolution multiplier of the target texture over the logical size
+		std::unique_ptr<Texture> _target; // The (possibly supersampled) render target the input scene is drawn into
+		std::unique_ptr<Viewport> _view; // Renders the input scene node into the target
+		Camera _camera; // View/projection shared by the target view (and the clipping variant's views)
+		AntialiasingSubpass _antialiasing; // Optional resolve pass that smooths the final upscale (see Initialize)
+		std::int32_t _supersample; // Render-resolution multiplier of the target texture over the logical size
 #endif
 
 	private:
-		bool _resizeAtLogicalScale;			// Edge-detection rescale shaders (HQ2x/3xBRZ/SABR) sample at the logical, not supersampled, scale
-		std::unique_ptr<SceneNode> _node;	// Input scene root that the rest of the rendering attaches to (GetNode())
-		Vector2i _logicalSize;				// Logical coordinate space the scene is drawn in (GetViewSize())
-		Vector2f _targetSize;				// Size this pass renders to: the window, or the antialiasing intermediate when active
+		bool _resizeAtLogicalScale; // Edge-detection rescale shaders (HQ2x/3xBRZ/SABR) sample at the logical, not supersampled, scale
+		std::unique_ptr<SceneNode> _node; // Input scene root that the rest of the rendering attaches to (GetNode())
+		Vector2i _logicalSize; // Logical coordinate space the scene is drawn in (GetViewSize())
+		Vector2f _targetSize; // Size this pass renders to: the window, or the antialiasing intermediate when active
 #if !defined(DISABLE_RESCALE_SHADERS)
 		Shader* _resizeShader;
 #endif
@@ -222,17 +229,20 @@ namespace Jazz2::Rendering
 		void Register() override;
 
 		/** @brief Returns the clipped main layer node */
-		SceneNode* GetClippedNode() const {
+		SceneNode* GetClippedNode() const
+		{
 			return _clippedNode.get();
 		}
 
 		/** @brief Returns the overlay layer node */
-		SceneNode* GetOverlayNode() const {
+		SceneNode* GetOverlayNode() const
+		{
 			return _overlayNode.get();
 		}
 
 		/** @brief Sets the clipping rectangle of the main layer (given in logical coordinates) */
-		void SetClipRectangle(const Recti& scissorRect) {
+		void SetClipRectangle(const Recti& scissorRect)
+		{
 			if (_supersample > 1) {
 				// The scissor rectangle is supplied in logical coordinates, but it is applied to the supersampled
 				// target texture, so it must be scaled up to match

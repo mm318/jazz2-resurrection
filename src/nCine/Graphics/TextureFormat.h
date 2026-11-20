@@ -17,17 +17,25 @@ namespace nCine
 	class TextureFormat
 	{
 	public:
-		TextureFormat() : _pixelFormat(PixelFormat::Unknown), _bgr(false) {}
-		explicit TextureFormat(PixelFormat format) : _pixelFormat(format), _bgr(false) {}
+		TextureFormat()
+			: _pixelFormat(PixelFormat::Unknown), _bgr(false)
+		{
+		}
+		explicit TextureFormat(PixelFormat format)
+			: _pixelFormat(format), _bgr(false)
+		{
+		}
 
 		/** @brief Returns the backend-neutral pixel format */
-		inline PixelFormat GetPixelFormat() const {
+		inline PixelFormat GetPixelFormat() const
+		{
 			return _pixelFormat;
 		}
 		/** @brief Returns `true` if the format holds compressed data */
 		bool IsCompressed() const;
 		/** @brief Returns `true` if the external channel order is BGR/BGRA instead of RGB/RGBA */
-		inline bool IsBgr() const {
+		inline bool IsBgr() const
+		{
 			return _bgr;
 		}
 		/** @brief Returns the number of color channels */

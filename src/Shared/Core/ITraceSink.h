@@ -10,8 +10,9 @@
 
 #include "../Containers/StringView.h"
 
-namespace Death {
-//###==##====#=====--==~--~=~- --- -- -  -  -   -
+namespace Death
+{
+	//###==##====#=====--==~--~=~- --- -- -  -  -   -
 
 	// Forward declaration
 	namespace Trace
@@ -32,8 +33,12 @@ namespace Death {
 		friend class Trace::LoggerBackend;
 
 	public:
-		ITraceSink() {}
-		virtual ~ITraceSink() {}
+		ITraceSink()
+		{
+		}
+		virtual ~ITraceSink()
+		{
+		}
 
 		ITraceSink(ITraceSink const&) = delete;
 		ITraceSink& operator=(ITraceSink const&) = delete;
@@ -95,7 +100,7 @@ namespace Death {
 		*/
 		void FlushBacktraceAsync() noexcept;
 
-#	if defined(DEATH_TRACE_ASYNC) || defined(DOXYGEN_GENERATING_OUTPUT)
+#if defined(DEATH_TRACE_ASYNC) || defined(DOXYGEN_GENERATING_OUTPUT)
 		/**
 			@brief Shrinks the thread-local queue to the specified target capacity
 
@@ -111,7 +116,7 @@ namespace Death {
 			in @ref building-config-params-adv.
 		*/
 		std::size_t GetThreadLocalQueueCapacity() noexcept;
-#	endif
+#endif
 	}
 }
 

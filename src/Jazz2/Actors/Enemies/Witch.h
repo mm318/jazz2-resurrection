@@ -61,7 +61,10 @@ namespace Jazz2::Actors::Enemies
 			DEATH_RUNTIME_OBJECT(ActorBase);
 
 		public:
-			MagicBullet(const std::shared_ptr<Witch>& owner) : _owner(owner), _time(380.0f) { }
+			MagicBullet(const std::shared_ptr<Witch>& owner)
+				: _owner(owner), _time(380.0f)
+			{
+			}
 
 			bool OnHandleCollision(ActorBase* other) override;
 

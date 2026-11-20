@@ -124,8 +124,7 @@ namespace Jazz2::Actors::Bosses
 					fireball->OnActivated(ActorActivationDetails(
 						_levelHandler,
 						Vector3i((std::int32_t)(_pos.X + (IsFacingLeft() ? -16.0f : 16.0f)), (std::int32_t)(_pos.Y - 5.0f), _renderer.GetLayer() - 2),
-						fireballParams
-					));
+						fireballParams));
 					_levelHandler->AddActor(fireball);
 				}
 				if (_ticks >= SpewTicks) {

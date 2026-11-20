@@ -40,9 +40,15 @@ namespace Jazz2::Actors::Collectibles
 		// Load indexed only when recoloring, so the sprite can be tinted at draw time (see Player::RefreshColorPalette)
 		switch (playerType) {
 			default:
-			case PlayerType::Jazz: async_await RequestMetadataAsync("Collectible/FastFireJazz"_s, recolor); break;
-			case PlayerType::Spaz: async_await RequestMetadataAsync("Collectible/FastFireSpaz"_s, recolor); break;
-			case PlayerType::Lori: async_await RequestMetadataAsync("Collectible/FastFireLori"_s, recolor); break;
+			case PlayerType::Jazz:
+				async_await RequestMetadataAsync("Collectible/FastFireJazz"_s, recolor);
+				break;
+			case PlayerType::Spaz:
+				async_await RequestMetadataAsync("Collectible/FastFireSpaz"_s, recolor);
+				break;
+			case PlayerType::Lori:
+				async_await RequestMetadataAsync("Collectible/FastFireLori"_s, recolor);
+				break;
 		}
 
 		SetAnimation(AnimState::Default);

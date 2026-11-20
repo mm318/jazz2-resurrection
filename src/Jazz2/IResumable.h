@@ -18,7 +18,9 @@ namespace Jazz2
 	{
 	public:
 		/** @brief Creates a new instance */
-		IResumable() {}
+		IResumable()
+		{
+		}
 
 		/** @brief Serializes object state to a stream */
 		virtual bool SerializeResumableToStream(Stream& dest) = 0;

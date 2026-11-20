@@ -7,33 +7,33 @@
 #include "IAudioReader.h"
 
 #if !defined(ZIG_BUILD) && defined(__has_include)
-#	if __has_include("libopenmpt/libopenmpt.h")
-#		define __HAS_LOCAL_LIBOPENMPT
-#	endif
+#if __has_include("libopenmpt/libopenmpt.h")
+#define __HAS_LOCAL_LIBOPENMPT
+#endif
 #endif
 #if defined(__HAS_LOCAL_LIBOPENMPT)
-#	include "libopenmpt/libopenmpt.h"
-#	if __has_include("libopenmpt/libopenmpt_ext.h")
-#		include "libopenmpt/libopenmpt_ext.h"
-#		define NCINE_HAS_OPENMPT_EXT
-#	endif
+#include "libopenmpt/libopenmpt.h"
+#if __has_include("libopenmpt/libopenmpt_ext.h")
+#include "libopenmpt/libopenmpt_ext.h"
+#define NCINE_HAS_OPENMPT_EXT
+#endif
 #else
-#	include <libopenmpt.h>
-#	if defined(__has_include)
-#		if __has_include(<libopenmpt_ext.h>)
-#			include <libopenmpt_ext.h>
-#			define NCINE_HAS_OPENMPT_EXT
-#		endif
-#	endif
+#include <libopenmpt.h>
+#if defined(__has_include)
+#if __has_include(<libopenmpt_ext.h>)
+#include <libopenmpt_ext.h>
+#define NCINE_HAS_OPENMPT_EXT
+#endif
+#endif
 #endif
 
 #if defined(OPENMPT_API_VERSION_AT_LEAST)
-#	if OPENMPT_API_VERSION_AT_LEAST(0, 7, 0)
-#		define NCINE_HAS_OPENMPT_0_7
-#	endif
+#if OPENMPT_API_VERSION_AT_LEAST(0, 7, 0)
+#define NCINE_HAS_OPENMPT_0_7
+#endif
 #endif
 #if defined(NCINE_HAS_OPENMPT_EXT) && defined(NCINE_HAS_OPENMPT_0_7)
-#	define NCINE_HAS_OPENMPT_TEMPO2
+#define NCINE_HAS_OPENMPT_TEMPO2
 #endif
 
 #include <memory>
@@ -76,12 +76,14 @@ namespace nCine
 		/** @brief Number of recorded states, enough for every chunk a stream keeps queued */
 		static constexpr std::int32_t TimelineSize = 128;
 
-		struct TimelineEntry {
+		struct TimelineEntry
+		{
 			std::int64_t Frame;
 			AudioModuleState State;
 		};
 
-		struct ChannelSlide {
+		struct ChannelSlide
+		{
 			std::int32_t Channel;
 			float From;
 			float To;
@@ -98,10 +100,10 @@ namespace nCine
 		openmpt_module_ext* _moduleExt;
 		openmpt_module_ext_interface_interactive _interactive;
 		bool _hasInteractive;
-#	if defined(NCINE_HAS_OPENMPT_TEMPO2)
+#if defined(NCINE_HAS_OPENMPT_TEMPO2)
 		openmpt_module_ext_interface_interactive3 _interactive3;
 		bool _hasInteractive3;
-#	endif
+#endif
 #endif
 
 		// Shared with the threads that query or change the module, everything below is guarded by `_lock`
@@ -136,12 +138,12 @@ namespace nCine
 		using openmpt_module_set_position_order_row_t = decltype(openmpt_module_set_position_order_row);
 		using openmpt_module_get_current_int_t = std::int32_t(openmpt_module*);
 		using openmpt_module_get_current_tempo2_t = double(openmpt_module*);
-#	if defined(NCINE_HAS_OPENMPT_EXT)
+#if defined(NCINE_HAS_OPENMPT_EXT)
 		using openmpt_module_ext_create_t = decltype(openmpt_module_ext_create);
 		using openmpt_module_ext_destroy_t = decltype(openmpt_module_ext_destroy);
 		using openmpt_module_ext_get_module_t = decltype(openmpt_module_ext_get_module);
 		using openmpt_module_ext_get_interface_t = decltype(openmpt_module_ext_get_interface);
-#	endif
+#endif
 
 		static void* _openmptLib;
 		static bool _openmptLibInitialized;
@@ -158,12 +160,12 @@ namespace nCine
 		static openmpt_module_get_current_int_t* _openmpt_module_get_current_tempo;
 		static openmpt_module_get_current_tempo2_t* _openmpt_module_get_current_tempo2;
 		static openmpt_module_get_current_int_t* _openmpt_module_get_num_channels;
-#	if defined(NCINE_HAS_OPENMPT_EXT)
+#if defined(NCINE_HAS_OPENMPT_EXT)
 		static openmpt_module_ext_create_t* _openmpt_module_ext_create;
 		static openmpt_module_ext_destroy_t* _openmpt_module_ext_destroy;
 		static openmpt_module_ext_get_module_t* _openmpt_module_ext_get_module;
 		static openmpt_module_ext_get_interface_t* _openmpt_module_ext_get_interface;
-#	endif
+#endif
 
 		static bool TryLoadLibrary();
 #endif

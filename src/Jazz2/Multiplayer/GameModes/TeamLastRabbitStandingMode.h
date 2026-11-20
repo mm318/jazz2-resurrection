@@ -24,10 +24,12 @@ namespace Jazz2::Multiplayer::GameModes
 	public:
 		TeamLastRabbitStandingMode();
 
-		MpGameMode GetMode() const override {
+		MpGameMode GetMode() const override
+		{
 			return MpGameMode::TeamLastRabbitStanding;
 		}
-		bool IsTeamBased() const override {
+		bool IsTeamBased() const override
+		{
 			return true;
 		}
 
@@ -41,12 +43,14 @@ namespace Jazz2::Multiplayer::GameModes
 		std::uint32_t GetStateScore(const MpPlayerState& state) const override;
 		StringView GetScoreboardLabel() const override;
 		void OnDrawHUD(IGameModeContext& ctx, IGameModeHUD& hud, Actors::Player* player, const Rectf& view) override;
-		bool HasDamageAmplifierInOvertime() const override {
+		bool HasDamageAmplifierInOvertime() const override
+		{
 			return true;
 		}
 
 	protected:
-		OvertimeRule GetOvertimeRule() const override {
+		OvertimeRule GetOvertimeRule() const override
+		{
 			return OvertimeRule::TiedLeaders;
 		}
 

@@ -11,8 +11,8 @@
 
 // The copy is written on a thread of its own where there are threads and memory for a copy of the level
 #if defined(WITH_THREADS) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_CONSTRAINED_MEMORY)
-#	define NCINE_AUTOSAVE_THREADED
-#	include "../Common/BackgroundJob.h"
+#define NCINE_AUTOSAVE_THREADED
+#include "../Common/BackgroundJob.h"
 #endif
 
 namespace Jazz2::Editor

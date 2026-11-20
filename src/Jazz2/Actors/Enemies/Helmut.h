@@ -25,11 +25,13 @@ namespace Jazz2::Actors::Enemies
 	protected:
 		Task<bool> OnActivatedAsync(const ActorActivationDetails& details) override;
 		void OnUpdate(float timeMult) override;
-		float GetTurnLookAhead() const override {
+		float GetTurnLookAhead() const override
+		{
 			return 13.0f;
 		}
 		// Measured in JJ2+: it ignores Stop Enemy left of where it started
-		bool StopsAtStopEnemy() const override {
+		bool StopsAtStopEnemy() const override
+		{
 			return _pos.X > _originX;
 		}
 		void OnUpdateHitbox() override;

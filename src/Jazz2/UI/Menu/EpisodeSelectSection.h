@@ -5,14 +5,16 @@
 namespace Jazz2::UI::Menu
 {
 	/** @brief How the episode selected in @ref EpisodeSelectSection should be started */
-	enum class EpisodeSelectMode {
-		Singleplayer,		/**< Plain single-player story game */
-		LocalMultiplayer,	/**< Local splitscreen multiplayer match */
-		OnlineMultiplayer	/**< Hosted online multiplayer server */
+	enum class EpisodeSelectMode
+	{
+		Singleplayer, /**< Plain single-player story game */
+		LocalMultiplayer, /**< Local splitscreen multiplayer match */
+		OnlineMultiplayer /**< Hosted online multiplayer server */
 	};
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
-	enum class EpisodeDataFlags {
+	enum class EpisodeDataFlags
+	{
 		None = 0x00,
 
 		IsAvailable = 0x01,
@@ -27,7 +29,8 @@ namespace Jazz2::UI::Menu
 
 	DEATH_ENUM_FLAGS(EpisodeDataFlags);
 
-	struct EpisodeData {
+	struct EpisodeData
+	{
 		Episode Description;
 		EpisodeDataFlags Flags;
 	};

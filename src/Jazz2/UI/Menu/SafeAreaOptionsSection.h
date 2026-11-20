@@ -33,7 +33,8 @@ namespace Jazz2::UI::Menu
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
 		// An axis-aligned rectangle held as its four edges, which is what everything here is expressed in
-		struct Edges {
+		struct Edges
+		{
 			float Left, Top, Right, Bottom;
 		};
 #endif
@@ -58,8 +59,8 @@ namespace Jazz2::UI::Menu
 		ScrollView* _list = nullptr;
 		std::int32_t _draggedEdge = -1;
 		std::int32_t _draggedPointerId = -1;
-		float _adjustRepeat = 0.0f;		// Frames until the next auto-repeat fires while a direction is held
-		float _adjustHeld = 0.0f;		// How long that direction has been held, which is what speeds it up
+		float _adjustRepeat = 0.0f; // Frames until the next auto-repeat fires while a direction is held
+		float _adjustHeld = 0.0f; // How long that direction has been held, which is what speeds it up
 		// Backing storage for the formatted values, so the choice rows can hand out a stable view
 		String _edgeValues[(std::int32_t)Jazz2::SafeAreaEdge::Count];
 

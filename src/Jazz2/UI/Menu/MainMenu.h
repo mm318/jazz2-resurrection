@@ -90,7 +90,8 @@ namespace Jazz2::UI::Menu
 	private:
 		IRootController* _root;
 
-		enum class Preset {
+		enum class Preset
+		{
 			None,
 			Default,
 			Carrotus,
@@ -103,7 +104,10 @@ namespace Jazz2::UI::Menu
 		class MenuBackgroundCanvas : public Canvas
 		{
 		public:
-			MenuBackgroundCanvas(MainMenu* owner) : _owner(owner) { }
+			MenuBackgroundCanvas(MainMenu* owner)
+				: _owner(owner)
+			{
+			}
 
 			bool OnDraw(RenderQueue& renderQueue) override;
 
@@ -114,7 +118,10 @@ namespace Jazz2::UI::Menu
 		class MenuClippedCanvas : public Canvas
 		{
 		public:
-			MenuClippedCanvas(MainMenu* owner) : _owner(owner) { }
+			MenuClippedCanvas(MainMenu* owner)
+				: _owner(owner)
+			{
+			}
 
 			bool OnDraw(RenderQueue& renderQueue) override;
 
@@ -125,7 +132,10 @@ namespace Jazz2::UI::Menu
 		class MenuOverlayCanvas : public Canvas
 		{
 		public:
-			MenuOverlayCanvas(MainMenu* owner) : _owner(owner) { }
+			MenuOverlayCanvas(MainMenu* owner)
+				: _owner(owner)
+			{
+			}
 
 			bool OnDraw(RenderQueue& renderQueue) override;
 
@@ -138,7 +148,8 @@ namespace Jazz2::UI::Menu
 			friend class MainMenu;
 
 		public:
-			TexturedBackgroundPass(MainMenu* owner) : _owner(owner), _alreadyRendered(false)
+			TexturedBackgroundPass(MainMenu* owner)
+				: _owner(owner), _alreadyRendered(false)
 			{
 				SetVisitOrderState(SceneNode::VisitOrderState::Disabled);
 			}
@@ -193,10 +204,12 @@ namespace Jazz2::UI::Menu
 
 	protected:
 		void RecreateSections() override;
-		Rendering::UpscaleRenderPassWithClipping& GetUpscalePass() override {
+		Rendering::UpscaleRenderPassWithClipping& GetUpscalePass() override
+		{
 			return _upscalePass;
 		}
-		const BitArray& GetPressedKeys() const override {
+		const BitArray& GetPressedKeys() const override
+		{
 			return _pressedKeys;
 		}
 	};

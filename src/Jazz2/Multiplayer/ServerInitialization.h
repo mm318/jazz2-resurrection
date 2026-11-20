@@ -128,20 +128,20 @@ namespace Jazz2::Multiplayer
 	*/
 	enum class WebhookEventType : std::uint32_t
 	{
-		None = 0,							/**< None */
+		None = 0, /**< None */
 
-		ServerLifecycle = 0x01,				/**< Server has been started or stopped */
-		PlayerConnected = 0x02,				/**< Player joined the server */
-		PlayerDisconnected = 0x04,			/**< Player left the server */
-		PlayerKicked = 0x08,				/**< Player was kicked or banned (moderation, idle, cheating) */
-		LevelChanged = 0x10,				/**< Level has been loaded (also on playlist advance) */
-		RoundStarted = 0x20,				/**< Round countdown finished and the round is running */
-		RoundEnded = 0x40,					/**< Round ended with a winner, winning team or draw */
-		ChampionshipEnded = 0x80,			/**< A player won the championship (reached the points target) */
-		ChatMessages = 0x100,				/**< In-game chat messages */
-		PlayerRoasted = 0x200,				/**< Player was roasted (killed by another player or the environment) */
-		PlayerLapFinished = 0x400,			/**< Player finished a lap (Race) */
-		FlagCaptured = 0x800,				/**< Team captured a flag (Capture The Flag) */
+		ServerLifecycle = 0x01, /**< Server has been started or stopped */
+		PlayerConnected = 0x02, /**< Player joined the server */
+		PlayerDisconnected = 0x04, /**< Player left the server */
+		PlayerKicked = 0x08, /**< Player was kicked or banned (moderation, idle, cheating) */
+		LevelChanged = 0x10, /**< Level has been loaded (also on playlist advance) */
+		RoundStarted = 0x20, /**< Round countdown finished and the round is running */
+		RoundEnded = 0x40, /**< Round ended with a winner, winning team or draw */
+		ChampionshipEnded = 0x80, /**< A player won the championship (reached the points target) */
+		ChatMessages = 0x100, /**< In-game chat messages */
+		PlayerRoasted = 0x200, /**< Player was roasted (killed by another player or the environment) */
+		PlayerLapFinished = 0x400, /**< Player finished a lap (Race) */
+		FlagCaptured = 0x800, /**< Team captured a flag (Capture The Flag) */
 
 		/** @brief Default set of events used if @cpp "WebhookEvents" @ce is not specified in the configuration */
 		Default = ServerLifecycle | PlayerConnected | PlayerDisconnected | PlayerKicked | LevelChanged | RoundEnded | ChampionshipEnded,
@@ -550,7 +550,8 @@ namespace Jazz2::Multiplayer
 		 * The value of @ref OvertimeSecs, or if it's negative, the default of the game mode: 60 seconds in Race and
 		 * Team Race (the time left after the first player finishes), no overtime in the other modes.
 		 */
-		std::uint32_t GetOvertimeSecs() const {
+		std::uint32_t GetOvertimeSecs() const
+		{
 			if (OvertimeSecs >= 0) {
 				return std::uint32_t(OvertimeSecs);
 			}

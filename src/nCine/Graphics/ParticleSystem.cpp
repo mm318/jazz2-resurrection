@@ -17,7 +17,7 @@ namespace nCine
 
 	ParticleSystem::ParticleSystem(SceneNode* parent, std::uint32_t count, Texture* texture, Recti texRect)
 		: SceneNode(parent, 0, 0), _poolSize(count), _poolTop(count - 1), _particlePool(_poolSize),
-			_particleArray(_poolSize), _affectors(4), _inLocalSpace(false)
+		  _particleArray(_poolSize), _affectors(4), _inLocalSpace(false)
 	{
 		/*if (texture && texture->name() != nullptr) {
 			// When Tracy is disabled the statement body is empty and braces are needed
@@ -235,7 +235,7 @@ namespace nCine
 
 	ParticleSystem::ParticleSystem(const ParticleSystem& other)
 		: SceneNode(other), _poolSize(other._poolSize), _poolTop(other._poolSize - 1), _particlePool(other._poolSize),
-			_particleArray(other._poolSize), _affectors(4), _inLocalSpace(other._inLocalSpace)
+		  _particleArray(other._poolSize), _affectors(4), _inLocalSpace(other._inLocalSpace)
 	{
 
 		_type = ObjectType::ParticleSystem;

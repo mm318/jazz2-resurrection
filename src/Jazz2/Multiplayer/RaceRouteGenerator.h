@@ -9,17 +9,17 @@ namespace Jazz2::Multiplayer
 	/** @brief Shape of the route traced by @ref GenerateRaceRouteFromGeometry() */
 	enum class TrackRouteType
 	{
-		Lap,			/**< Race track: from the spawn around the loop and back to the "Set Lap" warp (or a level exit if there is none) */
-		LevelExit		/**< Straight from the spawn to the level exit, e.g. through a story level in Cooperation */
+		Lap, /**< Race track: from the spawn around the loop and back to the "Set Lap" warp (or a level exit if there is none) */
+		LevelExit /**< Straight from the spawn to the level exit, e.g. through a story level in Cooperation */
 	};
 
 	/** @brief Moves of only some characters the route tracer takes into account, supports a bitwise combination of its member values */
 	enum class TrackCharacterMoves : std::uint8_t
 	{
-		None = 0x00,			/**< None of them */
-		DoubleJump = 0x01,		/**< The double jump of Spaz */
-		Glide = 0x02,			/**< The copter ears of Jazz and Lori */
-		All = 0x03				/**< All of them, as a cooperation player can pick any character */
+		None = 0x00, /**< None of them */
+		DoubleJump = 0x01, /**< The double jump of Spaz */
+		Glide = 0x02, /**< The copter ears of Jazz and Lori */
+		All = 0x03 /**< All of them, as a cooperation player can pick any character */
 	};
 
 	DEATH_ENUM_FLAGS(TrackCharacterMoves);

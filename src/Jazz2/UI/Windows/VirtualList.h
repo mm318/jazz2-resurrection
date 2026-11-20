@@ -63,7 +63,8 @@ namespace Jazz2::UI::Windows
 		Function<void(Element&, std::int32_t)> BindRow;
 
 		/** @brief Returns the picked row, -1 if none */
-		std::int32_t GetSelected() const {
+		std::int32_t GetSelected() const
+		{
 			return _selected;
 		}
 		/** @brief Picks a row, -1 for none, it's scrolled to if @p scrollIntoView, @ref OnSelectionChanged isn't called */

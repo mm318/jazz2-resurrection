@@ -84,7 +84,8 @@ namespace Jazz2::Editor
 		std::int32_t DroppedTiles = 0;
 
 		/** @brief Returns `true` if it has tiles of other layers or events, so it's placed as a stamp of several layers */
-		bool HasLayers() const {
+		bool HasLayers() const
+		{
 			return (!ExtraLayers.empty() || !Events.empty() || !OffGridEvents.empty());
 		}
 

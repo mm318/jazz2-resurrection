@@ -34,7 +34,7 @@ namespace Jazz2::Actors::Environment
 
 	RollingRock::RollingRock()
 		: _triggerSpeedX(0.0f), _triggerSpeedY(0.0f), _accelerationX(0.0f), _time(0.0f), _tickTime(0.0f), _spinBoost(4.0f), _id(0),
-			_rockState(RockState::Idle)
+		  _rockState(RockState::Idle)
 	{
 	}
 
@@ -111,7 +111,8 @@ namespace Jazz2::Actors::Environment
 				Roll();
 				break;
 			}
-			default: break;
+			default:
+				break;
 		}
 
 		HandlePlayerContact();

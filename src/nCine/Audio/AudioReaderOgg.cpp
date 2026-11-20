@@ -3,13 +3,13 @@
 #if defined(WITH_VORBIS)
 
 #if defined(DEATH_TARGET_WINDOWS) && !defined(ZIG_BUILD) && !defined(WITH_VORBIS_DYNAMIC)
-#	if defined(_M_X64)
-#		pragma comment(lib, "../Libs/Windows/x64/libvorbisfile.lib")
-#	elif defined(_M_IX86)
-#		pragma comment(lib, "../Libs/Windows/x86/libvorbisfile.lib")
-#	else
-#		error Unsupported architecture
-#	endif
+#if defined(_M_X64)
+#pragma comment(lib, "../Libs/Windows/x64/libvorbisfile.lib")
+#elif defined(_M_IX86)
+#pragma comment(lib, "../Libs/Windows/x86/libvorbisfile.lib")
+#else
+#error Unsupported architecture
+#endif
 #endif
 
 #include <Base/Move.h>

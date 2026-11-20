@@ -118,7 +118,9 @@ namespace nCine
 		struct ManagedBuffer
 		{
 			ManagedBuffer()
-				: size(0), freeSpace(0) {}
+				: size(0), freeSpace(0)
+			{
+			}
 
 			std::uint32_t size;
 			std::uint32_t freeSpace;

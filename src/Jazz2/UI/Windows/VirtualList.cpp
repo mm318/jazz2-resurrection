@@ -23,7 +23,7 @@ namespace Jazz2::UI::Windows
 
 	VirtualList::VirtualList()
 		: RowHeight(Theme::RowHeight + 2.0f), Selectable(true), EmptyColor(Theme::TextDim), _selected(-1), _rowPixels(1.0f), _scrollTo(-1),
-			_typedTime(0.0f), _pressedRow(-1)
+		  _typedTime(0.0f), _pressedRow(-1)
 	{
 	}
 
@@ -268,12 +268,24 @@ namespace Jazz2::UI::Windows
 			}
 		}
 		switch (event.Sym) {
-			case Keys::Up: Select(std::max<std::int32_t>(_selected - 1, 0)); return true;
-			case Keys::Down: Select(std::min<std::int32_t>(_selected + 1, count - 1)); return true;
-			case Keys::PageUp: Select(std::max<std::int32_t>(_selected - page, 0)); return true;
-			case Keys::PageDown: Select(std::min<std::int32_t>(_selected + page, count - 1)); return true;
-			case Keys::Home: Select(0); return true;
-			case Keys::End: Select(count - 1); return true;
+			case Keys::Up:
+				Select(std::max<std::int32_t>(_selected - 1, 0));
+				return true;
+			case Keys::Down:
+				Select(std::min<std::int32_t>(_selected + 1, count - 1));
+				return true;
+			case Keys::PageUp:
+				Select(std::max<std::int32_t>(_selected - page, 0));
+				return true;
+			case Keys::PageDown:
+				Select(std::min<std::int32_t>(_selected + page, count - 1));
+				return true;
+			case Keys::Home:
+				Select(0);
+				return true;
+			case Keys::End:
+				Select(count - 1);
+				return true;
 			case Keys::Return:
 			case Keys::NumPadEnter:
 				if (_selected >= 0 && OnActivated) {

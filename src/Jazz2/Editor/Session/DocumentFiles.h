@@ -74,11 +74,13 @@ namespace Jazz2::Editor
 		DocumentFiles& operator=(const DocumentFiles&) = delete;
 
 		/** @brief Returns the path of the level file, may be empty */
-		StringView GetFilePath() const {
+		StringView GetFilePath() const
+		{
 			return _filePath;
 		}
 		/** @brief Returns the name of the level as episode/level, may be empty */
-		StringView GetLevelName() const {
+		StringView GetLevelName() const
+		{
 			return _levelName;
 		}
 		/** @brief Sets the file the level is edited as, and its name, the recovery copy belongs to it then */
@@ -140,7 +142,8 @@ namespace Jazz2::Editor
 		/** @brief Tells that a level file was moved or renamed outside of Save As, its place among the recent files goes along */
 		void NoteLevelFileMoved(StringView from, StringView to);
 		/** @brief Sets whether the next export is marked so the editor doesn't open it, `LevelFlags::NotEditable` */
-		void SetExportNotEditable(bool value) {
+		void SetExportNotEditable(bool value)
+		{
 			_exportNotEditable = value;
 		}
 
@@ -149,7 +152,8 @@ namespace Jazz2::Editor
 		/** @brief Writes the recovery copy now, before the application may be ended, unless the copy kept from before wasn't chosen about */
 		void SaveRecoveryCopyNow();
 		/** @brief Returns what keeps the recovery copy */
-		AutosaveService& GetAutosave() {
+		AutosaveService& GetAutosave()
+		{
 			return _autosave;
 		}
 

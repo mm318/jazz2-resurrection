@@ -11,7 +11,7 @@ namespace nCine
 
 	FrameTimer::FrameTimer(float logInterval, float avgInterval)
 		: _averageInterval(avgInterval), _loggingInterval(logInterval), _frameDuration(0.0f), _lastAvgUpdate(TimeStamp::Now()),
-			_totNumFrames(0L), _avgNumFrames(0L), _logNumFrames(0L), _avgFps(0.0f), _timeMults{1.0f, 1.0f, 1.0f}
+		  _totNumFrames(0L), _avgNumFrames(0L), _logNumFrames(0L), _avgFps(0.0f), _timeMults { 1.0f, 1.0f, 1.0f }
 	{
 	}
 

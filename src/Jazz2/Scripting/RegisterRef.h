@@ -59,7 +59,7 @@ namespace Jazz2::Scripting
 
 		// These shouldn't be called directly by the application as they requires an active context
 		CScriptHandle(void* ref, std::int32_t typeId);
-		CScriptHandle &Assign(void* ref, std::int32_t typeId);
+		CScriptHandle& Assign(void* ref, std::int32_t typeId);
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		void* m_ref;

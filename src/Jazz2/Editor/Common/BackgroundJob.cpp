@@ -7,7 +7,8 @@ namespace Jazz2::Editor
 	BackgroundJob::BackgroundJob()
 		: _done(false)
 #if defined(NCINE_BACKGROUND_JOB_THREADED)
-			, _threadName(nullptr), _started(false)
+		  ,
+		  _threadName(nullptr), _started(false)
 #endif
 	{
 	}

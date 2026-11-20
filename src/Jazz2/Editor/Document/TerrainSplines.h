@@ -19,10 +19,10 @@ namespace Jazz2::Editor
 	/** @brief What is laid along a line */
 	enum class SplineKind : std::uint8_t
 	{
-		Ground,			/**< Ground below the line, down to the ground that's there */
-		Ceiling,		/**< Ground above the line, its surface faces down */
-		Band,			/**< A strip of ground as thick as the depth below the line, floating */
-		Closed			/**< Ground inside of the line, which goes around back to its first point */
+		Ground, /**< Ground below the line, down to the ground that's there */
+		Ceiling, /**< Ground above the line, its surface faces down */
+		Band, /**< A strip of ground as thick as the depth below the line, floating */
+		Closed /**< Ground inside of the line, which goes around back to its first point */
 	};
 
 	/**
@@ -129,7 +129,10 @@ namespace Jazz2::Editor
 		SmallVector<std::uint8_t, 0> _newData;
 		std::unique_ptr<SetTilesCommand> _tiles;
 
-		explicit SetTerrainSplinesCommand(String name) : _name(Death::move(name)) {}
+		explicit SetTerrainSplinesCommand(String name)
+			: _name(Death::move(name))
+		{
+		}
 	};
 }
 

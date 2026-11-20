@@ -38,7 +38,8 @@ namespace Jazz2::Editor
 			Vector2i Anchor = Vector2i(0, 0);
 			LevelDocument::ResizeFill Fill = LevelDocument::ResizeFill::Empty;
 
-			Vector2i GetOffset() const {
+			Vector2i GetOffset() const
+			{
 				auto offset = [](std::int32_t anchor, std::int32_t oldSize, std::int32_t size) {
 					return (anchor == 0 ? 0 : (anchor == 1 ? (size - oldSize) / 2 : size - oldSize));
 				};
@@ -132,7 +133,8 @@ namespace Jazz2::Editor
 				Annotation::Write(document, annotations);
 			}
 			return true;
-		}, DocumentChangeKind::None, layer);
+		},
+			DocumentChangeKind::None, layer);
 	}
 
 	void ShowResizeLayerDialog(IEditorContext& session)
@@ -170,10 +172,12 @@ namespace Jazz2::Editor
 			auto* row = content->AddRow(axis == 0 ? _x("editor", "Width") : _x("editor", "Height"));
 			auto* number = row->Add<NumberBox>([state, axis]() {
 				return float(axis == 0 ? state->Size.X : state->Size.Y);
-			}, [state, axis](float value, bool final) {
-				std::int32_t size = std::clamp<std::int32_t>(std::int32_t(std::round(value)), 1, std::int32_t(UINT16_MAX));
-				(axis == 0 ? state->Size.X : state->Size.Y) = size;
-			}, 1.0f, float(UINT16_MAX), 1.0f, 0);
+			},
+				[state, axis](float value, bool final) {
+					std::int32_t size = std::clamp<std::int32_t>(std::int32_t(std::round(value)), 1, std::int32_t(UINT16_MAX));
+					(axis == 0 ? state->Size.X : state->Size.Y) = size;
+				},
+				1.0f, float(UINT16_MAX), 1.0f, 0);
 			number->Width = 60.0f;
 			auto* change = row->Add<Label>(StringView(), Theme::TextDim);
 			change->TextFunc = [state, axis]() {
@@ -195,7 +199,11 @@ namespace Jazz2::Editor
 			}
 		}
 		{
-			struct FillOption { String Label; LevelDocument::ResizeFill Fill; };
+			struct FillOption
+			{
+				String Label;
+				LevelDocument::ResizeFill Fill;
+			};
 			static const FillOption FillOptions[] = {
 				// TRANSLATORS: Options in the Resize Layer dialog, what the layer gets where it grows
 				{ _x("editor", "Empty tiles"), LevelDocument::ResizeFill::Empty },
@@ -211,16 +219,21 @@ namespace Jazz2::Editor
 					}
 				}
 				return String();
-			}, [state](SmallVectorImpl<MenuEntry>& entries) {
-				for (const FillOption& option : FillOptions) {
-					LevelDocument::ResizeFill fill = option.Fill;
-					MenuEntry entry;
-					entry.Label = option.Label;
-					entry.IsChecked = [state, fill]() { return (state->Fill == fill); };
-					entry.Execute = [state, fill]() { state->Fill = fill; };
-					entries.push_back(Death::move(entry));
-				}
-			});
+			},
+				[state](SmallVectorImpl<MenuEntry>& entries) {
+					for (const FillOption& option : FillOptions) {
+						LevelDocument::ResizeFill fill = option.Fill;
+						MenuEntry entry;
+						entry.Label = option.Label;
+						entry.IsChecked = [state, fill]() {
+							return (state->Fill == fill);
+						};
+						entry.Execute = [state, fill]() {
+							state->Fill = fill;
+						};
+						entries.push_back(Death::move(entry));
+					}
+				});
 			dropdown->Width = 130.0f;
 			row->Tooltip = _x("editor", "What the layer gets where it grows - the edge tiles go on to the edge, the corner tiles fill the corners");
 		}
@@ -242,8 +255,11 @@ namespace Jazz2::Editor
 			if (ResizeLayerAsStep(*s, state->Layer, state->Size, state->GetOffset(), state->Fill)) {
 				dialogPtr->Close();
 			}
-		}, true);
-		dialog->AddButton(_x("editor", "Cancel"), [dialogPtr]() { dialogPtr->Close(); });
+		},
+			true);
+		dialog->AddButton(_x("editor", "Cancel"), [dialogPtr]() {
+			dialogPtr->Close();
+		});
 
 		ShowModal(*surface, Death::move(dialog));
 	}

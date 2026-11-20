@@ -9,8 +9,8 @@ namespace Jazz2::UI::Windows
 	/** @brief Edge of the screen a panel is docked at */
 	enum class DockSide : std::uint8_t
 	{
-		Left,			/**< Left edge */
-		Right			/**< Right edge */
+		Left, /**< Left edge */
+		Right /**< Right edge */
 	};
 
 	/**
@@ -38,16 +38,19 @@ namespace Jazz2::UI::Windows
 		DockFrame(DockSide side, StringView tooltip);
 
 		/** @brief Returns the panel, its first child is the header */
-		Panel* GetPanel() const {
+		Panel* GetPanel() const
+		{
 			return _panel;
 		}
 		/** @brief Returns the stack in the header between the grip and the button, for the title or tabs */
-		Stack* GetHeaderContent() const {
+		Stack* GetHeaderContent() const
+		{
 			return _headerContent;
 		}
 
 		/** @brief Returns `true` if the panel floats, or is going to once it got there */
-		bool IsFloating() const {
+		bool IsFloating() const
+		{
 			return _floating;
 		}
 		/** @brief Makes the panel float or docks it, it glides there unless @p animate is `false` */
@@ -67,13 +70,15 @@ namespace Jazz2::UI::Windows
 		 */
 		void SetDrawerMode(bool drawer);
 		/** @brief Returns `true` if the panel is a drawer */
-		bool IsDrawer() const {
+		bool IsDrawer() const
+		{
 			return _drawer;
 		}
 		/** @brief Opens or closes the drawer, it slides */
 		void SetDrawerOpen(bool open);
 		/** @brief Returns `true` if the drawer is open, or opening */
-		bool IsDrawerOpen() const {
+		bool IsDrawerOpen() const
+		{
 			return _drawerOpen;
 		}
 

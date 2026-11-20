@@ -51,11 +51,11 @@ namespace Jazz2::Editor
 			if (keyboard.IsKeyDown(Keys::LCtrl) || keyboard.IsKeyDown(Keys::RCtrl)) {
 				modifiers |= KeyMod::Ctrl;
 			}
-	#if defined(DEATH_TARGET_APPLE)
+#if defined(DEATH_TARGET_APPLE)
 			if (keyboard.IsKeyDown(Keys::LSuper) || keyboard.IsKeyDown(Keys::RSuper)) {
 				modifiers |= KeyMod::Ctrl;
 			}
-	#endif
+#endif
 			if (keyboard.IsKeyDown(Keys::LShift) || keyboard.IsKeyDown(Keys::RShift)) {
 				modifiers |= KeyMod::Shift;
 			}
@@ -332,7 +332,7 @@ namespace Jazz2::Editor
 		}
 		// The sprite layer can't be moved
 		return (WantsMove(KeyMod::Ctrl) ? _x("editor", "Drag to resize the layer - Ctrl+drag moves it, with Shift by whole tiles - Esc cancels")
-			: _x("editor", "Drag to resize the layer - Esc cancels"));
+										: _x("editor", "Drag to resize the layer - Esc cancels"));
 	}
 
 	void LayerResizeHandles::EndDrag()
@@ -401,8 +401,7 @@ namespace Jazz2::Editor
 		// Arrows by the pointer, which way the edge goes, as the cursor of a window would show it (the surface draws them
 		// over everything and leaves them out for a finger)
 		if (highlighted != 0 && surface != nullptr) {
-			surface->SetCursorOverlay(moving ? CursorOverlay::Move : Surface::GetResizeOverlay((highlighted & EdgeLeft) != 0, (highlighted & EdgeTop) != 0,
-				(highlighted & EdgeRight) != 0, (highlighted & EdgeBottom) != 0));
+			surface->SetCursorOverlay(moving ? CursorOverlay::Move : Surface::GetResizeOverlay((highlighted & EdgeLeft) != 0, (highlighted & EdgeTop) != 0, (highlighted & EdgeRight) != 0, (highlighted & EdgeBottom) != 0));
 		}
 
 		// The offsets it has now, or the size it will have, in a tooltip by the pointer (the surface keeps it below the arrows

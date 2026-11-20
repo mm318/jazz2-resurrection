@@ -15,15 +15,15 @@ namespace Jazz2::Editor
 	/** @brief Parts of a level kept by a @ref DocumentSnapshot, supports a bitwise combination of its member values */
 	enum class SnapshotParts : std::uint32_t
 	{
-		None = 0,						/**< Nothing */
-		Properties = 0x01,				/**< Level flags, properties and palettes */
-		TileSets = 0x02,				/**< Tile sets and overridden tiles */
-		Texts = 0x04,					/**< Level texts */
-		Animations = 0x08,				/**< Animated tiles */
-		Layers = 0x10,					/**< Layers with their tiles, all events, which depend on the sprite layer, and the ground lines, which belong to layers */
-		Chunks = 0x20,					/**< Other chunks, except those the editor writes on its own when the level is saved */
+		None = 0, /**< Nothing */
+		Properties = 0x01, /**< Level flags, properties and palettes */
+		TileSets = 0x02, /**< Tile sets and overridden tiles */
+		Texts = 0x04, /**< Level texts */
+		Animations = 0x08, /**< Animated tiles */
+		Layers = 0x10, /**< Layers with their tiles, all events, which depend on the sprite layer, and the ground lines, which belong to layers */
+		Chunks = 0x20, /**< Other chunks, except those the editor writes on its own when the level is saved */
 
-		All = 0x3F						/**< Everything */
+		All = 0x3F /**< Everything */
 	};
 
 	DEATH_ENUM_FLAGS(SnapshotParts);
@@ -47,15 +47,18 @@ namespace Jazz2::Editor
 		bool Decompress(SmallVectorImpl<std::uint8_t>& data) const;
 
 		/** @brief Returns `true` if there are no data */
-		bool IsEmpty() const {
+		bool IsEmpty() const
+		{
 			return (_originalSize == 0);
 		}
 		/** @brief Returns the size of the data before compression */
-		std::size_t GetOriginalSize() const {
+		std::size_t GetOriginalSize() const
+		{
 			return _originalSize;
 		}
 		/** @brief Returns the memory taken by the compressed data */
-		std::size_t GetMemoryUsage() const {
+		std::size_t GetMemoryUsage() const
+		{
 			return _size;
 		}
 
@@ -126,11 +129,13 @@ namespace Jazz2::Editor
 		bool Restore(LevelDocument& document) const;
 
 		/** @brief Returns the parts kept by the snapshot */
-		SnapshotParts GetParts() const {
+		SnapshotParts GetParts() const
+		{
 			return _parts;
 		}
 		/** @brief Returns the only layer kept, or -1 if all of them are */
-		std::int32_t GetLayer() const {
+		std::int32_t GetLayer() const
+		{
 			return _layer;
 		}
 		/** @brief Returns the memory taken by the snapshot */

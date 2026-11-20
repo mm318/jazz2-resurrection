@@ -31,14 +31,32 @@ namespace Jazz2::Editor
 		// The blocks a shot breaks are of the weapon it's fired from
 		constexpr StringView OwnWeaponName = "Own"_s;
 
-		ArrayView<const StringView> GetEnumNames(WeaponType) { return WeaponTypeNames; }
-		ArrayView<const StringView> GetEnumNames(WeaponStyle) { return StyleNames; }
-		ArrayView<const StringView> GetEnumNames(WeaponSpread) { return SpreadNames; }
-		ArrayView<const StringView> GetEnumNames(ShotTrigger) { return TriggerNames; }
-		ArrayView<const StringView> GetEnumNames(ShotLook) { return LookNames; }
-		ArrayView<const StringView> GetEnumNames(ShotFlip) { return FlipNames; }
+		ArrayView<const StringView> GetEnumNames(WeaponType)
+		{
+			return WeaponTypeNames;
+		}
+		ArrayView<const StringView> GetEnumNames(WeaponStyle)
+		{
+			return StyleNames;
+		}
+		ArrayView<const StringView> GetEnumNames(WeaponSpread)
+		{
+			return SpreadNames;
+		}
+		ArrayView<const StringView> GetEnumNames(ShotTrigger)
+		{
+			return TriggerNames;
+		}
+		ArrayView<const StringView> GetEnumNames(ShotLook)
+		{
+			return LookNames;
+		}
+		ArrayView<const StringView> GetEnumNames(ShotFlip)
+		{
+			return FlipNames;
+		}
 
-		template<class TOptions, class F>
+		template <class TOptions, class F>
 		void VisitOptions(TOptions& o, F& f)
 		{
 			f("Allowed", o.Allowed);
@@ -61,7 +79,7 @@ namespace Jazz2::Editor
 		}
 
 		// The embedded sound of firing is "SoundFile", see ApplyCustomWeaponTemplate()
-		template<class TFire, class F>
+		template <class TFire, class F>
 		void VisitFire(TFire& o, F& f)
 		{
 			f("Cooldown", o.Cooldown);
@@ -78,7 +96,7 @@ namespace Jazz2::Editor
 			f("LoopSound", o.LoopSound);
 		}
 
-		template<class TShot, class F>
+		template <class TShot, class F>
 		void VisitShot(TShot& o, F& f)
 		{
 			f("Sprite", o.Sprite);
@@ -112,7 +130,7 @@ namespace Jazz2::Editor
 			f("LightIntensity", o.LightIntensity);
 		}
 
-		template<class T>
+		template <class T>
 		bool ParseEnum(const Json::Value& value, T& result)
 		{
 			using namespace Utils::JsonAccess;
@@ -153,7 +171,7 @@ namespace Jazz2::Editor
 			Function<std::int32_t(const WeaponTemplateImage&)>& AddImage;
 			bool& Failed;
 
-			template<class T>
+			template <class T>
 			void operator()(const char* name, T& field)
 			{
 				const Json::Value& value = Utils::JsonAccess::Member(Object, name);
@@ -205,7 +223,7 @@ namespace Jazz2::Editor
 				}
 			}
 
-			template<class T, typename std::enable_if<std::is_enum<T>::value, int>::type = 0>
+			template <class T, typename std::enable_if<std::is_enum<T>::value, int>::type = 0>
 			void Read(const Json::Value& value, T& field)
 			{
 				ParseEnum(value, field);
@@ -257,7 +275,7 @@ namespace Jazz2::Editor
 			const WeaponsDescription& Weapons;
 			Function<String(std::int32_t)>& ImageFile;
 
-			template<class T>
+			template <class T>
 			void operator()(const char* name, const T& field)
 			{
 				Json::Value value = Write(field);
@@ -306,7 +324,7 @@ namespace Jazz2::Editor
 				return (field.empty() ? Json::Value() : ToJson(field));
 			}
 
-			template<class T, typename std::enable_if<std::is_enum<T>::value, int>::type = 0>
+			template <class T, typename std::enable_if<std::is_enum<T>::value, int>::type = 0>
 			Json::Value Write(T field)
 			{
 				ArrayView<const StringView> names = GetEnumNames(T());
@@ -378,16 +396,16 @@ namespace Jazz2::Editor
 			weapon.Name = Death::move(name);
 		}
 		CustomWeaponOptions& custom = weapon.GetCustom();
-		TemplateReader reader{value, directory, addImage, failed};
+		TemplateReader reader { value, directory, addImage, failed };
 		reader("StartAmmo", weapon.StartAmmo);
 		reader("HudIcon", custom.HudIcon);
 		reader("HudIconPowered", custom.HudIconPowered);
 		reader("Pickup", custom.Pickup);
-		TemplateReader options{Member(value, "Options"), directory, addImage, failed};
+		TemplateReader options { Member(value, "Options"), directory, addImage, failed };
 		VisitOptions(weapon.Options, options);
 
 		const Json::Value& fireValue = Member(value, "Fire");
-		TemplateReader fire{fireValue, directory, addImage, failed};
+		TemplateReader fire { fireValue, directory, addImage, failed };
 		VisitFire(custom.Fire, fire);
 		String soundFile = GetString(fireValue, "SoundFile");
 		if (!soundFile.empty()) {
@@ -400,12 +418,12 @@ namespace Jazz2::Editor
 		// The powered-up shot is as the usual one, with what it changes of it
 		const Json::Value& shotValue = Member(value, "Shot");
 		const Json::Value& poweredValue = Member(value, "ShotPowered");
-		TemplateReader shot{shotValue, directory, addImage, failed};
+		TemplateReader shot { shotValue, directory, addImage, failed };
 		VisitShot(custom.Shot, shot);
 		if (shotValue.isObject() || poweredValue.isObject()) {
 			custom.ShotPowered = custom.Shot;
 		}
-		TemplateReader powered{poweredValue, directory, addImage, failed};
+		TemplateReader powered { poweredValue, directory, addImage, failed };
 		VisitShot(custom.ShotPowered, powered);
 		return !failed;
 	}
@@ -416,7 +434,7 @@ namespace Jazz2::Editor
 		result = Json::Value(Json::objectValue);
 		result["Kind"] = "Custom";
 		const CustomWeaponOptions& custom = weapon.GetCustom();
-		TemplateWriter writer{result, weapons, imageFile};
+		TemplateWriter writer { result, weapons, imageFile };
 		writer("Name", weapon.Name);
 		if (custom.BasedOn != WeaponType::Unknown) {
 			writer("BasedOn", custom.BasedOn);
@@ -427,11 +445,11 @@ namespace Jazz2::Editor
 		writer("Pickup", custom.Pickup);
 
 		Json::Value& options = result["Options"];
-		TemplateWriter optionsWriter{options, weapons, imageFile};
+		TemplateWriter optionsWriter { options, weapons, imageFile };
 		VisitOptions(weapon.Options, optionsWriter);
 
 		Json::Value& fire = result["Fire"];
-		TemplateWriter fireWriter{fire, weapons, imageFile};
+		TemplateWriter fireWriter { fire, weapons, imageFile };
 		VisitFire(custom.Fire, fireWriter);
 		if (custom.Fire.SoundIndex >= 0 && custom.Fire.SoundIndex < std::int32_t(weapons.Sounds.size())) {
 			String file = soundFile(custom.Fire.SoundIndex);
@@ -441,10 +459,10 @@ namespace Jazz2::Editor
 		}
 
 		Json::Value& shot = result["Shot"];
-		TemplateWriter shotWriter{shot, weapons, imageFile};
+		TemplateWriter shotWriter { shot, weapons, imageFile };
 		VisitShot(custom.Shot, shotWriter);
 		Json::Value& powered = result["ShotPowered"];
-		TemplateWriter poweredWriter{powered, weapons, imageFile};
+		TemplateWriter poweredWriter { powered, weapons, imageFile };
 		VisitShot(custom.ShotPowered, poweredWriter);
 	}
 

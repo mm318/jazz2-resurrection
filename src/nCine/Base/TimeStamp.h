@@ -18,7 +18,8 @@ namespace nCine
 		TimeStamp();
 
 		/** @brief Returns a new time stamp initialized to the current clock value */
-		inline static TimeStamp Now() {
+		inline static TimeStamp Now()
+		{
 			return TimeStamp(clock().Now());
 		}
 
@@ -45,7 +46,8 @@ namespace nCine
 		float GetNanosecondsSince() const;
 
 		/** @brief Returns the raw counter value in ticks */
-		inline std::uint64_t GetTicks() const {
+		inline std::uint64_t GetTicks() const
+		{
 			return _counter;
 		}
 

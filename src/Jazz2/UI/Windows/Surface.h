@@ -20,12 +20,12 @@ namespace Jazz2::UI::Windows
 	/** @brief What is shown by the pointer, as the cursor of a window would show it, see @ref Surface::SetCursorOverlay() */
 	enum class CursorOverlay : std::uint8_t
 	{
-		None,					/**< Nothing */
-		ResizeHorizontal,		/**< Left and right, a vertical edge */
-		ResizeVertical,			/**< Up and down, a horizontal edge */
-		ResizeDiagonalNWSE,		/**< Top left and bottom right corners */
-		ResizeDiagonalNESW,		/**< Top right and bottom left corners */
-		Move					/**< All four directions, something moved as a whole */
+		None, /**< Nothing */
+		ResizeHorizontal, /**< Left and right, a vertical edge */
+		ResizeVertical, /**< Up and down, a horizontal edge */
+		ResizeDiagonalNWSE, /**< Top left and bottom right corners */
+		ResizeDiagonalNESW, /**< Top right and bottom left corners */
+		Move /**< All four directions, something moved as a whole */
 	};
 
 	/**
@@ -61,7 +61,8 @@ namespace Jazz2::UI::Windows
 		Function<void()> OnClosed;
 
 		/** @brief Returns `true` if it's a popup, not a window */
-		bool IsPopup() const {
+		bool IsPopup() const
+		{
 			return (CloseOnOutsideClick && !Modal);
 		}
 	};
@@ -69,9 +70,9 @@ namespace Jazz2::UI::Windows
 	/** @brief Part of the interface a blurred picture is drawn behind, see @ref Surface::GetBackdrop */
 	enum class BackdropKind : std::uint8_t
 	{
-		Panels,		/**< The tree of the interface, over the level and what is shown over the level */
-		Overlays,	/**< Windows, menus and messages, also over the panels */
-		UnderModal	/**< Windows under a modal window, drawn into the picture of the level with the panels then, see @ref Surface::HasStackedModal() */
+		Panels, /**< The tree of the interface, over the level and what is shown over the level */
+		Overlays, /**< Windows, menus and messages, also over the panels */
+		UnderModal /**< Windows under a modal window, drawn into the picture of the level with the panels then, see @ref Surface::HasStackedModal() */
 	};
 
 	/**
@@ -94,14 +95,16 @@ namespace Jazz2::UI::Windows
 		Surface& operator=(const Surface&) = delete;
 
 		/** @brief Sets the root of the interface */
-		template<class T, class... Args>
-		T* SetRoot(Args&&... args) {
+		template <class T, class... Args>
+		T* SetRoot(Args&&... args)
+		{
 			return static_cast<T*>(SetRoot(std::make_unique<T>(std::forward<Args>(args)...)));
 		}
 		/** @brief Sets the root of the interface */
 		Element* SetRoot(std::unique_ptr<Element> root);
 		/** @brief Returns the root of the interface */
-		Element* GetRoot() const {
+		Element* GetRoot() const
+		{
 			return _root.get();
 		}
 
@@ -172,7 +175,8 @@ namespace Jazz2::UI::Windows
 		bool AllowDetaching = true;
 
 		/** @brief Returns the scale of the interface, pixels per unit */
-		float GetScale() const {
+		float GetScale() const
+		{
 			return _scale;
 		}
 		/** @brief Sets the scale of the interface */
@@ -221,11 +225,13 @@ namespace Jazz2::UI::Windows
 		 */
 		void TrackPointer(Vector2f pos);
 		/** @brief Returns the last position of the pointer */
-		Vector2f GetPointerPos() const {
+		Vector2f GetPointerPos() const
+		{
 			return _pointerPos;
 		}
 		/** @brief Returns `true` if the interface holds the pointer */
-		bool HasCapture() const {
+		bool HasCapture() const
+		{
 			return (_capture != nullptr);
 		}
 		/** @brief Lets go of the pointer the interface holds, the element that holds it is told it was cancelled, not released */
@@ -236,7 +242,8 @@ namespace Jazz2::UI::Windows
 		/** @brief Gives the keyboard focus to an element, or takes it away */
 		void SetFocus(Element* element);
 		/** @brief Returns the element with the keyboard focus, or `nullptr` */
-		Element* GetFocus() const {
+		Element* GetFocus() const
+		{
 			return _focus;
 		}
 		/**
@@ -249,7 +256,8 @@ namespace Jazz2::UI::Windows
 		/** @brief Scrolls the list an element is in so the element is seen */
 		void EnsureVisible(Element* element);
 		/** @brief Returns the element under the pointer, or `nullptr` */
-		Element* GetHover() const {
+		Element* GetHover() const
+		{
 			return _hover;
 		}
 
@@ -266,7 +274,8 @@ namespace Jazz2::UI::Windows
 		 */
 		void SetCursorOverlay(CursorOverlay overlay);
 		/** @brief Returns what is shown by the pointer in this frame so far */
-		CursorOverlay GetCursorOverlay() const {
+		CursorOverlay GetCursorOverlay() const
+		{
 			return _cursorOverlay;
 		}
 		/** @brief Returns the arrows for resizing by edges, a corner if one edge of each direction is set, @ref CursorOverlay::None if none is */
@@ -315,7 +324,8 @@ namespace Jazz2::UI::Windows
 		 *
 		 * The panels show what is under them blurred then, so what is shown over the level is seen under them too.
 		 */
-		bool IsDrawingInLevel() const {
+		bool IsDrawingInLevel() const
+		{
 			return _drawingInLevel;
 		}
 

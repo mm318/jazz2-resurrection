@@ -168,7 +168,7 @@ namespace Jazz2::Editor
 				Vector2i tile;
 				bool present = (view.Wrap(Vector2i(x, y), tile) && layer.Contains(tile.X, tile.Y) &&
 					(selection == nullptr || selection->Contains(tile.X, tile.Y)));
-				stamp.Tiles.push_back(present ? layer.GetTile(tile.X, tile.Y) : TileRef{});
+				stamp.Tiles.push_back(present ? layer.GetTile(tile.X, tile.Y) : TileRef {});
 				stamp.Present.push_back(present);
 				if (events) {
 					bool inGrid = (present && tile.X < gridSize.X && tile.Y < gridSize.Y);
@@ -227,7 +227,7 @@ namespace Jazz2::Editor
 			for (std::int32_t y = bounds.Y; y < bounds.Y + bounds.H; y++) {
 				for (std::int32_t x = bounds.X; x < bounds.X + bounds.W; x++) {
 					if (selection.Contains(x, y)) {
-						tiles->Set(x, y, TileRef{});
+						tiles->Set(x, y, TileRef {});
 						if (sprite) {
 							events->Set(x, y, LevelDocument::GetEmptyEvent());
 						}

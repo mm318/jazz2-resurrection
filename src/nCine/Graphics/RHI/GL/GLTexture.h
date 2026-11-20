@@ -41,15 +41,18 @@ namespace nCine::RHI::GL
 		GLTexture& operator=(const GLTexture&) = delete;
 
 		/** @brief Returns the OpenGL handle of the texture object */
-		inline GLuint GetGLHandle() const {
+		inline GLuint GetGLHandle() const
+		{
 			return _glHandle;
 		}
 		/** @brief Returns a backend-neutral identifier uniquely identifying the texture (feeds material sort keys) */
-		inline std::uint32_t GetUniqueId() const {
+		inline std::uint32_t GetUniqueId() const
+		{
 			return _glHandle;
 		}
 		/** @brief Returns the target of the texture (e.g., `GL_TEXTURE_2D`) */
-		inline GLenum GetTarget() const {
+		inline GLenum GetTarget() const
+		{
 			return _target;
 		}
 
@@ -60,7 +63,8 @@ namespace nCine::RHI::GL
 		 */
 		bool Bind(std::uint32_t textureUnit) const;
 		/** @brief Binds the texture to texture unit 0 */
-		inline bool Bind() const {
+		inline bool Bind() const
+		{
 			return Bind(0);
 		}
 		/** @brief Unbinds the texture from the unit it was last bound to */
@@ -148,12 +152,14 @@ namespace nCine::RHI::GL
 		mutable std::uint32_t _textureUnit;
 
 		static bool BindHandle(GLenum target, GLuint glHandle, std::uint32_t textureUnit);
-		static bool BindHandle(GLenum target, GLuint glHandle) {
+		static bool BindHandle(GLenum target, GLuint glHandle)
+		{
 			return BindHandle(target, glHandle, 0);
 		}
 
 		static GLuint GetBoundHandle(GLenum target, unsigned int textureUnit);
-		static GLuint GetBoundHandle(GLenum target) {
+		static GLuint GetBoundHandle(GLenum target)
+		{
 			return GetBoundHandle(target, 0);
 		}
 	};

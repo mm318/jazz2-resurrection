@@ -16,10 +16,12 @@ namespace Jazz2::Multiplayer::GameModes
 	class DeathCaptureTheFlagMode : public CaptureTheFlagMode
 	{
 	public:
-		MpGameMode GetMode() const override {
+		MpGameMode GetMode() const override
+		{
 			return MpGameMode::DeathCaptureTheFlag;
 		}
-		bool OwnsRoundLogic() const override {
+		bool OwnsRoundLogic() const override
+		{
 			return true;
 		}
 

@@ -37,7 +37,7 @@ namespace Jazz2::Editor
 					stamp.Tiles.push_back(layer.GetTile(lx, ly));
 					stamp.Present.push_back(true);
 				} else {
-					stamp.Tiles.push_back(TileRef{});
+					stamp.Tiles.push_back(TileRef {});
 					stamp.Present.push_back(false);
 				}
 			}
@@ -54,7 +54,7 @@ namespace Jazz2::Editor
 		stamp.Present.reserve(std::size_t(stamp.Width) * stamp.Height);
 		for (std::int32_t y = 0; y < stamp.Height; y++) {
 			for (std::int32_t x = 0; x < stamp.Width; x++) {
-				TileRef tile{};
+				TileRef tile {};
 				tile.Source = source;
 				tile.Index = std::uint16_t((area.Y + y) * columns + area.X + x);
 				stamp.Tiles.push_back(tile);

@@ -29,7 +29,8 @@ namespace Jazz2::Utils
 	{
 	public:
 		/** @brief What reading a file found */
-		enum class ReadResult : std::uint8_t {
+		enum class ReadResult : std::uint8_t
+		{
 			/** There's no file, or it's empty */
 			Missing,
 			/** The file was read */

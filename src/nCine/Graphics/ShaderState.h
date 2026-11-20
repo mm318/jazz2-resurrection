@@ -28,14 +28,16 @@ namespace nCine
 		ShaderState& operator=(const ShaderState&) = delete;
 
 		/** @brief Returns the associated drawable node */
-		inline const DrawableNode* GetNode() const {
+		inline const DrawableNode* GetNode() const
+		{
 			return _node;
 		}
 		/** @brief Sets the associated drawable node */
 		bool SetNode(DrawableNode* node);
 
 		/** @brief Returns the assigned shader */
-		inline const Shader* GetShader() const {
+		inline const Shader* GetShader() const
+		{
 			return _shader;
 		}
 		/** @brief Assigns a shader to the node, or restores the default shader when `nullptr` */
@@ -50,7 +52,8 @@ namespace nCine
 		/** @brief Sets the texture bound to the specified texture unit */
 		bool SetTexture(std::uint32_t unit, const Texture* texture);
 		/** @brief Sets the texture bound to the first texture unit */
-		inline bool SetTexture(const Texture* texture) {
+		inline bool SetTexture(const Texture* texture)
+		{
 			return SetTexture(0, texture);
 		}
 

@@ -179,7 +179,6 @@ namespace Jazz2::Actors::Solid
 		}
 		return Vector2f(
 			std::round(_originPos.X),
-			std::round(_originPos.Y + multiY * distance * 12.0f)
-		);
+			std::round(_originPos.Y + multiY * distance * 12.0f));
 	}
 }

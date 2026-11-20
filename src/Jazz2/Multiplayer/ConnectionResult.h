@@ -22,7 +22,8 @@ namespace Jazz2::Multiplayer
 		/** @brief Creates an instance from a success state */
 		ConnectionResult(bool success);
 
-		explicit operator bool() const {
+		explicit operator bool() const
+		{
 			return IsSuccessful();
 		}
 

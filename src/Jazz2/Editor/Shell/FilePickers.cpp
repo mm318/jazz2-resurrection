@@ -14,7 +14,7 @@
 
 #include "../../../nCine/I18n.h"
 #if defined(WITH_THREADS)
-#	include "../../../nCine/Threading/ThreadSync.h"
+#include "../../../nCine/Threading/ThreadSync.h"
 #endif
 
 #include <Containers/DateTime.h>
@@ -80,15 +80,23 @@ namespace Jazz2::Editor
 
 		struct StatusLockGuard
 		{
-			StatusLockGuard() { GetStatusLock().Lock(); }
-			~StatusLockGuard() { GetStatusLock().Unlock(); }
+			StatusLockGuard()
+			{
+				GetStatusLock().Lock();
+			}
+			~StatusLockGuard()
+			{
+				GetStatusLock().Unlock();
+			}
 			StatusLockGuard(const StatusLockGuard&) = delete;
 			StatusLockGuard& operator=(const StatusLockGuard&) = delete;
 		};
 #else
 		struct StatusLockGuard
 		{
-			StatusLockGuard() {}
+			StatusLockGuard()
+			{
+			}
 		};
 #endif
 
@@ -115,7 +123,7 @@ namespace Jazz2::Editor
 		}
 
 		// The status of a file read once, again only after the file changed
-		template<class Func>
+		template <class Func>
 		FileStatus GetCachedStatus(StringView path, FileType type, Func&& read)
 		{
 			std::int64_t size = fs::GetFileSize(path);
@@ -436,7 +444,7 @@ namespace Jazz2::Editor
 				if (length < std::int64_t(offset + size)) {
 					return;
 				}
-				String result{NoInit, size};
+				String result { NoInit, size };
 				std::size_t end = 0;
 				for (std::size_t i = 0; i < size && data[offset + i] != 0; i++) {
 					std::uint8_t c = data[offset + i];
@@ -481,7 +489,6 @@ namespace Jazz2::Editor
 			}
 			return false;
 		}
-
 
 		FileKind MakeMusicKind(FileStatus status)
 		{
@@ -566,11 +573,11 @@ namespace Jazz2::Editor
 			roots.push_back({ _x("editor", "Content"), fs::CombinePath(resolver.GetContentPath(), "Tilesets"_s), false });
 #if defined(WITH_LEVEL_PACKS)
 			// TRANSLATORS: Name of a place tile sets are picked from, the tile sets of the installed level packs
-			FileRoot levelPacks{ _x("editor", "Level packs"), fs::CombinePath(resolver.GetLevelPacksCachePath(), "Tilesets"_s), false };
+			FileRoot levelPacks { _x("editor", "Level packs"), fs::CombinePath(resolver.GetLevelPacksCachePath(), "Tilesets"_s), false };
 			levelPacks.LabelFunc = GetStoredFileLabel;
 			roots.push_back(Death::move(levelPacks));
 #endif
-			for (std::size_t i = 0; i < roots.size(); ) {
+			for (std::size_t i = 0; i < roots.size();) {
 				if (!fs::DirectoryExists(roots[i].Path)) {
 					roots.erase(roots.begin() + i);
 				} else {
@@ -582,22 +589,35 @@ namespace Jazz2::Editor
 
 	void SetupLevelFileDialog(FileDialog& dialog)
 	{
-		dialog.KindFunc = [](StringView path, FileKind& kind) { return GetLevelKind(path, kind); };
-		dialog.InfoFunc = [](StringView path, FileInfo& info) { return GetLevelInfo(path, info); };		// The whole level is read for its details
+		dialog.KindFunc = [](StringView path, FileKind& kind) {
+			return GetLevelKind(path, kind);
+		};
+		dialog.InfoFunc = [](StringView path, FileInfo& info) {
+			return GetLevelInfo(path, info);
+		}; // The whole level is read for its details
 		dialog.Asynchronous = true;
 	}
 
 	void SetupTileSetFileDialog(FileDialog& dialog)
 	{
-		dialog.KindFunc = [](StringView path, FileKind& kind) { return GetTileSetKind(path, kind); };
-		dialog.InfoFunc = [](StringView path, FileInfo& info) { return GetTileSetInfo(path, info); };		// The whole tile set is read for its preview
+		dialog.KindFunc = [](StringView path, FileKind& kind) {
+			return GetTileSetKind(path, kind);
+		};
+		dialog.InfoFunc = [](StringView path, FileInfo& info) {
+			return GetTileSetInfo(path, info);
+		}; // The whole tile set is read for its preview
 		dialog.Asynchronous = true;
 	}
 
 	void SetupMusicFileDialog(FileDialog& dialog)
 	{
-		dialog.KindFunc = [](StringView path, FileKind& kind) { return GetMusicKind(path, kind); };
-		dialog.InfoFunc = [](StringView path, FileInfo& info) { return GetMusicInfo(path, info); };	}
+		dialog.KindFunc = [](StringView path, FileKind& kind) {
+			return GetMusicKind(path, kind);
+		};
+		dialog.InfoFunc = [](StringView path, FileInfo& info) {
+			return GetMusicInfo(path, info);
+		};
+	}
 
 	void ShowLevelPicker(IEditorContext& session, StringView title, StringView current, Function<void(StringView)>&& onPicked)
 	{
@@ -625,11 +645,11 @@ namespace Jazz2::Editor
 			}
 		}
 		auto sharedOnPicked = std::make_shared<Function<void(StringView)>>(Death::move(onPicked));
-		FileDialog* dialog = FileDialog::Show(*surface, title, FileDialogMode::Open, Death::move(roots), ".j2l"_s, directory, fileName,
-			[s, sharedOnPicked](StringView path) {
-				// The level is looked up by its name, so it doesn't matter which root it was picked from
-				(*sharedOnPicked)(MakeLevelReference(IEditorContext::MakeLevelName(path), s->GetLevelName()));
-			}, false);
+		FileDialog* dialog = FileDialog::Show(*surface, title, FileDialogMode::Open, Death::move(roots), ".j2l"_s, directory, fileName, [s, sharedOnPicked](StringView path) {
+			// The level is looked up by its name, so it doesn't matter which root it was picked from
+			(*sharedOnPicked)(MakeLevelReference(IEditorContext::MakeLevelName(path), s->GetLevelName()));
+		},
+			false);
 		SetupLevelFileDialog(*dialog);
 		// The values the game takes instead of a level, stored as they are
 		SmallVector<FileSpecialEntry, 2> special;
@@ -657,26 +677,26 @@ namespace Jazz2::Editor
 			directory = fs::GetDirectoryName(currentPath);
 			fileName = fs::GetFileName(currentPath);
 		}
-		FileDialog* dialog = FileDialog::Show(*surface, title, FileDialogMode::Open, Death::move(roots), ".j2t"_s, directory, fileName,
-			[rootPaths = Death::move(rootPaths), onPicked = Death::move(onPicked)](StringView path) mutable {
-				// Tile sets are referred to by their path relative to "Tilesets", without the extension
-				StringView name = fs::GetFileName(path);
-				for (const String& rootPath : rootPaths) {
-					// As the file system compares paths, the dialog may give the path in another case
-					if (IsPathInside(path, rootPath) && path.size() > rootPath.size()) {
-						name = path.exceptPrefix(rootPath.size());
-						while (!name.empty() && (name[0] == '/' || name[0] == '\\')) {
-							name = name.exceptPrefix(1);
-						}
-						break;
+		FileDialog* dialog = FileDialog::Show(*surface, title, FileDialogMode::Open, Death::move(roots), ".j2t"_s, directory, fileName, [rootPaths = Death::move(rootPaths), onPicked = Death::move(onPicked)](StringView path) mutable {
+			// Tile sets are referred to by their path relative to "Tilesets", without the extension
+			StringView name = fs::GetFileName(path);
+			for (const String& rootPath : rootPaths) {
+				// As the file system compares paths, the dialog may give the path in another case
+				if (IsPathInside(path, rootPath) && path.size() > rootPath.size()) {
+					name = path.exceptPrefix(rootPath.size());
+					while (!name.empty() && (name[0] == '/' || name[0] == '\\')) {
+						name = name.exceptPrefix(1);
 					}
+					break;
 				}
-				String result = fs::FromNativeSeparators(name);
-				if (StringUtils::lowercase(result).hasSuffix(".j2t"_s)) {
-					result = result.exceptSuffix(std::size_t(4));
-				}
-				onPicked(result);
-			}, false);
+			}
+			String result = fs::FromNativeSeparators(name);
+			if (StringUtils::lowercase(result).hasSuffix(".j2t"_s)) {
+				result = result.exceptSuffix(std::size_t(4));
+			}
+			onPicked(result);
+		},
+			false);
 		SetupTileSetFileDialog(*dialog);
 	}
 
@@ -704,7 +724,7 @@ namespace Jazz2::Editor
 		String levelPacksPath = resolver.GetLevelPacksPath(false);
 		if (!levelPacksPath.empty()) {
 			// TRANSLATORS: Place in the file dialog choosing the music of the level, the music of the installed level packs
-			FileRoot levelPacks{ _x("editor", "Level packs"), fs::CombinePath(levelPacksPath, "Files"_s), false };
+			FileRoot levelPacks { _x("editor", "Level packs"), fs::CombinePath(levelPacksPath, "Files"_s), false };
 			levelPacks.LabelFunc = GetStoredFileLabel;
 			roots.push_back(Death::move(levelPacks));
 		}
@@ -712,7 +732,7 @@ namespace Jazz2::Editor
 		// Opens where the music is now, the first place that has it is the one that is played
 		String directory, fileName;
 		SmallVector<String, 4> rootPaths;
-		for (std::size_t i = 0; i < roots.size(); ) {
+		for (std::size_t i = 0; i < roots.size();) {
 			if (!fs::DirectoryExists(roots[i].Path)) {
 				roots.erase(roots.begin() + i);
 				continue;
@@ -727,21 +747,21 @@ namespace Jazz2::Editor
 			rootPaths.push_back(roots[i].Path);
 			i++;
 		}
-		FileDialog* dialog = FileDialog::Show(*surface, title, FileDialogMode::Open, Death::move(roots), ".j2b;.it;.mo3;.mod;.s3m;.xm;.ogg;.wav"_s, directory, fileName,
-			[rootPaths = Death::move(rootPaths), onPicked = Death::move(onPicked)](StringView path) mutable {
-				String value = fs::GetFileName(path);
-				for (const String& rootPath : rootPaths) {
-					if (path.hasPrefix(rootPath)) {
-						StringView rest = path.exceptPrefix(rootPath.size());
-						while (!rest.empty() && (rest[0] == '/' || rest[0] == '\\')) {
-							rest = rest.exceptPrefix(1);
-						}
-						value = fs::FromNativeSeparators(rest);
-						break;
+		FileDialog* dialog = FileDialog::Show(*surface, title, FileDialogMode::Open, Death::move(roots), ".j2b;.it;.mo3;.mod;.s3m;.xm;.ogg;.wav"_s, directory, fileName, [rootPaths = Death::move(rootPaths), onPicked = Death::move(onPicked)](StringView path) mutable {
+			String value = fs::GetFileName(path);
+			for (const String& rootPath : rootPaths) {
+				if (path.hasPrefix(rootPath)) {
+					StringView rest = path.exceptPrefix(rootPath.size());
+					while (!rest.empty() && (rest[0] == '/' || rest[0] == '\\')) {
+						rest = rest.exceptPrefix(1);
 					}
+					value = fs::FromNativeSeparators(rest);
+					break;
 				}
-				onPicked(value);
-			}, false);
+			}
+			onPicked(value);
+		},
+			false);
 		SetupMusicFileDialog(*dialog);
 	}
 }

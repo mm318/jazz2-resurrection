@@ -24,11 +24,11 @@
 #include <string>
 
 #if !defined(DEATH_TARGET_EMSCRIPTEN)
-#	include <thread>
+#include <thread>
 #endif
 #if defined(DEATH_TARGET_WINDOWS)
-#	include <CommonWindows.h>
-#	include <psapi.h>
+#include <CommonWindows.h>
+#include <psapi.h>
 #endif
 
 using namespace Death::Containers;
@@ -41,7 +41,8 @@ namespace Jazz2::AssetPacker
 {
 	namespace
 	{
-		enum class VerifyResult {
+		enum class VerifyResult
+		{
 			Identical,
 			Equivalent,
 			Different,
@@ -49,13 +50,15 @@ namespace Jazz2::AssetPacker
 			Failed
 		};
 
-		struct LayerData {
+		struct LayerData
+		{
 			LayerRecord Header;
 			SmallVector<TileRecord, 0> Tiles;
 		};
 
 		/** Everything a level file holds, as the records the reader returns */
-		struct LevelData {
+		struct LevelData
+		{
 			LevelHeader Header;
 			LevelProperties Properties;
 			bool HasLevelPalette;
@@ -75,7 +78,8 @@ namespace Jazz2::AssetPacker
 			StringView Error;
 		};
 
-		enum class ReadResult {
+		enum class ReadResult
+		{
 			Success,
 			NotNative,
 			Failed
@@ -441,9 +445,13 @@ namespace Jazz2::AssetPacker
 			// Everything is read first, the way the editor loads a level
 			auto level = std::make_unique<LevelData>();
 			switch (ReadLevel(original.data(), std::int64_t(original.size()), *level)) {
-				case ReadResult::NotNative: return VerifyResult::NotNative;
-				case ReadResult::Failed: LOGE("Level \"{}\" cannot be read: {}", path, level->Error); return VerifyResult::Failed;
-				default: break;
+				case ReadResult::NotNative:
+					return VerifyResult::NotNative;
+				case ReadResult::Failed:
+					LOGE("Level \"{}\" cannot be read: {}", path, level->Error);
+					return VerifyResult::Failed;
+				default:
+					break;
 			}
 
 			if (ValidateLevel(path, *level) > 0) {
@@ -597,16 +605,28 @@ namespace Jazz2::AssetPacker
 			}
 		}
 
-		struct VerifyCounts {
+		struct VerifyCounts
+		{
 			std::int32_t Identical = 0, Equivalent = 0, Different = 0, NotNative = 0, Failed = 0;
 
-			void Add(VerifyResult result) {
+			void Add(VerifyResult result)
+			{
 				switch (result) {
-					case VerifyResult::Identical: Identical++; break;
-					case VerifyResult::Equivalent: Equivalent++; break;
-					case VerifyResult::Different: Different++; break;
-					case VerifyResult::NotNative: NotNative++; break;
-					default: Failed++; break;
+					case VerifyResult::Identical:
+						Identical++;
+						break;
+					case VerifyResult::Equivalent:
+						Equivalent++;
+						break;
+					case VerifyResult::Different:
+						Different++;
+						break;
+					case VerifyResult::NotNative:
+						NotNative++;
+						break;
+					default:
+						Failed++;
+						break;
 				}
 			}
 		};
@@ -658,25 +678,32 @@ namespace Jazz2::AssetPacker
 		class FuzzRandom
 		{
 		public:
-			explicit FuzzRandom(std::uint64_t seed) : _state(seed) {}
+			explicit FuzzRandom(std::uint64_t seed)
+				: _state(seed)
+			{
+			}
 
-			std::uint64_t Next() {
+			std::uint64_t Next()
+			{
 				std::uint64_t z = (_state += 0x9E3779B97F4A7C15ull);
 				z = (z ^ (z >> 30)) * 0xBF58476D1CE4E5B9ull;
 				z = (z ^ (z >> 27)) * 0x94D049BB133111EBull;
 				return z ^ (z >> 31);
 			}
 
-			std::uint32_t Below(std::uint32_t count) {
+			std::uint32_t Below(std::uint32_t count)
+			{
 				return (count > 0 ? std::uint32_t(Next() % count) : 0);
 			}
 
-			std::size_t Position(std::size_t start, std::size_t end) {
+			std::size_t Position(std::size_t start, std::size_t end)
+			{
 				return (end > start ? start + std::size_t(Next() % (end - start)) : start);
 			}
 
 			/** A value that tends to be on an edge of something, a size, a count or a sign */
-			std::uint32_t Interesting() {
+			std::uint32_t Interesting()
+			{
 				static const std::uint32_t Values[] = {
 					0, 1, 2, 3, 0x7F, 0x80, 0xFF, 0x100, 0x7FFF, 0x8000, 0xFFFF, 0x10000, 0x10001, 32767, 32768,
 					0x7FFFFFFF, 0x80000000, 0xFFFFFFFE, 0xFFFFFFFF, LevelFile::MaxBlobSize, LevelFile::MaxBlobSize + 1,
@@ -690,7 +717,8 @@ namespace Jazz2::AssetPacker
 		};
 
 		/** A file the inputs are made of, in the form the mutations start from */
-		struct FuzzSample {
+		struct FuzzSample
+		{
 			String Path;
 			String Name;
 			bool IsLevel = false;
@@ -1153,7 +1181,8 @@ namespace Jazz2::AssetPacker
 					}
 					case 7: {
 						ExtraTileSetRecord& tileSet = (level->ExtraTileSets.empty() || random.Below(3) == 0
-							? level->ExtraTileSets.emplace_back() : level->ExtraTileSets[random.Below(std::uint32_t(level->ExtraTileSets.size()))]);
+								? level->ExtraTileSets.emplace_back()
+								: level->ExtraTileSets[random.Below(std::uint32_t(level->ExtraTileSets.size()))]);
 						static const StringView Names[] = { "castle1"_s, "../../secret"_s, "C:\\Windows\\x"_s, "/etc/x"_s, ":level"_s, ""_s };
 						tileSet.Name = Names[random.Below(std::uint32_t(sizeof(Names) / sizeof(Names[0])))];
 						tileSet.Flags = std::uint8_t(random.Next() & ~ExtraTileSetRecord::Embedded);
@@ -1244,7 +1273,8 @@ namespace Jazz2::AssetPacker
 			}
 		}
 
-		struct FuzzOutcome {
+		struct FuzzOutcome
+		{
 			bool Accepted = false;
 			/** What differs when what was accepted is written and read again, empty if nothing */
 			StringView RoundTripDifference;
@@ -1363,8 +1393,7 @@ namespace Jazz2::AssetPacker
 							if (!LevelSettingsChunk::Read(written, settingsAgain)) {
 								outcome.RoundTripDifference = "level settings reading again"_s;
 							} else if (settingsAgain.HasWaterColors != settings.HasWaterColors ||
-								(settings.HasWaterColors && (std::memcmp(settingsAgain.WaterColorTop, settings.WaterColorTop, 3) != 0 ||
-									std::memcmp(settingsAgain.WaterColorBottom, settings.WaterColorBottom, 3) != 0)) ||
+								(settings.HasWaterColors && (std::memcmp(settingsAgain.WaterColorTop, settings.WaterColorTop, 3) != 0 || std::memcmp(settingsAgain.WaterColorBottom, settings.WaterColorBottom, 3) != 0)) ||
 								settingsAgain.Movement != settings.Movement || settingsAgain.Lighting != settings.Lighting ||
 								settingsAgain.WaterLayer != settings.WaterLayer || settingsAgain.WaterChangeSpeed != settings.WaterChangeSpeed ||
 								settingsAgain.WarpsTransmuteCoins != settings.WarpsTransmuteCoins ||
@@ -1490,7 +1519,8 @@ namespace Jazz2::AssetPacker
 			What the handlers of a crash, a hang or of too much memory need to save the input that caused it; they
 			can't allocate or rely on anything else then
 		*/
-		struct FuzzCrashState {
+		struct FuzzCrashState
+		{
 			const std::uint8_t* Input = nullptr;
 			std::size_t InputSize = 0;
 #if defined(DEATH_TARGET_WINDOWS)
@@ -1500,8 +1530,8 @@ namespace Jazz2::AssetPacker
 			char Directory[2048] = {};
 			char CaseName[512] = {};
 #endif
-			std::atomic<std::int64_t> CaseStartedMs{-1};
-			std::atomic<bool> Stop{false};
+			std::atomic<std::int64_t> CaseStartedMs { -1 };
+			std::atomic<bool> Stop { false };
 		};
 
 		FuzzCrashState fuzzState;
@@ -1569,7 +1599,7 @@ namespace Jazz2::AssetPacker
 					SaveFuzzInputRaw("hang");
 					std::_Exit(4);
 				}
-#	if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 				PROCESS_MEMORY_COUNTERS_EX counters = {};
 				counters.cb = sizeof(counters);
 				if (::K32GetProcessMemoryInfo(::GetCurrentProcess(), reinterpret_cast<PROCESS_MEMORY_COUNTERS*>(&counters), sizeof(counters)) &&
@@ -1577,9 +1607,9 @@ namespace Jazz2::AssetPacker
 					SaveFuzzInputRaw("memory");
 					std::_Exit(5);
 				}
-#	else
+#else
 				static_cast<void>(memoryLimit);
-#	endif
+#endif
 			}
 		}
 #endif
@@ -1589,7 +1619,7 @@ namespace Jazz2::AssetPacker
 		class FuzzTraceSink : public Death::ITraceSink
 		{
 		public:
-			std::atomic<std::int32_t> Asserts{0};
+			std::atomic<std::int32_t> Asserts { 0 };
 
 		protected:
 			void OnTraceReceived(TraceLevel level, std::uint64_t timestamp, StringView threadId, StringView functionName, StringView content) override
@@ -1603,7 +1633,9 @@ namespace Jazz2::AssetPacker
 				}
 			}
 
-			void OnTraceFlushed() override {}
+			void OnTraceFlushed() override
+			{
+			}
 		};
 #endif
 
@@ -1706,9 +1738,9 @@ namespace Jazz2::AssetPacker
 		}
 		::SetErrorMode(SEM_FAILCRITICALERRORS | SEM_NOGPFAULTERRORBOX);
 		::SetUnhandledExceptionFilter(OnFuzzUnhandledException);
-#	if defined(DEATH_TARGET_MSVC)
+#if defined(DEATH_TARGET_MSVC)
 		_set_abort_behavior(0, _WRITE_ABORT_MSG | _CALL_REPORTFAULT);
-#	endif
+#endif
 #else
 		std::snprintf(fuzzState.Directory, sizeof(fuzzState.Directory), "%s", absoluteOutput.data());
 #endif

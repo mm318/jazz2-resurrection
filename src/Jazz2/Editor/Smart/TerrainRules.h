@@ -62,7 +62,8 @@ namespace Jazz2::Editor
 		void Resolve(const LevelDocument& document);
 
 		/** @brief Returns the number of terrains, there's always one */
-		std::int32_t GetTerrainCount() const {
+		std::int32_t GetTerrainCount() const
+		{
 			return std::int32_t(_terrains.size());
 		}
 		/** @brief Returns the name of a terrain */
@@ -74,7 +75,8 @@ namespace Jazz2::Editor
 		/** @brief Removes a terrain, the last one stays */
 		void RemoveTerrain(std::int32_t index);
 		/** @brief Returns the terrain the rules are used of */
-		std::int32_t GetCurrentTerrain() const {
+		std::int32_t GetCurrentTerrain() const
+		{
 			return _current;
 		}
 		/** @brief Chooses the terrain the rules are used of */
@@ -97,11 +99,13 @@ namespace Jazz2::Editor
 		void GetSlopeTiles(SmallVectorImpl<std::uint16_t>& tiles) const;
 
 		/** @brief Returns a number that changes whenever the rules do */
-		std::uint32_t GetRevision() const {
+		std::uint32_t GetRevision() const
+		{
 			return _revision;
 		}
 		/** @brief Returns a number that changes whenever the slope tags do, not with the rules of the terrains */
-		std::uint32_t GetSlopeRevision() const {
+		std::uint32_t GetSlopeRevision() const
+		{
 			return _slopeRevision;
 		}
 

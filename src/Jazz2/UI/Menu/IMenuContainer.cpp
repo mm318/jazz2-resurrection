@@ -52,8 +52,8 @@ namespace Jazz2::UI::Menu
 		}
 
 		Colorf valueColor = (selected
-			? Colorf(0.46f, 0.46f, 0.46f, readOnly ? 0.36f : 0.5f)
-			: (readOnly ? Font::TransparentDefaultColor : Font::DefaultColor));
+				? Colorf(0.46f, 0.46f, 0.46f, readOnly ? 0.36f : 0.5f)
+				: (readOnly ? Font::TransparentDefaultColor : Font::DefaultColor));
 		DrawStringShadow(value, charOffset, centerX, y, FontLayer - 10, Alignment::Center, valueColor, 0.8f);
 	}
 

@@ -21,7 +21,8 @@ namespace Jazz2::Actors::Multiplayer
 		CtfBase();
 
 		/** @brief Returns the team this base belongs to */
-		std::uint8_t GetTeam() const {
+		std::uint8_t GetTeam() const
+		{
 			return _team;
 		}
 

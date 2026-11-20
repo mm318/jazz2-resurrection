@@ -9,21 +9,21 @@
 #include "../../Main.h"
 
 #if defined(WITH_SDL3)
-#	if defined(__HAS_LOCAL_SDL3)
-#		include "SDL3/SDL.h"
-#	else
-#		include <SDL3/SDL.h>
-#	endif
-#elif defined(__HAS_LOCAL_SDL)
-#	include "SDL2/SDL.h"
+#if defined(__HAS_LOCAL_SDL3)
+#include "SDL3/SDL.h"
 #else
-#	include <SDL.h>
+#include <SDL3/SDL.h>
+#endif
+#elif defined(__HAS_LOCAL_SDL)
+#include "SDL2/SDL.h"
+#else
+#include <SDL.h>
 #endif
 
 #include <cstring>
 
 #if defined(WITH_IMGUI)
-#	include "ImGuiSdlInput.h"
+#include "ImGuiSdlInput.h"
 #endif
 
 #if defined(WITH_SDL3)
@@ -33,7 +33,7 @@
 // SDL3 ships these same old->new mappings in <SDL3/SDL_oldnames.h>, but as error sentinels when old names are
 // disabled; #undef each before redefining so our mapping to the real SDL3 name installs without a redefinition warning.
 #ifdef SDL_JoystickGUID
-#	undef SDL_JoystickGUID
+#undef SDL_JoystickGUID
 #endif
 using SDL_JoystickGUID = SDL_GUID;
 #undef SDL_JoystickClose
@@ -66,37 +66,37 @@ using SDL_JoystickGUID = SDL_GUID;
 #undef SDL_FINGERDOWN
 #undef SDL_FINGERMOTION
 #undef SDL_FINGERUP
-#define SDL_JoystickClose            SDL_CloseJoystick
-#define SDL_JoystickGetPlayerIndex   SDL_GetJoystickPlayerIndex
-#define SDL_JoystickGetGUID          SDL_GetJoystickGUID
-#define SDL_JoystickGetGUIDString    SDL_GUIDToString
-#define SDL_JoystickName             SDL_GetJoystickName
-#define SDL_JoystickNumHats          SDL_GetNumJoystickHats
-#define SDL_JoystickNumAxes          SDL_GetNumJoystickAxes
-#define SDL_JoystickNumButtons       SDL_GetNumJoystickButtons
-#define SDL_JoystickNumBalls         SDL_GetNumJoystickBalls
-#define SDL_JoystickGetButton        SDL_GetJoystickButton
-#define SDL_JoystickGetHat           SDL_GetJoystickHat
-#define SDL_JoystickGetAxis          SDL_GetJoystickAxis
-#define SDL_JoystickGetAttached      SDL_JoystickConnected
-#define SDL_JoystickInstanceID       SDL_GetJoystickID
+#define SDL_JoystickClose SDL_CloseJoystick
+#define SDL_JoystickGetPlayerIndex SDL_GetJoystickPlayerIndex
+#define SDL_JoystickGetGUID SDL_GetJoystickGUID
+#define SDL_JoystickGetGUIDString SDL_GUIDToString
+#define SDL_JoystickName SDL_GetJoystickName
+#define SDL_JoystickNumHats SDL_GetNumJoystickHats
+#define SDL_JoystickNumAxes SDL_GetNumJoystickAxes
+#define SDL_JoystickNumButtons SDL_GetNumJoystickButtons
+#define SDL_JoystickNumBalls SDL_GetNumJoystickBalls
+#define SDL_JoystickGetButton SDL_GetJoystickButton
+#define SDL_JoystickGetHat SDL_GetJoystickHat
+#define SDL_JoystickGetAxis SDL_GetJoystickAxis
+#define SDL_JoystickGetAttached SDL_JoystickConnected
+#define SDL_JoystickInstanceID SDL_GetJoystickID
 // Event-type enum renames (the switch/case bodies stay shared)
-#define SDL_JOYDEVICEADDED           SDL_EVENT_JOYSTICK_ADDED
-#define SDL_JOYDEVICEREMOVED         SDL_EVENT_JOYSTICK_REMOVED
-#define SDL_KEYDOWN                  SDL_EVENT_KEY_DOWN
-#define SDL_KEYUP                    SDL_EVENT_KEY_UP
-#define SDL_TEXTINPUT                SDL_EVENT_TEXT_INPUT
-#define SDL_MOUSEBUTTONDOWN          SDL_EVENT_MOUSE_BUTTON_DOWN
-#define SDL_MOUSEBUTTONUP            SDL_EVENT_MOUSE_BUTTON_UP
-#define SDL_MOUSEMOTION              SDL_EVENT_MOUSE_MOTION
-#define SDL_MOUSEWHEEL               SDL_EVENT_MOUSE_WHEEL
-#define SDL_JOYBUTTONDOWN            SDL_EVENT_JOYSTICK_BUTTON_DOWN
-#define SDL_JOYBUTTONUP              SDL_EVENT_JOYSTICK_BUTTON_UP
-#define SDL_JOYAXISMOTION            SDL_EVENT_JOYSTICK_AXIS_MOTION
-#define SDL_JOYHATMOTION             SDL_EVENT_JOYSTICK_HAT_MOTION
-#define SDL_FINGERDOWN               SDL_EVENT_FINGER_DOWN
-#define SDL_FINGERMOTION             SDL_EVENT_FINGER_MOTION
-#define SDL_FINGERUP                 SDL_EVENT_FINGER_UP
+#define SDL_JOYDEVICEADDED SDL_EVENT_JOYSTICK_ADDED
+#define SDL_JOYDEVICEREMOVED SDL_EVENT_JOYSTICK_REMOVED
+#define SDL_KEYDOWN SDL_EVENT_KEY_DOWN
+#define SDL_KEYUP SDL_EVENT_KEY_UP
+#define SDL_TEXTINPUT SDL_EVENT_TEXT_INPUT
+#define SDL_MOUSEBUTTONDOWN SDL_EVENT_MOUSE_BUTTON_DOWN
+#define SDL_MOUSEBUTTONUP SDL_EVENT_MOUSE_BUTTON_UP
+#define SDL_MOUSEMOTION SDL_EVENT_MOUSE_MOTION
+#define SDL_MOUSEWHEEL SDL_EVENT_MOUSE_WHEEL
+#define SDL_JOYBUTTONDOWN SDL_EVENT_JOYSTICK_BUTTON_DOWN
+#define SDL_JOYBUTTONUP SDL_EVENT_JOYSTICK_BUTTON_UP
+#define SDL_JOYAXISMOTION SDL_EVENT_JOYSTICK_AXIS_MOTION
+#define SDL_JOYHATMOTION SDL_EVENT_JOYSTICK_HAT_MOTION
+#define SDL_FINGERDOWN SDL_EVENT_FINGER_DOWN
+#define SDL_FINGERMOTION SDL_EVENT_FINGER_MOTION
+#define SDL_FINGERUP SDL_EVENT_FINGER_UP
 #endif
 
 namespace nCine
@@ -139,7 +139,8 @@ namespace nCine::Backends
 
 	char SdlInputManager::_joyGuidString[33];
 
-	namespace {
+	namespace
+	{
 
 		MouseButton sdlToNcineMouseButton(int button)
 		{
@@ -160,12 +161,18 @@ namespace nCine::Backends
 		int ncineToSdlMouseButtonMask(MouseButton button)
 		{
 			switch (button) {
-				case MouseButton::Left: return SDL_BUTTON_LMASK;
-				case MouseButton::Right: return SDL_BUTTON_RMASK;
-				case MouseButton::Middle: return SDL_BUTTON_MMASK;
-				case MouseButton::Fourth: return SDL_BUTTON_X1MASK;
-				case MouseButton::Fifth: return SDL_BUTTON_X2MASK;
-				default: return SDL_BUTTON_LMASK;
+				case MouseButton::Left:
+					return SDL_BUTTON_LMASK;
+				case MouseButton::Right:
+					return SDL_BUTTON_RMASK;
+				case MouseButton::Middle:
+					return SDL_BUTTON_MMASK;
+				case MouseButton::Fourth:
+					return SDL_BUTTON_X1MASK;
+				case MouseButton::Fifth:
+					return SDL_BUTTON_X2MASK;
+				default:
+					return SDL_BUTTON_LMASK;
 			}
 		}
 	}
@@ -204,17 +211,17 @@ namespace nCine::Backends
 		SDL_JoystickID* joystickIds = SDL_GetJoysticks(&numJoysticks);
 		for (std::int32_t i = 0; i < numJoysticks && i < MaxNumJoysticks; i++) {
 			_sdlJoysticks[i] = SDL_OpenJoystick(joystickIds[i]);
-#	if defined(DEATH_TRACE)
+#if defined(DEATH_TRACE)
 			if (_sdlJoysticks[i] != nullptr) {
 				SDL_Joystick* joy = _sdlJoysticks[i];
 				std::int32_t playerIndex = SDL_JoystickGetPlayerIndex(joy);
 				const SDL_JoystickGUID joystickGuid = SDL_JoystickGetGUID(joy);
 				SDL_JoystickGetGUIDString(joystickGuid, _joyGuidString, 33);
 				LOGI("Gamepad {} [{}] \"{}\" [{}] has been connected - {} hats, {} axes, {} buttons, {} balls",
-						i, playerIndex, SDL_JoystickName(joy), _joyGuidString, SDL_JoystickNumHats(joy),
-						SDL_JoystickNumAxes(joy), SDL_JoystickNumButtons(joy), SDL_JoystickNumBalls(joy));
+					i, playerIndex, SDL_JoystickName(joy), _joyGuidString, SDL_JoystickNumHats(joy),
+					SDL_JoystickNumAxes(joy), SDL_JoystickNumButtons(joy), SDL_JoystickNumBalls(joy));
 			}
-#	endif
+#endif
 		}
 		SDL_free(joystickIds);
 #else
@@ -228,8 +235,8 @@ namespace nCine::Backends
 				const SDL_JoystickGUID joystickGuid = SDL_JoystickGetGUID(joy);
 				SDL_JoystickGetGUIDString(joystickGuid, _joyGuidString, 33);
 				LOGI("Gamepad {} [{}] \"{}\" [{}] has been connected - {} hats, {} axes, {} buttons, {} balls",
-						i, playerIndex, SDL_JoystickName(joy), _joyGuidString, SDL_JoystickNumHats(joy),
-						SDL_JoystickNumAxes(joy), SDL_JoystickNumButtons(joy), SDL_JoystickNumBalls(joy));
+					i, playerIndex, SDL_JoystickName(joy), _joyGuidString, SDL_JoystickNumHats(joy),
+					SDL_JoystickNumAxes(joy), SDL_JoystickNumButtons(joy), SDL_JoystickNumBalls(joy));
 			}
 #endif
 		}
@@ -255,7 +262,7 @@ namespace nCine::Backends
 				_sdlJoysticks[i] = nullptr;
 			}
 		}
-		
+
 		SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
 	}
 
@@ -410,9 +417,15 @@ namespace nCine::Backends
 #endif
 
 				switch (event.type) {
-					case SDL_FINGERDOWN: _touchEvent.Type = (_touchEvent.Count == 1 ? TouchEventType::Down : TouchEventType::PointerDown); break;
-					case SDL_FINGERMOTION: _touchEvent.Type = TouchEventType::Move; break;
-					case SDL_FINGERUP: _touchEvent.Type = (_touchEvent.Count == 0 ? TouchEventType::Up : TouchEventType::PointerUp); break;
+					case SDL_FINGERDOWN:
+						_touchEvent.Type = (_touchEvent.Count == 1 ? TouchEventType::Down : TouchEventType::PointerDown);
+						break;
+					case SDL_FINGERMOTION:
+						_touchEvent.Type = TouchEventType::Move;
+						break;
+					case SDL_FINGERUP:
+						_touchEvent.Type = (_touchEvent.Count == 0 ? TouchEventType::Up : TouchEventType::PointerUp);
+						break;
 				}
 
 				for (unsigned int i = 0; i < _touchEvent.Count; i++) {
@@ -593,9 +606,9 @@ namespace nCine::Backends
 			durationMs);
 #else
 		return SDL_JoystickRumble(_sdlJoysticks[joyId],
-			(std::uint16_t)(std::clamp(lowFreqIntensity, 0.0f, 1.0f) * UINT16_MAX),
-			(std::uint16_t)(std::clamp(highFreqIntensity, 0.0f, 1.0f) * UINT16_MAX),
-			durationMs) == 0;
+				   (std::uint16_t)(std::clamp(lowFreqIntensity, 0.0f, 1.0f) * UINT16_MAX),
+				   (std::uint16_t)(std::clamp(highFreqIntensity, 0.0f, 1.0f) * UINT16_MAX),
+				   durationMs) == 0;
 #endif
 	}
 
@@ -615,9 +628,9 @@ namespace nCine::Backends
 			return false;
 
 		return SDL_JoystickRumbleTriggers(_sdlJoysticks[joyId],
-			(std::uint16_t)(std::clamp(left, 0.0f, 1.0f) * UINT16_MAX),
-			(std::uint16_t)(std::clamp(right, 0.0f, 1.0f) * UINT16_MAX),
-			durationMs) == 0;
+				   (std::uint16_t)(std::clamp(left, 0.0f, 1.0f) * UINT16_MAX),
+				   (std::uint16_t)(std::clamp(right, 0.0f, 1.0f) * UINT16_MAX),
+				   durationMs) == 0;
 #else
 		return false;
 #endif
@@ -688,15 +701,15 @@ namespace nCine::Backends
 			_joyConnectionEvent.JoyId = deviceIndex;
 			_sdlJoysticks[deviceIndex] = SDL_OpenJoystick(event.jdevice.which);
 
-#	if defined(DEATH_TRACE)
+#if defined(DEATH_TRACE)
 			SDL_Joystick* joy = _sdlJoysticks[deviceIndex];
 			std::int32_t playerIndex = SDL_JoystickGetPlayerIndex(joy);
 			const SDL_JoystickGUID joystickGuid = SDL_JoystickGetGUID(joy);
 			SDL_JoystickGetGUIDString(joystickGuid, _joyGuidString, 33);
 			LOGI("Gamepad {} [{}] \"{}\" [{}] has been connected - {} hats, {} axes, {} buttons, {} balls",
-					deviceIndex, playerIndex, SDL_JoystickName(joy), _joyGuidString,
-					SDL_JoystickNumHats(joy), SDL_JoystickNumAxes(joy), SDL_JoystickNumButtons(joy), SDL_JoystickNumBalls(joy));
-#	endif
+				deviceIndex, playerIndex, SDL_JoystickName(joy), _joyGuidString,
+				SDL_JoystickNumHats(joy), SDL_JoystickNumAxes(joy), SDL_JoystickNumButtons(joy), SDL_JoystickNumBalls(joy));
+#endif
 #else
 			const std::int32_t deviceIndex = event.jdevice.which;
 			_joyConnectionEvent.JoyId = deviceIndex;
@@ -708,15 +721,15 @@ namespace nCine::Backends
 				SDL_JoystickClose(prevInstance);
 			}
 
-#	if defined(DEATH_TRACE) && !defined(DEATH_TARGET_EMSCRIPTEN)
+#if defined(DEATH_TRACE) && !defined(DEATH_TARGET_EMSCRIPTEN)
 			SDL_Joystick* joy = _sdlJoysticks[deviceIndex];
 			std::int32_t playerIndex = SDL_JoystickGetPlayerIndex(joy);
 			const SDL_JoystickGUID joystickGuid = SDL_JoystickGetGUID(joy);
 			SDL_JoystickGetGUIDString(joystickGuid, _joyGuidString, 33);
 			LOGI("Gamepad {} [{}] \"{}\" [{}] has been {} - {} hats, {} axes, {} buttons, {} balls",
-					deviceIndex, playerIndex, SDL_JoystickName(joy), _joyGuidString, prevInstance != nullptr ? "reattached" : "connected",
-					SDL_JoystickNumHats(joy), SDL_JoystickNumAxes(joy), SDL_JoystickNumButtons(joy), SDL_JoystickNumBalls(joy));
-#	endif
+				deviceIndex, playerIndex, SDL_JoystickName(joy), _joyGuidString, prevInstance != nullptr ? "reattached" : "connected",
+				SDL_JoystickNumHats(joy), SDL_JoystickNumAxes(joy), SDL_JoystickNumButtons(joy), SDL_JoystickNumBalls(joy));
+#endif
 #endif
 			_joyMapping.OnJoyConnected(_joyConnectionEvent);
 			_inputEventHandler->OnJoyConnected(_joyConnectionEvent);

@@ -22,7 +22,8 @@ namespace Jazz2::Actors::Weapons
 		/** @brief Called when the shot is fired */
 		void OnFire(const std::shared_ptr<ActorBase>& owner, Vector2f gunspotPos, Vector2f speed, float angle, bool isFacingLeft);
 
-		WeaponType GetWeaponType() override {
+		WeaponType GetWeaponType() override
+		{
 			return WeaponType::Blaster;
 		}
 

@@ -17,10 +17,11 @@ namespace Jazz2::Actors::Enemies
 
 	public:
 		/** @brief State of the bee */
-		enum class BeeState : std::uint8_t {
-			Idle,			/**< Waiting at its origin */
-			Attacking,		/**< Swarming around the nearest player */
-			Returning		/**< Flying straight back to its origin */
+		enum class BeeState : std::uint8_t
+		{
+			Idle, /**< Waiting at its origin */
+			Attacking, /**< Swarming around the nearest player */
+			Returning /**< Flying straight back to its origin */
 		};
 
 		/** @brief Creates a new instance */
@@ -31,7 +32,8 @@ namespace Jazz2::Actors::Enemies
 		static void Preload(const ActorActivationDetails& details);
 
 		/** @brief Returns the current state */
-		BeeState GetBeeState() const {
+		BeeState GetBeeState() const
+		{
 			return _beeState;
 		}
 

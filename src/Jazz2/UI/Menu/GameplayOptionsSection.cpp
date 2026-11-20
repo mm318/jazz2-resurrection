@@ -40,16 +40,23 @@ namespace Jazz2::UI::Menu
 		auto list = std::make_unique<ScrollView>();
 
 		// TRANSLATORS: Menu item in Options > Gameplay section
-		list->Add<ListItem>(_("Enhancements"), [root]() { root->SwitchToSection<GameplayEnhancementsSection>(); });
+		list->Add<ListItem>(_("Enhancements"), [root]() {
+			root->SwitchToSection<GameplayEnhancementsSection>();
+		});
 		// TRANSLATORS: Menu item in Options > Gameplay section
-		list->Add<ListItem>(_("Language"), [root]() { root->SwitchToSection<LanguageSelectSection>(); });
+		list->Add<ListItem>(_("Language"), [root]() {
+			root->SwitchToSection<LanguageSelectSection>();
+		});
 
 #if defined(WITH_ANGELSCRIPT)
 		// Uses a custom value drawer to show the UAC icon next to "Enabled" (it allows running unsigned scripts)
 		// TRANSLATORS: Menu item in Options > Gameplay section
 		auto* scripting = list->Add<CustomValueItem>(_("Scripting"));
 		scripting->ReadOnly = isInGame;
-		scripting->OnChange = [this](std::int32_t) { PreferencesCache::AllowUnsignedScripts = !PreferencesCache::AllowUnsignedScripts; _isDirty = true; };
+		scripting->OnChange = [this](std::int32_t) {
+			PreferencesCache::AllowUnsignedScripts = !PreferencesCache::AllowUnsignedScripts;
+			_isDirty = true;
+		};
 		scripting->DrawValue = [](IMenuContainer* r, float centerX, float y, std::int32_t& charOffset, bool selected, bool readOnly) {
 			Colorf valueColor = (selected ? Colorf(0.46f, 0.46f, 0.46f, readOnly ? 0.36f : 0.5f) : (readOnly ? Font::TransparentDefaultColor : Font::DefaultColor));
 			if (PreferencesCache::AllowUnsignedScripts) {
@@ -67,36 +74,55 @@ namespace Jazz2::UI::Menu
 		// TRANSLATORS: Menu item in Options > Gameplay section
 		list->Add<ChoiceItem>(_("Continuous Jump"),
 			// TRANSLATORS: Option for on/off items in Options > Gameplay section
-			[]() -> StringView { return (PreferencesCache::EnableContinuousJump ? _("Enabled") : _("Disabled")); },
-			[this](std::int32_t) { PreferencesCache::EnableContinuousJump = !PreferencesCache::EnableContinuousJump; _isDirty = true; });
+			[]() -> StringView {
+				return (PreferencesCache::EnableContinuousJump ? _("Enabled") : _("Disabled"));
+			},
+			[this](std::int32_t) {
+				PreferencesCache::EnableContinuousJump = !PreferencesCache::EnableContinuousJump;
+				_isDirty = true;
+			});
 		// TRANSLATORS: Menu item in Options > Gameplay section
 		list->Add<ChoiceItem>(_("Switch To New Weapon"),
 			// TRANSLATORS: Option for on/off items in Options > Gameplay section
-			[]() -> StringView { return (PreferencesCache::SwitchToNewWeapon ? _("Enabled") : _("Disabled")); },
-			[this](std::int32_t) { PreferencesCache::SwitchToNewWeapon = !PreferencesCache::SwitchToNewWeapon; _isDirty = true; });
+			[]() -> StringView {
+				return (PreferencesCache::SwitchToNewWeapon ? _("Enabled") : _("Disabled"));
+			},
+			[this](std::int32_t) {
+				PreferencesCache::SwitchToNewWeapon = !PreferencesCache::SwitchToNewWeapon;
+				_isDirty = true;
+			});
 		// TRANSLATORS: Menu item in Options > Gameplay section
 		list->Add<ChoiceItem>(_("Show Minimap"),
 			// TRANSLATORS: Option for on/off items in Options > Gameplay section
-			[]() -> StringView { return (PreferencesCache::ShowMinimap ? _("Enabled") : _("Disabled")); },
-			[this](std::int32_t) { PreferencesCache::ShowMinimap = !PreferencesCache::ShowMinimap; _isDirty = true; });
+			[]() -> StringView {
+				return (PreferencesCache::ShowMinimap ? _("Enabled") : _("Disabled"));
+			},
+			[this](std::int32_t) {
+				PreferencesCache::ShowMinimap = !PreferencesCache::ShowMinimap;
+				_isDirty = true;
+			});
 		// TRANSLATORS: Menu item in Options > Gameplay section
 		list->Add<ChoiceItem>(_("Allow Cheats"),
 			// TRANSLATORS: Option for Allow Cheats item in Options > Gameplay section
-			[]() -> StringView { return (PreferencesCache::AllowCheats ? _("Yes") : _("No")); },
-			[this](std::int32_t) { PreferencesCache::AllowCheats = !PreferencesCache::AllowCheats; _isDirty = true; },
+			[]() -> StringView {
+				return (PreferencesCache::AllowCheats ? _("Yes") : _("No"));
+			},
+			[this](std::int32_t) {
+				PreferencesCache::AllowCheats = !PreferencesCache::AllowCheats;
+				_isDirty = true;
+			},
 			isInGame);
 		// TRANSLATORS: Menu item in Options > Gameplay section
-		list->Add<ChoiceItem>(_("Overwrite Episode Completion"),
-			[]() -> StringView {
-				return (PreferencesCache::OverwriteEpisodeEnd == EpisodeEndOverwriteMode::NoCheatsOnly
+		list->Add<ChoiceItem>(_("Overwrite Episode Completion"), []() -> StringView {
+			return (PreferencesCache::OverwriteEpisodeEnd == EpisodeEndOverwriteMode::NoCheatsOnly
 					// TRANSLATORS: Option for Overwrite Episode Completion item in Options > Gameplay section, only if the episode was completed without cheats
 					? _("No Cheats Only")
 					: (PreferencesCache::OverwriteEpisodeEnd == EpisodeEndOverwriteMode::HigherScoreOnly
-						// TRANSLATORS: Option for Overwrite Episode Completion item in Options > Gameplay section, only if the new score is higher
-						? _("Higher Score Only")
-						// TRANSLATORS: Option for Overwrite Episode Completion item in Options > Gameplay section
-						: _("Always")));
-			},
+							  // TRANSLATORS: Option for Overwrite Episode Completion item in Options > Gameplay section, only if the new score is higher
+							  ? _("Higher Score Only")
+							  // TRANSLATORS: Option for Overwrite Episode Completion item in Options > Gameplay section
+							  : _("Always")));
+		},
 			[this](std::int32_t direction) {
 				// 3 contiguous values; Left/Right step backward/forward with wraparound
 				PreferencesCache::OverwriteEpisodeEnd = (EpisodeEndOverwriteMode)(((std::int32_t)PreferencesCache::OverwriteEpisodeEnd + direction + 3) % 3);
@@ -108,7 +134,9 @@ namespace Jazz2::UI::Menu
 		// TRANSLATORS: Menu item in Options > Gameplay section
 		list->Add<ChoiceItem>(_("Razer Chroma™"),
 			// TRANSLATORS: Option for on/off items in Options > Gameplay section
-			[]() -> StringView { return (PreferencesCache::EnableRgbLights ? _("Enabled") : _("Disabled")); },
+			[]() -> StringView {
+				return (PreferencesCache::EnableRgbLights ? _("Enabled") : _("Disabled"));
+			},
 			[this](std::int32_t) {
 				PreferencesCache::EnableRgbLights = !PreferencesCache::EnableRgbLights;
 				if (!PreferencesCache::EnableRgbLights) {

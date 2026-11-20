@@ -16,15 +16,18 @@ namespace Jazz2::Scripting
 		 * @ref spacing, @ref align, @ref newline and whether @ref xAmp or @ref yAmp are non-zero; text drawn with a font
 		 * animation uses @ref spacing, @ref align and the treatment of the special characters.
 		 */
-		struct jjTEXTAPPEARANCE {
-			enum align_ {
+		struct jjTEXTAPPEARANCE
+		{
+			enum align_
+			{
 				align_DEFAULT,
 				align_LEFT,
 				align_CENTER,
 				align_RIGHT
 			};
 
-			enum ch_ {
+			enum ch_
+			{
 				ch_HIDE,
 				ch_DISPLAY,
 				ch_SPECIAL
@@ -154,7 +157,8 @@ namespace Jazz2::Scripting
 		 * before. Most methods take a @ref SPRITE::Mode and its parameter, which control how the colors are rendered.
 		 * Nothing drawn this way interacts with the level.
 		 */
-		struct jjCANVAS {
+		struct jjCANVAS
+		{
 			/** @brief The canvas this one draws onto */
 			UI::Canvas* Target;
 			/** @brief Added to every position */

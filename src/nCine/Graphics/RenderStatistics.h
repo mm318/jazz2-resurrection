@@ -36,7 +36,9 @@ namespace nCine
 			std::uint32_t batchSize;
 
 			Commands()
-				: vertices(0), commands(0), transparents(0), instances(0), batchSize(0) {}
+				: vertices(0), commands(0), transparents(0), instances(0), batchSize(0)
+			{
+			}
 
 		private:
 			void Reset()
@@ -60,7 +62,9 @@ namespace nCine
 			std::uint32_t usedSpace;
 
 			Buffers()
-				: count(0), size(0), usedSpace(0) {}
+				: count(0), size(0), usedSpace(0)
+			{
+			}
 
 		private:
 			void Reset()
@@ -81,7 +85,9 @@ namespace nCine
 			std::uint32_t dataSize;
 
 			Textures()
-				: count(0), dataSize(0) {}
+				: count(0), dataSize(0)
+			{
+			}
 
 		private:
 			void Reset()
@@ -101,7 +107,9 @@ namespace nCine
 			std::uint32_t dataSize;
 
 			CustomBuffers()
-				: count(0), dataSize(0) {}
+				: count(0), dataSize(0)
+			{
+			}
 
 		private:
 			void Reset()
@@ -123,7 +131,9 @@ namespace nCine
 			std::uint32_t bindings;
 
 			VaoPool()
-				: size(0), capacity(0), reuses(0), bindings(0) {}
+				: size(0), capacity(0), reuses(0), bindings(0)
+			{
+			}
 
 		private:
 			void Reset()
@@ -146,7 +156,9 @@ namespace nCine
 			std::uint32_t retrievals;
 
 			CommandPool()
-				: usedSize(0), freeSize(0), retrievals(0) {}
+				: usedSize(0), freeSize(0), retrievals(0)
+			{
+			}
 
 		private:
 			void Reset()
@@ -160,46 +172,55 @@ namespace nCine
 		};
 
 		/** @brief Returns the command statistics aggregated across all types */
-		static inline const Commands& GetAllCommands() {
+		static inline const Commands& GetAllCommands()
+		{
 			return _allCommands;
 		}
 		/** @brief Returns the command statistics for the specified type */
-		static inline const Commands& GetCommands(RenderCommand::Type type) {
+		static inline const Commands& GetCommands(RenderCommand::Type type)
+		{
 			return _typedCommands[(std::int32_t)type];
 		}
 
 		/** @brief Returns the buffer statistics for the specified type */
-		static inline const Buffers& GetBuffers(RenderBuffersManager::BufferTypes type) {
+		static inline const Buffers& GetBuffers(RenderBuffersManager::BufferTypes type)
+		{
 			return _typedBuffers[(std::int32_t)type];
 		}
 
 		/** @brief Returns the aggregated texture statistics */
-		static inline const Textures& GetTextures() {
+		static inline const Textures& GetTextures()
+		{
 			return _textures;
 		}
 
 		/** @brief Returns the aggregated custom VBOs statistics */
-		static inline const CustomBuffers& GetCustomVBOs() {
+		static inline const CustomBuffers& GetCustomVBOs()
+		{
 			return _customVbos;
 		}
 
 		/** @brief Returns the aggregated custom IBOs statistics */
-		static inline const CustomBuffers& GetCustomIBOs() {
+		static inline const CustomBuffers& GetCustomIBOs()
+		{
 			return _customIbos;
 		}
 
 		/** @brief Returns the number of `DrawableNode` objects culled for being off-screen */
-		static inline std::uint32_t GetCulled() {
+		static inline std::uint32_t GetCulled()
+		{
 			return _culledNodes[(_index + 1) % 2];
 		}
 
 		/** @brief Returns the statistics about the VAO pool */
-		static inline const VaoPool& GetVaoPool() {
+		static inline const VaoPool& GetVaoPool()
+		{
 			return _vaoPool;
 		}
 
 		/** @brief Returns the statistics about the render command pool */
-		static inline const CommandPool& GetCommandPool() {
+		static inline const CommandPool& GetCommandPool()
+		{
 			return _commandPool;
 		}
 

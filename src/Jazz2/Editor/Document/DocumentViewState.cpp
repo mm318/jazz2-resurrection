@@ -28,20 +28,27 @@ namespace Jazz2::Editor
 		class Writer
 		{
 		public:
-			explicit Writer(SmallVectorImpl<std::uint8_t>& data) : _data(data) {}
+			explicit Writer(SmallVectorImpl<std::uint8_t>& data)
+				: _data(data)
+			{
+			}
 
-			void U8(std::uint8_t value) {
+			void U8(std::uint8_t value)
+			{
 				_data.push_back(value);
 			}
-			void U16(std::uint16_t value) {
+			void U16(std::uint16_t value)
+			{
 				U8(std::uint8_t(value));
 				U8(std::uint8_t(value >> 8));
 			}
-			void U32(std::uint32_t value) {
+			void U32(std::uint32_t value)
+			{
 				U16(std::uint16_t(value));
 				U16(std::uint16_t(value >> 16));
 			}
-			void F32(float value) {
+			void F32(float value)
+			{
 				std::uint32_t bits;
 				std::memcpy(&bits, &value, sizeof(bits));
 				U32(bits);
@@ -54,16 +61,21 @@ namespace Jazz2::Editor
 		class Reader
 		{
 		public:
-			Reader(const std::uint8_t* data, std::size_t size) : _p(data), _end(data + size) {}
+			Reader(const std::uint8_t* data, std::size_t size)
+				: _p(data), _end(data + size)
+			{
+			}
 
-			bool U8(std::uint8_t& value) {
+			bool U8(std::uint8_t& value)
+			{
 				if (_p >= _end) {
 					return false;
 				}
 				value = *_p++;
 				return true;
 			}
-			bool U16(std::uint16_t& value) {
+			bool U16(std::uint16_t& value)
+			{
 				std::uint8_t a, b;
 				if (!U8(a) || !U8(b)) {
 					return false;
@@ -71,7 +83,8 @@ namespace Jazz2::Editor
 				value = std::uint16_t(a | (b << 8));
 				return true;
 			}
-			bool U32(std::uint32_t& value) {
+			bool U32(std::uint32_t& value)
+			{
 				std::uint16_t a, b;
 				if (!U16(a) || !U16(b)) {
 					return false;
@@ -79,7 +92,8 @@ namespace Jazz2::Editor
 				value = std::uint32_t(a) | (std::uint32_t(b) << 16);
 				return true;
 			}
-			bool I32(std::int32_t& value) {
+			bool I32(std::int32_t& value)
+			{
 				std::uint32_t bits;
 				if (!U32(bits)) {
 					return false;
@@ -87,7 +101,8 @@ namespace Jazz2::Editor
 				value = std::int32_t(bits);
 				return true;
 			}
-			bool F32(float& value) {
+			bool F32(float& value)
+			{
 				std::uint32_t bits;
 				if (!U32(bits)) {
 					return false;
@@ -152,12 +167,18 @@ namespace Jazz2::Editor
 	void DocumentViewState::Write(LevelDocument& document) const
 	{
 		std::uint16_t flags = 0;
-		if (HasCamera) flags |= FlagCamera;
-		if (ShowGrid) flags |= FlagGrid;
-		if (ShowEvents) flags |= FlagEvents;
-		if (ShowPlayPath) flags |= FlagPlayPath;
-		if (FlatLayers) flags |= FlagFlat;
-		if (HasPlaySettings) flags |= FlagPlaySettings;
+		if (HasCamera)
+			flags |= FlagCamera;
+		if (ShowGrid)
+			flags |= FlagGrid;
+		if (ShowEvents)
+			flags |= FlagEvents;
+		if (ShowPlayPath)
+			flags |= FlagPlayPath;
+		if (FlatLayers)
+			flags |= FlagFlat;
+		if (HasPlaySettings)
+			flags |= FlagPlaySettings;
 
 		SmallVector<std::uint8_t, 0> data;
 		Writer w(data);

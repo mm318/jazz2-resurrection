@@ -12,16 +12,16 @@
 #include <new>
 
 #if defined(WITH_SDL3)
-#	include <SDL3/SDL.h>
+#include <SDL3/SDL.h>
 #else
-#	include <SDL.h>
+#include <SDL.h>
 #endif
 
 namespace nCine
 {
 	SdlAudioDevice::SdlAudioDevice()
 		: _valid(false), _suspended(false), _subsystemInitialized(false), _outputFrequency(44100), _deviceId(0),
-			_block(nullptr), _mixBuffer(nullptr), _buffers(nullptr), _bufferCount(0), _bufferCapacity(0)
+		  _block(nullptr), _mixBuffer(nullptr), _buffers(nullptr), _bufferCount(0), _bufferCapacity(0)
 	{
 		if (SDL_InitSubSystem(SDL_INIT_AUDIO) != 0) {
 			LOGE("Cannot initialize SDL audio ({}), sound will be disabled", SDL_GetError());
@@ -29,7 +29,7 @@ namespace nCine
 		}
 		_subsystemInitialized = true;
 
-		SDL_AudioSpec want{};
+		SDL_AudioSpec want {};
 		want.freq = _outputFrequency;
 		want.format = AUDIO_S16SYS;
 		want.channels = ChannelCount;
@@ -37,7 +37,7 @@ namespace nCine
 		want.samples = BlockFrames;
 		want.callback = nullptr;
 
-		SDL_AudioSpec have{};
+		SDL_AudioSpec have {};
 		// Rate and buffer size may change, format and channel count may not (the mixer does no conversion)
 		_deviceId = SDL_OpenAudioDevice(nullptr, 0, &want, &have,
 			SDL_AUDIO_ALLOW_FREQUENCY_CHANGE | SDL_AUDIO_ALLOW_SAMPLES_CHANGE);
@@ -57,7 +57,7 @@ namespace nCine
 		_bufferCapacity = InitialBufferCapacity;
 
 		// Buffer id 0 is reserved as "no buffer"
-		::new (&_buffers[0]) Buffer{};
+		::new (&_buffers[0]) Buffer {};
 		_bufferCount = 1;
 
 		std::uint32_t sourceIds[MaxSources];
@@ -173,7 +173,7 @@ namespace nCine
 		const std::uint32_t sourceId = AudioDeviceBase::RegisterPlayer(player);
 		if (sourceId != UnavailableSource) {
 			if (Source* source = GetSource(sourceId)) {
-				*source = Source{};
+				*source = Source {};
 			}
 		}
 		return sourceId;
@@ -197,7 +197,7 @@ namespace nCine
 
 		for (std::int32_t i = 1; i < _bufferCount; i++) {
 			if (!_buffers[i].Used) {
-				_buffers[i] = Buffer{};
+				_buffers[i] = Buffer {};
 				_buffers[i].Used = true;
 				return std::uint32_t(i);
 			}
@@ -214,7 +214,7 @@ namespace nCine
 			_bufferCapacity = newCapacity;
 		}
 
-		::new (&_buffers[_bufferCount]) Buffer{};
+		::new (&_buffers[_bufferCount]) Buffer {};
 		_buffers[_bufferCount].Used = true;
 		return std::uint32_t(_bufferCount++);
 	}
@@ -251,11 +251,24 @@ namespace nCine
 
 		std::int32_t bytesPerSample, channelCount;
 		switch (format) {
-			case BufferFormat::Mono8: bytesPerSample = 1; channelCount = 1; break;
-			case BufferFormat::Stereo8: bytesPerSample = 1; channelCount = 2; break;
-			case BufferFormat::Mono16: bytesPerSample = 2; channelCount = 1; break;
-			case BufferFormat::Stereo16: bytesPerSample = 2; channelCount = 2; break;
-			default: return false;
+			case BufferFormat::Mono8:
+				bytesPerSample = 1;
+				channelCount = 1;
+				break;
+			case BufferFormat::Stereo8:
+				bytesPerSample = 1;
+				channelCount = 2;
+				break;
+			case BufferFormat::Mono16:
+				bytesPerSample = 2;
+				channelCount = 1;
+				break;
+			case BufferFormat::Stereo16:
+				bytesPerSample = 2;
+				channelCount = 2;
+				break;
+			default:
+				return false;
 		}
 
 		const std::int32_t frameSize = bytesPerSample * channelCount;

@@ -72,8 +72,7 @@ namespace Jazz2::Actors::Bosses
 		_bottom->OnActivated(ActorActivationDetails(
 			_levelHandler,
 			Vector3i((std::int32_t)_pos.X, (std::int32_t)_pos.Y, _renderer.GetLayer() + 2),
-			bottomParams
-		));
+			bottomParams));
 		_levelHandler->AddActor(_bottom);
 
 		/*_turret = std::make_shared<BollyPart>();
@@ -93,8 +92,7 @@ namespace Jazz2::Actors::Bosses
 			_chain[i]->OnActivated(ActorActivationDetails(
 				_levelHandler,
 				Vector3i((std::int32_t)_pos.X, (std::int32_t)_pos.Y, _renderer.GetLayer() - (IsChainBall(i) ? 2 : 4)),
-				chainParams
-			));
+				chainParams));
 			_levelHandler->AddActor(_chain[i]);
 		}
 
@@ -117,8 +115,12 @@ namespace Jazz2::Actors::Bosses
 		HandleBlinking(timeMult);
 
 		switch (_state) {
-			case StateChasing: UpdateChase(timeMult); break;
-			case StateAttacking: UpdateAttack(timeMult); break;
+			case StateChasing:
+				UpdateChase(timeMult);
+				break;
+			case StateAttacking:
+				UpdateAttack(timeMult);
+				break;
 		}
 
 		if (_bottom != nullptr) {
@@ -318,8 +320,7 @@ namespace Jazz2::Actors::Bosses
 		std::shared_ptr<Rocket> rocket = std::make_shared<Rocket>();
 		rocket->OnActivated(ActorActivationDetails(
 			_levelHandler,
-			Vector3i((std::int32_t)gunPos.X, (std::int32_t)gunPos.Y, _renderer.GetLayer() - 4)
-		));
+			Vector3i((std::int32_t)gunPos.X, (std::int32_t)gunPos.Y, _renderer.GetLayer() - 4)));
 		rocket->_renderer.SetRotation(atan2Approx(diff.Y, diff.X));
 		_levelHandler->AddActor(rocket);
 	}
@@ -380,8 +381,7 @@ namespace Jazz2::Actors::Bosses
 		// debris. Drawn here rather than where the segment is taken out, so the ball the player actually shot
 		// and the two pieces that are cut with it go the same way; EnemyBase::OnPerish() adds a score and
 		// nothing visible, which is why every part of this boss that wants to be seen going draws its own.
-		Explosion::Create(_levelHandler, Vector3i((std::int32_t)_pos.X, (std::int32_t)_pos.Y,
-			_renderer.GetLayer() + 2), Explosion::Type::Small);
+		Explosion::Create(_levelHandler, Vector3i((std::int32_t)_pos.X, (std::int32_t)_pos.Y, _renderer.GetLayer() + 2), Explosion::Type::Small);
 		CreateParticleDebrisOnPerish(collider);
 
 		return EnemyBase::OnPerish(collider);

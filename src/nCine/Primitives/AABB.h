@@ -20,7 +20,7 @@ namespace nCine
 			containment and overlap tests, intersection and combination of two boxes, and
 			translation by a @ref Vector2.
 		*/
-		template<class S>
+		template <class S>
 		class AABB
 		{
 		public:
@@ -34,30 +34,41 @@ namespace nCine
 			S B;
 
 			constexpr AABB() noexcept
-				: L(S(0)), T(S(0)), R(S(0)), B(S(0)) {}
+				: L(S(0)), T(S(0)), R(S(0)), B(S(0))
+			{
+			}
 
-			explicit AABB(NoInitT) noexcept {}
+			explicit AABB(NoInitT) noexcept
+			{
+			}
 
 			constexpr AABB(S l, S t, S r, S b) noexcept
-				: L(l), T(t), R(r), B(b) {}
+				: L(l), T(t), R(r), B(b)
+			{
+			}
 
 			constexpr AABB(const Vector2<S>& min, const Vector2<S>& max) noexcept
-				: L(std::min(min.X, max.X)), T(std::min(min.Y, max.Y)), R(std::max(min.X, max.X)), B(std::max(min.Y, max.Y)) {}
+				: L(std::min(min.X, max.X)), T(std::min(min.Y, max.Y)), R(std::max(min.X, max.X)), B(std::max(min.Y, max.Y))
+			{
+			}
 
 			/**
 			 * @brief Converts the bounding box to a different element type
 			 */
-			template<class U>
-			constexpr AABB<U> As() {
+			template <class U>
+			constexpr AABB<U> As()
+			{
 				return AABB<S>(static_cast<U>(L), static_cast<U>(T), static_cast<U>(R), static_cast<U>(B));
 			}
 
 			/** @brief Returns the width of the box */
-			constexpr S GetWidth() const {
+			constexpr S GetWidth() const
+			{
 				return R - L;
 			}
 			/** @brief Returns the height of the box */
-			constexpr S GetHeight() const {
+			constexpr S GetHeight() const
+			{
 				return B - T;
 			}
 
@@ -99,19 +110,19 @@ namespace nCine
 		/** @brief Axis-aligned bounding box in a two-dimensional space of 32-bit integers */
 		using AABBi = AABB<std::int32_t>;
 
-		template<class S>
+		template <class S>
 		inline Vector2<S> AABB<S>::GetCenter() const
 		{
 			return Vector2<S>((L + R) / 2, (T + B) / 2);
 		}
 
-		template<class S>
+		template <class S>
 		inline Vector2<S> AABB<S>::GetExtents() const
 		{
 			return Vector2<S>((R - L) / 2, (B - T) / 2);
 		}
 
-		template<class S>
+		template <class S>
 		inline S AABB<S>::GetPerimeter() const
 		{
 			S wx = R - L;
@@ -119,39 +130,39 @@ namespace nCine
 			return 2 * (wx + wy);
 		}
 
-		template<class S>
+		template <class S>
 		inline bool AABB<S>::Contains(S px, S py) const
 		{
 			// Using epsilon to try and guard against float rounding errors
 			return (px > (L + std::numeric_limits<S>::epsilon()) && px < (R - std::numeric_limits<S>::epsilon()) &&
-				   (py > (T + std::numeric_limits<S>::epsilon()) && py < (B - std::numeric_limits<S>::epsilon())));
+				(py > (T + std::numeric_limits<S>::epsilon()) && py < (B - std::numeric_limits<S>::epsilon())));
 		}
 
-		template<>
+		template <>
 		inline bool AABB<std::int32_t>::Contains(std::int32_t px, std::int32_t py) const
 		{
 			return (px >= L && px <= R && py >= T && py <= B);
 		}
 
-		template<class S>
+		template <class S>
 		inline bool AABB<S>::Contains(const Vector2<S>& p) const
 		{
 			return Contains(p.X, p.Y);
 		}
 
-		template<class S>
+		template <class S>
 		inline bool AABB<S>::Contains(const AABB& aabb) const
 		{
 			return (L <= aabb.L && T <= aabb.T && aabb.R <= R && aabb.B <= B);
 		}
 
-		template<class S>
+		template <class S>
 		inline bool AABB<S>::Overlaps(const AABB& aabb) const
 		{
 			return (L <= aabb.R && T <= aabb.B && R >= aabb.L && B >= aabb.T);
 		}
 
-		template<class S>
+		template <class S>
 		inline AABB<S> AABB<S>::Intersect(const AABB<S>& a, const AABB<S>& b)
 		{
 			if (!a.Overlaps(b)) {
@@ -161,27 +172,27 @@ namespace nCine
 			return AABB(std::max(a.L, b.L), std::max(a.T, b.T), std::min(a.R, b.R), std::min(a.B, b.B));
 		}
 
-		template<class S>
+		template <class S>
 		inline AABB<S> AABB<S>::Combine(const AABB<S>& a, const AABB<S>& b)
 		{
 			return AABB(std::min(a.L, b.L), std::min(a.T, b.T), std::max(a.R, b.R), std::max(a.B, b.B));
 		}
 
-		template<class S>
+		template <class S>
 		inline bool AABB<S>::operator==(const AABB& aabb) const
 		{
 			return (L == aabb.L && T == aabb.T &&
-					R == aabb.R && B == aabb.B);
+				R == aabb.R && B == aabb.B);
 		}
 
-		template<class S>
+		template <class S>
 		inline bool AABB<S>::operator!=(const AABB& aabb) const
 		{
 			return (L != aabb.L || T != aabb.T ||
-					R != aabb.R || B != aabb.B);
+				R != aabb.R || B != aabb.B);
 		}
 
-		template<class S>
+		template <class S>
 		inline AABB<S>& AABB<S>::operator+=(const Vector2<S>& v)
 		{
 			L += v.X;
@@ -191,7 +202,7 @@ namespace nCine
 			return *this;
 		}
 
-		template<class S>
+		template <class S>
 		inline AABB<S>& AABB<S>::operator-=(const Vector2<S>& v)
 		{
 			L -= v.X;
@@ -201,13 +212,13 @@ namespace nCine
 			return *this;
 		}
 
-		template<class S>
+		template <class S>
 		inline AABB<S> AABB<S>::operator+(const Vector2<S>& v) const
 		{
 			return AABB(L + v.X, T + v.Y, R + v.X, B + v.Y);
 		}
 
-		template<class S>
+		template <class S>
 		inline AABB<S> AABB<S>::operator-(const Vector2<S>& v) const
 		{
 			return AABB(L - v.X, T - v.Y, R - v.X, B - v.Y);

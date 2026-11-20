@@ -8,7 +8,7 @@
 #include "../../UI/Windows/Theme.h"
 #include "../UI/EditorUi.h"
 #if defined(WITH_MULTIPLAYER)
-#	include "PlayTestMpLevelHandler.h"
+#include "PlayTestMpLevelHandler.h"
 #endif
 #include "../../Actors/Player.h"
 #include "../../Events/EventMap.h"
@@ -43,8 +43,8 @@ namespace Jazz2::Editor
 
 	PlayTestController::PlayTestController(IPlayTestHost& host)
 		: _host(host), _mode(PlayTestMode::Edit), _playRevision(0), _resumePlay(false), _restorePlayState(false),
-			_enteringFrameShown(false), _editCameraScale(1.0f), _playTestCount(0), _playTestNumber(0), _musicFadeFrom(1.0f), _musicFadeTo(1.0f),
-			_musicFadeTime(-1.0f), _hasResumePosition(false)
+		  _enteringFrameShown(false), _editCameraScale(1.0f), _playTestCount(0), _playTestNumber(0), _musicFadeFrom(1.0f), _musicFadeTo(1.0f),
+		  _musicFadeTime(-1.0f), _hasResumePosition(false)
 	{
 	}
 
@@ -165,8 +165,7 @@ namespace Jazz2::Editor
 					return false;
 				}
 				if (now != nullptr) {
-					if (now->Data.size() != before->Data.size() || (!now->Data.empty() &&
-						std::memcmp(now->Data.data(), before->Data.data(), now->Data.size()) != 0)) {
+					if (now->Data.size() != before->Data.size() || (!now->Data.empty() && std::memcmp(now->Data.data(), before->Data.data(), now->Data.size()) != 0)) {
 						return false;
 					}
 					found++;
@@ -199,8 +198,7 @@ namespace Jazz2::Editor
 			return false;
 		}
 		// Off-grid events are kept by their order, they can't be moved under a level being played
-		if (_suspendedOffGridEvents.size() != document.OffGridEvents.size() || std::memcmp(_suspendedOffGridEvents.data(),
-			document.OffGridEvents.data(), document.OffGridEvents.size() * sizeof(Formats::OffGridEventRecord)) != 0) {
+		if (_suspendedOffGridEvents.size() != document.OffGridEvents.size() || std::memcmp(_suspendedOffGridEvents.data(), document.OffGridEvents.data(), document.OffGridEvents.size() * sizeof(Formats::OffGridEventRecord)) != 0) {
 			return false;
 		}
 		// The translations of the texts and the rest the game reads of the chunks only when the level is loaded
@@ -258,7 +256,7 @@ namespace Jazz2::Editor
 		}
 		// As the level loader stores them, an event not of the difficulty played isn't there at all
 		std::uint8_t difficultyFlag = (_playedOptions.Difficulty == GameDifficulty::Easy ? Formats::EventRecord::Easy
-			: (_playedOptions.Difficulty == GameDifficulty::Hard ? Formats::EventRecord::Hard : Formats::EventRecord::Normal));
+																						 : (_playedOptions.Difficulty == GameDifficulty::Hard ? Formats::EventRecord::Hard : Formats::EventRecord::Normal));
 		// The objects spawned from the events before go, all in one pass, they're spawned again as the events are now, at
 		// once if they're near the player - otherwise a light would stay as it was until the player went away from it and
 		// came back; the cells were collected row by row, so they're sorted

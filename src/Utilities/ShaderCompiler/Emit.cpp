@@ -17,7 +17,7 @@ namespace ShaderCompiler
 {
 	namespace
 	{
-		constexpr std::size_t Npos = ~std::size_t{0};
+		constexpr std::size_t Npos = ~std::size_t { 0 };
 
 		/** Substring [pos, pos + count), clamping count to the available length (never throws for pos <= size) */
 		StringView Substr(StringView s, std::size_t pos, std::size_t count = Npos)
@@ -48,29 +48,52 @@ namespace ShaderCompiler
 		const char* EnumName(GlslType type)
 		{
 			switch (type) {
-				case GlslType::Float: return "Float";
-				case GlslType::Int: return "Int";
-				case GlslType::UInt: return "UInt";
-				case GlslType::Bool: return "Bool";
-				case GlslType::Vec2: return "Vec2";
-				case GlslType::Vec3: return "Vec3";
-				case GlslType::Vec4: return "Vec4";
-				case GlslType::IVec2: return "IVec2";
-				case GlslType::IVec3: return "IVec3";
-				case GlslType::IVec4: return "IVec4";
-				case GlslType::UVec2: return "UVec2";
-				case GlslType::UVec3: return "UVec3";
-				case GlslType::UVec4: return "UVec4";
-				case GlslType::BVec2: return "BVec2";
-				case GlslType::BVec3: return "BVec3";
-				case GlslType::BVec4: return "BVec4";
-				case GlslType::Mat2: return "Mat2";
-				case GlslType::Mat3: return "Mat3";
-				case GlslType::Mat4: return "Mat4";
-				case GlslType::Sampler2D: return "Sampler2D";
-				case GlslType::Sampler3D: return "Sampler3D";
-				case GlslType::SamplerCube: return "SamplerCube";
-				case GlslType::Struct: return "Struct";
+				case GlslType::Float:
+					return "Float";
+				case GlslType::Int:
+					return "Int";
+				case GlslType::UInt:
+					return "UInt";
+				case GlslType::Bool:
+					return "Bool";
+				case GlslType::Vec2:
+					return "Vec2";
+				case GlslType::Vec3:
+					return "Vec3";
+				case GlslType::Vec4:
+					return "Vec4";
+				case GlslType::IVec2:
+					return "IVec2";
+				case GlslType::IVec3:
+					return "IVec3";
+				case GlslType::IVec4:
+					return "IVec4";
+				case GlslType::UVec2:
+					return "UVec2";
+				case GlslType::UVec3:
+					return "UVec3";
+				case GlslType::UVec4:
+					return "UVec4";
+				case GlslType::BVec2:
+					return "BVec2";
+				case GlslType::BVec3:
+					return "BVec3";
+				case GlslType::BVec4:
+					return "BVec4";
+				case GlslType::Mat2:
+					return "Mat2";
+				case GlslType::Mat3:
+					return "Mat3";
+				case GlslType::Mat4:
+					return "Mat4";
+				case GlslType::Sampler2D:
+					return "Sampler2D";
+				case GlslType::Sampler3D:
+					return "Sampler3D";
+				case GlslType::SamplerCube:
+					return "SamplerCube";
+				case GlslType::Struct:
+					return "Struct";
 			}
 			return "Float";
 		}
@@ -105,7 +128,7 @@ namespace ShaderCompiler
 				buffer[2 + i] = Digits[(v >> ((7 - i) * 4)) & 0xFu];
 			}
 			buffer[10] = 'u';
-			return String{buffer, sizeof(buffer)};
+			return String { buffer, sizeof(buffer) };
 		}
 
 		/** "0x"-prefixed, 2-digit hexadecimal of one DXBC byte */
@@ -117,7 +140,7 @@ namespace ShaderCompiler
 			buffer[1] = 'x';
 			buffer[2] = Digits[(v >> 4) & 0xFu];
 			buffer[3] = Digits[v & 0xFu];
-			return String{buffer, sizeof(buffer)};
+			return String { buffer, sizeof(buffer) };
 		}
 
 		/** Emits an embedded DXBC blob as a "constexpr std::uint8_t <symbol>[] = { ... };" byte array */
@@ -688,10 +711,10 @@ namespace ShaderCompiler
 
 				for (std::size_t i = 0; i < r.Blocks.size(); i++) {
 					const BlockInfo& block = r.Blocks[i];
-					output += "\tinline constexpr ShaderCompiler::BlockMember " + prefix + "_Block" + Death::format("{}",i) + "_Members[] = {\n";
+					output += "\tinline constexpr ShaderCompiler::BlockMember " + prefix + "_Block" + Death::format("{}", i) + "_Members[] = {\n";
 					for (const MemberInfo& m : block.Members) {
 						output += "\t\t{ \"" + m.Name + "\", ShaderCompiler::UniformType::" + EnumName(m.Type) + ", " +
-							ArraySizeExpr(m.ArraySize, m.SymbolicArray) + ", " + Death::format("{}",m.Offset) + " },\n";
+							ArraySizeExpr(m.ArraySize, m.SymbolicArray) + ", " + Death::format("{}", m.Offset) + " },\n";
 					}
 					output += "\t};\n";
 					output += "\n";
@@ -700,9 +723,9 @@ namespace ShaderCompiler
 					output += "\tinline constexpr ShaderCompiler::UniformBlock " + prefix + "_Blocks[] = {\n";
 					for (std::size_t i = 0; i < r.Blocks.size(); i++) {
 						const BlockInfo& block = r.Blocks[i];
-						output += "\t\t{ \"" + block.Name + "\", " + Death::format("{}",block.BaseSize) + ", " +
-							Death::format("{}",block.InstanceStride) + ", " + Death::format("{}",block.Members.size()) + ", " +
-							prefix + "_Block" + Death::format("{}",i) + "_Members },\n";
+						output += "\t\t{ \"" + block.Name + "\", " + Death::format("{}", block.BaseSize) + ", " +
+							Death::format("{}", block.InstanceStride) + ", " + Death::format("{}", block.Members.size()) + ", " +
+							prefix + "_Block" + Death::format("{}", i) + "_Members },\n";
 					}
 					output += "\t};\n";
 					output += "\n";
@@ -711,7 +734,7 @@ namespace ShaderCompiler
 				if (!r.Textures.empty()) {
 					output += "\tinline constexpr ShaderCompiler::TextureBinding " + prefix + "_Textures[] = {\n";
 					for (const TextureInfo& t : r.Textures) {
-						output += "\t\t{ \"" + t.Name + "\", " + Death::format("{}",t.Unit) + " },\n";
+						output += "\t\t{ \"" + t.Name + "\", " + Death::format("{}", t.Unit) + " },\n";
 					}
 					output += "\t};\n";
 					output += "\n";
@@ -720,7 +743,7 @@ namespace ShaderCompiler
 				if (!r.Attributes.empty()) {
 					output += "\tinline constexpr ShaderCompiler::Attribute " + prefix + "_Attributes[] = {\n";
 					for (const AttributeInfo& a : r.Attributes) {
-						output += "\t\t{ \"" + a.Name + "\", ShaderCompiler::UniformType::" + EnumName(a.Type) + ", " + Death::format("{}",a.Location) + " },\n";
+						output += "\t\t{ \"" + a.Name + "\", ShaderCompiler::UniformType::" + EnumName(a.Type) + ", " + Death::format("{}", a.Location) + " },\n";
 					}
 					output += "\t};\n";
 					output += "\n";
@@ -776,7 +799,7 @@ namespace ShaderCompiler
 			output += "\t};\n";
 			output += "\n";
 			output += "\tinline constexpr ShaderCompiler::Program " + program + " = { \"" + program + "\", " +
-				Death::format("{}",document.RenderModes) + ", " + Death::format("{}",variants.size()) + ", " + program + "_Variants };\n";
+				Death::format("{}", document.RenderModes) + ", " + Death::format("{}", variants.size()) + ", " + program + "_Variants };\n";
 			return true;
 		}
 	}
@@ -789,7 +812,7 @@ namespace ShaderCompiler
 		String inputName = inputFileName;
 		std::size_t lastSeparator = FindLastOf(inputName, "/\\"_s);
 		if (lastSeparator != Npos) {
-			inputName = String{Substr(inputName, lastSeparator + 1)};
+			inputName = String { Substr(inputName, lastSeparator + 1) };
 		}
 
 		output = {};
@@ -835,7 +858,11 @@ namespace ShaderCompiler
 		String out;
 		out += "program " + document.ProgramName + "\n";
 		if (document.RenderModes != 0) {
-			static const struct { std::uint32_t Bit; const char* Name; } RenderModeNames[] = {
+			static const struct
+			{
+				std::uint32_t Bit;
+				const char* Name;
+			} RenderModeNames[] = {
 				{ RenderModeBlendMix, "blend_mix" }, { RenderModeBlendAdd, "blend_add" },
 				{ RenderModeBlendSub, "blend_sub" }, { RenderModeBlendMul, "blend_mul" },
 				{ RenderModeBlendPremulAlpha, "blend_premul_alpha" }, { RenderModeUnshaded, "unshaded" }
@@ -858,28 +885,28 @@ namespace ShaderCompiler
 				out += "  define " + v.Define + "\n";
 			}
 			for (const StructInfo& s : r.Structs) {
-				out += "  struct " + s.Name + " size=" + Death::format("{}",s.Size) + " align=" + Death::format("{}",s.Align) + "\n";
+				out += "  struct " + s.Name + " size=" + Death::format("{}", s.Size) + " align=" + Death::format("{}", s.Align) + "\n";
 				for (const MemberInfo& f : s.Fields) {
 					out += "    field " + f.TypeName + " " + f.Name + ArraySuffix(f.ArraySize, f.SymbolicArray) +
-						" offset=" + Death::format("{}",f.Offset) + "\n";
+						" offset=" + Death::format("{}", f.Offset) + "\n";
 				}
 			}
 			for (const UniformInfo& u : r.Uniforms) {
 				out += "  uniform " + u.TypeName + " " + u.Name + ArraySuffix(u.ArraySize, false) + "\n";
 			}
 			for (const BlockInfo& b : r.Blocks) {
-				out += "  block " + b.Name + " baseSize=" + Death::format("{}",b.BaseSize) +
-					" instanceStride=" + Death::format("{}",b.InstanceStride) + "\n";
+				out += "  block " + b.Name + " baseSize=" + Death::format("{}", b.BaseSize) +
+					" instanceStride=" + Death::format("{}", b.InstanceStride) + "\n";
 				for (const MemberInfo& m : b.Members) {
 					out += "    member " + m.TypeName + " " + m.Name + ArraySuffix(m.ArraySize, m.SymbolicArray) +
-						" offset=" + Death::format("{}",m.Offset) + "\n";
+						" offset=" + Death::format("{}", m.Offset) + "\n";
 				}
 			}
 			for (const TextureInfo& t : r.Textures) {
-				out += "  texture " + t.Name + " unit=" + Death::format("{}",t.Unit) + "\n";
+				out += "  texture " + t.Name + " unit=" + Death::format("{}", t.Unit) + "\n";
 			}
 			for (const AttributeInfo& a : r.Attributes) {
-				out += "  attribute " + a.TypeName + " " + a.Name + " location=" + Death::format("{}",a.Location) + "\n";
+				out += "  attribute " + a.TypeName + " " + a.Name + " location=" + Death::format("{}", a.Location) + "\n";
 			}
 		}
 		return out;

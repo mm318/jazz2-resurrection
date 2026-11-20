@@ -34,12 +34,14 @@ namespace nCine
 		ParticleSystem& operator=(ParticleSystem&&);
 
 		/** @brief Returns a copy of this object */
-		inline ParticleSystem Clone() const {
+		inline ParticleSystem Clone() const
+		{
 			return ParticleSystem(*this);
 		}
 
 		/** @brief Adds a particle affector, taking ownership of it */
-		inline void AddAffector(std::unique_ptr<ParticleAffector> affector) {
+		inline void AddAffector(std::unique_ptr<ParticleAffector> affector)
+		{
 			_affectors.push_back(affector.release());
 		}
 		/** @brief Deletes all particle affectors */
@@ -50,20 +52,24 @@ namespace nCine
 		void KillParticles();
 
 		/** @brief Returns whether the system is simulated in local space */
-		inline bool IsInLocalSpace() const {
+		inline bool IsInLocalSpace() const
+		{
 			return _inLocalSpace;
 		}
 		/** @brief Sets whether the system is simulated in local space */
-		inline void SetInLocalSpace(bool inLocalSpace) {
+		inline void SetInLocalSpace(bool inLocalSpace)
+		{
 			_inLocalSpace = inLocalSpace;
 		}
 
 		/** @brief Returns the total number of particles in the pool */
-		inline std::uint32_t GetParticleCount() const {
+		inline std::uint32_t GetParticleCount() const
+		{
 			return std::uint32_t(_particleArray.size());
 		}
 		/** @brief Returns the number of particles currently alive */
-		inline std::uint32_t GetAliveParticleCount() const {
+		inline std::uint32_t GetAliveParticleCount() const
+		{
 			return std::uint32_t(_particleArray.size()) - _poolTop - 1;
 		}
 
@@ -93,7 +99,8 @@ namespace nCine
 		void OnUpdate(float timeMult) override;
 
 		/** @brief Returns the static object type of the class */
-		inline static ObjectType sType() {
+		inline static ObjectType sType()
+		{
 			return ObjectType::ParticleSystem;
 		}
 

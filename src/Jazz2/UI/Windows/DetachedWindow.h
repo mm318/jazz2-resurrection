@@ -63,27 +63,33 @@ namespace Jazz2::UI::Windows
 		DetachedWindow& operator=(const DetachedWindow&) = delete;
 
 		/** @brief Returns the element shown in it */
-		Element* GetElement() const {
+		Element* GetElement() const
+		{
 			return _element;
 		}
 		/** @brief Returns the identifier of the window in input events, see @ref PointerEvent::WindowId */
-		std::uint32_t GetId() const {
+		std::uint32_t GetId() const
+		{
 			return _window->GetId();
 		}
 		/** @brief Returns `true` if the system rounds the corners of the window, see @ref AuxiliaryWindow::HasRoundedCorners() */
-		bool HasRoundedCorners() const {
+		bool HasRoundedCorners() const
+		{
 			return _window->HasRoundedCorners();
 		}
 		/** @brief Returns `true` if it's a popup, a menu or a list */
-		bool IsPopup() const {
+		bool IsPopup() const
+		{
 			return _popup;
 		}
 		/** @brief Returns where the element is relative to the main window and its size, in pixels */
-		const Rectf& GetBounds() const {
+		const Rectf& GetBounds() const
+		{
 			return _bounds;
 		}
 		/** @brief Returns where the window is on the desktop, in units of the desktop */
-		Vector2i GetDesktopPosition() const {
+		Vector2i GetDesktopPosition() const
+		{
 			return _desktopPosition;
 		}
 		/** @brief Returns the size of the window on the desktop, in units of the desktop */
@@ -93,13 +99,15 @@ namespace Jazz2::UI::Windows
 		 *
 		 * Rounded, so a few scales are drawn, see @ref Painter::SetRaster().
 		 */
-		float GetRaster() const {
+		float GetRaster() const
+		{
 			return _raster;
 		}
 		/** @brief Returns where a point relative to the main window in pixels is on the desktop, as the window shows it */
 		Vector2i ToDesktop(Vector2f point) const;
 		/** @brief Returns the polyline renderer of the window, it draws only into it */
-		Rendering::PolylineRenderer* GetLines() const {
+		Rendering::PolylineRenderer* GetLines() const
+		{
 			return _lines.get();
 		}
 
@@ -150,26 +158,70 @@ namespace Jazz2::UI::Windows
 	public:
 		using DrawFunc = Death::Containers::Function<void(UI::Canvas&, DetachedWindow&)>;
 
-		static std::unique_ptr<DetachedWindow> Create(Element*, const Rectf&, Vector2i, float, bool, bool, DrawFunc&&) {
+		static std::unique_ptr<DetachedWindow> Create(Element*, const Rectf&, Vector2i, float, bool, bool, DrawFunc&&)
+		{
 			return nullptr;
 		}
 
-		Element* GetElement() const { return nullptr; }
-		std::uint32_t GetId() const { return 0; }
-		bool HasRoundedCorners() const { return false; }
-		bool IsPopup() const { return false; }
-		const Rectf& GetBounds() const { return _bounds; }
-		Vector2i GetDesktopPosition() const { return {}; }
-		Vector2i GetDesktopSize() const { return {}; }
-		float GetRaster() const { return 1.0f; }
-		Vector2i ToDesktop(Vector2f) const { return {}; }
-		Rendering::PolylineRenderer* GetLines() const { return nullptr; }
-		void Place(const Rectf&, Vector2i, float) {}
-		void Show(bool) {}
-		void Hide() {}
-		bool IsShown() const { return false; }
-		void Raise() {}
-		void SetTitle(StringView) {}
+		Element* GetElement() const
+		{
+			return nullptr;
+		}
+		std::uint32_t GetId() const
+		{
+			return 0;
+		}
+		bool HasRoundedCorners() const
+		{
+			return false;
+		}
+		bool IsPopup() const
+		{
+			return false;
+		}
+		const Rectf& GetBounds() const
+		{
+			return _bounds;
+		}
+		Vector2i GetDesktopPosition() const
+		{
+			return {};
+		}
+		Vector2i GetDesktopSize() const
+		{
+			return {};
+		}
+		float GetRaster() const
+		{
+			return 1.0f;
+		}
+		Vector2i ToDesktop(Vector2f) const
+		{
+			return {};
+		}
+		Rendering::PolylineRenderer* GetLines() const
+		{
+			return nullptr;
+		}
+		void Place(const Rectf&, Vector2i, float)
+		{
+		}
+		void Show(bool)
+		{
+		}
+		void Hide()
+		{
+		}
+		bool IsShown() const
+		{
+			return false;
+		}
+		void Raise()
+		{
+		}
+		void SetTitle(StringView)
+		{
+		}
 
 	private:
 		Rectf _bounds;

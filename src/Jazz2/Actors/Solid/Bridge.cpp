@@ -14,7 +14,7 @@ namespace Jazz2::Actors::Solid
 {
 	Bridge::Bridge()
 		: _leftX(0.0f), _leftHeight(0.0f), _rightX(0.0f), _rightHeight(0.0f),
-			_syncLeftX(0.0f), _syncLeftHeight(0.0f), _syncRightX(0.0f), _syncRightHeight(0.0f), _sagSyncTimer(0.0f), _sagWasActive(false)
+		  _syncLeftX(0.0f), _syncLeftHeight(0.0f), _syncRightX(0.0f), _syncRightHeight(0.0f), _sagSyncTimer(0.0f), _sagWasActive(false)
 	{
 	}
 
@@ -31,22 +31,39 @@ namespace Jazz2::Actors::Solid
 		BridgeType bridgeType = (BridgeType)details.Params[2];
 		switch (bridgeType) {
 			default:
-			case BridgeType::Rope: PreloadMetadataAsync("Bridge/Rope"_s); break;
-			case BridgeType::Stone: PreloadMetadataAsync("Bridge/Stone"_s); break;
-			case BridgeType::Vine: PreloadMetadataAsync("Bridge/Vine"_s); break;
-			case BridgeType::StoneRed: PreloadMetadataAsync("Bridge/StoneRed"_s); break;
-			case BridgeType::Log: PreloadMetadataAsync("Bridge/Log"_s); break;
-			case BridgeType::Gem: PreloadMetadataAsync("Bridge/Gem"_s); break;
-			case BridgeType::Lab: PreloadMetadataAsync("Bridge/Lab"_s); break;
+			case BridgeType::Rope:
+				PreloadMetadataAsync("Bridge/Rope"_s);
+				break;
+			case BridgeType::Stone:
+				PreloadMetadataAsync("Bridge/Stone"_s);
+				break;
+			case BridgeType::Vine:
+				PreloadMetadataAsync("Bridge/Vine"_s);
+				break;
+			case BridgeType::StoneRed:
+				PreloadMetadataAsync("Bridge/StoneRed"_s);
+				break;
+			case BridgeType::Log:
+				PreloadMetadataAsync("Bridge/Log"_s);
+				break;
+			case BridgeType::Gem:
+				PreloadMetadataAsync("Bridge/Gem"_s);
+				break;
+			case BridgeType::Lab:
+				PreloadMetadataAsync("Bridge/Lab"_s);
+				break;
 		}
 	}
 
 	std::int32_t Bridge::GetPieceInset(std::uint8_t bridgeType)
 	{
 		switch (BridgeType(bridgeType)) {
-			case BridgeType::Vine: return 8;
-			case BridgeType::Lab: return 12;
-			default: return 0;
+			case BridgeType::Vine:
+				return 8;
+			case BridgeType::Lab:
+				return 12;
+			default:
+				return 0;
 		}
 	}
 
@@ -91,13 +108,27 @@ namespace Jazz2::Actors::Solid
 
 		switch (_bridgeType) {
 			default:
-			case BridgeType::Rope: async_await RequestMetadataAsync("Bridge/Rope"_s); break;
-			case BridgeType::Stone: async_await RequestMetadataAsync("Bridge/Stone"_s); break;
-			case BridgeType::Vine: async_await RequestMetadataAsync("Bridge/Vine"_s); break;
-			case BridgeType::StoneRed: async_await RequestMetadataAsync("Bridge/StoneRed"_s); break;
-			case BridgeType::Log: async_await RequestMetadataAsync("Bridge/Log"_s); break;
-			case BridgeType::Gem: async_await RequestMetadataAsync("Bridge/Gem"_s); break;
-			case BridgeType::Lab: async_await RequestMetadataAsync("Bridge/Lab"_s); break;
+			case BridgeType::Rope:
+				async_await RequestMetadataAsync("Bridge/Rope"_s);
+				break;
+			case BridgeType::Stone:
+				async_await RequestMetadataAsync("Bridge/Stone"_s);
+				break;
+			case BridgeType::Vine:
+				async_await RequestMetadataAsync("Bridge/Vine"_s);
+				break;
+			case BridgeType::StoneRed:
+				async_await RequestMetadataAsync("Bridge/StoneRed"_s);
+				break;
+			case BridgeType::Log:
+				async_await RequestMetadataAsync("Bridge/Log"_s);
+				break;
+			case BridgeType::Gem:
+				async_await RequestMetadataAsync("Bridge/Gem"_s);
+				break;
+			case BridgeType::Lab:
+				async_await RequestMetadataAsync("Bridge/Lab"_s);
+				break;
 		}
 		SetAnimation(AnimState::Default);
 
@@ -129,7 +160,6 @@ namespace Jazz2::Actors::Solid
 			textureUniform->SetIntValue(0); // GL_TEXTURE0
 		}
 	}
-
 
 	void Bridge::OnUpdate(float timeMult)
 	{

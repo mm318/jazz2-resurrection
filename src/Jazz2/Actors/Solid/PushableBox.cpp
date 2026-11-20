@@ -17,8 +17,12 @@ namespace Jazz2::Actors::Solid
 		uint8_t theme = details.Params[0];
 		switch (theme) {
 			default:
-			case 0: PreloadMetadataAsync("Object/PushBoxRock"_s); break;
-			case 1: PreloadMetadataAsync("Object/PushBoxCrate"_s); break;
+			case 0:
+				PreloadMetadataAsync("Object/PushBoxRock"_s);
+				break;
+			case 1:
+				PreloadMetadataAsync("Object/PushBoxCrate"_s);
+				break;
 		}
 	}
 
@@ -31,8 +35,12 @@ namespace Jazz2::Actors::Solid
 
 		switch (theme) {
 			default:
-			case 0: async_await RequestMetadataAsync("Object/PushBoxRock"); break;
-			case 1: async_await RequestMetadataAsync("Object/PushBoxCrate"); break;
+			case 0:
+				async_await RequestMetadataAsync("Object/PushBoxRock");
+				break;
+			case 1:
+				async_await RequestMetadataAsync("Object/PushBoxCrate");
+				break;
 		}
 
 		SetAnimation(AnimState::Default);

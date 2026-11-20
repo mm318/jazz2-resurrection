@@ -437,30 +437,42 @@ namespace Jazz2::Scripting
 		engine->RegisterObjectType("vec2i", sizeof(Vector2i), asOBJ_VALUE | asGetTypeTraits<Vector2i>() | asOBJ_POD | asOBJ_APP_CLASS_ALLINTS);
 		/** @brief Creates a copy of another vector */
 		engine->RegisterObjectBehaviour("vec2i", asBEHAVE_CONSTRUCT, "void f(const vec2i&in)", asFUNCTION(+[](Vector2i* _ptr, const Vector2i& v) {
-			new(_ptr) Vector2i(v.X, v.Y); }), asCALL_CDECL_OBJFIRST);
+			new (_ptr) Vector2i(v.X, v.Y);
+		}),
+			asCALL_CDECL_OBJFIRST);
 		/** @brief Creates a vector from X and Y components */
 		engine->RegisterObjectBehaviour("vec2i", asBEHAVE_CONSTRUCT, "void f(int, int)", asFUNCTION(+[](Vector2i* _ptr, std::int32_t x, std::int32_t y) {
-			new(_ptr) Vector2i(x, y); }), asCALL_CDECL_OBJFIRST);
+			new (_ptr) Vector2i(x, y);
+		}),
+			asCALL_CDECL_OBJFIRST);
 		RegisterMembers_Vector2i(engine, "vec2i");
 
 		/** @brief Three-dimensional vector with integer components */
 		engine->RegisterObjectType("vec3i", sizeof(Vector3i), asOBJ_VALUE | asGetTypeTraits<Vector3i>() | asOBJ_POD | asOBJ_APP_CLASS_ALLINTS);
 		/** @brief Creates a copy of another vector */
 		engine->RegisterObjectBehaviour("vec3i", asBEHAVE_CONSTRUCT, "void f(const vec3i&in)", asFUNCTION(+[](Vector3i* _ptr, const Vector3i& v) {
-			new(_ptr) Vector3i(v.X, v.Y, v.Z); }), asCALL_CDECL_OBJFIRST);
+			new (_ptr) Vector3i(v.X, v.Y, v.Z);
+		}),
+			asCALL_CDECL_OBJFIRST);
 		/** @brief Creates a vector from X, Y and Z components */
 		engine->RegisterObjectBehaviour("vec3i", asBEHAVE_CONSTRUCT, "void f(int, int, int)", asFUNCTION(+[](Vector3i* _ptr, std::int32_t x, std::int32_t y, std::int32_t z) {
-			new(_ptr) Vector3i(x, y, z); }), asCALL_CDECL_OBJFIRST);
+			new (_ptr) Vector3i(x, y, z);
+		}),
+			asCALL_CDECL_OBJFIRST);
 		RegisterMembers_Vector3i(engine, "vec3i");
 
 		/** @brief Four-dimensional vector with integer components */
 		engine->RegisterObjectType("vec4i", sizeof(Vector4i), asOBJ_VALUE | asGetTypeTraits<Vector4i>() | asOBJ_POD | asOBJ_APP_CLASS_ALLINTS);
 		/** @brief Creates a copy of another vector */
 		engine->RegisterObjectBehaviour("vec4i", asBEHAVE_CONSTRUCT, "void f(const vec4i&in)", asFUNCTION(+[](Vector4i* _ptr, const Vector4i& v) {
-			new(_ptr) Vector4i(v.X, v.Y, v.Z, v.W); }), asCALL_CDECL_OBJFIRST);
+			new (_ptr) Vector4i(v.X, v.Y, v.Z, v.W);
+		}),
+			asCALL_CDECL_OBJFIRST);
 		/** @brief Creates a vector from X, Y, Z and W components */
 		engine->RegisterObjectBehaviour("vec4i", asBEHAVE_CONSTRUCT, "void f(int, int, int, int)", asFUNCTION(+[](Vector4i* _ptr, std::int32_t x, std::int32_t y, std::int32_t z, std::int32_t w) {
-			new(_ptr) Vector4i(x, y, z, w); }), asCALL_CDECL_OBJFIRST);
+			new (_ptr) Vector4i(x, y, z, w);
+		}),
+			asCALL_CDECL_OBJFIRST);
 		RegisterMembers_Vector4i(engine, "vec4i");
 
 		// Vectors (float)
@@ -472,48 +484,72 @@ namespace Jazz2::Scripting
 		engine->RegisterObjectType("vec2", sizeof(Vector2f), asOBJ_VALUE | asGetTypeTraits<Vector2f>() | asOBJ_POD | asOBJ_APP_CLASS_ALLFLOATS);
 		/** @brief Creates a copy of another vector */
 		engine->RegisterObjectBehaviour("vec2", asBEHAVE_CONSTRUCT, "void f(const vec2&in)", asFUNCTION(+[](Vector2f* _ptr, const Vector2f& v) {
-			new(_ptr) Vector2f(v); }), asCALL_CDECL_OBJFIRST);
+			new (_ptr) Vector2f(v);
+		}),
+			asCALL_CDECL_OBJFIRST);
 		/** @brief Creates a vector from an integer vector */
 		engine->RegisterObjectBehaviour("vec2", asBEHAVE_CONSTRUCT, "void f(const vec2i&in)", asFUNCTION(+[](Vector2f* _ptr, const Vector2i& v) {
-			new(_ptr) Vector2f(v.X, v.Y); }), asCALL_CDECL_OBJFIRST);
+			new (_ptr) Vector2f(v.X, v.Y);
+		}),
+			asCALL_CDECL_OBJFIRST);
 		/** @brief Creates a vector from X and Y components */
 		engine->RegisterObjectBehaviour("vec2", asBEHAVE_CONSTRUCT, "void f(float, float)", asFUNCTION(+[](Vector2f* _ptr, float x, float y) {
-			new(_ptr) Vector2f(x, y); }), asCALL_CDECL_OBJFIRST);
+			new (_ptr) Vector2f(x, y);
+		}),
+			asCALL_CDECL_OBJFIRST);
 		/** @brief Creates a vector from integer X and Y components */
 		engine->RegisterObjectBehaviour("vec2", asBEHAVE_CONSTRUCT, "void f(int, int)", asFUNCTION(+[](Vector2f* _ptr, std::int32_t x, std::int32_t y) {
-			new(_ptr) Vector2f(x, y); }), asCALL_CDECL_OBJFIRST);
+			new (_ptr) Vector2f(x, y);
+		}),
+			asCALL_CDECL_OBJFIRST);
 		RegisterMembers_Vector2f(engine, "vec2");
 
 		/** @brief Three-dimensional vector with floating-point components */
 		engine->RegisterObjectType("vec3", sizeof(Vector3f), asOBJ_VALUE | asGetTypeTraits<Vector3f>() | asOBJ_POD | asOBJ_APP_CLASS_ALLFLOATS);
 		/** @brief Creates a copy of another vector */
 		engine->RegisterObjectBehaviour("vec3", asBEHAVE_CONSTRUCT, "void f(const vec3&in)", asFUNCTION(+[](Vector3f* _ptr, const Vector3f& v) {
-			new(_ptr) Vector3f(v); }), asCALL_CDECL_OBJFIRST);
+			new (_ptr) Vector3f(v);
+		}),
+			asCALL_CDECL_OBJFIRST);
 		/** @brief Creates a vector from an integer vector */
 		engine->RegisterObjectBehaviour("vec3", asBEHAVE_CONSTRUCT, "void f(const vec3i&in)", asFUNCTION(+[](Vector3f* _ptr, const Vector3i& v) {
-			new(_ptr) Vector3f(v.X, v.Y, v.Z); }), asCALL_CDECL_OBJFIRST);
+			new (_ptr) Vector3f(v.X, v.Y, v.Z);
+		}),
+			asCALL_CDECL_OBJFIRST);
 		/** @brief Creates a vector from X, Y and Z components */
 		engine->RegisterObjectBehaviour("vec3", asBEHAVE_CONSTRUCT, "void f(float, float, float)", asFUNCTION(+[](Vector3f* _ptr, float x, float y, float z) {
-			new(_ptr) Vector3f(x, y, z); }), asCALL_CDECL_OBJFIRST);
+			new (_ptr) Vector3f(x, y, z);
+		}),
+			asCALL_CDECL_OBJFIRST);
 		/** @brief Creates a vector from integer X, Y and Z components */
 		engine->RegisterObjectBehaviour("vec3", asBEHAVE_CONSTRUCT, "void f(int, int, int)", asFUNCTION(+[](Vector3f* _ptr, std::int32_t x, std::int32_t y, std::int32_t z) {
-			new(_ptr) Vector3f(x, y, z); }), asCALL_CDECL_OBJFIRST);
+			new (_ptr) Vector3f(x, y, z);
+		}),
+			asCALL_CDECL_OBJFIRST);
 		RegisterMembers_Vector3f(engine, "vec3");
 
 		/** @brief Four-dimensional vector with floating-point components */
 		engine->RegisterObjectType("vec4", sizeof(Vector4f), asOBJ_VALUE | asGetTypeTraits<Vector4f>() | asOBJ_POD | asOBJ_APP_CLASS_ALLFLOATS);
 		/** @brief Creates a copy of another vector */
 		engine->RegisterObjectBehaviour("vec4", asBEHAVE_CONSTRUCT, "void f(const vec4&in)", asFUNCTION(+[](Vector4f* _ptr, const Vector4f& v) {
-			new(_ptr) Vector4f(v); }), asCALL_CDECL_OBJFIRST);
+			new (_ptr) Vector4f(v);
+		}),
+			asCALL_CDECL_OBJFIRST);
 		/** @brief Creates a vector from an integer vector */
 		engine->RegisterObjectBehaviour("vec4", asBEHAVE_CONSTRUCT, "void f(const vec4i&in)", asFUNCTION(+[](Vector4f* _ptr, const Vector4i& v) {
-			new(_ptr) Vector4f(v.X, v.Y, v.Z, v.W); }), asCALL_CDECL_OBJFIRST);
+			new (_ptr) Vector4f(v.X, v.Y, v.Z, v.W);
+		}),
+			asCALL_CDECL_OBJFIRST);
 		/** @brief Creates a vector from X, Y, Z and W components */
 		engine->RegisterObjectBehaviour("vec4", asBEHAVE_CONSTRUCT, "void f(float, float, float, float)", asFUNCTION(+[](Vector4f* _ptr, float x, float y, float z, float w) {
-			new(_ptr) Vector4f(x, y, z, w); }), asCALL_CDECL_OBJFIRST);
+			new (_ptr) Vector4f(x, y, z, w);
+		}),
+			asCALL_CDECL_OBJFIRST);
 		/** @brief Creates a vector from integer X, Y, Z and W components */
 		engine->RegisterObjectBehaviour("vec4", asBEHAVE_CONSTRUCT, "void f(int, int, int, int)", asFUNCTION(+[](Vector4f* _ptr, std::int32_t x, std::int32_t y, std::int32_t z, std::int32_t w) {
-			new(_ptr) Vector4f(x, y, z, w); }), asCALL_CDECL_OBJFIRST);
+			new (_ptr) Vector4f(x, y, z, w);
+		}),
+			asCALL_CDECL_OBJFIRST);
 		RegisterMembers_Vector4f(engine, "vec4");
 
 		// Color
@@ -526,31 +562,41 @@ namespace Jazz2::Scripting
 		engine->RegisterObjectType("Color", sizeof(Colorf), asOBJ_VALUE | asGetTypeTraits<Colorf>() | asOBJ_POD | asOBJ_APP_CLASS_ALLFLOATS);
 		/** @brief Creates a copy of another color */
 		engine->RegisterObjectBehaviour("Color", asBEHAVE_CONSTRUCT, "void f(const Color&in)", asFUNCTION(+[](Vector4f* _ptr, const Colorf& v) {
-			new(_ptr) Colorf(v); }), asCALL_CDECL_OBJFIRST);
+			new (_ptr) Colorf(v);
+		}),
+			asCALL_CDECL_OBJFIRST);
 		/**
 		 * @brief Creates a color from a vector and an alpha value
 		 *
 		 * The X, Y and Z components of the vector become red, green and blue. Alpha is clamped to the range 0 to 1.
 		 */
 		engine->RegisterObjectBehaviour("Color", asBEHAVE_CONSTRUCT, "void f(const vec3&in, float)", asFUNCTION(+[](Vector4f* _ptr, const Vector3f& v, float a) {
-			new(_ptr) Colorf(v.X, v.Y, v.Z, a); }), asCALL_CDECL_OBJFIRST);
+			new (_ptr) Colorf(v.X, v.Y, v.Z, a);
+		}),
+			asCALL_CDECL_OBJFIRST);
 		/**
 		 * @brief Creates a color from a vector
 		 *
 		 * The X, Y, Z and W components become red, green, blue and alpha. Alpha is clamped to the range 0 to 1.
 		 */
 		engine->RegisterObjectBehaviour("Color", asBEHAVE_CONSTRUCT, "void f(const vec4&in)", asFUNCTION(+[](Vector4f* _ptr, const Vector4f& v) {
-			new(_ptr) Colorf(v.X, v.Y, v.Z, v.W); }), asCALL_CDECL_OBJFIRST);
+			new (_ptr) Colorf(v.X, v.Y, v.Z, v.W);
+		}),
+			asCALL_CDECL_OBJFIRST);
 		/** @brief Creates an opaque color from red, green and blue channels */
 		engine->RegisterObjectBehaviour("Color", asBEHAVE_CONSTRUCT, "void f(float, float, float)", asFUNCTION(+[](Vector4f* _ptr, float r, float g, float b) {
-			new(_ptr) Colorf(r, g, b); }), asCALL_CDECL_OBJFIRST);
+			new (_ptr) Colorf(r, g, b);
+		}),
+			asCALL_CDECL_OBJFIRST);
 		/**
 		 * @brief Creates a color from red, green, blue and alpha channels
 		 *
 		 * Alpha is clamped to the range 0 to 1.
 		 */
 		engine->RegisterObjectBehaviour("Color", asBEHAVE_CONSTRUCT, "void f(float, float, float, float)", asFUNCTION(+[](Vector4f* _ptr, float r, float g, float b, float a) {
-			new(_ptr) Colorf(r, g, b, a); }), asCALL_CDECL_OBJFIRST);
+			new (_ptr) Colorf(r, g, b, a);
+		}),
+			asCALL_CDECL_OBJFIRST);
 		RegisterMembers_Color(engine, "Color");
 	}
 }

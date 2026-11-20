@@ -16,7 +16,7 @@
 #include "../../PlayerType.h"
 #include "../../Events/EventMap.h"
 #if defined(WITH_MULTIPLAYER)
-#	include "../../Multiplayer/RaceRouteGenerator.h"
+#include "../../Multiplayer/RaceRouteGenerator.h"
 #endif
 
 #include "../../../nCine/I18n.h"
@@ -65,7 +65,7 @@ namespace Jazz2::Editor
 		// Only the moves of the character asked for, with none asked for, of any of them
 		using Multiplayer::TrackCharacterMoves;
 		TrackCharacterMoves moves = (character <= 0 ? TrackCharacterMoves::All
-			: (character == std::int32_t(PlayerType::Spaz) ? TrackCharacterMoves::DoubleJump : TrackCharacterMoves::Glide));
+													: (character == std::int32_t(PlayerType::Spaz) ? TrackCharacterMoves::DoubleJump : TrackCharacterMoves::Glide));
 		// As the multiplayer starts the tracer is given otherwise, it finds the nearest tile the player can be in, from
 		// several starts each tile is as far as from the nearest of them
 		float waterLevel = float(document.Properties.WaterLevel);
@@ -138,8 +138,7 @@ namespace Jazz2::Editor
 
 	void PlayOverlays::NoteDocumentChanges(const DocumentChanges& changes)
 	{
-		if (!_reachability.empty() && changes.HasAny(DocumentChangeKind::Tiles | DocumentChangeKind::Events | DocumentChangeKind::LayerStructure |
-			DocumentChangeKind::TileOverrides | DocumentChangeKind::TileSets | DocumentChangeKind::LevelProperties)) {
+		if (!_reachability.empty() && changes.HasAny(DocumentChangeKind::Tiles | DocumentChangeKind::Events | DocumentChangeKind::LayerStructure | DocumentChangeKind::TileOverrides | DocumentChangeKind::TileSets | DocumentChangeKind::LevelProperties)) {
 			// Found again once the changes stop for a moment, the events of the level shown are only those it was loaded with
 			_reachabilityDirty = true;
 			_reachabilityWait = 30.0f;
@@ -193,13 +192,13 @@ namespace Jazz2::Editor
 			SmallVector<DeathCell, 0> sorted;
 			sorted.reserve(deaths.size());
 			for (Vector2f pos : deaths) {
-				sorted.push_back(DeathCell{ Vector2i(std::int32_t(std::floor(pos.X / CellSize)), std::int32_t(std::floor(pos.Y / CellSize))), pos });
+				sorted.push_back(DeathCell { Vector2i(std::int32_t(std::floor(pos.X / CellSize)), std::int32_t(std::floor(pos.Y / CellSize))), pos });
 			}
 			// By the cell, so the deaths of a cell follow each other
 			std::sort(sorted.begin(), sorted.end(), [](const DeathCell& a, const DeathCell& b) {
 				return (a.Cell.Y < b.Cell.Y || (a.Cell.Y == b.Cell.Y && a.Cell.X < b.Cell.X));
 			});
-			for (std::size_t i = 0; i < sorted.size(); ) {
+			for (std::size_t i = 0; i < sorted.size();) {
 				Vector2f sum;
 				std::int32_t count = 0;
 				std::size_t j = i;
@@ -207,7 +206,7 @@ namespace Jazz2::Editor
 					sum += sorted[j].Pos;
 					count++;
 				}
-				_deathSpots.push_back(DeathSpot{ sum / float(count), count });
+				_deathSpots.push_back(DeathSpot { sum / float(count), count });
 				_deathSpotsMaxCount = std::max(_deathSpotsMaxCount, count);
 				i = j;
 			}

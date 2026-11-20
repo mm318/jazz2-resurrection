@@ -23,7 +23,8 @@ namespace Jazz2::UI::Menu
 		void OnDraw(Canvas* canvas) override;
 		void OnTouchEvent(const nCine::TouchEvent& event, Vector2i viewSize) override;
 
-		NavigationFlags GetNavigationFlags() const override {
+		NavigationFlags GetNavigationFlags() const override
+		{
 			return NavigationFlags::AllowKeyboard;
 		}
 

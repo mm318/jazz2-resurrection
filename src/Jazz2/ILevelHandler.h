@@ -40,16 +40,16 @@ namespace Jazz2
 	/** @brief How @ref ILevelHandler::OverrideCameraView() changes the camera of a player on an axis */
 	enum class CameraOverride : std::uint8_t
 	{
-		Keep,		/**< Stays as it is */
-		Follow,		/**< Follows the player again */
-		Fix			/**< Fixed at the given position */
+		Keep, /**< Stays as it is */
+		Follow, /**< Follows the player again */
+		Fix /**< Fixed at the given position */
 	};
 
 	/** @brief How players move under water, see @ref ILevelHandler::GetWaterInteraction() */
 	enum class WaterInteraction : std::uint8_t
 	{
-		Swim,		/**< Players swim */
-		LowGravity	/**< Players walk and jump as on land, but fall more slowly */
+		Swim, /**< Players swim */
+		LowGravity /**< Players walk and jump as on land, but fall more slowly */
 	};
 
 	/**
@@ -199,7 +199,8 @@ namespace Jazz2
 		virtual bool IsPositionEmpty(Actors::ActorBase* self, const AABBf& aabb, Tiles::TileCollisionParams& params, Actors::ActorBase** collider) = 0;
 
 		/** @overload */
-		bool IsPositionEmpty(Actors::ActorBase* self, const AABBf& aabb, Tiles::TileCollisionParams& params) {
+		bool IsPositionEmpty(Actors::ActorBase* self, const AABBf& aabb, Tiles::TileCollisionParams& params)
+		{
 			Actors::ActorBase* collider;
 			return IsPositionEmpty(self, aabb, params, &collider);
 		}

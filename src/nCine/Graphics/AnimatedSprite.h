@@ -39,7 +39,8 @@ namespace nCine
 		AnimatedSprite& operator=(AnimatedSprite&&) = default;
 
 		/** @brief Returns a copy of this object */
-		inline AnimatedSprite Clone() const {
+		inline AnimatedSprite Clone() const
+		{
 			return AnimatedSprite(*this);
 		}
 
@@ -58,20 +59,24 @@ namespace nCine
 		void ClearAnimations();
 
 		/** @brief Returns the number of animations */
-		inline std::uint32_t GetAnimationCount() {
+		inline std::uint32_t GetAnimationCount()
+		{
 			return std::uint32_t(_anims.size());
 		}
 		/** @brief Returns the array of all animations */
-		inline SmallVectorImpl<RectAnimation>& GetAnimations() {
+		inline SmallVectorImpl<RectAnimation>& GetAnimations()
+		{
 			return _anims;
 		}
 		/** @brief Returns the array of all animations (read-only) */
-		inline const SmallVectorImpl<RectAnimation>& GetAnimations() const {
+		inline const SmallVectorImpl<RectAnimation>& GetAnimations() const
+		{
 			return _anims;
 		}
 
 		/** @brief Returns the index of the current animation */
-		std::uint32_t GetAnimationIndex() const {
+		std::uint32_t GetAnimationIndex() const
+		{
 			return _currentAnimIndex;
 		}
 		/** @brief Sets the current animation by index and resets its frame number */
@@ -87,7 +92,8 @@ namespace nCine
 		/** @brief Sets the current animation to the specified frame number */
 		void SetFrame(std::uint32_t frameNum);
 
-		inline static ObjectType sType() {
+		inline static ObjectType sType()
+		{
 			return ObjectType::AnimatedSprite;
 		}
 

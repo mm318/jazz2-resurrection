@@ -5,48 +5,48 @@
 #include <cstring>
 
 #if defined(DEATH_TARGET_WINDOWS)
-#	include <intrin.h>
-#	include <process.h>
-#	include <processthreadsapi.h>
-#	include <synchapi.h>
+#include <intrin.h>
+#include <process.h>
+#include <processthreadsapi.h>
+#include <synchapi.h>
 
-#	include <Utf8.h>
+#include <Utf8.h>
 #else
-#	include <pthread.h>
-#	include <signal.h>
-#	include <sched.h>		// for sched_yield()
-#	include <unistd.h>		// for sysconf()
-#	include <utility>
+#include <pthread.h>
+#include <signal.h>
+#include <sched.h> // for sched_yield()
+#include <unistd.h> // for sysconf()
+#include <utility>
 #endif
 
 #if defined(DEATH_TARGET_APPLE)
-#	include <mach/thread_act.h>
-#	include <mach/thread_policy.h>
+#include <mach/thread_act.h>
+#include <mach/thread_policy.h>
 #endif
 
 #if defined(DEATH_TARGET_EMSCRIPTEN)
-#	include <emscripten/emscripten.h>
-#	include <emscripten/stack.h>
+#include <emscripten/emscripten.h>
+#include <emscripten/stack.h>
 #endif
 
 #if defined(__FreeBSD__) || defined(__DragonFly__)
-#	include <pthread_np.h>
+#include <pthread_np.h>
 #endif
 
 #if defined(DEATH_TARGET_SWITCH)
-#	include <switch.h>
+#include <switch.h>
 #elif defined(DEATH_TARGET_N64)
-#	include <n64sys.h>	// for wait_ms()
+#include <n64sys.h> // for wait_ms()
 #elif defined(DEATH_TARGET_VITA)
-#	include <vitasdk.h>
+#include <vitasdk.h>
 #elif defined(DEATH_TARGET_PSP)
-#	include <pspthreadman.h>	// for sceKernelReferThreadStatus()
+#include <pspthreadman.h> // for sceKernelReferThreadStatus()
 #elif defined(DEATH_TARGET_WIIU)
-#	include <coreinit/core.h>	// for OSGetCoreCount()
+#include <coreinit/core.h> // for OSGetCoreCount()
 #endif
 
 #if defined(WITH_TRACY)
-#	include "common/TracySystem.hpp"
+#include "common/TracySystem.hpp"
 #endif
 
 namespace nCine
@@ -54,21 +54,21 @@ namespace nCine
 #if !defined(DEATH_TARGET_MSVC)
 	DEATH_ALWAYS_INLINE void InterlockedOperationBarrier() noexcept
 	{
-#	if defined(DEATH_TARGET_ARM) || defined(DEATH_TARGET_RISCV)
+#if defined(DEATH_TARGET_ARM) || defined(DEATH_TARGET_RISCV)
 		__sync_synchronize();
-#	endif
+#endif
 	}
 #endif
 
-	template<typename T>
+	template <typename T>
 	DEATH_ALWAYS_INLINE T ExchangePointer(T volatile* destination, T value) noexcept
 	{
 #if defined(DEATH_TARGET_MSVC)
-#	if !defined(DEATH_TARGET_32BIT)
+#if !defined(DEATH_TARGET_32BIT)
 		return (T)_InterlockedExchangePointer((void* volatile*)destination, value);
-#	else
+#else
 		return (T)_InterlockedExchange((long volatile*)(void* volatile*)destination, (long)(void*)value);
-#	endif
+#endif
 #else
 		T result = (T)__atomic_exchange_n((void* volatile*)destination, value, __ATOMIC_ACQ_REL);
 		InterlockedOperationBarrier();
@@ -76,15 +76,15 @@ namespace nCine
 #endif
 	}
 
-	template<typename T>
+	template <typename T>
 	DEATH_ALWAYS_INLINE T ExchangePointer(T volatile* destination, std::nullptr_t value) noexcept
 	{
 #if defined(DEATH_TARGET_MSVC)
-#	if !defined(DEATH_TARGET_32BIT)
+#if !defined(DEATH_TARGET_32BIT)
 		return (T)_InterlockedExchangePointer((void* volatile*)destination, value);
-#	else
+#else
 		return (T)_InterlockedExchange((long volatile*)(void* volatile*)destination, (long)(void*)value);
-#	endif
+#endif
 #else
 		T result = (T)__atomic_exchange_n((void* volatile*)destination, value, __ATOMIC_ACQ_REL);
 		InterlockedOperationBarrier();
@@ -143,8 +143,8 @@ namespace nCine
 		std::uint32_t fcsr = 0;
 		__asm__ __volatile__("cfc1 %0, $31" : "=r"(fcsr));
 		const std::uint32_t before = fcsr;
-		fcsr &= ~std::uint32_t(0x0003FF7C);	// enables (7-11), cause (12-17) and flags (2-6)
-		__asm__ __volatile__("ctc1 %0, $31" :: "r"(fcsr));
+		fcsr &= ~std::uint32_t(0x0003FF7C); // enables (7-11), cause (12-17) and flags (2-6)
+		__asm__ __volatile__("ctc1 %0, $31" ::"r"(fcsr));
 		if (trace) {
 			std::uint32_t after = 0;
 			__asm__ __volatile__("cfc1 %0, $31" : "=r"(after));
@@ -175,17 +175,18 @@ namespace nCine
 				return;
 			}
 
-#	if !defined(DEATH_TARGET_MINGW)
+#if !defined(DEATH_TARGET_MINGW)
 			constexpr DWORD MS_VC_EXCEPTION = 0x406D1388;
 
-#		pragma pack(push, 8)
-			struct THREADNAME_INFO {
+#pragma pack(push, 8)
+			struct THREADNAME_INFO
+			{
 				DWORD dwType;
 				LPCSTR szName;
 				DWORD dwThreadID;
 				DWORD dwFlags;
 			};
-#		pragma pack(pop)
+#pragma pack(pop)
 
 			THREADNAME_INFO info;
 			info.dwType = 0x1000;
@@ -197,60 +198,60 @@ namespace nCine
 				::RaiseException(MS_VC_EXCEPTION, 0, sizeof(info) / sizeof(ULONG_PTR), reinterpret_cast<ULONG_PTR*>(&info));
 			} __except (EXCEPTION_EXECUTE_HANDLER) {
 			}
-#	endif
+#endif
 		}
 #else
 		const std::uint32_t MaxThreadNameLength = 16;
 #endif
 	}
 
-#if !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && \
-		!defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && !defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && \
-		!defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_PS2) && !defined(DEATH_TARGET_AMIGAOS4) && \
-		!defined(DEATH_TARGET_MORPHOS)
+#if !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) &&                                                           \
+	!defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && !defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && \
+	!defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_PS2) && !defined(DEATH_TARGET_AMIGAOS4) &&                                                                    \
+	!defined(DEATH_TARGET_MORPHOS)
 
 	void ThreadAffinityMask::Zero()
 	{
-#	if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 		_affinityMask = 0LL;
-#	elif defined(DEATH_TARGET_APPLE)
+#elif defined(DEATH_TARGET_APPLE)
 		_affinityTag = THREAD_AFFINITY_TAG_NULL;
-#	else
+#else
 		CPU_ZERO(&_cpuSet);
-#	endif
+#endif
 	}
 
 	void ThreadAffinityMask::Set(std::int32_t cpuNum)
 	{
-#	if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 		_affinityMask |= 1LL << cpuNum;
-#	elif defined(DEATH_TARGET_APPLE)
+#elif defined(DEATH_TARGET_APPLE)
 		_affinityTag |= 1 << cpuNum;
-#	else
+#else
 		CPU_SET(cpuNum, &_cpuSet);
-#	endif
+#endif
 	}
 
 	void ThreadAffinityMask::Clear(std::int32_t cpuNum)
 	{
-#	if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 		_affinityMask &= ~(1LL << cpuNum);
-#	elif defined(DEATH_TARGET_APPLE)
+#elif defined(DEATH_TARGET_APPLE)
 		_affinityTag &= ~(1 << cpuNum);
-#	else
+#else
 		CPU_CLR(cpuNum, &_cpuSet);
-#	endif
+#endif
 	}
 
 	bool ThreadAffinityMask::IsSet(std::int32_t cpuNum)
 	{
-#	if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 		return ((_affinityMask >> cpuNum) & 1LL) != 0;
-#	elif defined(DEATH_TARGET_APPLE)
+#elif defined(DEATH_TARGET_APPLE)
 		return ((_affinityTag >> cpuNum) & 1) != 0;
-#	else
+#else
 		return CPU_ISSET(cpuNum, &_cpuSet) != 0;
-#	endif
+#endif
 	}
 
 #endif
@@ -338,15 +339,15 @@ namespace nCine
 		return (exitCode == STILL_ACTIVE);
 #else
 		pthread_t handle = _sharedBlock->_handle;
-#	if defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_AMIGAOS4) || \
-		defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE)
+#if defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_AMIGAOS4) || \
+	defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE)
 		// pthread_kill() is available neither in KOS, in AmigaOS 4's newlib nor in libnx (which has
 		// no signals at all, so the function is declared but never defined); the 3DS shim over libctru
 		// and the one over libogc's threads have no signals to deliver either
 		return (handle != 0);
-#	else
+#else
 		return (handle != 0 && pthread_kill(handle, 0) == 0);
-#	endif
+#endif
 #endif
 	}
 
@@ -371,11 +372,11 @@ namespace nCine
 		return 1;
 #else
 		long int confRet = -1;
-#	if defined(_SC_NPROCESSORS_ONLN)
+#if defined(_SC_NPROCESSORS_ONLN)
 		confRet = sysconf(_SC_NPROCESSORS_ONLN);
-#	elif defined(_SC_NPROC_ONLN)
+#elif defined(_SC_NPROC_ONLN)
 		confRet = sysconf(_SC_NPROC_ONLN);
-#	endif
+#endif
 		return (confRet > 0 ? static_cast<std::uint32_t>(confRet) : 0);
 #endif
 	}
@@ -388,7 +389,7 @@ namespace nCine
 		}
 
 		_sharedBlock = new SharedBlock();
-		_sharedBlock->_refCount = 2;	// Ref. count is decreased in Process()
+		_sharedBlock->_refCount = 2; // Ref. count is decreased in Process()
 		_sharedBlock->_threadFunc = threadFunc;
 		_sharedBlock->_threadArg = threadArg;
 #if defined(DEATH_TARGET_WINDOWS)
@@ -401,7 +402,7 @@ namespace nCine
 			return false;
 		}
 #else
-#	if defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_VITA)
+#if defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_VITA)
 		// Both handhelds default to a stack smaller than the engine wants on a thread that decodes audio or
 		// runs the update check's TLS handshake - 32 KB from pspdev's pthread-embedded.
 		//
@@ -418,21 +419,21 @@ namespace nCine
 		// fit in 64 KB instead is the conversion call chain, so keep an eye on -fstack-usage there.
 		pthread_attr_t attr;
 		pthread_attr_init(&attr);
-#		if defined(DEATH_TARGET_PSP)
+#if defined(DEATH_TARGET_PSP)
 		pthread_attr_setstacksize(&attr, 64 * 1024);
-#		elif defined(DEATH_TARGET_3DS)
+#elif defined(DEATH_TARGET_3DS)
 		// devkitARM's pthreads (libsysbase over libctru's threads) default to a stack meant for small workers;
 		// 128 KB fits the asset conversion chain with room to spare and there are only a handful of threads, so
 		// the 64 KB ceiling the PSP's memory forced is not needed here
 		pthread_attr_setstacksize(&attr, 128 * 1024);
-#		else
+#else
 		pthread_attr_setstacksize(&attr, 256 * 1024);
-#		endif
+#endif
 		const int error = pthread_create(&_sharedBlock->_handle, &attr, Thread::Process, _sharedBlock);
 		pthread_attr_destroy(&attr);
-#	else
+#else
 		const int error = pthread_create(&_sharedBlock->_handle, nullptr, Thread::Process, _sharedBlock);
-#	endif
+#endif
 		if (error != 0) {
 			delete _sharedBlock;
 			_sharedBlock = nullptr;
@@ -503,10 +504,10 @@ namespace nCine
 
 #if defined(DEATH_TARGET_WINDOWS)
 		SetThreadName(_sharedBlock->_handle, name);
-#elif !defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && \
-		!defined(DEATH_TARGET_VITA) && !defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && \
-		!defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_PS2) && \
-		!defined(DEATH_TARGET_AMIGAOS4) && !defined(DEATH_TARGET_MORPHOS)
+#elif !defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) &&                        \
+	!defined(DEATH_TARGET_VITA) && !defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && \
+	!defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_PS2) &&  \
+	!defined(DEATH_TARGET_AMIGAOS4) && !defined(DEATH_TARGET_MORPHOS)
 		const auto nameLength = strnlen(name, MaxThreadNameLength);
 		if (nameLength <= MaxThreadNameLength - 1) {
 			pthread_setname_np(_sharedBlock->_handle, name);
@@ -525,46 +526,46 @@ namespace nCine
 		tracy::SetThreadName(name);
 #elif defined(DEATH_TARGET_WINDOWS)
 		SetThreadName(reinterpret_cast<HANDLE>(-1), name);
-#elif !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_VITA) && \
-		!defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && !defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && \
-		!defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_PS2) && !defined(DEATH_TARGET_AMIGAOS4) && \
-		!defined(DEATH_TARGET_MORPHOS)
+#elif !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_VITA) &&                                                            \
+	!defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && !defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && \
+	!defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_PS2) && !defined(DEATH_TARGET_AMIGAOS4) &&                                                                    \
+	!defined(DEATH_TARGET_MORPHOS)
 		const auto nameLength = strnlen(name, MaxThreadNameLength);
 		if (nameLength <= MaxThreadNameLength - 1) {
-#	if !defined(DEATH_TARGET_APPLE)
+#if !defined(DEATH_TARGET_APPLE)
 			pthread_setname_np(pthread_self(), name);
-#	else
+#else
 			pthread_setname_np(name);
-#	endif
+#endif
 		} else {
 			char buffer[MaxThreadNameLength];
 			memcpy(buffer, name, MaxThreadNameLength - 1);
 			buffer[MaxThreadNameLength - 1] = '\0';
-#	if !defined(DEATH_TARGET_APPLE)
+#if !defined(DEATH_TARGET_APPLE)
 			pthread_setname_np(pthread_self(), name);
-#	else
+#else
 			pthread_setname_np(name);
-#	endif
+#endif
 		}
 #endif
 	}
 
 #if !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && \
-		!defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_PS2)
+	!defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_PS2)
 	std::int32_t Thread::GetPriority() const
 	{
 		if (_sharedBlock == nullptr || _sharedBlock->_handle == 0) {
 			return 0;
 		}
 
-#	if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 		return ::GetThreadPriority(_sharedBlock->_handle);
-#	else
+#else
 		int policy;
 		struct sched_param param;
 		pthread_getschedparam(_sharedBlock->_handle, &policy, &param);
 		return param.sched_priority;
-#	endif
+#endif
 	}
 
 	void Thread::SetPriority(std::int32_t priority)
@@ -573,16 +574,16 @@ namespace nCine
 			return;
 		}
 
-#	if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 		::SetThreadPriority(_sharedBlock->_handle, priority);
-#	else
+#else
 		int policy;
 		struct sched_param param;
 		pthread_getschedparam(_sharedBlock->_handle, &policy, &param);
 
 		param.sched_priority = priority;
 		pthread_setschedparam(_sharedBlock->_handle, policy, &param);
-#	endif
+#endif
 	}
 #endif
 
@@ -591,8 +592,8 @@ namespace nCine
 #if defined(DEATH_TARGET_WINDOWS)
 		return static_cast<std::uintptr_t>(::GetCurrentThreadId());
 #elif defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || \
-		defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_PS2) || \
-		defined(__FreeBSD__) || defined(__DragonFly__)
+	defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_PS2) ||    \
+	defined(__FreeBSD__) || defined(__DragonFly__)
 		return reinterpret_cast<std::uintptr_t>(pthread_self());
 #else
 		return static_cast<std::uintptr_t>(pthread_self());
@@ -617,7 +618,8 @@ namespace nCine
 	bool Thread::GetCurrentStackInfo(std::size_t& stackSize, std::size_t& stackRemaining) noexcept
 	{
 		const std::uintptr_t sp = GetCurrentStackPointer();
-		stackSize = 0; stackRemaining = 0;
+		stackSize = 0;
+		stackRemaining = 0;
 
 #if defined(DEATH_TARGET_WINDOWS)
 		MEMORY_BASIC_INFORMATION mbi {};
@@ -682,11 +684,11 @@ namespace nCine
 			tinfo.size = sizeof(SceKernelThreadInfo);
 			// The query carries the same name on both handhelds only in spirit - the struct and its two
 			// interesting members are identical, the entry point is not
-#	if defined(DEATH_TARGET_PSP)
+#if defined(DEATH_TARGET_PSP)
 			if (sceKernelReferThreadStatus(thid, &tinfo) == 0 && tinfo.stackSize > 0) {
-#	else
+#else
 			if (sceKernelGetThreadInfo(thid, &tinfo) == 0 && tinfo.stackSize > 0) {
-#	endif
+#endif
 				stackSize = static_cast<std::size_t>(tinfo.stackSize);
 				const std::uintptr_t low = reinterpret_cast<std::uintptr_t>(tinfo.stack);
 				if (sp > low && sp <= low + tinfo.stackSize) {
@@ -696,14 +698,14 @@ namespace nCine
 			}
 		}
 #elif defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_DREAMCAST) || \
-		defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_AMIGAOS4) || defined(DEATH_TARGET_MORPHOS)
+	defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_AMIGAOS4) || defined(DEATH_TARGET_MORPHOS)
 		// Stack information is not available on these platforms
 		return false;
 #else
 		pthread_t self = pthread_self();
 		pthread_attr_t attr;
 
-#	if defined(DEATH_TARGET_APPLE)
+#if defined(DEATH_TARGET_APPLE)
 		void* stackAddr = pthread_get_stackaddr_np(self);
 		stackSize = pthread_get_stacksize_np(self);
 
@@ -713,7 +715,7 @@ namespace nCine
 			stackRemaining = static_cast<std::size_t>(sp - (base - stackSize));
 		}
 		return true;
-#	else
+#else
 		if (pthread_getattr_np(self, &attr) == 0) {
 			void* stackAddr = nullptr;
 			std::size_t stackSize2 = 0;
@@ -730,7 +732,7 @@ namespace nCine
 			pthread_attr_destroy(&attr);
 			return (stackSize2 != 0);
 		}
-#	endif
+#endif
 #endif
 
 		return false;
@@ -770,10 +772,10 @@ namespace nCine
 #endif
 	}
 
-#if !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && \
-		!defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && !defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && \
-		!defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_PS2) && !defined(DEATH_TARGET_AMIGAOS4) && \
-		!defined(DEATH_TARGET_MORPHOS)
+#if !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) &&                                                           \
+	!defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && !defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && \
+	!defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_PS2) && !defined(DEATH_TARGET_AMIGAOS4) &&                                                                    \
+	!defined(DEATH_TARGET_MORPHOS)
 	ThreadAffinityMask Thread::GetAffinityMask() const
 	{
 		ThreadAffinityMask affinityMask;
@@ -783,19 +785,19 @@ namespace nCine
 			return affinityMask;
 		}
 
-#	if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 		affinityMask._affinityMask = ::SetThreadAffinityMask(_sharedBlock->_handle, ~0);
 		::SetThreadAffinityMask(_sharedBlock->_handle, affinityMask._affinityMask);
-#	elif defined(DEATH_TARGET_APPLE)
+#elif defined(DEATH_TARGET_APPLE)
 		thread_affinity_policy_data_t threadAffinityPolicy;
 		thread_port_t threadPort = pthread_mach_thread_np(_sharedBlock->_handle);
 		mach_msg_type_number_t policyCount = THREAD_AFFINITY_POLICY_COUNT;
 		boolean_t getDefault = FALSE;
 		thread_policy_get(threadPort, THREAD_AFFINITY_POLICY, reinterpret_cast<thread_policy_t>(&threadAffinityPolicy), &policyCount, &getDefault);
 		affinityMask._affinityTag = threadAffinityPolicy.affinity_tag;
-#	else
+#else
 		pthread_getaffinity_np(_sharedBlock->_handle, sizeof(cpu_set_t), &affinityMask._cpuSet);
-#	endif
+#endif
 
 		return affinityMask;
 	}
@@ -807,15 +809,15 @@ namespace nCine
 			return;
 		}
 
-#	if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 		::SetThreadAffinityMask(_sharedBlock->_handle, affinityMask._affinityMask);
-#	elif defined(DEATH_TARGET_APPLE)
+#elif defined(DEATH_TARGET_APPLE)
 		thread_affinity_policy_data_t threadAffinityPolicy = { affinityMask._affinityTag };
 		thread_port_t threadPort = pthread_mach_thread_np(_sharedBlock->_handle);
 		thread_policy_set(threadPort, THREAD_AFFINITY_POLICY, reinterpret_cast<thread_policy_t>(&threadAffinityPolicy), THREAD_AFFINITY_POLICY_COUNT);
-#	else
+#else
 		pthread_setaffinity_np(_sharedBlock->_handle, sizeof(cpu_set_t), &affinityMask._cpuSet);
-#	endif
+#endif
 	}
 #endif
 
@@ -839,9 +841,9 @@ namespace nCine
 		threadFunc(threadArg);
 
 #if defined(DEATH_TARGET_WINDOWS)
-#	if defined(DEATH_TARGET_MSVC)
+#if defined(DEATH_TARGET_MSVC)
 		_Cnd_do_broadcast_at_thread_exit();
-#	endif
+#endif
 		return 0;
 #else
 		return nullptr;

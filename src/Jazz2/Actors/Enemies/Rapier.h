@@ -17,12 +17,13 @@ namespace Jazz2::Actors::Enemies
 
 	public:
 		/** @brief State of the rapier */
-		enum class RapierState : std::uint8_t {
-			Floating,		/**< Floating around its origin */
-			WindingUp,		/**< Preparing to lunge */
-			Lunging,		/**< Accelerating toward the player */
-			Braking,		/**< Slowing down after the lunge */
-			Returning		/**< Flying straight back to its origin */
+		enum class RapierState : std::uint8_t
+		{
+			Floating, /**< Floating around its origin */
+			WindingUp, /**< Preparing to lunge */
+			Lunging, /**< Accelerating toward the player */
+			Braking, /**< Slowing down after the lunge */
+			Returning /**< Flying straight back to its origin */
 		};
 
 		/** @brief Creates a new instance */
@@ -32,7 +33,8 @@ namespace Jazz2::Actors::Enemies
 		static void Preload(const ActorActivationDetails& details);
 
 		/** @brief Returns the current state */
-		RapierState GetRapierState() const {
+		RapierState GetRapierState() const
+		{
 			return _rapierState;
 		}
 

@@ -25,7 +25,8 @@ namespace Jazz2::Actors::Bosses
 		/** @brief Preloads all assets required by this actor */
 		static void Preload(const ActorActivationDetails& details);
 
-		bool TakesSingleBlastDamage() const override {
+		bool TakesSingleBlastDamage() const override
+		{
 			return true;
 		}
 

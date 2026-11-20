@@ -17,17 +17,35 @@ namespace Jazz2::Actors::Solid
 	{
 		WeaponType weaponType = (WeaponType)details.Params[0];
 		switch (weaponType) {
-			case WeaponType::Blaster: PreloadMetadataAsync("Object/PowerUp/Blaster"_s); break;
-			case WeaponType::Bouncer: PreloadMetadataAsync("Object/PowerUp/Bouncer"_s); break;
-			case WeaponType::Freezer: PreloadMetadataAsync("Object/PowerUp/Freezer"_s); break;
-			case WeaponType::Seeker: PreloadMetadataAsync("Object/PowerUp/Seeker"_s); break;
-			case WeaponType::RF: PreloadMetadataAsync("Object/PowerUp/RF"_s); break;
-			case WeaponType::Toaster: PreloadMetadataAsync("Object/PowerUp/Toaster"_s); break;
+			case WeaponType::Blaster:
+				PreloadMetadataAsync("Object/PowerUp/Blaster"_s);
+				break;
+			case WeaponType::Bouncer:
+				PreloadMetadataAsync("Object/PowerUp/Bouncer"_s);
+				break;
+			case WeaponType::Freezer:
+				PreloadMetadataAsync("Object/PowerUp/Freezer"_s);
+				break;
+			case WeaponType::Seeker:
+				PreloadMetadataAsync("Object/PowerUp/Seeker"_s);
+				break;
+			case WeaponType::RF:
+				PreloadMetadataAsync("Object/PowerUp/RF"_s);
+				break;
+			case WeaponType::Toaster:
+				PreloadMetadataAsync("Object/PowerUp/Toaster"_s);
+				break;
 			//case WeaponType::TNT: TODO
-			case WeaponType::Pepper: PreloadMetadataAsync("Object/PowerUp/Pepper"_s); break;
-			case WeaponType::Electro: PreloadMetadataAsync("Object/PowerUp/Electro"_s); break;
+			case WeaponType::Pepper:
+				PreloadMetadataAsync("Object/PowerUp/Pepper"_s);
+				break;
+			case WeaponType::Electro:
+				PreloadMetadataAsync("Object/PowerUp/Electro"_s);
+				break;
 			//case WeaponType::Thunderbolt: TODO
-			default: PreloadMetadataAsync("Object/PowerUp/Empty"_s); break;
+			default:
+				PreloadMetadataAsync("Object/PowerUp/Empty"_s);
+				break;
 		}
 	}
 
@@ -39,27 +57,49 @@ namespace Jazz2::Actors::Solid
 		Movable = true;
 
 		switch (_weaponType) {
-			case WeaponType::Blaster: async_await RequestMetadataAsync("Object/PowerUp/Blaster"_s); break;
-			case WeaponType::Bouncer: async_await RequestMetadataAsync("Object/PowerUp/Bouncer"_s); break;
-			case WeaponType::Freezer: async_await RequestMetadataAsync("Object/PowerUp/Freezer"_s); break;
-			case WeaponType::Seeker: async_await RequestMetadataAsync("Object/PowerUp/Seeker"_s); break;
-			case WeaponType::RF: async_await RequestMetadataAsync("Object/PowerUp/RF"_s); break;
-			case WeaponType::Toaster: async_await RequestMetadataAsync("Object/PowerUp/Toaster"_s); break;
+			case WeaponType::Blaster:
+				async_await RequestMetadataAsync("Object/PowerUp/Blaster"_s);
+				break;
+			case WeaponType::Bouncer:
+				async_await RequestMetadataAsync("Object/PowerUp/Bouncer"_s);
+				break;
+			case WeaponType::Freezer:
+				async_await RequestMetadataAsync("Object/PowerUp/Freezer"_s);
+				break;
+			case WeaponType::Seeker:
+				async_await RequestMetadataAsync("Object/PowerUp/Seeker"_s);
+				break;
+			case WeaponType::RF:
+				async_await RequestMetadataAsync("Object/PowerUp/RF"_s);
+				break;
+			case WeaponType::Toaster:
+				async_await RequestMetadataAsync("Object/PowerUp/Toaster"_s);
+				break;
 			//case WeaponType::TNT: TODO
-			case WeaponType::Pepper: async_await RequestMetadataAsync("Object/PowerUp/Pepper"_s); break;
-			case WeaponType::Electro: async_await RequestMetadataAsync("Object/PowerUp/Electro"_s); break;
+			case WeaponType::Pepper:
+				async_await RequestMetadataAsync("Object/PowerUp/Pepper"_s);
+				break;
+			case WeaponType::Electro:
+				async_await RequestMetadataAsync("Object/PowerUp/Electro"_s);
+				break;
 			//case WeaponType::Thunderbolt: TODO
-			default: async_await RequestMetadataAsync("Object/PowerUp/Empty"_s); break;
+			default:
+				async_await RequestMetadataAsync("Object/PowerUp/Empty"_s);
+				break;
 		}
 
 		if (_weaponType == WeaponType::Blaster) {
 			auto players = _levelHandler->GetPlayers();
 			PlayerType playerType = (_levelHandler->IsLocalSession() && !players.empty() ? players[0]->GetPlayerType() : PlayerType::Jazz);
 			switch (playerType) {
-				case PlayerType::Jazz: 
+				case PlayerType::Jazz:
 				case PlayerType::Spaz:
-				case PlayerType::Lori: SetAnimation((AnimState)playerType); break;
-				default: SetAnimation((AnimState)PlayerType::Jazz); break;
+				case PlayerType::Lori:
+					SetAnimation((AnimState)playerType);
+					break;
+				default:
+					SetAnimation((AnimState)PlayerType::Jazz);
+					break;
 			}
 		} else {
 			SetAnimation(AnimState::Default);

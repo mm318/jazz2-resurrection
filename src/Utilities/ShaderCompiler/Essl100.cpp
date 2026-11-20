@@ -1,7 +1,6 @@
 #include "Essl100.h"
 #include "VertexIdRewrite.h"
 
-
 #include <Containers/GrowableArray.h>
 #include <Containers/SmallVector.h>
 #include <Containers/StringConcatenable.h>
@@ -32,7 +31,7 @@ namespace ShaderCompiler
 			return (IsIdentStart(c) || IsDigit(c));
 		}
 
-		constexpr std::size_t Npos = ~std::size_t{0};
+		constexpr std::size_t Npos = ~std::size_t { 0 };
 
 		/** Standard substr(pos, count) semantics (clamps count to the available length; returns a view) */
 		StringView Substr(StringView s, std::size_t pos, std::size_t count = Npos)
@@ -118,10 +117,10 @@ namespace ShaderCompiler
 			while (true) {
 				std::size_t nl = Find(source, '\n', start);
 				if (nl == Npos) {
-					lines.push_back(String{Substr(source, start)});
+					lines.push_back(String { Substr(source, start) });
 					break;
 				}
-				lines.push_back(String{Substr(source, start, nl - start)});
+				lines.push_back(String { Substr(source, start, nl - start) });
 				start = nl + 1;
 			}
 			return lines;
@@ -136,7 +135,7 @@ namespace ShaderCompiler
 					arrayAppend(out, '\n');
 				}
 			}
-			return String{out.data(), out.size()};
+			return String { out.data(), out.size() };
 		}
 
 		/** Comment-free copy of @p lines (reuses the tool's block/line comment stripper; columns preserved) */
@@ -190,7 +189,7 @@ namespace ShaderCompiler
 			arg = {};
 			std::size_t i = FindFirstNotOf(code, " \t"_s);
 			if (i == Npos || code[i] != '#') {
-				return String{};
+				return String {};
 			}
 			i++;
 			while (i < code.size() && IsSpace(code[i])) {
@@ -272,10 +271,14 @@ namespace ShaderCompiler
 				return false;
 			}
 			std::size_t i = 0;
-			auto skipSpace = [&]() { while (i < s.size() && IsSpace(s[i])) i++; };
+			auto skipSpace = [&]() {
+				while (i < s.size() && IsSpace(s[i]))
+					i++;
+			};
 			auto wordAt = [&](std::size_t p) {
 				std::size_t begin = p;
-				while (p < s.size() && IsIdentChar(s[p])) p++;
+				while (p < s.size() && IsIdentChar(s[p]))
+					p++;
 				return Substr(s, begin, p - begin);
 			};
 
@@ -330,7 +333,8 @@ namespace ShaderCompiler
 			std::size_t i = 0;
 			auto wordAt = [&](std::size_t p) {
 				std::size_t begin = p;
-				while (p < s.size() && IsIdentChar(s[p])) p++;
+				while (p < s.size() && IsIdentChar(s[p]))
+					p++;
 				return Substr(s, begin, p - begin);
 			};
 			if (wordAt(i) != "void") {
@@ -446,7 +450,7 @@ namespace ShaderCompiler
 					previous = c;
 					i++;
 				}
-				line = String{out.data(), out.size()};
+				line = String { out.data(), out.size() };
 			}
 		}
 	}
@@ -476,7 +480,7 @@ namespace ShaderCompiler
 		String ReplaceAll(StringView s, StringView from, StringView to)
 		{
 			if (from.empty()) {
-				return String{s.data(), s.size()};
+				return String { s.data(), s.size() };
 			}
 			Array<char> out;
 			std::size_t i = 0;
@@ -490,7 +494,7 @@ namespace ShaderCompiler
 				arrayAppend(out, to);
 				i = p + from.size();
 			}
-			return String{out.data(), out.size()};
+			return String { out.data(), out.size() };
 		}
 
 		/**
@@ -519,11 +523,19 @@ namespace ShaderCompiler
 		String MapEs2AttributeType(StringView tail)
 		{
 			// @p tail is the declaration after the "attribute" keyword, e.g. "uint aMeshIndex;" -> "float aMeshIndex;"
-			static const struct { StringView From; StringView To; } Map[] = {
-				{ "uint "_s, "float "_s }, { "int "_s, "float "_s },
-				{ "uvec2 "_s, "vec2 "_s }, { "ivec2 "_s, "vec2 "_s },
-				{ "uvec3 "_s, "vec3 "_s }, { "ivec3 "_s, "vec3 "_s },
-				{ "uvec4 "_s, "vec4 "_s }, { "ivec4 "_s, "vec4 "_s },
+			static const struct
+			{
+				StringView From;
+				StringView To;
+			} Map[] = {
+				{ "uint "_s, "float "_s },
+				{ "int "_s, "float "_s },
+				{ "uvec2 "_s, "vec2 "_s },
+				{ "ivec2 "_s, "vec2 "_s },
+				{ "uvec3 "_s, "vec3 "_s },
+				{ "ivec3 "_s, "vec3 "_s },
+				{ "uvec4 "_s, "vec4 "_s },
+				{ "ivec4 "_s, "vec4 "_s },
 			};
 			for (const auto& m : Map) {
 				std::size_t n = m.From.size();
@@ -531,7 +543,7 @@ namespace ShaderCompiler
 					return m.To + tail.exceptPrefix(n);
 				}
 			}
-			return String{tail.data(), tail.size()};
+			return String { tail.data(), tail.size() };
 		}
 
 		/** 1-based index of the first comment-free line containing the operator char @p op, or -1 */
@@ -584,7 +596,7 @@ namespace ShaderCompiler
 			if (bracket != Npos) {
 				// "Instance[BATCH_SIZE] instances" -> "uniform Instance instances[BATCH_SIZE]"
 				String type = Trim(lhs.prefix(bracket));
-				StringView size = lhs.exceptPrefix(bracket);		// "[BATCH_SIZE]"
+				StringView size = lhs.exceptPrefix(bracket); // "[BATCH_SIZE]"
 				return leading + "uniform "_s + type + " "_s + name + size + ";"_s;
 			}
 			return leading + "uniform "_s + lhs + " "_s + name + ";"_s;
@@ -655,7 +667,7 @@ namespace ShaderCompiler
 						}
 						if (k > nb) {
 							StringView nm = Substr(cs, nb, k - nb);
-							instanceNames.push_back(String{nm.data(), nm.size()});
+							instanceNames.push_back(String { nm.data(), nm.size() });
 						}
 					}
 				}
@@ -670,7 +682,7 @@ namespace ShaderCompiler
 						result.push_back(lines[k]);
 						continue;
 					}
-					String member = Trim(t.prefix(t.size() - 1));		// drop trailing ';'
+					String member = Trim(t.prefix(t.size() - 1)); // drop trailing ';'
 					result.push_back(Std140MemberToUniform(LeadingWhitespace(lines[k]), member));
 				}
 				i = closeLine + 1;
@@ -710,10 +722,10 @@ namespace ShaderCompiler
 		if (vertexStage && (usedCorner || usedInstance)) {
 			SmallVector<String, 0> decls;
 			if (usedCorner) {
-				decls.push_back(String{"in vec2 aQuadCorner;"});
+				decls.push_back(String { "in vec2 aQuadCorner;" });
 			}
 			if (usedInstance) {
-				decls.push_back(String{"in float aInstanceIndex;"});
+				decls.push_back(String { "in float aInstanceIndex;" });
 			}
 			lines.insert(lines.begin(), decls.begin(), decls.end());
 		}
@@ -754,7 +766,7 @@ namespace ShaderCompiler
 					}
 					const char* newKeyword = (vertexStage ? (keyword == "in" ? "attribute" : "varying") : "varying");
 					// ES2 vertex attributes must be float-typed - map any integer attribute type (e.g. "uint aMeshIndex")
-					String outTail = (vertexStage && keyword == "in") ? MapEs2AttributeType(tail) : String{tail.data(), tail.size()};
+					String outTail = (vertexStage && keyword == "in") ? MapEs2AttributeType(tail) : String { tail.data(), tail.size() };
 					result.push_back(LeadingWhitespace(orig) + newKeyword + " "_s + outTail);
 					continue;
 				}
@@ -816,14 +828,28 @@ namespace ShaderCompiler
 			const char* detail = nullptr;
 			int line = -1;
 			int l;
-			if ((l = FindIdentifierLine(check, "gl_VertexID")) >= 0) { detail = "gl_VertexID"; line = l; }
-			else if ((l = FindIdentifierLine(check, "std140")) >= 0) { detail = "std140 uniform block"; line = l; }
-			else if ((l = FindIdentifierLine(check, "uint")) >= 0) { detail = "uint (no unsigned integers in ESSL 100)"; line = l; }
-			else if ((l = FindIdentifierLine(check, "uvec2")) >= 0 || (l = FindIdentifierLine(check, "uvec3")) >= 0 || (l = FindIdentifierLine(check, "uvec4")) >= 0) { detail = "uvec (no unsigned integers in ESSL 100)"; line = l; }
-			else if ((l = FindIdentifierLine(check, "round")) >= 0) { detail = "round() (GLSL ES 3.00+ only)"; line = l; }
-			else if ((l = FindCharLine(check, '%')) >= 0) { detail = "integer % operator (GLSL ES 3.00+ only)"; line = l; }
-			else if ((l = FindFloatSuffixLine(check)) >= 0) { detail = "f-suffixed float literal (GLSL ES 3.00+ only)"; line = l; }
-			else {
+			if ((l = FindIdentifierLine(check, "gl_VertexID")) >= 0) {
+				detail = "gl_VertexID";
+				line = l;
+			} else if ((l = FindIdentifierLine(check, "std140")) >= 0) {
+				detail = "std140 uniform block";
+				line = l;
+			} else if ((l = FindIdentifierLine(check, "uint")) >= 0) {
+				detail = "uint (no unsigned integers in ESSL 100)";
+				line = l;
+			} else if ((l = FindIdentifierLine(check, "uvec2")) >= 0 || (l = FindIdentifierLine(check, "uvec3")) >= 0 || (l = FindIdentifierLine(check, "uvec4")) >= 0) {
+				detail = "uvec (no unsigned integers in ESSL 100)";
+				line = l;
+			} else if ((l = FindIdentifierLine(check, "round")) >= 0) {
+				detail = "round() (GLSL ES 3.00+ only)";
+				line = l;
+			} else if ((l = FindCharLine(check, '%')) >= 0) {
+				detail = "integer % operator (GLSL ES 3.00+ only)";
+				line = l;
+			} else if ((l = FindFloatSuffixLine(check)) >= 0) {
+				detail = "f-suffixed float literal (GLSL ES 3.00+ only)";
+				line = l;
+			} else {
 				bool hasDeriv = (FindIdentifierLine(check, "dFdx") >= 0 || FindIdentifierLine(check, "dFdy") >= 0 || FindIdentifierLine(check, "fwidth") >= 0);
 				if (hasDeriv && FindStr(JoinLines(check), "GL_OES_standard_derivatives"_s) == Npos) {
 					detail = "dFdx/dFdy/fwidth without the GL_OES_standard_derivatives extension";

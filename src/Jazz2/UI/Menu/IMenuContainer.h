@@ -8,7 +8,7 @@
 #include "../BlendMode.h"
 
 #if defined(WITH_MULTIPLAYER)
-#	include "../../Multiplayer/ServerInitialization.h"
+#include "../../Multiplayer/ServerInitialization.h"
 #endif
 
 #include <algorithm>
@@ -34,15 +34,18 @@ namespace Jazz2::UI::Menu
 		constexpr std::int32_t FullHeight = 400;
 
 		/** @brief Returns how far the view is from the compact layout towards the full one (0 to 1) */
-		inline float GetTransition(Vector2i viewSize) {
+		inline float GetTransition(Vector2i viewSize)
+		{
 			return std::clamp((viewSize.Y - CompactHeight) / float(FullHeight - CompactHeight), 0.0f, 1.0f);
 		}
 		/** @brief Blends a metric between its compact and full layout values for the given view */
-		inline float Blend(float compact, float full, Vector2i viewSize) {
+		inline float Blend(float compact, float full, Vector2i viewSize)
+		{
 			return compact + (full - compact) * GetTransition(viewSize);
 		}
 		/** @brief Returns the distance of a section title (and the logo baseline) above the content bounds */
-		inline float GetTitleOffset(Vector2i viewSize) {
+		inline float GetTitleOffset(Vector2i viewSize)
+		{
 			return Blend(12.0f, 30.0f, viewSize);
 		}
 	}
@@ -55,16 +58,17 @@ namespace Jazz2::UI::Menu
 		language, control scheme or touch button layout. Supports a bitwise combination of its member
 		values.
 	*/
-	enum class ChangedPreferencesType {
-		None = 0x00,					/**< None */
-		Audio = 0x01,					/**< Audio */
-		Graphics = 0x02,				/**< Graphics */
-		Gameplay = 0x04,				/**< Gameplay */
-		Language = 0x08,				/**< Language */
-		ControlScheme = 0x10,			/**< Control Scheme */
-		TouchButtons = 0x20,			/**< Touch Buttons layout */
-		MainMenu = 0x40,				/**< Main Menu */
-		Layout = 0x80					/**< View layout (the rendering resolution), all sections are recreated as for a language change */
+	enum class ChangedPreferencesType
+	{
+		None = 0x00, /**< None */
+		Audio = 0x01, /**< Audio */
+		Graphics = 0x02, /**< Graphics */
+		Gameplay = 0x04, /**< Gameplay */
+		Language = 0x08, /**< Language */
+		ControlScheme = 0x10, /**< Control Scheme */
+		TouchButtons = 0x20, /**< Touch Buttons layout */
+		MainMenu = 0x40, /**< Main Menu */
+		Layout = 0x80 /**< View layout (the rendering resolution), all sections are recreated as for a language change */
 	};
 
 	DEATH_ENUM_FLAGS(ChangedPreferencesType);
@@ -89,10 +93,12 @@ namespace Jazz2::UI::Menu
 		static constexpr std::uint16_t FontShadowLayer = 620;
 #endif
 
-		virtual ~IMenuContainer() { }
+		virtual ~IMenuContainer()
+		{
+		}
 
 		/** @brief Creates a section by type and switches to it */
-		template<typename T, typename... Params>
+		template <typename T, typename... Params>
 		T* SwitchToSection(Params&&... args)
 		{
 			return static_cast<T*>(SwitchToSectionDirect(std::make_unique<T>(std::forward<Params>(args)...)));

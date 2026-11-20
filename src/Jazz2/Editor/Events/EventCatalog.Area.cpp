@@ -54,27 +54,33 @@ namespace Jazz2::Editor::EventCatalogParts
 			// TRANSLATORS: Parameter of an event in the event properties, the speed of a conveyor belt moving to the left
 			UIntField(_x("editor", "Belt Left"), 0, 8, 0, 255)
 				.WithDescription(_x("editor", "Moves a player standing on the tile to the left, 1 is 1 pixel per tick of the original"))
-				.MirroredX(MirrorMode::SwapField, 1).WithDirection(DirectionAxis::X, true, 0),
+				.MirroredX(MirrorMode::SwapField, 1)
+				.WithDirection(DirectionAxis::X, true, 0),
 			// TRANSLATORS: Parameter of an event in the event properties, the speed of a conveyor belt moving to the right
 			UIntField(_x("editor", "Belt Right"), 1, 8, 0, 255, 2)
 				.WithDescription(_x("editor", "Moves a player standing on the tile to the right, 1 is 1 pixel per tick of the original"))
-				.MirroredX(MirrorMode::SwapField, 0).WithDirection(DirectionAxis::X, false, 0),
+				.MirroredX(MirrorMode::SwapField, 0)
+				.WithDirection(DirectionAxis::X, false, 0),
 			// TRANSLATORS: Parameter of an event in the event properties, short for a conveyor belt accelerating to the left
 			UIntField(_x("editor", "Acc. Belt Left"), 2, 8, 0, 255)
 				.WithDescription(_x("editor", "Accelerates a player standing on the tile to the left"))
-				.MirroredX(MirrorMode::SwapField, 3).WithDirection(DirectionAxis::X, true, 1),
+				.MirroredX(MirrorMode::SwapField, 3)
+				.WithDirection(DirectionAxis::X, true, 1),
 			// TRANSLATORS: Parameter of an event in the event properties, short for a conveyor belt accelerating to the right
 			UIntField(_x("editor", "Acc. Belt Right"), 3, 8, 0, 255)
 				.WithDescription(_x("editor", "Accelerates a player standing on the tile to the right"))
-				.MirroredX(MirrorMode::SwapField, 2).WithDirection(DirectionAxis::X, false, 1),
+				.MirroredX(MirrorMode::SwapField, 2)
+				.WithDirection(DirectionAxis::X, false, 1),
 			// TRANSLATORS: Parameter of an event in the event properties, the strength of wind blowing to the left
 			UIntField(_x("editor", "Wind Left"), 4, 8, 0, 255)
 				.WithDescription(_x("editor", "Blows a player inside the tile to the left, at half the speed of a belt"))
-				.MirroredX(MirrorMode::SwapField, 5).WithDirection(DirectionAxis::X, true, 2),
+				.MirroredX(MirrorMode::SwapField, 5)
+				.WithDirection(DirectionAxis::X, true, 2),
 			// TRANSLATORS: Parameter of an event in the event properties, the strength of wind blowing to the right
 			UIntField(_x("editor", "Wind Right"), 5, 8, 0, 255)
 				.WithDescription(_x("editor", "Blows a player inside the tile to the right, at half the speed of a belt"))
-				.MirroredX(MirrorMode::SwapField, 4).WithDirection(DirectionAxis::X, false, 2)
+				.MirroredX(MirrorMode::SwapField, 4)
+				.WithDirection(DirectionAxis::X, false, 2)
 		};
 
 		static const EventParamField AreaTextFields[] = {

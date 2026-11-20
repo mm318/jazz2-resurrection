@@ -21,23 +21,27 @@ namespace nCine
 		/** @brief Animation loop modes */
 		enum class LoopMode
 		{
-			NoRepeat,	/**< When the animation reaches the last frame it stops and pauses */
-			FromStart,	/**< When the animation reaches the last frame it begins again from start */
-			Backward	/**< When the animation reaches the last frame it plays in reverse, ping-ponging */
+			NoRepeat, /**< When the animation reaches the last frame it stops and pauses */
+			FromStart, /**< When the animation reaches the last frame it begins again from start */
+			Backward /**< When the animation reaches the last frame it plays in reverse, ping-ponging */
 		};
 
 		/** @brief Default constructor */
 		RectAnimation()
-			: RectAnimation(1.0f / 60.0f, LoopMode::NoRepeat) {}
+			: RectAnimation(1.0f / 60.0f, LoopMode::NoRepeat)
+		{
+		}
 		/** @brief Constructs an animation with the specified default frame duration and loop mode */
 		RectAnimation(float defaultFrameDuration, LoopMode loopMode);
 
 		/** @brief Returns whether the animation is paused */
-		inline bool IsPaused() const {
+		inline bool IsPaused() const
+		{
 			return _isPaused;
 		}
 		/** @brief Sets the pause flag */
-		inline void SetPaused(bool isPaused) {
+		inline void SetPaused(bool isPaused)
+		{
 			_isPaused = isPaused;
 		}
 
@@ -45,27 +49,32 @@ namespace nCine
 		void UpdateFrame(float interval);
 
 		/** @brief Returns the current frame index */
-		inline std::uint32_t GetFrame() const {
+		inline std::uint32_t GetFrame() const
+		{
 			return _currentFrame;
 		}
 		/** @brief Sets the current frame index */
 		void SetFrame(std::uint32_t frameNum);
 
 		/** @brief Returns the default frame duration in seconds */
-		float GetDefaultFrameDuration() const {
+		float GetDefaultFrameDuration() const
+		{
 			return _defaultFrameDuration;
 		}
 		/** @brief Sets the default frame duration in seconds */
-		inline void SetDefaultFrameDuration(float defaultFrameDuration) {
+		inline void SetDefaultFrameDuration(float defaultFrameDuration)
+		{
 			_defaultFrameDuration = defaultFrameDuration;
 		}
 
 		/** @brief Returns the loop mode */
-		LoopMode GetLoopMode() const {
+		LoopMode GetLoopMode() const
+		{
 			return _loopMode;
 		}
 		/** @brief Sets the loop mode */
-		inline void SetLoopMode(LoopMode loopMode) {
+		inline void SetLoopMode(LoopMode loopMode)
+		{
 			_loopMode = loopMode;
 		}
 
@@ -75,38 +84,46 @@ namespace nCine
 		void AddRect(std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h, float frameTime);
 
 		/** @brief Appends a rectangle with the default frame duration */
-		inline void AddRect(const Recti& rect) {
+		inline void AddRect(const Recti& rect)
+		{
 			AddRect(rect, _defaultFrameDuration);
 		}
 		/** @brief Creates a rectangle from origin and size and appends it with the default frame duration */
-		inline void AddRect(std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h) {
+		inline void AddRect(std::int32_t x, std::int32_t y, std::int32_t w, std::int32_t h)
+		{
 			AddRect(x, y, w, h, _defaultFrameDuration);
 		}
 
 		/** @brief Returns the current rectangle */
-		inline const Recti& GetRect() const {
+		inline const Recti& GetRect() const
+		{
 			return _rects[_currentFrame];
 		}
 		/** @brief Returns the current frame duration in seconds */
-		inline float GetFrameDuration() const {
+		inline float GetFrameDuration() const
+		{
 			return _frameDurations[_currentFrame];
 		}
 
 		/** @brief Returns the array of all rectangles */
-		inline SmallVectorImpl<Recti>& GetRectangles() {
+		inline SmallVectorImpl<Recti>& GetRectangles()
+		{
 			return _rects;
 		}
 		/** @brief Returns the array of all rectangles (read-only) */
-		inline const SmallVectorImpl<Recti>& GetRectangles() const {
+		inline const SmallVectorImpl<Recti>& GetRectangles() const
+		{
 			return _rects;
 		}
 
 		/** @brief Returns the array of all frame durations */
-		inline SmallVectorImpl<float>& GetFrameDurations() {
+		inline SmallVectorImpl<float>& GetFrameDurations()
+		{
 			return _frameDurations;
 		}
 		/** @brief Returns the array of all frame durations (read-only) */
-		inline const SmallVectorImpl<float>& GetFrameDurations() const {
+		inline const SmallVectorImpl<float>& GetFrameDurations() const
+		{
 			return _frameDurations;
 		}
 

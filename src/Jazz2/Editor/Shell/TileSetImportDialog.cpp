@@ -39,14 +39,28 @@ namespace Jazz2::Editor
 {
 	namespace
 	{
-		enum class ImportUse : std::uint8_t { Extra, Default, SaveOnly };
-		enum class DitherMode : std::uint8_t { None, Pattern, ErrorDiffusion };
+		enum class ImportUse : std::uint8_t
+		{
+			Extra,
+			Default,
+			SaveOnly
+		};
+		enum class DitherMode : std::uint8_t
+		{
+			None,
+			Pattern,
+			ErrorDiffusion
+		};
 
 		// Adds the choice of what is done with a new tile set once it's made, as `Use` of the state
-		template<class TState>
+		template <class TState>
 		void AddUseRow(Form* content, std::shared_ptr<TState> state)
 		{
-			struct UseOption { String Label; ImportUse Use; };
+			struct UseOption
+			{
+				String Label;
+				ImportUse Use;
+			};
 			UseOption options[] = {
 				// TRANSLATORS: Choices of what is done with the new tile set after it's made, after "Then"
 				{ _x("editor", "Extra tile set of this level"), ImportUse::Extra },
@@ -66,16 +80,21 @@ namespace Jazz2::Editor
 					}
 				}
 				return String();
-			}, [state, shared](SmallVectorImpl<MenuEntry>& entries) {
-				for (const UseOption& option : *shared) {
-					ImportUse use = option.Use;
-					MenuEntry entry;
-					entry.Label = option.Label;
-					entry.IsChecked = [state, use]() { return (state->Use == use); };
-					entry.Execute = [state, use]() { state->Use = use; };
-					entries.push_back(Death::move(entry));
-				}
-			});
+			},
+				[state, shared](SmallVectorImpl<MenuEntry>& entries) {
+					for (const UseOption& option : *shared) {
+						ImportUse use = option.Use;
+						MenuEntry entry;
+						entry.Label = option.Label;
+						entry.IsChecked = [state, use]() {
+							return (state->Use == use);
+						};
+						entry.Execute = [state, use]() {
+							state->Use = use;
+						};
+						entries.push_back(Death::move(entry));
+					}
+				});
 			dropdown->Width = 170.0f;
 		}
 
@@ -83,9 +102,14 @@ namespace Jazz2::Editor
 		void UseNewTileSet(IEditorContext& session, StringView name, ImportUse use)
 		{
 			switch (use) {
-				case ImportUse::Extra: AddExtraTileSet(session, name); break;
-				case ImportUse::Default: SetDefaultTileSet(session, name); break;
-				default: break;
+				case ImportUse::Extra:
+					AddExtraTileSet(session, name);
+					break;
+				case ImportUse::Default:
+					SetDefaultTileSet(session, name);
+					break;
+				default:
+					break;
 			}
 		}
 
@@ -192,8 +216,8 @@ namespace Jazz2::Editor
 			switch (job.Result.Error) {
 				case TileImportError::TooManyTiles:
 					session.ShowMessage(job.Settings.SkipDuplicates
-						? String(_fx("editor", "The image has more than {} different tiles, a tile set can't hold them", MaxImportedTiles))
-						: String(_fx("editor", "The image has more than {} tiles, a tile set can't hold them - skipping the same tiles may help", MaxImportedTiles)));
+							? String(_fx("editor", "The image has more than {} different tiles, a tile set can't hold them", MaxImportedTiles))
+							: String(_fx("editor", "The image has more than {} tiles, a tile set can't hold them - skipping the same tiles may help", MaxImportedTiles)));
 					break;
 				case TileImportError::Cancelled:
 					session.ShowMessage(_x("editor", "Making the tile set was stopped"));
@@ -214,19 +238,20 @@ namespace Jazz2::Editor
 			// TRANSLATORS: Title of the progress dialog while a tile set is made from an image
 			RunWithProgress(session, _x("editor", "Making Tile Set"), [state, job](JobProgress& progress) {
 				SliceInto(*state, *job, &progress);
-			}, [s, job, callback](bool cancelled) {
-				if (cancelled && job->Success) {
-					// Stopped right when it was done, it's taken anyway
-					cancelled = false;
-				}
-				if (cancelled) {
-					s->ShowMessage(_x("editor", "Making the tile set was stopped"));
-					return;
-				}
-				if (CheckSliced(*s, *job)) {
-					(*callback)(job);
-				}
-			});
+			},
+				[s, job, callback](bool cancelled) {
+					if (cancelled && job->Success) {
+						// Stopped right when it was done, it's taken anyway
+						cancelled = false;
+					}
+					if (cancelled) {
+						s->ShowMessage(_x("editor", "Making the tile set was stopped"));
+						return;
+					}
+					if (CheckSliced(*s, *job)) {
+						(*callback)(job);
+					}
+				});
 		}
 
 		// Whether a name can be given to a new tile set, shows why not otherwise
@@ -259,7 +284,9 @@ namespace Jazz2::Editor
 			const TileImportResult& result = job.Result;
 
 			// A file that isn't written whole isn't left there, it would take the name
-			if (!Utils::AtomicFile::Write(path, [&tileSet](Stream& s) { return Formats::TileSetFile::Write(s, tileSet); })) {
+			if (!Utils::AtomicFile::Write(path, [&tileSet](Stream& s) {
+					return Formats::TileSetFile::Write(s, tileSet);
+				})) {
 				session.ShowMessage(_x("editor", "The tile set couldn't be saved"));
 				return false;
 			}
@@ -361,7 +388,12 @@ namespace Jazz2::Editor
 				nameBox->Tooltip = _x("editor", "The tile set is saved in the user content, Tilesets/<name>.j2t");
 			}
 			{
-				struct ColorOption { String Label; TileImportColors Colors; bool IndexedOnly; };
+				struct ColorOption
+				{
+					String Label;
+					TileImportColors Colors;
+					bool IndexedOnly;
+				};
 				static const ColorOption ColorOptions[] = {
 					// TRANSLATORS: Choices of the colors of the tiles made from an image in the New Tile Set from Image dialog
 					{ _x("editor", "Its own palette"), TileImportColors::OwnPalette, true },
@@ -379,23 +411,32 @@ namespace Jazz2::Editor
 						}
 					}
 					return String();
-				}, [state](SmallVectorImpl<MenuEntry>& entries) {
-					for (const ColorOption& option : ColorOptions) {
-						if (option.IndexedOnly && !state->Image.Indexed) {
-							continue;
+				},
+					[state](SmallVectorImpl<MenuEntry>& entries) {
+						for (const ColorOption& option : ColorOptions) {
+							if (option.IndexedOnly && !state->Image.Indexed) {
+								continue;
+							}
+							TileImportColors colors = option.Colors;
+							MenuEntry entry;
+							entry.Label = option.Label;
+							entry.IsChecked = [state, colors]() {
+								return (state->Settings.Colors == colors);
+							};
+							entry.Execute = [state, colors]() {
+								state->Settings.Colors = colors;
+							};
+							entries.push_back(Death::move(entry));
 						}
-						TileImportColors colors = option.Colors;
-						MenuEntry entry;
-						entry.Label = option.Label;
-						entry.IsChecked = [state, colors]() { return (state->Settings.Colors == colors); };
-						entry.Execute = [state, colors]() { state->Settings.Colors = colors; };
-						entries.push_back(Death::move(entry));
-					}
-				});
+					});
 				dropdown->Width = 170.0f;
 				row->Tooltip = _x("editor", "True color keeps the colors as they are, but they don't change with the palette of a level - a palette made for it keeps the colors of the sprites");
 
-				struct DitherOption { String Label; DitherMode Mode; };
+				struct DitherOption
+				{
+					String Label;
+					DitherMode Mode;
+				};
 				static const DitherOption DitherOptions[] = {
 					// TRANSLATORS: Choices of the dithering of the tiles made from an image, "None" means no dithering
 					{ _x("editor", "None"), DitherMode::None },
@@ -411,26 +452,42 @@ namespace Jazz2::Editor
 						}
 					}
 					return String();
-				}, [state](SmallVectorImpl<MenuEntry>& entries) {
-					for (const DitherOption& option : DitherOptions) {
-						DitherMode mode = option.Mode;
-						MenuEntry entry;
-						entry.Label = option.Label;
-						entry.IsChecked = [state, mode]() { return (state->Settings.Dither == mode); };
-						entry.Execute = [state, mode]() { state->Settings.Dither = mode; };
-						entries.push_back(Death::move(entry));
-					}
-				});
+				},
+					[state](SmallVectorImpl<MenuEntry>& entries) {
+						for (const DitherOption& option : DitherOptions) {
+							DitherMode mode = option.Mode;
+							MenuEntry entry;
+							entry.Label = option.Label;
+							entry.IsChecked = [state, mode]() {
+								return (state->Settings.Dither == mode);
+							};
+							entry.Execute = [state, mode]() {
+								state->Settings.Dither = mode;
+							};
+							entries.push_back(Death::move(entry));
+						}
+					});
 				dither->Width = 170.0f;
 				dither->Tooltip = _x("editor", "Colors between two of the palette are mixed - by a regular pattern, or by spreading what each pixel misses to the next ones (Floyd-Steinberg)");
-				dither->IsEnabledFunc = [state]() { return (state->Settings.Colors == TileImportColors::MatchPalette || state->Settings.Colors == TileImportColors::Reduce); };
-				content->Add<CheckBox>(_x("editor", "Skip tiles that are the same as another"), [state]() { return state->Settings.SkipDuplicates; },
-					[state](bool value) { state->Settings.SkipDuplicates = value; });
+				dither->IsEnabledFunc = [state]() {
+					return (state->Settings.Colors == TileImportColors::MatchPalette || state->Settings.Colors == TileImportColors::Reduce);
+				};
+				content->Add<CheckBox>(_x("editor", "Skip tiles that are the same as another"), [state]() {
+					return state->Settings.SkipDuplicates;
+				},
+					[state](bool value) {
+						state->Settings.SkipDuplicates = value;
+					});
 			}
 			if (state->HasMasks) {
 				// TRANSLATORS: Checkbox in the New Tile Set from Image dialog, the collision masks of the tiles come from the image of masks saved next to the image
-				content->Add<CheckBox>(_x("editor", "Masks from the image of masks next to it"), [state]() { return state->Settings.UseMasks; },
-					[state](bool value) { state->Settings.UseMasks = value; })->Tooltip = _x("editor", "Otherwise the tiles are solid where they aren't transparent");
+				content->Add<CheckBox>(_x("editor", "Masks from the image of masks next to it"), [state]() {
+						   return state->Settings.UseMasks;
+					   },
+						   [state](bool value) {
+							   state->Settings.UseMasks = value;
+						   })
+					->Tooltip = _x("editor", "Otherwise the tiles are solid where they aren't transparent");
 			} else {
 				content->Add<Label>(_x("editor", "The tiles are solid where they aren't transparent"), Theme::TextDim);
 			}
@@ -438,21 +495,37 @@ namespace Jazz2::Editor
 			// Sprite sheets have a margin around the tiles and gutters between them
 			auto addNumber = [](Stack* row, Function<std::int32_t&()>&& value, float max, StringView tooltip) {
 				auto shared = std::make_shared<Function<std::int32_t&()>>(Death::move(value));
-				auto* number = row->Add<NumberBox>([shared]() { return float((*shared)()); }, [shared](float v, bool) {
-					(*shared)() = std::int32_t(std::round(v));
-				}, 0.0f, max, 1.0f, 0);
+				auto* number = row->Add<NumberBox>([shared]() {
+					return float((*shared)());
+				},
+					[shared](float v, bool) {
+						(*shared)() = std::int32_t(std::round(v));
+					},
+					0.0f, max, 1.0f, 0);
 				number->Width = 48.0f;
 				number->Tooltip = tooltip;
 			};
 			{
 				// TRANSLATORS: Label of the empty space around the tiles in the image, in pixels
 				auto* row = content->AddRow(_x("editor", "Margin"));
-				addNumber(row, [state]() -> std::int32_t& { return state->Settings.OffsetX; }, 1024.0f, _x("editor", "Pixels left of the first column of tiles"));
-				addNumber(row, [state]() -> std::int32_t& { return state->Settings.OffsetY; }, 1024.0f, _x("editor", "Pixels above the first row of tiles"));
+				addNumber(row, [state]() -> std::int32_t& {
+					return state->Settings.OffsetX;
+				},
+					1024.0f, _x("editor", "Pixels left of the first column of tiles"));
+				addNumber(row, [state]() -> std::int32_t& {
+					return state->Settings.OffsetY;
+				},
+					1024.0f, _x("editor", "Pixels above the first row of tiles"));
 				// TRANSLATORS: Label of the empty space between the tiles in the image, in pixels
 				auto* gutterRow = content->AddRow(_x("editor", "Gutters"));
-				addNumber(gutterRow, [state]() -> std::int32_t& { return state->Settings.SpacingX; }, 256.0f, _x("editor", "Pixels between two tiles next to each other"));
-				addNumber(gutterRow, [state]() -> std::int32_t& { return state->Settings.SpacingY; }, 256.0f, _x("editor", "Pixels between two rows of tiles"));
+				addNumber(gutterRow, [state]() -> std::int32_t& {
+					return state->Settings.SpacingX;
+				},
+					256.0f, _x("editor", "Pixels between two tiles next to each other"));
+				addNumber(gutterRow, [state]() -> std::int32_t& {
+					return state->Settings.SpacingY;
+				},
+					256.0f, _x("editor", "Pixels between two rows of tiles"));
 			}
 
 			// What is transparent, a color that stands for it in images without alpha, and how opaque a pixel has to be
@@ -460,7 +533,12 @@ namespace Jazz2::Editor
 				// TRANSLATORS: Label of the row of options of what is transparent in the image, an adjective
 				auto* row = content->AddRow(_x("editor", "Transparent"));
 				// TRANSLATORS: Checkbox after "Transparent", pixels of a chosen color are transparent
-				row->Add<CheckBox>(_x("editor", "Color"), [state]() { return state->Settings.UseColorKey; }, [state](bool value) { state->Settings.UseColorKey = value; })
+				row->Add<CheckBox>(_x("editor", "Color"), [state]() {
+					   return state->Settings.UseColorKey;
+				   },
+					   [state](bool value) {
+						   state->Settings.UseColorKey = value;
+					   })
 					->Tooltip = _x("editor", "Pixels of this color are transparent, magenta in many sprite sheets");
 				ColorSwatch* swatch = row->Add<ColorSwatch>([state]() {
 					std::uint32_t key = state->Settings.ColorKey;
@@ -472,17 +550,24 @@ namespace Jazz2::Editor
 					ColorPicker::ShowPopup(*s->GetSurface(), Vector2f(swatch->Bounds.X, swatch->Bounds.Y + swatch->Bounds.H), [state]() {
 						std::uint32_t key = state->Settings.ColorKey;
 						return Colorf((key & 0xFF) / 255.0f, ((key >> 8) & 0xFF) / 255.0f, ((key >> 16) & 0xFF) / 255.0f, 1.0f);
-					}, [state](const Colorf& color) {
-						auto channel = [](float value) { return std::uint32_t(std::clamp<std::int32_t>(std::int32_t(std::round(value * 255.0f)), 0, 255)); };
-						state->Settings.ColorKey = channel(color.R) | (channel(color.G) << 8) | (channel(color.B) << 16);
-						state->Settings.UseColorKey = true;
-					});
+					},
+						[state](const Colorf& color) {
+							auto channel = [](float value) {
+								return std::uint32_t(std::clamp<std::int32_t>(std::int32_t(std::round(value * 255.0f)), 0, 255));
+							};
+							state->Settings.ColorKey = channel(color.R) | (channel(color.G) << 8) | (channel(color.B) << 16);
+							state->Settings.UseColorKey = true;
+						});
 				};
-				swatch->IsEnabledFunc = [state]() { return state->Settings.UseColorKey; };
+				swatch->IsEnabledFunc = [state]() {
+					return state->Settings.UseColorKey;
+				};
 				// TRANSLATORS: Label of the lowest opacity of a pixel that isn't transparent, from 1 to 255
 				row->Add<Label>(_x("editor", "Alpha"), Theme::TextDim);
-				addNumber(row, [state]() -> std::int32_t& { return state->Settings.AlphaThreshold; }, 255.0f,
-					_x("editor", "How opaque a pixel has to be to be seen, and a pixel of the masks to be solid, from 1 to 255"));
+				addNumber(row, [state]() -> std::int32_t& {
+					return state->Settings.AlphaThreshold;
+				},
+					255.0f, _x("editor", "How opaque a pixel has to be to be seen, and a pixel of the masks to be solid, from 1 to 255"));
 			}
 			AddUseRow(content, state);
 
@@ -498,10 +583,17 @@ namespace Jazz2::Editor
 				previewButton->Tooltip = _x("editor", "Make the tile set to see its palette and how many tiles it has, without saving it");
 				auto* previewInfo = previewRow->Add<Label>(StringView(), Theme::TextDim);
 				previewInfo->Flex = 1.0f;
-				previewInfo->TextFunc = [state]() { return DescribePreview(*state); };
+				previewInfo->TextFunc = [state]() {
+					return DescribePreview(*state);
+				};
 				auto* palette = content->Add<PaletteGrid>([state]() -> const std::uint32_t* {
 					return (state->Preview != nullptr ? state->Preview->TileSet.Palette : ContentResolver::Get().GetPalettes().data());
-				}, []() -> std::int32_t { return -1; }, [](std::int32_t, bool) {});
+				},
+					[]() -> std::int32_t {
+						return -1;
+					},
+					[](std::int32_t, bool) {
+					});
 				palette->CellSize = 8.0f;
 				palette->Tooltip = _x("editor", "The palette the tile set would have");
 				palette->IsVisibleFunc = [state]() {
@@ -529,8 +621,11 @@ namespace Jazz2::Editor
 						dialogPtr->Close();
 					}
 				});
-			}, true);
-			dialog->AddButton(_x("editor", "Cancel"), [dialogPtr]() { dialogPtr->Close(); });
+			},
+				true);
+			dialog->AddButton(_x("editor", "Cancel"), [dialogPtr]() {
+				dialogPtr->Close();
+			});
 
 			ShowModal(*surface, Death::move(dialog));
 		}
@@ -595,7 +690,9 @@ namespace Jazz2::Editor
 		GetLevelPalette(session, tileSet.Palette);
 		tileSet.Columns = 0;
 		// A file that isn't written whole isn't left there, it would take the name
-		if (!Utils::AtomicFile::Write(path, [&tileSet](Stream& s) { return Formats::TileSetFile::Write(s, tileSet); })) {
+		if (!Utils::AtomicFile::Write(path, [&tileSet](Stream& s) {
+				return Formats::TileSetFile::Write(s, tileSet);
+			})) {
 			session.ShowMessage(_x("editor", "The tile set couldn't be saved"));
 			return false;
 		}
@@ -646,9 +743,13 @@ namespace Jazz2::Editor
 		{
 			// TRANSLATORS: Label of the number of tiles of the new tile set in the New Tile Set dialog
 			auto* row = content->AddRow(_x("editor", "Tiles"));
-			auto* count = row->Add<NumberBox>([state]() { return state->TileCount; }, [state](float value, bool final) {
-				state->TileCount = std::round(value);
-			}, 10.0f, 4000.0f, 10.0f, 0);
+			auto* count = row->Add<NumberBox>([state]() {
+				return state->TileCount;
+			},
+				[state](float value, bool final) {
+					state->TileCount = std::round(value);
+				},
+				10.0f, 4000.0f, 10.0f, 0);
 			count->Width = 80.0f;
 			count->Tooltip = _x("editor", "The original tile sets have 10 tiles in a row");
 		}
@@ -659,8 +760,11 @@ namespace Jazz2::Editor
 			if (CreateEmptyTileSet(*s, name, std::int32_t(state->TileCount), state->Use != ImportUse::SaveOnly, state->Use == ImportUse::Default)) {
 				dialogPtr->Close();
 			}
-		}, true);
-		dialog->AddButton(_x("editor", "Cancel"), [dialogPtr]() { dialogPtr->Close(); });
+		},
+			true);
+		dialog->AddButton(_x("editor", "Cancel"), [dialogPtr]() {
+			dialogPtr->Close();
+		});
 
 		ShowModal(*surface, Death::move(dialog));
 	}
@@ -710,7 +814,9 @@ namespace Jazz2::Editor
 			return false;
 		}
 		// A file that isn't written whole isn't left there, it would take the name
-		if (!Utils::AtomicFile::Write(path, [&data](Stream& s) { return Formats::TileSetFile::Write(s, data); })) {
+		if (!Utils::AtomicFile::Write(path, [&data](Stream& s) {
+				return Formats::TileSetFile::Write(s, data);
+			})) {
 			session.ShowMessage(_x("editor", "The tile set couldn't be saved"));
 			return false;
 		}
@@ -759,12 +865,12 @@ namespace Jazz2::Editor
 			Dialog* dialogPtr = dialog.get();
 			auto* content = dialog->GetContent()->Add<Form>(Theme::Spacing);
 			String description = (state->Original
-				// TRANSLATORS: In the Import Tile Set dialog, {} is the number of tiles of the tile set file picked
-				? _fnx("editor", "A tile set of the original game with {} tile, it's converted and saved into the user content.",
-					"A tile set of the original game with {} tiles, it's converted and saved into the user content.", state->Data.TileCount, state->Data.TileCount)
-				// TRANSLATORS: In the Import Tile Set dialog, {} is the number of tiles of the tile set file picked
-				: _fnx("editor", "A tile set with {} tile, it's copied into the user content.",
-					"A tile set with {} tiles, it's copied into the user content.", state->Data.TileCount, state->Data.TileCount));
+					// TRANSLATORS: In the Import Tile Set dialog, {} is the number of tiles of the tile set file picked
+					? _fnx("editor", "A tile set of the original game with {} tile, it's converted and saved into the user content.",
+						  "A tile set of the original game with {} tiles, it's converted and saved into the user content.", state->Data.TileCount, state->Data.TileCount)
+					// TRANSLATORS: In the Import Tile Set dialog, {} is the number of tiles of the tile set file picked
+					: _fnx("editor", "A tile set with {} tile, it's copied into the user content.",
+						  "A tile set with {} tiles, it's copied into the user content.", state->Data.TileCount, state->Data.TileCount));
 			content->Add<Label>(description, Theme::TextDim);
 
 			// The name of the file as tile sets are named, the same one is likely there already, converted by the game
@@ -790,8 +896,11 @@ namespace Jazz2::Editor
 				if (ImportTileSetFile(*s, state->Data, name, state->Use != ImportUse::SaveOnly, state->Use == ImportUse::Default)) {
 					dialogPtr->Close();
 				}
-			}, true);
-			dialog->AddButton(_x("editor", "Cancel"), [dialogPtr]() { dialogPtr->Close(); });
+			},
+				true);
+			dialog->AddButton(_x("editor", "Cancel"), [dialogPtr]() {
+				dialogPtr->Close();
+			});
 			ShowModal(*surface, Death::move(dialog));
 			nameBox->BeginEdit();
 		});

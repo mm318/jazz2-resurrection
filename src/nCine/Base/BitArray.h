@@ -51,12 +51,21 @@ namespace nCine
 		BitArray& operator=(BitArray&& other) noexcept;
 
 		/** @brief Returns a pointer to the underlying byte buffer */
-		char* data() { return _data; }
+		char* data()
+		{
+			return _data;
+		}
 
 		/** @brief Returns `true` if the array contains no bits */
-		bool empty() const { return !_size; }
+		bool empty() const
+		{
+			return !_size;
+		}
 		/** @brief Returns the size of the array in bits */
-		std::size_t size() const { return _size; };
+		std::size_t size() const
+		{
+			return _size;
+		};
 		/** @brief Returns the size of the underlying buffer in bytes */
 		std::size_t sizeInBytes() const;
 

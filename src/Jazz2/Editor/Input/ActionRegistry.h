@@ -63,9 +63,9 @@ namespace Jazz2::Editor
 	/** @brief When the shortcut of an action works, see @ref EditorAction::Scope */
 	enum class ActionScope : std::uint8_t
 	{
-		Edit,			/**< While the level is edited */
-		Play,			/**< While the level is play-tested, keys no action of it has go to the game */
-		Both			/**< Always */
+		Edit, /**< While the level is edited */
+		Play, /**< While the level is play-tested, keys no action of it has go to the game */
+		Both /**< Always */
 	};
 
 	/**
@@ -123,9 +123,9 @@ namespace Jazz2::Editor
 	/** @brief Set of shortcuts like those of another level editor, see @ref ActionRegistry::ApplyPreset() */
 	enum class KeymapPreset : std::int32_t
 	{
-		Default,		/**< The shortcuts of this editor, B grabs a block and Ctrl+E / Shift+E take and place events as in the editors of the original game */
-		Jcs,			/**< Like Jazz Creation Station: F and I flip, the number keys choose layers as by default */
-		Mlle			/**< Like the Multi-Layer Level Editor: as JCS, and Ctrl+C / Ctrl+X into the brush, Ctrl+V events, Ctrl+R plays, the comma picks */
+		Default, /**< The shortcuts of this editor, B grabs a block and Ctrl+E / Shift+E take and place events as in the editors of the original game */
+		Jcs, /**< Like Jazz Creation Station: F and I flip, the number keys choose layers as by default */
+		Mlle /**< Like the Multi-Layer Level Editor: as JCS, and Ctrl+C / Ctrl+X into the brush, Ctrl+V events, Ctrl+R plays, the comma picks */
 	};
 
 	/**
@@ -153,7 +153,8 @@ namespace Jazz2::Editor
 		 */
 		bool HandleKey(const KeyboardEvent& event, ActionScope scope = ActionScope::Edit, bool repeat = false, EditorAction** ran = nullptr);
 		/** @brief Returns all actions, in the order they were added */
-		const SmallVector<std::unique_ptr<EditorAction>, 0>& GetAll() const {
+		const SmallVector<std::unique_ptr<EditorAction>, 0>& GetAll() const
+		{
 			return _actions;
 		}
 		/**
@@ -165,7 +166,8 @@ namespace Jazz2::Editor
 		/** @brief Returns `true` if another action has the same shortcut as one of an action and they work at the same time, the first one of them runs then */
 		bool HasConflict(const EditorAction& action) const;
 		/** @brief Returns `true` if the shortcuts of actions of two scopes work at the same time */
-		static bool ScopesOverlap(ActionScope a, ActionScope b) {
+		static bool ScopesOverlap(ActionScope a, ActionScope b)
+		{
 			return (a == b || a == ActionScope::Both || b == ActionScope::Both);
 		}
 

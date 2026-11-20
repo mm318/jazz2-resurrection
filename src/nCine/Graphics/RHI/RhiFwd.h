@@ -8,10 +8,10 @@
 // family backend (OpenGL 3.3 core / OpenGL ES 3.0 / WebGL 2 / ANGLE) is the default when no
 // `WITH_RHI_*` macro is defined by the build.
 #if !defined(WITH_RHI_GL) && !defined(WITH_RHI_D3D11) && !defined(WITH_RHI_VULKAN) && !defined(WITH_RHI_METAL) && \
-		!defined(WITH_RHI_SOFTWARE) && !defined(WITH_RHI_GX) && !defined(WITH_RHI_PICA) && !defined(WITH_RHI_PVR) && \
-		!defined(WITH_RHI_GU) && !defined(WITH_RHI_GS) && !defined(WITH_RHI_RDP) && \
-		!defined(WITH_RHI_GXM) && !defined(WITH_RHI_RSX) && !defined(WITH_RHI_GX2) && !defined(WITH_RHI_LEGACYGL)
-#	define WITH_RHI_GL
+	!defined(WITH_RHI_SOFTWARE) && !defined(WITH_RHI_GX) && !defined(WITH_RHI_PICA) && !defined(WITH_RHI_PVR) &&  \
+	!defined(WITH_RHI_GU) && !defined(WITH_RHI_GS) && !defined(WITH_RHI_RDP) &&                                   \
+	!defined(WITH_RHI_GXM) && !defined(WITH_RHI_RSX) && !defined(WITH_RHI_GX2) && !defined(WITH_RHI_LEGACYGL)
+#define WITH_RHI_GL
 #endif
 
 #if defined(WITH_RHI_GL)
@@ -63,14 +63,14 @@
 #if !defined(RHI_GL_PROFILE_ES2)
 // ES2 has no uniform buffer objects to put the instance array in, and the batched programs' ESSL 100 form is
 // not even valid there (a "uint aMeshIndex" integer attribute), so that profile does not batch
-#	define RHI_CAP_BATCHING
+#define RHI_CAP_BATCHING
 #endif
 // `RHI_CAP_AUXILIARY_SWAPCHAINS` means the device can show a texture in a window besides the main one through
 // `CreateAuxiliarySwapchain()`, `ResizeAuxiliarySwapchain()`, `PresentAuxiliaryTexture()` and
 // `DestroyAuxiliarySwapchain()` (see @ref RHI::AuxiliarySwapchainDesc). Desktop OpenGL copies it in a context of
 // that window sharing the objects of the main one, which OpenGL|ES and WebGL can't be relied on to provide.
 #if !defined(RHI_GL_PROFILE_ES)
-#	define RHI_CAP_AUXILIARY_SWAPCHAINS
+#define RHI_CAP_AUXILIARY_SWAPCHAINS
 #endif
 
 namespace nCine::RHI::GL
@@ -131,7 +131,9 @@ namespace nCine::RHI
 	struct BufferRange
 	{
 		BufferRange()
-			: object(nullptr), size(0), offset(0), mapBase(nullptr) {}
+			: object(nullptr), size(0), offset(0), mapBase(nullptr)
+		{
+		}
 
 		/** @brief Buffer object the range belongs to */
 		Buffer* object;
@@ -215,7 +217,9 @@ namespace nCine::RHI
 	struct BufferRange
 	{
 		BufferRange()
-			: object(nullptr), size(0), offset(0), mapBase(nullptr) {}
+			: object(nullptr), size(0), offset(0), mapBase(nullptr)
+		{
+		}
 
 		/** @brief Buffer object the range belongs to */
 		Buffer* object;
@@ -300,7 +304,9 @@ namespace nCine::RHI
 	struct BufferRange
 	{
 		BufferRange()
-			: object(nullptr), size(0), offset(0), mapBase(nullptr) {}
+			: object(nullptr), size(0), offset(0), mapBase(nullptr)
+		{
+		}
 
 		/** @brief Buffer object the range belongs to */
 		Buffer* object;
@@ -398,7 +404,9 @@ namespace nCine::RHI
 	struct BufferRange
 	{
 		BufferRange()
-			: object(nullptr), size(0), offset(0), mapBase(nullptr) {}
+			: object(nullptr), size(0), offset(0), mapBase(nullptr)
+		{
+		}
 
 		/** @brief Buffer object the range belongs to */
 		Buffer* object;
@@ -504,7 +512,9 @@ namespace nCine::RHI
 	struct BufferRange
 	{
 		BufferRange()
-			: object(nullptr), size(0), offset(0), mapBase(nullptr) {}
+			: object(nullptr), size(0), offset(0), mapBase(nullptr)
+		{
+		}
 
 		/** @brief Buffer object the range belongs to */
 		Buffer* object;
@@ -604,7 +614,9 @@ namespace nCine::RHI
 	struct BufferRange
 	{
 		BufferRange()
-			: object(nullptr), size(0), offset(0), mapBase(nullptr) {}
+			: object(nullptr), size(0), offset(0), mapBase(nullptr)
+		{
+		}
 
 		/** @brief Buffer object the range belongs to */
 		Buffer* object;
@@ -696,7 +708,9 @@ namespace nCine::RHI
 	struct BufferRange
 	{
 		BufferRange()
-			: object(nullptr), size(0), offset(0), mapBase(nullptr) {}
+			: object(nullptr), size(0), offset(0), mapBase(nullptr)
+		{
+		}
 
 		/** @brief Buffer object the range belongs to */
 		Buffer* object;
@@ -796,7 +810,9 @@ namespace nCine::RHI
 	struct BufferRange
 	{
 		BufferRange()
-			: object(nullptr), size(0), offset(0), mapBase(nullptr) {}
+			: object(nullptr), size(0), offset(0), mapBase(nullptr)
+		{
+		}
 
 		/** @brief Buffer object the range belongs to */
 		Buffer* object;
@@ -904,7 +920,9 @@ namespace nCine::RHI
 	struct BufferRange
 	{
 		BufferRange()
-			: object(nullptr), size(0), offset(0), mapBase(nullptr) {}
+			: object(nullptr), size(0), offset(0), mapBase(nullptr)
+		{
+		}
 
 		/** @brief Buffer object the range belongs to */
 		Buffer* object;
@@ -990,7 +1008,9 @@ namespace nCine::RHI
 	struct BufferRange
 	{
 		BufferRange()
-			: object(nullptr), size(0), offset(0), mapBase(nullptr) {}
+			: object(nullptr), size(0), offset(0), mapBase(nullptr)
+		{
+		}
 
 		/** @brief Buffer object the range belongs to */
 		Buffer* object;
@@ -1095,7 +1115,9 @@ namespace nCine::RHI
 	struct BufferRange
 	{
 		BufferRange()
-			: object(nullptr), size(0), offset(0), mapBase(nullptr) {}
+			: object(nullptr), size(0), offset(0), mapBase(nullptr)
+		{
+		}
 
 		/** @brief Buffer object the range belongs to */
 		Buffer* object;
@@ -1192,7 +1214,9 @@ namespace nCine::RHI
 	struct BufferRange
 	{
 		BufferRange()
-			: object(nullptr), size(0), offset(0), mapBase(nullptr) {}
+			: object(nullptr), size(0), offset(0), mapBase(nullptr)
+		{
+		}
 
 		/** @brief Buffer object the range belongs to */
 		Buffer* object;
@@ -1276,7 +1300,9 @@ namespace nCine::RHI
 	struct BufferRange
 	{
 		BufferRange()
-			: object(nullptr), size(0), offset(0), mapBase(nullptr) {}
+			: object(nullptr), size(0), offset(0), mapBase(nullptr)
+		{
+		}
 
 		/** @brief Buffer object the range belongs to */
 		Buffer* object;
@@ -1362,7 +1388,9 @@ namespace nCine::RHI
 	struct BufferRange
 	{
 		BufferRange()
-			: object(nullptr), size(0), offset(0), mapBase(nullptr) {}
+			: object(nullptr), size(0), offset(0), mapBase(nullptr)
+		{
+		}
 
 		/** @brief Buffer object the range belongs to */
 		Buffer* object;
@@ -1448,7 +1476,9 @@ namespace nCine::RHI
 	struct BufferRange
 	{
 		BufferRange()
-			: object(nullptr), size(0), offset(0), mapBase(nullptr) {}
+			: object(nullptr), size(0), offset(0), mapBase(nullptr)
+		{
+		}
 
 		/** @brief Buffer object the range belongs to */
 		Buffer* object;
@@ -1462,7 +1492,7 @@ namespace nCine::RHI
 }
 
 #else
-#	error No RHI backend selected - define WITH_RHI_GL (or another WITH_RHI_* backend)
+#error No RHI backend selected - define WITH_RHI_GL (or another WITH_RHI_* backend)
 #endif
 
 // Derived tier macro: the full GPU post-processing pipeline (scene FBO + lighting FBO + blur chain +
@@ -1474,7 +1504,7 @@ namespace nCine::RHI
 // to the display - a backend without RHI_CAP_SHADERS must provide Device::ResizeScreenFramebuffer())
 // and lighting is composited by the CPU lightmap path in CombineRenderer.
 #if defined(RHI_CAP_SHADERS) && defined(RHI_CAP_FRAMEBUFFERS)
-#	define RHI_CAP_POSTPROCESSING
+#define RHI_CAP_POSTPROCESSING
 #endif
 
 // Derived tier macro: this build's shaders were assembled with the `.shader` language's LOW_POWER_GPU
@@ -1492,5 +1522,5 @@ namespace nCine::RHI
 // ".shader" files are assembled that way too (see RuntimeShader.cpp). That profile is never a default -
 // it is selected only for hardware with nothing else, which is the same class of part.
 #if defined(WITH_RHI_GXM) || defined(RHI_GL_PROFILE_ES2)
-#	define RHI_LOW_POWER_GPU
+#define RHI_LOW_POWER_GPU
 #endif

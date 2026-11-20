@@ -51,8 +51,10 @@ namespace Jazz2::UI::Windows
 		Specialized as @ref std::true_type for such an enum, its values start at @ref IconId::FirstCustom, but it may
 		name a @ref StockIcon by its value too.
 	*/
-	template<class T>
-	struct IsIconEnum : std::false_type {};
+	template <class T>
+	struct IsIconEnum : std::false_type
+	{
+	};
 
 	/** @brief Icon of the interface, a @ref StockIcon or one of an application */
 	class IconId
@@ -61,31 +63,45 @@ namespace Jazz2::UI::Windows
 		/** @brief First value of icons of an application */
 		static constexpr std::uint16_t FirstCustom = 256;
 
-		constexpr IconId() noexcept : _value(0) {}
-		constexpr IconId(StockIcon icon) noexcept : _value(std::uint16_t(icon)) {}
-		template<class T, class = std::enable_if_t<IsIconEnum<T>::value>>
-		constexpr IconId(T icon) noexcept : _value(std::uint16_t(icon)) {}
+		constexpr IconId() noexcept
+			: _value(0)
+		{
+		}
+		constexpr IconId(StockIcon icon) noexcept
+			: _value(std::uint16_t(icon))
+		{
+		}
+		template <class T, class = std::enable_if_t<IsIconEnum<T>::value>>
+		constexpr IconId(T icon) noexcept
+			: _value(std::uint16_t(icon))
+		{
+		}
 
 		/** @brief Returns the icon of a value */
-		static constexpr IconId FromValue(std::uint16_t value) noexcept {
+		static constexpr IconId FromValue(std::uint16_t value) noexcept
+		{
 			IconId icon;
 			icon._value = value;
 			return icon;
 		}
 
 		/** @brief Returns the value */
-		constexpr std::uint16_t GetValue() const noexcept {
+		constexpr std::uint16_t GetValue() const noexcept
+		{
 			return _value;
 		}
 		/** @brief Returns `true` if it's not @ref StockIcon::None */
-		constexpr explicit operator bool() const noexcept {
+		constexpr explicit operator bool() const noexcept
+		{
 			return (_value != 0);
 		}
 
-		friend constexpr bool operator==(IconId a, IconId b) noexcept {
+		friend constexpr bool operator==(IconId a, IconId b) noexcept
+		{
 			return (a._value == b._value);
 		}
-		friend constexpr bool operator!=(IconId a, IconId b) noexcept {
+		friend constexpr bool operator!=(IconId a, IconId b) noexcept
+		{
 			return (a._value != b._value);
 		}
 
@@ -125,7 +141,7 @@ namespace Jazz2::UI::Windows
 		static constexpr float DesignSize = 16.0f;
 
 		/** @brief Returns how an icon of an application is drawn, empty if there's no such icon */
-		using ArtFunc = IconArt(*)(IconId icon);
+		using ArtFunc = IconArt (*)(IconId icon);
 
 		Icons() = delete;
 

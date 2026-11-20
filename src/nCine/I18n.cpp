@@ -3,12 +3,12 @@
 #include "Base/Algorithms.h"
 
 #if defined(DEATH_TARGET_ANDROID)
-#	include "Backends/Android/AndroidJniHelper.h"
+#include "Backends/Android/AndroidJniHelper.h"
 #elif defined(DEATH_TARGET_APPLE)
-#	include <CoreFoundation/CFPreferences.h>
-#	include <CoreFoundation/CFPropertyList.h>
-#	include <CoreFoundation/CFArray.h>
-#	include <CoreFoundation/CFString.h>
+#include <CoreFoundation/CFPreferences.h>
+#include <CoreFoundation/CFPropertyList.h>
+#include <CoreFoundation/CFArray.h>
+#include <CoreFoundation/CFString.h>
 #endif
 
 #include <Environment.h>
@@ -47,7 +47,7 @@ namespace nCine
 		{ "fr", "Français"_s },
 		{ "gl", "Galego"_s },
 		{ "gr", "Greek"_s },
-		{ "he", "Hebrew"_s },	// TODO
+		{ "he", "Hebrew"_s }, // TODO
 		{ "hr", "Hrvatski"_s },
 		{ "hu", "Magyar"_s },
 		{ "it", "Italiano"_s },
@@ -166,28 +166,45 @@ namespace nCine
 		{
 			switch (Type) {
 				default:
-				case ExpressionTokenType::Unknown: return INT32_MIN;
+				case ExpressionTokenType::Unknown:
+					return INT32_MIN;
 
-				case ExpressionTokenType::Value: return Value;
-				case ExpressionTokenType::Variable: return n;
+				case ExpressionTokenType::Value:
+					return Value;
+				case ExpressionTokenType::Variable:
+					return n;
 
-				case ExpressionTokenType::Add: return (*Left)(n) + (*Right)(n);
-				case ExpressionTokenType::Subtract: return (*Left)(n) - (*Right)(n);
-				case ExpressionTokenType::Multiply: return (*Left)(n) * (*Right)(n);
-				case ExpressionTokenType::Divide: return (*Left)(n) / (*Right)(n);
-				case ExpressionTokenType::Remainder: return (*Left)(n) % (*Right)(n);
+				case ExpressionTokenType::Add:
+					return (*Left)(n) + (*Right)(n);
+				case ExpressionTokenType::Subtract:
+					return (*Left)(n) - (*Right)(n);
+				case ExpressionTokenType::Multiply:
+					return (*Left)(n) * (*Right)(n);
+				case ExpressionTokenType::Divide:
+					return (*Left)(n) / (*Right)(n);
+				case ExpressionTokenType::Remainder:
+					return (*Left)(n) % (*Right)(n);
 
-				case ExpressionTokenType::And: return (*Left)(n) != 0 && (*Right)(n) != 0;
-				case ExpressionTokenType::Or: return (*Left)(n) != 0 || (*Right)(n) != 0;
+				case ExpressionTokenType::And:
+					return (*Left)(n) != 0 && (*Right)(n) != 0;
+				case ExpressionTokenType::Or:
+					return (*Left)(n) != 0 || (*Right)(n) != 0;
 
-				case ExpressionTokenType::Equals: return (*Left)(n) == (*Right)(n);
-				case ExpressionTokenType::NotEquals: return (*Left)(n) != (*Right)(n);
-				case ExpressionTokenType::Less: return (*Left)(n) < (*Right)(n);
-				case ExpressionTokenType::EqualsOrLess: return (*Left)(n) <= (*Right)(n);
-				case ExpressionTokenType::EqualsOrGreater: return (*Left)(n) >= (*Right)(n);
-				case ExpressionTokenType::Greater: return (*Left)(n) > (*Right)(n);
+				case ExpressionTokenType::Equals:
+					return (*Left)(n) == (*Right)(n);
+				case ExpressionTokenType::NotEquals:
+					return (*Left)(n) != (*Right)(n);
+				case ExpressionTokenType::Less:
+					return (*Left)(n) < (*Right)(n);
+				case ExpressionTokenType::EqualsOrLess:
+					return (*Left)(n) <= (*Right)(n);
+				case ExpressionTokenType::EqualsOrGreater:
+					return (*Left)(n) >= (*Right)(n);
+				case ExpressionTokenType::Greater:
+					return (*Left)(n) > (*Right)(n);
 
-				case ExpressionTokenType::Ternary: return (*Comparison)(n) ? (*Left)(n) : (*Right)(n);
+				case ExpressionTokenType::Ternary:
+					return (*Comparison)(n) ? (*Left)(n) : (*Right)(n);
 			}
 		}
 	};
@@ -448,7 +465,7 @@ namespace nCine
 	bool I18n::LoadFromFile(const std::unique_ptr<Stream>& stream, StringView displayPath)
 	{
 		std::int64_t fileSize = stream->GetSize();
-		if DEATH_UNLIKELY(fileSize < 32 || fileSize > 16 * 1024 * 1024) {
+		if DEATH_UNLIKELY (fileSize < 32 || fileSize > 16 * 1024 * 1024) {
 			if (fileSize > 0) {
 				LOGE("Translation \"{}\" is corrupted", displayPath);
 			}
@@ -465,7 +482,7 @@ namespace nCine
 		MoFileHeader* data = reinterpret_cast<MoFileHeader*>(_file.get());
 
 		bool shouldSwapBytes = false;
-		if DEATH_UNLIKELY(data->Signature == SignatureBE) {
+		if DEATH_UNLIKELY (data->Signature == SignatureBE) {
 			// Different endianness - swap bytes in all fields
 			data->Signature = SignatureLE;
 			data->Revision = SwapBytes(data->Revision);
@@ -477,7 +494,7 @@ namespace nCine
 			shouldSwapBytes = true;
 		}
 
-		if DEATH_UNLIKELY(data->Signature != SignatureLE || data->StringCount <= 0 ||
+		if DEATH_UNLIKELY (data->Signature != SignatureLE || data->StringCount <= 0 ||
 			data->OrigTableOffset + data->StringCount > fileSize || data->TransTableOffset + data->StringCount > fileSize ||
 			data->HashTableOffset + data->HashTableSize > fileSize) {
 			LOGE("Translation \"{}\" is corrupted", displayPath);
@@ -491,7 +508,7 @@ namespace nCine
 		_hashSize = data->HashTableSize;
 		_hashTable = (_hashSize > 2 ? (std::uint32_t*)((char*)data + data->HashTableOffset) : nullptr);
 
-		if DEATH_UNLIKELY(shouldSwapBytes) {
+		if DEATH_UNLIKELY (shouldSwapBytes) {
 			for (std::uint32_t i = 0; i < _stringCount; i++) {
 				_origTable[i].Length = SwapBytes(_origTable[i].Length);
 				_origTable[i].Offset = SwapBytes(_origTable[i].Offset);
@@ -535,7 +552,7 @@ namespace nCine
 
 	StringView I18n::LookupTranslation(const char* msgid)
 	{
-		if DEATH_LIKELY(_hashTable != nullptr) {
+		if DEATH_LIKELY (_hashTable != nullptr) {
 			// Use the hash table for faster lookups
 			constexpr std::uint32_t HashWordBits = 32;
 
@@ -558,7 +575,7 @@ namespace nCine
 
 			while (true) {
 				std::uint32_t nstr = _hashTable[idx];
-				if DEATH_UNLIKELY(nstr == 0) {
+				if DEATH_UNLIKELY (nstr == 0) {
 					// Hash table entry is empty
 					return {};
 				}
@@ -567,7 +584,7 @@ namespace nCine
 				// Compare `msgid` with the original string at index `nstr`.
 				// We compare the lengths with `>=`, not `==`, because plural entries are represented by strings with an embedded NULL.
 				if (nstr < _stringCount && _origTable[nstr].Length >= len && (std::strcmp(msgid, _file.get() + _origTable[nstr].Offset) == 0)) {
-					if DEATH_UNLIKELY(_transTable[nstr].Offset >= _fileSize) {
+					if DEATH_UNLIKELY (_transTable[nstr].Offset >= _fileSize) {
 						return {};
 					}
 					return StringView(&_file[_transTable[nstr].Offset], _transTable[nstr].Length);
@@ -585,7 +602,7 @@ namespace nCine
 			std::size_t top = _stringCount;
 			while (bottom < top) {
 				std::size_t idx = (bottom + top) / 2;
-				if DEATH_UNLIKELY(_origTable[idx].Offset >= _fileSize) {
+				if DEATH_UNLIKELY (_origTable[idx].Offset >= _fileSize) {
 					return {};
 				}
 				std::int32_t cmpVal = std::strcmp(msgid, (_file.get() + _origTable[idx].Offset));
@@ -594,7 +611,7 @@ namespace nCine
 				} else if (cmpVal > 0) {
 					bottom = idx + 1;
 				} else {
-					if DEATH_UNLIKELY(_transTable[idx].Offset >= _fileSize) {
+					if DEATH_UNLIKELY (_transTable[idx].Offset >= _fileSize) {
 						return {};
 					}
 					return StringView(&_file[_transTable[idx].Offset], _transTable[idx].Length);
@@ -614,7 +631,7 @@ namespace nCine
 			if (index == 0) {
 				return translation.prefix(sep.begin());
 			}
-			if DEATH_UNLIKELY(sep.begin() == translation.end()) {
+			if DEATH_UNLIKELY (sep.begin() == translation.end()) {
 				return {};
 			}
 			translation = translation.suffix(sep.end());

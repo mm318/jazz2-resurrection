@@ -30,11 +30,11 @@ namespace nCine
 		/** @brief Type of data a buffer holds */
 		enum class BufferTypes
 		{
-			Array = 0,		/**< Vertex buffer object */
-			ElementArray,	/**< Index (element array) buffer object */
-			Uniform,		/**< Uniform buffer object */
+			Array = 0, /**< Vertex buffer object */
+			ElementArray, /**< Index (element array) buffer object */
+			Uniform, /**< Uniform buffer object */
 
-			Count			/**< Number of buffer types */
+			Count /**< Number of buffer types */
 		};
 
 		/** @brief Configuration of a buffer object for a given type */
@@ -63,11 +63,13 @@ namespace nCine
 		~RenderBuffersManager();
 
 		/** @brief Returns the specifications for a buffer of the specified type */
-		inline const BufferSpecifications& Specs(BufferTypes type) const {
+		inline const BufferSpecifications& Specs(BufferTypes type) const
+		{
 			return _specs[std::int32_t(type)];
 		}
 		/** @brief Requests an amount of bytes from the specified buffer type */
-		inline Parameters AcquireMemory(BufferTypes type, std::uint32_t bytes) {
+		inline Parameters AcquireMemory(BufferTypes type, std::uint32_t bytes)
+		{
 			return AcquireMemory(type, bytes, _specs[std::int32_t(type)].alignment);
 		}
 		/** @brief Requests an amount of bytes from the specified buffer type with a custom alignment requirement */
@@ -81,7 +83,9 @@ namespace nCine
 		struct ManagedBuffer
 		{
 			ManagedBuffer()
-				: type(BufferTypes::Array), size(0), freeSpace(0), sectionOffset(0), object(nullptr), mapBase(nullptr), hostBuffer(nullptr) {}
+				: type(BufferTypes::Array), size(0), freeSpace(0), sectionOffset(0), object(nullptr), mapBase(nullptr), hostBuffer(nullptr)
+			{
+			}
 
 			BufferTypes type;
 			std::unique_ptr<RHI::Buffer> object;

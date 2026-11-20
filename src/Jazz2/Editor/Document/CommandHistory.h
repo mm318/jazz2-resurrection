@@ -35,7 +35,8 @@ namespace Jazz2::Editor
 		 * Lets a continuous change, such as dragging a slider, be undone in a single step. Returns `true` if
 		 * @p next was taken over, it's then dropped.
 		 */
-		virtual bool TryMerge(EditCommand& next) {
+		virtual bool TryMerge(EditCommand& next)
+		{
 			return false;
 		}
 		/**
@@ -44,7 +45,8 @@ namespace Jazz2::Editor
 		 * A transaction is merged only if all of its changes can be, it asks each of them first. A command that
 		 * merges has to say the same here as its @ref TryMerge() does.
 		 */
-		virtual bool CanMerge(EditCommand& next) {
+		virtual bool CanMerge(EditCommand& next)
+		{
 			return false;
 		}
 
@@ -75,7 +77,8 @@ namespace Jazz2::Editor
 		CommandHistory& operator=(const CommandHistory&) = delete;
 
 		/** @brief Returns the document */
-		LevelDocument& GetDocument() {
+		LevelDocument& GetDocument()
+		{
 			return _document;
 		}
 
@@ -95,7 +98,8 @@ namespace Jazz2::Editor
 		 * a new one starts, so two separate changes of the same value aren't undone at once. Undo and redo break
 		 * merging too.
 		 */
-		void BreakMerge() {
+		void BreakMerge()
+		{
 			_mergeBroken = true;
 		}
 
@@ -106,7 +110,8 @@ namespace Jazz2::Editor
 		/** @brief Ends a transaction and reverts all its changes */
 		void CancelTransaction(DocumentChanges& changes);
 		/** @brief Returns `true` if a transaction is in progress */
-		bool IsInTransaction() const {
+		bool IsInTransaction() const
+		{
 			return !_transactions.empty();
 		}
 		/**
@@ -131,11 +136,13 @@ namespace Jazz2::Editor
 		String GetRedoName() const;
 
 		/** @brief Returns the number of recorded changes, done and undone */
-		std::int32_t GetCount() const {
+		std::int32_t GetCount() const
+		{
 			return std::int32_t(_entries.size());
 		}
 		/** @brief Returns the number of changes that are done */
-		std::int32_t GetDoneCount() const {
+		std::int32_t GetDoneCount() const
+		{
 			return _doneCount;
 		}
 		/** @brief Returns the name of a recorded change */
@@ -153,7 +160,8 @@ namespace Jazz2::Editor
 		 * Such as hiding a layer: it's saved with the level when it's saved, but alone it's no reason to save. Whoever
 		 * keeps a copy of the document sees it by @ref GetOutsideChangeCount().
 		 */
-		void NoteOutsideChange() {
+		void NoteOutsideChange()
+		{
 			_outsideChanges++;
 		}
 		/** @brief Returns `true` if the document changed since it was saved */
@@ -163,7 +171,8 @@ namespace Jazz2::Editor
 		 *
 		 * The revision doesn't change then, so whoever keeps a copy of the document compares this too.
 		 */
-		std::uint32_t GetOutsideChangeCount() const {
+		std::uint32_t GetOutsideChangeCount() const
+		{
 			return _outsideChanges;
 		}
 
@@ -171,7 +180,8 @@ namespace Jazz2::Editor
 		void Clear();
 
 		/** @brief Returns the memory taken by all recorded changes */
-		std::size_t GetMemoryUsage() const {
+		std::size_t GetMemoryUsage() const
+		{
 			return _memoryUsage;
 		}
 

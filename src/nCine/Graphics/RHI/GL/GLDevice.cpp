@@ -18,7 +18,7 @@
 // at all), on the web (WebGL names the extension differently and browsers coarsen the timer anyway) and under libretro,
 // where the frontend owns the context and may have a query of its own running.
 #if (defined(RHI_GL_PROFILE_CORE) || defined(RHI_GL_PROFILE_ES3)) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(WITH_LIBRETRO)
-#	define GL_DEVICE_HAS_TIMER_QUERIES
+#define GL_DEVICE_HAS_TIMER_QUERIES
 #endif
 
 namespace nCine::RHI::GL
@@ -55,9 +55,9 @@ namespace nCine::RHI::GL
 		// GL_TIME_ELAPSED and GL_TIME_ELAPSED_EXT are the same value, spelled out because each profile's headers
 		// name it differently and not all of them name it at all; GL_GPU_DISJOINT_EXT exists only in the extension
 		constexpr GLenum TimeElapsedTarget = 0x88BF;
-#	if defined(RHI_GL_PROFILE_ES)
+#if defined(RHI_GL_PROFILE_ES)
 		constexpr GLenum GpuDisjointQuery = 0x8FBB;
-#	endif
+#endif
 
 		// The results come back a few frames late. With a ring of this length the oldest one is practically always
 		// ready by the time its query is needed again, and a driver that is slower than that loses a sample instead
@@ -85,11 +85,11 @@ namespace nCine::RHI::GL
 		bool EnsureGpuTimer()
 		{
 			if (gpuTimerState == GpuTimerState::Unknown) {
-#	if defined(RHI_GL_PROFILE_ES)
+#if defined(RHI_GL_PROFILE_ES)
 				const bool supported = theServiceLocator().GetRhiCapabilities().HasExtension(IRhiCapabilities::Extensions::ExtDisjointTimerQuery);
-#	else
+#else
 				constexpr bool supported = true;
-#	endif
+#endif
 				if (supported) {
 					glGenQueries(GLsizei(GpuTimerQueryCount), gpuTimerQueries);
 				}
@@ -329,7 +329,10 @@ namespace nCine::RHI::GL
 		// ES2 has no instanced drawing; the profile never issues instanced commands (CPU sprite batching is
 		// disabled and every RenderCommand draws single-instance), so keeping the ES 3.0 symbol out of the
 		// build is both a spec guard and a link-time aid for true ES2 loaders
-		static_cast<void>(primitive); static_cast<void>(firstVertex); static_cast<void>(numVertices); static_cast<void>(numInstances);
+		static_cast<void>(primitive);
+		static_cast<void>(firstVertex);
+		static_cast<void>(numVertices);
+		static_cast<void>(numInstances);
 		FATAL_ASSERT_MSG(false, "Instanced drawing is not supported on OpenGL|ES 2.0");
 #else
 		glDrawArraysInstanced(static_cast<GLenum>(primitive), firstVertex, numVertices, numInstances);
@@ -352,8 +355,12 @@ namespace nCine::RHI::GL
 	{
 #if defined(RHI_GL_PROFILE_ES2)
 		// See DrawArraysInstanced() - unreachable on the ES2 profile
-		static_cast<void>(primitive); static_cast<void>(numIndices); static_cast<void>(indexFormat);
-		static_cast<void>(indexOffset); static_cast<void>(numInstances); static_cast<void>(baseVertex);
+		static_cast<void>(primitive);
+		static_cast<void>(numIndices);
+		static_cast<void>(indexFormat);
+		static_cast<void>(indexOffset);
+		static_cast<void>(numInstances);
+		static_cast<void>(baseVertex);
 		FATAL_ASSERT_MSG(false, "Instanced drawing is not supported on OpenGL|ES 2.0");
 #else
 		void* indexOffsetPtr = reinterpret_cast<void*>(indexOffset);
@@ -393,7 +400,8 @@ namespace nCine::RHI::GL
 	bool GLDevice::ClientWaitFence(FenceHandle fence, std::uint64_t timeoutNs)
 	{
 #if defined(RHI_GL_PROFILE_ES2)
-		static_cast<void>(fence); static_cast<void>(timeoutNs);
+		static_cast<void>(fence);
+		static_cast<void>(timeoutNs);
 		return true;
 #else
 		const GLenum result = glClientWaitSync(static_cast<GLsync>(fence), GL_SYNC_FLUSH_COMMANDS_BIT, timeoutNs);
@@ -435,7 +443,7 @@ namespace nCine::RHI::GL
 			return;
 		}
 
-#	if defined(RHI_GL_PROFILE_ES)
+#if defined(RHI_GL_PROFILE_ES)
 		// A disjoint event (the GPU changing its clock, being reset...) makes every result still in flight
 		// meaningless, and reading the flag also clears it
 		GLint disjoint = GL_FALSE;
@@ -443,7 +451,7 @@ namespace nCine::RHI::GL
 		if (disjoint != GL_FALSE) {
 			gpuTimerDiscardCount = gpuTimerPendingCount;
 		}
-#	endif
+#endif
 
 		// Whatever finished since the last frame, oldest first, without ever waiting for the rest
 		while (gpuTimerPendingCount > 0) {

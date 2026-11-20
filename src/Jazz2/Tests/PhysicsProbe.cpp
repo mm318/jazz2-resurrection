@@ -28,8 +28,8 @@ namespace Jazz2::Tests
 {
 	PhysicsProbe::PhysicsProbe(LevelHandler* levelHandler)
 		: _levelHandler(levelHandler), _state(StatePrime), _scenario(FirstScenario), _tick(0.0f), _waited(0.0f),
-			_groundX(0.0f), _groundY(0.0f), _lastY(0.0f), _startFrames(0.0f), _still(0), _copterAttachTick(-1), _onCopter(false), _scenarioActionDone(false), _defaultWaterLevel(0.0f), _waterRaised(false), _copterEndTick(-1),
-			_freezeDone(false), _boxHome(-1.0f, -1.0f), _pushable(0.0f, 0.0f), _turtle(0.0f, 0.0f)
+		  _groundX(0.0f), _groundY(0.0f), _lastY(0.0f), _startFrames(0.0f), _still(0), _copterAttachTick(-1), _onCopter(false), _scenarioActionDone(false), _defaultWaterLevel(0.0f), _waterRaised(false), _copterEndTick(-1),
+		  _freezeDone(false), _boxHome(-1.0f, -1.0f), _pushable(0.0f, 0.0f), _turtle(0.0f, 0.0f)
 	{
 	}
 
@@ -194,7 +194,7 @@ namespace Jazz2::Tests
 		}
 		// Comma-separated prefixes, spaces around them ignored. Compared against the name's own length
 		// because a StringView is not null-terminated - it points into the string literal in the switch.
-		for (const char* f = ScenarioFilter; *f != '\0'; ) {
+		for (const char* f = ScenarioFilter; *f != '\0';) {
 			while (*f == ' ' || *f == ',') {
 				f++;
 			}
@@ -235,85 +235,349 @@ namespace Jazz2::Tests
 		// game's probe runs, so the two traces line up scenario for scenario.
 		switch (scenario) {
 			// Ground only - acceleration, the caps, deceleration and turning around
-			case 0: name = "g_stand"_s; break;
-			case 1: name = "g_walk"_s; right = true; break;
-			case 2: name = "g_dash"_s; right = true; run = true; break;
-			case 3: name = "g_walk_rel20"_s; right = (t < 20); break;
-			case 4: name = "g_walk_rel45"_s; right = (t < 45); break;
-			case 5: name = "g_dash_rel"_s; right = (t < 60); run = (t < 60); break;
-			case 6: name = "g_dash_relrun"_s; right = true; run = (t < 60); break;
-			case 7: name = "g_walk_opp"_s; right = (t < 45); left = (t >= 45); break;
-			case 8: name = "g_dash_opp"_s; run = true; right = (t < 60); left = (t >= 60); break;
-			case 9: name = "g_dash_oppnr"_s; right = (t < 60); run = (t < 60); left = (t >= 60); break;
-			case 10: name = "g_walk_repress"_s; right = (t < 45 || t >= 60); break;
-			case 11: name = "g_runlate"_s; right = true; run = (t >= 45); break;
+			case 0:
+				name = "g_stand"_s;
+				break;
+			case 1:
+				name = "g_walk"_s;
+				right = true;
+				break;
+			case 2:
+				name = "g_dash"_s;
+				right = true;
+				run = true;
+				break;
+			case 3:
+				name = "g_walk_rel20"_s;
+				right = (t < 20);
+				break;
+			case 4:
+				name = "g_walk_rel45"_s;
+				right = (t < 45);
+				break;
+			case 5:
+				name = "g_dash_rel"_s;
+				right = (t < 60);
+				run = (t < 60);
+				break;
+			case 6:
+				name = "g_dash_relrun"_s;
+				right = true;
+				run = (t < 60);
+				break;
+			case 7:
+				name = "g_walk_opp"_s;
+				right = (t < 45);
+				left = (t >= 45);
+				break;
+			case 8:
+				name = "g_dash_opp"_s;
+				run = true;
+				right = (t < 60);
+				left = (t >= 60);
+				break;
+			case 9:
+				name = "g_dash_oppnr"_s;
+				right = (t < 60);
+				run = (t < 60);
+				left = (t >= 60);
+				break;
+			case 10:
+				name = "g_walk_repress"_s;
+				right = (t < 45 || t >= 60);
+				break;
+			case 11:
+				name = "g_runlate"_s;
+				right = true;
+				run = (t >= 45);
+				break;
 			// Vertical only - the launch, the rise, and what releasing jump does
-			case 12: name = "a_jump"_s; jump = (t >= J); break;
-			case 13: name = "a_jump_r5"_s; jump = (t >= J && t < J + 5); break;
-			case 14: name = "a_jump_r10"_s; jump = (t >= J && t < J + 10); break;
-			case 15: name = "a_jump_r20"_s; jump = (t >= J && t < J + 20); break;
-			case 16: name = "a_jump_r30"_s; jump = (t >= J && t < J + 30); break;
+			case 12:
+				name = "a_jump"_s;
+				jump = (t >= J);
+				break;
+			case 13:
+				name = "a_jump_r5"_s;
+				jump = (t >= J && t < J + 5);
+				break;
+			case 14:
+				name = "a_jump_r10"_s;
+				jump = (t >= J && t < J + 10);
+				break;
+			case 15:
+				name = "a_jump_r20"_s;
+				jump = (t >= J && t < J + 20);
+				break;
+			case 16:
+				name = "a_jump_r30"_s;
+				jump = (t >= J && t < J + 30);
+				break;
 			// Jump with horizontal speed - the launch boost and the arc
-			case 17: name = "a_wjump"_s; right = true; jump = (t >= J); break;
-			case 18: name = "a_wjump_r10"_s; right = true; jump = (t >= J && t < J + 10); break;
-			case 19: name = "a_djump"_s; right = true; run = true; jump = (t >= J); break;
-			case 20: name = "a_djump_r10"_s; right = true; run = true; jump = (t >= J && t < J + 10); break;
+			case 17:
+				name = "a_wjump"_s;
+				right = true;
+				jump = (t >= J);
+				break;
+			case 18:
+				name = "a_wjump_r10"_s;
+				right = true;
+				jump = (t >= J && t < J + 10);
+				break;
+			case 19:
+				name = "a_djump"_s;
+				right = true;
+				run = true;
+				jump = (t >= J);
+				break;
+			case 20:
+				name = "a_djump_r10"_s;
+				right = true;
+				run = true;
+				jump = (t >= J && t < J + 10);
+				break;
 			// Air control - the direction released, reversed, reversed and released, reversed back
-			case 21: name = "a_wjump_rel50"_s; right = (t < 50); jump = (t >= J); break;
-			case 22: name = "a_wjump_rel75"_s; right = (t < 75); jump = (t >= J); break;
-			case 23: name = "a_wjump_opp50"_s; right = (t < 50); left = (t >= 50); jump = (t >= J); break;
-			case 24: name = "a_wjump_opp75"_s; right = (t < 75); left = (t >= 75); jump = (t >= J); break;
-			case 25: name = "a_wjump_opp90"_s; right = (t < 90); left = (t >= 90); jump = (t >= J); break;
-			case 26: name = "a_wjump_opp75_rel"_s; right = (t < 75); left = (t >= 75 && t < 90); jump = (t >= J); break;
-			case 27: name = "a_wjump_opp75_bk"_s; right = (t < 75 || t >= 100); left = (t >= 75 && t < 100); jump = (t >= J); break;
-			case 28: name = "a_djump_opp83"_s; run = true; right = (t < 83); left = (t >= 83); jump = (t >= J); break;
-			case 29: name = "a_djump_opp83nr"_s; right = (t < 83); run = (t < 83); left = (t >= 83); jump = (t >= J); break;
-			case 30: name = "a_djump_rel83"_s; right = (t < 83); run = (t < 83); jump = (t >= J); break;
-			case 31: name = "a_jump_press60"_s; jump = (t >= J); right = (t >= 60); break;
-			case 32: name = "a_jump_press60r"_s; jump = (t >= J); right = (t >= 60); run = (t >= 60); break;
-			case 33: name = "a_wjump_runmid"_s; right = true; run = (t >= 60); jump = (t >= J); break;
-			case 34: name = "a_djump_relrun"_s; right = true; run = (t < 60); jump = (t >= J); break;
-			case 35: name = "a_wjump_opp60_bk"_s; right = (t < 60 || t >= 75); left = (t >= 60 && t < 75); jump = (t >= J); break;
+			case 21:
+				name = "a_wjump_rel50"_s;
+				right = (t < 50);
+				jump = (t >= J);
+				break;
+			case 22:
+				name = "a_wjump_rel75"_s;
+				right = (t < 75);
+				jump = (t >= J);
+				break;
+			case 23:
+				name = "a_wjump_opp50"_s;
+				right = (t < 50);
+				left = (t >= 50);
+				jump = (t >= J);
+				break;
+			case 24:
+				name = "a_wjump_opp75"_s;
+				right = (t < 75);
+				left = (t >= 75);
+				jump = (t >= J);
+				break;
+			case 25:
+				name = "a_wjump_opp90"_s;
+				right = (t < 90);
+				left = (t >= 90);
+				jump = (t >= J);
+				break;
+			case 26:
+				name = "a_wjump_opp75_rel"_s;
+				right = (t < 75);
+				left = (t >= 75 && t < 90);
+				jump = (t >= J);
+				break;
+			case 27:
+				name = "a_wjump_opp75_bk"_s;
+				right = (t < 75 || t >= 100);
+				left = (t >= 75 && t < 100);
+				jump = (t >= J);
+				break;
+			case 28:
+				name = "a_djump_opp83"_s;
+				run = true;
+				right = (t < 83);
+				left = (t >= 83);
+				jump = (t >= J);
+				break;
+			case 29:
+				name = "a_djump_opp83nr"_s;
+				right = (t < 83);
+				run = (t < 83);
+				left = (t >= 83);
+				jump = (t >= J);
+				break;
+			case 30:
+				name = "a_djump_rel83"_s;
+				right = (t < 83);
+				run = (t < 83);
+				jump = (t >= J);
+				break;
+			case 31:
+				name = "a_jump_press60"_s;
+				jump = (t >= J);
+				right = (t >= 60);
+				break;
+			case 32:
+				name = "a_jump_press60r"_s;
+				jump = (t >= J);
+				right = (t >= 60);
+				run = (t >= 60);
+				break;
+			case 33:
+				name = "a_wjump_runmid"_s;
+				right = true;
+				run = (t >= 60);
+				jump = (t >= J);
+				break;
+			case 34:
+				name = "a_djump_relrun"_s;
+				right = true;
+				run = (t < 60);
+				jump = (t >= J);
+				break;
+			case 35:
+				name = "a_wjump_opp60_bk"_s;
+				right = (t < 60 || t >= 75);
+				left = (t >= 60 && t < 75);
+				jump = (t >= J);
+				break;
 
 			// Special moves. SetupCharacter() has already morphed to whichever rabbit owns each.
-			case 36: name = "sp_jazz_upper"_s; down = (t >= 20); jump = (t >= 40); break;
-			case 37: name = "sp_spaz_dj_hold"_s; jump = (t >= J && t < 50) || (t >= 60); break;
-			case 38: name = "sp_spaz_dj_tap"_s; jump = (t >= J && t < 50) || (t >= 60 && t < 64); break;
-			case 39: name = "sp_spaz_side"_s; right = (t < 2); down = (t >= 20); jump = (t >= 40); break;
-			case 40: name = "sp_lori_side"_s; right = (t < 2); down = (t >= 20); jump = (t >= 40); break;
-			case 41: name = "sp_jazz_butt"_s; jump = (t >= J && t < 55); down = (t >= 70); break;
-			case 42: name = "sp_spaz_butt"_s; jump = (t >= J && t < 55); down = (t >= 70); break;
-			case 43: name = "sp_lori_butt"_s; jump = (t >= J && t < 55); down = (t >= 70); break;
-			case 44: name = "sp_jazz_dj"_s; jump = (t >= J && t < 50) || (t >= 60); break;
+			case 36:
+				name = "sp_jazz_upper"_s;
+				down = (t >= 20);
+				jump = (t >= 40);
+				break;
+			case 37:
+				name = "sp_spaz_dj_hold"_s;
+				jump = (t >= J && t < 50) || (t >= 60);
+				break;
+			case 38:
+				name = "sp_spaz_dj_tap"_s;
+				jump = (t >= J && t < 50) || (t >= 60 && t < 64);
+				break;
+			case 39:
+				name = "sp_spaz_side"_s;
+				right = (t < 2);
+				down = (t >= 20);
+				jump = (t >= 40);
+				break;
+			case 40:
+				name = "sp_lori_side"_s;
+				right = (t < 2);
+				down = (t >= 20);
+				jump = (t >= 40);
+				break;
+			case 41:
+				name = "sp_jazz_butt"_s;
+				jump = (t >= J && t < 55);
+				down = (t >= 70);
+				break;
+			case 42:
+				name = "sp_spaz_butt"_s;
+				jump = (t >= J && t < 55);
+				down = (t >= 70);
+				break;
+			case 43:
+				name = "sp_lori_butt"_s;
+				jump = (t >= J && t < 55);
+				down = (t >= 70);
+				break;
+			case 44:
+				name = "sp_jazz_dj"_s;
+				jump = (t >= J && t < 50) || (t >= 60);
+				break;
 			// Springs. The vertical ones sit under the player's feet and fire from rest; the horizontal ones
 			// are a few tiles ahead and get walked into.
-			case 45: name = "ob_spring_red"_s; break;
-			case 46: name = "ob_spring_green"_s; break;
-			case 47: name = "ob_spring_blue"_s; break;
-			case 48: name = "ob_spring_frozen"_s; break;
-			case 49: name = "ob_spring_red_h"_s; right = true; break;
-			case 50: name = "ob_spring_green_h"_s; right = true; break;
-			case 51: name = "ob_spring_blue_h"_s; right = true; break;
-			case 52: name = "ob_vpole"_s; jump = (t >= J); break;
-			case 53: name = "ob_hpole"_s; right = true; run = true; break;
-			case 54: name = "ob_push_box"_s; right = true; break;
-			case 55: name = "ob_push_rock"_s; right = true; run = true; break;
+			case 45:
+				name = "ob_spring_red"_s;
+				break;
+			case 46:
+				name = "ob_spring_green"_s;
+				break;
+			case 47:
+				name = "ob_spring_blue"_s;
+				break;
+			case 48:
+				name = "ob_spring_frozen"_s;
+				break;
+			case 49:
+				name = "ob_spring_red_h"_s;
+				right = true;
+				break;
+			case 50:
+				name = "ob_spring_green_h"_s;
+				right = true;
+				break;
+			case 51:
+				name = "ob_spring_blue_h"_s;
+				right = true;
+				break;
+			case 52:
+				name = "ob_vpole"_s;
+				jump = (t >= J);
+				break;
+			case 53:
+				name = "ob_hpole"_s;
+				right = true;
+				run = true;
+				break;
+			case 54:
+				name = "ob_push_box"_s;
+				right = true;
+				break;
+			case 55:
+				name = "ob_push_rock"_s;
+				right = true;
+				run = true;
+				break;
 			// Copter ears: one jump to get airborne, then a 2-tick tap every 6 to keep them going
-			case 56: name = "sp_jazz_copter"_s; jump = (t >= J && t < J + 5) || (t >= 75 && ((t - 75) % 6) < 2); break;
-			case 57: name = "sp_jazz_copter_fwd"_s; right = true; jump = (t >= J && t < J + 5) || (t >= 75 && ((t - 75) % 6) < 2); break;
-			case 58: name = "sp_lori_copter"_s; jump = (t >= J && t < J + 5) || (t >= 75 && ((t - 75) % 6) < 2); break;
-			case 59: name = "sp_lori_copter_fwd"_s; right = true; jump = (t >= J && t < J + 5) || (t >= 75 && ((t - 75) % 6) < 2); break;
-			case 60: name = "sp_spaz_copter"_s; jump = (t >= J && t < J + 5) || (t >= 75 && ((t - 75) % 6) < 2); break;
+			case 56:
+				name = "sp_jazz_copter"_s;
+				jump = (t >= J && t < J + 5) || (t >= 75 && ((t - 75) % 6) < 2);
+				break;
+			case 57:
+				name = "sp_jazz_copter_fwd"_s;
+				right = true;
+				jump = (t >= J && t < J + 5) || (t >= 75 && ((t - 75) % 6) < 2);
+				break;
+			case 58:
+				name = "sp_lori_copter"_s;
+				jump = (t >= J && t < J + 5) || (t >= 75 && ((t - 75) % 6) < 2);
+				break;
+			case 59:
+				name = "sp_lori_copter_fwd"_s;
+				right = true;
+				jump = (t >= J && t < J + 5) || (t >= 75 && ((t - 75) % 6) < 2);
+				break;
+			case 60:
+				name = "sp_spaz_copter"_s;
+				jump = (t >= J && t < J + 5) || (t >= 75 && ((t - 75) % 6) < 2);
+				break;
 			// Steering during a buttstomp
-			case 61: name = "sp_butt_right"_s; jump = (t >= J && t < 55); down = (t >= 70); right = (t >= 75); break;
-			case 62: name = "sp_butt_right_run"_s; jump = (t >= J && t < 55); down = (t >= 70); right = (t >= 75); run = (t >= 75); break;
-			case 63: name = "sp_butt_moving"_s; right = true; jump = (t >= J && t < 55); down = (t >= 70); break;
+			case 61:
+				name = "sp_butt_right"_s;
+				jump = (t >= J && t < 55);
+				down = (t >= 70);
+				right = (t >= 75);
+				break;
+			case 62:
+				name = "sp_butt_right_run"_s;
+				jump = (t >= J && t < 55);
+				down = (t >= 70);
+				right = (t >= 75);
+				run = (t >= 75);
+				break;
+			case 63:
+				name = "sp_butt_moving"_s;
+				right = true;
+				jump = (t >= J && t < 55);
+				down = (t >= 70);
+				break;
 			// The sidekick with jump released, so it ends with the player on the floor instead of jumping out
-			case 64: name = "sp_spaz_side_rel"_s; right = (t < 2); down = (t >= 20 && t < 44); jump = (t >= 40 && t < 44); break;
-			case 65: name = "sp_lori_side_rel"_s; right = (t < 2); down = (t >= 20 && t < 44); jump = (t >= 40 && t < 44); break;
+			case 64:
+				name = "sp_spaz_side_rel"_s;
+				right = (t < 2);
+				down = (t >= 20 && t < 44);
+				jump = (t >= 40 && t < 44);
+				break;
+			case 65:
+				name = "sp_lori_side_rel"_s;
+				right = (t < 2);
+				down = (t >= 20 && t < 44);
+				jump = (t >= 40 && t < 44);
+				break;
 			// Copter steering, reversed twice
-			case 66: name = "sp_copter_lrl"_s; jump = (t >= J && t < J + 5) || (t >= 75 && ((t - 75) % 6) < 2);
-				right = (t >= 80 && t < 130) || (t >= 180); left = (t >= 130 && t < 180); break;
+			case 66:
+				name = "sp_copter_lrl"_s;
+				jump = (t >= J && t < J + 5) || (t >= 75 && ((t - 75) % 6) < 2);
+				right = (t >= 80 && t < 130) || (t >= 180);
+				left = (t >= 130 && t < 180);
+				break;
 			// Met from below at the level's own low vine, not by placing one overhead and jumping into it.
 			// That is what these two did for as long as they existed and it has never once grabbed: first at
 			// three tiles up, where the five-tick jump was 19 px short, then at two, where eight ticks cleared
@@ -329,102 +593,338 @@ namespace Jazz2::Tests
 			// drawn there carries, which can sit anywhere in its 32 px - the level's own stacked pair holds
 			// one at the very bottom of its tile and one 11 px from the top. Aiming at a tile row is
 			// therefore aiming at up to 32 px of slack; use `ScanVineTiles` to read where the band really is.
-			case 67: name = "ob_vine"_s; jump = (t >= 20 && t < 25); right = (t >= 60); break;
-			case 68: name = "ob_vine_run"_s; jump = (t >= 20 && t < 25); right = (t >= 60); run = true; break;
+			case 67:
+				name = "ob_vine"_s;
+				jump = (t >= 20 && t < 25);
+				right = (t >= 60);
+				break;
+			case 68:
+				name = "ob_vine_run"_s;
+				jump = (t >= 20 && t < 25);
+				right = (t >= 60);
+				run = true;
+				break;
 			// Slopes, reached by starting beside them rather than travelling there
-			case 69: name = "sl_walk_right"_s; right = true; break;
-			case 70: name = "sl_run_right"_s; right = true; run = true; break;
-			case 71: name = "sl_run_left"_s; left = true; run = true; break;
-			case 72: name = "sp_butt_high"_s; down = (t >= 20); right = (t >= 40 && t < 70) || (t >= 90 && t < 140) || (t >= 160); break;
-			case 73: name = "sl_down_walk"_s; right = true; break;
-			case 74: name = "sl_down_run"_s; right = true; run = true; break;
-			case 75: name = "sl_down_jump"_s; right = true; run = true; jump = (t >= 30 && t < 40); break;
-			case 76: name = "sl_up_walk"_s; right = true; break;
-			case 77: name = "sl_up_run"_s; right = true; run = true; break;
-			case 78: name = "ob_vine2"_s; right = (t >= 10); break;
-			case 79: name = "ob_vine2_run"_s; right = (t >= 10); run = true; break;
-			case 80: name = "sp_butt_tap_r"_s; down = (t >= 20 && t < 24); right = (t >= 26); break;
-			case 81: name = "sp_butt_hold_r"_s; down = (t >= 20); right = (t >= 26); break;
+			case 69:
+				name = "sl_walk_right"_s;
+				right = true;
+				break;
+			case 70:
+				name = "sl_run_right"_s;
+				right = true;
+				run = true;
+				break;
+			case 71:
+				name = "sl_run_left"_s;
+				left = true;
+				run = true;
+				break;
+			case 72:
+				name = "sp_butt_high"_s;
+				down = (t >= 20);
+				right = (t >= 40 && t < 70) || (t >= 90 && t < 140) || (t >= 160);
+				break;
+			case 73:
+				name = "sl_down_walk"_s;
+				right = true;
+				break;
+			case 74:
+				name = "sl_down_run"_s;
+				right = true;
+				run = true;
+				break;
+			case 75:
+				name = "sl_down_jump"_s;
+				right = true;
+				run = true;
+				jump = (t >= 30 && t < 40);
+				break;
+			case 76:
+				name = "sl_up_walk"_s;
+				right = true;
+				break;
+			case 77:
+				name = "sl_up_run"_s;
+				right = true;
+				run = true;
+				break;
+			case 78:
+				name = "ob_vine2"_s;
+				right = (t >= 10);
+				break;
+			case 79:
+				name = "ob_vine2_run"_s;
+				right = (t >= 10);
+				run = true;
+				break;
+			case 80:
+				name = "sp_butt_tap_r"_s;
+				down = (t >= 20 && t < 24);
+				right = (t >= 26);
+				break;
+			case 81:
+				name = "sp_butt_hold_r"_s;
+				down = (t >= 20);
+				right = (t >= 26);
+				break;
 			// Delay before the second jump press, sweeping across the original's double jump window. The
 			// first jump is held from t45 to its apex at ~t72 and the second press comes at an offset past
 			// it; in the original, +5 through +28 fire and +30 and later do nothing, as does a press that
 			// comes in before the apex.
-			case 82: name = "sp_dj_d05"_s; jump = (t >= J && t < 72) || (t >= 77); break;
-			case 83: name = "sp_dj_d20"_s; jump = (t >= J && t < 72) || (t >= 92); break;
-			case 84: name = "sp_dj_d28"_s; jump = (t >= J && t < 72) || (t >= 100); break;
-			case 85: name = "sp_dj_d30"_s; jump = (t >= J && t < 72) || (t >= 102); break;
-			case 86: name = "sp_dj_d40"_s; jump = (t >= J && t < 72) || (t >= 112); break;
-			case 87: name = "sp_dj_early"_s; jump = (t >= J && t < 60) || (t >= 65); break;
+			case 82:
+				name = "sp_dj_d05"_s;
+				jump = (t >= J && t < 72) || (t >= 77);
+				break;
+			case 83:
+				name = "sp_dj_d20"_s;
+				jump = (t >= J && t < 72) || (t >= 92);
+				break;
+			case 84:
+				name = "sp_dj_d28"_s;
+				jump = (t >= J && t < 72) || (t >= 100);
+				break;
+			case 85:
+				name = "sp_dj_d30"_s;
+				jump = (t >= J && t < 72) || (t >= 102);
+				break;
+			case 86:
+				name = "sp_dj_d40"_s;
+				jump = (t >= J && t < 72) || (t >= 112);
+				break;
+			case 87:
+				name = "sp_dj_early"_s;
+				jump = (t >= J && t < 60) || (t >= 65);
+				break;
 			// Lori kicks over and over while crouched, so the jump key is tapped far more often than the
 			// move can retrigger - the gaps between the kicks are the move's own cadence, not the input's
-			case 88: name = "sp_lori_kick_rep"_s; right = (t < 2); down = (t >= 20); jump = (t >= 40 && ((t - 40) % 15) < 2); break;
+			case 88:
+				name = "sp_lori_kick_rep"_s;
+				right = (t < 2);
+				down = (t >= 20);
+				jump = (t >= 40 && ((t - 40) % 15) < 2);
+				break;
 			// Wall bounce: dash at the wall closing the right end of the upper floor, jump, and turn back
 			// to land on the platform above and to the left. The wall face is at tile 234, which a dash
 			// from the left end of this floor reaches at t164 and a walk at about t305, so the jump tick
 			// is what sets how far out the jump happens - and it matters, because pressed flat against
 			// the wall the player has no horizontal speed left and the jump gets no speed bonus at all.
 			// These need the long scenario window; see GetScenarioTicks().
-			case 89: name = "wb_dash_j130"_s; right = (t < 130); run = true; jump = (t >= 130 && t < 160); left = (t >= 134); break;
-			case 90: name = "wb_dash_j145"_s; right = (t < 145); run = true; jump = (t >= 145 && t < 175); left = (t >= 149); break;
-			case 91: name = "wb_dash_j155"_s; right = (t < 155); run = true; jump = (t >= 155 && t < 185); left = (t >= 159); break;
-			case 92: name = "wb_dash_j164"_s; right = (t < 164); run = true; jump = (t >= 164 && t < 194); left = (t >= 168); break;
-			case 93: name = "wb_walk_j300"_s; right = (t < 300); jump = (t >= 300 && t < 330); left = (t >= 304); break;
+			case 89:
+				name = "wb_dash_j130"_s;
+				right = (t < 130);
+				run = true;
+				jump = (t >= 130 && t < 160);
+				left = (t >= 134);
+				break;
+			case 90:
+				name = "wb_dash_j145"_s;
+				right = (t < 145);
+				run = true;
+				jump = (t >= 145 && t < 175);
+				left = (t >= 149);
+				break;
+			case 91:
+				name = "wb_dash_j155"_s;
+				right = (t < 155);
+				run = true;
+				jump = (t >= 155 && t < 185);
+				left = (t >= 159);
+				break;
+			case 92:
+				name = "wb_dash_j164"_s;
+				right = (t < 164);
+				run = true;
+				jump = (t >= 164 && t < 194);
+				left = (t >= 168);
+				break;
+			case 93:
+				name = "wb_walk_j300"_s;
+				right = (t < 300);
+				jump = (t >= 300 && t < 330);
+				left = (t >= 304);
+				break;
 			// Blasting yourself off the wall with an RF shot fired into it, from the ground and from a
 			// jump, point blank and a few tiles out
-			case 94: name = "wb_rf_g0"_s; right = (t < 164); run = true; fire = (t >= 166 && t < 172); break;
-			case 95: name = "wb_rf_g5"_s; right = (t < 145); run = true; fire = (t >= 147 && t < 153); break;
-			case 96: name = "wb_rf_j0"_s; right = (t < 164); run = true; jump = (t >= 164 && t < 194); fire = (t >= 168 && t < 174); break;
-			case 97: name = "wb_rf_j5"_s; right = (t < 145); run = true; jump = (t >= 145 && t < 175); fire = (t >= 149 && t < 155); break;
+			case 94:
+				name = "wb_rf_g0"_s;
+				right = (t < 164);
+				run = true;
+				fire = (t >= 166 && t < 172);
+				break;
+			case 95:
+				name = "wb_rf_g5"_s;
+				right = (t < 145);
+				run = true;
+				fire = (t >= 147 && t < 153);
+				break;
+			case 96:
+				name = "wb_rf_j0"_s;
+				right = (t < 164);
+				run = true;
+				jump = (t >= 164 && t < 194);
+				fire = (t >= 168 && t < 174);
+				break;
+			case 97:
+				name = "wb_rf_j5"_s;
+				right = (t < 145);
+				run = true;
+				jump = (t >= 145 && t < 175);
+				fire = (t >= 149 && t < 155);
+				break;
 			// Dash right for the whole scenario, which finds where the wall actually is: x simply stops
-			case 98: name = "wb_wallfind"_s; right = true; run = true; break;
+			case 98:
+				name = "wb_wallfind"_s;
+				right = true;
+				run = true;
+				break;
 			// Climbing the test wall at the left end of the upper floor. The climb needs the player off
 			// the ground and pressing into the wall, so it is a jump with the direction held through it -
 			// which is also the approach that sets `_jumpReleased` and used to leave them short. There is
 			// no ledge climb in the original, so these five have no counterpart to compare against.
-			case 99: name = "lc_wallfind_l"_s; left = true; run = true; break;
-			case 100: name = "lc_walk"_s; left = true; jump = (t >= 45 && t < 60); break;
-			case 101: name = "lc_dash"_s; left = true; run = true; jump = (t >= 45 && t < 60); break;
-			case 102: name = "lc_walk_hold"_s; left = true; jump = (t >= 45); break;
+			case 99:
+				name = "lc_wallfind_l"_s;
+				left = true;
+				run = true;
+				break;
+			case 100:
+				name = "lc_walk"_s;
+				left = true;
+				jump = (t >= 45 && t < 60);
+				break;
+			case 101:
+				name = "lc_dash"_s;
+				left = true;
+				run = true;
+				jump = (t >= 45 && t < 60);
+				break;
+			case 102:
+				name = "lc_walk_hold"_s;
+				left = true;
+				jump = (t >= 45);
+				break;
 			// How close to the detonation the player has to be for an RF blast to throw them. The player is
 			// parked a set distance from the wall by SetupCharacter() and fires from a standstill, so the
 			// shot's flight is over in a frame or two and the detonation lands at the wall, that distance
 			// away. Firing while dashing does not measure this: the shot inherits the player's speed, so it
 			// reaches the wall long before the player does and the distance at detonation is not the one
 			// that was set up. Two ticks of Right at the start only fix which way the player is facing.
-			case 103: name = "wb_rf_r12"_s; right = (t < 2); fire = (t >= 60 && t < 66); break;
-			case 104: name = "wb_rf_r24"_s; right = (t < 2); fire = (t >= 60 && t < 66); break;
-			case 105: name = "wb_rf_r36"_s; right = (t < 2); fire = (t >= 60 && t < 66); break;
-			case 106: name = "wb_rf_r48"_s; right = (t < 2); fire = (t >= 60 && t < 66); break;
-			case 107: name = "wb_rf_r64"_s; right = (t < 2); fire = (t >= 60 && t < 66); break;
+			case 103:
+				name = "wb_rf_r12"_s;
+				right = (t < 2);
+				fire = (t >= 60 && t < 66);
+				break;
+			case 104:
+				name = "wb_rf_r24"_s;
+				right = (t < 2);
+				fire = (t >= 60 && t < 66);
+				break;
+			case 105:
+				name = "wb_rf_r36"_s;
+				right = (t < 2);
+				fire = (t >= 60 && t < 66);
+				break;
+			case 106:
+				name = "wb_rf_r48"_s;
+				right = (t < 2);
+				fire = (t >= 60 && t < 66);
+				break;
+			case 107:
+				name = "wb_rf_r64"_s;
+				right = (t < 2);
+				fire = (t >= 60 && t < 66);
+				break;
 			// Chained poles, and poles entered off a spring. A pole hands back everything it was given plus
 			// a fixed bonus - 15.625 vertical, 8 horizontal with a ceiling - so chaining compounds, which is what
 			// exposed an earlier flat-value model as a regression. These verify the compounding end to end
 			// rather than one pole at a time, and they need the long scenario window.
-			case 108: name = "ob_vpole_x2"_s; jump = (t >= J); break;
-			case 109: name = "ob_vpole_x3"_s; jump = (t >= J); break;
-			case 110: name = "ob_vpole_x5"_s; jump = (t >= J); break;
-			case 111: name = "ob_hpole_x3"_s; right = true; run = true; break;
-			case 112: name = "ob_spring_vpole"_s; break;			// the vertical spring fires on its own
-			case 113: name = "ob_spring_hpole"_s; right = true; break;	// walk into the horizontal spring first
-			case 114: name = "ob_hpole_walk"_s; right = true; break;	// the same pole at walking speed, a second fit point
+			case 108:
+				name = "ob_vpole_x2"_s;
+				jump = (t >= J);
+				break;
+			case 109:
+				name = "ob_vpole_x3"_s;
+				jump = (t >= J);
+				break;
+			case 110:
+				name = "ob_vpole_x5"_s;
+				jump = (t >= J);
+				break;
+			case 111:
+				name = "ob_hpole_x3"_s;
+				right = true;
+				run = true;
+				break;
+			case 112:
+				name = "ob_spring_vpole"_s;
+				break; // the vertical spring fires on its own
+			case 113:
+				name = "ob_spring_hpole"_s;
+				right = true;
+				break; // walk into the horizontal spring first
+			case 114:
+				name = "ob_hpole_walk"_s;
+				right = true;
+				break; // the same pole at walking speed, a second fit point
 			// Crossing a gap. Row 11's floor runs from tile 153 and is broken by gaps of 1, 2, 3, 4, 5 and 6
 			// tiles at 180, 209, 238, 269, 300 and 336, each with a full 27+ tiles of floor before it - so
 			// every gap is met at true top speed rather than at whatever survived the previous one.
 			// SetupCharacter() parks the player 24 tiles short of the gap its scenario is named for.
 			// Whether they crossed or fell is obvious from `y`, and the speed they crossed at is in the
 			// same rows. The original does this ballistically, with no upward boost of any kind.
-			case 115: name = "lh_g1_walk"_s; right = true; break;
-			case 116: name = "lh_g1_dash"_s; right = true; run = true; break;
-			case 117: name = "lh_g2_walk"_s; right = true; break;
-			case 118: name = "lh_g2_dash"_s; right = true; run = true; break;
-			case 119: name = "lh_g3_walk"_s; right = true; break;
-			case 120: name = "lh_g3_dash"_s; right = true; run = true; break;
-			case 121: name = "lh_g4_walk"_s; right = true; break;
-			case 122: name = "lh_g4_dash"_s; right = true; run = true; break;
-			case 123: name = "lh_g5_walk"_s; right = true; break;
-			case 124: name = "lh_g5_dash"_s; right = true; run = true; break;
-			case 125: name = "lh_g6_walk"_s; right = true; break;
-			case 126: name = "lh_g6_dash"_s; right = true; run = true; break;
+			case 115:
+				name = "lh_g1_walk"_s;
+				right = true;
+				break;
+			case 116:
+				name = "lh_g1_dash"_s;
+				right = true;
+				run = true;
+				break;
+			case 117:
+				name = "lh_g2_walk"_s;
+				right = true;
+				break;
+			case 118:
+				name = "lh_g2_dash"_s;
+				right = true;
+				run = true;
+				break;
+			case 119:
+				name = "lh_g3_walk"_s;
+				right = true;
+				break;
+			case 120:
+				name = "lh_g3_dash"_s;
+				right = true;
+				run = true;
+				break;
+			case 121:
+				name = "lh_g4_walk"_s;
+				right = true;
+				break;
+			case 122:
+				name = "lh_g4_dash"_s;
+				right = true;
+				run = true;
+				break;
+			case 123:
+				name = "lh_g5_walk"_s;
+				right = true;
+				break;
+			case 124:
+				name = "lh_g5_dash"_s;
+				right = true;
+				run = true;
+				break;
+			case 125:
+				name = "lh_g6_walk"_s;
+				right = true;
+				break;
+			case 126:
+				name = "lh_g6_dash"_s;
+				right = true;
+				run = true;
+				break;
 			// Which rise gravity a spring launch decays at. Both fall onto the same spring from the same
 			// height and differ only in the jump tap on the way down, so the two rises have to match - and
 			// without the fix in OnHitSpring() they do not: 602 px against 399. The tap sets
@@ -434,8 +934,13 @@ namespace Jazz2::Tests
 			// stays set for the whole descent either way. **Engine only**: the original's spring ascent was
 			// measured with no key pressed at all, so the held rate is what this holds the engine to rather
 			// than a measurement of this particular case.
-			case 127: name = "jr_spring_fall"_s; break;
-			case 128: name = "jr_spring_fall_jrel"_s; jump = (t >= 5 && t < 12); break;
+			case 127:
+				name = "jr_spring_fall"_s;
+				break;
+			case 128:
+				name = "jr_spring_fall_jrel"_s;
+				jump = (t >= 5 && t < 12);
+				break;
 			// Explosive knockback, one weapon at a time, against the upper floor's wall. Only the RF blast
 			// is known to move the player: this engine has an `ApplyBlastKnockback()` for RF, a bare
 			// `AddExternalForce(8, 0)` for the Seeker that was never measured, and nothing at all for TNT.
@@ -443,50 +948,126 @@ namespace Jazz2::Tests
 			// mechanic or three. Parked and fired from rest on purpose - a shot fired while moving inherits
 			// the player's speed and detonates at a distance nobody chose, which is the mistake that made
 			// the first RF reach sweep meaningless.
-			case 129: name = "wb_rf_t1"_s; fire = (t >= 60 && t < 66); break;
-			case 130: name = "wb_rf_t2"_s; fire = (t >= 60 && t < 66); break;
-			case 131: name = "wb_rf_t3"_s; fire = (t >= 60 && t < 66); break;
-			case 132: name = "wb_rf_t4"_s; fire = (t >= 60 && t < 66); break;
-			case 133: name = "wb_rf_t5"_s; fire = (t >= 60 && t < 66); break;
-			case 134: name = "wb_rf_t6"_s; fire = (t >= 60 && t < 66); break;
-			case 135: name = "wb_sk_t1"_s; fire = (t >= 60 && t < 66); break;
-			case 136: name = "wb_sk_t2"_s; fire = (t >= 60 && t < 66); break;
-			case 137: name = "wb_sk_t3"_s; fire = (t >= 60 && t < 66); break;
+			case 129:
+				name = "wb_rf_t1"_s;
+				fire = (t >= 60 && t < 66);
+				break;
+			case 130:
+				name = "wb_rf_t2"_s;
+				fire = (t >= 60 && t < 66);
+				break;
+			case 131:
+				name = "wb_rf_t3"_s;
+				fire = (t >= 60 && t < 66);
+				break;
+			case 132:
+				name = "wb_rf_t4"_s;
+				fire = (t >= 60 && t < 66);
+				break;
+			case 133:
+				name = "wb_rf_t5"_s;
+				fire = (t >= 60 && t < 66);
+				break;
+			case 134:
+				name = "wb_rf_t6"_s;
+				fire = (t >= 60 && t < 66);
+				break;
+			case 135:
+				name = "wb_sk_t1"_s;
+				fire = (t >= 60 && t < 66);
+				break;
+			case 136:
+				name = "wb_sk_t2"_s;
+				fire = (t >= 60 && t < 66);
+				break;
+			case 137:
+				name = "wb_sk_t3"_s;
+				fire = (t >= 60 && t < 66);
+				break;
 			// TNT is placed at the player rather than fired forward, so the wall distance is not the
 			// variable here - what these ask is whether its own detonation moves the player at all
-			case 138: name = "wb_tnt_t1"_s; fire = (t >= 60 && t < 66); break;
-			case 139: name = "wb_tnt_t2"_s; fire = (t >= 60 && t < 66); break;
+			case 138:
+				name = "wb_tnt_t1"_s;
+				fire = (t >= 60 && t < 66);
+				break;
+			case 139:
+				name = "wb_tnt_t2"_s;
+				fire = (t >= 60 && t < 66);
+				break;
 			// Buttstomping an enemy, and specifically the bounce at the end of it. A TurtleTube because it
 			// holds still, so the impact lands where it was aimed; the two differ in the drop height, which
 			// is what sets the speed going in - the question is whether the bounce depends on it.
-			case 140: name = "en_butt_turtle"_s; down = (t >= 20); break;
-			case 141: name = "en_butt_turtle_low"_s; down = (t >= 20); break;
+			case 140:
+				name = "en_butt_turtle"_s;
+				down = (t >= 20);
+				break;
+			case 141:
+				name = "en_butt_turtle_low"_s;
+				down = (t >= 20);
+				break;
 			// The RF blast taken on a slope. The throw is a horizontal speed, and the slope search turns
 			// horizontal travel into vertical, so an incline could change how far it carries even with the
 			// knockback itself identical. Each fires into the *rising* side, which is the only way the shot
 			// meets anything within its one-tile reach: uphill needs no turn, downhill needs the player
 			// turned round first, which is what the brief left press is for.
-			case 142: name = "sl_rf_up"_s; fire = (t >= 60 && t < 66); break;
-			case 143: name = "sl_rf_down"_s; left = (t < 10); fire = (t >= 60 && t < 66); break;
+			case 142:
+				name = "sl_rf_up"_s;
+				fire = (t >= 60 && t < 66);
+				break;
+			case 143:
+				name = "sl_rf_down"_s;
+				left = (t < 10);
+				fire = (t >= 60 && t < 66);
+				break;
 			// Jumping into a ceiling. The test section is a staircase of 2-tile-wide bays over the row-16
 			// floor, with 2, 3, 4, 5 and 6 tiles of clearance; SetupCharacter() parks the player in the middle
 			// of one bay so a standing jump stays inside it. A standing jump rises 132 px, so 2 and 3 tiles
 			// are struck hard, 4 is marginal and 5 and 6 clear - which is the range the reaction is worth
 			// reading across. Jump is held throughout: what happens to the rest of the ascent after the head
 			// hits is the measurement, and releasing would confound it with the released-gravity switch.
-			case 144: name = "cl_j2"_s; jump = (t >= J); break;
-			case 145: name = "cl_j3"_s; jump = (t >= J); break;
-			case 146: name = "cl_j4"_s; jump = (t >= J); break;
-			case 147: name = "cl_j5"_s; jump = (t >= J); break;
-			case 148: name = "cl_j6"_s; jump = (t >= J); break;
+			case 144:
+				name = "cl_j2"_s;
+				jump = (t >= J);
+				break;
+			case 145:
+				name = "cl_j3"_s;
+				jump = (t >= J);
+				break;
+			case 146:
+				name = "cl_j4"_s;
+				jump = (t >= J);
+				break;
+			case 147:
+				name = "cl_j5"_s;
+				jump = (t >= J);
+				break;
+			case 148:
+				name = "cl_j6"_s;
+				jump = (t >= J);
+				break;
 			// The same bays with Spaz's double jump, which adds a second launch part way up - so it can be
 			// spent before the ceiling, against it, or after bouncing off it. Same press pattern as
 			// `sp_spaz_dj_hold`, so the open-air arc it produces is already on record to compare against.
-			case 149: name = "cl_dj2"_s; jump = (t >= J && t < 50) || (t >= 60); break;
-			case 150: name = "cl_dj3"_s; jump = (t >= J && t < 50) || (t >= 60); break;
-			case 151: name = "cl_dj4"_s; jump = (t >= J && t < 50) || (t >= 60); break;
-			case 152: name = "cl_dj5"_s; jump = (t >= J && t < 50) || (t >= 60); break;
-			case 153: name = "cl_dj6"_s; jump = (t >= J && t < 50) || (t >= 60); break;
+			case 149:
+				name = "cl_dj2"_s;
+				jump = (t >= J && t < 50) || (t >= 60);
+				break;
+			case 150:
+				name = "cl_dj3"_s;
+				jump = (t >= J && t < 50) || (t >= 60);
+				break;
+			case 151:
+				name = "cl_dj4"_s;
+				jump = (t >= J && t < 50) || (t >= 60);
+				break;
+			case 152:
+				name = "cl_dj5"_s;
+				jump = (t >= J && t < 50) || (t >= 60);
+				break;
+			case 153:
+				name = "cl_dj6"_s;
+				jump = (t >= J && t < 50) || (t >= 60);
+				break;
 			// Moving, which cannot be pinned to one bay - a walk crosses a bay in 16 ticks and a dash in 7,
 			// so the player is under a different ceiling by the time the arc finishes. Which bay each strike
 			// happened in is read from the `x` column, and this is also where the launch boost varies the
@@ -496,10 +1077,28 @@ namespace Jazz2::Tests
 			// go. Going the other way sends them past the section entirely and into the 17-tile wall at
 			// tiles 55-56, which they then climb - a first attempt measured that instead, all the way to
 			// tile 83 and above the top of the level.
-			case 154: name = "cl_walk_j"_s; left = true; jump = (t >= J); break;
-			case 155: name = "cl_dash_j"_s; left = true; run = true; jump = (t >= J); break;
-			case 156: name = "cl_dj_walk"_s; left = true; jump = (t >= J && t < 50) || (t >= 60); break;
-			case 157: name = "cl_dj_dash"_s; left = true; run = true; jump = (t >= J && t < 50) || (t >= 60); break;
+			case 154:
+				name = "cl_walk_j"_s;
+				left = true;
+				jump = (t >= J);
+				break;
+			case 155:
+				name = "cl_dash_j"_s;
+				left = true;
+				run = true;
+				jump = (t >= J);
+				break;
+			case 156:
+				name = "cl_dj_walk"_s;
+				left = true;
+				jump = (t >= J && t < 50) || (t >= 60);
+				break;
+			case 157:
+				name = "cl_dj_dash"_s;
+				left = true;
+				run = true;
+				jump = (t >= J && t < 50) || (t >= 60);
+				break;
 			// Pinning the *lower* edge of the double-jump window. Read off the original by the fall speed at
 			// the second press, it is refused at 0.0000 and accepted at 1.2500, and the `sp_dj_d*` family
 			// samples nothing in between - so these four press at ticks that land there. The number is the
@@ -508,18 +1107,44 @@ namespace Jazz2::Tests
 			// The first press is released just *past* the apex rather than at 72 like `sp_dj_d*`: releasing
 			// changes only the rise gravity, so once the player is falling it cannot alter the arc, and
 			// releasing any earlier would.
-			case 158: name = "sp_dj_p64"_s; jump = (t >= J && t < 62) || (t >= 64); break;
-			case 159: name = "sp_dj_p68"_s; jump = (t >= J && t < 62) || (t >= 68); break;
-			case 160: name = "sp_dj_p72"_s; jump = (t >= J && t < 62) || (t >= 72); break;
-			case 161: name = "sp_dj_p76"_s; jump = (t >= J && t < 62) || (t >= 76); break;
+			case 158:
+				name = "sp_dj_p64"_s;
+				jump = (t >= J && t < 62) || (t >= 64);
+				break;
+			case 159:
+				name = "sp_dj_p68"_s;
+				jump = (t >= J && t < 62) || (t >= 68);
+				break;
+			case 160:
+				name = "sp_dj_p72"_s;
+				jump = (t >= J && t < 62) || (t >= 72);
+				break;
+			case 161:
+				name = "sp_dj_p76"_s;
+				jump = (t >= J && t < 62) || (t >= 76);
+				break;
 			// Two pole events immediately next to each other. `InitialPoleStage()` refuses any pole within
 			// `SamePoleTolerance` tiles of the one just used, which is meant to stop the launch re-grabbing
 			// the same pole - but two *distinct* poles can be adjacent, and then the second is ignored.
 			// Tested both ways round for each type, since the check covers X and Y alike.
-			case 162: name = "ob_vpole_adjx"_s; jump = (t >= J); break;
-			case 163: name = "ob_vpole_adjy"_s; jump = (t >= J); break;
-			case 164: name = "ob_hpole_adjx"_s; right = true; run = true; break;
-			case 165: name = "ob_hpole_adjy"_s; right = true; run = true; break;
+			case 162:
+				name = "ob_vpole_adjx"_s;
+				jump = (t >= J);
+				break;
+			case 163:
+				name = "ob_vpole_adjy"_s;
+				jump = (t >= J);
+				break;
+			case 164:
+				name = "ob_hpole_adjx"_s;
+				right = true;
+				run = true;
+				break;
+			case 165:
+				name = "ob_hpole_adjy"_s;
+				right = true;
+				run = true;
+				break;
 			// The level's own spring-and-pole chain, which is the only scenario built entirely out of the
 			// level rather than out of props the probe places. Dropped in at the top of the shaft at tile
 			// (34,16) with nothing held for fifteen seconds: the fall lands on the horizontal blue spring at
@@ -529,13 +1154,17 @@ namespace Jazz2::Tests
 			// Nothing is held on purpose. A chain this long amplifies any difference between the two games,
 			// so the comparison is read as *when each spring fires*, not as a position at tick 900 - by then
 			// a single tick of divergence early on has put the player somewhere else entirely.
-			case 166: name = "sp_chain"_s; break;
+			case 166:
+				name = "sp_chain"_s;
+				break;
 			// The part of that chain the player was reported to get stuck in, on its own: the vertical blue
 			// spring at (54,24) fires up the one-tile shaft at x=54 into the vertical pole at (54,10). What
 			// the pole does with a player who arrives *falling* is the question - a vertical pole launches in
 			// the direction it was entered, so a player who lands back on it is thrown back down the shaft
 			// into the spring, and round again.
-			case 167: name = "sp_pole_loop"_s; break;
+			case 167:
+				name = "sp_pole_loop"_s;
+				break;
 			// A horizontal pole entered with *no* horizontal speed, which `sp_chain` turned up as the one
 			// entry the launch curve was never fitted on. The three points it was fitted on - 4 -> 12,
 			// 9.34 -> 20, 16 -> 20 - leave the low end undetermined, since only the first is unclamped, and
@@ -550,12 +1179,26 @@ namespace Jazz2::Tests
 			// The tap is three ticks and not twelve: twelve moves the player 33 px, more than half a tile, and
 			// the pole is then no longer overhead - the first attempt at these two missed it entirely and
 			// measured a player jumping on the spot instead. Three ticks moves about a pixel.
-			case 168: name = "ob_hpole_z0"_s; jump = (t >= J); break;
-			case 169: name = "ob_hpole_zl"_s; left = (t < 3); jump = (t >= J); break;
-			case 170: name = "ob_hpole_zr"_s; right = (t < 3); jump = (t >= J); break;
+			case 168:
+				name = "ob_hpole_z0"_s;
+				jump = (t >= J);
+				break;
+			case 169:
+				name = "ob_hpole_zl"_s;
+				left = (t < 3);
+				jump = (t >= J);
+				break;
+			case 170:
+				name = "ob_hpole_zr"_s;
+				right = (t < 3);
+				jump = (t >= J);
+				break;
 			// Two tiles away rather than four, so the player is still accelerating when it arrives and enters
 			// below the walk cap - a fourth fit point, in the stretch of the curve that has none
-			case 171: name = "ob_hpole_near"_s; right = true; break;
+			case 171:
+				name = "ob_hpole_near"_s;
+				right = true;
+				break;
 			// The one scenario that runs in a **different level**: the original game's own Diamondus 3, which
 			// has a spring chain of its own at the far west end - a one-tile shaft at x=1 with a horizontal
 			// blue spring at (1,45) at the bottom, feeding red and green springs and a horizontal pole at
@@ -576,13 +1219,39 @@ namespace Jazz2::Tests
 			// outright, since the whole float branch is skipped while one is running. `fu_stand` presses
 			// nothing: a float area under a standing player either lifts them off the ground or does not, and
 			// which it is has never been checked.
-			case 172: name = "fu_jump_right"_s; jump = (t >= 5); right = (t >= 5); break;
-			case 173: name = "fu_jump_right_rel"_s; jump = (t >= 5 && t < 25); right = (t >= 5); break;
-			case 174: name = "fu_right_then_jump"_s; right = true; jump = (t >= 20); break;
-			case 175: name = "fu_jump_left"_s; jump = (t >= 5); left = (t >= 5); break;
-			case 176: name = "fu_jump_only"_s; jump = (t >= 5); break;
-			case 177: name = "fu_butt"_s; jump = (t >= 5 && t < 25); right = (t >= 5); down = (t >= 60); break;
-			case 178: name = "fu_stand"_s; break;
+			case 172:
+				name = "fu_jump_right"_s;
+				jump = (t >= 5);
+				right = (t >= 5);
+				break;
+			case 173:
+				name = "fu_jump_right_rel"_s;
+				jump = (t >= 5 && t < 25);
+				right = (t >= 5);
+				break;
+			case 174:
+				name = "fu_right_then_jump"_s;
+				right = true;
+				jump = (t >= 20);
+				break;
+			case 175:
+				name = "fu_jump_left"_s;
+				jump = (t >= 5);
+				left = (t >= 5);
+				break;
+			case 176:
+				name = "fu_jump_only"_s;
+				jump = (t >= 5);
+				break;
+			case 177:
+				name = "fu_butt"_s;
+				jump = (t >= 5 && t < 25);
+				right = (t >= 5);
+				down = (t >= 60);
+				break;
+			case 178:
+				name = "fu_stand"_s;
+				break;
 			// The same mechanic in isolation. The ladder in the level answers "does riding it work", but not
 			// what the rule *is*: its tiles are discrete and unevenly spaced, so a re-arm that looks like it
 			// happens 1 tick after the rise expires with jump held and 6 with it released may be the rule or
@@ -593,9 +1262,17 @@ namespace Jazz2::Tests
 			// `fu_col_none` is also the test `fu_stand` was meant to be and is not: the level has no float
 			// event at (32,49), so `fu_stand` only shows that nothing happens where there is nothing. Here
 			// the column covers the player's own tile, so a grounded player really is inside one.
-			case 179: name = "fu_col_hold"_s; jump = (t >= 5); break;
-			case 180: name = "fu_col_rel"_s; jump = (t >= 5 && t < 25); break;
-			case 181: name = "fu_col_none"_s; break;
+			case 179:
+				name = "fu_col_hold"_s;
+				jump = (t >= 5);
+				break;
+			case 180:
+				name = "fu_col_rel"_s;
+				jump = (t >= 5 && t < 25);
+				break;
+			case 181:
+				name = "fu_col_none"_s;
+				break;
 			// Wind, belts and the slide tile - the three remaining event families that move the player
 			// without being touched, and none of them measured against the original before. All three are
 			// probe-placed, which is what the float column showed to be worth doing: a controlled field
@@ -607,144 +1284,366 @@ namespace Jazz2::Tests
 			// `MODIFIER_WIND_LEFT` with a positive parameter into the **right** slot - so `wd_stand_l` and
 			// `wd_stand_r` are the same native event here while being different events in the original.
 			// `wd_stand_l248` is the same wind-left event with 248, which the converter does read leftward.
-			case 182: name = "wd_stand_r"_s; break;
-			case 183: name = "wd_stand_l"_s; break;
-			case 184: name = "wd_stand_l248"_s; break;
+			case 182:
+				name = "wd_stand_r"_s;
+				break;
+			case 183:
+				name = "wd_stand_l"_s;
+				break;
+			case 184:
+				name = "wd_stand_l248"_s;
+				break;
 			// Walking into the wind, and taking it in the air, where a level actually uses one
-			case 185: name = "wd_walk_into"_s; left = true; break;
-			case 186: name = "wd_air_r"_s; jump = (t >= 5); break;
+			case 185:
+				name = "wd_walk_into"_s;
+				left = true;
+				break;
+			case 186:
+				name = "wd_air_r"_s;
+				jump = (t >= 5);
+				break;
 			// Belts, which are floor events: read from the tile below the player and only while grounded.
 			// The plain pair move the player by position; the accelerating pair add to the speed instead -
 			// and do it *without* scaling by `timeMult`, which is the shape that made push speed
 			// frame-rate dependent before it was measured. All four are placed with the parameter a level
 			// author gets by default, which the converter turns into a strength of 3.
-			case 187: name = "bl_right"_s; break;
-			case 188: name = "bl_left"_s; break;
-			case 189: name = "bl_acc_right"_s; break;
-			case 190: name = "bl_acc_left"_s; break;
-			case 191: name = "bl_walk_against"_s; left = true; break;
+			case 187:
+				name = "bl_right"_s;
+				break;
+			case 188:
+				name = "bl_left"_s;
+				break;
+			case 189:
+				name = "bl_acc_right"_s;
+				break;
+			case 190:
+				name = "bl_acc_left"_s;
+				break;
+			case 191:
+				name = "bl_walk_against"_s;
+				left = true;
+				break;
 			// The slide tile, which is meant to make the floor slippery - the player keeps their speed
 			// longer after letting go. `EventType::ModifierSlide` is converted and then read by nothing at
 			// all in this engine, so the expectation is that these two match `g_dash_rel` and `g_walk_rel45`
 			// exactly while the original's slide further. Same release tick as those two, for that reason.
-			case 192: name = "sd_dash"_s; right = (t < 60); run = (t < 60); break;
-			case 193: name = "sd_walk"_s; right = (t < 45); break;
+			case 192:
+				name = "sd_dash"_s;
+				right = (t < 60);
+				run = (t < 60);
+				break;
+			case 193:
+				name = "sd_walk"_s;
+				right = (t < 45);
+				break;
 			// A second strength for each, because one point does not determine a factor - the mistake the
 			// horizontal pole's launch curve was recorded with. The default belt gives 2.0 px/tick in the
 			// original, which fits `strength 4 x 0.5` and `strength 3 x 0.667` equally well, and those
 			// disagree everywhere else. An explicit 8 separates them: 4.0 against 5.33. The accelerating
 			// belt's default drives to a cap of 6.0, which fits `2 x strength`, and 8 should then cap at 16.
 			// The extra wind strength is there to confirm the factor is linear rather than fitted at one point.
-			case 194: name = "bl_right_p8"_s; break;
-			case 195: name = "bl_acc_right_p8"_s; break;
-			case 196: name = "wd_stand_r_p4"_s; break;
+			case 194:
+				name = "bl_right_p8"_s;
+				break;
+			case 195:
+				name = "bl_acc_right_p8"_s;
+				break;
+			case 196:
+				name = "wd_stand_r_p4"_s;
+				break;
 			// A slide tile carries a 2-bit Strength parameter. The measurement that produced
 			// LegacySlideWalkDecel was taken at 0, so this says whether the number means anything at all.
-			case 197: name = "sd_dash_s3"_s; right = (t < 60); run = (t < 60); break;
+			case 197:
+				name = "sd_dash_s3"_s;
+				right = (t < 60);
+				run = (t < 60);
+				break;
 			// Sucker tubes. The event assigns a speed outright and takes control for a fixed window, so the
 			// four directions and a high speed measure the assignment, and `tb_wait` measures a parameter
 			// this engine parses and then ignores - there is a `TODO: Implement other parameters` on it.
-			case 198: name = "tb_right"_s; break;
-			case 199: name = "tb_left"_s; break;
-			case 200: name = "tb_up"_s; break;
-			case 201: name = "tb_down"_s; break;
-			case 202: name = "tb_diag"_s; break;
-			case 203: name = "tb_fast"_s; break;
-			case 204: name = "tb_wait"_s; break;
+			case 198:
+				name = "tb_right"_s;
+				break;
+			case 199:
+				name = "tb_left"_s;
+				break;
+			case 200:
+				name = "tb_up"_s;
+				break;
+			case 201:
+				name = "tb_down"_s;
+				break;
+			case 202:
+				name = "tb_diag"_s;
+				break;
+			case 203:
+				name = "tb_fast"_s;
+				break;
+			case 204:
+				name = "tb_wait"_s;
+				break;
 			// Tubes in a row, one to five empty tiles apart. This engine holds the tube state for a fixed 10
 			// ticks, and at the 8 px/tick these are set to that is 80 px - so a 1-tile gap is comfortably
 			// inside the window and a 5-tile gap (192 px) is well outside it. Where the chain stops carrying
 			// the player is the measurement, and whether the two games put that boundary in the same place.
-			case 205: name = "tb_gap1"_s; break;
-			case 206: name = "tb_gap2"_s; break;
-			case 207: name = "tb_gap3"_s; break;
-			case 208: name = "tb_gap4"_s; break;
-			case 209: name = "tb_gap5"_s; break;
+			case 205:
+				name = "tb_gap1"_s;
+				break;
+			case 206:
+				name = "tb_gap2"_s;
+				break;
+			case 207:
+				name = "tb_gap3"_s;
+				break;
+			case 208:
+				name = "tb_gap4"_s;
+				break;
+			case 209:
+				name = "tb_gap5"_s;
+				break;
 			// The spring parameters, none of which any scenario had ever set: every spring measured so far
 			// was placed with its defaults. A vertical spring can be flipped to fire *downwards*, either
 			// axis' entry speed can be kept rather than zeroed, the whole thing can be delayed, and a
 			// horizontal one can be reversed.
 			// A downward spring can only act on a player who hits it from below, so this one jumps into it
-			case 210: name = "ob_spring_down"_s; jump = (t >= 5); break;
-			case 211: name = "ob_spring_keepx"_s; right = true; run = true; break;
-			case 212: name = "ob_spring_keepy"_s; break;
-			case 213: name = "ob_spring_delay"_s; right = true; run = true; break;
-			case 214: name = "ob_spring_h_rev"_s; right = true; run = true; break;
+			case 210:
+				name = "ob_spring_down"_s;
+				jump = (t >= 5);
+				break;
+			case 211:
+				name = "ob_spring_keepx"_s;
+				right = true;
+				run = true;
+				break;
+			case 212:
+				name = "ob_spring_keepy"_s;
+				break;
+			case 213:
+				name = "ob_spring_delay"_s;
+				right = true;
+				run = true;
+				break;
+			case 214:
+				name = "ob_spring_h_rev"_s;
+				right = true;
+				run = true;
+				break;
 			// The two middle slide strengths. Strength is a 2-bit field, and 0 and 3 measured 4000/12000 and
 			// 1600/4500 of a 65536th - ratios of 2.5 and 2.67, so not one divisor applied to both. A 2-bit
 			// parameter with four unrelated pairs is a lookup table, and then all four are needed and enough.
-			case 215: name = "sd_dash_s1"_s; right = (t < 60); run = (t < 60); break;
-			case 216: name = "sd_dash_s2"_s; right = (t < 60); run = (t < 60); break;
+			case 215:
+				name = "sd_dash_s1"_s;
+				right = (t < 60);
+				run = (t < 60);
+				break;
+			case 216:
+				name = "sd_dash_s2"_s;
+				right = (t < 60);
+				run = (t < 60);
+				break;
 			// A row and a column of tubes, to separate the hold's duration from its exit condition
-			case 217: name = "tb_row"_s; break;
-			case 218: name = "tb_col_up"_s; break;
+			case 217:
+				name = "tb_row"_s;
+				break;
+			case 218:
+				name = "tb_col_up"_s;
+				break;
 			// The double jump across every combination the original's probe already covers and this side
 			// never did: the second press held or tapped, taken while walking, dashing, or with the
 			// direction flipped either *on* the press or after it, plus three more samples of the window.
 			// Ported with the original's exact input patterns, so they compare against the trace already
 			// captured - `sp_dj_*` names match, and the window opens at the apex around tick 85 here where
 			// the `sp_dj_d*` family releases the first press at 72 instead of 50.
-			case 219: name = "sp_dj_hold"_s; jump = (t >= J && t < 50) || (t >= 85); break;
-			case 220: name = "sp_dj_tap"_s; jump = (t >= J && t < 50) || (t >= 85 && t < 89); break;
-			case 221: name = "sp_dj_walk"_s; right = true; jump = (t >= J && t < 50) || (t >= 85); break;
-			case 222: name = "sp_dj_dash"_s; right = true; run = true; jump = (t >= J && t < 50) || (t >= 85); break;
-			case 223: name = "sp_dj_flip"_s; right = (t < 85); left = (t >= 85); jump = (t >= J && t < 50) || (t >= 85); break;
-			case 224: name = "sp_dj_flip_mid"_s; right = (t < 100); left = (t >= 100); jump = (t >= J && t < 50) || (t >= 85); break;
-			case 225: name = "sp_dj_d10"_s; jump = (t >= J && t < 72) || (t >= 82); break;
-			case 226: name = "sp_dj_d22"_s; jump = (t >= J && t < 72) || (t >= 94); break;
-			case 227: name = "sp_dj_d25"_s; jump = (t >= J && t < 72) || (t >= 97); break;
+			case 219:
+				name = "sp_dj_hold"_s;
+				jump = (t >= J && t < 50) || (t >= 85);
+				break;
+			case 220:
+				name = "sp_dj_tap"_s;
+				jump = (t >= J && t < 50) || (t >= 85 && t < 89);
+				break;
+			case 221:
+				name = "sp_dj_walk"_s;
+				right = true;
+				jump = (t >= J && t < 50) || (t >= 85);
+				break;
+			case 222:
+				name = "sp_dj_dash"_s;
+				right = true;
+				run = true;
+				jump = (t >= J && t < 50) || (t >= 85);
+				break;
+			case 223:
+				name = "sp_dj_flip"_s;
+				right = (t < 85);
+				left = (t >= 85);
+				jump = (t >= J && t < 50) || (t >= 85);
+				break;
+			case 224:
+				name = "sp_dj_flip_mid"_s;
+				right = (t < 100);
+				left = (t >= 100);
+				jump = (t >= J && t < 50) || (t >= 85);
+				break;
+			case 225:
+				name = "sp_dj_d10"_s;
+				jump = (t >= J && t < 72) || (t >= 82);
+				break;
+			case 226:
+				name = "sp_dj_d22"_s;
+				jump = (t >= J && t < 72) || (t >= 94);
+				break;
+			case 227:
+				name = "sp_dj_d25"_s;
+				jump = (t >= J && t < 72) || (t >= 97);
+				break;
 			// Three the original does not have either: letting the direction *go* rather than reversing it,
 			// before and after the double jump, and a second press held for twelve ticks - between the
 			// four-tick tap and the indefinite hold, which is where the released-gravity switch decides how
 			// much of the arc survives.
-			case 228: name = "sp_dj_relbefore"_s; right = (t < 80); jump = (t >= J && t < 50) || (t >= 85); break;
-			case 229: name = "sp_dj_relafter"_s; right = (t < 100); jump = (t >= J && t < 50) || (t >= 85); break;
-			case 230: name = "sp_dj_tap12"_s; jump = (t >= J && t < 50) || (t >= 85 && t < 97); break;
+			case 228:
+				name = "sp_dj_relbefore"_s;
+				right = (t < 80);
+				jump = (t >= J && t < 50) || (t >= 85);
+				break;
+			case 229:
+				name = "sp_dj_relafter"_s;
+				right = (t < 100);
+				jump = (t >= J && t < 50) || (t >= 85);
+				break;
+			case 230:
+				name = "sp_dj_tap12"_s;
+				jump = (t >= J && t < 50) || (t >= 85 && t < 97);
+				break;
 			// Is the window a fall *speed* or a *timer*? The `sp_dj_d*` family cannot tell: it releases the
 			// first press at one fixed tick, so the delay and the fall speed grow together. The nine above
 			// release at 50 instead and are refused at a fall speed of 3.00 that `sp_dj_d25` is accepted at,
 			// which says timer - and every one of the fifteen fits "accepted up to 28 ticks after the first
 			// press is released, refused from 30". These three pin it: a *third* release tick either side of
 			// that boundary, plus the missing 29 on the original release tick.
-			case 231: name = "sp_dj_r60_d28"_s; jump = (t >= J && t < 60) || (t >= 88); break;
-			case 232: name = "sp_dj_r60_d30"_s; jump = (t >= J && t < 60) || (t >= 90); break;
-			case 233: name = "sp_dj_d29"_s; jump = (t >= J && t < 72) || (t >= 101); break;
+			case 231:
+				name = "sp_dj_r60_d28"_s;
+				jump = (t >= J && t < 60) || (t >= 88);
+				break;
+			case 232:
+				name = "sp_dj_r60_d30"_s;
+				jump = (t >= J && t < 60) || (t >= 90);
+				break;
+			case 233:
+				name = "sp_dj_d29"_s;
+				jump = (t >= J && t < 72) || (t >= 101);
+				break;
 			// Every direction combination above is measured at a delay of 35, which the timer refuses - so
 			// they say what a *refused* press does and nothing about what the move itself does with the
 			// arrow keys. These repeat the same combinations inside the window: first press released at 72
 			// like the `sp_dj_d*` family, second at 85, thirteen ticks later.
-			case 234: name = "sp_dj_a_none"_s; jump = (t >= J && t < 72) || (t >= 85); break;
-			case 235: name = "sp_dj_a_walk"_s; right = true; jump = (t >= J && t < 72) || (t >= 85); break;
-			case 236: name = "sp_dj_a_dash"_s; right = true; run = true; jump = (t >= J && t < 72) || (t >= 85); break;
-			case 237: name = "sp_dj_a_flip"_s; right = (t < 85); left = (t >= 85); jump = (t >= J && t < 72) || (t >= 85); break;
-			case 238: name = "sp_dj_a_flipmid"_s; right = (t < 100); left = (t >= 100); jump = (t >= J && t < 72) || (t >= 85); break;
-			case 239: name = "sp_dj_a_dashflip"_s; run = true; right = (t < 85); left = (t >= 85); jump = (t >= J && t < 72) || (t >= 85); break;
-			case 240: name = "sp_dj_a_relb"_s; right = (t < 80); jump = (t >= J && t < 72) || (t >= 85); break;
-			case 241: name = "sp_dj_a_rela"_s; right = (t < 100); jump = (t >= J && t < 72) || (t >= 85); break;
-			case 242: name = "sp_dj_a_lr"_s; left = (t < 85); right = (t >= 85); jump = (t >= J && t < 72) || (t >= 85); break;
-			case 243: name = "sp_dj_a_press"_s; right = (t >= 85); jump = (t >= J && t < 72) || (t >= 85); break;
-			case 244: name = "sp_dj_a_tap"_s; jump = (t >= J && t < 72) || (t >= 85 && t < 89); break;
-			case 245: name = "sp_dj_a_tap12"_s; jump = (t >= J && t < 72) || (t >= 85 && t < 97); break;
+			case 234:
+				name = "sp_dj_a_none"_s;
+				jump = (t >= J && t < 72) || (t >= 85);
+				break;
+			case 235:
+				name = "sp_dj_a_walk"_s;
+				right = true;
+				jump = (t >= J && t < 72) || (t >= 85);
+				break;
+			case 236:
+				name = "sp_dj_a_dash"_s;
+				right = true;
+				run = true;
+				jump = (t >= J && t < 72) || (t >= 85);
+				break;
+			case 237:
+				name = "sp_dj_a_flip"_s;
+				right = (t < 85);
+				left = (t >= 85);
+				jump = (t >= J && t < 72) || (t >= 85);
+				break;
+			case 238:
+				name = "sp_dj_a_flipmid"_s;
+				right = (t < 100);
+				left = (t >= 100);
+				jump = (t >= J && t < 72) || (t >= 85);
+				break;
+			case 239:
+				name = "sp_dj_a_dashflip"_s;
+				run = true;
+				right = (t < 85);
+				left = (t >= 85);
+				jump = (t >= J && t < 72) || (t >= 85);
+				break;
+			case 240:
+				name = "sp_dj_a_relb"_s;
+				right = (t < 80);
+				jump = (t >= J && t < 72) || (t >= 85);
+				break;
+			case 241:
+				name = "sp_dj_a_rela"_s;
+				right = (t < 100);
+				jump = (t >= J && t < 72) || (t >= 85);
+				break;
+			case 242:
+				name = "sp_dj_a_lr"_s;
+				left = (t < 85);
+				right = (t >= 85);
+				jump = (t >= J && t < 72) || (t >= 85);
+				break;
+			case 243:
+				name = "sp_dj_a_press"_s;
+				right = (t >= 85);
+				jump = (t >= J && t < 72) || (t >= 85);
+				break;
+			case 244:
+				name = "sp_dj_a_tap"_s;
+				jump = (t >= J && t < 72) || (t >= 85 && t < 89);
+				break;
+			case 245:
+				name = "sp_dj_a_tap12"_s;
+				jump = (t >= J && t < 72) || (t >= 85 && t < 97);
+				break;
 			// A *third* press, after the double jump has been spent. Letting go re-arms the timer, so the
 			// window is open again and only `_canDoubleJump` stands between this and a third launch.
-			case 246: name = "sp_dj_a_re"_s; jump = (t >= J && t < 72) || (t >= 85 && t < 91) || (t >= 100); break;
+			case 246:
+				name = "sp_dj_a_re"_s;
+				jump = (t >= J && t < 72) || (t >= 85 && t < 91) || (t >= 100);
+				break;
 			// A fourth release tick, and the only other one the 60/70 Hz input sampling resolves exactly:
 			// ticks 50, 60, 72 and 85 all land on a frame boundary, 55 does not. Delays 15/25/29 accepted
 			// and 30 refused, the same boundary as at 60 and 72, at fall speeds that overlap all three.
 			// Not 10: released this early the apex is only at 61, so a press at 60 is refused for still
 			// rising rather than for the timer - which is exactly what `cl_dj2` relies on a ceiling to fix.
-			case 247: name = "sp_dj_r50_d15"_s; jump = (t >= J && t < 50) || (t >= 65); break;
-			case 248: name = "sp_dj_r50_d25"_s; jump = (t >= J && t < 50) || (t >= 75); break;
-			case 249: name = "sp_dj_r50_d29"_s; jump = (t >= J && t < 50) || (t >= 79); break;
-			case 250: name = "sp_dj_r50_d30"_s; jump = (t >= J && t < 50) || (t >= 80); break;
+			case 247:
+				name = "sp_dj_r50_d15"_s;
+				jump = (t >= J && t < 50) || (t >= 65);
+				break;
+			case 248:
+				name = "sp_dj_r50_d25"_s;
+				jump = (t >= J && t < 50) || (t >= 75);
+				break;
+			case 249:
+				name = "sp_dj_r50_d29"_s;
+				jump = (t >= J && t < 50) || (t >= 79);
+				break;
+			case 250:
+				name = "sp_dj_r50_d30"_s;
+				jump = (t >= J && t < 50) || (t >= 80);
+				break;
 			// The jump key held to well *past* the apex, which is the one way to get a delay inside the
 			// window at a high fall speed - the release opens the timer at tick 85 where the player is
 			// already twelve ticks into the fall. d20 and d25 sit at about 4.0 and 4.6, and the original
 			// double jumps at both: that is what retired the fall-speed cap the window was first read as,
 			// which had been refusing them. Nothing else samples that corner.
-			case 251: name = "sp_dj_r85_d10"_s; jump = (t >= J && t < 85) || (t >= 95); break;
-			case 252: name = "sp_dj_r85_d20"_s; jump = (t >= J && t < 85) || (t >= 105); break;
-			case 253: name = "sp_dj_r85_d25"_s; jump = (t >= J && t < 85) || (t >= 110); break;
+			case 251:
+				name = "sp_dj_r85_d10"_s;
+				jump = (t >= J && t < 85) || (t >= 95);
+				break;
+			case 252:
+				name = "sp_dj_r85_d20"_s;
+				jump = (t >= J && t < 85) || (t >= 105);
+				break;
+			case 253:
+				name = "sp_dj_r85_d25"_s;
+				jump = (t >= J && t < 85) || (t >= 110);
+				break;
 			// No first jump at all - dropped in from 420 px up, the same way `jr_spring_fall` is. The timer
 			// is armed by *letting go* of the jump key, so on this model a player who never touched it has
 			// no window and a fall off a ledge cannot be double jumped out of. `ff` presses once and holds;
@@ -756,8 +1655,14 @@ namespace Jazz2::Tests
 			// clearing the input at the reset is itself a release and arms the timer - a first version
 			// pressed at 5 and 20 and both games double jumped, off a window opened by the *previous*
 			// scenario. The fall lasts about 82 ticks, so there is room to wait it out.
-			case 254: name = "sp_dj_ff"_s; jump = (t >= 55); break;
-			case 255: name = "sp_dj_ff_rel"_s; jump = (t >= 40 && t < 45) || (t >= 60); break;
+			case 254:
+				name = "sp_dj_ff"_s;
+				jump = (t >= 55);
+				break;
+			case 255:
+				name = "sp_dj_ff_rel"_s;
+				jump = (t >= 40 && t < 45) || (t >= 60);
+				break;
 			// The apex of the rise, swept one release tick at a time. Where the rise deceleration carries the
 			// speed across zero the original takes a *partial* step, and what it lands on cannot be a function
 			// of the speed and the rate alone: from -0.625, -0.500 and -0.375 the step is 0.625, but from
@@ -769,12 +1674,36 @@ namespace Jazz2::Tests
 			// gravity come before the heavy one, which walks the pre-apex speed through every value it can
 			// take. Nothing else is pressed, so there is no horizontal speed and no launch boost to confound
 			// it, and the arc fits the default window.
-			case 256: case 257: case 258: case 259: case 260:
-			case 261: case 262: case 263: case 264: case 265:
-			case 266: case 267: case 268: case 269: case 270:
-			case 271: case 272: case 273: case 274: case 275:
-			case 276: case 277: case 278: case 279: case 280:
-			case 281: case 282: case 283: case 284: case 285: {
+			case 256:
+			case 257:
+			case 258:
+			case 259:
+			case 260:
+			case 261:
+			case 262:
+			case 263:
+			case 264:
+			case 265:
+			case 266:
+			case 267:
+			case 268:
+			case 269:
+			case 270:
+			case 271:
+			case 272:
+			case 273:
+			case 274:
+			case 275:
+			case 276:
+			case 277:
+			case 278:
+			case 279:
+			case 280:
+			case 281:
+			case 282:
+			case 283:
+			case 284:
+			case 285: {
 				std::int32_t hold = scenario - 255;
 				apexName[4] = (char)('0' + hold / 10);
 				apexName[5] = (char)('0' + hold % 10);
@@ -790,64 +1719,156 @@ namespace Jazz2::Tests
 			// nearer two tiles, and the paddle fires the moment the player is inside it rather than waiting
 			// to be activated. The scenarios are therefore approach-shaped: the same bumper met from below,
 			// from above and from either side, with and without a key held into it.
-			case 286: name = "pb_bump_tap"_s; jump = (t >= J && t < J + 5); break;
-			case 287: name = "pb_bump_hold"_s; jump = (t >= J); break;
-			case 288: name = "pb_bump_hold_r"_s; jump = (t >= J); right = true; break;
-			case 289: name = "pb_bump_fall"_s; break;
-			case 290: name = "pb_bump_fall_j"_s; jump = true; break;
+			case 286:
+				name = "pb_bump_tap"_s;
+				jump = (t >= J && t < J + 5);
+				break;
+			case 287:
+				name = "pb_bump_hold"_s;
+				jump = (t >= J);
+				break;
+			case 288:
+				name = "pb_bump_hold_r"_s;
+				jump = (t >= J);
+				right = true;
+				break;
+			case 289:
+				name = "pb_bump_fall"_s;
+				break;
+			case 290:
+				name = "pb_bump_fall_j"_s;
+				jump = true;
+				break;
 			// Arriving at the bumper's own height with dash speed on, from either side. `_in` holds the
 			// direction that carries the player *into* it, which is what says whether the launch is the
 			// player's momentum reflected or a fixed impulse the input cannot alter.
-			case 291: name = "pb_bump_right"_s; break;
-			case 292: name = "pb_bump_right_in"_s; left = true; break;
-			case 293: name = "pb_bump_left"_s; break;
-			case 294: name = "pb_bump_left_in"_s; right = true; break;
+			case 291:
+				name = "pb_bump_right"_s;
+				break;
+			case 292:
+				name = "pb_bump_right_in"_s;
+				left = true;
+				break;
+			case 293:
+				name = "pb_bump_left"_s;
+				break;
+			case 294:
+				name = "pb_bump_left_in"_s;
+				right = true;
+				break;
 			// The trigger radius, swept by dropping past the bumper at a measured horizontal offset. A miss
 			// lands on the floor below; a hit does not.
 			//
 			// Swept **leftwards**, because the bumper at (66,9) sits above and to the right of the one being
 			// measured: a first version stepped right and the 80 and 112 px drops hit that one on the way
 			// down instead, at an offset and a height nobody chose. Nothing is above tiles 55-61.
-			case 295: name = "pb_bump_off16"_s; break;
-			case 296: name = "pb_bump_off48"_s; break;
-			case 297: name = "pb_bump_off80"_s; break;
-			case 298: name = "pb_bump_off112"_s; break;
+			case 295:
+				name = "pb_bump_off16"_s;
+				break;
+			case 296:
+				name = "pb_bump_off48"_s;
+				break;
+			case 297:
+				name = "pb_bump_off80"_s;
+				break;
+			case 298:
+				name = "pb_bump_off112"_s;
+				break;
 			// Dropped into the top of the chamber with nothing held - the "press nothing for fifteen seconds"
 			// guard that has caught every mechanic bug in this harness so far, here let loose on three
 			// bumpers that can throw the player at each other.
-			case 299: name = "pb_bump_chain"_s; break;
+			case 299:
+				name = "pb_bump_chain"_s;
+				break;
 			// The paddle. `pb_pad_fall` is the decisive one: dropped on with **nothing pressed at all**, so
 			// whether it launches on its own is read straight off the trace.
-			case 300: name = "pb_pad_fall"_s; break;
-			case 301: name = "pb_pad_tap"_s; jump = (t >= 60 && t < 64); break;
-			case 302: name = "pb_pad_hold"_s; jump = (t >= 60); break;
-			case 303: name = "pb_pad_h10"_s; jump = (t >= 60 && t < 70); break;
-			case 304: name = "pb_pad_h20"_s; jump = (t >= 60 && t < 80); break;
+			case 300:
+				name = "pb_pad_fall"_s;
+				break;
+			case 301:
+				name = "pb_pad_tap"_s;
+				jump = (t >= 60 && t < 64);
+				break;
+			case 302:
+				name = "pb_pad_hold"_s;
+				jump = (t >= 60);
+				break;
+			case 303:
+				name = "pb_pad_h10"_s;
+				jump = (t >= 60 && t < 70);
+				break;
+			case 304:
+				name = "pb_pad_h20"_s;
+				jump = (t >= 60 && t < 80);
+				break;
 			// The same activation at three distances from the mounted end, which is what the launch is said
 			// to scale with. The paddle's tile is its right-hand end, so these step away from it leftwards.
-			case 305: name = "pb_pad_x1"_s; jump = (t >= 60); break;
-			case 306: name = "pb_pad_x2"_s; jump = (t >= 60); break;
-			case 307: name = "pb_pad_x3"_s; jump = (t >= 60); break;
-			case 308: name = "pb_pad_below"_s; jump = (t >= J); break;
-			case 309: name = "pb_pad_side"_s; break;
+			case 305:
+				name = "pb_pad_x1"_s;
+				jump = (t >= 60);
+				break;
+			case 306:
+				name = "pb_pad_x2"_s;
+				jump = (t >= 60);
+				break;
+			case 307:
+				name = "pb_pad_x3"_s;
+				jump = (t >= 60);
+				break;
+			case 308:
+				name = "pb_pad_below"_s;
+				jump = (t >= J);
+				break;
+			case 309:
+				name = "pb_pad_side"_s;
+				break;
 			// Launched, then jump worked repeatedly - Jazz should get a copter out of it and Spaz a double
 			// jump, and neither should be swallowed by whatever state the paddle leaves the player in
-			case 310: name = "pb_pad_copter"_s; jump = (t >= 60 && t < 70) || (t >= 110 && ((t - 110) % 6) < 2); break;
-			case 311: name = "pb_pad_dj"_s; jump = (t >= 60 && t < 70) || (t >= 110 && ((t - 110) % 6) < 2); break;
+			case 310:
+				name = "pb_pad_copter"_s;
+				jump = (t >= 60 && t < 70) || (t >= 110 && ((t - 110) % 6) < 2);
+				break;
+			case 311:
+				name = "pb_pad_dj"_s;
+				jump = (t >= 60 && t < 70) || (t >= 110 && ((t - 110) % 6) < 2);
+				break;
 			// Two more steps of the right paddle's own length, since 64 px out already misses it entirely -
 			// whatever the launch scales with, the body it scales across is barely two tiles
-			case 312: name = "pb_pad_xm16"_s; jump = (t >= 60); break;
-			case 313: name = "pb_pad_xm48"_s; jump = (t >= 60); break;
+			case 312:
+				name = "pb_pad_xm16"_s;
+				jump = (t >= 60);
+				break;
+			case 313:
+				name = "pb_pad_xm48"_s;
+				jump = (t >= 60);
+				break;
 			// The **left** paddle at (83,18), mounted against the same wall from the other side and extending
 			// right, so its distance-from-the-mount axis runs the opposite way. Measured rather than assumed
 			// to be the right one mirrored: the engine implements both from one sprite and one code path with
 			// a `facingLeft` flag, and that is exactly where a sign error would live.
-			case 314: name = "pb_lpad_fall"_s; break;
-			case 315: name = "pb_lpad_tap"_s; jump = (t >= 60 && t < 64); break;
-			case 316: name = "pb_lpad_hold"_s; jump = (t >= 60); break;
-			case 317: name = "pb_lpad_x1"_s; jump = (t >= 60); break;
-			case 318: name = "pb_lpad_x2"_s; jump = (t >= 60); break;
-			case 319: name = "pb_lpad_below"_s; jump = (t >= J); break;
+			case 314:
+				name = "pb_lpad_fall"_s;
+				break;
+			case 315:
+				name = "pb_lpad_tap"_s;
+				jump = (t >= 60 && t < 64);
+				break;
+			case 316:
+				name = "pb_lpad_hold"_s;
+				jump = (t >= 60);
+				break;
+			case 317:
+				name = "pb_lpad_x1"_s;
+				jump = (t >= 60);
+				break;
+			case 318:
+				name = "pb_lpad_x2"_s;
+				jump = (t >= 60);
+				break;
+			case 319:
+				name = "pb_lpad_below"_s;
+				jump = (t >= J);
+				break;
 			// The launch against distance from the mounted end, finely enough to fit rather than guess. Three
 			// points measured 4, 15 and 31 at 16, 32 and 48 px out, which is a steep ramp no straight line or
 			// square fits - and three points is how the horizontal pole's launch was "fitted exactly" to a
@@ -861,48 +1882,102 @@ namespace Jazz2::Tests
 			// actual launch at 4 on both sides wherever the player is standing. Fitting the offset needs
 			// these repeated with a *tap*, not a hold; until then they only show that the pumping compounds
 			// differently, which is the one paddle difference that survives being looked at.
-			case 320: name = "pb_pad_d08"_s; jump = (t >= 60); break;
-			case 321: name = "pb_pad_d24"_s; jump = (t >= 60); break;
-			case 322: name = "pb_pad_d40"_s; jump = (t >= 60); break;
-			case 323: name = "pb_pad_d56"_s; jump = (t >= 60); break;
-			case 324: name = "pb_lpad_d08"_s; jump = (t >= 60); break;
-			case 325: name = "pb_lpad_d16"_s; jump = (t >= 60); break;
-			case 326: name = "pb_lpad_d24"_s; jump = (t >= 60); break;
-			case 327: name = "pb_lpad_d40"_s; jump = (t >= 60); break;
-			case 328: name = "pb_lpad_d48"_s; jump = (t >= 60); break;
-			case 329: name = "pb_lpad_d56"_s; jump = (t >= 60); break;
+			case 320:
+				name = "pb_pad_d08"_s;
+				jump = (t >= 60);
+				break;
+			case 321:
+				name = "pb_pad_d24"_s;
+				jump = (t >= 60);
+				break;
+			case 322:
+				name = "pb_pad_d40"_s;
+				jump = (t >= 60);
+				break;
+			case 323:
+				name = "pb_pad_d56"_s;
+				jump = (t >= 60);
+				break;
+			case 324:
+				name = "pb_lpad_d08"_s;
+				jump = (t >= 60);
+				break;
+			case 325:
+				name = "pb_lpad_d16"_s;
+				jump = (t >= 60);
+				break;
+			case 326:
+				name = "pb_lpad_d24"_s;
+				jump = (t >= 60);
+				break;
+			case 327:
+				name = "pb_lpad_d40"_s;
+				jump = (t >= 60);
+				break;
+			case 328:
+				name = "pb_lpad_d48"_s;
+				jump = (t >= 60);
+				break;
+			case 329:
+				name = "pb_lpad_d56"_s;
+				jump = (t >= 60);
+				break;
 			// Does a paddle block a player coming up from underneath, or is it one-way? `pb_pad_below` was
 			// meant to answer that and does not: the chamber floor is 48 px under the paddle and the player
 			// is taller than that, so one placed below it lands *inside* and is pushed out on top - its
 			// trace is another stand at 48 px out. These start just above the floor with upward momentum
 			// instead, which is the only way to meet the underside at all in this geometry. Nothing is
 			// pressed, so a rise that stops dead at the paddle is a block and one that carries on is not.
-			case 330: name = "pb_pad_thru"_s; break;
-			case 331: name = "pb_lpad_thru"_s; break;
+			case 330:
+				name = "pb_pad_thru"_s;
+				break;
+			case 331:
+				name = "pb_lpad_thru"_s;
+				break;
 			// Is a paddle launch shortened by letting the jump key go, the way an ordinary jump is? Same
 			// spot as `pb_pad_x1` - 48 px out, a -31 launch, big enough to tell apart - but the key is
 			// released four ticks after it fires instead of being held. If the first apex matches
 			// `pb_pad_x1`'s the launch is immune and the rise gravity must not be picked by `_jumpReleased`;
 			// if it is lower, the original shortens it like a jump. Nothing re-fires either way, because a
 			// released key cannot re-trigger the paddle.
-			case 332: name = "pb_pad_rel"_s; jump = (t >= 60 && t < 64); break;
+			case 332:
+				name = "pb_pad_rel"_s;
+				jump = (t >= 60 && t < 64);
+				break;
 			// And does it *stay* shortened? Launch, let go, then hold the key again from tick 100 so the
 			// second launch fires on landing. If that one is tall again the original clears whatever makes a
 			// released rise heavy when the paddle fires, and this engine must too - it clears it only on an
 			// ordinary jump, which is why a player who lets go once gets short launches until they touch the
 			// floor again.
-			case 333: name = "pb_pad_rel2"_s; jump = (t >= 60 && t < 64) || (t >= 100); break;
+			case 333:
+				name = "pb_pad_rel2"_s;
+				jump = (t >= 60 && t < 64) || (t >= 100);
+				break;
 			// Jumping into a 45-degree up-slope. Reported as the original keeping its horizontal speed and
 			// re-jumping over and over off the slope face, where this engine mostly kills the speed or refuses
 			// the jump - so what these measure is `xs` over the climb, not the height. Same slope the `sl_up_*`
 			// pair walks and runs up, tiles (222,57) to (228,52), entered from a few tiles short so the player
 			// is at full speed on arrival. Continuous jump is on by default, so a held key re-jumps on each
 			// landing, which is exactly the "jump at a fast rate" being described.
-			case 334: name = "sl_up_jhold"_s; right = true; run = true; jump = (t >= 20); break;
-			case 335: name = "sl_up_jhold_walk"_s; right = true; jump = (t >= 20); break;
+			case 334:
+				name = "sl_up_jhold"_s;
+				right = true;
+				run = true;
+				jump = (t >= 20);
+				break;
+			case 335:
+				name = "sl_up_jhold_walk"_s;
+				right = true;
+				jump = (t >= 20);
+				break;
 			// Tapped rather than held, so a re-jump that depends on a fresh press is told apart from one the
 			// held key produces on its own - the two look identical in a single trace and not in a pair
-			case 336: name = "sl_up_jtap"_s; right = true; run = true; jump = (t >= 20 && ((t - 20) % 10) < 4); break;
+			case 336:
+				name = "sl_up_jtap"_s;
+				right = true;
+				run = true;
+				jump = (t >= 20 && ((t - 20) % 10) < 4);
+				break;
 			// Tapping Run on the spot, which winds up a boost and then launches the player into a run **when the
 			// key is let go** - so every one of these taps for a while and then stops dead, and what is measured
 			// is what happens *after* the last tap. A first version of this family tapped for the whole window
@@ -914,17 +1989,32 @@ namespace Jazz2::Tests
 			// the negative control; `rt_b4` sits on it; `rt_b8` and `rt_b16` are over it, which is what says
 			// whether the boost keeps growing with more taps or saturates. `rt_hold` holds Run instead of
 			// tapping - the control that separates "Run is down" from "Run was pressed again".
-			case 337: name = "rt_hold"_s; run = (t >= 5 && t < 145); break;
+			case 337:
+				name = "rt_hold"_s;
+				run = (t >= 5 && t < 145);
+				break;
 			// Two presses, each *held* for 25 ticks. Charge alone does not rule this out - a press held to its
 			// cap is worth 7.4, so two of them reach 14.7 and would not merely arm but wind up - which is why
 			// the press count is a rule of its own rather than something the charge is trusted to imply.
-			case 338: name = "rt_b2"_s; run = (t >= 5 && t < 60 && ((t - 5) % 30) < 25); break;
+			case 338:
+				name = "rt_b2"_s;
+				run = (t >= 5 && t < 60 && ((t - 5) % 30) < 25);
+				break;
 			// Exactly three taps at a cadence that would wind a fourth one up. This is the boundary case with its
 			// own behaviour: enough to launch when the tapping stops, not enough to show the wind-up pose, so
 			// the player stands idle throughout and then plays both animations on the way into the run.
-			case 339: name = "rt_t3"_s; run = (t >= 5 && t < 34 && ((t - 5) % 12) < 5); break;
-			case 340: name = "rt_b8"_s; run = (t >= 5 && t < 145 && ((t - 5) % 17) < 5); break;
-			case 341: name = "rt_b16"_s; run = (t >= 5 && t < 145 && ((t - 5) % 9) < 4); break;
+			case 339:
+				name = "rt_t3"_s;
+				run = (t >= 5 && t < 34 && ((t - 5) % 12) < 5);
+				break;
+			case 340:
+				name = "rt_b8"_s;
+				run = (t >= 5 && t < 145 && ((t - 5) % 17) < 5);
+				break;
+			case 341:
+				name = "rt_b16"_s;
+				run = (t >= 5 && t < 145 && ((t - 5) % 9) < 4);
+				break;
 			// The original's own taps, replayed. These twenty offsets are the rising edges of a real burst
 			// recorded from the original in free-run mode (its ticks 1767..1974, launching at 1994 with
 			// xs = 16.0000), each press held the five ticks the recording shows. Replaying the exact input is
@@ -955,7 +2045,8 @@ namespace Jazz2::Tests
 			// falls when nothing is pressed, and descends slowly on Down at a rate that is not the copter's.
 			// Dropped onto the carrot, then each of those inputs in turn, with gaps of nothing in between so
 			// the no-input case is measured rather than inferred.
-			case 343: name = "fc_carrot"_s;
+			case 343:
+				name = "fc_carrot"_s;
 				// **Up first, and that is not a preference.** The Fly Off events are along row 49 only, tiles 0
 				// to 15, and the carrot sits at tile 18 - so flying left reaches them after three tiles, which
 				// at the measured 4 px/tick cap is about thirty ticks. An earlier ordering opened with the
@@ -985,17 +2076,36 @@ namespace Jazz2::Tests
 			// 16, so running *left* up it meets a face at the same angle the jump travels at - which is the case
 			// the report is about, and the one where `TryMoveSubstep()`'s airborne climb is gated off by
 			// `abs(stepX) > abs(stepY)` being false at exactly equal steps.
-			case 344: name = "sl_up45_run"_s; left = true; run = true; break;
-			case 345: name = "sl_up45_jhold"_s; left = true; run = true; jump = (t >= 20); break;
-			case 346: name = "sl_up45_jwalk"_s; left = true; jump = (t >= 20); break;
+			case 344:
+				name = "sl_up45_run"_s;
+				left = true;
+				run = true;
+				break;
+			case 345:
+				name = "sl_up45_jhold"_s;
+				left = true;
+				run = true;
+				jump = (t >= 20);
+				break;
+			case 346:
+				name = "sl_up45_jwalk"_s;
+				left = true;
+				jump = (t >= 20);
+				break;
 			// A vine hung only two tiles above the floor, at tiles (25,45) and (26,45) - added to the level for
 			// this. Reported as taking longer to catch than it should and looking wrong while it happens, which
 			// is a *timing* question about the grab rather than a trajectory one, so read `anim`/`frame` and the
 			// tick the y position stops changing, not the travel. `_hold` keeps the key down so a grab that is
 			// refused and retried is told apart from one that simply happens late - the two look identical in a
 			// single trace, since both end with the player on the vine.
-			case 347: name = "ob_vine_low"_s; jump = (t >= 20 && t < 25); break;
-			case 348: name = "ob_vine_low_hold"_s; jump = (t >= 20); break;
+			case 347:
+				name = "ob_vine_low"_s;
+				jump = (t >= 20 && t < 25);
+				break;
+			case 348:
+				name = "ob_vine_low_hold"_s;
+				jump = (t >= 20);
+				break;
 			// The animation family. None of these is about where the player ends up - read `anim`, `frame` and
 			// `tranim`, and read them as a *shape*: which tick the value changes on, how long it holds, and how
 			// many distinct values a manoeuvre passes through. The two games number their animations nothing
@@ -1004,45 +2114,107 @@ namespace Jazz2::Tests
 			// Shooting and then immediately starting a move, which is the reported bug in three variants. The
 			// fire is short and the move follows one tick later, which is as close to "right after" as scripted
 			// input gets; `_fireFramesLeft` runs 20 frames, so the move lands well inside the shooting pose.
-			case 349: name = "an_shoot_upper"_s; fire = (t >= 30 && t < 34); down = (t >= 35 && t < 39); jump = (t >= 35 && t < 39); break;
-			case 350: name = "an_shoot_side"_s; fire = (t >= 30 && t < 34); down = (t >= 35 && t < 39); jump = (t >= 35 && t < 39); break;
+			case 349:
+				name = "an_shoot_upper"_s;
+				fire = (t >= 30 && t < 34);
+				down = (t >= 35 && t < 39);
+				jump = (t >= 35 && t < 39);
+				break;
+			case 350:
+				name = "an_shoot_side"_s;
+				fire = (t >= 30 && t < 34);
+				down = (t >= 35 && t < 39);
+				jump = (t >= 35 && t < 39);
+				break;
 			// Shooting in the air and coming back to an ordinary pose, which is the same bug without a move in it
-			case 351: name = "an_shoot_air"_s; jump = (t >= 20 && t < 50); fire = (t >= 40 && t < 44); break;
+			case 351:
+				name = "an_shoot_air"_s;
+				jump = (t >= 20 && t < 50);
+				fire = (t >= 40 && t < 44);
+				break;
 			// How long the double jump's pose runs. Reported as far too long here against a short one in the
 			// original, so what matters is the number of ticks `anim` holds after the second press.
-			case 352: name = "an_dj_len"_s; jump = (t >= 20 && t < 50) || (t >= 62 && t < 66); break;
+			case 352:
+				name = "an_dj_len"_s;
+				jump = (t >= 20 && t < 50) || (t >= 62 && t < 66);
+				break;
 			// A sidekick cancelled against the wall at the end of the upper floor. Reported as playing its whole
 			// animation out here where the original cuts it with the move - so read when `sm` returns to 0 and
 			// whether `anim` follows it or lags behind.
-			case 353: name = "an_side_cancel"_s; right = true; run = true; down = (t >= 80 && t < 84); jump = (t >= 80 && t < 84); break;
+			case 353:
+				name = "an_side_cancel"_s;
+				right = true;
+				run = true;
+				down = (t >= 80 && t < 84);
+				jump = (t >= 80 && t < 84);
+				break;
 			// Slowing to a stop on the floor. The original has a sliding pose for this - `walk_stop`, which is
 			// exported for all three characters and which nothing in this engine ever selects - so the question
 			// is simply whether any distinct animation appears between running and standing.
-			case 354: name = "an_slide_stop"_s; right = (t < 90); run = (t < 90); break;
+			case 354:
+				name = "an_slide_stop"_s;
+				right = (t < 90);
+				run = (t < 90);
+				break;
 			// Starting a run from a standstill. Reported as taking far too long to reach the spinning-feet
 			// transition, so read the tick `anim` first leaves the idle value and the tick it reaches the dash one.
-			case 355: name = "an_run_start"_s; right = (t >= 20); run = (t >= 20); break;
+			case 355:
+				name = "an_run_start"_s;
+				right = (t >= 20);
+				run = (t >= 20);
+				break;
 			// Whether a special move keeps going once the keys are let go. `an_shoot_upper` was read as a
 			// shooting bug and is not one: the original rises 226 px on `sp_jazz_upper`, which holds Down and
 			// Jump for the whole move, and **9 px** on the same manoeuvre at the same spot with the two held
 			// for four ticks. Ours rises the full distance either way. These three release one key each so
 			// the answer cannot be blamed on the other, and none of them shoots first - `sp_jazz_upper` is
 			// the baseline they are read against, so the press lands on the same tick it does.
-			case 356: name = "sp_upper_tap"_s; down = (t >= 40 && t < 44); jump = (t >= 40 && t < 44); break;
-			case 357: name = "sp_upper_jumphold"_s; down = (t >= 40 && t < 44); jump = (t >= 40); break;
-			case 358: name = "sp_upper_downhold"_s; down = (t >= 20); jump = (t >= 40 && t < 44); break;
+			case 356:
+				name = "sp_upper_tap"_s;
+				down = (t >= 40 && t < 44);
+				jump = (t >= 40 && t < 44);
+				break;
+			case 357:
+				name = "sp_upper_jumphold"_s;
+				down = (t >= 40 && t < 44);
+				jump = (t >= 40);
+				break;
+			case 358:
+				name = "sp_upper_downhold"_s;
+				down = (t >= 20);
+				jump = (t >= 40 && t < 44);
+				break;
 			// The same question for Spaz's sidekick, which `an_shoot_side` shows going the same way
-			case 359: name = "sp_side_tap"_s; down = (t >= 40 && t < 44); jump = (t >= 40 && t < 44); break;
+			case 359:
+				name = "sp_side_tap"_s;
+				down = (t >= 40 && t < 44);
+				jump = (t >= 40 && t < 44);
+				break;
 			// What a sidekick leaves behind with Run held. Reported as losing the momentum here where the
 			// original keeps it, and `sp_spaz_side_rel` cannot answer it: that one presses no Run at all and
 			// both games decay from 16 px/tick to a stop over the same 40 ticks. The direction in the second
 			// arrives *after* the kick, because pressing it beforehand means no crouch and so no kick.
-			case 360: name = "sp_side_run"_s; run = true; down = (t >= 20); jump = (t >= 40); break;
-			case 361: name = "sp_side_run_dir"_s; run = true; down = (t >= 20 && t < 44); jump = (t >= 40 && t < 44); right = (t >= 60); break;
+			case 360:
+				name = "sp_side_run"_s;
+				run = true;
+				down = (t >= 20);
+				jump = (t >= 40);
+				break;
+			case 361:
+				name = "sp_side_run_dir"_s;
+				run = true;
+				down = (t >= 20 && t < 44);
+				jump = (t >= 40 && t < 44);
+				right = (t >= 60);
+				break;
 			// Firing while hanging on the low vine. `vine_shoot_start` is exported for all three characters
 			// and read by nothing - the same signature `walk_stop` and `vine_idle_flavor` had - and only the
 			// transition *back* is wired up here, so read which poses the original passes through and when.
-			case 362: name = "an_vine_shoot"_s; jump = (t >= 20 && t < 25); fire = (t >= 60 && t < 64); break;
+			case 362:
+				name = "an_vine_shoot"_s;
+				jump = (t >= 20 && t < 25);
+				fire = (t >= 60 && t < 64);
+				break;
 			// Whether the walk-cap snap that ends a carry belongs to the carry ending or to **Run being let
 			// go**. Spaz's sidekick turned out to be the latter - with Run held the original does not snap at
 			// all - and four other places snap the same way with no scenario that presses Run to tell them
@@ -1051,9 +2223,18 @@ namespace Jazz2::Tests
 			//
 			// The RF blast is the fifth and is deliberately not here: its own launch already differs between
 			// the two games, so its ending cannot be isolated whatever is held.
-			case 363: name = "tb_right_run"_s; run = true; break;
-			case 364: name = "bl_right_run"_s; run = true; break;
-			case 365: name = "bl_acc_right_run"_s; run = true; break;
+			case 363:
+				name = "tb_right_run"_s;
+				run = true;
+				break;
+			case 364:
+				name = "bl_right_run"_s;
+				run = true;
+				break;
+			case 365:
+				name = "bl_acc_right_run"_s;
+				run = true;
+				break;
 			// One-way floors, on the ladder of seven 3-tile platforms the level carries at tiles 27..29 - rows
 			// 33, 31, 29, 26, 23, 19 and 15, with the gaps widening 2, 2, 3, 3, 4, 4. Found with
 			// ScanTileEvent() rather than taken on trust: a scenario aimed at where the platforms were
@@ -1074,20 +2255,40 @@ namespace Jazz2::Tests
 			// releases here are a good half-dozen ticks clear of any crossing for that reason; an earlier
 			// `ow_jump` let go at tick 50 with the original crossing at 49 and this engine at 52, and read as
 			// a 50 px error that was nothing of the kind.
-			case 366: name = "ow_jump"_s; jump = (t >= 20 && t < 44); break;
-			case 367: name = "ow_hop"_s; jump = (t >= 20 && t < 26); break;
-			case 368: name = "ow_down_fall"_s; jump = (t >= 20 && t < 26); down = (t >= 36); break;
-			case 369: name = "ow_down"_s; jump = (t >= 20 && t < 44); down = (t >= 140); break;
+			case 366:
+				name = "ow_jump"_s;
+				jump = (t >= 20 && t < 44);
+				break;
+			case 367:
+				name = "ow_hop"_s;
+				jump = (t >= 20 && t < 26);
+				break;
+			case 368:
+				name = "ow_down_fall"_s;
+				jump = (t >= 20 && t < 26);
+				down = (t >= 36);
+				break;
+			case 369:
+				name = "ow_down"_s;
+				jump = (t >= 20 && t < 44);
+				down = (t >= 140);
+				break;
 			// Jump never let go, which is the only one of these whose answer cannot depend on *when* it is.
 			// The player climbs the whole ladder on the relaunch each platform gives, so the height reached
 			// depends on every rung of it and on nothing else.
-			case 370: name = "ow_hold"_s; jump = (t >= 20); break;
+			case 370:
+				name = "ow_hold"_s;
+				jump = (t >= 20);
+				break;
 			// A second strength for the accelerating belt with Run held. `bl_acc_right_run` turned out to be
 			// about the belt's *target* rather than about how the ride ends - the original holds 18 px/tick
 			// with Run against 6 without, at strength 4 - and one strength cannot tell a flat multiplier from
 			// a per-strength figure, because 4 x 4.5 and 6 x 3 are the same number. Strength 8 separates
 			// them: 24 says the target is tripled, 36 says the *step* is.
-			case 371: name = "bl_acc_right_p8_run"_s; run = true; break;
+			case 371:
+				name = "bl_acc_right_p8_run"_s;
+				run = true;
+				break;
 			// Reported from play, and all four need the original's side before anything is implemented.
 			//
 			// The copter's descent is a flat assignment here and is said to be an *acceleration* in the
@@ -1095,25 +2296,49 @@ namespace Jazz2::Tests
 			// whatever it winds up to, and obvious when it engages with almost no downward speed at all. So
 			// the pair is the same copter entered at two speeds: at the top of a deliberately short jump, and
 			// after a long one. `sp_jazz_copter` already covers the ordinary case and is left alone.
-			case 372: name = "sp_copter_apex"_s; jump = (t >= 20 && t < 26) || (t >= 34 && ((t - 34) % 6) < 2); break;
-			case 373: name = "sp_copter_late"_s; jump = (t >= 20 && t < 50) || (t >= 120 && ((t - 120) % 6) < 2); break;
+			case 372:
+				name = "sp_copter_apex"_s;
+				jump = (t >= 20 && t < 26) || (t >= 34 && ((t - 34) % 6) < 2);
+				break;
+			case 373:
+				name = "sp_copter_late"_s;
+				jump = (t >= 20 && t < 50) || (t >= 120 && ((t - 120) % 6) < 2);
+				break;
 			// Dropping off a vine, which is said to accelerate far faster in the original than here. Grabs the
 			// low vine, hangs until it has certainly settled, then lets go with Down and falls - so the trace
 			// is the fall profile from a standstill with nothing else in it.
-			case 374: name = "ob_vine_drop"_s; jump = (t >= 20 && t < 25); down = (t >= 120 && t < 124); break;
+			case 374:
+				name = "ob_vine_drop"_s;
+				jump = (t >= 20 && t < 25);
+				down = (t >= 120 && t < 124);
+				break;
 			// Lori's kick, held rather than tapped: reported to repeat in the original for as long as the keys
 			// are down, where this engine fires it once. Read how many times it goes and at what spacing.
-			case 375: name = "sp_lori_side_hold"_s; right = (t < 2); down = (t >= 20); jump = (t >= 40); break;
+			case 375:
+				name = "sp_lori_side_hold"_s;
+				right = (t < 2);
+				down = (t >= 20);
+				jump = (t >= 40);
+				break;
 			// Firing during her kick, before it reaches its destination tile - a quirk that works in the
 			// original and is refused here. The kick starts at 40 and runs ~5 ticks, so the shot lands inside it.
-			case 376: name = "sp_lori_side_fire"_s; right = (t < 2); down = (t >= 20 && t < 44); jump = (t >= 40 && t < 44); fire = (t >= 42 && t < 46); break;
+			case 376:
+				name = "sp_lori_side_fire"_s;
+				right = (t < 2);
+				down = (t >= 20 && t < 44);
+				jump = (t >= 40 && t < 44);
+				fire = (t >= 42 && t < 46);
+				break;
 			// The copter's descent turned out to be an ordinary fall the copter *caps* rather than a speed it
 			// assigns - the original adds one fall gravity a tick throughout where this engine holds a flat
 			// 1.1667 - and `sp_copter_apex` reaches the floor at 4.375 without ever finding the cap. This one
 			// is dropped into the clear column `lh_g3_walk` falls through - row 20 to row 50, about 950 px
 			// of nothing - and copters the whole way down: the speed it settles at over a fall that long *is*
 			// the cap. Tapped every 6 ticks so the flight is re-armed. SetupProps() places it, at the run start.
-			case 377: name = "sp_copter_deep"_s; jump = (t >= 20 && ((t - 20) % 6) < 2); break;
+			case 377:
+				name = "sp_copter_deep"_s;
+				jump = (t >= 20 && ((t - 20) % 6) < 2);
+				break;
 			// Which tap engages the copter, with everything else held still. `sp_jazz_copter` engages on its
 			// very first tap - the same jump, taps from 75 - while `sp_copter_apex` taps from 34 and never
 			// engages however long it keeps trying, so the gate is not the speed at the press: apex passes
@@ -1121,11 +2346,26 @@ namespace Jazz2::Tests
 			// `sp_jazz_copter`'s jump exactly (J, held 5) and differ **only** in when the tapping starts, so
 			// whichever is the first to engage is the boundary. Named `cp_*` rather than `sp_*` because they
 			// are a sweep of one variable rather than one manoeuvre each.
-			case 378: name = "cp_tap55"_s; jump = (t >= J && t < J + 5) || (t >= 55 && ((t - 55) % 6) < 2); break;
-			case 379: name = "cp_tap60"_s; jump = (t >= J && t < J + 5) || (t >= 60 && ((t - 60) % 6) < 2); break;
-			case 380: name = "cp_tap65"_s; jump = (t >= J && t < J + 5) || (t >= 65 && ((t - 65) % 6) < 2); break;
-			case 381: name = "cp_tap70"_s; jump = (t >= J && t < J + 5) || (t >= 70 && ((t - 70) % 6) < 2); break;
-			case 382: name = "cp_tap80"_s; jump = (t >= J && t < J + 5) || (t >= 80 && ((t - 80) % 6) < 2); break;
+			case 378:
+				name = "cp_tap55"_s;
+				jump = (t >= J && t < J + 5) || (t >= 55 && ((t - 55) % 6) < 2);
+				break;
+			case 379:
+				name = "cp_tap60"_s;
+				jump = (t >= J && t < J + 5) || (t >= 60 && ((t - 60) % 6) < 2);
+				break;
+			case 380:
+				name = "cp_tap65"_s;
+				jump = (t >= J && t < J + 5) || (t >= 65 && ((t - 65) % 6) < 2);
+				break;
+			case 381:
+				name = "cp_tap70"_s;
+				jump = (t >= J && t < J + 5) || (t >= 70 && ((t - 70) % 6) < 2);
+				break;
+			case 382:
+				name = "cp_tap80"_s;
+				jump = (t >= J && t < J + 5) || (t >= 80 && ((t - 80) % 6) < 2);
+				break;
 			// Four kicks into the level's own pushable, and **the order of these four is load-bearing**. The
 			// pushable belongs to the level, so nothing resets it between scenarios: whatever shoves it leaves
 			// it shoved for everything after, and a scenario that lines itself up from the event map - which
@@ -1144,21 +2384,41 @@ namespace Jazz2::Tests
 			//
 			// Spaz first, since his is the measurement this cost. His kick is one long drive rather than a run
 			// of short ones, so what it does to a pushable need not be what hers does.
-			case 383: name = "sp_spaz_side_rock"_s; right = (t < 2); down = (t >= 20); jump = (t >= 40); break;
+			case 383:
+				name = "sp_spaz_side_rock"_s;
+				right = (t < 2);
+				down = (t >= 20);
+				jump = (t >= 40);
+				break;
 			// Then hers from six tiles back with the keys let go, so it is one kick and not a run of them. A
 			// three-tile start meets the object about 52 px in, barely a third of the way up a ramp that peaks
 			// at 42.25 px/tick around tick 13, so it arrives slowly; this one arrives late in the ramp instead.
-			case 384: name = "sp_lori_side_rock_far"_s; right = (t < 2); down = (t >= 20 && t < 44); jump = (t >= 40 && t < 44); break;
+			case 384:
+				name = "sp_lori_side_rock_far"_s;
+				right = (t < 2);
+				down = (t >= 20 && t < 44);
+				jump = (t >= 40 && t < 44);
+				break;
 			// Then the same from the **other** side, kicking leftwards into it. A collision response that
 			// pushes the player out of an object need not be symmetric - which side the overlap resolves
 			// towards can depend on how the test is written rather than on where the player came from - so a
 			// bounce can exist one way and not the other, and this is the one that found the real bug. Left is
 			// held for ten ticks purely to turn her round; the crouch needs no direction, so it is let go well
 			// before that matters.
-			case 385: name = "sp_lori_side_rock_left"_s; left = (t < 10); down = (t >= 20 && t < 44); jump = (t >= 40 && t < 44); break;
+			case 385:
+				name = "sp_lori_side_rock_left"_s;
+				left = (t < 10);
+				down = (t >= 20 && t < 44);
+				jump = (t >= 40 && t < 44);
+				break;
 			// And last the one that shoves it: three tiles short, keys held, so the kick repeats and she keeps
 			// meeting it. The pushable's own position is what to read here - the original creeps it along.
-			case 386: name = "sp_lori_side_rock"_s; right = (t < 2); down = (t >= 20); jump = (t >= 40); break;
+			case 386:
+				name = "sp_lori_side_rock"_s;
+				right = (t < 2);
+				down = (t >= 20);
+				jump = (t >= 40);
+				break;
 			// Triggering a special move while still *sliding*. The crouch itself engages the moment no direction
 			// is held, carrying whatever speed the player still has - that much is measured and implemented. What
 			// is reported on top of it is that the move the crouch leads to does **not** follow: a special move
@@ -1168,16 +2428,44 @@ namespace Jazz2::Tests
 			// which is how it was reported - running along and switching to duck. Jump comes four ticks after
 			// the direction is let go, which at the dash cap is well inside the skid, and after the crouch is
 			// established, since the original wants that established *before* Jump either way.
-			case 387: name = "sp_slide_upper"_s; right = (t < 40); run = true; down = (t >= 40); jump = (t >= 44 && t < 46); break;
-			case 388: name = "sp_slide_side"_s; right = (t < 40); run = true; down = (t >= 40); jump = (t >= 44 && t < 46); break;
-			case 389: name = "sp_slide_lori"_s; right = (t < 40); run = true; down = (t >= 40); jump = (t >= 44 && t < 46); break;
+			case 387:
+				name = "sp_slide_upper"_s;
+				right = (t < 40);
+				run = true;
+				down = (t >= 40);
+				jump = (t >= 44 && t < 46);
+				break;
+			case 388:
+				name = "sp_slide_side"_s;
+				right = (t < 40);
+				run = true;
+				down = (t >= 40);
+				jump = (t >= 44 && t < 46);
+				break;
+			case 389:
+				name = "sp_slide_lori"_s;
+				right = (t < 40);
+				run = true;
+				down = (t >= 40);
+				jump = (t >= 44 && t < 46);
+				break;
 			// Looking up and shooting, reported as only working from a standstill. The control fires from one
 			// and has to shoot; the other lets go of the direction and fires into the skid, where it is said
 			// not to. A finite weapon is stocked and selected for both in SetupProps() - the ammo count in
 			// `objx` is what answers this, and the blaster's is a sentinel that never moves, so a trace of one
 			// would be indistinguishable from a shot that never happened.
-			case 390: name = "g_up_fire_still"_s; up = (t >= 20); fire = (t >= 24 && t < 30); break;
-			case 391: name = "g_up_fire_slide"_s; right = (t < 40); run = true; up = (t >= 40 && t < 300); fire = (t >= 44 && t < 50); break;
+			case 390:
+				name = "g_up_fire_still"_s;
+				up = (t >= 20);
+				fire = (t >= 24 && t < 30);
+				break;
+			case 391:
+				name = "g_up_fire_slide"_s;
+				right = (t < 40);
+				run = true;
+				up = (t >= 40 && t < 300);
+				fire = (t >= 44 && t < 50);
+				break;
 			// Three reported behaviours that had no scenario at all. Each is a *combination* - a launch, and
 			// then a second input on top of it - which is the shape none of the existing families cover: they
 			// take one mechanic at a time and stop at the launch. All three reuse the default start and the
@@ -1188,7 +2476,11 @@ namespace Jazz2::Tests
 			// keeps that speed, throws it away as it does a dash's, or is refused. Spaz owns the move. The
 			// jump is a tap *train* rather than one press because which tick the spring fires on is not known
 			// here - one of the taps will land in the air, and the trace says which.
-			case 392: name = "sp_dj_hspring"_s; right = true; jump = (t >= 40 && ((t - 40) % 12) < 3); break;
+			case 392:
+				name = "sp_dj_hspring"_s;
+				right = true;
+				jump = (t >= 40 && ((t - 40) % 12) < 3);
+				break;
 			// Onto a vine, off it, and a double jump on the way down. The grab is copied from `ob_vine_low`,
 			// **not** from `ob_vine`: that one places its vine three tiles up and jumps for five ticks, which
 			// rises 77 px against the 96 it would need, so it has never actually grabbed anything - it is a
@@ -1196,12 +2488,18 @@ namespace Jazz2::Tests
 			// already contains, met from two tiles below, is what the working vine scenarios all use. The
 			// reported part is the *pose* on the way out, so read `anim` rather than the position: the second
 			// press is what leaves the vine and the third is the double jump.
-			case 393: name = "sp_dj_vine"_s; jump = (t >= 20 && t < 25) || (t >= 60 && t < 64) || (t >= 70 && t < 74); break;
+			case 393:
+				name = "sp_dj_vine"_s;
+				jump = (t >= 20 && t < 25) || (t >= 60 && t < 64) || (t >= 70 && t < 74);
+				break;
 			// How long control stays away once a pole has spat the player out. The ride is copied from
 			// `ob_vpole`, which holds Jump rather than tapping it - a five-tick tap rises 77 px and the pole
 			// sits 96 up, so the tap version simply jumps and falls back. `ctrl` is the column that answers
 			// this; every pole scenario so far ends at the launch and none has looked at what follows.
-			case 394: name = "ob_vpole_exit"_s; jump = (t >= J); break;
+			case 394:
+				name = "ob_vpole_exit"_s;
+				jump = (t >= J);
+				break;
 			// The level's new section, on the floor at row 62 spanning tiles 0-63, holding the three events the
 			// reported list needed and `_pt` had never contained: a warp origin at (5,59) with its target at
 			// (11,57), two weapon monitors at (19,59) and (35,59), and a morph monitor at (54,59). The three
@@ -1213,9 +2511,19 @@ namespace Jazz2::Tests
 			// section with one input held, because what the reported behaviours actually are is not yet
 			// pinned down any harder than four words apiece, and a scenario aimed at a guess measures the
 			// guess. Read the traces, then write something sharp.
-			case 395: name = "wp_walk"_s; right = true; jump = ((t % 20) < 5); break;
-			case 396: name = "pu_walk"_s; right = true; break;
-			case 397: name = "mb_walk"_s; right = true; break;
+			case 395:
+				name = "wp_walk"_s;
+				right = true;
+				jump = ((t % 20) < 5);
+				break;
+			case 396:
+				name = "pu_walk"_s;
+				right = true;
+				break;
+			case 397:
+				name = "mb_walk"_s;
+				right = true;
+				break;
 			// Walking into a monitor turned out to *push* it in both games, to within 9 px end to end, so
 			// whatever was reported about these two is not that. These aim at the other ways to meet one,
 			// which are separate code paths rather than variations of the same one: a buttstomp from above,
@@ -1224,25 +2532,43 @@ namespace Jazz2::Tests
 			//
 			// `objx`/`objy` carry the monitor's own position throughout, which is what says whether it broke,
 			// moved, or hung where it was.
-			case 398: name = "pu_stomp"_s; down = (t >= 10); break;
+			case 398:
+				name = "pu_stomp"_s;
+				down = (t >= 10);
+				break;
 			// **No walk.** With one, the two sides did different things entirely: we met the monitor and pushed
 			// it, stopping 10 px along, while the original walked past it, ended up airborne and buttstomped
 			// (anim 65 then 17) - an uppercut on one side against a stomp on the other, which would read as a
 			// permanent 68 px gap and be nothing but a badly aimed scenario. Standing still at tile 21 leaves
 			// about 16 px of clearance to the monitor at 22, so the uppercut happens beside it without either
 			// side touching it first.
-			case 399: name = "pu_upper"_s; down = (t >= 30); jump = (t >= 50 && t < 56); break;
-			case 400: name = "mb_stomp"_s; down = (t >= 10); break;
+			case 399:
+				name = "pu_upper"_s;
+				down = (t >= 30);
+				jump = (t >= 50 && t < 56);
+				break;
+			case 400:
+				name = "mb_stomp"_s;
+				down = (t >= 10);
+				break;
 			// The same as `sp_dj_hspring` off a **green** horizontal spring, which launches at a different
 			// speed. One scenario gave one point, and one point cannot tell "ramps back to the speed it was
 			// carrying" from "ramps to a fixed 16" - nor a fixed rate from a proportional one. Two springs
 			// answer both questions at once, which is cheaper than guessing and having to re-measure.
-			case 401: name = "sp_dj_gspring"_s; right = true; jump = (t >= 40 && ((t - 40) % 12) < 3); break;
+			case 401:
+				name = "sp_dj_gspring"_s;
+				right = true;
+				jump = (t >= 40 && ((t - 40) % 12) < 3);
+				break;
 			// And blue, which launches at 32. Two springs gave a rule worth testing rather than a third data
 			// point worth averaging: red launches at 16 and its ramp runs at 0.5 px/tick², green at 24 and 0.75,
 			// both of which are the launch over 32. This one predicts **1.0**. A scenario that can falsify a
 			// rule is worth more than one that merely adds to a scatter.
-			case 402: name = "sp_dj_bspring"_s; right = true; jump = (t >= 40 && ((t - 40) % 12) < 3); break;
+			case 402:
+				name = "sp_dj_bspring"_s;
+				right = true;
+				jump = (t >= 40 && ((t - 40) % 12) < 3);
+				break;
 			// Standing **on** a monitor rather than beside one, which is a different question from the `pu_*`
 			// scenarios above and the one that was actually reported: a special move started from on top of a
 			// solid object is said to drop the player to the floor first here and to carry on horizontally in
@@ -1256,15 +2582,27 @@ namespace Jazz2::Tests
 			// 26, 30 and 35 - so the two scenarios after it started on the floor and measured a player standing
 			// on nothing. From tile 16 facing left it travels into the empty floor below tile 16 and destroys
 			// nothing but its own.
-			case 403: name = "pu_stand_side"_s; left = (t < 2); down = (t >= 40); jump = (t >= 60 && t < 62); break;
-			case 404: name = "pu_stand_upper"_s; down = (t >= 40); jump = (t >= 60 && t < 62); break;
+			case 403:
+				name = "pu_stand_side"_s;
+				left = (t < 2);
+				down = (t >= 40);
+				jump = (t >= 60 && t < 62);
+				break;
+			case 404:
+				name = "pu_stand_upper"_s;
+				down = (t >= 40);
+				jump = (t >= 60 && t < 62);
+				break;
 			// And whether the monitor hands Spaz his double jump back the way the floor does. Jump off it,
 			// then press again in the air: if the landing on it counted, the second press is a double jump.
 			// The second press has to land while **falling**: Spaz's double-jump window is gated on it, and a
 			// first version pressing at tick 72 was refused by *both* games because both were still rising
 			// there (-2.51 and -2.25). That reads exactly like "the monitor did not hand the jump back" and is
 			// nothing of the kind. The apex is around 76, so 82 is safely past it.
-			case 405: name = "pu_stand_dj"_s; jump = (t >= 60 && t < 64) || (t >= 82 && t < 86); break;
+			case 405:
+				name = "pu_stand_dj"_s;
+				jump = (t >= 60 && t < 64) || (t >= 82 && t < 86);
+				break;
 			// Crouching *after* the slide has already started, which is the case every existing scenario
 			// misses: `sp_slide_*` press Down on the same tick the direction is released, so the stop chain
 			// never gets going first. Reported from play - run, let go, then duck - and the complaint is that
@@ -1273,29 +2611,65 @@ namespace Jazz2::Tests
 			// the second, by which time the chain is on its next pose. The third asks the same at a walk,
 			// where the entry speed is a quarter of the dash's, because a rule keyed on speed and one keyed
 			// on the chain being up would agree at 16 px/tick and disagree at 4.
-			case 406: name = "an_crouch_slide"_s; right = (t < 40); run = true; down = (t >= 48); break;
-			case 407: name = "an_crouch_late"_s; right = (t < 40); run = true; down = (t >= 62); break;
-			case 408: name = "an_crouch_walk"_s; right = (t < 40); down = (t >= 48); break;
+			case 406:
+				name = "an_crouch_slide"_s;
+				right = (t < 40);
+				run = true;
+				down = (t >= 48);
+				break;
+			case 407:
+				name = "an_crouch_late"_s;
+				right = (t < 40);
+				run = true;
+				down = (t >= 62);
+				break;
+			case 408:
+				name = "an_crouch_walk"_s;
+				right = (t < 40);
+				down = (t >= 48);
+				break;
 			// Down and Jump pressed together, held for a range of lengths. The gaps table has four readings
 			// of this - a tap gives 8 px of hop, Jump held indefinitely gives 132, Down established twenty
 			// ticks early gives the full 201.5 - and concludes it is a strength curve rather than a gate,
 			// which cannot be fitted from three points that each vary something different. These vary one
 			// thing: how long the two are held, from just past the tap to most of the rise.
-			case 409: name = "sp_upper_jh08"_s; down = (t >= 40 && t < 48); jump = (t >= 40 && t < 48); break;
-			case 410: name = "sp_upper_jh16"_s; down = (t >= 40 && t < 56); jump = (t >= 40 && t < 56); break;
-			case 411: name = "sp_upper_jh24"_s; down = (t >= 40 && t < 64); jump = (t >= 40 && t < 64); break;
+			case 409:
+				name = "sp_upper_jh08"_s;
+				down = (t >= 40 && t < 48);
+				jump = (t >= 40 && t < 48);
+				break;
+			case 410:
+				name = "sp_upper_jh16"_s;
+				down = (t >= 40 && t < 56);
+				jump = (t >= 40 && t < 56);
+				break;
+			case 411:
+				name = "sp_upper_jh24"_s;
+				down = (t >= 40 && t < 64);
+				jump = (t >= 40 && t < 64);
+				break;
 			// Spaz kicking **through** the whole row of monitors, reported from play: the kick breaks several
 			// in a row and then sits in the sidekick pose with no speed for about three seconds before it
 			// finally ends. It has to be the last scenario that wants a monitor, because it destroys every
 			// one of them - `pu_stand_side` deliberately kicks the other way for exactly that reason, so
 			// nothing before this has ever driven a kick into one.
-			case 412: name = "pu_side_chain"_s; right = (t < 2); down = (t >= 180); jump = ((t >= 200 && t < 202) || (t >= 330 && t < 332)); break;
+			case 412:
+				name = "pu_side_chain"_s;
+				right = (t < 2);
+				down = (t >= 180);
+				jump = ((t >= 200 && t < 202) || (t >= 330 && t < 332));
+				break;
 			// Shooting *during* the skid, reported from play: the stop pose is said to restart instead of giving
 			// way to the shoot pose. `g_up_fire_slide` already fires in a skid but holds Up as well, so it
 			// cannot tell a refused shoot pose from an aimed one; this holds nothing else. The window opens 4
 			// ticks after the release and covers 26, twice the skid's measured length, so a pose that only
 			// appears once the player has stopped still lands inside it.
-			case 413: name = "an_slide_fire"_s; right = (t < 90); run = (t < 90); fire = (t >= 94 && t < 120); break;
+			case 413:
+				name = "an_slide_fire"_s;
+				right = (t < 90);
+				run = (t < 90);
+				fire = (t >= 94 && t < 120);
+				break;
 			// Crouching **off a ledge**, also reported from play: the crouch is entered normally, the slide
 			// carries the player over the edge, and the report is that the crouch survives the fall and that an
 			// uppercut can then be started in mid-air - which the crouch gate is the only thing preventing. The
@@ -1305,30 +2679,62 @@ namespace Jazz2::Tests
 			// Down comes 8 ticks before the edge at a walk and 21 at a dash. Both are well inside the slide's
 			// own stopping distance - 48 px against the 32 left to the edge walking, 457 against 226 dashing -
 			// so neither is a near thing that could stop short of the drop if that deceleration is re-measured.
-			case 414: name = "an_crouch_gap"_s; right = (t < 198); down = (t >= 198); break;
-			case 415: name = "an_crouch_gap_j"_s; right = (t < 198); down = (t >= 198); jump = (t >= 240 && t < 280); break;
-			case 416: name = "an_crouch_gap_run"_s; right = (t < 90); run = (t < 90); down = (t >= 90); break;
+			case 414:
+				name = "an_crouch_gap"_s;
+				right = (t < 198);
+				down = (t >= 198);
+				break;
+			case 415:
+				name = "an_crouch_gap_j"_s;
+				right = (t < 198);
+				down = (t >= 198);
+				jump = (t >= 240 && t < 280);
+				break;
+			case 416:
+				name = "an_crouch_gap_run"_s;
+				right = (t < 90);
+				run = (t < 90);
+				down = (t >= 90);
+				break;
 			// Down pressed with the direction **still held**, which is the one thing the crouch family has
 			// never asked. Every other scenario in it lets go first, so all of them measure the same rule -
 			// "crouch once nothing is steering" - and none can see what happens when something still is.
 			// Reported from play as the player crouching while running, which this engine's 0.4 deadzone on
 			// the movement axis should already refuse; measured here rather than read off that code, because
 			// the report says otherwise and the original's answer is not on record either way.
-			case 417: name = "an_crouch_hold"_s; right = true; run = true; down = (t >= 48); break;
-			case 418: name = "an_crouch_hold_walk"_s; right = true; down = (t >= 48); break;
+			case 417:
+				name = "an_crouch_hold"_s;
+				right = true;
+				run = true;
+				down = (t >= 48);
+				break;
+			case 418:
+				name = "an_crouch_hold_walk"_s;
+				right = true;
+				down = (t >= 48);
+				break;
 			// Ducking out of a **carry**, reported from play: a player still being run along by a pole or a
 			// spring can crouch here and is said not to be able to in the original. `ob_hpole`'s setup, which
 			// is the only carry that stays on the ground long enough to ask - the horizontal springs throw the
 			// player into the air, where the question does not arise. Down goes in at tick 130: this engine
 			// lets go of the pole at 104 and the original at 120, and the carry runs to 167 and 183, so both
 			// are well inside it with tens of ticks to spare either side.
-			case 419: name = "an_crouch_carry"_s; right = (t < 130); run = (t < 130); down = (t >= 130); break;
+			case 419:
+				name = "an_crouch_carry"_s;
+				right = (t < 130);
+				run = (t < 130);
+				down = (t >= 130);
+				break;
 			// The same question of a **spring** carry rather than a pole's, reported from play as the two
 			// behaving differently: the original is said to keep running where this engine shows the crouch.
 			// A green horizontal spring, the same one `ob_spring_green_h` uses, which fires at tick 35 and
 			// carries a flat 16 px/tick along level ground for its 80 ticks - so Down at 50 lands squarely
 			// inside the carry with 65 of it left, and the player never leaves the floor for it to matter.
-			case 420: name = "an_crouch_spring"_s; right = (t < 50); down = (t >= 50); break;
+			case 420:
+				name = "an_crouch_spring"_s;
+				right = (t < 50);
+				down = (t >= 50);
+				break;
 			// The control pair for those two, and the reason they exist is that the first reading of them has
 			// two explanations and no way to choose. `an_crouch_carry` presses Down 10 ticks into a pole's
 			// carry with 37 left and crouches; `an_crouch_spring` presses it 18 ticks into a spring's with 75
@@ -1336,8 +2742,17 @@ namespace Jazz2::Tests
 			// carry is nearly over", and both fit. So: Down at the very *start* of a pole's carry, with all 46
 			// of it to run, and Down 15 ticks from the *end* of a spring's. If the carry type decides, the
 			// first crouches and the second does not; if the time remaining decides, they swap.
-			case 421: name = "an_crouch_pole_e"_s; right = (t < 122); run = (t < 122); down = (t >= 122); break;
-			case 422: name = "an_crouch_spring_l"_s; right = (t < 110); down = (t >= 110); break;
+			case 421:
+				name = "an_crouch_pole_e"_s;
+				right = (t < 122);
+				run = (t < 122);
+				down = (t >= 122);
+				break;
+			case 422:
+				name = "an_crouch_spring_l"_s;
+				right = (t < 110);
+				down = (t >= 110);
+				break;
 			// Two vines stacked four tiles apart, at (22,44)-(23,44) and (22,40)-(23,40) - added to the level
 			// for this. Reported from play: in the original, holding Jump from under the lower one carries the
 			// player onto it and then straight on to the upper one, while this engine catches the first and
@@ -1349,8 +2764,14 @@ namespace Jazz2::Tests
 			// `_hold` is the reported input, and with continuous jump on it re-fires the release every frame
 			// the key is down. `_tap` lets go between attempts - five ticks on, thirty-five off - so a grab
 			// that is *refused* is told apart from one that a re-firing jump never lets settle into.
-			case 423: name = "ob_vine_up"_s; jump = (t >= 20); break;
-			case 424: name = "ob_vine_up_tap"_s; jump = (t >= 20 && ((t - 20) % 40) < 5); break;
+			case 423:
+				name = "ob_vine_up"_s;
+				jump = (t >= 20);
+				break;
+			case 424:
+				name = "ob_vine_up_tap"_s;
+				jump = (t >= 20 && ((t - 20) % 40) < 5);
+				break;
 			// What a float-up field does to the three moves that drive their own vertical speed. `fu_butt` was
 			// meant to be this and is not: it presses Down while the player is already *inside* the ladder, and
 			// the original simply refuses the move there - `sm` stays 0 for the rest of the run while the lift
@@ -1362,8 +2783,15 @@ namespace Jazz2::Tests
 			// tiles ABOVE it so the move is established in clear air and enters the field at full speed.
 			// `_butt_in` is the control that starts it inside, which is what tells "the field refuses the
 			// move" apart from "the field slows it". `_dj` needs Spaz.
-			case 425: name = "fu_col_butt"_s; down = (t >= 2); break;
-			case 426: name = "fu_col_butt_in"_s; jump = (t >= 5 && t < 25); down = (t >= 45); break;
+			case 425:
+				name = "fu_col_butt"_s;
+				down = (t >= 2);
+				break;
+			case 426:
+				name = "fu_col_butt_in"_s;
+				jump = (t >= 5 && t < 25);
+				down = (t >= 45);
+				break;
 			// The copter cannot be measured in the placed column at all: it is only available after a real
 			// jump, and being teleported into mid-air never makes it so. Neither a held key nor a tap train
 			// got the original to engage one from there, so the scenario compared this engine's copter
@@ -1373,8 +2801,15 @@ namespace Jazz2::Tests
 			// block at (32,50), the copter started at the apex with the tap train `sp_copter_apex` uses, and
 			// Right held only from that point - so the descent drifts sideways into the first float tiles
 			// rather than the player riding them up from inside, which is what every other `fu_` does.
-			case 427: name = "fu_copter"_s; jump = (t >= 5 && t < 11) || (t >= 20 && ((t - 20) % 6) < 2); right = (t >= 20); break;
-			case 428: name = "fu_col_dj"_s; jump = (t >= 5 && t < 10) || (t >= 25 && t < 30); break;
+			case 427:
+				name = "fu_copter"_s;
+				jump = (t >= 5 && t < 11) || (t >= 20 && ((t - 20) % 6) < 2);
+				right = (t >= 20);
+				break;
+			case 428:
+				name = "fu_col_dj"_s;
+				jump = (t >= 5 && t < 10) || (t >= 25 && t < 30);
+				break;
 			// Dropping off a vine onto another one two tiles below, at (28,43)-(29,43) and (28,45)-(29,45) -
 			// added to the level for this. Reported from play: a quick Down on the upper one falls past the
 			// lower one as well. The jump-side drop already takes the short `VineDropCooldown`; the Down-side
@@ -1384,8 +2819,16 @@ namespace Jazz2::Tests
 			// The climb has to finish before Down goes in, so Jump is held only long enough to reach the upper
 			// vine and then released so the player settles on it. `_hold` keeps Down down, which *should* fall
 			// through both - it is what tells a cooldown that is too long apart from a grab that is refused.
-			case 429: name = "ob_vine_down"_s; jump = (t >= 5 && t < 45); down = (t >= 100 && t < 104); break;
-			case 430: name = "ob_vine_down_hold"_s; jump = (t >= 5 && t < 45); down = (t >= 100); break;
+			case 429:
+				name = "ob_vine_down"_s;
+				jump = (t >= 5 && t < 45);
+				down = (t >= 100 && t < 104);
+				break;
+			case 430:
+				name = "ob_vine_down_hold"_s;
+				jump = (t >= 5 && t < 45);
+				down = (t >= 100);
+				break;
 			// The run-in-place batch. All four wind up the same way - `rt_b16`'s fastest tapping, stopped at
 			// tick 100 so the launch lands there with most of the window still to run - and then differ only
 			// in what is done with the run that follows.
@@ -1393,27 +2836,56 @@ namespace Jazz2::Tests
 			// `_air` jumps *during* the wind-up, which is the reported case that some obstacle levels are
 			// built on: the charge should survive the airtime and launch on landing rather than being thrown
 			// away the moment the player leaves the ground.
-			case 431: name = "rt_air"_s; run = (t >= 5 && t < 100 && ((t - 5) % 9) < 4); jump = (t >= 50 && t < 55); break;
+			case 431:
+				name = "rt_air"_s;
+				run = (t >= 5 && t < 100 && ((t - 5) % 9) < 4);
+				jump = (t >= 50 && t < 55);
+				break;
 			// A jump out of the run, which is reported to clear a tile more than an ordinary running jump
-			case 432: name = "rt_jump"_s; run = (t >= 5 && t < 100 && ((t - 5) % 9) < 4); jump = (t >= 135 && t < 155); break;
+			case 432:
+				name = "rt_jump"_s;
+				run = (t >= 5 && t < 100 && ((t - 5) % 9) < 4);
+				jump = (t >= 135 && t < 155);
+				break;
 			// Buttstomps out of the run, which are reported to keep its speed - about four of them from a full
 			// stop. One jump-then-stomp cycle every 45 ticks, so each lands before the next begins.
-			case 433: name = "rt_butt"_s; run = (t >= 5 && t < 100 && ((t - 5) % 9) < 4);
+			case 433:
+				name = "rt_butt"_s;
+				run = (t >= 5 && t < 100 && ((t - 5) % 9) < 4);
 				jump = (t >= 135 && ((t - 135) % 45) < 5);
-				down = (t >= 135 && ((t - 135) % 45) >= 10 && ((t - 135) % 45) < 40); break;
+				down = (t >= 135 && ((t - 135) % 45) >= 10 && ((t - 135) % 45) < 40);
+				break;
 			// The direction *opposite* the launch held through the run. Three reported things at once: whether
 			// the facing follows the key or the travel, which pose is shown, and whether the camera leads
 			// backwards - `camx` is what answers the last one.
-			case 434: name = "rt_back"_s; run = (t >= 5 && t < 100 && ((t - 5) % 9) < 4); left = (t >= 135); break;
+			case 434:
+				name = "rt_back"_s;
+				run = (t >= 5 && t < 100 && ((t - 5) % 9) < 4);
+				left = (t >= 135);
+				break;
 			// Spaz firing inside his own kick. `sp_lori_side_fire` measures hers and the original spends a
 			// round, which is why this engine allows it at all; his kick is 81 ticks against her 35 and is
 			// reported to refuse. Fire goes in at 60, well inside the drive either way.
-			case 435: name = "sp_spaz_side_fire"_s; right = (t < 2); down = (t >= 20 && t < 44); jump = (t >= 40 && t < 44); fire = (t >= 60 && t < 70); break;
+			case 435:
+				name = "sp_spaz_side_fire"_s;
+				right = (t < 2);
+				down = (t >= 20 && t < 44);
+				jump = (t >= 40 && t < 44);
+				fire = (t >= 60 && t < 70);
+				break;
 			// A jump taken as the kick ends, which is reported to play the kick's *end* animation over the
 			// jump instead of the jump's own
-			case 436: name = "sp_spaz_side_jump"_s; right = (t < 2); down = (t >= 20 && t < 44); jump = (t >= 40 && t < 44) || (t >= 112 && t < 117); break;
+			case 436:
+				name = "sp_spaz_side_jump"_s;
+				right = (t < 2);
+				down = (t >= 20 && t < 44);
+				jump = (t >= 40 && t < 44) || (t >= 112 && t < 117);
+				break;
 			// A plain hop, read for the landing animation alone - reported as slow and chopped here
-			case 437: name = "an_land"_s; jump = (t >= 20 && t < 30); break;
+			case 437:
+				name = "an_land"_s;
+				jump = (t >= 20 && t < 30);
+				break;
 			// The copter powerup the level now carries at (236,26), and this set is **state-driven**: it hops
 			// until the modifier genuinely reads as a copter and times everything after that from the tick it
 			// did. The first version scheduled it - hop until 300, test from 440 - and that cannot work,
@@ -1425,18 +2897,41 @@ namespace Jazz2::Tests
 			// Read `mod` to see which it was: a row with the copter modifier set is on the powerup, and
 			// `_copterAttachTick` is the first such tick. A scenario that never picks one up presses Jump for
 			// its whole length and holds nothing else, which is unmistakable in a trace.
-			case 438: case 439: case 440: case 441: case 442: case 443: case 444: case 445: {
+			case 438:
+			case 439:
+			case 440:
+			case 441:
+			case 442:
+			case 443:
+			case 444:
+			case 445: {
 				switch (scenario) {
-					case 438: name = "cp_mod_get"_s; break;
-					case 439: name = "cp_mod_right"_s; break;
-					case 440: name = "cp_mod_left"_s; break;
-					case 441: name = "cp_mod_up"_s; break;
-					case 442: name = "cp_mod_down"_s; break;
-					case 443: name = "cp_mod_diag"_s; break;
-					case 444: name = "cp_mod_run"_s; break;
+					case 438:
+						name = "cp_mod_get"_s;
+						break;
+					case 439:
+						name = "cp_mod_right"_s;
+						break;
+					case 440:
+						name = "cp_mod_left"_s;
+						break;
+					case 441:
+						name = "cp_mod_up"_s;
+						break;
+					case 442:
+						name = "cp_mod_down"_s;
+						break;
+					case 443:
+						name = "cp_mod_diag"_s;
+						break;
+					case 444:
+						name = "cp_mod_run"_s;
+						break;
 					// Shooting, which is the reported one: the copter's shoot poses look wrong here. Fired in
 					// bursts so the return to the plain copter pose can be read between them as well as the shot.
-					default: name = "cp_mod_fire"_s; break;
+					default:
+						name = "cp_mod_fire"_s;
+						break;
 				}
 				if (_copterAttachTick < 0) {
 					// Not on one - hop, and wait for the generator to produce the next. This is also where a
@@ -1462,13 +2957,30 @@ namespace Jazz2::Tests
 					break;
 				}
 				switch (scenario) {
-					case 439: right = true; break;
-					case 440: left = true; break;
-					case 441: up = true; break;
-					case 442: down = true; break;
-					case 443: right = true; up = true; break;
-					case 444: right = true; run = true; break;
-					case 445: right = true; fire = ((u % 60) < 25); break;
+					case 439:
+						right = true;
+						break;
+					case 440:
+						left = true;
+						break;
+					case 441:
+						up = true;
+						break;
+					case 442:
+						down = true;
+						break;
+					case 443:
+						right = true;
+						up = true;
+						break;
+					case 444:
+						right = true;
+						run = true;
+						break;
+					case 445:
+						right = true;
+						fire = ((u % 60) < 25);
+						break;
 				}
 				break;
 			}
@@ -1477,14 +2989,28 @@ namespace Jazz2::Tests
 			// hers was missing here entirely - so reading it off Jazz alone and applying the numbers to all
 			// three is an inference rather than a measurement. Same input as 351 exactly, so the three are
 			// directly comparable.
-			case 446: name = "an_shoot_air_spaz"_s; jump = (t >= 20 && t < 50); fire = (t >= 40 && t < 44); break;
-			case 447: name = "an_shoot_air_lori"_s; jump = (t >= 20 && t < 50); fire = (t >= 40 && t < 44); break;
+			case 446:
+				name = "an_shoot_air_spaz"_s;
+				jump = (t >= 20 && t < 50);
+				fire = (t >= 40 && t < 44);
+				break;
+			case 447:
+				name = "an_shoot_air_lori"_s;
+				jump = (t >= 20 && t < 50);
+				fire = (t >= 40 && t < 44);
+				break;
 			// A buttstomp begun **out of a full dash lead**, which is the case the reported camera bug needs and
 			// no other scenario produces: every existing `sp_*_butt` stomps at tick 70, before the pan has gone
 			// anywhere, so the lead is ~0 on both sides and freezing it or not looks identical. Run is held for
 			// the whole scenario, direction included, so what is being read is whether the held key still moves
 			// the view once the move has started. See Player::IsCameraPanLocked().
-			case 448: name = "sp_butt_pan"_s; right = true; run = true; jump = (t >= 160 && t < 170); down = (t >= 180); break;
+			case 448:
+				name = "sp_butt_pan"_s;
+				right = true;
+				run = true;
+				jump = (t >= 160 && t < 170);
+				down = (t >= 180);
+				break;
 			// Water, which nothing has ever measured: there is no `!IsReforged()` branch anywhere in the swim
 			// code and no scenario that gets wet. The level has no water of its own, so these set the level's
 			// water line from the probe - it is a single global value in pixels, which is why one assignment
@@ -1493,19 +3019,51 @@ namespace Jazz2::Tests
 			// The last three are the reported bug: a float-up area *under water*, which is two mechanics that
 			// both want to move the player vertically, with Up and Down then asking for a third thing. Read
 			// them against `fu_col_none` and `fu_col_hold`, which are the same column in air.
-			case 449: name = "wt_swim_up"_s; up = true; break;
-			case 450: name = "wt_swim_down"_s; down = true; break;
-			case 451: name = "wt_swim_right"_s; right = true; break;
-			case 452: name = "wt_float_up"_s; break;
-			case 453: name = "wt_float_up_u"_s; up = true; break;
-			case 454: name = "wt_float_up_d"_s; down = true; break;
+			case 449:
+				name = "wt_swim_up"_s;
+				up = true;
+				break;
+			case 450:
+				name = "wt_swim_down"_s;
+				down = true;
+				break;
+			case 451:
+				name = "wt_swim_right"_s;
+				right = true;
+				break;
+			case 452:
+				name = "wt_float_up"_s;
+				break;
+			case 453:
+				name = "wt_float_up_u"_s;
+				up = true;
+				break;
+			case 454:
+				name = "wt_float_up_d"_s;
+				down = true;
+				break;
 			// ...and the same four with Run held. Swimming may or may not have a fast mode - nothing here has
 			// ever asked - and the float-up column is worth the pairing too, since Run doubles what several
 			// other carries drive the player at.
-			case 455: name = "wt_swim_up_run"_s; up = true; run = true; break;
-			case 456: name = "wt_swim_down_run"_s; down = true; run = true; break;
-			case 457: name = "wt_swim_right_run"_s; right = true; run = true; break;
-			case 458: name = "wt_float_up_run"_s; run = true; break;
+			case 455:
+				name = "wt_swim_up_run"_s;
+				up = true;
+				run = true;
+				break;
+			case 456:
+				name = "wt_swim_down_run"_s;
+				down = true;
+				run = true;
+				break;
+			case 457:
+				name = "wt_swim_right_run"_s;
+				right = true;
+				run = true;
+				break;
+			case 458:
+				name = "wt_float_up_run"_s;
+				run = true;
+				break;
 			// Reported from play: *"pressing jump for copter too early before it's available removes the ability
 			// to copter out of that jump entirely, especially from a short jump"*. The `cp_tap*` family already
 			// establishes that one press spends the airtime's attempt, but every one of its scenarios starts
@@ -1516,18 +3074,39 @@ namespace Jazz2::Tests
 			// then the same tap train `cp_tap80` engages on. If the late train engages here too, the early press
 			// costs nothing and the rule is wrong; if it does not, the attempt really is spent on the press.
 			// `cp_kill80` is the control with no early press, and is `cp_tap80` by construction.
-			case 459: name = "cp_kill47"_s; jump = (t >= J && t < J + 5) || (t >= 47 && t < 49) || (t >= 80 && ((t - 80) % 6) < 2); break;
-			case 460: name = "cp_kill52"_s; jump = (t >= J && t < J + 5) || (t >= 52 && t < 54) || (t >= 80 && ((t - 80) % 6) < 2); break;
-			case 461: name = "cp_kill58"_s; jump = (t >= J && t < J + 5) || (t >= 58 && t < 60) || (t >= 80 && ((t - 80) % 6) < 2); break;
-			case 462: name = "cp_kill80"_s; jump = (t >= J && t < J + 5) || (t >= 80 && ((t - 80) % 6) < 2); break;
+			case 459:
+				name = "cp_kill47"_s;
+				jump = (t >= J && t < J + 5) || (t >= 47 && t < 49) || (t >= 80 && ((t - 80) % 6) < 2);
+				break;
+			case 460:
+				name = "cp_kill52"_s;
+				jump = (t >= J && t < J + 5) || (t >= 52 && t < 54) || (t >= 80 && ((t - 80) % 6) < 2);
+				break;
+			case 461:
+				name = "cp_kill58"_s;
+				jump = (t >= J && t < J + 5) || (t >= 58 && t < 60) || (t >= 80 && ((t - 80) % 6) < 2);
+				break;
+			case 462:
+				name = "cp_kill80"_s;
+				jump = (t >= J && t < J + 5) || (t >= 80 && ((t - 80) % 6) < 2);
+				break;
 			// The short jump the report singles out: the key let go after two ticks rather than five, which
 			// releases the rise into the 0.875 gravity almost at once and puts the apex around tick 57 instead
 			// of 72. `_early` taps from the middle of that much shorter rise, `_late` from just past its apex,
 			// and `_hold` never lets go at all - a held key produces no fresh press, so whether the copter can
 			// start from one is a separate question that no scenario has ever put.
-			case 463: name = "cp_sj_early"_s; jump = (t >= J && t < J + 2) || (t >= 50 && ((t - 50) % 6) < 2); break;
-			case 464: name = "cp_sj_late"_s; jump = (t >= J && t < J + 2) || (t >= 60 && ((t - 60) % 6) < 2); break;
-			case 465: name = "cp_sj_hold"_s; jump = (t >= J); break;
+			case 463:
+				name = "cp_sj_early"_s;
+				jump = (t >= J && t < J + 2) || (t >= 50 && ((t - 50) % 6) < 2);
+				break;
+			case 464:
+				name = "cp_sj_late"_s;
+				jump = (t >= J && t < J + 2) || (t >= 60 && ((t - 60) % 6) < 2);
+				break;
+			case 465:
+				name = "cp_sj_hold"_s;
+				jump = (t >= J);
+				break;
 			// Reported: *"in Vanilla you can change the direction of Lori's kick mid kick, or when starting a
 			// new kick, when early enough"*. Her facing is read once, in BeginLoriKick(), and the kick takes
 			// control away - so a direction pressed after it starts reaches nothing here, and neither the kick
@@ -1536,9 +3115,27 @@ namespace Jazz2::Tests
 			// original's kicks start at 41, 76, 111 and 146, so `_e` lands three ticks into the first kick,
 			// the plain one in the recovery between kicks, and `_l` two ticks before the next one begins.
 			// Read the **x** column: whether she turns at all, and if so on which kick.
-			case 466: name = "sp_lori_turn_e"_s; right = (t < 2); down = (t >= 20); jump = (t >= 40); left = (t >= 44); break;
-			case 467: name = "sp_lori_turn"_s; right = (t < 2); down = (t >= 20); jump = (t >= 40); left = (t >= 60); break;
-			case 468: name = "sp_lori_turn_l"_s; right = (t < 2); down = (t >= 20); jump = (t >= 40); left = (t >= 74); break;
+			case 466:
+				name = "sp_lori_turn_e"_s;
+				right = (t < 2);
+				down = (t >= 20);
+				jump = (t >= 40);
+				left = (t >= 44);
+				break;
+			case 467:
+				name = "sp_lori_turn"_s;
+				right = (t < 2);
+				down = (t >= 20);
+				jump = (t >= 40);
+				left = (t >= 60);
+				break;
+			case 468:
+				name = "sp_lori_turn_l"_s;
+				right = (t < 2);
+				down = (t >= 20);
+				jump = (t >= 40);
+				left = (t >= 74);
+				break;
 			// Reported: *"while it's true that Lori can shoot during her special move kick, in Vanilla this is
 			// partially blocked during the end of her kick"*. `sp_lori_side_fire` already establishes that she
 			// can shoot **inside** the drive, but it fires one short burst at tick 42 and stops, so it cannot
@@ -1546,19 +3143,31 @@ namespace Jazz2::Tests
 			// the answer is the **ammo** column: a shot that happens and a shot that is refused look identical
 			// in every other column the probes log. A finite weapon is stocked in SetupProps() for that, and
 			// Seeker rather than RF - RF's own blast moves the player and would put a second thing in `x`.
-			case 469: name = "sp_lori_kick_fire"_s; right = (t < 2); down = (t >= 20); jump = (t >= 40); fire = (t >= 30); break;
+			case 469:
+				name = "sp_lori_kick_fire"_s;
+				right = (t < 2);
+				down = (t >= 20);
+				jump = (t >= 40);
+				fire = (t >= 30);
+				break;
 			// And the same question about the pinball paddle: *"when the player is on a pinball paddle he can
 			// shoot there - is it correct? the animation looks strange"*. Two questions in one, and the ammo
 			// column separates them: whether the original fires at all while riding a paddle, and if it does,
 			// which pose it shows. Dropped onto the paddle exactly as `pb_pad_fall` is, so the ride itself is
 			// a scenario already known to match, with nothing held but Fire.
-			case 470: name = "pb_pad_fire"_s; fire = (t >= 60); break;
+			case 470:
+				name = "pb_pad_fire"_s;
+				fire = (t >= 60);
+				break;
 			// The control `sp_lori_kick_fire` needs and does not contain: Fire held with nothing else, so what
 			// it measures is the **weapon's own rate** and nothing about the kick. Without it the kick scenario
 			// cannot say whether a difference in how often the two games shoot belongs to the kick or to the
 			// Seeker it has to stock to be countable at all - and this engine fires on the same spacing while
 			// riding a pinball paddle, which is exactly the shape of a weapon-rate difference.
-			case 471: name = "sp_lori_fire_still"_s; fire = (t >= 30); break;
+			case 471:
+				name = "sp_lori_fire_still"_s;
+				fire = (t >= 30);
+				break;
 			// ...and the pair that says what `_still` measured. A *held* key on the original's side is a script
 			// writing `keyFire = true` every tick, so "one shot standing still" has two readings and they call
 			// for opposite fixes: either that game refuses to repeat a held shot, or it edges its fire on the
@@ -1570,115 +3179,399 @@ namespace Jazz2::Tests
 			// period with the key held, and whether that is the kick *allowing* a shot or the kick clearing
 			// whatever the hold set is the whole question - with the key tapped faster than the kick repeats,
 			// the two answers are 64 shots and 22.
-			case 472: name = "sp_lori_fire_tap"_s; fire = (t >= 30 && ((t - 30) % 12) < 2); break;
-			case 473: name = "sp_lori_kick_tap"_s; right = (t < 2); down = (t >= 20); jump = (t >= 40); fire = (t >= 30 && ((t - 30) % 12) < 2); break;
+			case 472:
+				name = "sp_lori_fire_tap"_s;
+				fire = (t >= 30 && ((t - 30) % 12) < 2);
+				break;
+			case 473:
+				name = "sp_lori_kick_tap"_s;
+				right = (t < 2);
+				down = (t >= 20);
+				jump = (t >= 40);
+				fire = (t >= 30 && ((t - 30) % 12) < 2);
+				break;
 			// The bird morph, which flies on both axes under a pull of its own instead of gravity. Reported from play
 			// as too fast and too quick to get there, and nothing had measured the original's flight: only its clamp
 			// of both speeds to 4 px/tick was known. SetupCharacter() morphs the player, so each starts as a bird at
 			// the resting spot. `_idle` comes first on purpose - it is the scenario a morph lands in front of, and it
 			// accelerates nothing, so a morph that contaminates what follows it has nothing there to contaminate. The
 			// release and the reversal come at 100, well after the cap, so the slowdown is read from a known speed.
-			case 474: name = "bd_idle"_s; break;
-			case 475: name = "bd_right"_s; right = true; break;
-			case 476: name = "bd_right_rel"_s; right = (t < 100); break;
-			case 477: name = "bd_right_rev"_s; right = (t < 100); left = (t >= 100); break;
-			case 478: name = "bd_right_run"_s; right = true; run = true; break;
-			case 479: name = "bd_up"_s; up = true; break;
-			case 480: name = "bd_up_rel"_s; up = (t < 40); break;
-			case 481: name = "bd_down"_s; down = true; break;
-			case 482: name = "bd_up_down"_s; up = (t < 50); down = (t >= 50); break;
-			case 483: name = "bd_diag"_s; right = true; up = true; break;
-			case 484: name = "bd_jump"_s; jump = (t >= 20); break;
-			case 485: name = "bd_jump_tap"_s; jump = (t >= 20 && ((t - 20) % 12) < 2); break;
-			case 486: name = "bd_fire"_s; fire = (t >= 20); break;
+			case 474:
+				name = "bd_idle"_s;
+				break;
+			case 475:
+				name = "bd_right"_s;
+				right = true;
+				break;
+			case 476:
+				name = "bd_right_rel"_s;
+				right = (t < 100);
+				break;
+			case 477:
+				name = "bd_right_rev"_s;
+				right = (t < 100);
+				left = (t >= 100);
+				break;
+			case 478:
+				name = "bd_right_run"_s;
+				right = true;
+				run = true;
+				break;
+			case 479:
+				name = "bd_up"_s;
+				up = true;
+				break;
+			case 480:
+				name = "bd_up_rel"_s;
+				up = (t < 40);
+				break;
+			case 481:
+				name = "bd_down"_s;
+				down = true;
+				break;
+			case 482:
+				name = "bd_up_down"_s;
+				up = (t < 50);
+				down = (t >= 50);
+				break;
+			case 483:
+				name = "bd_diag"_s;
+				right = true;
+				up = true;
+				break;
+			case 484:
+				name = "bd_jump"_s;
+				jump = (t >= 20);
+				break;
+			case 485:
+				name = "bd_jump_tap"_s;
+				jump = (t >= 20 && ((t - 20) % 12) < 2);
+				break;
+			case 486:
+				name = "bd_fire"_s;
+				fire = (t >= 20);
+				break;
 			// The second round. `_idle2` is the perched bird read at its real rate - the original's `_idle` runs
 			// straight after the morph and its poses come out more than twice as fast. `_clamp` writes 10 px/tick
 			// onto both speeds in mid-air (see below), the only way to see the cap on the vertical axis. `_rev_tap`
 			// lets go for two ticks and presses again, which tells an eased acceleration that is reset on letting go
 			// from one that winds back down.
-			case 487: name = "bd_idle2"_s; break;
-			case 488: name = "bd_clamp"_s; up = (t < 60); break;
-			case 489: name = "bd_rev_tap"_s; right = (t < 100 || t >= 102); break;
-			case 490: name = "bd_left"_s; left = true; break;
+			case 487:
+				name = "bd_idle2"_s;
+				break;
+			case 488:
+				name = "bd_clamp"_s;
+				up = (t < 60);
+				break;
+			case 489:
+				name = "bd_rev_tap"_s;
+				right = (t < 100 || t >= 102);
+				break;
+			case 490:
+				name = "bd_left"_s;
+				left = true;
+				break;
 			// What Fire does, with each direction, tapped, from a perch, and against the level's own turtle
-			case 491: name = "bd_fire_r"_s; right = true; fire = (t >= 40); break;
-			case 492: name = "bd_fire_u"_s; up = true; fire = (t >= 40); break;
-			case 493: name = "bd_fire_d"_s; up = (t < 40); down = (t >= 60); fire = (t >= 60); break;
-			case 494: name = "bd_fire_tap"_s; up = (t < 120); fire = (t >= 40 && ((t - 40) % 12) < 2); break;
-			case 495: name = "bd_perch_fire"_s; fire = (t >= 100); break;
-			case 496: name = "bd_fire_turtle"_s; right = (t < 2); fire = (t >= 30); break;
+			case 491:
+				name = "bd_fire_r"_s;
+				right = true;
+				fire = (t >= 40);
+				break;
+			case 492:
+				name = "bd_fire_u"_s;
+				up = true;
+				fire = (t >= 40);
+				break;
+			case 493:
+				name = "bd_fire_d"_s;
+				up = (t < 40);
+				down = (t >= 60);
+				fire = (t >= 60);
+				break;
+			case 494:
+				name = "bd_fire_tap"_s;
+				up = (t < 120);
+				fire = (t >= 40 && ((t - 40) % 12) < 2);
+				break;
+			case 495:
+				name = "bd_perch_fire"_s;
+				fire = (t >= 100);
+				break;
+			case 496:
+				name = "bd_fire_turtle"_s;
+				right = (t < 2);
+				fire = (t >= 30);
+				break;
 			// Last of the first bird's, because a hurt may take the bird away and morph whatever follows
-			case 497: name = "bd_hurt"_s; up = (t < 40); break;
+			case 497:
+				name = "bd_hurt"_s;
+				up = (t < 40);
+				break;
 			// The second bird, the last stop of the character cycle: the same flight, then the same questions about
 			// its attack, which is where the two differ
-			case 498: name = "b2_idle"_s; break;
-			case 499: name = "b2_right"_s; right = true; break;
-			case 500: name = "b2_right_rel"_s; right = (t < 100); break;
-			case 501: name = "b2_right_rev"_s; right = (t < 100); left = (t >= 100); break;
-			case 502: name = "b2_up"_s; up = true; break;
-			case 503: name = "b2_up_rel"_s; up = (t < 40); break;
-			case 504: name = "b2_up_down"_s; up = (t < 50); down = (t >= 50); break;
-			case 505: name = "b2_diag"_s; right = true; up = true; break;
-			case 506: name = "b2_jump"_s; jump = (t >= 20); break;
-			case 507: name = "b2_fire"_s; fire = (t >= 20); break;
-			case 508: name = "b2_fire_r"_s; right = true; fire = (t >= 40); break;
-			case 509: name = "b2_fire_u"_s; up = true; fire = (t >= 40); break;
-			case 510: name = "b2_fire_d"_s; up = (t < 40); down = (t >= 60); fire = (t >= 60); break;
-			case 511: name = "b2_fire_tap"_s; up = (t < 120); fire = (t >= 40 && ((t - 40) % 12) < 2); break;
-			case 512: name = "b2_perch_fire"_s; fire = (t >= 100); break;
-			case 513: name = "b2_idle2"_s; break;
-			case 514: name = "b2_clamp"_s; up = (t < 60); break;
-			case 515: name = "b2_fire_turtle"_s; right = (t < 2); fire = (t >= 30); break;
-			case 516: name = "b2_hurt"_s; up = (t < 40); break;
+			case 498:
+				name = "b2_idle"_s;
+				break;
+			case 499:
+				name = "b2_right"_s;
+				right = true;
+				break;
+			case 500:
+				name = "b2_right_rel"_s;
+				right = (t < 100);
+				break;
+			case 501:
+				name = "b2_right_rev"_s;
+				right = (t < 100);
+				left = (t >= 100);
+				break;
+			case 502:
+				name = "b2_up"_s;
+				up = true;
+				break;
+			case 503:
+				name = "b2_up_rel"_s;
+				up = (t < 40);
+				break;
+			case 504:
+				name = "b2_up_down"_s;
+				up = (t < 50);
+				down = (t >= 50);
+				break;
+			case 505:
+				name = "b2_diag"_s;
+				right = true;
+				up = true;
+				break;
+			case 506:
+				name = "b2_jump"_s;
+				jump = (t >= 20);
+				break;
+			case 507:
+				name = "b2_fire"_s;
+				fire = (t >= 20);
+				break;
+			case 508:
+				name = "b2_fire_r"_s;
+				right = true;
+				fire = (t >= 40);
+				break;
+			case 509:
+				name = "b2_fire_u"_s;
+				up = true;
+				fire = (t >= 40);
+				break;
+			case 510:
+				name = "b2_fire_d"_s;
+				up = (t < 40);
+				down = (t >= 60);
+				fire = (t >= 60);
+				break;
+			case 511:
+				name = "b2_fire_tap"_s;
+				up = (t < 120);
+				fire = (t >= 40 && ((t - 40) % 12) < 2);
+				break;
+			case 512:
+				name = "b2_perch_fire"_s;
+				fire = (t >= 100);
+				break;
+			case 513:
+				name = "b2_idle2"_s;
+				break;
+			case 514:
+				name = "b2_clamp"_s;
+				up = (t < 60);
+				break;
+			case 515:
+				name = "b2_fire_turtle"_s;
+				right = (t < 2);
+				fire = (t >= 30);
+				break;
+			case 516:
+				name = "b2_hurt"_s;
+				up = (t < 40);
+				break;
 			// The first bird's beak charge, which `bd_fire_r` only ever met at the cap on the floor. Reported from play as
 			// needing some minimum speed to start and as impossible to slow down once started. `_idle` only takes the
 			// morph - it follows `b2_hurt` in a sweep - so that nothing measured here is the scenario after one.
-			case 517: name = "bd_ch_idle"_s; break;
+			case 517:
+				name = "bd_ch_idle"_s;
+				break;
 			// Fire and a direction together from rest, and Fire held first: a speed threshold shows as the tick the pose
 			// changes on, and a charge that needs Fire to go down at speed as one that never comes
-			case 518: name = "bd_ch_rest"_s; right = true; fire = true; break;
-			case 519: name = "bd_ch_fire_first"_s; fire = true; right = (t >= 30); break;
+			case 518:
+				name = "bd_ch_rest"_s;
+				right = true;
+				fire = true;
+				break;
+			case 519:
+				name = "bd_ch_fire_first"_s;
+				fire = true;
+				right = (t >= 30);
+				break;
 			// The direction first, then Fire pressed at a known speed: 0.56, 1.06, 1.56, 2.06, 2.56, 3.06, 3.56 and 4.0
 			// px/tick. The number is the tick of the press
-			case 520: name = "bd_ch_f06"_s; right = true; fire = (t >= 6); break;
-			case 521: name = "bd_ch_f10"_s; right = true; fire = (t >= 10); break;
-			case 522: name = "bd_ch_f14"_s; right = true; fire = (t >= 14); break;
-			case 523: name = "bd_ch_f18"_s; right = true; fire = (t >= 18); break;
-			case 524: name = "bd_ch_f22"_s; right = true; fire = (t >= 22); break;
-			case 525: name = "bd_ch_f26"_s; right = true; fire = (t >= 26); break;
-			case 526: name = "bd_ch_f30"_s; right = true; fire = (t >= 30); break;
-			case 527: name = "bd_ch_f34"_s; right = true; fire = (t >= 34); break;
+			case 520:
+				name = "bd_ch_f06"_s;
+				right = true;
+				fire = (t >= 6);
+				break;
+			case 521:
+				name = "bd_ch_f10"_s;
+				right = true;
+				fire = (t >= 10);
+				break;
+			case 522:
+				name = "bd_ch_f14"_s;
+				right = true;
+				fire = (t >= 14);
+				break;
+			case 523:
+				name = "bd_ch_f18"_s;
+				right = true;
+				fire = (t >= 18);
+				break;
+			case 524:
+				name = "bd_ch_f22"_s;
+				right = true;
+				fire = (t >= 22);
+				break;
+			case 525:
+				name = "bd_ch_f26"_s;
+				right = true;
+				fire = (t >= 26);
+				break;
+			case 526:
+				name = "bd_ch_f30"_s;
+				right = true;
+				fire = (t >= 30);
+				break;
+			case 527:
+				name = "bd_ch_f34"_s;
+				right = true;
+				fire = (t >= 34);
+				break;
 			// In mid-air: from rest, and at the cap while still rising off the climb
-			case 528: name = "bd_ch_air"_s; up = (t < 30); right = (t >= 30); fire = (t >= 30); break;
-			case 529: name = "bd_ch_air_f"_s; up = (t < 30); right = (t >= 30); fire = (t >= 70); break;
+			case 528:
+				name = "bd_ch_air"_s;
+				up = (t < 30);
+				right = (t >= 30);
+				fire = (t >= 30);
+				break;
+			case 529:
+				name = "bd_ch_air_f"_s;
+				up = (t < 30);
+				right = (t >= 30);
+				fire = (t >= 70);
+				break;
 			// Fire with speed but no direction - which the original charges on, the speed alone decides
-			case 530: name = "bd_ch_coast"_s; right = (t < 40); fire = (t >= 42); break;
-			case 531: name = "bd_ch_left"_s; left = true; fire = (t >= 40); break;
+			case 530:
+				name = "bd_ch_coast"_s;
+				right = (t < 40);
+				fire = (t >= 42);
+				break;
+			case 531:
+				name = "bd_ch_left"_s;
+				left = true;
+				fire = (t >= 40);
+				break;
 			// Once charging, at the cap from tick 40: the direction let go, reversed, Fire let go, Up, Down, the direction
 			// let go and then Fire, and Fire let go and pressed again two ticks later
-			case 532: name = "bd_ch_rel"_s; right = (t < 70); fire = (t >= 40); break;
-			case 533: name = "bd_ch_rev"_s; right = (t < 70); left = (t >= 70); fire = (t >= 40); break;
-			case 534: name = "bd_ch_frel"_s; right = true; fire = (t >= 40 && t < 70); break;
-			case 535: name = "bd_ch_up"_s; right = true; fire = (t >= 40); up = (t >= 70 && t < 100); break;
-			case 536: name = "bd_ch_down"_s; right = true; fire = (t >= 40); down = (t >= 70 && t < 100); break;
-			case 537: name = "bd_ch_retap"_s; right = true; fire = (t >= 40 && t < 70) || (t >= 72); break;
-			case 538: name = "bd_ch_rel_frel"_s; right = (t < 70); fire = (t >= 40 && t < 130); break;
+			case 532:
+				name = "bd_ch_rel"_s;
+				right = (t < 70);
+				fire = (t >= 40);
+				break;
+			case 533:
+				name = "bd_ch_rev"_s;
+				right = (t < 70);
+				left = (t >= 70);
+				fire = (t >= 40);
+				break;
+			case 534:
+				name = "bd_ch_frel"_s;
+				right = true;
+				fire = (t >= 40 && t < 70);
+				break;
+			case 535:
+				name = "bd_ch_up"_s;
+				right = true;
+				fire = (t >= 40);
+				up = (t >= 70 && t < 100);
+				break;
+			case 536:
+				name = "bd_ch_down"_s;
+				right = true;
+				fire = (t >= 40);
+				down = (t >= 70 && t < 100);
+				break;
+			case 537:
+				name = "bd_ch_retap"_s;
+				right = true;
+				fire = (t >= 40 && t < 70) || (t >= 72);
+				break;
+			case 538:
+				name = "bd_ch_rel_frel"_s;
+				right = (t < 70);
+				fire = (t >= 40 && t < 130);
+				break;
 			// Into the wall at the end of the upper floor, in mid-air (see SetupProps()), held there for the rest of the window
-			case 539: name = "bd_ch_wall"_s; right = true; fire = (t >= 40); break;
+			case 539:
+				name = "bd_ch_wall"_s;
+				right = true;
+				fire = (t >= 40);
+				break;
 			// The threshold's edge, from a coast: the brake takes 1/16 a tick off 4.0, so Fire pressed at 70, 71 and 72 is
 			// tested against 2.0625, exactly 2.0 and 1.9375 after that tick's brake. The original charges on the first only.
-			case 540: name = "bd_ch_c70"_s; right = (t < 40); fire = (t >= 70); break;
-			case 541: name = "bd_ch_c71"_s; right = (t < 40); fire = (t >= 71); break;
-			case 542: name = "bd_ch_c72"_s; right = (t < 40); fire = (t >= 72); break;
+			case 540:
+				name = "bd_ch_c70"_s;
+				right = (t < 40);
+				fire = (t >= 70);
+				break;
+			case 541:
+				name = "bd_ch_c71"_s;
+				right = (t < 40);
+				fire = (t >= 71);
+				break;
+			case 542:
+				name = "bd_ch_c72"_s;
+				right = (t < 40);
+				fire = (t >= 72);
+				break;
 			// Jump during a charge, Up already held when it starts, the threshold leftwards from rest, and the direction
 			// reversed during a charge that Fire then ends
-			case 543: name = "bd_ch_jump"_s; right = true; fire = (t >= 40); jump = (t >= 70 && t < 100); break;
-			case 544: name = "bd_ch_up_first"_s; up = true; right = true; fire = true; break;
-			case 545: name = "bd_ch_left_rest"_s; left = true; fire = true; break;
-			case 546: name = "bd_ch_rev_frel"_s; right = (t < 70); left = (t >= 70); fire = (t >= 40 && t < 100); break;
+			case 543:
+				name = "bd_ch_jump"_s;
+				right = true;
+				fire = (t >= 40);
+				jump = (t >= 70 && t < 100);
+				break;
+			case 544:
+				name = "bd_ch_up_first"_s;
+				up = true;
+				right = true;
+				fire = true;
+				break;
+			case 545:
+				name = "bd_ch_left_rest"_s;
+				left = true;
+				fire = true;
+				break;
+			case 546:
+				name = "bd_ch_rev_frel"_s;
+				right = (t < 70);
+				left = (t >= 70);
+				fire = (t >= 40 && t < 100);
+				break;
 			// Fire pressed while turning round: facing left from tick 40 but still flying right at 3.97 px/tick. The
 			// original charges on rightwards and turns the bird back to face it.
-			case 547: name = "bd_ch_turn"_s; right = (t < 40); left = (t >= 40); fire = (t >= 44); break;
+			case 547:
+				name = "bd_ch_turn"_s;
+				right = (t < 40);
+				left = (t >= 40);
+				fire = (t >= 44);
+				break;
 			// Castle 1 Night's own spring-and-pole climb, reported from play as not reaching the height the
 			// original does: a green spring at (129,52) under three *rows* of vertical poles at y=46, 41 and
 			// 36, each five or six tiles wide. Shipped geometry again, and a chain nobody built for a test -
@@ -1686,91 +3579,304 @@ namespace Jazz2::Tests
 			// independent check. Nothing is pressed; the spring and the poles do all of it.
 			// Freezing - see FreezeTick. A frozen player first, by speed and by what is held while frozen: nothing,
 			// the same keys, or the other way
-			case 548: name = "fz_p_stand"_s; right = (t >= 30); break;
-			case 549: name = "fz_p_walk"_s; right = true; break;
-			case 550: name = "fz_p_walk_rel"_s; right = (t < 45); break;
-			case 551: name = "fz_p_dash"_s; right = true; run = true; break;
-			case 552: name = "fz_p_dash_rel"_s; right = (t < 60); run = (t < 60); break;
-			case 553: name = "fz_p_dash_opp"_s; run = true; right = (t < 60); left = (t >= 60); break;
+			case 548:
+				name = "fz_p_stand"_s;
+				right = (t >= 30);
+				break;
+			case 549:
+				name = "fz_p_walk"_s;
+				right = true;
+				break;
+			case 550:
+				name = "fz_p_walk_rel"_s;
+				right = (t < 45);
+				break;
+			case 551:
+				name = "fz_p_dash"_s;
+				right = true;
+				run = true;
+				break;
+			case 552:
+				name = "fz_p_dash_rel"_s;
+				right = (t < 60);
+				run = (t < 60);
+				break;
+			case 553:
+				name = "fz_p_dash_opp"_s;
+				run = true;
+				right = (t < 60);
+				left = (t >= 60);
+				break;
 			// Frozen for only 20 ticks at the dash cap, so what the thaw gives back can be read
-			case 554: name = "fz_p_short"_s; right = true; run = true; break;
+			case 554:
+				name = "fz_p_short"_s;
+				right = true;
+				run = true;
+				break;
 			// Frozen in the air: rising out of a dash jump, falling out of it, rising out of a standing hop, dropped
-			case 555: name = "fz_p_jump"_s; right = true; run = true; jump = (t >= J && t < 52); break;
-			case 556: name = "fz_p_jump_fall"_s; right = true; run = true; jump = (t >= J && t < 52); break;
-			case 557: name = "fz_p_rise"_s; jump = (t >= 10 && t < 16); break;
-			case 558: name = "fz_p_drop"_s; break;
+			case 555:
+				name = "fz_p_jump"_s;
+				right = true;
+				run = true;
+				jump = (t >= J && t < 52);
+				break;
+			case 556:
+				name = "fz_p_jump_fall"_s;
+				right = true;
+				run = true;
+				jump = (t >= J && t < 52);
+				break;
+			case 557:
+				name = "fz_p_rise"_s;
+				jump = (t >= 10 && t < 16);
+				break;
+			case 558:
+				name = "fz_p_drop"_s;
+				break;
 			// On the long slope down, whether a frozen player slides down it
-			case 559: name = "fz_p_slope"_s; right = true; break;
-			case 560: name = "fz_p_slope_rel"_s; right = (t < 50); break;
+			case 559:
+				name = "fz_p_slope"_s;
+				right = true;
+				break;
+			case 560:
+				name = "fz_p_slope_rel"_s;
+				right = (t < 50);
+				break;
 			// Enemies, spawned 15 tiles east of the origin (the three flying ones 3 tiles up) and frozen at tick 60
-			case 561: name = "fz_e_turtle"_s; break;
-			case 562: name = "fz_e_lizard"_s; break;
-			case 563: name = "fz_e_labrat"_s; break;
-			case 564: name = "fz_e_doggy"_s; break;
-			case 565: name = "fz_e_bee"_s; break;
-			case 566: name = "fz_e_floatsucker"_s; break;
-			case 567: name = "fz_e_dragonfly"_s; break;
+			case 561:
+				name = "fz_e_turtle"_s;
+				break;
+			case 562:
+				name = "fz_e_lizard"_s;
+				break;
+			case 563:
+				name = "fz_e_labrat"_s;
+				break;
+			case 564:
+				name = "fz_e_doggy"_s;
+				break;
+			case 565:
+				name = "fz_e_bee"_s;
+				break;
+			case 566:
+				name = "fz_e_floatsucker"_s;
+				break;
+			case 567:
+				name = "fz_e_dragonfly"_s;
+				break;
 			// A turtle lifted 3 tiles at tick 60, left alone and frozen on the same tick - does a frozen enemy fall
-			case 568: name = "fz_e_turtle_lift"_s; break;
-			case 569: name = "fz_e_turtle_liftfz"_s; break;
+			case 568:
+				name = "fz_e_turtle_lift"_s;
+				break;
+			case 569:
+				name = "fz_e_turtle_liftfz"_s;
+				break;
 			// The level's pushable: frozen while being pushed, frozen before it, pushed by a player who freezes,
 			// and lifted 2 tiles with and without a freeze
-			case 570: name = "fz_b_push"_s; right = true; break;
-			case 571: name = "fz_b_frozen"_s; right = true; break;
-			case 572: name = "fz_b_pfreeze"_s; right = true; break;
-			case 573: name = "fz_b_lift"_s; break;
-			case 574: name = "fz_b_liftfz"_s; break;
+			case 570:
+				name = "fz_b_push"_s;
+				right = true;
+				break;
+			case 571:
+				name = "fz_b_frozen"_s;
+				right = true;
+				break;
+			case 572:
+				name = "fz_b_pfreeze"_s;
+				right = true;
+				break;
+			case 573:
+				name = "fz_b_lift"_s;
+				break;
+			case 574:
+				name = "fz_b_liftfz"_s;
+				break;
 			// Real Freezer shots, the check on how the others freeze an object: at a turtle 4 tiles away, and at the
 			// pushable, which is pushed from tick 40 on. Right is tapped first so the player faces the target.
-			case 575: name = "fz_e_turtle_shot"_s; right = (t < 2); fire = (t >= 60 && t < 63); break;
-			case 576: name = "fz_b_shot"_s; right = (t < 2) || (t >= 40); fire = (t >= 10 && t < 13); break;
+			case 575:
+				name = "fz_e_turtle_shot"_s;
+				right = (t < 2);
+				fire = (t >= 60 && t < 63);
+				break;
+			case 576:
+				name = "fz_b_shot"_s;
+				right = (t < 2) || (t >= 40);
+				fire = (t >= 10 && t < 13);
+				break;
 			// The pushable frozen for 30 ticks as it is let go of, which is 120 for a box in the original - does it
 			// slide on
-			case 577: name = "fz_b_push_rel"_s; right = (t < 100); break;
+			case 577:
+				name = "fz_b_push_rel"_s;
+				right = (t < 100);
+				break;
 			// Frozen at tick 60 while it's being pushed, and walked away from at 100 - for 100 and for 15 ticks, and
 			// after a real Freezer shot. Frozen on the tick it is let go of, as `fz_b_push_rel` does, it stops at once
 			// in the original; frozen before, it slides on at the push speed until it thaws.
-			case 578: name = "fz_b_away"_s; right = (t < 100); left = (t >= 100 && t < 130); break;
-			case 579: name = "fz_b_away_short"_s; right = (t < 100); left = (t >= 100 && t < 130); break;
-			case 580: name = "fz_b_shot_away"_s; right = (t < 2) || (t >= 40 && t < 120); left = (t >= 120 && t < 150); fire = (t >= 10 && t < 13); break;
+			case 578:
+				name = "fz_b_away"_s;
+				right = (t < 100);
+				left = (t >= 100 && t < 130);
+				break;
+			case 579:
+				name = "fz_b_away_short"_s;
+				right = (t < 100);
+				left = (t >= 100 && t < 130);
+				break;
+			case 580:
+				name = "fz_b_shot_away"_s;
+				right = (t < 2) || (t >= 40 && t < 120);
+				left = (t >= 120 && t < 150);
+				fire = (t >= 10 && t < 13);
+				break;
 			// Crates, put 42 tiles east of the origin with the player 3 tiles short of them: pushed, and pushed, frozen
 			// and walked away from
-			case 581: name = "fz_c_ammo_push"_s; right = true; break;
-			case 582: name = "fz_c_ammo_away"_s; right = (t < 100); left = (t >= 100 && t < 130); break;
-			case 583: name = "fz_c_carrot_push"_s; right = true; break;
-			case 584: name = "fz_c_carrot_away"_s; right = (t < 100); left = (t >= 100 && t < 130); break;
-			case 585: name = "fz_c_bomb_push"_s; right = true; break;
-			case 586: name = "fz_c_bomb_away"_s; right = (t < 100); left = (t >= 100 && t < 130); break;
-			case 587: name = "fz_c_gem_push"_s; right = true; break;
-			case 588: name = "fz_c_gem_away"_s; right = (t < 100); left = (t >= 100 && t < 130); break;
-			case 589: name = "fz_c_trigger_push"_s; right = true; break;
-			case 590: name = "fz_c_trigger_away"_s; right = (t < 100); left = (t >= 100 && t < 130); break;
-			case 591: name = "fz_c_trigger_shot"_s; right = (t < 2) || (t >= 40 && t < 120); left = (t >= 120 && t < 150); fire = (t >= 10 && t < 13); break;
+			case 581:
+				name = "fz_c_ammo_push"_s;
+				right = true;
+				break;
+			case 582:
+				name = "fz_c_ammo_away"_s;
+				right = (t < 100);
+				left = (t >= 100 && t < 130);
+				break;
+			case 583:
+				name = "fz_c_carrot_push"_s;
+				right = true;
+				break;
+			case 584:
+				name = "fz_c_carrot_away"_s;
+				right = (t < 100);
+				left = (t >= 100 && t < 130);
+				break;
+			case 585:
+				name = "fz_c_bomb_push"_s;
+				right = true;
+				break;
+			case 586:
+				name = "fz_c_bomb_away"_s;
+				right = (t < 100);
+				left = (t >= 100 && t < 130);
+				break;
+			case 587:
+				name = "fz_c_gem_push"_s;
+				right = true;
+				break;
+			case 588:
+				name = "fz_c_gem_away"_s;
+				right = (t < 100);
+				left = (t >= 100 && t < 130);
+				break;
+			case 589:
+				name = "fz_c_trigger_push"_s;
+				right = true;
+				break;
+			case 590:
+				name = "fz_c_trigger_away"_s;
+				right = (t < 100);
+				left = (t >= 100 && t < 130);
+				break;
+			case 591:
+				name = "fz_c_trigger_shot"_s;
+				right = (t < 2) || (t >= 40 && t < 120);
+				left = (t >= 120 && t < 150);
+				fire = (t >= 10 && t < 13);
+				break;
 			// A real Freezer at the other crates too - the original freezes them rather than breaking them
-			case 592: name = "fz_c_ammo_shot"_s; right = (t < 2) || (t >= 40 && t < 120); left = (t >= 120 && t < 150); fire = (t >= 10 && t < 13); break;
-			case 593: name = "fz_c_carrot_shot"_s; right = (t < 2) || (t >= 40 && t < 120); left = (t >= 120 && t < 150); fire = (t >= 10 && t < 13); break;
-			case 594: name = "fz_c_gem_shot"_s; right = (t < 2) || (t >= 40 && t < 120); left = (t >= 120 && t < 150); fire = (t >= 10 && t < 13); break;
+			case 592:
+				name = "fz_c_ammo_shot"_s;
+				right = (t < 2) || (t >= 40 && t < 120);
+				left = (t >= 120 && t < 150);
+				fire = (t >= 10 && t < 13);
+				break;
+			case 593:
+				name = "fz_c_carrot_shot"_s;
+				right = (t < 2) || (t >= 40 && t < 120);
+				left = (t >= 120 && t < 150);
+				fire = (t >= 10 && t < 13);
+				break;
+			case 594:
+				name = "fz_c_gem_shot"_s;
+				right = (t < 2) || (t >= 40 && t < 120);
+				left = (t >= 120 && t < 150);
+				fire = (t >= 10 && t < 13);
+				break;
 			// Fire while frozen, with the Blaster: tapped while sliding, held since before the freeze, tapped standing -
 			// does it break the ice, and does a shot come out (`objy` counts the player's live shots)
-			case 595: name = "fz_p_fire_tap"_s; right = true; run = true; fire = (t >= 80 && t < 83); break;
-			case 596: name = "fz_p_fire_hold"_s; right = true; run = true; fire = (t >= 50 && t < 120); break;
-			case 597: name = "fz_p_fire_stand"_s; fire = (t >= 40 && t < 43); break;
+			case 595:
+				name = "fz_p_fire_tap"_s;
+				right = true;
+				run = true;
+				fire = (t >= 80 && t < 83);
+				break;
+			case 596:
+				name = "fz_p_fire_hold"_s;
+				right = true;
+				run = true;
+				fire = (t >= 50 && t < 120);
+				break;
+			case 597:
+				name = "fz_p_fire_stand"_s;
+				fire = (t >= 40 && t < 43);
+				break;
 			// Each tick Fire is down shortens the freeze, but not if it's been held since before it - so Jump tapped,
 			// Fire mashed, held for 20 ticks, and held from before the freeze, let go and pressed again
-			case 598: name = "fz_p_jump_tap"_s; jump = (t >= 40 && t < 43); break;
-			case 599: name = "fz_p_fire_mash"_s; fire = (t >= 40 && t < 60 && ((t - 40) % 4) < 2); break;
-			case 600: name = "fz_p_fire_long"_s; fire = (t >= 40 && t < 60); break;
-			case 601: name = "fz_p_fire_rehold"_s; fire = (t >= 10 && t < 40) || (t >= 50 && t < 53); break;
+			case 598:
+				name = "fz_p_jump_tap"_s;
+				jump = (t >= 40 && t < 43);
+				break;
+			case 599:
+				name = "fz_p_fire_mash"_s;
+				fire = (t >= 40 && t < 60 && ((t - 40) % 4) < 2);
+				break;
+			case 600:
+				name = "fz_p_fire_long"_s;
+				fire = (t >= 40 && t < 60);
+				break;
+			case 601:
+				name = "fz_p_fire_rehold"_s;
+				fire = (t >= 10 && t < 40) || (t >= 50 && t < 53);
+				break;
 			// Running into a turtle (50 health, frozen from tick 10 on), placed 42 tiles east like the crates, walking
 			// from 3 tiles and dashing from 3, 5, 7, 9, 12, 4 and 4.5 - the original breaks it only above 12 px/tick
-			case 602: name = "fz_r_walk03"_s; right = true; break;
-			case 603: name = "fz_r_run03"_s; right = true; run = true; break;
-			case 604: name = "fz_r_run05"_s; right = true; run = true; break;
-			case 605: name = "fz_r_run07"_s; right = true; run = true; break;
-			case 606: name = "fz_r_run09"_s; right = true; run = true; break;
-			case 607: name = "fz_r_run12"_s; right = true; run = true; break;
-			case 608: name = "fz_r_run04"_s; right = true; run = true; break;
-			case 609: name = "fz_r_run045"_s; right = true; run = true; break;
+			case 602:
+				name = "fz_r_walk03"_s;
+				right = true;
+				break;
+			case 603:
+				name = "fz_r_run03"_s;
+				right = true;
+				run = true;
+				break;
+			case 604:
+				name = "fz_r_run05"_s;
+				right = true;
+				run = true;
+				break;
+			case 605:
+				name = "fz_r_run07"_s;
+				right = true;
+				run = true;
+				break;
+			case 606:
+				name = "fz_r_run09"_s;
+				right = true;
+				run = true;
+				break;
+			case 607:
+				name = "fz_r_run12"_s;
+				right = true;
+				run = true;
+				break;
+			case 608:
+				name = "fz_r_run04"_s;
+				right = true;
+				run = true;
+				break;
+			case 609:
+				name = "fz_r_run045"_s;
+				right = true;
+				run = true;
+				break;
 			case 610:
 				if (!_levelHandler->GetLevelName().contains("castle1n"_s)) {
 					return false;
@@ -1789,7 +3895,8 @@ namespace Jazz2::Tests
 				name = "dm_chain"_s;
 				break;
 
-			default: return false;
+			default:
+				return false;
 		}
 
 		// Name-only: everything above is pure, so the name can be had without writing any input or logging a
@@ -1837,44 +3944,43 @@ namespace Jazz2::Tests
 			name = "free"_s;
 		} else {
 
-		auto setAction = [&input](PlayerAction action, bool value) {
-			std::uint64_t bit = (1ull << (std::int32_t)action);
-			if (value) {
-				input.PressedActions |= bit;
-			} else {
-				input.PressedActions &= ~bit;
+			auto setAction = [&input](PlayerAction action, bool value) {
+				std::uint64_t bit = (1ull << (std::int32_t)action);
+				if (value) {
+					input.PressedActions |= bit;
+				} else {
+					input.PressedActions &= ~bit;
+				}
+			};
+			setAction(PlayerAction::Left, left);
+			setAction(PlayerAction::Right, right);
+			setAction(PlayerAction::Run, run);
+			setAction(PlayerAction::Jump, jump);
+			// Crouching and buttstomping are separate bindings here, and HandleLookupAndCrouch() picks between
+			// them on whether the player is grounded - so driving only Down means an airborne stomp never fires.
+			// The original has a single key for both, so the probe presses both.
+			setAction(PlayerAction::Down, down);
+			setAction(PlayerAction::Buttstomp, down);
+			setAction(PlayerAction::Up, up);
+			setAction(PlayerAction::Fire, fire);
+			// Everything the scenarios do *not* drive is cleared rather than left alone, because a sweep runs for
+			// an hour on a machine somebody is still using and a stray keypress reaches the player through any
+			// action the probe does not overwrite. The weapon ones are the dangerous half: `ChangeWeapon` and the
+			// ten `SwitchTo*` bindings silently re-select the weapon, and the `wb_rf_*`, `wb_sk_t*` and `wb_tnt_t*`
+			// families all stock and select one in SetupCharacter() and assume it is still selected when they
+			// fire. That would read as a knockback constant being wrong, with nothing in the trace to say why.
+			//
+			// `Menu` and `Console` are deliberately left alone: they open UI rather than moving the player, so
+			// they cannot corrupt a measurement, and taking them away would stop whoever is at the keyboard
+			// getting out of the game.
+			setAction(PlayerAction::ChangeWeapon, false);
+			for (std::int32_t i = (std::int32_t)PlayerAction::SwitchToBlaster; i < (std::int32_t)PlayerAction::Count; i++) {
+				setAction((PlayerAction)i, false);
 			}
-		};
-		setAction(PlayerAction::Left, left);
-		setAction(PlayerAction::Right, right);
-		setAction(PlayerAction::Run, run);
-		setAction(PlayerAction::Jump, jump);
-		// Crouching and buttstomping are separate bindings here, and HandleLookupAndCrouch() picks between
-		// them on whether the player is grounded - so driving only Down means an airborne stomp never fires.
-		// The original has a single key for both, so the probe presses both.
-		setAction(PlayerAction::Down, down);
-		setAction(PlayerAction::Buttstomp, down);
-		setAction(PlayerAction::Up, up);
-		setAction(PlayerAction::Fire, fire);
-		// Everything the scenarios do *not* drive is cleared rather than left alone, because a sweep runs for
-		// an hour on a machine somebody is still using and a stray keypress reaches the player through any
-		// action the probe does not overwrite. The weapon ones are the dangerous half: `ChangeWeapon` and the
-		// ten `SwitchTo*` bindings silently re-select the weapon, and the `wb_rf_*`, `wb_sk_t*` and `wb_tnt_t*`
-		// families all stock and select one in SetupCharacter() and assume it is still selected when they
-		// fire. That would read as a knockback constant being wrong, with nothing in the trace to say why.
-		//
-		// `Menu` and `Console` are deliberately left alone: they open UI rather than moving the player, so
-		// they cannot corrupt a measurement, and taking them away would stop whoever is at the keyboard
-		// getting out of the game.
-		setAction(PlayerAction::ChangeWeapon, false);
-		for (std::int32_t i = (std::int32_t)PlayerAction::SwitchToBlaster; i < (std::int32_t)PlayerAction::Count; i++) {
-			setAction((PlayerAction)i, false);
-		}
-		// The directions are also read as an axis, which is what the movement code actually uses, so both
-		// representations have to be kept in step
-		input.RequiredMovement.X = (right ? 1.0f : (left ? -1.0f : 0.0f));
-		input.RequiredMovement.Y = (down ? 1.0f : (up ? -1.0f : 0.0f));
-
+			// The directions are also read as an axis, which is what the movement code actually uses, so both
+			// representations have to be kept in step
+			input.RequiredMovement.X = (right ? 1.0f : (left ? -1.0f : 0.0f));
+			input.RequiredMovement.Y = (down ? 1.0f : (up ? -1.0f : 0.0f));
 		}
 
 		// `_elapsedFrames` accumulates timeMult, which is real-time derived, so this is genuine elapsed
@@ -1898,133 +4004,128 @@ namespace Jazz2::Tests
 			objX = (float)(std::uint32_t)player->_currentAnimation->State;
 			objY = (float)(player->_currentTransition != nullptr ? (std::uint32_t)player->_currentTransition->State : 0u);
 		} else
-		// The RF scenarios have no pushable, so the two object columns carry the remaining ammo and the
-		// current weapon instead - without which a trace that shows no blast cannot be told from one where
-		// the shot was never fired in the first place.
-		//
-		// The tail of this is open-ended, which is why the four `sp_*_side_rock` scenarios have to be carved
-		// back out: they are the ones whose whole question is what the kick does to the object, and an
-		// open-ended range silently answered it with an ammo count. The original's equivalent ranges are all
-		// bounded, so that side was logging the rock and this one was not - the two columns did not even
-		// mean the same thing, and nothing in a diff of them would have said so.
-		if ((scenario >= 395 && scenario <= 400) || (scenario >= 403 && scenario <= 405) || scenario == 412) {
-			// The monitor's own position. "Does the morph box float" is a question about the *object*, and no
-			// column about the player can answer it - the player walks the same way past a box resting on the
-			// floor and one hanging a tile above it.
+			// The RF scenarios have no pushable, so the two object columns carry the remaining ammo and the
+			// current weapon instead - without which a trace that shows no blast cannot be told from one where
+			// the shot was never fired in the first place.
 			//
-			// The **nearest** one to the player, not the first found. There are three in this section and
-			// taking whichever came first in the actor list reported a different object on each side, and a
-			// different one from tick to tick as the list changed: `pu_stomp` read as a monitor travelling
-			// 704 px, which was the selection moving and not the object. Nearest is unambiguous and is what
-			// the scenario is interacting with by construction.
-			// And of the *right kind*. Nearest-of-either still mixed the two up, because the section holds
-			// three monitors of two types within a few tiles of each other and which one is nearest changes
-			// as the player crosses the section. A `mb_*` scenario asks about the morph box and nothing else.
-			bool wantMorph = (scenario == 397 || scenario == 400);   // the mb_* pair; every pu_* one wants a weapon monitor
-			float bestDistance = std::numeric_limits<float>::max();
-			for (auto& actor : _levelHandler->_actors) {
-				Vector2f monitorPos;
-				if (auto* monitor = runtime_cast<Actors::Solid::PowerUpMorphMonitor>(actor.get())) {
-					if (!wantMorph && scenario != 395) {
+			// The tail of this is open-ended, which is why the four `sp_*_side_rock` scenarios have to be carved
+			// back out: they are the ones whose whole question is what the kick does to the object, and an
+			// open-ended range silently answered it with an ammo count. The original's equivalent ranges are all
+			// bounded, so that side was logging the rock and this one was not - the two columns did not even
+			// mean the same thing, and nothing in a diff of them would have said so.
+			if ((scenario >= 395 && scenario <= 400) || (scenario >= 403 && scenario <= 405) || scenario == 412) {
+				// The monitor's own position. "Does the morph box float" is a question about the *object*, and no
+				// column about the player can answer it - the player walks the same way past a box resting on the
+				// floor and one hanging a tile above it.
+				//
+				// The **nearest** one to the player, not the first found. There are three in this section and
+				// taking whichever came first in the actor list reported a different object on each side, and a
+				// different one from tick to tick as the list changed: `pu_stomp` read as a monitor travelling
+				// 704 px, which was the selection moving and not the object. Nearest is unambiguous and is what
+				// the scenario is interacting with by construction.
+				// And of the *right kind*. Nearest-of-either still mixed the two up, because the section holds
+				// three monitors of two types within a few tiles of each other and which one is nearest changes
+				// as the player crosses the section. A `mb_*` scenario asks about the morph box and nothing else.
+				bool wantMorph = (scenario == 397 || scenario == 400); // the mb_* pair; every pu_* one wants a weapon monitor
+				float bestDistance = std::numeric_limits<float>::max();
+				for (auto& actor : _levelHandler->_actors) {
+					Vector2f monitorPos;
+					if (auto* monitor = runtime_cast<Actors::Solid::PowerUpMorphMonitor>(actor.get())) {
+						if (!wantMorph && scenario != 395) {
+							continue;
+						}
+						monitorPos = monitor->GetPos();
+					} else if (auto* monitor = runtime_cast<Actors::Solid::PowerUpWeaponMonitor>(actor.get())) {
+						if (wantMorph) {
+							continue;
+						}
+						monitorPos = monitor->GetPos();
+					} else {
 						continue;
 					}
-					monitorPos = monitor->GetPos();
-				} else if (auto* monitor = runtime_cast<Actors::Solid::PowerUpWeaponMonitor>(actor.get())) {
-					if (wantMorph) {
-						continue;
+					float distance = (monitorPos - player->_pos).SqrLength();
+					if (distance < bestDistance) {
+						bestDistance = distance;
+						objX = monitorPos.X;
+						objY = monitorPos.Y;
 					}
-					monitorPos = monitor->GetPos();
-				} else {
-					continue;
 				}
-				float distance = (monitorPos - player->_pos).SqrLength();
-				if (distance < bestDistance) {
-					bestDistance = distance;
-					objX = monitorPos.X;
-					objY = monitorPos.Y;
-				}
-			}
-		} else
-		if (scenario == 496 || scenario == 515) {
-			// The turtle a beak attack or a pair of shots is aimed at: where it is and how much health it has left, or
-			// -2 once it is gone, the same as the original's probe logs
-			objX = objY = -2.0f;
-			for (auto& actor : _levelHandler->_actors) {
-				if (auto* turtle = runtime_cast<Actors::Enemies::TurtleTube>(actor.get())) {
-					objX = turtle->GetPos().X;
-					objY = (float)turtle->GetHealth();
-					break;
-				}
-			}
-		} else
-		if (IsFreezeScenario(scenario)) {
-			// The freeze set: the object it is about, -2 while there is none, or the player's own freeze counter
-			// in ticks for the ones only about the player, the same as the original's probe logs. The rest is in
-			// the `[probe-fz]` line. Ahead of the open-ended weapon branch below, which would claim it.
-			std::int32_t k = scenario - FreezeFirst;
-			if ((k >= 13 && k <= 46) || k >= 54) {
+			} else if (scenario == 496 || scenario == 515) {
+				// The turtle a beak attack or a pair of shots is aimed at: where it is and how much health it has left, or
+				// -2 once it is gone, the same as the original's probe logs
 				objX = objY = -2.0f;
-				if (auto* subject = GetFreezeSubject(scenario)) {
-					objX = subject->_pos.X;
-					objY = (k >= 54 ? (float)subject->GetHealth() : subject->_pos.Y);
+				for (auto& actor : _levelHandler->_actors) {
+					if (auto* turtle = runtime_cast<Actors::Enemies::TurtleTube>(actor.get())) {
+						objX = turtle->GetPos().X;
+						objY = (float)turtle->GetHealth();
+						break;
+					}
 				}
-			} else {
-				objX = std::ceil(player->_frozenTimeLeft * (OriginalTickRate / FrameTimer::FramesPerSecond));
-				objY = -1.0f;
-				if (k >= 47) {
-					objY = 0.0f;
-					for (auto& actor : _levelHandler->_actors) {
-						auto* shot = runtime_cast<Actors::Weapons::ShotBase>(actor.get());
-						if (shot != nullptr && shot->GetOwner() == player && !shot->GetState(Actors::ActorState::IsDestroyed)) {
-							objY += 1.0f;
+			} else if (IsFreezeScenario(scenario)) {
+				// The freeze set: the object it is about, -2 while there is none, or the player's own freeze counter
+				// in ticks for the ones only about the player, the same as the original's probe logs. The rest is in
+				// the `[probe-fz]` line. Ahead of the open-ended weapon branch below, which would claim it.
+				std::int32_t k = scenario - FreezeFirst;
+				if ((k >= 13 && k <= 46) || k >= 54) {
+					objX = objY = -2.0f;
+					if (auto* subject = GetFreezeSubject(scenario)) {
+						objX = subject->_pos.X;
+						objY = (k >= 54 ? (float)subject->GetHealth() : subject->_pos.Y);
+					}
+				} else {
+					objX = std::ceil(player->_frozenTimeLeft * (OriginalTickRate / FrameTimer::FramesPerSecond));
+					objY = -1.0f;
+					if (k >= 47) {
+						objY = 0.0f;
+						for (auto& actor : _levelHandler->_actors) {
+							auto* shot = runtime_cast<Actors::Weapons::ShotBase>(actor.get());
+							if (shot != nullptr && shot->GetOwner() == player && !shot->GetState(Actors::ActorState::IsDestroyed)) {
+								objY += 1.0f;
+							}
 						}
 					}
 				}
-			}
-		} else
-		if (scenario >= 474 && scenario <= 547) {
-			// The bird set: the character, which is the proof the morph took - a trace of a rabbit walking right would
-			// otherwise read as a bird that flies at the walk cap - and the ammo, the only thing that says whether Fire
-			// shot anything. Ahead of the open-ended weapon branch below, which would claim it.
-			objX = (float)(std::int32_t)player->GetPlayerType();
-			objY = (float)player->GetWeaponAmmo()[(std::int32_t)player->_currentWeapon];
-		} else
-		if (scenario >= 438 && scenario <= 445) {
-			// The copter set, in the same two columns the original's probe uses for it: the on-copter
-			// decision itself, and the nearest copter's own y as the evidence for it. `mod` says the same
-			// thing on this side, but the original has no such column - nothing on its player says whether
-			// one is being hung from at all - so this is the pair that can actually be compared.
-			Actors::Player::Modifier m = player->GetModifier();
-			objX = (m == Actors::Player::Modifier::Copter || m == Actors::Player::Modifier::LizardCopter ? 1.0f : 0.0f);
-			objY = -1.0f;
-			float bestDistance = std::numeric_limits<float>::max();
-			for (auto& actor : _levelHandler->_actors) {
-				if (auto* copter = runtime_cast<Actors::Environment::Copter>(actor.get())) {
-					float distance = (copter->GetPos() - player->_pos).SqrLength();
-					if (distance < bestDistance) {
-						bestDistance = distance;
-						objY = copter->GetPos().Y;
+			} else if (scenario >= 474 && scenario <= 547) {
+				// The bird set: the character, which is the proof the morph took - a trace of a rabbit walking right would
+				// otherwise read as a bird that flies at the walk cap - and the ammo, the only thing that says whether Fire
+				// shot anything. Ahead of the open-ended weapon branch below, which would claim it.
+				objX = (float)(std::int32_t)player->GetPlayerType();
+				objY = (float)player->GetWeaponAmmo()[(std::int32_t)player->_currentWeapon];
+			} else if (scenario >= 438 && scenario <= 445) {
+				// The copter set, in the same two columns the original's probe uses for it: the on-copter
+				// decision itself, and the nearest copter's own y as the evidence for it. `mod` says the same
+				// thing on this side, but the original has no such column - nothing on its player says whether
+				// one is being hung from at all - so this is the pair that can actually be compared.
+				Actors::Player::Modifier m = player->GetModifier();
+				objX = (m == Actors::Player::Modifier::Copter || m == Actors::Player::Modifier::LizardCopter ? 1.0f : 0.0f);
+				objY = -1.0f;
+				float bestDistance = std::numeric_limits<float>::max();
+				for (auto& actor : _levelHandler->_actors) {
+					if (auto* copter = runtime_cast<Actors::Environment::Copter>(actor.get())) {
+						float distance = (copter->GetPos() - player->_pos).SqrLength();
+						if (distance < bestDistance) {
+							bestDistance = distance;
+							objY = copter->GetPos().Y;
+						}
+					}
+				}
+			} else if (((scenario >= 94 && scenario <= 97) || (scenario >= 103 && scenario <= 107) || (scenario >= 129 && scenario <= 139) || scenario >= 142) &&
+				!(scenario >= 383 && scenario <= 386)) {
+				// Whichever weapon the scenario selected, so a trace that shows no knockback can be told apart
+				// from one where the shot was never fired - the difference between a measurement and nothing
+				objX = (float)player->GetWeaponAmmo()[(std::int32_t)player->_currentWeapon];
+				objY = (float)(std::int32_t)player->_currentWeapon;
+			} else if (scenario == 140 || scenario == 141) {
+				// The enemy's own live position, so a stomp that hit nothing is distinguishable from an enemy
+				// that was never there - and so it is visible whether the stomp killed it
+				for (auto& actor : _levelHandler->_actors) {
+					if (auto* turtle = runtime_cast<Actors::Enemies::TurtleTube>(actor.get())) {
+						objX = turtle->GetPos().X;
+						objY = turtle->GetPos().Y;
+						break;
 					}
 				}
 			}
-		} else
-		if (((scenario >= 94 && scenario <= 97) || (scenario >= 103 && scenario <= 107) || (scenario >= 129 && scenario <= 139) || scenario >= 142) &&
-			!(scenario >= 383 && scenario <= 386)) {
-			// Whichever weapon the scenario selected, so a trace that shows no knockback can be told apart
-			// from one where the shot was never fired - the difference between a measurement and nothing
-			objX = (float)player->GetWeaponAmmo()[(std::int32_t)player->_currentWeapon];
-			objY = (float)(std::int32_t)player->_currentWeapon;
-		} else if (scenario == 140 || scenario == 141) {
-			// The enemy's own live position, so a stomp that hit nothing is distinguishable from an enemy
-			// that was never there - and so it is visible whether the stomp killed it
-			for (auto& actor : _levelHandler->_actors) {
-				if (auto* turtle = runtime_cast<Actors::Enemies::TurtleTube>(actor.get())) {
-					objX = turtle->GetPos().X;
-					objY = turtle->GetPos().Y;
-					break;
-				}
-			}
-		}
 		if (objX < 0.0f && !IsFreezeScenario(scenario)) {
 			for (auto& actor : _levelHandler->_actors) {
 				if (auto* box = runtime_cast<Actors::Solid::PushableBox>(actor.get())) {
@@ -2058,7 +4159,8 @@ namespace Jazz2::Tests
 		std::uint32_t animState = (std::uint32_t)player->_currentAnimation->State;
 		std::int32_t animFrame = player->_renderer.CurrentFrame - player->_renderer.FirstFrame;
 		std::uint32_t transitionState = (player->_currentTransition != nullptr
-			? (std::uint32_t)player->_currentTransition->State : 0u);
+				? (std::uint32_t)player->_currentTransition->State
+				: 0u);
 		// The suspend state itself, because the suspended *animation* outliving the suspend *state* is one of
 		// the reported bugs - so reading `anim` as "is on a vine" is exactly the mistake that state is there to
 		// stop. Without this column a vine trace cannot distinguish hanging from having just let go.
@@ -2210,9 +4312,13 @@ namespace Jazz2::Tests
 			// player onto it. Set ScanFloorRow to 15 to have the probe print the whole layout.
 			constexpr float BayCentres[] = { 1408.0f, 1472.0f, 1536.0f, 1600.0f, 1664.0f };
 			float x;
-			if (s <= 148) { x = BayCentres[s - 144]; }
-			else if (s <= 153) { x = BayCentres[s - 149]; }
-			else { x = 53 * 32.0f + 16.0f; }	// east end of the floor, just clear of the highest bay
+			if (s <= 148) {
+				x = BayCentres[s - 144];
+			} else if (s <= 153) {
+				x = BayCentres[s - 149];
+			} else {
+				x = 53 * 32.0f + 16.0f;
+			} // east end of the floor, just clear of the highest bay
 			player->MoveInstantly(Vector2f(x, 15 * 32.0f), Actors::MoveType::Absolute | Actors::MoveType::Force);
 		} else if (s == 142 || s == 143) {
 			// Partway onto the same two slopes, standing still, so the blast is taken on the incline itself
@@ -2266,9 +4372,16 @@ namespace Jazz2::Tests
 			constexpr float TileGaps[] = { 32.0f, 64.0f, 96.0f, 128.0f, 160.0f, 192.0f };
 			WeaponType weapon;
 			std::int32_t step;
-			if (s <= 134) { weapon = WeaponType::RF; step = s - 129; }
-			else if (s <= 137) { weapon = WeaponType::Seeker; step = s - 135; }
-			else { weapon = WeaponType::TNT; step = s - 138; }
+			if (s <= 134) {
+				weapon = WeaponType::RF;
+				step = s - 129;
+			} else if (s <= 137) {
+				weapon = WeaponType::Seeker;
+				step = s - 135;
+			} else {
+				weapon = WeaponType::TNT;
+				step = s - 138;
+			}
 			player->MoveInstantly(Vector2f(WallFace - TileGaps[step], 26 * 32), Actors::MoveType::Absolute | Actors::MoveType::Force);
 			player->AddAmmo(weapon, 50);
 			player->SetCurrentWeapon(weapon, Actors::Player::SetCurrentWeaponReason::User);
@@ -2363,14 +4476,36 @@ namespace Jazz2::Tests
 		EventType enemy = EventType::Empty;
 		std::int32_t dx = 15, dy = 0;
 		switch (k) {
-			case 13: case 20: case 21: enemy = EventType::EnemyTurtle; break;
-			case 14: enemy = EventType::EnemyLizard; break;
-			case 15: enemy = EventType::EnemyLabRat; break;
-			case 16: enemy = EventType::EnemyDoggy; break;
-			case 17: enemy = EventType::EnemyBee; dy = -3; break;
-			case 18: enemy = EventType::EnemySuckerFloat; dy = -3; break;
-			case 19: enemy = EventType::EnemyDragonfly; dy = -3; break;
-			case 27: enemy = EventType::EnemyTurtle; dx = 4; break;
+			case 13:
+			case 20:
+			case 21:
+				enemy = EventType::EnemyTurtle;
+				break;
+			case 14:
+				enemy = EventType::EnemyLizard;
+				break;
+			case 15:
+				enemy = EventType::EnemyLabRat;
+				break;
+			case 16:
+				enemy = EventType::EnemyDoggy;
+				break;
+			case 17:
+				enemy = EventType::EnemyBee;
+				dy = -3;
+				break;
+			case 18:
+				enemy = EventType::EnemySuckerFloat;
+				dy = -3;
+				break;
+			case 19:
+				enemy = EventType::EnemyDragonfly;
+				dy = -3;
+				break;
+			case 27:
+				enemy = EventType::EnemyTurtle;
+				dx = 4;
+				break;
 		}
 		if (enemy != EventType::Empty) {
 			// 16 px into the tile, where this engine puts a level's own objects (the original 15)
@@ -2512,11 +4647,14 @@ namespace Jazz2::Tests
 		// accelerating belt left, accelerating belt right, wind left, wind right - see EventConverter.cpp,
 		// which folds four JJ2 events onto this one type.
 		auto placeAreaHForce = [&](std::int32_t x, std::int32_t y, std::uint8_t beltL, std::uint8_t beltR,
-			std::uint8_t accL, std::uint8_t accR, std::uint8_t windL, std::uint8_t windR) {
+								   std::uint8_t accL, std::uint8_t accR, std::uint8_t windL, std::uint8_t windR) {
 			std::uint8_t params[Events::EventSpawner::SpawnParamsSize] {};
-			params[0] = beltL; params[1] = beltR;
-			params[2] = accL; params[3] = accR;
-			params[4] = windL; params[5] = windR;
+			params[0] = beltL;
+			params[1] = beltR;
+			params[2] = accL;
+			params[3] = accR;
+			params[4] = windL;
+			params[5] = windR;
 			_levelHandler->_eventMap->StoreTileEvent(x, y, EventType::AreaHForce, Actors::ActorState::None, params);
 			_tileEvents.push_back(Vector2i(x, y));
 		};
@@ -2525,7 +4663,9 @@ namespace Jazz2::Tests
 		// not simply walk out of the field being measured.
 		auto fillWind = [&](std::uint8_t windL, std::uint8_t windR) {
 			for (std::int32_t dx = -2; dx <= 2; dx++) {
-				for (std::int32_t dy = -1; dy <= 0; dy++) { placeAreaHForce(tx + dx, ty + dy, 0, 0, 0, 0, windL, windR); }
+				for (std::int32_t dy = -1; dy <= 0; dy++) {
+					placeAreaHForce(tx + dx, ty + dy, 0, 0, 0, 0, windL, windR);
+				}
 			}
 		};
 		// The span has to match FillFloor() in the original's probe exactly. It did not at first - 24 tiles
@@ -2533,7 +4673,9 @@ namespace Jazz2::Tests
 		// travel against 1296, because the two players were riding fields of different lengths. The rate is
 		// the physics; the total is the rate times however much belt there is.
 		auto fillFloor = [&](std::uint8_t beltL, std::uint8_t beltR, std::uint8_t accL, std::uint8_t accR) {
-			for (std::int32_t dx = -6; dx <= 40; dx++) { placeAreaHForce(tx + dx, ty + 1, beltL, beltR, accL, accR, 0, 0); }
+			for (std::int32_t dx = -6; dx <= 40; dx++) {
+				placeAreaHForce(tx + dx, ty + 1, beltL, beltR, accL, accR, 0, 0);
+			}
 		};
 
 		// A sucker tube. The native parameter order is not the JJ2 one - the converter moves Wait Time from
@@ -2554,7 +4696,7 @@ namespace Jazz2::Tests
 		// has time to activate the event and spawn it. See PlaceSpring() in `_pt.j2as`.
 		auto spawnSpringP = [&](std::uint8_t orientation, std::uint8_t flags, std::uint8_t delay, float dx, float dy) {
 			std::uint8_t params[Events::EventSpawner::SpawnParamsSize] {};
-			params[0] = 2;	// Blue, the strongest, so the launch is furthest above the noise
+			params[0] = 2; // Blue, the strongest, so the launch is furthest above the noise
 			params[1] = orientation;
 			params[2] = flags;
 			params[3] = delay;
@@ -2590,9 +4732,15 @@ namespace Jazz2::Tests
 		};
 
 		switch (s) {
-			case 45: spawnSpring(0, false); break;
-			case 46: spawnSpring(1, false); break;
-			case 47: spawnSpring(2, false); break;
+			case 45:
+				spawnSpring(0, false);
+				break;
+			case 46:
+				spawnSpring(1, false);
+				break;
+			case 47:
+				spawnSpring(2, false);
+				break;
 			// The flying carrot, put where the player is reset to rather than left to the level's own copy -
 			// see SetupCharacter(). Spawned here so the settle can activate it and collect it.
 			case 343: {
@@ -2608,33 +4756,81 @@ namespace Jazz2::Tests
 			// missing here, so this spawned a plain green spring and the scenario measured `ob_spring_green`
 			// twice under two names: 452 px of rise against the original's nothing, which read as the
 			// biggest discrepancy in the whole harness and was entirely the probe's own fault.
-			case 48: spawnSpring(1, false, true); break;
-			case 49: spawnSpring(0, true); break;
-			case 50: case 420: case 422: spawnSpring(1, true); break;
-			case 51: spawnSpring(2, true); break;
-			case 52: placeTileEvent(tx, ty - 3, EventType::ModifierVPole); break;
+			case 48:
+				spawnSpring(1, false, true);
+				break;
+			case 49:
+				spawnSpring(0, true);
+				break;
+			case 50:
+			case 420:
+			case 422:
+				spawnSpring(1, true);
+				break;
+			case 51:
+				spawnSpring(2, true);
+				break;
+			case 52:
+				placeTileEvent(tx, ty - 3, EventType::ModifierVPole);
+				break;
 			// The three combination scenarios each need the same prop its single-mechanic twin does, placed
 			// exactly the same way - the point of them is the *second* input, so anything else about the
 			// setup that differed would land in the measurement instead
-			case 392: spawnSpring(0, true); break;
+			case 392:
+				spawnSpring(0, true);
+				break;
 			// Green rather than red: a different launch speed is the whole point - see ApplyInput()
-			case 401: spawnSpring(1, true); break;
-			case 402: spawnSpring(2, true); break;
+			case 401:
+				spawnSpring(1, true);
+				break;
+			case 402:
+				spawnSpring(2, true);
+				break;
 			// 393 needs no prop: it is placed under the level's own low vine instead - see SetupCharacter()
-			case 394: placeTileEvent(tx, ty - 3, EventType::ModifierVPole); break;
-			case 53: case 419: case 421: placeTileEvent(tx + 4, ty, EventType::ModifierHPole); break;
+			case 394:
+				placeTileEvent(tx, ty - 3, EventType::ModifierVPole);
+				break;
+			case 53:
+			case 419:
+			case 421:
+				placeTileEvent(tx + 4, ty, EventType::ModifierHPole);
+				break;
 			// 67 and 68 need no vine placed: they are put under the level's own low one instead, which is the
 			// only approach any vine scenario here has ever grabbed with - see the cases in ApplyInput()
 			// Poles chained five tiles apart, matching the original probe's spacing exactly
-			case 108: for (std::int32_t k = 0; k < 2; k++) { placeTileEvent(tx, ty - 3 - k * 5, EventType::ModifierVPole); } break;
-			case 109: for (std::int32_t k = 0; k < 3; k++) { placeTileEvent(tx, ty - 3 - k * 5, EventType::ModifierVPole); } break;
-			case 110: for (std::int32_t k = 0; k < 5; k++) { placeTileEvent(tx, ty - 3 - k * 5, EventType::ModifierVPole); } break;
-			case 111: for (std::int32_t k = 0; k < 3; k++) { placeTileEvent(tx + 4 + k * 5, ty, EventType::ModifierHPole); } break;
+			case 108:
+				for (std::int32_t k = 0; k < 2; k++) {
+					placeTileEvent(tx, ty - 3 - k * 5, EventType::ModifierVPole);
+				}
+				break;
+			case 109:
+				for (std::int32_t k = 0; k < 3; k++) {
+					placeTileEvent(tx, ty - 3 - k * 5, EventType::ModifierVPole);
+				}
+				break;
+			case 110:
+				for (std::int32_t k = 0; k < 5; k++) {
+					placeTileEvent(tx, ty - 3 - k * 5, EventType::ModifierVPole);
+				}
+				break;
+			case 111:
+				for (std::int32_t k = 0; k < 3; k++) {
+					placeTileEvent(tx + 4 + k * 5, ty, EventType::ModifierHPole);
+				}
+				break;
 			// Entering a pole off a spring rather than off a jump or a run, which is what carries the most
 			// entry speed into it - a blue spring assigns 32
-			case 112: spawnSpring(2, false); placeTileEvent(tx, ty - 6, EventType::ModifierVPole); break;
-			case 113: spawnSpring(2, true); placeTileEvent(tx + 8, ty, EventType::ModifierHPole); break;
-			case 114: placeTileEvent(tx + 4, ty, EventType::ModifierHPole); break;
+			case 112:
+				spawnSpring(2, false);
+				placeTileEvent(tx, ty - 6, EventType::ModifierVPole);
+				break;
+			case 113:
+				spawnSpring(2, true);
+				placeTileEvent(tx + 8, ty, EventType::ModifierHPole);
+				break;
+			case 114:
+				placeTileEvent(tx + 4, ty, EventType::ModifierHPole);
+				break;
 			// Two adjacent poles, side by side and stacked, for each type
 			case 162:
 				placeTileEvent(tx, ty - 3, EventType::ModifierVPole);
@@ -2655,15 +4851,21 @@ namespace Jazz2::Tests
 			// Overhead, where `ob_vpole` puts its pole, so a straight-up jump reaches it with no x speed
 			case 168:
 			case 169:
-			case 170: placeTileEvent(tx, ty - 3, EventType::ModifierHPole); break;
-			case 171: placeTileEvent(tx + 2, ty, EventType::ModifierHPole); break;
+			case 170:
+				placeTileEvent(tx, ty - 3, EventType::ModifierHPole);
+				break;
+			case 171:
+				placeTileEvent(tx + 2, ty, EventType::ModifierHPole);
+				break;
 			// A solid column of float-up areas, ten tiles tall and including the player's own tile, so a
 			// grounded player is inside one and a rising player never leaves it. No gaps and no horizontal
 			// motion, which is what the level's diagonal ladder cannot offer.
 			case 179:
 			case 180:
 			case 181:
-				for (std::int32_t k = 0; k <= 9; k++) { placeTileEvent(tx, ty - k, EventType::AreaFloatUp); }
+				for (std::int32_t k = 0; k <= 9; k++) {
+					placeTileEvent(tx, ty - k, EventType::AreaFloatUp);
+				}
 				break;
 			// The same column cut to six tiles, so there is clear air above it for a move to be established in
 			// before it reaches the field. `fu_col_butt` and `fu_col_copter` are then dropped in seven tiles
@@ -2676,7 +4878,9 @@ namespace Jazz2::Tests
 			case 425:
 			case 426:
 			case 428:
-				for (std::int32_t k = 0; k <= 5; k++) { placeTileEvent(tx, ty - k, EventType::AreaFloatUp); }
+				for (std::int32_t k = 0; k <= 5; k++) {
+					placeTileEvent(tx, ty - k, EventType::AreaFloatUp);
+				}
 				if (s == 425) {
 					player->MoveInstantly(Vector2f(tx * 32.0f + 16.0f, (ty - 12) * 32.0f), Actors::MoveType::Absolute | Actors::MoveType::Force);
 					player->_speed = Vector2f::Zero;
@@ -2686,42 +4890,82 @@ namespace Jazz2::Tests
 			// assigned straight onto the level - and put well above the floor, so the player is submerged
 			// where they already stand and the scenario measures swimming rather than the plunge into it.
 			// The float-up ones get the same column `fu_col_*` uses, so the two can be read side by side.
-			case 449: case 450: case 451:
-			case 452: case 453: case 454:
-			case 455: case 456: case 457: case 458:
+			case 449:
+			case 450:
+			case 451:
+			case 452:
+			case 453:
+			case 454:
+			case 455:
+			case 456:
+			case 457:
+			case 458:
 				_levelHandler->_waterLevel = WaterLineY;
 				_waterRaised = true;
 				if ((s >= 452 && s <= 454) || s == 458) {
-					for (std::int32_t k = 0; k <= 9; k++) { placeTileEvent(tx, ty - k, EventType::AreaFloatUp); }
+					for (std::int32_t k = 0; k <= 9; k++) {
+						placeTileEvent(tx, ty - k, EventType::AreaFloatUp);
+					}
 				}
 				break;
 			// Wind, with the strengths the converter produces from a JJ2 parameter of 8. Both `_r` and `_l`
 			// come out in the *right* slot, which is the conversion under test - see ApplyInput().
-			case 182: fillWind(0, 8); break;
-			case 183: fillWind(0, 8); break;
-			case 184: fillWind(8, 0); break;
-			case 185: fillWind(0, 8); break;
-			case 186: fillWind(0, 8); break;
+			case 182:
+				fillWind(0, 8);
+				break;
+			case 183:
+				fillWind(0, 8);
+				break;
+			case 184:
+				fillWind(8, 0);
+				break;
+			case 185:
+				fillWind(0, 8);
+				break;
+			case 186:
+				fillWind(0, 8);
+				break;
 			// Belts, at the strength a parameter of 0 converts to - 2 for a plain belt and 4 for an
 			// accelerating one, which are the measured defaults. These have to track EventConverter.cpp:
 			// the original's probe places a parameterless JJ2 event and lets its own game substitute, while
 			// this side writes the *converted* parameters directly, so a stale number here would compare
 			// two different belts and look like a physics difference.
 			// Paired with bl_right / bl_acc_right, the same belts with no Run - see cases 364 and 365
-			case 187: case 364: fillFloor(0, 2, 0, 0); break;
-			case 188: fillFloor(2, 0, 0, 0); break;
-			case 189: case 365: fillFloor(0, 0, 0, 4); break;
-			case 190: fillFloor(0, 0, 4, 0); break;
-			case 191: fillFloor(0, 2, 0, 0); break;
+			case 187:
+			case 364:
+				fillFloor(0, 2, 0, 0);
+				break;
+			case 188:
+				fillFloor(2, 0, 0, 0);
+				break;
+			case 189:
+			case 365:
+				fillFloor(0, 0, 0, 4);
+				break;
+			case 190:
+				fillFloor(0, 0, 4, 0);
+				break;
+			case 191:
+				fillFloor(0, 2, 0, 0);
+				break;
 			// The slide tile, over a long enough run that the player cannot leave it while decelerating
 			case 192:
 			case 193:
-				for (std::int32_t dx = -6; dx <= 40; dx++) { placeTileEvent(tx + dx, ty + 1, EventType::ModifierSlide); }
+				for (std::int32_t dx = -6; dx <= 40; dx++) {
+					placeTileEvent(tx + dx, ty + 1, EventType::ModifierSlide);
+				}
 				break;
 			// The second strength of each, for the fit
-			case 194: fillFloor(0, 8, 0, 0); break;
-			case 195: case 371: fillFloor(0, 0, 0, 8); break;
-			case 196: fillWind(0, 4); break;
+			case 194:
+				fillFloor(0, 8, 0, 0);
+				break;
+			case 195:
+			case 371:
+				fillFloor(0, 0, 0, 8);
+				break;
+			case 196:
+				fillWind(0, 4);
+				break;
 			// Slide tiles at each of the four Strength values its 2-bit field allows
 			case 197:
 			case 215:
@@ -2737,13 +4981,28 @@ namespace Jazz2::Tests
 			}
 			// One tube on the player's own tile, so it triggers from rest with nothing held
 			// Paired with tb_right, which is the same tube with no Run - see case 363
-			case 198: case 363: placeTube(tx, ty, 8, 0, 0); break;
-			case 199: placeTube(tx, ty, -8, 0, 0); break;
-			case 200: placeTube(tx, ty, 0, -8, 0); break;
-			case 201: placeTube(tx, ty, 0, 8, 0); break;
-			case 202: placeTube(tx, ty, 6, -6, 0); break;
-			case 203: placeTube(tx, ty, 20, 0, 0); break;
-			case 204: placeTube(tx, ty, 8, 0, 3); break;
+			case 198:
+			case 363:
+				placeTube(tx, ty, 8, 0, 0);
+				break;
+			case 199:
+				placeTube(tx, ty, -8, 0, 0);
+				break;
+			case 200:
+				placeTube(tx, ty, 0, -8, 0);
+				break;
+			case 201:
+				placeTube(tx, ty, 0, 8, 0);
+				break;
+			case 202:
+				placeTube(tx, ty, 6, -6, 0);
+				break;
+			case 203:
+				placeTube(tx, ty, 20, 0, 0);
+				break;
+			case 204:
+				placeTube(tx, ty, 8, 0, 3);
+				break;
 			// Nine tubes in a row with 1..5 empty tiles between them, all pulling right
 			case 205:
 			case 206:
@@ -2751,7 +5010,9 @@ namespace Jazz2::Tests
 			case 208:
 			case 209: {
 				std::int32_t spacing = (s - 205) + 2;
-				for (std::int32_t k = 0; k < 9; k++) { placeTube(tx + k * spacing, ty, 8, 0, 0); }
+				for (std::int32_t k = 0; k < 9; k++) {
+					placeTube(tx + k * spacing, ty, 8, 0, 0);
+				}
 				break;
 			}
 			// The spring parameters. `orientation` 2 is a vertical spring firing *down*, 5 a horizontal one
@@ -2794,8 +5055,16 @@ namespace Jazz2::Tests
 			// tile cannot tell the two apart - the player leaves it in four ticks either way. A *row* of them
 			// can: on a timer the hold still lapses after ~19 ticks, and if it is the tile the player is
 			// carried the whole length. The column does the same for the vertical case, which let go after 3.
-			case 217: for (std::int32_t k = 0; k < 30; k++) { placeTube(tx + k, ty, 8, 0, 0); } break;
-			case 218: for (std::int32_t k = 0; k < 30; k++) { placeTube(tx, ty - k, 0, -8, 0); } break;
+			case 217:
+				for (std::int32_t k = 0; k < 30; k++) {
+					placeTube(tx + k, ty, 8, 0, 0);
+				}
+				break;
+			case 218:
+				for (std::int32_t k = 0; k < 30; k++) {
+					placeTube(tx, ty - k, 0, -8, 0);
+				}
+				break;
 			// Both drop onto the same spring from the same height, so the two runs differ in nothing but the
 			// jump tap on the way down. Dropped in rather than stood on it because a spring under the
 			// player's feet fires on the tick it appears, before any input has been applied.
@@ -2892,66 +5161,142 @@ namespace Jazz2::Tests
 			// The pinball section. Every one of these starts the player somewhere in the chamber rather than
 			// at the scenario origin, and several start them already moving - a bumper met at speed from the
 			// side cannot be reached any other way, since the chamber's floor is five tiles below it.
-			case 286: case 287: case 288:
+			case 286:
+			case 287:
+			case 288:
 				// On the floor directly under the bumper at (62,15), a jump's height below it
 				placePinball(62 * 32 + 16, 600.0f, 0.0f, 0.0f);
 				break;
-			case 289: case 290: placePinball(62 * 32 + 16, 208.0f, 0.0f, 0.0f); break;
+			case 289:
+			case 290:
+				placePinball(62 * 32 + 16, 208.0f, 0.0f, 0.0f);
+				break;
 			// Arriving at the bumper's own height with a dash's worth of speed. Started a little above it:
 			// 320 px of travel at that speed takes about seventeen frames, in which gravity pulls the player
 			// down some 24 px, so entering level with the bumper would mean arriving below it.
-			case 291: case 292: placePinball(62 * 32 + 16 + 320, 472.0f, -Actors::Player::LegacyDashSpeed, 0.0f); break;
-			case 293: case 294: placePinball(62 * 32 + 16 - 320, 472.0f, Actors::Player::LegacyDashSpeed, 0.0f); break;
+			case 291:
+			case 292:
+				placePinball(62 * 32 + 16 + 320, 472.0f, -Actors::Player::LegacyDashSpeed, 0.0f);
+				break;
+			case 293:
+			case 294:
+				placePinball(62 * 32 + 16 - 320, 472.0f, Actors::Player::LegacyDashSpeed, 0.0f);
+				break;
 			// The radius sweep: dropped past the bumper at a measured horizontal offset, leftwards so the
 			// bumper at (66,9) is not in the way
-			case 295: placePinball(62 * 32 + 16 - 16, 208.0f, 0.0f, 0.0f); break;
-			case 296: placePinball(62 * 32 + 16 - 48, 208.0f, 0.0f, 0.0f); break;
-			case 297: placePinball(62 * 32 + 16 - 80, 208.0f, 0.0f, 0.0f); break;
-			case 298: placePinball(62 * 32 + 16 - 112, 208.0f, 0.0f, 0.0f); break;
+			case 295:
+				placePinball(62 * 32 + 16 - 16, 208.0f, 0.0f, 0.0f);
+				break;
+			case 296:
+				placePinball(62 * 32 + 16 - 48, 208.0f, 0.0f, 0.0f);
+				break;
+			case 297:
+				placePinball(62 * 32 + 16 - 80, 208.0f, 0.0f, 0.0f);
+				break;
+			case 298:
+				placePinball(62 * 32 + 16 - 112, 208.0f, 0.0f, 0.0f);
+				break;
 			// The top of the chamber, midway between the three bumpers
-			case 299: placePinball(66 * 32 + 16, 160.0f, 0.0f, 0.0f); break;
+			case 299:
+				placePinball(66 * 32 + 16, 160.0f, 0.0f, 0.0f);
+				break;
 			// Above the paddle at (80,18). Its tile is its mounted end, so the offsets step leftwards.
-			case 300: case 301: case 302: case 303: case 304:
-			case 310: case 311:
+			case 300:
+			case 301:
+			case 302:
+			case 303:
+			case 304:
+			case 310:
+			case 311:
 			// pb_pad_fire, dropped exactly where pb_pad_fall is so the ride itself is known to match
 			case 470:
 				placePinball(80 * 32 + 16, 400.0f, 0.0f, 0.0f);
 				break;
-			case 305: placePinball(80 * 32 + 16 - 32, 400.0f, 0.0f, 0.0f); break;
-			case 306: placePinball(80 * 32 + 16 - 64, 400.0f, 0.0f, 0.0f); break;
-			case 307: placePinball(80 * 32 + 16 - 96, 400.0f, 0.0f, 0.0f); break;
+			case 305:
+				placePinball(80 * 32 + 16 - 32, 400.0f, 0.0f, 0.0f);
+				break;
+			case 306:
+				placePinball(80 * 32 + 16 - 64, 400.0f, 0.0f, 0.0f);
+				break;
+			case 307:
+				placePinball(80 * 32 + 16 - 96, 400.0f, 0.0f, 0.0f);
+				break;
 			// On the floor below the paddle, so the jump arrives from underneath
-			case 308: placePinball(80 * 32 + 16 - 32, 600.0f, 0.0f, 0.0f); break;
+			case 308:
+				placePinball(80 * 32 + 16 - 32, 600.0f, 0.0f, 0.0f);
+				break;
 			// And along the paddle's own row from the far side of the chamber
-			case 309: placePinball(80 * 32 + 16 - 320, 570.0f, Actors::Player::LegacyDashSpeed, 0.0f); break;
-			case 312: placePinball(80 * 32 + 16 - 16, 400.0f, 0.0f, 0.0f); break;
-			case 313: placePinball(80 * 32 + 16 - 48, 400.0f, 0.0f, 0.0f); break;
+			case 309:
+				placePinball(80 * 32 + 16 - 320, 570.0f, Actors::Player::LegacyDashSpeed, 0.0f);
+				break;
+			case 312:
+				placePinball(80 * 32 + 16 - 16, 400.0f, 0.0f, 0.0f);
+				break;
+			case 313:
+				placePinball(80 * 32 + 16 - 48, 400.0f, 0.0f, 0.0f);
+				break;
 			// The left paddle at (83,18). Its tile is its mounted end too, so its offsets step *rightwards*.
-			case 314: case 315: case 316:
+			case 314:
+			case 315:
+			case 316:
 				placePinball(83 * 32 + 16, 400.0f, 0.0f, 0.0f);
 				break;
-			case 317: placePinball(83 * 32 + 16 + 32, 400.0f, 0.0f, 0.0f); break;
-			case 318: placePinball(83 * 32 + 16 + 64, 400.0f, 0.0f, 0.0f); break;
-			case 319: placePinball(83 * 32 + 16 + 32, 600.0f, 0.0f, 0.0f); break;
+			case 317:
+				placePinball(83 * 32 + 16 + 32, 400.0f, 0.0f, 0.0f);
+				break;
+			case 318:
+				placePinball(83 * 32 + 16 + 64, 400.0f, 0.0f, 0.0f);
+				break;
+			case 319:
+				placePinball(83 * 32 + 16 + 32, 600.0f, 0.0f, 0.0f);
+				break;
 			// The fine offset sweep, stepping away from each paddle's mounted end 8 px at a time
-			case 320: placePinball(80 * 32 + 16 - 8, 400.0f, 0.0f, 0.0f); break;
-			case 321: placePinball(80 * 32 + 16 - 24, 400.0f, 0.0f, 0.0f); break;
-			case 322: placePinball(80 * 32 + 16 - 40, 400.0f, 0.0f, 0.0f); break;
-			case 323: placePinball(80 * 32 + 16 - 56, 400.0f, 0.0f, 0.0f); break;
-			case 324: placePinball(83 * 32 + 16 + 8, 400.0f, 0.0f, 0.0f); break;
-			case 325: placePinball(83 * 32 + 16 + 16, 400.0f, 0.0f, 0.0f); break;
-			case 326: placePinball(83 * 32 + 16 + 24, 400.0f, 0.0f, 0.0f); break;
-			case 327: placePinball(83 * 32 + 16 + 40, 400.0f, 0.0f, 0.0f); break;
-			case 328: placePinball(83 * 32 + 16 + 48, 400.0f, 0.0f, 0.0f); break;
-			case 329: placePinball(83 * 32 + 16 + 56, 400.0f, 0.0f, 0.0f); break;
+			case 320:
+				placePinball(80 * 32 + 16 - 8, 400.0f, 0.0f, 0.0f);
+				break;
+			case 321:
+				placePinball(80 * 32 + 16 - 24, 400.0f, 0.0f, 0.0f);
+				break;
+			case 322:
+				placePinball(80 * 32 + 16 - 40, 400.0f, 0.0f, 0.0f);
+				break;
+			case 323:
+				placePinball(80 * 32 + 16 - 56, 400.0f, 0.0f, 0.0f);
+				break;
+			case 324:
+				placePinball(83 * 32 + 16 + 8, 400.0f, 0.0f, 0.0f);
+				break;
+			case 325:
+				placePinball(83 * 32 + 16 + 16, 400.0f, 0.0f, 0.0f);
+				break;
+			case 326:
+				placePinball(83 * 32 + 16 + 24, 400.0f, 0.0f, 0.0f);
+				break;
+			case 327:
+				placePinball(83 * 32 + 16 + 40, 400.0f, 0.0f, 0.0f);
+				break;
+			case 328:
+				placePinball(83 * 32 + 16 + 48, 400.0f, 0.0f, 0.0f);
+				break;
+			case 329:
+				placePinball(83 * 32 + 16 + 56, 400.0f, 0.0f, 0.0f);
+				break;
 			// Just above the chamber floor, thrown upward at the underside of each paddle. The speed is well
 			// over the applied rise cap on purpose - the cap holds the actual travel to 8 px a tick, so the
 			// player cannot tunnel straight through whatever is above them.
-			case 330: placePinball(80 * 32 + 16 - 32, 624.0f, 0.0f, -20.0f); break;
-			case 331: placePinball(83 * 32 + 16 + 32, 624.0f, 0.0f, -20.0f); break;
+			case 330:
+				placePinball(80 * 32 + 16 - 32, 624.0f, 0.0f, -20.0f);
+				break;
+			case 331:
+				placePinball(83 * 32 + 16 + 32, 624.0f, 0.0f, -20.0f);
+				break;
 			// Same spot as `pb_pad_x1`, so the two apexes can be compared directly
-			case 332: placePinball(80 * 32 + 16 - 32, 400.0f, 0.0f, 0.0f); break;
-			case 333: placePinball(80 * 32 + 16 - 32, 400.0f, 0.0f, 0.0f); break;
+			case 332:
+				placePinball(80 * 32 + 16 - 32, 400.0f, 0.0f, 0.0f);
+				break;
+			case 333:
+				placePinball(80 * 32 + 16 - 32, 400.0f, 0.0f, 0.0f);
+				break;
 		}
 	}
 
@@ -3063,7 +5408,9 @@ namespace Jazz2::Tests
 							for (std::int32_t y = VineBandScanTop; y <= VineBandScanBottom; y++) {
 								bool here = (tiles->GetTileSuspendState((float)VineBandScanX, (float)y) != SuspendType::None);
 								if (here) {
-									if (runStart < 0) { runStart = y; }
+									if (runStart < 0) {
+										runStart = y;
+									}
 								} else if (runStart >= 0) {
 									LOGI("[scan] suspend band at x={}: y {}..{} (tile rows {}..{})", VineBandScanX, runStart, y - 1, runStart / 32, (y - 1) / 32);
 									runStart = -1;
@@ -3213,7 +5560,7 @@ namespace Jazz2::Tests
 		}
 
 		Actors::Player::Modifier modifier = player->GetModifier();
-		_onCopter =(modifier == Actors::Player::Modifier::Copter || modifier == Actors::Player::Modifier::LizardCopter);
+		_onCopter = (modifier == Actors::Player::Modifier::Copter || modifier == Actors::Player::Modifier::LizardCopter);
 		if (!_onCopter) {
 			if (_copterAttachTick >= 0) {
 				_copterEndTick = (std::int32_t)_tick;
@@ -3266,7 +5613,3 @@ namespace Jazz2::Tests
 }
 
 #endif
-
-
-
-

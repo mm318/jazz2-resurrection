@@ -89,26 +89,29 @@ namespace Jazz2::Actors
 
 	public:
 		/** @brief Modifier */
-		enum class Modifier : std::uint8_t {
-			None,				/**< No modifier */
-			Airboard,			/**< Riding an airboard */
-			Copter,				/**< Using a copter */
-			LizardCopter		/**< Using a lizard copter */
+		enum class Modifier : std::uint8_t
+		{
+			None, /**< No modifier */
+			Airboard, /**< Riding an airboard */
+			Copter, /**< Using a copter */
+			LizardCopter /**< Using a lizard copter */
 		};
 
 		/** @brief Special move type */
-		enum class SpecialMoveType : std::uint8_t {
-			None,				/**< No special move */
-			Buttstomp,			/**< Buttstomp */
-			Uppercut,			/**< Uppercut */
-			Sidekick			/**< Sidekick */
+		enum class SpecialMoveType : std::uint8_t
+		{
+			None, /**< No special move */
+			Buttstomp, /**< Buttstomp */
+			Uppercut, /**< Uppercut */
+			Sidekick /**< Sidekick */
 		};
 
 		/** @brief Type of invulnerability */
-		enum class InvulnerableType {
-			Transient,			/**< Invulnerable without any visual effect */
-			Blinking,			/**< Invulnerable with blinking effect */
-			Shielded			/**< Invulnerable due to an active shield */
+		enum class InvulnerableType
+		{
+			Transient, /**< Invulnerable without any visual effect */
+			Blinking, /**< Invulnerable with blinking effect */
+			Shielded /**< Invulnerable due to an active shield */
 		};
 
 		/**
@@ -116,14 +119,16 @@ namespace Jazz2::Actors
 		 *
 		 * @ref GrantInvulnerability() never replaces a running effect with a lower-ranked one.
 		 */
-		static constexpr std::int32_t GetInvulnerableStrength(InvulnerableType type) {
+		static constexpr std::int32_t GetInvulnerableStrength(InvulnerableType type)
+		{
 			return (type == InvulnerableType::Shielded ? 2 : (type == InvulnerableType::Blinking ? 1 : 0));
 		}
 
 		/** @brief Type of copter flight state */
-		enum class FlightType {
-			Normal,				/**< Timed/regular flight */
-			Cheat				/**< Cheat-enabled flight */
+		enum class FlightType
+		{
+			Normal, /**< Timed/regular flight */
+			Cheat /**< Cheat-enabled flight */
 		};
 
 		/**
@@ -131,7 +136,8 @@ namespace Jazz2::Actors
 		 *
 		 * Shared by all players of the same @ref PlayerType. Behavioral differences stay in code.
 		 */
-		struct CharacterTraits {
+		struct CharacterTraits
+		{
 			/** @brief Path to the metadata with the character's animations and sounds */
 			StringView Metadata;
 			/** @brief Vertical scale of the weapon flare effect */
@@ -144,7 +150,8 @@ namespace Jazz2::Actors
 		static const CharacterTraits& GetCharacterTraits(PlayerType type);
 
 		/** @brief Collected items and weapon loadout of a player */
-		struct InventoryState {
+		struct InventoryState
+		{
 			/** @brief Number of collected coins */
 			std::int32_t Coins;
 			/** @brief Amount of eaten food (drives sugar rush) */
@@ -162,22 +169,26 @@ namespace Jazz2::Actors
 		~Player();
 
 		/** @brief Returns player index */
-		std::uint8_t GetPlayerIndex() const {
+		std::uint8_t GetPlayerIndex() const
+		{
 			return (std::uint8_t)_playerIndex;
 		}
 
 		/** @brief Returns player type */
-		PlayerType GetPlayerType() const {
+		PlayerType GetPlayerType() const
+		{
 			return _playerType;
 		}
 
 		/** @brief Returns `true` while morphed into either of the two birds */
-		bool IsBird() const {
+		bool IsBird() const
+		{
 			return (_playerType == PlayerType::Bird || _playerType == PlayerType::Bird2);
 		}
 
 		/** @brief Returns `true` for temporary forms (the frog and both birds) */
-		static bool IsTemporaryForm(PlayerType type) {
+		static bool IsTemporaryForm(PlayerType type)
+		{
 			return (type == PlayerType::Frog || type == PlayerType::Bird || type == PlayerType::Bird2);
 		}
 
@@ -186,17 +197,20 @@ namespace Jazz2::Actors
 		 *
 		 * A bird is never carried over, so the character it was taken from is returned instead.
 		 */
-		PlayerType GetPersistentPlayerType() const {
+		PlayerType GetPersistentPlayerType() const
+		{
 			return (IsBird() ? _playerTypeBeforeMorph : _playerType);
 		}
 
 		/** @brief Returns the character a temporary form was taken from, or the current type */
-		PlayerType GetPlayerTypeBeforeMorph() const {
+		PlayerType GetPlayerTypeBeforeMorph() const
+		{
 			return (IsTemporaryForm(_playerType) ? _playerTypeBeforeMorph : _playerType);
 		}
 
 		/** @brief Returns the character the player started the level with */
-		PlayerType GetOriginalPlayerType() const {
+		PlayerType GetOriginalPlayerType() const
+		{
 			return _playerTypeOriginal;
 		}
 
@@ -210,32 +224,38 @@ namespace Jazz2::Actors
 		std::int32_t GetPaletteOffset() const;
 
 		/** @brief Returns current special move */
-		SpecialMoveType GetSpecialMove() const {
+		SpecialMoveType GetSpecialMove() const
+		{
 			return _currentSpecialMove;
 		}
 
 		/** @brief Returns whether the player has fired within the specified number of frames */
-		bool HasFiredWithin(float frames) const {
+		bool HasFiredWithin(float frames) const
+		{
 			return (_fireFramesLeft > 20.0f - frames);
 		}
 
 		/** @brief Return weapon ammo */
-		ArrayView<const std::uint16_t> GetWeaponAmmo() const {
+		ArrayView<const std::uint16_t> GetWeaponAmmo() const
+		{
 			return _inventory.WeaponAmmo;
 		}
 
 		/** @brief Returns weapon upgrades */
-		ArrayView<const std::uint8_t> GetWeaponUpgrades() const {
+		ArrayView<const std::uint8_t> GetWeaponUpgrades() const
+		{
 			return _inventory.WeaponUpgrades;
 		}
-		
+
 		/** @brief Returns the weapon the player holds */
-		WeaponType GetCurrentWeapon() const {
+		WeaponType GetCurrentWeapon() const
+		{
 			return _currentWeapon;
 		}
 
 		/** @brief Returns `true` if sugar rush is active */
-		bool HasSugarRush() const {
+		bool HasSugarRush() const
+		{
 			return (_sugarRushLeft > 0.0f);
 		}
 
@@ -411,7 +431,8 @@ namespace Jazz2::Actors
 		bool ApplyBlastKnockback(bool pushLeft, float distanceSqr);
 
 		/** @brief Returns active shield */
-		ShieldType GetActiveShield() const {
+		ShieldType GetActiveShield() const
+		{
 			return _activeShield;
 		}
 
@@ -471,11 +492,13 @@ namespace Jazz2::Actors
 		/** @brief Sets checkpoint */
 		void SetCheckpoint(Vector2f pos, float ambientLight);
 		/** @brief Returns the ambient light intensity currently applied to this player */
-		float GetCurrentAmbientLight() const {
+		float GetCurrentAmbientLight() const
+		{
 			return _currentAmbientLight;
 		}
 		/** @brief Records the ambient light intensity currently applied to this player */
-		void SetCurrentAmbientLight(float value) {
+		void SetCurrentAmbientLight(float value)
+		{
 			_currentAmbientLight = value;
 		}
 		/**
@@ -483,12 +506,14 @@ namespace Jazz2::Actors
 		 *
 		 * Used online, where checkpoints are activated by the server.
 		 */
-		void SetCheckpointAmbientLight(float ambientLight) {
+		void SetCheckpointAmbientLight(float ambientLight)
+		{
 			_checkpointLight = ambientLight;
 		}
 
 		/** @brief Returns carrying object */
-		ActorBase* GetCarryingObject() const {
+		ActorBase* GetCarryingObject() const
+		{
 			return _carryingObject;
 		}
 		/** @brief Cancels carrying object */
@@ -503,39 +528,43 @@ namespace Jazz2::Actors
 
 	protected:
 		/** @brief State of level exiting */
-		enum class LevelExitingState : std::uint8_t {
-			None,				/**< Not exiting */
-			Waiting,			/**< Waiting before exiting */
-			WaitingForWarp,		/**< Waiting for a warp to complete */
-			Transition,			/**< Playing the exit transition */
-			Ready				/**< Ready to exit */
+		enum class LevelExitingState : std::uint8_t
+		{
+			None, /**< Not exiting */
+			Waiting, /**< Waiting before exiting */
+			WaitingForWarp, /**< Waiting for a warp to complete */
+			Transition, /**< Playing the exit transition */
+			Ready /**< Ready to exit */
 		};
 
 		/** @brief State of HUD weapon wheel */
-		enum class WeaponWheelState : std::uint8_t {
-			Hidden,				/**< Hidden */
-			Opening,			/**< Opening */
-			Visible,			/**< Visible */
-			Closing				/**< Closing */
+		enum class WeaponWheelState : std::uint8_t
+		{
+			Hidden, /**< Hidden */
+			Opening, /**< Opening */
+			Visible, /**< Visible */
+			Closing /**< Closing */
 		};
 
 		/** @brief Phase of the chain of poses a player sliding to a halt goes through */
-		enum class StopPhase : std::uint8_t {
-			None,				/**< Not sliding to a halt */
-			Skid,				/**< `walk_stop`, played once */
-			Slide,				/**< `dash_stop`, looping until the speed falls below @ref StopSettleSpeed */
-			Settle,				/**< `run_stop`, played once and followed by standing */
-			Hold				/**< The skid held on its last frame, for a slide too slow to reach @ref StopPhase::Slide */
+		enum class StopPhase : std::uint8_t
+		{
+			None, /**< Not sliding to a halt */
+			Skid, /**< `walk_stop`, played once */
+			Slide, /**< `dash_stop`, looping until the speed falls below @ref StopSettleSpeed */
+			Settle, /**< `run_stop`, played once and followed by standing */
+			Hold /**< The skid held on its last frame, for a slide too slow to reach @ref StopPhase::Slide */
 		};
 
 		/** @brief Reason the current weapon was changed */
-		enum class SetCurrentWeaponReason {
-			Unknown,			/**< Unspecified */
-			User,				/**< Set by the user */
-			Rollback,			/**< Set due to rollback */
-			AddAmmo,			/**< Set because an ammo for a new weapon was collected */
-			AddUpgrade,			/**< Set because a new upgrade for a weapon was collected */
-			Shield				/**< Set because a shield was activated */
+		enum class SetCurrentWeaponReason
+		{
+			Unknown, /**< Unspecified */
+			User, /**< Set by the user */
+			Rollback, /**< Set due to rollback */
+			AddAmmo, /**< Set because an ammo for a new weapon was collected */
+			AddUpgrade, /**< Set because a new upgrade for a weapon was collected */
+			Shield /**< Set because a shield was activated */
 		};
 
 		/** @{ @name Constants */
@@ -1109,7 +1138,8 @@ namespace Jazz2::Actors
 		// Ordered widest first, flags last (bit-fields are initialized in the constructor). A `bool` among floats costs four bytes.
 
 		// State of the run-in-place wind-up, reset as a whole
-		struct RevUpState {
+		struct RevUpState
+		{
 			// Accumulated charge, and how much the held press added (capped)
 			float Charge = 0.0f;
 			float HeldCharge = 0.0f;
@@ -1769,7 +1799,7 @@ namespace Jazz2::Actors
 		void UpdateBirdPerchPose(float timeMult);
 		// Fires the second bird's pair of shots for one round of ammo, only from FireCurrentWeapon()
 		void FireBirdShots();
-		template<typename T, WeaponType weaponType>
+		template <typename T, WeaponType weaponType>
 		void FireBirdShotPair(float spread);
 		// Sets up or removes bird flight after a morph
 		void ApplyBirdMorph(PlayerType playerTypePrevious);
@@ -1866,7 +1896,8 @@ namespace Jazz2::Actors
 		// The original hurts by any overlap of the body with the solid part of a hurt tile, not only when landing or bumping
 		void CheckLegacyHurtTiles();
 		// What a point of the path travelled this frame may act on
-		enum class AreaEventPass {
+		enum class AreaEventPass
+		{
 			None = 0x00,
 			// One-shot effects (warp, pole, text, script callback), only on first entering a tile
 			Effects = 0x01,
@@ -1893,7 +1924,7 @@ namespace Jazz2::Actors
 		static float GetFireIntervalFrames(std::int32_t fastFire);
 		// Moves the start of a shot to where the original starts it
 		void ApplyShotSpawnPoint(Vector3i& initialPos, Vector2f gunspotPos) const;
-		template<typename T, WeaponType weaponType>
+		template <typename T, WeaponType weaponType>
 		void FireWeapon(float cooldownBase, float cooldownUpgrade, bool emitFlare = false);
 		void FireWeaponFreezer();
 		void FireWeaponPepper();

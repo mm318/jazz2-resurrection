@@ -47,7 +47,8 @@ namespace Jazz2::Events
 	{
 	public:
 		/** @brief Represents an event tile */
-		struct EventTile {
+		struct EventTile
+		{
 			// One of these exists for every tile of the sprite layer, plus a full rollback copy of the grid, so
 			// the fields are ordered widest first: the naturally-written order left the 16-bit event type padded
 			// out to the alignment of the following flags and the trailing bool padded to the struct's own, which
@@ -71,7 +72,10 @@ namespace Jazz2::Events
 		/** @brief Sets owner of the event map */
 		void SetLevelHandler(ILevelHandler* levelHandler);
 		/** @brief Whether reading the events ran out of memory (the level cannot be played) */
-		bool HasLoadFailed() const { return _loadFailed; }
+		bool HasLoadFailed() const
+		{
+			return _loadFailed;
+		}
 		/** @brief Returns size of event map in tiles */
 		Vector2i GetSize() const;
 		/** @brief Returns pit type */
@@ -133,7 +137,8 @@ namespace Jazz2::Events
 		std::uint8_t GetEventDifficulty(std::int32_t x, std::int32_t y) const;
 
 		/** @brief Event meant only for the easy or only for the hard difficulty, see @ref CollectEasyOrHardEvents() */
-		struct DifficultyEventInfo {
+		struct DifficultyEventInfo
+		{
 			/** @brief Tile position */
 			Vector2i Tile;
 			/** @brief Difficulty as the original game has it, 1 for an easy one, 2 for a hard one */
@@ -180,7 +185,8 @@ namespace Jazz2::Events
 		 */
 		Vector2i GetOriginTile(Vector2i pos, EventType type);
 		/** @brief Returns the number of off-grid events */
-		std::int32_t GetOffGridEventCount() const {
+		std::int32_t GetOffGridEventCount() const
+		{
 			return (std::int32_t)_offGridPositions.size();
 		}
 		/** @brief Returns event type on specified position */
@@ -252,7 +258,8 @@ namespace Jazz2::Events
 	private:
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
-		struct GeneratorInfo {
+		struct GeneratorInfo
+		{
 			std::int32_t EventPos;
 
 			EventType Event;
@@ -265,13 +272,15 @@ namespace Jazz2::Events
 
 		// Both keep the last bytes of the parameters of their event, where a converted level keeps the parameters of the
 		// original event for scripts (see Formats::EventRecord::OriginalParamsOffset)
-		struct SpawnPoint {
+		struct SpawnPoint
+		{
 			std::uint8_t PlayerTypeMask;
 			Vector2f Pos;
 			std::uint8_t KeptParams[3] = {};
 		};
 
-		struct WarpTarget {
+		struct WarpTarget
+		{
 			std::uint16_t Id;
 			Vector2f Pos;
 			std::uint8_t KeptParams[3] = {};
@@ -283,7 +292,8 @@ namespace Jazz2::Events
 		// rest of a tile only ever changes through StoreTileEvent() (an event consumed for good: a collected
 		// item, an opened bird cage, a passed checkpoint), which saves the value it replaces here, once per
 		// tile. The list is kept sorted by index so the rollback can merge it into its own walk of the grid.
-		struct RollbackTile {
+		struct RollbackTile
+		{
 			std::uint32_t TileIndex;
 			EventTile Tile;
 		};
@@ -302,9 +312,11 @@ namespace Jazz2::Events
 			`Edit()`, which gives the cell a tile of its own; `Find()` tells the two apart without creating
 			one. A reference from `Edit()` is valid only until the next one, because the dense array grows.
 		*/
-		class EventLayout {
+		class EventLayout
+		{
 		public:
-			bool Allocate(std::size_t count) {
+			bool Allocate(std::size_t count)
+			{
 				_tiles.clear();
 				_overflowed = false;
 				_slots.reset(new (std::nothrow) std::uint16_t[count]);
@@ -315,7 +327,8 @@ namespace Jazz2::Events
 				return (_slots != nullptr);
 			}
 			// Adds empty cells at the end, the tiles of the cells there already stay
-			bool Grow(std::size_t count) {
+			bool Grow(std::size_t count)
+			{
 				if (count <= _count) {
 					return true;
 				}
@@ -331,20 +344,26 @@ namespace Jazz2::Events
 				_count = count;
 				return true;
 			}
-			std::size_t size() const { return _count; }
-			const EventTile& operator[](std::size_t i) const {
+			std::size_t size() const
+			{
+				return _count;
+			}
+			const EventTile& operator[](std::size_t i) const
+			{
 				static const EventTile empty = {};
 				const std::uint16_t slot = _slots[i];
 				return (slot != 0 ? _tiles[slot - 1] : empty);
 			}
 			// Like the array it replaces: a const layout still hands out mutable tiles
-			EventTile* Find(std::size_t i) const {
+			EventTile* Find(std::size_t i) const
+			{
 				const std::uint16_t slot = _slots[i];
 				return (slot != 0 ? &_tiles[slot - 1] : nullptr);
 			}
-			EventTile& Edit(std::size_t i) {
+			EventTile& Edit(std::size_t i)
+			{
 				if (_slots[i] == 0) {
-					if DEATH_UNLIKELY(_tiles.size() >= UINT16_MAX) {
+					if DEATH_UNLIKELY (_tiles.size() >= UINT16_MAX) {
 						// A slot can't name another tile, so the event is written into a scratch tile, which nothing reads
 						// back; a level that gets here is refused (see HasOverflowed())
 						_overflowed = true;
@@ -357,7 +376,10 @@ namespace Jazz2::Events
 				return _tiles[_slots[i] - 1];
 			}
 			// Returns `true` if more cells were given a tile than there can be
-			bool HasOverflowed() const { return _overflowed; }
+			bool HasOverflowed() const
+			{
+				return _overflowed;
+			}
 
 		private:
 			std::unique_ptr<std::uint16_t[]> _slots;
@@ -375,13 +397,15 @@ namespace Jazz2::Events
 		bool _hasRollbackCheckpoint;
 		SmallVector<GeneratorInfo, 0> _generators;
 		/// The events of the grid that aren't of every difficulty, sorted by the tile, see GetEventDifficulty()
-		struct DifficultyEvent {
+		struct DifficultyEvent
+		{
 			std::int32_t Tile;
 			std::uint8_t Difficulty;
 		};
 		SmallVector<DifficultyEvent, 0> _difficultyEvents;
 		/// Easy-only and hard-only events left out in the current difficulty, with all they need to be put back
-		struct SkippedDifficultyEvent {
+		struct SkippedDifficultyEvent
+		{
 			DifficultyEventInfo Info;
 			Actors::ActorState Flags;
 			std::uint8_t EventParams[EventSpawner::SpawnParamsSize];

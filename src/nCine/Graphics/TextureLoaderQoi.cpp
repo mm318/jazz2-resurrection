@@ -27,7 +27,7 @@ namespace nCine
 		auto buffer = std::make_unique<char[]>(fileSize);
 		_fileHandle->Read(buffer.get(), fileSize);
 
-		qoi_desc desc = { };
+		qoi_desc desc = {};
 		void* data = qoi_decode(buffer.get(), fileSize, &desc, 4);
 		if (data == nullptr) {
 			return;

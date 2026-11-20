@@ -40,18 +40,18 @@ namespace Jazz2::Editor
 	/** @brief Type of a parameter of a weapon of a script, as `jjSTREAM` keeps it */
 	enum class ScriptParamType : std::uint8_t
 	{
-		Bool,			/**< One byte, 0 or 1 */
-		Int8,			/**< One byte */
-		UInt8,			/**< One byte */
-		Int16,			/**< Two bytes */
-		UInt16,			/**< Two bytes */
-		Int32,			/**< Four bytes */
-		UInt32,			/**< Four bytes */
-		Int64,			/**< Eight bytes */
-		UInt64,			/**< Eight bytes */
-		Float,			/**< Four bytes */
-		Double,			/**< Eight bytes */
-		String			/**< Four bytes of the length and the text */
+		Bool, /**< One byte, 0 or 1 */
+		Int8, /**< One byte */
+		UInt8, /**< One byte */
+		Int16, /**< Two bytes */
+		UInt16, /**< Two bytes */
+		Int32, /**< Four bytes */
+		UInt32, /**< Four bytes */
+		Int64, /**< Eight bytes */
+		UInt64, /**< Eight bytes */
+		Float, /**< Four bytes */
+		Double, /**< Eight bytes */
+		String /**< Four bytes of the length and the text */
 	};
 
 	/** @brief A named value of a parameter of a weapon of a script */
@@ -89,9 +89,9 @@ namespace Jazz2::Editor
 	/** @brief Where a description of a weapon of a script comes from */
 	enum class ScriptWeaponTemplateSource : std::uint8_t
 	{
-		Json,			/**< A description of the editor (`.json`) */
-		MlleIni,		/**< A description of MLLE (`.ini`) */
-		Script			/**< Guessed from the library, see @ref GuessScriptWeaponTemplate() */
+		Json, /**< A description of the editor (`.json`) */
+		MlleIni, /**< A description of MLLE (`.ini`) */
+		Script /**< Guessed from the library, see @ref GuessScriptWeaponTemplate() */
 	};
 
 	/**

@@ -8,17 +8,17 @@
 
 #include "../../../nCine/I18n.h"
 #if defined(WITH_AUDIO)
-#	include "../../../nCine/ServiceLocator.h"
-#	include "../../../nCine/Audio/IAudioDevice.h"
+#include "../../../nCine/ServiceLocator.h"
+#include "../../../nCine/Audio/IAudioDevice.h"
 #endif
 
 #if defined(WITH_MULTIPLAYER)
-#	include "CreateServerOptionsSection.h"
-#	include "CreateLocalGameOptionsSection.h"
+#include "CreateServerOptionsSection.h"
+#include "CreateLocalGameOptionsSection.h"
 #endif
 #if defined(WITH_LEVEL_PACKS)
-#	include "LevelPacksSection.h"
-#	include "../../../nCine/Graphics/PngCodec.h"
+#include "LevelPacksSection.h"
+#include "../../../nCine/Graphics/PngCodec.h"
 #endif
 
 #include <cstring>
@@ -31,11 +31,11 @@ using namespace Jazz2::UI::Menu::Resources;
 namespace Jazz2::UI::Menu
 {
 	// Row height matching the original section (ItemHeight * 4 / 5)
-	static constexpr float RowHeight = 40 * 4 / 5;	// 32
+	static constexpr float RowHeight = 40 * 4 / 5; // 32
 
 	EpisodeSelectSection::EpisodeSelectSection(EpisodeSelectMode mode, bool privateServer)
 		: _expandedAnimation(0.0f), _transitionTime(0.0f), _transitionFromEpisode(-1), _transitionFromEpisodeTime(0.0f),
-			_animation(0.0f), _mode(mode), _privateServer(privateServer), _expanded(false), _shouldStart(false), _list(nullptr)
+		  _animation(0.0f), _mode(mode), _privateServer(privateServer), _expanded(false), _shouldStart(false), _list(nullptr)
 	{
 		auto& resolver = ContentResolver::Get();
 
@@ -193,7 +193,8 @@ namespace Jazz2::UI::Menu
 					}
 				} else if (_episodes.size() > 1) {
 					if (navUp) {
-						if (navSound) _root->PlaySfx("MenuSelect"_s, 0.5f);
+						if (navSound)
+							_root->PlaySfx("MenuSelect"_s, 0.5f);
 						_animation = 0.0f;
 						_transitionFromEpisode = row;
 						_transitionFromEpisodeTime = -1.0f;
@@ -202,7 +203,8 @@ namespace Jazz2::UI::Menu
 						std::int32_t newRow = (row > 0 ? row - 1 : (std::int32_t)_episodes.size() - 1);
 						_list->SetSelectedIndex(newRow, false);
 					} else if (navDown) {
-						if (navSound) _root->PlaySfx("MenuSelect"_s, 0.5f);
+						if (navSound)
+							_root->PlaySfx("MenuSelect"_s, 0.5f);
 						_animation = 0.0f;
 						_transitionFromEpisode = row;
 						_transitionFromEpisodeTime = 1.0f;
@@ -237,13 +239,13 @@ namespace Jazz2::UI::Menu
 				// TRANSLATORS: Header of the episode list in Play Multiplayer > Create Local Splitscreen Game section
 				? _("Create Local Splitscreen Game")
 				: (_mode == EpisodeSelectMode::OnlineMultiplayer
-					? (_privateServer
-						// TRANSLATORS: Header of the episode list in Play Multiplayer > Create Private Server section
-						? _("Create Private Server")
-						// TRANSLATORS: Header of the episode list in Play Multiplayer > Create Public Server section
-						: _("Create Public Server"))
-					// TRANSLATORS: Header of the episode list in Play Story section
-					: _("Play Story")),
+						  ? (_privateServer
+									// TRANSLATORS: Header of the episode list in Play Multiplayer > Create Private Server section
+									? _("Create Private Server")
+									// TRANSLATORS: Header of the episode list in Play Multiplayer > Create Public Server section
+									: _("Create Public Server"))
+						  // TRANSLATORS: Header of the episode list in Play Story section
+						  : _("Play Story")),
 #else
 			// TRANSLATORS: Header of the episode list in Play Story section
 			_("Play Story"),
@@ -637,7 +639,8 @@ namespace Jazz2::UI::Menu
 		if (description) {
 #if defined(SHAREWARE_DEMO_ONLY)
 			// Check if specified episode is unlocked, used only if compiled with SHAREWARE_DEMO_ONLY
-			if (!PreferencesCache::IsEpisodeUnlocked(description->Name)) return;
+			if (!PreferencesCache::IsEpisodeUnlocked(description->Name))
+				return;
 #endif
 
 			auto& episode = _episodes.emplace_back();

@@ -217,8 +217,7 @@ namespace Jazz2::Editor
 		player->OnActivated(Actors::ActorActivationDetails(
 			this,
 			Vector3i((std::int32_t)spawnPosition.X, (std::int32_t)spawnPosition.Y, PlayerZ),
-			playerParams
-		));
+			playerParams));
 
 		Actors::Player* ptr = player.get();
 		_players.push_back(ptr);

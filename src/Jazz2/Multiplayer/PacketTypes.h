@@ -14,9 +14,9 @@ namespace Jazz2::Multiplayer
 	*/
 	enum class BroadcastPacketType
 	{
-		Null,				/**< Empty packet */
-		DiscoveryRequest,	/**< Request to discover servers on the local network */
-		DiscoveryResponse	/**< Response of a server to a discovery request */
+		Null, /**< Empty packet */
+		DiscoveryRequest, /**< Request to discover servers on the local network */
+		DiscoveryResponse /**< Response of a server to a discovery request */
 	};
 
 	/**
@@ -27,26 +27,26 @@ namespace Jazz2::Multiplayer
 	*/
 	enum class ClientPacketType
 	{
-		Null,						/**< Empty packet */
-		Ping,						/**< Ping request to measure round trip time */
-		Reserved,					/**< Reserved */
-		Rpc,						/**< Remote procedure call forwarded to a scripted actor */
+		Null, /**< Empty packet */
+		Ping, /**< Ping request to measure round trip time */
+		Reserved, /**< Reserved */
+		Rpc, /**< Remote procedure call forwarded to a scripted actor */
 
-		Auth = 10,					/**< Authentication request */
-		LevelReady,					/**< Notifies the server that the level finished loading */
-		ChatMessage,				/**< Chat message sent to the server */
-		ValidateAssetsResponse,		/**< Response to a server request to validate required assets */
+		Auth = 10, /**< Authentication request */
+		LevelReady, /**< Notifies the server that the level finished loading */
+		ChatMessage, /**< Chat message sent to the server */
+		ValidateAssetsResponse, /**< Response to a server request to validate required assets */
 
-		ForceResyncActors = 20,		/**< Requests the server to resynchronize all actors */
+		ForceResyncActors = 20, /**< Requests the server to resynchronize all actors */
 
-		PlayerReady = 30,			/**< Notifies the server that the player is ready to spawn */
-		PlayerUpdate,				/**< Periodic update of the local player state */
-		PlayerKeyPress,				/**< Player input state */
-		PlayerChangeWeaponRequest,	/**< Requests a weapon change */
-		PlayerSpectateRequest,		/**< Requests to enable or disable spectate mode */
-		PlayerAckWarped,			/**< Acknowledges that the player has been warped */
-		PlayerChangeCharacter,		/**< Requests to change the player character */
-		PlayerChangeTeamRequest		/**< Requests to change the player team */
+		PlayerReady = 30, /**< Notifies the server that the player is ready to spawn */
+		PlayerUpdate, /**< Periodic update of the local player state */
+		PlayerKeyPress, /**< Player input state */
+		PlayerChangeWeaponRequest, /**< Requests a weapon change */
+		PlayerSpectateRequest, /**< Requests to enable or disable spectate mode */
+		PlayerAckWarped, /**< Acknowledges that the player has been warped */
+		PlayerChangeCharacter, /**< Requests to change the player character */
+		PlayerChangeTeamRequest /**< Requests to change the player team */
 	};
 
 	/**
@@ -58,59 +58,59 @@ namespace Jazz2::Multiplayer
 	*/
 	enum class ServerPacketType
 	{
-		Null,							/**< Empty packet */
-		Pong,							/**< Response to a ping request */
-		Reserved,						/**< Reserved */
-		Rpc,							/**< Remote procedure call forwarded to a scripted actor */
+		Null, /**< Empty packet */
+		Pong, /**< Response to a ping request */
+		Reserved, /**< Reserved */
+		Rpc, /**< Remote procedure call forwarded to a scripted actor */
 
-		AuthResponse = 70,				/**< Response to an authentication request */
-		PeerSetProperty,				/**< Sets a property of a peer */
-		ValidateAssets,					/**< Requests the client to validate its required assets */
-		StreamAsset,					/**< Streams a missing asset to the client */
+		AuthResponse = 70, /**< Response to an authentication request */
+		PeerSetProperty, /**< Sets a property of a peer */
+		ValidateAssets, /**< Requests the client to validate its required assets */
+		StreamAsset, /**< Streams a missing asset to the client */
 
-		LoadLevel = 80,					/**< Requests the client to load a level */
-		LevelSetProperty,				/**< Sets a property of the current level */
-		LevelResetProperties,		// TODO
-		ShowInGameLobby,				/**< Requests the client to show the in-game lobby */
-		FadeOut,						/**< Requests the client to fade out the screen */
-		PlaySfx,						/**< Plays a sound effect attached to an actor */
-		PlayCommonSfx,					/**< Plays a common sound effect at a position */
-		Reserved2,						/**< Unused, kept so the following values don't change */
-		ChatMessage,					/**< Chat message of a player or of the server console, see @ref ServerMessage for the rest */
-		SyncTileMap,					/**< Synchronizes the state of the tile map */
-		SetTrigger,						/**< Sets the state of a trigger */
-		AdvanceTileAnimation,			/**< Advances a destructible tile animation */
-		RevertTileAnimation,		// TODO
-		CreateDebris,					/**< Creates particle or sprite debris */
-		StopSfx,						/**< Stops a sound effect attached to an actor, started with @ref SfxFlags::Exclusive */
-		ServerMessage,					/**< Alert or console line of the server, formatted by the client in its own language, see @ref ServerMessageType */
+		LoadLevel = 80, /**< Requests the client to load a level */
+		LevelSetProperty, /**< Sets a property of the current level */
+		LevelResetProperties, // TODO
+		ShowInGameLobby, /**< Requests the client to show the in-game lobby */
+		FadeOut, /**< Requests the client to fade out the screen */
+		PlaySfx, /**< Plays a sound effect attached to an actor */
+		PlayCommonSfx, /**< Plays a common sound effect at a position */
+		Reserved2, /**< Unused, kept so the following values don't change */
+		ChatMessage, /**< Chat message of a player or of the server console, see @ref ServerMessage for the rest */
+		SyncTileMap, /**< Synchronizes the state of the tile map */
+		SetTrigger, /**< Sets the state of a trigger */
+		AdvanceTileAnimation, /**< Advances a destructible tile animation */
+		RevertTileAnimation, // TODO
+		CreateDebris, /**< Creates particle or sprite debris */
+		StopSfx, /**< Stops a sound effect attached to an actor, started with @ref SfxFlags::Exclusive */
+		ServerMessage, /**< Alert or console line of the server, formatted by the client in its own language, see @ref ServerMessageType */
 
-		CreateControllablePlayer = 110,	/**< Creates a player controllable by the client */
-		CreateRemoteActor,				/**< Creates a remote actor on the client */
-		CreateMirroredActor,			/**< Creates a mirrored actor on the client */
-		DestroyRemoteActor,				/**< Destroys a remote actor on the client */
-		UpdateAllActors,				/**< Periodic update of the remote actors relevant to the peer */
-		ChangeRemoteActorMetadata,		/**< Changes metadata of a remote actor */
-		MarkRemoteActorAsPlayer,		/**< Marks a remote actor as another player */
-		UpdatePositionsInRound,			/**< Updates player positions in the current round */
-		SyncMinimapTrack,				/**< Sends the ordered track checkpoint polyline and start markers for the minimap */
-		SyncTeamScores,					/**< Sends the per-team aggregate scores for the HUD */
-		SyncScoreboard,					/**< Sends per-player scoreboard rows (name, kills, deaths, points, ping) */
-		SyncRoundResults,				/**< Sends the final round standings shown while the round is ending */
-		SyncGameModeObjects,			/**< Sends the objects of the game mode (control points, jails, heads, ...) */
+		CreateControllablePlayer = 110, /**< Creates a player controllable by the client */
+		CreateRemoteActor, /**< Creates a remote actor on the client */
+		CreateMirroredActor, /**< Creates a mirrored actor on the client */
+		DestroyRemoteActor, /**< Destroys a remote actor on the client */
+		UpdateAllActors, /**< Periodic update of the remote actors relevant to the peer */
+		ChangeRemoteActorMetadata, /**< Changes metadata of a remote actor */
+		MarkRemoteActorAsPlayer, /**< Marks a remote actor as another player */
+		UpdatePositionsInRound, /**< Updates player positions in the current round */
+		SyncMinimapTrack, /**< Sends the ordered track checkpoint polyline and start markers for the minimap */
+		SyncTeamScores, /**< Sends the per-team aggregate scores for the HUD */
+		SyncScoreboard, /**< Sends per-player scoreboard rows (name, kills, deaths, points, ping) */
+		SyncRoundResults, /**< Sends the final round standings shown while the round is ending */
+		SyncGameModeObjects, /**< Sends the objects of the game mode (control points, jails, heads, ...) */
 
-		PlayerSetProperty = 130,		/**< Sets a property of a player */
-		PlayerResetProperties,			/**< Resets all properties of a player */
-		PlayerRespawn,					/**< Respawns a player */
-		PlayerMoveInstantly,			/**< Moves a player instantly to a position */
-		PlayerAckWarped,			// TODO
-		PlayerActivateForce,		// TODO
-		PlayerEmitWeaponFlare,			/**< Emits a weapon flare from a player */
-		PlayerChangeWeapon,				/**< Changes the current weapon of a player */
-		PlayerTakeDamage,				/**< Applies damage to a player */
-		PlayerPush,						/**< Pushes a player */
-		PlayerActivateSpring,			/**< Activates a spring under a player */
-		PlayerWarpIn					/**< Warps a player into the level */
+		PlayerSetProperty = 130, /**< Sets a property of a player */
+		PlayerResetProperties, /**< Resets all properties of a player */
+		PlayerRespawn, /**< Respawns a player */
+		PlayerMoveInstantly, /**< Moves a player instantly to a position */
+		PlayerAckWarped, // TODO
+		PlayerActivateForce, // TODO
+		PlayerEmitWeaponFlare, /**< Emits a weapon flare from a player */
+		PlayerChangeWeapon, /**< Changes the current weapon of a player */
+		PlayerTakeDamage, /**< Applies damage to a player */
+		PlayerPush, /**< Pushes a player */
+		PlayerActivateSpring, /**< Activates a spring under a player */
+		PlayerWarpIn /**< Warps a player into the level */
 	};
 
 	/**
@@ -121,13 +121,13 @@ namespace Jazz2::Multiplayer
 	*/
 	enum class PeerPropertyType
 	{
-		Unknown,		/**< Unknown */
+		Unknown, /**< Unknown */
 
-		Connected,		/**< Peer connected */
-		Disconnected,	/**< Peer disconnected */
-		Roasted,		/**< Peer was roasted (killed) */
+		Connected, /**< Peer connected */
+		Disconnected, /**< Peer disconnected */
+		Roasted, /**< Peer was roasted (killed) */
 
-		Count			/**< Count of supported property types */
+		Count /**< Count of supported property types */
 	};
 
 	/**
@@ -138,19 +138,19 @@ namespace Jazz2::Multiplayer
 	*/
 	enum class LevelPropertyType
 	{
-		Unknown,			/**< Unknown */
+		Unknown, /**< Unknown */
 
-		State = 1,			/**< Level state */
-		GameMode,			/**< Game mode */
+		State = 1, /**< Level state */
+		GameMode, /**< Game mode */
 
-		LevelText = 10,		/**< Overridden level text */
-		Music,				/**< Currently playing music */
-		BossHealth,			/**< Health of the currently active boss, drives the boss health bar on clients */
-		Weather,			/**< Current weather type and intensity */
-		Overtime,			/**< Time the remaining players have left to finish a race after the first one did */
-		Countdown,			/**< Step of the big countdown in the middle of the screen, shown by a game mode */
+		LevelText = 10, /**< Overridden level text */
+		Music, /**< Currently playing music */
+		BossHealth, /**< Health of the currently active boss, drives the boss health bar on clients */
+		Weather, /**< Current weather type and intensity */
+		Overtime, /**< Time the remaining players have left to finish a race after the first one did */
+		Countdown, /**< Step of the big countdown in the middle of the screen, shown by a game mode */
 
-		Count				/**< Count of supported property types */
+		Count /**< Count of supported property types */
 	};
 
 	/**
@@ -161,43 +161,43 @@ namespace Jazz2::Multiplayer
 	*/
 	enum class PlayerPropertyType
 	{
-		Unknown,			/**< Unknown */
+		Unknown, /**< Unknown */
 
-		PlayerType = 1,		/**< Player type (character) */
-		Lives,				/**< Remaining lives */
-		Health,				/**< Current health */
-		Controllable,		/**< Whether the player is controllable */
-		Invulnerable,		/**< Invulnerability state */
-		Modifier,			/**< Active modifier (e.g., copter, frog) */
-		Dizzy,				/**< Dizziness state */
-		Freeze,				/**< Freeze state */
-		Shield,				/**< Active shield */
-		LimitCameraView,	/**< Camera view limit */
-		OverrideCameraView,	/**< Camera view override */
-		ShakeCameraView,	/**< Camera shake */
-		Spectate,			/**< Spectate mode state */
-		Team,				/**< Team the player belongs to */
-		BeingStoodOn,		/**< Whether another player is standing on this one (cosmetic lift animation) */
-		SugarRush,			/**< Remaining sugar rush time */
-		AmbientLight,		/**< Ambient light intensity to apply and/or to remember for the checkpoint */
-		FlyCheat,			/**< Whether fly-cheat behavior is active (unlimited copter flight) */
-		ModeState,			/**< Role, score, carried amount and lives defined by the game mode */
+		PlayerType = 1, /**< Player type (character) */
+		Lives, /**< Remaining lives */
+		Health, /**< Current health */
+		Controllable, /**< Whether the player is controllable */
+		Invulnerable, /**< Invulnerability state */
+		Modifier, /**< Active modifier (e.g., copter, frog) */
+		Dizzy, /**< Dizziness state */
+		Freeze, /**< Freeze state */
+		Shield, /**< Active shield */
+		LimitCameraView, /**< Camera view limit */
+		OverrideCameraView, /**< Camera view override */
+		ShakeCameraView, /**< Camera shake */
+		Spectate, /**< Spectate mode state */
+		Team, /**< Team the player belongs to */
+		BeingStoodOn, /**< Whether another player is standing on this one (cosmetic lift animation) */
+		SugarRush, /**< Remaining sugar rush time */
+		AmbientLight, /**< Ambient light intensity to apply and/or to remember for the checkpoint */
+		FlyCheat, /**< Whether fly-cheat behavior is active (unlimited copter flight) */
+		ModeState, /**< Role, score, carried amount and lives defined by the game mode */
 
-		WeaponAmmo = 30,	/**< Ammo of a weapon */
-		WeaponUpgrades,		/**< Upgrades of a weapon */
+		WeaponAmmo = 30, /**< Ammo of a weapon */
+		WeaponUpgrades, /**< Upgrades of a weapon */
 
-		Coins = 60,			/**< Collected coins */
-		Gems,				/**< Collected gems */
-		Score,				/**< Current score */
+		Coins = 60, /**< Collected coins */
+		Gems, /**< Collected gems */
+		Score, /**< Current score */
 
-		Points = 90,		/**< Earned points in the session */
-		PositionInRound,	// TODO: Unused
-		Deaths,				/**< Deaths in the current round */
-		Kills,				/**< Kills in the current round */
-		Laps,				/**< Completed laps in the current round */
-		TreasureCollected,	/**< Treasure collected in the current round */
+		Points = 90, /**< Earned points in the session */
+		PositionInRound, // TODO: Unused
+		Deaths, /**< Deaths in the current round */
+		Kills, /**< Kills in the current round */
+		Laps, /**< Completed laps in the current round */
+		TreasureCollected, /**< Treasure collected in the current round */
 
-		Count				/**< Count of supported property types */
+		Count /**< Count of supported property types */
 	};
 }
 

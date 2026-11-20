@@ -20,7 +20,9 @@ namespace Jazz2::Actors::Lighting
 		FlickerLight();
 
 		/** @brief Preloads all assets required by this actor */
-		static void Preload(const ActorActivationDetails& details) {}
+		static void Preload(const ActorActivationDetails& details)
+		{
+		}
 
 	protected:
 		Task<bool> OnActivatedAsync(const ActorActivationDetails& details) override;
@@ -30,7 +32,8 @@ namespace Jazz2::Actors::Lighting
 	private:
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
-		struct LightPart {
+		struct LightPart
+		{
 			Vector2f Pos;
 			float Radius;
 			float Phase;

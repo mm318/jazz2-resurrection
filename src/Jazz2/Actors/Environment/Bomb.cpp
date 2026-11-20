@@ -16,9 +16,15 @@ namespace Jazz2::Actors::Environment
 	{
 		uint8_t theme = details.Params[0];
 		switch (theme) {
-			case 0: PreloadMetadataAsync("Object/Bomb"_s); break;
-			case 1: PreloadMetadataAsync("Enemy/LizardFloat"_s); break;
-			case 2: PreloadMetadataAsync("Enemy/LizardFloatXmas"_s); break;
+			case 0:
+				PreloadMetadataAsync("Object/Bomb"_s);
+				break;
+			case 1:
+				PreloadMetadataAsync("Enemy/LizardFloat"_s);
+				break;
+			case 2:
+				PreloadMetadataAsync("Enemy/LizardFloatXmas"_s);
+				break;
 		}
 	}
 
@@ -31,9 +37,15 @@ namespace Jazz2::Actors::Environment
 		_elasticity = 0.3f;
 
 		switch (theme) {
-			case 0: async_await RequestMetadataAsync("Object/Bomb"_s); break;
-			case 1: async_await RequestMetadataAsync("Enemy/LizardFloat"_s); break;
-			case 2: async_await RequestMetadataAsync("Enemy/LizardFloatXmas"_s); break;
+			case 0:
+				async_await RequestMetadataAsync("Object/Bomb"_s);
+				break;
+			case 1:
+				async_await RequestMetadataAsync("Enemy/LizardFloat"_s);
+				break;
+			case 2:
+				async_await RequestMetadataAsync("Enemy/LizardFloatXmas"_s);
+				break;
 		}
 
 		SetAnimation((AnimState)2);

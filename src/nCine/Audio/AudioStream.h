@@ -30,7 +30,8 @@ namespace nCine
 		~AudioStream();
 
 		/** @brief Returns the backend id of the currently playing buffer, or `0` if none */
-		inline std::uint32_t GetBufferId() const {
+		inline std::uint32_t GetBufferId() const
+		{
 #if defined(NCINE_HAS_NATIVE_AUDIO)
 			// A native stream plays through no buffer of the engine's
 			return 0;
@@ -40,29 +41,35 @@ namespace nCine
 		}
 
 		/** @brief Returns the number of bytes per sample */
-		inline std::int32_t GetBytesPerSample() const {
+		inline std::int32_t GetBytesPerSample() const
+		{
 			return _bytesPerSample;
 		}
 		/** @brief Returns the number of audio channels */
-		inline std::int32_t GetChannelCount() const {
+		inline std::int32_t GetChannelCount() const
+		{
 			return _numChannels;
 		}
 		/** @brief Returns the sample frequency */
-		inline std::int32_t GetFrequency() const {
+		inline std::int32_t GetFrequency() const
+		{
 			return _frequency;
 		}
 
 		/** @brief Returns the total number of samples, or `-1` if unknown */
-		inline std::int32_t GetSampleCount() const {
+		inline std::int32_t GetSampleCount() const
+		{
 			return _numSamples;
 		}
 		/** @brief Returns the duration in seconds */
-		inline float GetDuration() const {
+		inline float GetDuration() const
+		{
 			return _duration;
 		}
 
 		/** @brief Returns the total decoded size in bytes, or `-1` if unknown */
-		inline std::int32_t GetBufferSize() const {
+		inline std::int32_t GetBufferSize() const
+		{
 			return (_numSamples == -1 ? -1 : (_numSamples * _numChannels * _bytesPerSample));
 		}
 
@@ -70,7 +77,8 @@ namespace nCine
 		/** @brief Returns the number of samples held by a single streaming buffer */
 		std::int32_t GetStreamSampleCount() const;
 		/** @brief Returns the size of a single streaming buffer in bytes */
-		inline std::int32_t GetStreamBufferSize() const {
+		inline std::int32_t GetStreamBufferSize() const
+		{
 			return BufferSize;
 		}
 #endif
@@ -85,7 +93,8 @@ namespace nCine
 		void Stop(std::uint32_t source);
 
 		/** @brief Returns `true` if the stream is looping */
-		inline bool IsLooping() const {
+		inline bool IsLooping() const
+		{
 			return _isLooping;
 		}
 		/** @brief Sets whether the stream should loop */
@@ -136,15 +145,25 @@ namespace nCine
 			bool Started = false;
 
 			NativeStreamHandle() = default;
-			explicit NativeStreamHandle(std::uint32_t id) : Id(id) {}
+			explicit NativeStreamHandle(std::uint32_t id)
+				: Id(id)
+			{
+			}
 			~NativeStreamHandle();
 			NativeStreamHandle(const NativeStreamHandle&) = delete;
 			NativeStreamHandle& operator=(const NativeStreamHandle&) = delete;
 			// A moved-from stream must not close what it no longer owns; the assignment hands the previous
 			// stream to the moved-from object, whose destructor then closes it
-			NativeStreamHandle(NativeStreamHandle&& other) noexcept : Id(other.Id), Started(other.Started) { other.Id = 0; }
-			NativeStreamHandle& operator=(NativeStreamHandle&& other) noexcept {
-				std::uint32_t id = Id; Id = other.Id; other.Id = id;
+			NativeStreamHandle(NativeStreamHandle&& other) noexcept
+				: Id(other.Id), Started(other.Started)
+			{
+				other.Id = 0;
+			}
+			NativeStreamHandle& operator=(NativeStreamHandle&& other) noexcept
+			{
+				std::uint32_t id = Id;
+				Id = other.Id;
+				other.Id = id;
 				Started = other.Started;
 				return *this;
 			}
@@ -185,7 +204,8 @@ namespace nCine
 		std::shared_ptr<IAudioReader> _audioReader;
 
 		/** @brief Frames of the reader held by a queued buffer, see @ref IAudioReader::GetDecodedFrames() */
-		struct QueuedChunk {
+		struct QueuedChunk
+		{
 			std::int64_t StartFrame;
 			std::int32_t FrameCount;
 		};

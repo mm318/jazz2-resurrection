@@ -76,7 +76,7 @@ namespace Jazz2::Scripting
 		union
 		{
 			asINT64 m_valueInt;
-			double  m_valueFlt;
+			double m_valueFlt;
 			void* m_valueObj;
 		};
 		std::int32_t m_typeId;
@@ -148,7 +148,7 @@ namespace Jazz2::Scripting
 			friend class CScriptDictionary;
 
 		public:
-			void operator++();    // Pre-increment
+			void operator++(); // Pre-increment
 			void operator++(int); // Post-increment
 
 			// This is needed to support C++11 range-for
@@ -169,7 +169,10 @@ namespace Jazz2::Scripting
 			CIterator();
 			CIterator(const CScriptDictionary& dict, dictMap_t::const_iterator it);
 
-			CIterator& operator=(const CIterator&) { return *this; } // Not used
+			CIterator& operator=(const CIterator&)
+			{
+				return *this;
+			} // Not used
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
 			dictMap_t::const_iterator m_it;

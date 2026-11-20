@@ -34,11 +34,13 @@ namespace nCine
 		Sprite& operator=(Sprite&&) = default;
 
 		/** @brief Returns a copy of this object */
-		inline Sprite Clone() const {
+		inline Sprite Clone() const
+		{
 			return Sprite(*this);
 		}
 
-		inline static ObjectType sType() {
+		inline static ObjectType sType()
+		{
 			return ObjectType::Sprite;
 		}
 

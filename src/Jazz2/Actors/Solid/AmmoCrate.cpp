@@ -17,16 +17,34 @@ namespace Jazz2::Actors::Solid
 	{
 		WeaponType weaponType = (WeaponType)details.Params[0];
 		switch (weaponType) {
-			case WeaponType::Bouncer: PreloadMetadataAsync("Object/Crate/AmmoBouncer"_s); break;
-			case WeaponType::Freezer: PreloadMetadataAsync("Object/Crate/AmmoFreezer"_s); break;
-			case WeaponType::Seeker: PreloadMetadataAsync("Object/Crate/AmmoSeeker"_s); break;
-			case WeaponType::RF: PreloadMetadataAsync("Object/Crate/AmmoRF"_s); break;
-			case WeaponType::Toaster: PreloadMetadataAsync("Object/Crate/AmmoToaster"_s); break;
-			case WeaponType::TNT: PreloadMetadataAsync("Object/Crate/AmmoTNT"_s); break;
-			case WeaponType::Pepper: PreloadMetadataAsync("Object/Crate/AmmoPepper"_s); break;
-			case WeaponType::Electro: PreloadMetadataAsync("Object/Crate/AmmoElectro"_s); break;
+			case WeaponType::Bouncer:
+				PreloadMetadataAsync("Object/Crate/AmmoBouncer"_s);
+				break;
+			case WeaponType::Freezer:
+				PreloadMetadataAsync("Object/Crate/AmmoFreezer"_s);
+				break;
+			case WeaponType::Seeker:
+				PreloadMetadataAsync("Object/Crate/AmmoSeeker"_s);
+				break;
+			case WeaponType::RF:
+				PreloadMetadataAsync("Object/Crate/AmmoRF"_s);
+				break;
+			case WeaponType::Toaster:
+				PreloadMetadataAsync("Object/Crate/AmmoToaster"_s);
+				break;
+			case WeaponType::TNT:
+				PreloadMetadataAsync("Object/Crate/AmmoTNT"_s);
+				break;
+			case WeaponType::Pepper:
+				PreloadMetadataAsync("Object/Crate/AmmoPepper"_s);
+				break;
+			case WeaponType::Electro:
+				PreloadMetadataAsync("Object/Crate/AmmoElectro"_s);
+				break;
 			//case WeaponType::Thunderbolt: TODO
-			default: PreloadMetadataAsync("Object/Crate/Generic"_s); break;
+			default:
+				PreloadMetadataAsync("Object/Crate/Generic"_s);
+				break;
 		}
 	}
 
@@ -40,16 +58,34 @@ namespace Jazz2::Actors::Solid
 		}
 
 		switch (weaponType) {
-			case WeaponType::Bouncer: async_await RequestMetadataAsync("Object/Crate/AmmoBouncer"_s); break;
-			case WeaponType::Freezer: async_await RequestMetadataAsync("Object/Crate/AmmoFreezer"_s); break;
-			case WeaponType::Seeker: async_await RequestMetadataAsync("Object/Crate/AmmoSeeker"_s); break;
-			case WeaponType::RF: async_await RequestMetadataAsync("Object/Crate/AmmoRF"_s); break;
-			case WeaponType::Toaster: async_await RequestMetadataAsync("Object/Crate/AmmoToaster"_s); break;
-			case WeaponType::TNT: async_await RequestMetadataAsync("Object/Crate/AmmoTNT"_s); break;
-			case WeaponType::Pepper: async_await RequestMetadataAsync("Object/Crate/AmmoPepper"_s); break;
-			case WeaponType::Electro: async_await RequestMetadataAsync("Object/Crate/AmmoElectro"_s); break;
+			case WeaponType::Bouncer:
+				async_await RequestMetadataAsync("Object/Crate/AmmoBouncer"_s);
+				break;
+			case WeaponType::Freezer:
+				async_await RequestMetadataAsync("Object/Crate/AmmoFreezer"_s);
+				break;
+			case WeaponType::Seeker:
+				async_await RequestMetadataAsync("Object/Crate/AmmoSeeker"_s);
+				break;
+			case WeaponType::RF:
+				async_await RequestMetadataAsync("Object/Crate/AmmoRF"_s);
+				break;
+			case WeaponType::Toaster:
+				async_await RequestMetadataAsync("Object/Crate/AmmoToaster"_s);
+				break;
+			case WeaponType::TNT:
+				async_await RequestMetadataAsync("Object/Crate/AmmoTNT"_s);
+				break;
+			case WeaponType::Pepper:
+				async_await RequestMetadataAsync("Object/Crate/AmmoPepper"_s);
+				break;
+			case WeaponType::Electro:
+				async_await RequestMetadataAsync("Object/Crate/AmmoElectro"_s);
+				break;
 			//case WeaponType::Thunderbolt: TODO
-			default: async_await RequestMetadataAsync("Object/Crate/Generic"_s); break;
+			default:
+				async_await RequestMetadataAsync("Object/Crate/Generic"_s);
+				break;
 		}
 
 		SetAnimation(AnimState::Idle);

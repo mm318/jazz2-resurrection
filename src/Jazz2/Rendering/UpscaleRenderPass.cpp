@@ -5,7 +5,7 @@
 #include "../../nCine/Application.h"
 #include "../../nCine/Graphics/RenderQueue.h"
 #include "../../nCine/Graphics/Viewport.h"
-#include "../../nCine/Graphics/RHI/RhiFwd.h"	// RHI_CAP_POSTPROCESSING must be resolved before the #if below
+#include "../../nCine/Graphics/RHI/RhiFwd.h" // RHI_CAP_POSTPROCESSING must be resolved before the #if below
 
 #include <algorithm>
 #include <cmath>
@@ -14,7 +14,7 @@
 // The direct tier (no shaders or no framebuffers - the software backend today, fixed-function console
 // backends later) renders straight into the backend screen framebuffer, whose size the pass drives via
 // Device::ResizeScreenFramebuffer (part of the no-shader presentation contract, see RhiFwd.h)
-#	include "../../nCine/Graphics/RHI/Rhi.h"
+#include "../../nCine/Graphics/RHI/Rhi.h"
 #endif
 
 namespace Jazz2::Rendering
@@ -254,21 +254,43 @@ namespace Jazz2::Rendering
 				// Edge-detection scalers derive their sample offsets from the input size; when the scene is supersampled
 				// they must use the logical size, otherwise they operate at the supersampled texel scale (offsets too
 				// small) and the effect comes out far too weak
-				case RescaleMode::HQ2x: _resizeShader = ContentResolver::Get().GetShader(PrecompiledShader::ResizeHQ2x); _resizeAtLogicalScale = true; break;
-				case RescaleMode::_3xBrz: _resizeShader = ContentResolver::Get().GetShader(PrecompiledShader::Resize3xBrz); _resizeAtLogicalScale = true; break;
-				case RescaleMode::CrtScanlines: _resizeShader = ContentResolver::Get().GetShader(PrecompiledShader::ResizeCrtScanlines); break;
-				case RescaleMode::CrtShadowMask: _resizeShader = ContentResolver::Get().GetShader(PrecompiledShader::ResizeCrtShadowMask); break;
-				case RescaleMode::CrtApertureGrille: _resizeShader = ContentResolver::Get().GetShader(PrecompiledShader::ResizeCrtApertureGrille); break;
-				case RescaleMode::Monochrome: _resizeShader = ContentResolver::Get().GetShader(PrecompiledShader::ResizeMonochrome); break;
-				case RescaleMode::Sabr: _resizeShader = ContentResolver::Get().GetShader(PrecompiledShader::ResizeSabr); _resizeAtLogicalScale = true; break;
-				case RescaleMode::CleanEdge: _resizeShader = ContentResolver::Get().GetShader(PrecompiledShader::ResizeCleanEdge); _resizeAtLogicalScale = true; break;
-				default: _resizeShader = nullptr; break;
+				case RescaleMode::HQ2x:
+					_resizeShader = ContentResolver::Get().GetShader(PrecompiledShader::ResizeHQ2x);
+					_resizeAtLogicalScale = true;
+					break;
+				case RescaleMode::_3xBrz:
+					_resizeShader = ContentResolver::Get().GetShader(PrecompiledShader::Resize3xBrz);
+					_resizeAtLogicalScale = true;
+					break;
+				case RescaleMode::CrtScanlines:
+					_resizeShader = ContentResolver::Get().GetShader(PrecompiledShader::ResizeCrtScanlines);
+					break;
+				case RescaleMode::CrtShadowMask:
+					_resizeShader = ContentResolver::Get().GetShader(PrecompiledShader::ResizeCrtShadowMask);
+					break;
+				case RescaleMode::CrtApertureGrille:
+					_resizeShader = ContentResolver::Get().GetShader(PrecompiledShader::ResizeCrtApertureGrille);
+					break;
+				case RescaleMode::Monochrome:
+					_resizeShader = ContentResolver::Get().GetShader(PrecompiledShader::ResizeMonochrome);
+					break;
+				case RescaleMode::Sabr:
+					_resizeShader = ContentResolver::Get().GetShader(PrecompiledShader::ResizeSabr);
+					_resizeAtLogicalScale = true;
+					break;
+				case RescaleMode::CleanEdge:
+					_resizeShader = ContentResolver::Get().GetShader(PrecompiledShader::ResizeCleanEdge);
+					_resizeAtLogicalScale = true;
+					break;
+				default:
+					_resizeShader = nullptr;
+					break;
 			}
 		}
 
 		bool shaderChanged = (_resizeShader != nullptr
-			? _renderCommand.GetMaterial().SetShader(_resizeShader)
-			: _renderCommand.GetMaterial().SetShaderProgramType(Material::ShaderProgramType::Sprite));
+				? _renderCommand.GetMaterial().SetShader(_resizeShader)
+				: _renderCommand.GetMaterial().SetShaderProgramType(Material::ShaderProgramType::Sprite));
 #else
 		bool shaderChanged = _renderCommand.GetMaterial().SetShaderProgramType(Material::ShaderProgramType::Sprite);
 #endif

@@ -39,21 +39,24 @@ namespace Jazz2::AssetPacker
 		}
 
 		/** @brief How a DiscJuggler image ends, and which of the three layouts it is */
-		enum : std::uint32_t {
+		enum : std::uint32_t
+		{
 			CdiVersion2 = 0x80000004,
 			CdiVersion3 = 0x80000005,
 			CdiVersion35 = 0x80000006
 		};
 
 		/** @brief Mode of a track, as the descriptor of a DiscJuggler image spells it */
-		enum : std::uint32_t {
+		enum : std::uint32_t
+		{
 			TrackModeAudio = 0,
 			TrackModeData = 1,
 			TrackModeXa = 2
 		};
 
 		/** @brief One track of a DiscJuggler image */
-		struct CdiTrack {
+		struct CdiTrack
+		{
 			/** @brief Where the stored data of the track begins in the file, the pregap included */
 			std::uint64_t DataOffset = 0;
 			/** @brief Sectors of pregap stored ahead of the first sector of the track */
@@ -70,7 +73,8 @@ namespace Jazz2::AssetPacker
 		};
 
 		/** @brief A DiscJuggler image, as much of one as replacing what is on it needs */
-		struct CdiImage {
+		struct CdiImage
+		{
 			std::uint32_t Version = 0;
 			/** @brief Where the descriptor the tracks were read from begins */
 			std::uint64_t DescriptorOffset = 0;
@@ -92,17 +96,22 @@ namespace Jazz2::AssetPacker
 		{
 		public:
 			CdiDescriptorParser(const Array<std::uint8_t>& descriptor, std::uint32_t version)
-				: _data(descriptor), _version(version), _offset(0), _valid(true) {}
+				: _data(descriptor), _version(version), _offset(0), _valid(true)
+			{
+			}
 
-			bool IsValid() const {
+			bool IsValid() const
+			{
 				return _valid;
 			}
 
-			std::size_t GetOffset() const {
+			std::size_t GetOffset() const
+			{
 				return _offset;
 			}
 
-			void Skip(std::size_t count) {
+			void Skip(std::size_t count)
+			{
 				if (_offset + count > _data.size()) {
 					_valid = false;
 					_offset = _data.size();
@@ -111,7 +120,8 @@ namespace Jazz2::AssetPacker
 				}
 			}
 
-			std::uint8_t ReadU8() {
+			std::uint8_t ReadU8()
+			{
 				if (_offset + 1 > _data.size()) {
 					_valid = false;
 					return 0;
@@ -119,7 +129,8 @@ namespace Jazz2::AssetPacker
 				return _data[_offset++];
 			}
 
-			std::uint16_t ReadU16() {
+			std::uint16_t ReadU16()
+			{
 				if (_offset + 2 > _data.size()) {
 					_valid = false;
 					return 0;
@@ -129,7 +140,8 @@ namespace Jazz2::AssetPacker
 				return value;
 			}
 
-			std::uint32_t ReadU32() {
+			std::uint32_t ReadU32()
+			{
 				if (_offset + 4 > _data.size()) {
 					_valid = false;
 					return 0;
@@ -141,7 +153,8 @@ namespace Jazz2::AssetPacker
 			}
 
 			/** @brief Skips the two marks and the path that the record of a track, and of the disc, begins with */
-			void SkipRecordHeader() {
+			void SkipRecordHeader()
+			{
 				// A newer writer puts eight more bytes in front of everything else and says so with a flag
 				if (ReadU32() != 0) {
 					Skip(8);
@@ -158,7 +171,8 @@ namespace Jazz2::AssetPacker
 			}
 
 			/** @brief Steps over what separates the tracks of one session from those of the next */
-			void SkipSessionEnd() {
+			void SkipSessionEnd()
+			{
 				Skip(_version == CdiVersion2 ? 12 : 13);
 			}
 
@@ -190,7 +204,8 @@ namespace Jazz2::AssetPacker
 
 			// The newest of the three layouts counts the descriptor back from the end of the file
 			image.DescriptorOffset = (image.Version == CdiVersion35
-				? std::uint64_t(fileSize) - headerOffset : headerOffset);
+					? std::uint64_t(fileSize) - headerOffset
+					: headerOffset);
 			if (image.DescriptorOffset + 8 > std::uint64_t(fileSize)) {
 				LOGE("The image ends before the descriptor it points at");
 				return false;
@@ -203,7 +218,7 @@ namespace Jazz2::AssetPacker
 				LOGE("The descriptor of the image is {} bytes long, which is not a descriptor", descriptorSize);
 				return false;
 			}
-			image.Descriptor = Array<std::uint8_t>{NoInit, descriptorSize};
+			image.Descriptor = Array<std::uint8_t> { NoInit, descriptorSize };
 			stream.Seek(std::int64_t(image.DescriptorOffset), SeekOrigin::Begin);
 			if (stream.Read(image.Descriptor.data(), std::int64_t(descriptorSize)) != std::int64_t(descriptorSize)) {
 				LOGE("Cannot read the descriptor of the image");
@@ -279,9 +294,12 @@ namespace Jazz2::AssetPacker
 		std::uint32_t UserDataOffset(const CdiTrack& track)
 		{
 			switch (track.SectorSize) {
-				case 2336: return 8;								// A subheader, so Mode 2 Form 1
-				case 2352: return (track.Mode == TrackModeData ? 16 : 24);	// A sync pattern and a header as well
-				default: return 0;
+				case 2336:
+					return 8; // A subheader, so Mode 2 Form 1
+				case 2352:
+					return (track.Mode == TrackModeData ? 16 : 24); // A sync pattern and a header as well
+				default:
+					return 0;
 			}
 		}
 
@@ -292,12 +310,14 @@ namespace Jazz2::AssetPacker
 			detection code, and the forward and backward logarithm of the Galois field the Reed-Solomon parity
 			is computed in.
 		*/
-		struct EccTables {
+		struct EccTables
+		{
 			std::uint8_t Forward[256];
 			std::uint8_t Backward[256];
 			std::uint32_t Edc[256];
 
-			EccTables() {
+			EccTables()
+			{
 				for (std::int32_t i = 0; i < 256; i++) {
 					std::uint8_t product = std::uint8_t((i << 1) ^ (i & 0x80 ? 0x1D : 0));
 					Forward[i] = product;
@@ -365,7 +385,7 @@ namespace Jazz2::AssetPacker
 		{
 			target[0] = 0;
 			target[1] = 0;
-			target[2] = 0x09;	// The sector holds data and is the end of a record
+			target[2] = 0x09; // The sector holds data and is the end of a record
 			target[3] = 0;
 			target[4] = 0;
 			target[5] = 0;
@@ -394,7 +414,9 @@ namespace Jazz2::AssetPacker
 		{
 		public:
 			CdiSectorReader(Stream& stream, const CdiTrack& track)
-				: _stream(stream), _track(track), _userDataOffset(UserDataOffset(track)) {}
+				: _stream(stream), _track(track), _userDataOffset(UserDataOffset(track))
+			{
+			}
 
 			bool ReadSector(std::uint32_t lba, std::uint8_t* destination) override
 			{
@@ -473,7 +495,7 @@ namespace Jazz2::AssetPacker
 		bool CopyRange(Stream& source, std::uint64_t offset, std::uint64_t size, Stream& target)
 		{
 			constexpr std::int64_t ChunkSize = 1024 * 1024;
-			Array<std::uint8_t> buffer{NoInit, std::size_t(ChunkSize)};
+			Array<std::uint8_t> buffer { NoInit, std::size_t(ChunkSize) };
 			source.Seek(std::int64_t(offset), SeekOrigin::Begin);
 			while (size > 0) {
 				std::int64_t chunk = (size < std::uint64_t(ChunkSize) ? std::int64_t(size) : ChunkSize);
@@ -647,7 +669,8 @@ namespace Jazz2::AssetPacker
 			The disc header (`boot.bin`) comes first, then `bi2.bin` with the settings the boot ROM hands to the game,
 			then the apploader. Everything the header names is a byte offset from the start of the disc.
 		*/
-		enum : std::uint32_t {
+		enum : std::uint32_t
+		{
 			GameCubeMagicOffset = 0x1C,
 			GameCubeTitleOffset = 0x20,
 			GameCubeTitleSize = 0x3E0,
@@ -715,7 +738,7 @@ namespace Jazz2::AssetPacker
 			// The name is shown by Dolphin and by loaders, in Shift-JIS on a Japanese disc and in Windows-1252
 			// anywhere else - which is Latin-1 for everything below U+0100, enough for "Jazz²"
 			std::size_t length = 0;
-			for (std::size_t i = 0; i < title.size() && length < GameCubeTitleSize - 1; ) {
+			for (std::size_t i = 0; i < title.size() && length < GameCubeTitleSize - 1;) {
 				Pair<char32_t, std::size_t> next = Utf8::NextChar(arrayView(title.data(), title.size()), i);
 				i = next.second();
 				header[GameCubeTitleOffset + length++] = (next.first() < 0x100 ? std::uint8_t(next.first()) : std::uint8_t('?'));
@@ -755,7 +778,7 @@ namespace Jazz2::AssetPacker
 					GameCubeApploaderHeaderSize + 1, IsoSystemAreaSize - GameCubeApploaderOffset);
 				return false;
 			}
-			apploader = Array<std::uint8_t>{NoInit, std::size_t(size)};
+			apploader = Array<std::uint8_t> { NoInit, std::size_t(size) };
 			if (s->Read(apploader.data(), size) != size) {
 				LOGE("Cannot read \"{}\"", path);
 				return false;
@@ -833,15 +856,15 @@ namespace Jazz2::AssetPacker
 		*/
 		Array<std::uint8_t> MakePrimaryVolumeDescriptor(StringView label)
 		{
-			Array<std::uint8_t> descriptor{ValueInit, IsoSectorSize};
+			Array<std::uint8_t> descriptor { ValueInit, IsoSectorSize };
 			std::uint8_t* d = descriptor.data();
 			d[0] = 1;
 			std::memcpy(d + 1, "CD001", 5);
 			d[6] = 1;
 			WriteDescriptorText(d + 8, 32, {});
 			WriteDescriptorText(d + 40, 32, label);
-			WriteU16Both(d + 120, 1);		// Volume set size
-			WriteU16Both(d + 124, 1);		// Volume sequence number
+			WriteU16Both(d + 120, 1); // Volume set size
+			WriteU16Both(d + 124, 1); // Volume sequence number
 			WriteU16Both(d + 128, std::uint16_t(IsoSectorSize));
 			WriteDescriptorText(d + 190, 128, label);
 			WriteDescriptorText(d + 318, 128, {});
@@ -863,7 +886,7 @@ namespace Jazz2::AssetPacker
 			WriteDescriptorDate(d + 830, &now);
 			WriteDescriptorDate(d + 847, nullptr);
 			WriteDescriptorDate(d + 864, nullptr);
-			d[881] = 1;		// File structure version
+			d[881] = 1; // File structure version
 			return descriptor;
 		}
 
@@ -972,7 +995,7 @@ namespace Jazz2::AssetPacker
 			return false;
 		}
 
-		Array<std::uint8_t> systemArea{ValueInit, IsoSystemAreaSize};
+		Array<std::uint8_t> systemArea { ValueInit, IsoSystemAreaSize };
 		for (std::uint32_t i = 0; i < 16; i++) {
 			if (!sectorReader.ReadSector(dataTrack->StartLba + i, systemArea.data() + i * IsoSectorSize)) {
 				return false;
@@ -1010,7 +1033,8 @@ namespace Jazz2::AssetPacker
 			}
 			if (executableName.empty()) {
 				LOGE("The executable of \"{}\" is not one of the files of its volume, so the disc cannot be rewritten "
-					"without losing it", sourcePath);
+					 "without losing it",
+					sourcePath);
 				return false;
 			}
 			if (ReadU32BE(systemArea.data() + GameCubeFstSizeField) != 0) {
@@ -1051,7 +1075,8 @@ namespace Jazz2::AssetPacker
 		// A volume that is shorter than its track by more than a pregap is not one that ends in a run-out,
 		// it is one that was written to a track longer than it needed, and it gets all of it
 		std::uint32_t runOut = (dataTrack->Length > isoReader.GetVolumeSpaceSize()
-			? dataTrack->Length - isoReader.GetVolumeSpaceSize() : 0);
+				? dataTrack->Length - isoReader.GetVolumeSpaceSize()
+				: 0);
 		if (runOut > 150 || gameCube) {
 			// What a GameCube image ends with is not a run-out but padding, written again below
 			runOut = 0;
@@ -1148,7 +1173,8 @@ namespace Jazz2::AssetPacker
 				// one from its end; the descriptor is the same size as the one that was read either way
 				target->WriteValueAsLE<std::uint32_t>(image.Version);
 				target->WriteValueAsLE<std::uint32_t>(image.Version == CdiVersion35
-					? std::uint32_t(image.Descriptor.size() + 8) : std::uint32_t(descriptorPosition));
+						? std::uint32_t(image.Descriptor.size() + 8)
+						: std::uint32_t(descriptorPosition));
 			}
 		}
 
@@ -1189,7 +1215,7 @@ namespace Jazz2::AssetPacker
 			return false;
 		}
 
-		Array<std::uint8_t> systemArea{ValueInit, IsoSystemAreaSize};
+		Array<std::uint8_t> systemArea { ValueInit, IsoSystemAreaSize };
 		WriteGameCubeHeader(systemArea, description.GameId, description.Title);
 		std::memcpy(systemArea.data() + GameCubeApploaderOffset, apploader.data(), apploader.size());
 

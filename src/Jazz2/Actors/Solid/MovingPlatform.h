@@ -30,21 +30,25 @@ namespace Jazz2::Actors::Solid
 		bool OnHandleCollision(ActorBase* other) override;
 
 		/** @brief Returns the point the platform hangs from */
-		Vector2f GetOriginPos() const {
+		Vector2f GetOriginPos() const
+		{
 			return _originPos;
 		}
 		/** @brief Moves the point the platform hangs from */
-		void SetOriginPos(Vector2f pos) {
+		void SetOriginPos(Vector2f pos)
+		{
 			_originPos = pos;
 		}
 		/** @brief Returns the speed in the units of the parameter of the event */
-		std::int32_t GetEventSpeed() const {
+		std::int32_t GetEventSpeed() const
+		{
 			return std::int32_t(std::round(_speed / SpeedUnit));
 		}
 		/** @brief Sets the speed in the units of the parameter of the event, negative swings the other way */
 		void SetEventSpeed(std::int32_t value);
 		/** @brief Draws only the chain, something else draws the platform itself */
-		void SetBodyHidden(bool value) {
+		void SetBodyHidden(bool value)
+		{
 			_bodyHidden = value;
 		}
 
@@ -61,7 +65,8 @@ namespace Jazz2::Actors::Solid
 		bool OnDraw(RenderQueue& renderQueue) override;
 
 	private:
-		enum class PlatformType {
+		enum class PlatformType
+		{
 			CarrotusFruit = 1,
 			Ball = 2,
 			CarrotusGrass = 3,
@@ -74,7 +79,8 @@ namespace Jazz2::Actors::Solid
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
-		struct ChainPiece {
+		struct ChainPiece
+		{
 			Vector2f Pos;
 			std::unique_ptr<RenderCommand> Command;
 		};

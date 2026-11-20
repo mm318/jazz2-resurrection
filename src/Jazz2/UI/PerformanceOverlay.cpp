@@ -5,7 +5,7 @@
 #include "../../nCine/Graphics/RenderQueue.h"
 #include "../../nCine/Graphics/Texture.h"
 #include "../../nCine/Graphics/Viewport.h"
-#include "../../nCine/Graphics/RHI/RhiFwd.h"	// RHI_CAP_TRANSPARENT_RENDER_TARGETS (a header macro, not a build define)
+#include "../../nCine/Graphics/RHI/RhiFwd.h" // RHI_CAP_TRANSPARENT_RENDER_TARGETS (a header macro, not a build define)
 
 #include <algorithm>
 #include <cmath>
@@ -52,14 +52,14 @@ namespace Jazz2::UI
 #endif
 
 		// Taken as arrays, because an array converts to a string view through strlen()
-		template<std::size_t Size>
-		StringView FormatMilliseconds(char(&buffer)[Size], float value)
+		template <std::size_t Size>
+		StringView FormatMilliseconds(char (&buffer)[Size], float value)
 		{
 			return StringView(buffer, formatInto(buffer, "{:.2f} ms", value));
 		}
 
-		template<std::size_t Size>
-		StringView FormatBytes(char(&buffer)[Size], float value, float limit)
+		template <std::size_t Size>
+		StringView FormatBytes(char (&buffer)[Size], float value, float limit)
 		{
 			constexpr float Megabyte = 1024.0f * 1024.0f;
 			if (limit > 0.0f) {
@@ -71,8 +71,8 @@ namespace Jazz2::UI
 			return StringView(buffer, formatInto(buffer, "{:.1f} MB", value / Megabyte));
 		}
 
-		template<std::size_t Size>
-		StringView FormatCounter(char(&buffer)[Size], const FrameStatistics::Counter& counter)
+		template <std::size_t Size>
+		StringView FormatCounter(char (&buffer)[Size], const FrameStatistics::Counter& counter)
 		{
 			switch (counter.Type) {
 				case FrameStatistics::Unit::Milliseconds:
@@ -94,8 +94,8 @@ namespace Jazz2::UI
 
 	PerformanceOverlay::PerformanceOverlay()
 		: _rowCount(0), _snapshotSequence(0), _snapshotSeen(false), _font(nullptr), _lineHeight(0.0f), _blockCount(0),
-			_rowsPerBlock(0), _labelWidths{}, _valueWidths{}, _buildsInWindow(0), _tableSize(Vector2i::Zero),
-			_contentSize(Vector2i::Zero), _renderPending(false), _useTexture(UseTexture)
+		  _rowsPerBlock(0), _labelWidths {}, _valueWidths {}, _buildsInWindow(0), _tableSize(Vector2i::Zero),
+		  _contentSize(Vector2i::Zero), _renderPending(false), _useTexture(UseTexture)
 	{
 	}
 
@@ -296,8 +296,7 @@ namespace Jazz2::UI
 		AddRow("Max"_s, FormatMilliseconds(value, snapshot.MaxFrameTime));
 		// The engine's phases as they read in the game: its logic (input and events, the actors, then collisions and
 		// the cameras), preparing what to draw, drawing it, and the audio streams
-		AddRow("Logic"_s, FormatMilliseconds(value, phaseTime(Phase::BeginFrame) + phaseTime(Phase::Update) +
-			phaseTime(Phase::PostUpdate) + phaseTime(Phase::EndFrame)));
+		AddRow("Logic"_s, FormatMilliseconds(value, phaseTime(Phase::BeginFrame) + phaseTime(Phase::Update) + phaseTime(Phase::PostUpdate) + phaseTime(Phase::EndFrame)));
 		AddRow("Visit"_s, FormatMilliseconds(value, phaseTime(Phase::Visit)));
 		AddRow("Render"_s, FormatMilliseconds(value, phaseTime(Phase::Draw)));
 		AddRow("Audio"_s, FormatMilliseconds(value, phaseTime(Phase::Audio)));
@@ -322,8 +321,7 @@ namespace Jazz2::UI
 		}
 
 		// Draw calls after batching, and what they were batched from
-		AddRow("Draws"_s, StringView(value, formatInto(value, "{} / {}", std::int32_t(snapshot.DrawCalls + 0.5f),
-			std::int32_t(snapshot.RenderCommands + 0.5f))));
+		AddRow("Draws"_s, StringView(value, formatInto(value, "{} / {}", std::int32_t(snapshot.DrawCalls + 0.5f), std::int32_t(snapshot.RenderCommands + 0.5f))));
 
 		if (snapshot.MemoryUsed > 0) {
 			AddRow("RAM"_s, FormatBytes(value, float(snapshot.MemoryUsed), float(snapshot.MemoryTotal)));
@@ -412,7 +410,7 @@ namespace Jazz2::UI
 	void PerformanceOverlay::RemoveFromChain()
 	{
 		auto& chain = Viewport::GetChain();
-		for (std::size_t i = chain.size(); i-- > 0; ) {
+		for (std::size_t i = chain.size(); i-- > 0;) {
 			if (chain[i] == _view.get()) {
 				chain.erase(chain.begin() + i);
 				break;

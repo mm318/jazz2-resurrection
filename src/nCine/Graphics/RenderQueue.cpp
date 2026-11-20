@@ -60,17 +60,26 @@ namespace nCine
 		const char* commandTypeString(const RenderCommand& command)
 		{
 			switch (command.GetType()) {
-				case RenderCommand::Type::Unspecified: return "unspecified";
-				case RenderCommand::Type::Sprite: return "sprite";
-				case RenderCommand::Type::MeshSprite: return "mesh sprite";
-				case RenderCommand::Type::TileMap: return "tile map";
-				case RenderCommand::Type::Particle: return "particle";
-				case RenderCommand::Type::Lighting: return "lighting";
-				case RenderCommand::Type::Text: return "text";
-#	if defined(WITH_IMGUI)
-				case RenderCommand::Type::ImGui: return "imgui";
-#	endif
-				default: return "unknown";
+				case RenderCommand::Type::Unspecified:
+					return "unspecified";
+				case RenderCommand::Type::Sprite:
+					return "sprite";
+				case RenderCommand::Type::MeshSprite:
+					return "mesh sprite";
+				case RenderCommand::Type::TileMap:
+					return "tile map";
+				case RenderCommand::Type::Particle:
+					return "particle";
+				case RenderCommand::Type::Lighting:
+					return "lighting";
+				case RenderCommand::Type::Text:
+					return "text";
+#if defined(WITH_IMGUI)
+				case RenderCommand::Type::ImGui:
+					return "imgui";
+#endif
+				default:
+					return "unknown";
 			}
 		}
 #endif
@@ -156,9 +165,15 @@ namespace nCine
 			// The queues are sorted by the layer sort key first (see RenderCommand::CalculateMaterialSortKey()), a batch takes
 			// the key of its first command, so the commands of the layers drawn are a range of each queue - found by halving
 			part.OpaqueBegin = std::uint32_t(std::partition_point(opaques.begin(), opaques.begin() + part.OpaqueEnd,
-				[endKey](const RenderCommand* command) { return command->GetLayerSortKey() >= endKey; }) - opaques.begin());
+												 [endKey](const RenderCommand* command) {
+													 return command->GetLayerSortKey() >= endKey;
+												 }) -
+				opaques.begin());
 			part.TransparentEnd = std::uint32_t(std::partition_point(transparents.begin() + part.TransparentBegin, transparents.end(),
-				[endKey](const RenderCommand* command) { return command->GetLayerSortKey() < endKey; }) - transparents.begin());
+													[endKey](const RenderCommand* command) {
+														return command->GetLayerSortKey() < endKey;
+													}) -
+				transparents.begin());
 		}
 		return part;
 	}
@@ -226,13 +241,13 @@ namespace nCine
 			std::size_t length;
 			if (numInstances > 0) {
 				length = formatInto(debugString, "Opaque {} ({} {} on layer {}, visit order {}, sort key 0x{:x})",
-								    commandIndex, numInstances, commandTypeString(*opaqueRenderCommand), layer, visitOrder, opaqueRenderCommand->GetMaterialSortKey());
+					commandIndex, numInstances, commandTypeString(*opaqueRenderCommand), layer, visitOrder, opaqueRenderCommand->GetMaterialSortKey());
 			} else if (batchSize > 0) {
 				length = formatInto(debugString, "Opaque {} ({} {} on layer {}, visit order {}, sort key 0x{:x})",
-								    commandIndex, batchSize, commandTypeString(*opaqueRenderCommand), layer, visitOrder, opaqueRenderCommand->GetMaterialSortKey());
+					commandIndex, batchSize, commandTypeString(*opaqueRenderCommand), layer, visitOrder, opaqueRenderCommand->GetMaterialSortKey());
 			} else {
 				length = formatInto(debugString, "Opaque {} ({} {} layer {}, visit order {}, sort key 0x{:x})",
-								    commandIndex, commandTypeString(*opaqueRenderCommand), layer, visitOrder, opaqueRenderCommand->GetMaterialSortKey());
+					commandIndex, commandTypeString(*opaqueRenderCommand), layer, visitOrder, opaqueRenderCommand->GetMaterialSortKey());
 			}
 			RHI::Debug::ScopedGroup scoped({ debugString, length });
 			commandIndex++;
@@ -263,13 +278,13 @@ namespace nCine
 			std::size_t length;
 			if (numInstances > 0) {
 				length = formatInto(debugString, "Transparent {} ({} {} on layer {}, visit order {}, sort key 0x{:x})",
-								    commandIndex, numInstances, commandTypeString(*transparentRenderCommand), layer, visitOrder, transparentRenderCommand->GetMaterialSortKey());
+					commandIndex, numInstances, commandTypeString(*transparentRenderCommand), layer, visitOrder, transparentRenderCommand->GetMaterialSortKey());
 			} else if (batchSize > 0) {
 				length = formatInto(debugString, "Transparent {} ({} {} on layer {}, visit order {}, sort key 0x{:x})",
-								    commandIndex, batchSize, commandTypeString(*transparentRenderCommand), layer, visitOrder, transparentRenderCommand->GetMaterialSortKey());
+					commandIndex, batchSize, commandTypeString(*transparentRenderCommand), layer, visitOrder, transparentRenderCommand->GetMaterialSortKey());
 			} else {
 				length = formatInto(debugString, "Transparent {} ({} on layer {}, visit order {}, sort key 0x{:x})",
-								    commandIndex, commandTypeString(*transparentRenderCommand), layer, visitOrder, transparentRenderCommand->GetMaterialSortKey());
+					commandIndex, commandTypeString(*transparentRenderCommand), layer, visitOrder, transparentRenderCommand->GetMaterialSortKey());
 			}
 			RHI::Debug::ScopedGroup scoped({ debugString, length });
 			commandIndex++;

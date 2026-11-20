@@ -28,9 +28,7 @@ namespace Jazz2::Actors::Environment
 
 		// Measured in JJ2+: a horizontal spring fires again soon, a player held against a wall by it is still on it
 		bool horizontal = (_orientation == Orientation::Left || _orientation == Orientation::Right);
-		_cooldown = (_delay > 0 ? _delay : (!_levelHandler->IsReforged() && horizontal
-			? Player::LegacySpringRetriggerTicks / Player::LegacyFrameRateScale
-			: 6.0f));
+		_cooldown = (_delay > 0 ? _delay : (!_levelHandler->IsReforged() && horizontal ? Player::LegacySpringRetriggerTicks / Player::LegacyFrameRateScale : 6.0f));
 		_launchTime = 0.0f;
 
 		SetTransition(_currentAnimation->State | (AnimState)0x200, false);
@@ -150,9 +148,15 @@ namespace Jazz2::Actors::Environment
 			// launch on the tick it fires.
 			switch (_type) {
 				default:
-				case 0: _strength = 16.0f * Player::LegacyFrameRateScale; break;	// Red
-				case 1: _strength = 24.0f * Player::LegacyFrameRateScale; break;	// Green
-				case 2: _strength = 32.0f * Player::LegacyFrameRateScale; break;	// Blue
+				case 0:
+					_strength = 16.0f * Player::LegacyFrameRateScale;
+					break; // Red
+				case 1:
+					_strength = 24.0f * Player::LegacyFrameRateScale;
+					break; // Green
+				case 2:
+					_strength = 32.0f * Player::LegacyFrameRateScale;
+					break; // Blue
 			}
 		} else if (_orientation == Orientation::Right || _orientation == Orientation::Left) {
 			// Horizontal springs all seem to have the same strength.
@@ -182,11 +186,16 @@ namespace Jazz2::Actors::Environment
 	{
 		float power = 16.0f + std::min<std::int32_t>(_type, 2) * 8.0f;
 		switch (_orientation) {
-			case Orientation::Bottom: return Vector2f(0.0f, -power);
-			case Orientation::Top: return Vector2f(0.0f, power);
-			case Orientation::Right: return Vector2f(power, 0.0f);
-			case Orientation::Left: return Vector2f(-power, 0.0f);
-			default: return Vector2f::Zero;
+			case Orientation::Bottom:
+				return Vector2f(0.0f, -power);
+			case Orientation::Top:
+				return Vector2f(0.0f, power);
+			case Orientation::Right:
+				return Vector2f(power, 0.0f);
+			case Orientation::Left:
+				return Vector2f(-power, 0.0f);
+			default:
+				return Vector2f::Zero;
 		}
 	}
 
@@ -197,8 +206,8 @@ namespace Jazz2::Actors::Environment
 		}
 
 		Orientation orientation = (speed.X != 0.0f
-			? (speed.X > 0.0f ? Orientation::Right : Orientation::Left)
-			: (speed.Y < 0.0f ? Orientation::Bottom : Orientation::Top));
+				? (speed.X > 0.0f ? Orientation::Right : Orientation::Left)
+				: (speed.Y < 0.0f ? Orientation::Bottom : Orientation::Top));
 		if (orientation != _orientation) {
 			_orientation = orientation;
 			ApplyOrientation();

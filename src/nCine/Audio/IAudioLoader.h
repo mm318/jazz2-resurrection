@@ -18,41 +18,51 @@ namespace nCine
 	class IAudioLoader
 	{
 	public:
-		virtual ~IAudioLoader() { }
+		virtual ~IAudioLoader()
+		{
+		}
 
 		/** @brief Returns `true` if the audio file was loaded successfully */
-		inline bool HasLoaded() const {
+		inline bool HasLoaded() const
+		{
 			return _hasLoaded;
 		}
 
 		/** @brief Returns the number of bytes per sample */
-		inline std::int32_t GetBytesPerSample() const {
+		inline std::int32_t GetBytesPerSample() const
+		{
 			return _bytesPerSample;
 		}
 		/** @brief Returns the number of channels */
-		inline std::int32_t GetChannelCount() const {
+		inline std::int32_t GetChannelCount() const
+		{
 			return _numChannels;
 		}
 		/** @brief Returns the sample frequency */
-		inline std::int32_t GetFrequency() const {
+		inline std::int32_t GetFrequency() const
+		{
 			return _frequency;
 		}
 		/** @brief Returns the sample frequency before asset preparation resampled it */
-		inline std::int32_t GetOriginalFrequency() const {
+		inline std::int32_t GetOriginalFrequency() const
+		{
 			return _originalFrequency > 0 ? _originalFrequency : _frequency;
 		}
 
 		/** @brief Returns the total number of samples */
-		inline std::int32_t GetSampleCount() const {
+		inline std::int32_t GetSampleCount() const
+		{
 			return _numSamples;
 		}
 		/** @brief Returns the duration in seconds */
-		inline float GetDuration() const {
+		inline float GetDuration() const
+		{
 			return _duration;
 		}
 
 		/** @brief Returns the decoded buffer size in bytes */
-		inline std::int32_t GetBufferSize() const {
+		inline std::int32_t GetBufferSize() const
+		{
 			return _numSamples * _numChannels * _bytesPerSample;
 		}
 
@@ -96,9 +106,12 @@ namespace nCine
 	{
 	public:
 		explicit InvalidAudioLoader()
-			: IAudioLoader(nullptr) { }
+			: IAudioLoader(nullptr)
+		{
+		}
 
-		std::unique_ptr<IAudioReader> CreateReader() override {
+		std::unique_ptr<IAudioReader> CreateReader() override
+		{
 			return nullptr;
 		}
 	};

@@ -7,11 +7,11 @@
 #include <IO/FileSystem.h>
 
 #if defined(__linux__) || defined(DEATH_TARGET_APPLE) || defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__NetBSD__)
-#	include <climits>
-#	include <cstdlib>
-#	include <fcntl.h>
-#	include <sys/stat.h>
-#	include <unistd.h>
+#include <climits>
+#include <cstdlib>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #endif
 
 using namespace Death::Containers;
@@ -26,25 +26,55 @@ namespace Jazz2::Utils
 		class CheckedStream : public Stream
 		{
 		public:
-			explicit CheckedStream(Stream& target) : _target(target), _failed(false) {}
+			explicit CheckedStream(Stream& target)
+				: _target(target), _failed(false)
+			{
+			}
 
-			void Dispose() override {}
-			std::int64_t Seek(std::int64_t offset, SeekOrigin origin) override { return _target.Seek(offset, origin); }
-			std::int64_t GetPosition() const override { return _target.GetPosition(); }
-			std::int64_t Read(void* destination, std::int64_t bytesToRead) override { return _target.Read(destination, bytesToRead); }
-			std::int64_t Write(const void* source, std::int64_t bytesToWrite) override {
+			void Dispose() override
+			{
+			}
+			std::int64_t Seek(std::int64_t offset, SeekOrigin origin) override
+			{
+				return _target.Seek(offset, origin);
+			}
+			std::int64_t GetPosition() const override
+			{
+				return _target.GetPosition();
+			}
+			std::int64_t Read(void* destination, std::int64_t bytesToRead) override
+			{
+				return _target.Read(destination, bytesToRead);
+			}
+			std::int64_t Write(const void* source, std::int64_t bytesToWrite) override
+			{
 				std::int64_t written = _target.Write(source, bytesToWrite);
 				if (bytesToWrite > 0 && written != bytesToWrite) {
 					_failed = true;
 				}
 				return written;
 			}
-			bool Flush() override { return _target.Flush(); }
-			bool IsValid() override { return !_failed && _target.IsValid(); }
-			std::int64_t GetSize() const override { return _target.GetSize(); }
-			std::int64_t SetSize(std::int64_t size) override { return _target.SetSize(size); }
+			bool Flush() override
+			{
+				return _target.Flush();
+			}
+			bool IsValid() override
+			{
+				return !_failed && _target.IsValid();
+			}
+			std::int64_t GetSize() const override
+			{
+				return _target.GetSize();
+			}
+			std::int64_t SetSize(std::int64_t size) override
+			{
+				return _target.SetSize(size);
+			}
 
-			bool HasFailed() const { return _failed; }
+			bool HasFailed() const
+			{
+				return _failed;
+			}
 
 		private:
 			Stream& _target;
@@ -139,7 +169,8 @@ namespace Jazz2::Utils
 	{
 		return Write(path, [data, size](Stream& s) {
 			return (size <= 0 || s.Write(data, size) == size);
-		}, keepBackup);
+		},
+			keepBackup);
 	}
 
 	bool AtomicFile::Stage(StringView requestedPath, Function<bool(Stream&)>&& write)

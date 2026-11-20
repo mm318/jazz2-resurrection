@@ -50,7 +50,7 @@ namespace Jazz2::Resources
 		}
 
 		// Everything that isn't deferred is loaded already, so the common case is a single predictable branch
-		if DEATH_UNLIKELY(it->Base == nullptr) {
+		if DEATH_UNLIKELY (it->Base == nullptr) {
 			return (ContentResolver::Get().ResolveAnimation(*this, *it) ? it : nullptr);
 		}
 

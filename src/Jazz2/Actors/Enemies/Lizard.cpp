@@ -11,9 +11,8 @@ using namespace Jazz2::Tiles;
 namespace Jazz2::Actors::Enemies
 {
 	Lizard::Lizard()
-		:
-		_stuck(false),
-		_isFalling(false)
+		: _stuck(false),
+		  _isFalling(false)
 	{
 	}
 
@@ -115,8 +114,10 @@ namespace Jazz2::Actors::Enemies
 		EnemyBase::OnSerializeState(dest);
 
 		std::uint8_t flags = 0;
-		if (_stuck) flags |= 0x01;
-		if (_isFalling) flags |= 0x02;
+		if (_stuck)
+			flags |= 0x01;
+		if (_isFalling)
+			flags |= 0x02;
 		dest.WriteValue<std::uint8_t>(flags);
 	}
 

@@ -176,9 +176,15 @@ namespace Jazz2::Actors::Enemies
 		_frame = 0;
 		_speedPerTickY = 0.0f;
 		switch (_batState) {
-			case BatState::Hanging: SetAnimation(AnimState::Idle); break;
-			case BatState::Waking: SetAnimation(AnimTakeoffEnd); break;
-			case BatState::Flying: SetAnimation(AnimState::Walk); break;
+			case BatState::Hanging:
+				SetAnimation(AnimState::Idle);
+				break;
+			case BatState::Waking:
+				SetAnimation(AnimTakeoffEnd);
+				break;
+			case BatState::Flying:
+				SetAnimation(AnimState::Walk);
+				break;
 		}
 		SetAnimationFrame(_batState == BatState::Waking ? 1 : 0);
 	}

@@ -20,17 +20,21 @@ namespace Jazz2::Input
 
 	public:
 		/** @brief Creates a new instance */
-		RumbleDescription() {}
+		RumbleDescription()
+		{
+		}
 
 		/** @brief Adds a new frame to the effect timeline */
-		void AddToTimeline(float endTime, float lowFreq, float highFreq, float leftTrigger = 0.0f, float rightTrigger = 0.0f) {
+		void AddToTimeline(float endTime, float lowFreq, float highFreq, float leftTrigger = 0.0f, float rightTrigger = 0.0f)
+		{
 			_timeline.emplace_back(endTime, lowFreq, highFreq, leftTrigger, rightTrigger);
 		}
 
 	private:
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
-		struct TimelineItem {
+		struct TimelineItem
+		{
 			float EndTime;
 
 			float LowFrequency;

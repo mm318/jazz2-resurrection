@@ -24,10 +24,12 @@ namespace Jazz2::Multiplayer::GameModes
 	public:
 		FlagRunMode();
 
-		MpGameMode GetMode() const override {
+		MpGameMode GetMode() const override
+		{
 			return MpGameMode::FlagRun;
 		}
-		bool IsTeamBased() const override {
+		bool IsTeamBased() const override
+		{
 			return true;
 		}
 

@@ -23,7 +23,14 @@ namespace Jazz2::Editor
 {
 	namespace
 	{
-		enum class Format { None, Jasc, Gimp, Act, Png };
+		enum class Format
+		{
+			None,
+			Jasc,
+			Gimp,
+			Act,
+			Png
+		};
 
 		// A palette written as an image is a grid of 16 × 16 cells of this size
 		constexpr std::int32_t PngCellSize = 8;
@@ -31,10 +38,14 @@ namespace Jazz2::Editor
 		Format GetFormat(StringView path)
 		{
 			String extension = StringUtils::lowercase(fs::GetExtension(path));
-			if (extension == "pal"_s) return Format::Jasc;
-			if (extension == "gpl"_s) return Format::Gimp;
-			if (extension == "act"_s) return Format::Act;
-			if (extension == "png"_s) return Format::Png;
+			if (extension == "pal"_s)
+				return Format::Jasc;
+			if (extension == "gpl"_s)
+				return Format::Gimp;
+			if (extension == "act"_s)
+				return Format::Act;
+			if (extension == "png"_s)
+				return Format::Png;
 			return Format::None;
 		}
 
@@ -76,7 +87,9 @@ namespace Jazz2::Editor
 
 		std::uint32_t MakeColor(std::int32_t r, std::int32_t g, std::int32_t b)
 		{
-			auto clamp = [](std::int32_t v) { return std::uint32_t(v < 0 ? 0 : (v > 255 ? 255 : v)); };
+			auto clamp = [](std::int32_t v) {
+				return std::uint32_t(v < 0 ? 0 : (v > 255 ? 255 : v));
+			};
 			return clamp(r) | (clamp(g) << 8) | (clamp(b) << 16) | 0xFF000000u;
 		}
 
@@ -132,7 +145,7 @@ namespace Jazz2::Editor
 			}
 			return 0;
 		}
-		String data{NoInit, std::size_t(size)};
+		String data { NoInit, std::size_t(size) };
 		if (s->Read(data.data(), size) != size) {
 			if (error != nullptr) {
 				*error = _x("editor", "The file can't be read");
@@ -243,7 +256,9 @@ namespace Jazz2::Editor
 				image.Palette[i] = palette[i] | 0xFF000000u;
 			}
 			image.PaletteSize = 256;
-			return Utils::AtomicFile::Write(path, [&image](Stream& s) { return PngCodec::Encode(s, image); });
+			return Utils::AtomicFile::Write(path, [&image](Stream& s) {
+				return PngCodec::Encode(s, image);
+			});
 		}
 
 		if (format == Format::Act) {
@@ -254,8 +269,10 @@ namespace Jazz2::Editor
 				data[i * 3 + 2] = std::uint8_t(palette[i] >> 16);
 			}
 			// All 256 used, the first one transparent, as it is in the game
-			data[768] = 0x01; data[769] = 0x00;
-			data[770] = 0x00; data[771] = 0x00;
+			data[768] = 0x01;
+			data[769] = 0x00;
+			data[770] = 0x00;
+			data[771] = 0x00;
 			return Utils::AtomicFile::Write(path, data, std::int64_t(sizeof(data)));
 		}
 

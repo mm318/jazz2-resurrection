@@ -14,15 +14,15 @@ namespace Jazz2
 	*/
 	enum class WeatherType : std::uint8_t
 	{
-		None,						/**< None */
+		None, /**< None */
 
-		Snow,						/**< Snow */
-		Flowers,					/**< Flowers */
-		Rain,						/**< Rain */
-		Leaf,						/**< Leaf */
+		Snow, /**< Snow */
+		Flowers, /**< Flowers */
+		Rain, /**< Rain */
+		Leaf, /**< Leaf */
 
-		Inactive = 0x40,			/**< Nothing falls, the type and @ref WeatherType::OutdoorsOnly are kept for a script to start it */
-		OutdoorsOnly = 0x80			/**< Outdoors only, should be used in combination with other options */
+		Inactive = 0x40, /**< Nothing falls, the type and @ref WeatherType::OutdoorsOnly are kept for a script to start it */
+		OutdoorsOnly = 0x80 /**< Outdoors only, should be used in combination with other options */
 	};
 
 	DEATH_ENUM_FLAGS(WeatherType);

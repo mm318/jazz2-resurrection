@@ -12,10 +12,13 @@
 #include <memory>
 #include <mutex>
 
-namespace Death { namespace IO {
-//###==##====#=====--==~--~=~- --- -- -  -  -   -
+namespace Death
+{
+	namespace IO
+	{
+		//###==##====#=====--==~--~=~- --- -- -  -  -   -
 
-	/**
+		/**
 		@brief Keeps the open stream of one file between uses, so reading a resource does not reopen it
 
 		A `.pak` archive hands out a @ref BoundedFileStream per resource, and each one used to open the archive
@@ -39,72 +42,78 @@ namespace Death { namespace IO {
 		likely right after it. The requested buffer size never parks a stream: a reused stream adopts the size
 		its new user asks for (@ref FileStream::SetBufferSize()). Safe to call from any thread.
 	*/
-	class FileStreamPool
-	{
-	public:
-		/** @brief How many idle streams are kept open; a stream returned beyond this replaces the oldest */
-		static constexpr std::int32_t MaxIdleStreams = 1;
+		class FileStreamPool
+		{
+		public:
+			/** @brief How many idle streams are kept open; a stream returned beyond this replaces the oldest */
+			static constexpr std::int32_t MaxIdleStreams = 1;
 
-		explicit FileStreamPool(Containers::StringView path)
-			: _path(path) {}
+			explicit FileStreamPool(Containers::StringView path)
+				: _path(path)
+			{
+			}
 
-		FileStreamPool(const FileStreamPool&) = delete;
-		FileStreamPool& operator=(const FileStreamPool&) = delete;
+			FileStreamPool(const FileStreamPool&) = delete;
+			FileStreamPool& operator=(const FileStreamPool&) = delete;
 
-		/** @brief Returns the path of the file the streams open */
-		Containers::StringView GetPath() const {
-			return _path;
-		}
+			/** @brief Returns the path of the file the streams open */
+			Containers::StringView GetPath() const
+			{
+				return _path;
+			}
 
-		/**
+			/**
 			@brief Returns an open read-only stream of the file with the given buffer size, reusing an idle one
 			if there is any and opening a new one otherwise
 
 			The position of a reused stream is wherever its last user left it, so seek before reading.
 		*/
-		std::unique_ptr<FileStream> Acquire(std::int32_t bufferSize) {
-			std::unique_ptr<FileStream> stream;
+			std::unique_ptr<FileStream> Acquire(std::int32_t bufferSize)
 			{
-				std::lock_guard<Threading::Spinlock> lock(_lock);
-				if (!_idle.empty()) {
-					stream = Death::move(_idle.back());
-					_idle.pop_back();
-				}
-			}
-			if (stream != nullptr) {
-				if (stream->GetBufferSize() != bufferSize) {
-					stream->SetBufferSize(bufferSize);
-				}
-				return stream;
-			}
-			return std::make_unique<FileStream>(_path, FileAccess::Read, bufferSize);
-		}
-
-		/** @brief Takes a stream back for the next @ref Acquire(); an invalid one is closed, and a full pool drops its oldest parked stream for it */
-		void Release(std::unique_ptr<FileStream>&& stream) {
-			if (stream == nullptr || !stream->IsValid()) {
-				return;
-			}
-			std::unique_ptr<FileStream> evicted;
-			{
-				std::lock_guard<Threading::Spinlock> lock(_lock);
-				if (_idle.size() >= std::size_t(MaxIdleStreams)) {
-					// The oldest parked stream goes, the rest shift down (the pool is one or two entries)
-					evicted = Death::move(_idle.front());
-					for (std::size_t i = 1; i < _idle.size(); i++) {
-						_idle[i - 1] = Death::move(_idle[i]);
+				std::unique_ptr<FileStream> stream;
+				{
+					std::lock_guard<Threading::Spinlock> lock(_lock);
+					if (!_idle.empty()) {
+						stream = Death::move(_idle.back());
+						_idle.pop_back();
 					}
-					_idle.pop_back();
 				}
-				_idle.push_back(Death::move(stream));
+				if (stream != nullptr) {
+					if (stream->GetBufferSize() != bufferSize) {
+						stream->SetBufferSize(bufferSize);
+					}
+					return stream;
+				}
+				return std::make_unique<FileStream>(_path, FileAccess::Read, bufferSize);
 			}
-			// `evicted` closes its file here, outside the lock
-		}
 
-	private:
-		Containers::SmallVector<std::unique_ptr<FileStream>, MaxIdleStreams> _idle;
-		Containers::String _path;
-		Threading::Spinlock _lock;
-	};
+			/** @brief Takes a stream back for the next @ref Acquire(); an invalid one is closed, and a full pool drops its oldest parked stream for it */
+			void Release(std::unique_ptr<FileStream>&& stream)
+			{
+				if (stream == nullptr || !stream->IsValid()) {
+					return;
+				}
+				std::unique_ptr<FileStream> evicted;
+				{
+					std::lock_guard<Threading::Spinlock> lock(_lock);
+					if (_idle.size() >= std::size_t(MaxIdleStreams)) {
+						// The oldest parked stream goes, the rest shift down (the pool is one or two entries)
+						evicted = Death::move(_idle.front());
+						for (std::size_t i = 1; i < _idle.size(); i++) {
+							_idle[i - 1] = Death::move(_idle[i]);
+						}
+						_idle.pop_back();
+					}
+					_idle.push_back(Death::move(stream));
+				}
+				// `evicted` closes its file here, outside the lock
+			}
 
-}}
+		private:
+			Containers::SmallVector<std::unique_ptr<FileStream>, MaxIdleStreams> _idle;
+			Containers::String _path;
+			Threading::Spinlock _lock;
+		};
+
+	}
+}

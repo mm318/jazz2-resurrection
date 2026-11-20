@@ -157,7 +157,8 @@ namespace Jazz2::Editor
 				pending->Success = Utils::AtomicFile::Write(pending->Path, [pending](Stream& s) {
 					return pending->Document.Save(s, false, 1);
 				});
-			}, "Recovery copy");
+			},
+				"Recovery copy");
 			return true;
 		}
 #endif

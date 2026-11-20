@@ -15,7 +15,7 @@ namespace Jazz2::Editor
 			"Pole/Carrotus", "Pole/Diamondus", "Pole/DiamondusTree", "Pole/Jungle", "Pole/Psych"
 		};
 
-		template<std::size_t N>
+		template <std::size_t N>
 		const char* FromTable(const char* const (&table)[N], std::uint32_t index)
 		{
 			return (index < N ? table[index] : nullptr);
@@ -66,10 +66,20 @@ namespace Jazz2::Editor
 				switch (orientation) {
 					// Placed 8 pixels into the tile, but it falls down from there (it has gravity in most levels), so it's
 					// shown standing on the bottom of the tile, as it's seen in the game
-					case 0: spec.Offset = Vector2f(0.0f, 8.0f); break;
-					case 1: orientationBit = 1; break;
-					case 2: spec.Offset = Vector2f(0.0f, -8.0f); orientationBit = 2; break;
-					case 3: orientationBit = 1; spec.FlipX = true; break;
+					case 0:
+						spec.Offset = Vector2f(0.0f, 8.0f);
+						break;
+					case 1:
+						orientationBit = 1;
+						break;
+					case 2:
+						spec.Offset = Vector2f(0.0f, -8.0f);
+						orientationBit = 2;
+						break;
+					case 3:
+						orientationBit = 1;
+						spec.FlipX = true;
+						break;
 				}
 				spec.Metadata = "Object/Spring";
 				spec.Animation = ((std::uint32_t(type) + 1) << 10) | (orientationBit << 12);
@@ -85,10 +95,17 @@ namespace Jazz2::Editor
 			case EventType::Bomb: {
 				const char* metadata;
 				switch (p[0]) {
-					case 0: metadata = "Object/Bomb"; break;
-					case 1: metadata = "Enemy/LizardFloat"; break;
-					case 2: metadata = "Enemy/LizardFloatXmas"; break;
-					default: return false;
+					case 0:
+						metadata = "Object/Bomb";
+						break;
+					case 1:
+						metadata = "Enemy/LizardFloat";
+						break;
+					case 2:
+						metadata = "Enemy/LizardFloatXmas";
+						break;
+					default:
+						return false;
 				}
 				spec.Metadata = metadata;
 				spec.Animation = 2;
@@ -98,9 +115,14 @@ namespace Jazz2::Editor
 			case EventType::BirdCage: {
 				const char* metadata;
 				switch (p[0]) {
-					case 0: metadata = "Object/BirdCageChuck"; break;
-					case 1: metadata = "Object/BirdCageBirdy"; break;
-					default: return false;
+					case 0:
+						metadata = "Object/BirdCageChuck";
+						break;
+					case 1:
+						metadata = "Object/BirdCageBirdy";
+						break;
+					default:
+						return false;
 				}
 				spec.Metadata = metadata;
 				spec.Animation = std::uint32_t(p[1] != 0 ? AnimState::Activated : AnimState::Idle);

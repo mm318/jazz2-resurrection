@@ -57,8 +57,8 @@ namespace Jazz2::UI::Windows
 
 	Surface::Surface()
 		: _scale(1.0f), _hover(nullptr), _capture(nullptr), _focus(nullptr), _tooltipTime(0.0f),
-			_tooltipShown(false), _lastClickTime(0), _lastClickElement(nullptr), _touchDown(false), _touchTooltip(false),
-			_tooltipLinger(0.0f), _touchScroll(nullptr), _touchScrolling(false), _touchScrollOrigin(0.0f), _touchVelocity(0.0f)
+		  _tooltipShown(false), _lastClickTime(0), _lastClickElement(nullptr), _touchDown(false), _touchTooltip(false),
+		  _tooltipLinger(0.0f), _touchScroll(nullptr), _touchScrolling(false), _touchScrollOrigin(0.0f), _touchVelocity(0.0f)
 	{
 		_instance = this;
 		_lines = std::make_unique<Rendering::PolylineRenderer>(1 << 18);
@@ -562,7 +562,7 @@ namespace Jazz2::UI::Windows
 
 		// Elements of the tree whose owner didn't place them since the last update are hidden, as while a level is played,
 		// their windows come back with them
-		for (std::size_t i = 0; i < _detachables.size(); ) {
+		for (std::size_t i = 0; i < _detachables.size();) {
 			DetachableElement& detachable = _detachables[i];
 			if (!canDetach || (!detachable.Placed && detachable.Detached.Window == nullptr)) {
 				detachable.Element->_detached = false;
@@ -667,7 +667,7 @@ namespace Jazz2::UI::Windows
 
 	Context Surface::GetContext() const
 	{
-		return Context{ _scale };
+		return Context { _scale };
 	}
 
 	Vector2f Surface::GetScreenSize() const
@@ -1332,12 +1332,23 @@ namespace Jazz2::UI::Windows
 	{
 		IconId icon;
 		switch (_cursorOverlay) {
-			case CursorOverlay::ResizeHorizontal: icon = StockIcon::CursorResizeHorizontal; break;
-			case CursorOverlay::ResizeVertical: icon = StockIcon::CursorResizeVertical; break;
-			case CursorOverlay::ResizeDiagonalNWSE: icon = StockIcon::CursorResizeNWSE; break;
-			case CursorOverlay::ResizeDiagonalNESW: icon = StockIcon::CursorResizeNESW; break;
-			case CursorOverlay::Move: icon = StockIcon::CursorMove; break;
-			default: return;
+			case CursorOverlay::ResizeHorizontal:
+				icon = StockIcon::CursorResizeHorizontal;
+				break;
+			case CursorOverlay::ResizeVertical:
+				icon = StockIcon::CursorResizeVertical;
+				break;
+			case CursorOverlay::ResizeDiagonalNWSE:
+				icon = StockIcon::CursorResizeNWSE;
+				break;
+			case CursorOverlay::ResizeDiagonalNESW:
+				icon = StockIcon::CursorResizeNESW;
+				break;
+			case CursorOverlay::Move:
+				icon = StockIcon::CursorMove;
+				break;
+			default:
+				return;
 		}
 
 		// Below and to the right of the pointer, out of the way of what it points at, on the other side near the edge
@@ -1461,7 +1472,7 @@ namespace Jazz2::UI::Windows
 			}
 		}
 
-		for (std::size_t i = 0; i < _toasts.size(); ) {
+		for (std::size_t i = 0; i < _toasts.size();) {
 			_toasts[i].TimeLeft -= timeMult;
 			if (_toasts[i].TimeLeft <= 0.0f) {
 				_toasts.erase(_toasts.begin() + i);
@@ -1476,7 +1487,7 @@ namespace Jazz2::UI::Windows
 
 		// The skins of displays with another scale that no window is on anymore
 		_updateFrame++;
-		for (std::size_t i = 0; i < _rasterSkins.size(); ) {
+		for (std::size_t i = 0; i < _rasterSkins.size();) {
 			if (_updateFrame - _rasterSkins[i].LastUsed > RasterSkinFrames) {
 				_rasterSkins.erase(_rasterSkins.begin() + i);
 			} else {
@@ -1650,8 +1661,8 @@ namespace Jazz2::UI::Windows
 		size.X = std::min(size.X, safe.W);
 		size.Y = std::min(size.Y, safe.H);
 		Vector2f pos = (options.Centered
-			? Vector2f(std::round(safe.X + (safe.W - size.X) * 0.5f), std::round(safe.Y + (safe.H - size.Y) * 0.4f))
-			: options.Position);
+				? Vector2f(std::round(safe.X + (safe.W - size.X) * 0.5f), std::round(safe.Y + (safe.H - size.Y) * 0.4f))
+				: options.Position);
 		if (!options.Centered && options.FallbackRight >= 0.0f && pos.X + size.X > safe.X + safe.W) {
 			pos.X = options.FallbackRight - size.X;
 		}
@@ -1802,7 +1813,7 @@ namespace Jazz2::UI::Windows
 	{
 		// Taken out of the list first, and destroyed only then, so whatever their destruction does sees a list that's whole
 		SmallVector<std::unique_ptr<Element>, 4> closed;
-		for (std::size_t i = 0; i < _overlays.size(); ) {
+		for (std::size_t i = 0; i < _overlays.size();) {
 			if (_overlays[i].Closing) {
 				closed.push_back(Death::move(_overlays[i].Element));
 				_overlays.erase(_overlays.begin() + i);
@@ -1835,7 +1846,7 @@ namespace Jazz2::UI::Windows
 
 	void Surface::ForgetDetachables(Element* element, bool inside)
 	{
-		for (std::size_t i = 0; i < _detachables.size(); ) {
+		for (std::size_t i = 0; i < _detachables.size();) {
 			if (inside ? IsInside(_detachables[i].Element, element) : _detachables[i].Element == element) {
 				_detachables.erase(_detachables.begin() + i);
 			} else {

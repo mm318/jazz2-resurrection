@@ -22,7 +22,7 @@ namespace Jazz2::Editor
 		}
 
 		// Merges changes of the same cell, the first one has the original state and the last one the final state
-		template<class TChange, class TEqual>
+		template <class TChange, class TEqual>
 		void MergeChanges(SmallVectorImpl<TChange>& changes, TEqual&& isEqual)
 		{
 			std::stable_sort(changes.begin(), changes.end(), [](const TChange& a, const TChange& b) {
@@ -30,7 +30,7 @@ namespace Jazz2::Editor
 			});
 
 			std::size_t target = 0;
-			for (std::size_t i = 0; i < changes.size(); ) {
+			for (std::size_t i = 0; i < changes.size();) {
 				std::size_t last = i;
 				while (last + 1 < changes.size() && changes[last + 1].Cell == changes[i].Cell) {
 					last++;
@@ -56,7 +56,7 @@ namespace Jazz2::Editor
 
 	SetTilesCommand::SetTilesCommand(const LevelDocument& document, std::int32_t layer, String name)
 		: _document(document), _layer(layer), _width(0), _name(Death::move(name)),
-			_minX(INT32_MAX), _minY(INT32_MAX), _maxX(INT32_MIN), _maxY(INT32_MIN), _sealed(false)
+		  _minX(INT32_MAX), _minY(INT32_MAX), _maxX(INT32_MIN), _maxY(INT32_MIN), _sealed(false)
 	{
 		if (layer >= 0 && layer < std::int32_t(document.Layers.size())) {
 			_width = document.Layers[layer].GetWidth();
@@ -93,9 +93,14 @@ namespace Jazz2::Editor
 		}
 		_sealed = true;
 
-		MergeChanges(_changes, [](const TileRef& a, const TileRef& b) { return a == b; });
+		MergeChanges(_changes, [](const TileRef& a, const TileRef& b) {
+			return a == b;
+		});
 
-		_minX = INT32_MAX; _minY = INT32_MAX; _maxX = INT32_MIN; _maxY = INT32_MIN;
+		_minX = INT32_MAX;
+		_minY = INT32_MAX;
+		_maxX = INT32_MIN;
+		_maxY = INT32_MIN;
 		for (const Change& change : _changes) {
 			std::int32_t x = std::int32_t(change.Cell % std::uint32_t(_width));
 			std::int32_t y = std::int32_t(change.Cell / std::uint32_t(_width));
@@ -180,7 +185,7 @@ namespace Jazz2::Editor
 
 	SetEventsCommand::SetEventsCommand(const LevelDocument& document, String name)
 		: _document(document), _name(Death::move(name)),
-			_minX(INT32_MAX), _minY(INT32_MAX), _maxX(INT32_MIN), _maxY(INT32_MIN), _sealed(false)
+		  _minX(INT32_MAX), _minY(INT32_MAX), _maxX(INT32_MIN), _maxY(INT32_MIN), _sealed(false)
 	{
 		Vector2i gridSize = document.GetEventGridSize();
 		_width = gridSize.X;
@@ -578,24 +583,40 @@ namespace Jazz2::Editor
 		std::uint32_t fields = 0;
 		// Each flag on its own, turning on two different ones are two changes
 		fields |= std::uint32_t(a.Flags ^ b.Flags) & 0xFFFFu;
-		if (a.Kind != b.Kind) fields |= (1u << 16);
-		if (a.SpeedModels != b.SpeedModels) fields |= (1u << 17);
-		if (a.OffsetX != b.OffsetX) fields |= (1u << 18);
-		if (a.OffsetY != b.OffsetY) fields |= (1u << 19);
-		if (a.SpeedX != b.SpeedX) fields |= (1u << 20);
-		if (a.SpeedY != b.SpeedY) fields |= (1u << 21);
-		if (a.AutoSpeedX != b.AutoSpeedX) fields |= (1u << 22);
-		if (a.AutoSpeedY != b.AutoSpeedY) fields |= (1u << 23);
-		if (a.Depth != b.Depth) fields |= (1u << 24);
-		if (a.RendererType != b.RendererType) fields |= (1u << 25);
+		if (a.Kind != b.Kind)
+			fields |= (1u << 16);
+		if (a.SpeedModels != b.SpeedModels)
+			fields |= (1u << 17);
+		if (a.OffsetX != b.OffsetX)
+			fields |= (1u << 18);
+		if (a.OffsetY != b.OffsetY)
+			fields |= (1u << 19);
+		if (a.SpeedX != b.SpeedX)
+			fields |= (1u << 20);
+		if (a.SpeedY != b.SpeedY)
+			fields |= (1u << 21);
+		if (a.AutoSpeedX != b.AutoSpeedX)
+			fields |= (1u << 22);
+		if (a.AutoSpeedY != b.AutoSpeedY)
+			fields |= (1u << 23);
+		if (a.Depth != b.Depth)
+			fields |= (1u << 24);
+		if (a.RendererType != b.RendererType)
+			fields |= (1u << 25);
 		// The color as a whole, a color picker changes different bytes of it as it's dragged
-		if (std::memcmp(a.Color, b.Color, sizeof(a.Color)) != 0) fields |= (1u << 26);
-		if (nameA != nameB) fields |= (1u << 27);
-		if (a.Textured.FadeX != b.Textured.FadeX) fields |= (1u << 28);
-		if (a.Textured.FadeY != b.Textured.FadeY) fields |= (1u << 29);
-		if (a.Textured.Fade != b.Textured.Fade || a.Textured.Flags != b.Textured.Flags) fields |= (1u << 30);
+		if (std::memcmp(a.Color, b.Color, sizeof(a.Color)) != 0)
+			fields |= (1u << 26);
+		if (nameA != nameB)
+			fields |= (1u << 27);
+		if (a.Textured.FadeX != b.Textured.FadeX)
+			fields |= (1u << 28);
+		if (a.Textured.FadeY != b.Textured.FadeY)
+			fields |= (1u << 29);
+		if (a.Textured.Fade != b.Textured.Fade || a.Textured.Flags != b.Textured.Flags)
+			fields |= (1u << 30);
 		if (a.Textured.InnerSpeedX != b.Textured.InnerSpeedX || a.Textured.InnerSpeedY != b.Textured.InnerSpeedY ||
-			a.Textured.InnerAutoSpeedX != b.Textured.InnerAutoSpeedX || a.Textured.InnerAutoSpeedY != b.Textured.InnerAutoSpeedY) fields |= (1u << 31);
+			a.Textured.InnerAutoSpeedX != b.Textured.InnerAutoSpeedX || a.Textured.InnerAutoSpeedY != b.Textured.InnerAutoSpeedY)
+			fields |= (1u << 31);
 		return fields;
 	}
 
@@ -948,7 +969,7 @@ namespace Jazz2::Editor
 	SetLevelPropertiesCommand::SetLevelPropertiesCommand(const LevelDocument& document, LevelFlags flags,
 		const Formats::LevelProperties& properties, String name)
 		: _name(Death::move(name)), _oldFlags(document.Flags), _newFlags(flags), _oldProperties(document.Properties),
-			_newProperties(properties)
+		  _newProperties(properties)
 	{
 		_changedFields = GetChangedFields(_oldFlags, _newFlags, _oldProperties, _newProperties);
 	}
@@ -957,18 +978,30 @@ namespace Jazz2::Editor
 	{
 		// The flags take the low half, each of them on its own
 		std::uint32_t fields = std::uint32_t(std::uint16_t(flagsA) ^ std::uint16_t(flagsB));
-		if (a.DisplayName != b.DisplayName) fields |= (1u << 16);
-		if (a.Author != b.Author) fields |= (1u << 17);
-		if (a.NextLevel != b.NextLevel) fields |= (1u << 18);
-		if (a.SecretLevel != b.SecretLevel) fields |= (1u << 19);
-		if (a.BonusLevel != b.BonusLevel) fields |= (1u << 20);
-		if (a.DefaultTileSet != b.DefaultTileSet) fields |= (1u << 21);
-		if (a.Music != b.Music) fields |= (1u << 22);
-		if (a.AmbientColor != b.AmbientColor) fields |= (1u << 23);
-		if (a.Weather != b.Weather) fields |= (1u << 24);
-		if (a.WeatherIntensity != b.WeatherIntensity) fields |= (1u << 25);
-		if (a.WaterLevel != b.WaterLevel) fields |= (1u << 26);
-		if (a.CaptionTileId != b.CaptionTileId) fields |= (1u << 27);
+		if (a.DisplayName != b.DisplayName)
+			fields |= (1u << 16);
+		if (a.Author != b.Author)
+			fields |= (1u << 17);
+		if (a.NextLevel != b.NextLevel)
+			fields |= (1u << 18);
+		if (a.SecretLevel != b.SecretLevel)
+			fields |= (1u << 19);
+		if (a.BonusLevel != b.BonusLevel)
+			fields |= (1u << 20);
+		if (a.DefaultTileSet != b.DefaultTileSet)
+			fields |= (1u << 21);
+		if (a.Music != b.Music)
+			fields |= (1u << 22);
+		if (a.AmbientColor != b.AmbientColor)
+			fields |= (1u << 23);
+		if (a.Weather != b.Weather)
+			fields |= (1u << 24);
+		if (a.WeatherIntensity != b.WeatherIntensity)
+			fields |= (1u << 25);
+		if (a.WaterLevel != b.WaterLevel)
+			fields |= (1u << 26);
+		if (a.CaptionTileId != b.CaptionTileId)
+			fields |= (1u << 27);
 		return fields;
 	}
 
@@ -998,16 +1031,22 @@ namespace Jazz2::Editor
 	std::uint32_t SetAnimationCommand::GetChangedFields(const DocumentAnimation& a, const DocumentAnimation& b)
 	{
 		std::uint32_t fields = 0;
-		if (a.Timing.FrameDuration16 != b.Timing.FrameDuration16) fields |= 0x01;
-		if (a.Timing.Delay != b.Timing.Delay) fields |= 0x02;
-		if (a.Timing.DelayJitter != b.Timing.DelayJitter) fields |= 0x04;
-		if (a.Timing.PingPongDelay != b.Timing.PingPongDelay) fields |= 0x08;
-		if (a.Timing.IsPingPong != b.Timing.IsPingPong) fields |= 0x10;
+		if (a.Timing.FrameDuration16 != b.Timing.FrameDuration16)
+			fields |= 0x01;
+		if (a.Timing.Delay != b.Timing.Delay)
+			fields |= 0x02;
+		if (a.Timing.DelayJitter != b.Timing.DelayJitter)
+			fields |= 0x04;
+		if (a.Timing.PingPongDelay != b.Timing.PingPongDelay)
+			fields |= 0x08;
+		if (a.Timing.IsPingPong != b.Timing.IsPingPong)
+			fields |= 0x10;
 		bool sameFrames = (a.Frames.size() == b.Frames.size());
 		for (std::size_t i = 0; sameFrames && i < a.Frames.size(); i++) {
 			sameFrames = (a.Frames[i] == b.Frames[i]);
 		}
-		if (!sameFrames) fields |= 0x20;
+		if (!sameFrames)
+			fields |= 0x20;
 		return fields;
 	}
 
@@ -1137,7 +1176,9 @@ namespace Jazz2::Editor
 	{
 		// Both lists are kept sorted by the tile, as the file has them; returns the entry to fill, or nullptr if removed
 		auto place = [this](auto& list, bool has) -> decltype(&list[0]) {
-			auto it = std::lower_bound(list.begin(), list.end(), _tileId, [](const auto& tile, std::uint16_t tileId) { return tile.TileId < tileId; });
+			auto it = std::lower_bound(list.begin(), list.end(), _tileId, [](const auto& tile, std::uint16_t tileId) {
+				return tile.TileId < tileId;
+			});
 			bool exists = (it != list.end() && it->TileId == _tileId);
 			if (!has) {
 				if (exists) {
@@ -1146,7 +1187,7 @@ namespace Jazz2::Editor
 				return nullptr;
 			}
 			if (!exists) {
-				it = list.insert(it, std::remove_reference_t<decltype(*it)>{});
+				it = list.insert(it, std::remove_reference_t<decltype(*it)> {});
 				it->TileId = _tileId;
 			}
 			return &*it;

@@ -11,7 +11,7 @@
 #include "../Main.h"
 
 #if defined(WITH_ANGELSCRIPT)
-#	include "Scripting/LevelScriptLoader.h"
+#include "Scripting/LevelScriptLoader.h"
 #endif
 
 #include "../nCine/I18n.h"
@@ -19,7 +19,7 @@
 #include "../nCine/ServiceLocator.h"
 #include "../nCine/tracy.h"
 #if defined(DEATH_TARGET_DREAMCAST)
-#	include "../nCine/Backends/Dc/DcPlatform.h"
+#include "../nCine/Backends/Dc/DcPlatform.h"
 #endif
 #include "../nCine/Base/Random.h"
 #include "../nCine/Graphics/Camera.h"
@@ -33,10 +33,10 @@
 #include "Actors/Environment/IceBlock.h"
 
 #if defined(WITH_PHYSICS_PROBE)
-#	include "Tests/PhysicsProbe.h"
+#include "Tests/PhysicsProbe.h"
 #endif
 #if defined(WITH_EDITOR)
-#	include "Editor/Runtime/PlayTestDebug.h"
+#include "Editor/Runtime/PlayTestDebug.h"
 #endif
 
 #include <float.h>
@@ -216,21 +216,21 @@ namespace Jazz2
 	LevelHandler::LevelHandler(IRootController* root)
 		: _root(root),
 #if defined(RHI_CAP_SHADERS) && defined(RHI_CAP_FRAMEBUFFERS)
-			_lightingMeshShader(nullptr), _blurShader(nullptr), _downsampleShader(nullptr),
+		  _lightingMeshShader(nullptr), _blurShader(nullptr), _downsampleShader(nullptr),
 #endif
-			_combineShader(nullptr), _combineWithWaterShader(nullptr), _waterShader(nullptr), _hudOverlayActive(false),
-			_difficulty(GameDifficulty::Default), _weatherType(WeatherType::None), _nextLevelType(ExitType::None),
-			_nextLevelTime(0.0f), _isReforged(false), _cheatsUsed(false), _checkpointCreated(false),
-			_coinsTransmuted(false), _waterLevelTarget(FLT_MAX), _eventSpawner(this),
-			_elapsedMillisecondsBegin(0), _elapsedFrames(0.0f), _checkpointFrames(0.0f),
-			_waterLevel(FLT_MAX), _playerWaterLevel(0.0f), _waterColorTop(DefaultWaterColor), _waterColorBottom(DefaultWaterColor),
-			_playerWaterLevelSet(false), _waterHidden(false), _waterLayer(Formats::LevelSettingsChunk::WaterInFront),
-			_waterInteraction(WaterInteraction::Swim), _waterLighting(Formats::LevelSettingsChunk::WaterLighting::None),
+		  _combineShader(nullptr), _combineWithWaterShader(nullptr), _waterShader(nullptr), _hudOverlayActive(false),
+		  _difficulty(GameDifficulty::Default), _weatherType(WeatherType::None), _nextLevelType(ExitType::None),
+		  _nextLevelTime(0.0f), _isReforged(false), _cheatsUsed(false), _checkpointCreated(false),
+		  _coinsTransmuted(false), _waterLevelTarget(FLT_MAX), _eventSpawner(this),
+		  _elapsedMillisecondsBegin(0), _elapsedFrames(0.0f), _checkpointFrames(0.0f),
+		  _waterLevel(FLT_MAX), _playerWaterLevel(0.0f), _waterColorTop(DefaultWaterColor), _waterColorBottom(DefaultWaterColor),
+		  _playerWaterLevelSet(false), _waterHidden(false), _waterLayer(Formats::LevelSettingsChunk::WaterInFront),
+		  _waterInteraction(WaterInteraction::Swim), _waterLighting(Formats::LevelSettingsChunk::WaterLighting::None),
 #if defined(WITH_AUDIO)
-			_musicStartDelay(0),
+		  _musicStartDelay(0),
 #endif
-			_checkpointSnapshotPending(false), _pressedKeys(ValueInit, (std::size_t)Keys::Count),
-			_overrideActions(0), _overrideMovement(0.0f, 0.0f)
+		  _checkpointSnapshotPending(false), _pressedKeys(ValueInit, (std::size_t)Keys::Count),
+		  _overrideActions(0), _overrideMovement(0.0f, 0.0f)
 	{
 	}
 
@@ -322,7 +322,7 @@ namespace Jazz2
 		_console->WriteLine(UI::MessageLevel::Debug, _f("Level \"{}\" initialized", descriptor.DisplayName));
 
 		AttachComponents(Death::move(descriptor));
-		SpawnPlayers(levelInit);		
+		SpawnPlayers(levelInit);
 
 		// The level was entered from another one, which the player returns to once this special level is completed
 		_returnLevelState = levelInit.ReturnLevelState;
@@ -950,11 +950,11 @@ namespace Jazz2
 				scriptPathCaseInsensitive = scriptPath;
 			}
 			if (!scriptPathCaseInsensitive.empty() && (!scriptText.empty() || fs::IsReadableFile(scriptPathCaseInsensitive))) {
-#	if defined(WITH_ANGELSCRIPT)
+#if defined(WITH_ANGELSCRIPT)
 				_scripts = std::make_unique<Scripting::LevelScriptLoader>(this, scriptPathCaseInsensitive, scriptText);
-#	else
+#else
 				LOGW("Level requires scripting, but scripting support is disabled in this build");
-#	endif
+#endif
 			}
 		}
 #endif
@@ -1033,8 +1033,7 @@ namespace Jazz2
 			player->OnActivated(Actors::ActorActivationDetails(
 				this,
 				Vector3i((std::int32_t)playerPos.X, (std::int32_t)playerPos.Y, PlayerZ - i),
-				playerParams
-			));
+				playerParams));
 
 			Actors::Player* ptr = player.get();
 			_players.push_back(ptr);
@@ -1069,14 +1068,14 @@ namespace Jazz2
 
 		float timeMult = theApplication().GetTimeMult();
 #if defined(WITH_EDITOR)
-		if DEATH_UNLIKELY(_playTestDebug != nullptr) {
+		if DEATH_UNLIKELY (_playTestDebug != nullptr) {
 			// The time of the level runs slower, or stands still, while the play-test asks for it
 			timeMult = _playTestDebug->BeginFrame(timeMult);
 		}
 #endif
 
 #if defined(DEATH_DEBUG)
-		if DEATH_UNLIKELY(!_debugStartupCommands.empty()) {
+		if DEATH_UNLIKELY (!_debugStartupCommands.empty()) {
 			auto commands = Death::move(_debugStartupCommands);
 			_debugStartupCommands = {};
 			for (const String& command : commands) {
@@ -1088,9 +1087,9 @@ namespace Jazz2
 #if defined(WITH_AUDIO)
 		// The level music is started only after the first frames have loaded what they load (see the level
 		// loading above); it keeps playing under the pause menu, so a pause in the meantime changes nothing
-		if DEATH_UNLIKELY(_musicStartDelay > 0 && --_musicStartDelay == 0 && _music != nullptr) {
+		if DEATH_UNLIKELY (_musicStartDelay > 0 && --_musicStartDelay == 0 && _music != nullptr) {
 			_music->Play();
-		} else if DEATH_UNLIKELY(_musicStartDelay == 0 && _music != nullptr && _music->IsStopped()) {
+		} else if DEATH_UNLIKELY (_musicStartDelay == 0 && _music != nullptr && _music->IsStopped()) {
 			// A looping stream that reports itself stopped was stopped by something other than the game:
 			// the only in-game paths either replace it or clear the pointer, and a pause does not stop it.
 			// The audio device releases every player when it decides the output has gone away (see
@@ -1102,17 +1101,17 @@ namespace Jazz2
 		}
 #endif
 
-		if DEATH_LIKELY(_pauseMenu == nullptr) {
+		if DEATH_LIKELY (_pauseMenu == nullptr) {
 			UpdatePressedActions();
 
 			bool isGamepad;
-			if DEATH_UNLIKELY(PlayerActionHit(nullptr, PlayerAction::Menu)) {
+			if DEATH_UNLIKELY (PlayerActionHit(nullptr, PlayerAction::Menu)) {
 				if (_console->IsVisible()) {
 					HideConsole();
 				} else if (_nextLevelType == ExitType::None) {
 					PauseGame();
 				}
-			} else if DEATH_UNLIKELY(PlayerActionHit(nullptr, PlayerAction::Console, true, isGamepad)) {
+			} else if DEATH_UNLIKELY (PlayerActionHit(nullptr, PlayerAction::Console, true, isGamepad)) {
 				if (_console->IsVisible()) {
 					if (isGamepad) {
 						HideConsole();
@@ -1126,7 +1125,7 @@ namespace Jazz2
 			// toggle has to read the raw input state instead. It's the same button the menu uses for its text fields,
 			// so a player without a hardware keyboard can type commands and chat messages here as well. Only the gamepad
 			// bit is tested, because the key bound to the same action is also typed into the input line.
-			if DEATH_UNLIKELY(_console->IsVisible() && theApplication().CanShowScreenKeyboard()) {
+			if DEATH_UNLIKELY (_console->IsVisible() && theApplication().CanShowScreenKeyboard()) {
 				constexpr std::uint64_t ChangeWeaponGamepadBit = (1ull << (32 + (std::int32_t)PlayerAction::ChangeWeapon));
 				const auto& rawInput = _playerInputs[0];
 				if ((rawInput.PressedActions & ChangeWeaponGamepadBit) != 0 && (rawInput.PressedActionsLast & ChangeWeaponGamepadBit) == 0) {
@@ -1134,7 +1133,7 @@ namespace Jazz2
 				}
 			}
 #if defined(DEATH_DEBUG)
-			if DEATH_UNLIKELY(IsCheatingAllowed(nullptr) && PlayerActionPressed(nullptr, PlayerAction::ChangeWeapon) && PlayerActionHit(0, PlayerAction::Jump)) {
+			if DEATH_UNLIKELY (IsCheatingAllowed(nullptr) && PlayerActionPressed(nullptr, PlayerAction::ChangeWeapon) && PlayerActionHit(0, PlayerAction::Jump)) {
 				_cheatsUsed = true;
 				BeginLevelChange(nullptr, ExitType::Warp | ExitType::FastTransition);
 			}
@@ -1165,7 +1164,7 @@ namespace Jazz2
 		// Nothing of the level goes on in a frame its time stands still in, see Editor::PlayTestDebug::Step()
 		levelTimeRuns = (levelTimeRuns && (_playTestDebug == nullptr || !_playTestDebug->IsFrameFrozen()));
 #endif
-		if DEATH_LIKELY(levelTimeRuns) {
+		if DEATH_LIKELY (levelTimeRuns) {
 			if (_nextLevelType != ExitType::None) {
 				_nextLevelTime -= timeMult;
 				ProcessQueuedNextLevel();
@@ -1227,20 +1226,20 @@ namespace Jazz2
 
 		float timeMult = theApplication().GetTimeMult();
 #if defined(WITH_EDITOR)
-		if DEATH_UNLIKELY(_playTestDebug != nullptr) {
+		if DEATH_UNLIKELY (_playTestDebug != nullptr) {
 			// The same as at the beginning of the frame, see Editor::PlayTestDebug::BeginFrame()
 			timeMult = _playTestDebug->GetFrameTimeMult(timeMult);
 		}
 #endif
 		auto& resolver = ContentResolver::Get();
 
-		if DEATH_UNLIKELY(_checkpointSnapshotPending) {
+		if DEATH_UNLIKELY (_checkpointSnapshotPending) {
 			CreateCheckpointSnapshot();
 		}
 
 		_tileMap->OnEndFrame();
 
-		if DEATH_LIKELY(!IsPausable() || _pauseMenu == nullptr) {
+		if DEATH_LIKELY (!IsPausable() || _pauseMenu == nullptr) {
 			// Every actor applies its position to its renderer when it updates itself, but an actor can still be
 			// moved afterwards by another actor that updates later - a platform carrying it, most visibly - and
 			// would then be drawn a whole frame behind. This runs after all the updates and before the scene is
@@ -1255,7 +1254,7 @@ namespace Jazz2
 #if defined(WITH_EDITOR)
 			// Nothing touches anything in a frame the time of the play-test stands still in, but what is moved by hand
 			// (see Editor::PlayTestDebug::TeleportPlayer()) is still shown where it is now and the camera still follows it
-			if DEATH_LIKELY(_playTestDebug == nullptr || !_playTestDebug->IsFrameFrozen()) {
+			if DEATH_LIKELY (_playTestDebug == nullptr || !_playTestDebug->IsFrameFrozen()) {
 				ResolveCollisions(timeMult);
 			}
 #else
@@ -1303,7 +1302,7 @@ namespace Jazz2
 			}
 
 #if defined(DEATH_DEBUG) && defined(WITH_IMGUI)
-			if DEATH_UNLIKELY(PreferencesCache::PerformanceMetrics == PerformanceMetricsLevel::Detailed && !_assignedViewports.empty()) {
+			if DEATH_UNLIKELY (PreferencesCache::PerformanceMetrics == PerformanceMetricsLevel::Detailed && !_assignedViewports.empty()) {
 				ImDrawList* drawList = ImGui::GetBackgroundDrawList();
 				const auto& mainViewport = *_assignedViewports[0];
 
@@ -1375,20 +1374,28 @@ namespace Jazz2
 
 			// Every light of a viewport goes out as one mesh, so there is no per-light program to acquire
 			_lightingMeshShader = resolver.GetShader(PrecompiledShader::LightingMesh);
-			if (_lightingMeshShader == nullptr) { LOGW("PrecompiledShader::LightingMesh failed"); }
+			if (_lightingMeshShader == nullptr) {
+				LOGW("PrecompiledShader::LightingMesh failed");
+			}
 			_blurShader = resolver.GetShader(PrecompiledShader::Blur);
-			if (_blurShader == nullptr) { LOGW("PrecompiledShader::Blur failed"); }
+			if (_blurShader == nullptr) {
+				LOGW("PrecompiledShader::Blur failed");
+			}
 			_downsampleShader = resolver.GetShader(PrecompiledShader::Downsample);
-			if (_downsampleShader == nullptr) { LOGW("PrecompiledShader::Downsample failed"); }
+			if (_downsampleShader == nullptr) {
+				LOGW("PrecompiledShader::Downsample failed");
+			}
 			_combineShader = resolver.GetShader(PrecompiledShader::Combine);
-			if (_combineShader == nullptr) { LOGW("PrecompiledShader::Combine failed"); }
+			if (_combineShader == nullptr) {
+				LOGW("PrecompiledShader::Combine failed");
+			}
 		}
-#	if !defined(RHI_LOW_POWER_GPU)
+#if !defined(RHI_LOW_POWER_GPU)
 		// The whole scene dithered, the HUD is drawn after it (see PreferencesCache::Dithering), picked again
 		// whenever the preferences change
 		Shader* combineDither = resolver.GetShader(PrecompiledShader::CombineDither);
 		_combineShader = (IsScreenDithered() && combineDither != nullptr ? combineDither : resolver.GetShader(PrecompiledShader::Combine));
-#	endif
+#endif
 #endif
 #if !defined(RHI_CAP_SHADERS) || !defined(RHI_CAP_FRAMEBUFFERS)
 		// Software renderer: the bloom + shader-lighting chain is capability-gated out, but the viewport compositor
@@ -1396,7 +1403,9 @@ namespace Jazz2
 		// SwEffect::Combine) and runs the CPU dynamic-lighting combine in its place instead of a fragment.
 		if (_combineShader == nullptr) {
 			_combineShader = resolver.GetShader(PrecompiledShader::Combine);
-			if (_combineShader == nullptr) { LOGW("PrecompiledShader::Combine failed"); }
+			if (_combineShader == nullptr) {
+				LOGW("PrecompiledShader::Combine failed");
+			}
 		}
 #endif
 
@@ -1420,8 +1429,8 @@ namespace Jazz2
 		// fragment stage. Both quality variants carry the same console block, so the preference still picks
 		// the program - there is simply nothing left for it to reduce there.
 		_combineWithWaterShader = resolver.GetShader(PreferencesCache::LowWaterQuality
-			? (IsScreenDithered() ? PrecompiledShader::CombineWithWaterLowDither : PrecompiledShader::CombineWithWaterLow)
-			: (IsScreenDithered() ? PrecompiledShader::CombineWithWaterDither : PrecompiledShader::CombineWithWater));
+				? (IsScreenDithered() ? PrecompiledShader::CombineWithWaterLowDither : PrecompiledShader::CombineWithWaterLow)
+				: (IsScreenDithered() ? PrecompiledShader::CombineWithWaterDither : PrecompiledShader::CombineWithWater));
 		if (_combineWithWaterShader == nullptr) {
 			if (PreferencesCache::LowWaterQuality) {
 				LOGW("PrecompiledShader::CombineWithWaterLow failed");
@@ -1452,8 +1461,8 @@ namespace Jazz2
 			Rendering::PlayerViewport& viewport = *_assignedViewports[i];
 			viewport.Register();
 
-			if DEATH_UNLIKELY(_pauseMenu != nullptr) {
-				viewport.UpdateCamera(0.0f);	// Force update camera if game is paused
+			if DEATH_UNLIKELY (_pauseMenu != nullptr) {
+				viewport.UpdateCamera(0.0f); // Force update camera if game is paused
 			}
 		}
 
@@ -1461,7 +1470,7 @@ namespace Jazz2
 			_tileMap->OnInitializeViewport();
 		}
 
-		if DEATH_UNLIKELY(_pauseMenu != nullptr) {
+		if DEATH_UNLIKELY (_pauseMenu != nullptr) {
 			_pauseMenu->OnInitializeViewport(_viewSize.X, _viewSize.Y);
 		}
 	}
@@ -1482,9 +1491,9 @@ namespace Jazz2
 	{
 		_pressedKeys.set((std::size_t)event.Sym);
 
-		if DEATH_UNLIKELY(_pauseMenu != nullptr) {
+		if DEATH_UNLIKELY (_pauseMenu != nullptr) {
 			_pauseMenu->OnKeyPressed(event);
-		} else if DEATH_UNLIKELY(_console->IsVisible()) {
+		} else if DEATH_UNLIKELY (_console->IsVisible()) {
 			_console->OnKeyPressed(event);
 		}
 	}
@@ -1493,7 +1502,7 @@ namespace Jazz2
 	{
 		_pressedKeys.reset((std::size_t)event.Sym);
 
-		if DEATH_UNLIKELY(_pauseMenu != nullptr) {
+		if DEATH_UNLIKELY (_pauseMenu != nullptr) {
 			_pauseMenu->OnKeyReleased(event);
 		}
 	}
@@ -1514,7 +1523,7 @@ namespace Jazz2
 	{
 		float timeMult = theApplication().GetTimeMult();
 #if defined(WITH_EDITOR)
-		if DEATH_UNLIKELY(_playTestDebug != nullptr) {
+		if DEATH_UNLIKELY (_playTestDebug != nullptr) {
 			// The same as the objects of the level get, see Editor::PlayTestDebug::BeginFrame()
 			timeMult = _playTestDebug->GetFrameTimeMult(timeMult);
 		}
@@ -1530,12 +1539,12 @@ namespace Jazz2
 	}
 
 #if defined(NCINE_HAS_TOUCH_CONTROLS)
-	void LevelHandler::OnTouchEvent(const  TouchEvent& event)
+	void LevelHandler::OnTouchEvent(const TouchEvent& event)
 	{
-		if DEATH_UNLIKELY(_pauseMenu != nullptr) {
+		if DEATH_UNLIKELY (_pauseMenu != nullptr) {
 			_pauseMenu->OnTouchEvent(event);
 		} else {
-			if DEATH_UNLIKELY(_console->IsVisible()) {
+			if DEATH_UNLIKELY (_console->IsVisible()) {
 				_console->OnTouchEvent(event, _viewSize);
 			}
 			_hud->OnTouchEvent(event, _overrideActions, _overrideMovement);
@@ -1569,8 +1578,8 @@ namespace Jazz2
 #if defined(WITH_AUDIO)
 		if (buffer != nullptr) {
 			auto& player = _playingSounds.emplace_back(_assignedViewports.size() > 1
-				? std::make_shared<AudioBufferPlayerForSplitscreen>(buffer, _assignedViewports)
-				: std::make_shared<AudioBufferPlayer>(buffer));
+					? std::make_shared<AudioBufferPlayerForSplitscreen>(buffer, _assignedViewports)
+					: std::make_shared<AudioBufferPlayer>(buffer));
 			player->SetPosition(Vector3f(pos.X, pos.Y, 100.0f));
 			player->SetGain(gain * PreferencesCache::MasterVolume * PreferencesCache::SfxVolume);
 			player->SetSourceRelative(sourceRelative);
@@ -1607,8 +1616,8 @@ namespace Jazz2
 			std::int32_t idx = (it->second.Buffers.size() > 1 ? Random().Next(0, (std::int32_t)it->second.Buffers.size()) : 0);
 			auto* buffer = &it->second.Buffers[idx]->Buffer;
 			auto& player = _playingSounds.emplace_back(_assignedViewports.size() > 1
-				? std::make_shared<AudioBufferPlayerForSplitscreen>(buffer, _assignedViewports)
-				: std::make_shared<AudioBufferPlayer>(buffer));
+					? std::make_shared<AudioBufferPlayerForSplitscreen>(buffer, _assignedViewports)
+					: std::make_shared<AudioBufferPlayer>(buffer));
 			player->SetPosition(Vector3f(pos.X, pos.Y, 100.0f));
 			player->SetGain(gain * PreferencesCache::MasterVolume * PreferencesCache::SfxVolume);
 
@@ -1621,7 +1630,7 @@ namespace Jazz2
 
 			player->Play();
 			return player;
-		}	
+		}
 #endif
 		return nullptr;
 	}
@@ -1743,13 +1752,15 @@ namespace Jazz2
 
 	void LevelHandler::FindCollisionActorsByAABB(const Actors::ActorBase* self, const AABBf& aabb, Function<bool(Actors::ActorBase*)>&& callback)
 	{
-		struct QueryHelper {
+		struct QueryHelper
+		{
 			const LevelHandler* Handler;
 			const Actors::ActorBase* Self;
 			const AABBf& AABB;
 			Function<bool(Actors::ActorBase*)>& Callback;
 
-			bool OnCollisionQuery(std::int32_t nodeId) {
+			bool OnCollisionQuery(std::int32_t nodeId)
+			{
 				Actors::ActorBase* actor = (Actors::ActorBase*)Handler->_collisions.GetUserData(nodeId);
 				if (Self == actor || (actor->GetState() & (Actors::ActorState::CollideWithOtherActors | Actors::ActorState::IsDestroyed)) != Actors::ActorState::CollideWithOtherActors) {
 					return true;
@@ -1770,13 +1781,15 @@ namespace Jazz2
 		AABBf aabb = AABBf(x - radius, y - radius, x + radius, y + radius);
 		float radiusSquared = (radius * radius);
 
-		struct QueryHelper {
+		struct QueryHelper
+		{
 			const LevelHandler* Handler;
 			const float x, y;
 			const float RadiusSquared;
 			Function<bool(Actors::ActorBase*)>& Callback;
 
-			bool OnCollisionQuery(std::int32_t nodeId) {
+			bool OnCollisionQuery(std::int32_t nodeId)
+			{
 				Actors::ActorBase* actor = (Actors::ActorBase*)Handler->_collisions.GetUserData(nodeId);
 				if ((actor->GetState() & (Actors::ActorState::CollideWithOtherActors | Actors::ActorState::IsDestroyed)) != Actors::ActorState::CollideWithOtherActors) {
 					return true;
@@ -1908,7 +1921,7 @@ namespace Jazz2
 
 		_nextLevelName = nextLevel;
 		_nextLevelType = exitType;
-		
+
 		if ((exitType & ExitType::FastTransition) == ExitType::FastTransition) {
 			ExitType exitTypeMasked = (exitType & ExitType::TypeMask);
 			if (exitTypeMasked == ExitType::Warp || exitTypeMasked == ExitType::Bonus || exitTypeMasked == ExitType::Boss) {
@@ -2360,8 +2373,10 @@ namespace Jazz2
 	bool LevelHandler::SerializeResumableToStream(Stream& dest)
 	{
 		std::uint8_t flags = 0;
-		if (_isReforged) flags |= 0x01;
-		if (_cheatsUsed) flags |= 0x02;
+		if (_isReforged)
+			flags |= 0x01;
+		if (_cheatsUsed)
+			flags |= 0x02;
 		dest.WriteValue<std::uint8_t>(flags);
 
 		auto p = _levelName.partition('/');
@@ -2416,7 +2431,7 @@ namespace Jazz2
 		_hudUpscalePass.Detach();
 	}
 
-#	if defined(WITH_AUDIO)
+#if defined(WITH_AUDIO)
 	bool LevelHandler::HandOverMusic(LevelHandler& target, float lowPass)
 	{
 		if (_music == nullptr || _musicCurrentPath != target._musicCurrentPath) {
@@ -2459,7 +2474,7 @@ namespace Jazz2
 			_music->SetLowPass(lowPass);
 		}
 	}
-#	endif
+#endif
 
 	bool LevelHandler::IsEditorPlayTest() const
 	{
@@ -2677,10 +2692,14 @@ namespace Jazz2
 		WriteSnapshotString(dest, _levelName);
 		dest.WriteValue<std::uint8_t>((std::uint8_t)_difficulty);
 		std::uint8_t flags = 0;
-		if (_isReforged) flags |= 0x01;
-		if (_cheatsUsed) flags |= 0x02;
-		if (_checkpointCreated) flags |= 0x04;
-		if (secretExit) flags |= LevelStateLeftBySecretExit;
+		if (_isReforged)
+			flags |= 0x01;
+		if (_cheatsUsed)
+			flags |= 0x02;
+		if (_checkpointCreated)
+			flags |= 0x04;
+		if (secretExit)
+			flags |= LevelStateLeftBySecretExit;
 		dest.WriteValue<std::uint8_t>(flags);
 		dest.WriteValueAsLE<float>(_elapsedFrames);
 		dest.WriteValueAsLE<float>(_checkpointFrames);
@@ -2874,8 +2893,7 @@ namespace Jazz2
 			std::shared_ptr<Actors::Environment::IceBlock> iceBlock = std::make_shared<Actors::Environment::IceBlock>();
 			iceBlock->OnActivated(Actors::ActorActivationDetails(
 				this,
-				Vector3i(x - 1, y - 2, ILevelHandler::MainPlaneZ)
-			));
+				Vector3i(x - 1, y - 2, ILevelHandler::MainPlaneZ)));
 			AddActor(iceBlock);
 		}
 	}
@@ -3175,8 +3193,8 @@ namespace Jazz2
 					debrisFlags = TileMap::DebrisFlags::Disappear;
 				} else {
 					debrisFlags = (Random().FastFloat() > 0.7f
-						? TileMap::DebrisFlags::None
-						: TileMap::DebrisFlags::Disappear);
+							? TileMap::DebrisFlags::None
+							: TileMap::DebrisFlags::Disappear);
 				}
 
 				// Where it crosses the view in its life, snow drifts left and rain right
@@ -3189,7 +3207,7 @@ namespace Jazz2
 				Recti frameRect = resBase->GetFrameRect(curAnimFrame);
 				Vector2i frameOffset = resBase->GetFrameOffset(curAnimFrame);
 
-				TileMap::DestructibleDebris debris = { };
+				TileMap::DestructibleDebris debris = {};
 				debris.Pos = debrisPos;
 				// The depth follows the size, in the steps the particles of the weather are batched by (see TileMap::WeatherDepthStep)
 				debris.Depth = MainPlaneZ - 100 + (std::uint16_t)((std::int32_t)(200 * scale) / TileMap::WeatherDepthStep * TileMap::WeatherDepthStep);
@@ -3258,7 +3276,7 @@ namespace Jazz2
 				it = _actors.eraseUnordered(it);
 				continue;
 			}
-			
+
 			if (actor->GetState(Actors::ActorState::IsDirty) && actor->_collisionProxyID != Collisions::NullNode) {
 				actor->UpdateAABB();
 
@@ -3289,8 +3307,10 @@ namespace Jazz2
 			++it;
 		}
 
-		struct UpdatePairsHelper {
-			void OnPairAdded(void* proxyA, void* proxyB) {
+		struct UpdatePairsHelper
+		{
+			void OnPairAdded(void* proxyA, void* proxyB)
+			{
 				Actors::ActorBase* actorA = (Actors::ActorBase*)proxyA;
 				Actors::ActorBase* actorB = (Actors::ActorBase*)proxyB;
 				if (((actorA->GetState() | actorB->GetState()) & (Actors::ActorState::CollideWithOtherActors | Actors::ActorState::IsDestroyed)) != Actors::ActorState::CollideWithOtherActors) {
@@ -3340,7 +3360,7 @@ namespace Jazz2
 				break;
 			}
 		}
-		
+
 #if defined(WITH_AUDIO)
 		if (success) {
 			for (auto& current : _playingSounds) {
@@ -3704,9 +3724,15 @@ namespace Jazz2
 			if (!_players.empty())
 				switch (_players[0]->GetPlayerType()) {
 					default:
-					case PlayerType::Jazz: richPresence.SmallImage = "playing-jazz"_s; break;
-					case PlayerType::Spaz: richPresence.SmallImage = "playing-spaz"_s; break;
-					case PlayerType::Lori: richPresence.SmallImage = "playing-lori"_s; break;
+					case PlayerType::Jazz:
+						richPresence.SmallImage = "playing-jazz"_s;
+						break;
+					case PlayerType::Spaz:
+						richPresence.SmallImage = "playing-spaz"_s;
+						break;
+					case PlayerType::Lori:
+						richPresence.SmallImage = "playing-lori"_s;
+						break;
 				}
 		} else {
 			richPresence.Details = "Playing episode"_s;
@@ -3715,9 +3741,15 @@ namespace Jazz2
 		if (!_players.empty()) {
 			switch (_players[0]->GetPlayerType()) {
 				default:
-				case PlayerType::Jazz: richPresence.Details += " as Jazz"_s; break;
-				case PlayerType::Spaz: richPresence.Details += " as Spaz"_s; break;
-				case PlayerType::Lori: richPresence.Details += " as Lori"_s; break;
+				case PlayerType::Jazz:
+					richPresence.Details += " as Jazz"_s;
+					break;
+				case PlayerType::Spaz:
+					richPresence.Details += " as Spaz"_s;
+					break;
+				case PlayerType::Lori:
+					richPresence.Details += " as Lori"_s;
+					break;
 			}
 		}
 
@@ -3902,7 +3934,8 @@ namespace Jazz2
 
 	bool LevelHandler::ApplyCheat(StringView line, ArrayView<Actors::Player* const> targets)
 	{
-		struct CheatCommand {
+		struct CheatCommand
+		{
 			StringView Command;
 			StringView Alias;
 			void (LevelHandler::*Handler)(ArrayView<Actors::Player* const> targets);
@@ -4015,12 +4048,18 @@ namespace Jazz2
 		// what the bird monitor gives, see PowerUpMorphMonitor.
 		const auto nextType = [](PlayerType type) {
 			switch (type) {
-				case PlayerType::Jazz: return PlayerType::Spaz;
-				case PlayerType::Spaz: return PlayerType::Lori;
-				case PlayerType::Lori: return PlayerType::Bird;
-				case PlayerType::Bird: return PlayerType::Frog;
-				case PlayerType::Frog: return PlayerType::Bird2;
-				default: return PlayerType::Jazz;
+				case PlayerType::Jazz:
+					return PlayerType::Spaz;
+				case PlayerType::Spaz:
+					return PlayerType::Lori;
+				case PlayerType::Lori:
+					return PlayerType::Bird;
+				case PlayerType::Bird:
+					return PlayerType::Frog;
+				case PlayerType::Frog:
+					return PlayerType::Bird2;
+				default:
+					return PlayerType::Jazz;
 			}
 		};
 
@@ -4045,7 +4084,6 @@ namespace Jazz2
 		}
 	}
 
-
 	void LevelHandler::CheatFly(ArrayView<Actors::Player* const> targets)
 	{
 		for (auto* player : targets) {
@@ -4063,9 +4101,15 @@ namespace Jazz2
 
 			Actors::Player::Modifier nextModifier;
 			switch (player->GetModifier()) {
-				case Actors::Player::Modifier::None:    nextModifier = Actors::Player::Modifier::Copter;   break;
-				case Actors::Player::Modifier::Copter:  nextModifier = Actors::Player::Modifier::Airboard; break;
-				default:                                nextModifier = Actors::Player::Modifier::None;     break;
+				case Actors::Player::Modifier::None:
+					nextModifier = Actors::Player::Modifier::Copter;
+					break;
+				case Actors::Player::Modifier::Copter:
+					nextModifier = Actors::Player::Modifier::Airboard;
+					break;
+				default:
+					nextModifier = Actors::Player::Modifier::None;
+					break;
 			}
 			if (nextModifier == Actors::Player::Modifier::Copter) {
 				player->EnableFlyCheat(true);
@@ -4084,8 +4128,7 @@ namespace Jazz2
 		const float scale = viewport.GetCameraScale();
 		return ImVec2(
 			((pos.X - viewport._cameraPos.X) * scale + halfView.X) * upscaledSize.X / originalSize.X,
-			((pos.Y - viewport._cameraPos.Y) * scale + halfView.Y) * upscaledSize.Y / originalSize.Y
-		);
+			((pos.Y - viewport._cameraPos.Y) * scale + halfView.Y) * upscaledSize.Y / originalSize.Y);
 	}
 #endif
 

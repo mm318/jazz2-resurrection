@@ -19,23 +19,35 @@ namespace nCine
 			scalar arithmetic, length and normalization, dot product, linear interpolation
 			and construction from an angle and a length.
 		*/
-		template<class T>
+		template <class T>
 		class Vector2
 		{
 		public:
 			T X, Y;
 
 			constexpr Vector2() noexcept
-				: X{T(0)}, Y{T(0)} {}
-			explicit Vector2(NoInitT) noexcept{}
+				: X { T(0) }, Y { T(0) }
+			{
+			}
+			explicit Vector2(NoInitT) noexcept
+			{
+			}
 			explicit constexpr Vector2(T s) noexcept
-				: X(s), Y(s) {}
+				: X(s), Y(s)
+			{
+			}
 			constexpr Vector2(T x, T y) noexcept
-				: X(x), Y(y) {}
+				: X(x), Y(y)
+			{
+			}
 			constexpr Vector2(const Vector2& other) noexcept
-				: X(other.X), Y(other.Y) {}
+				: X(other.X), Y(other.Y)
+			{
+			}
 			constexpr Vector2(Vector2&& other) noexcept
-				: X(other.X), Y(other.Y) {}
+				: X(other.X), Y(other.Y)
+			{
+			}
 			Vector2& operator=(const Vector2& other) noexcept;
 			Vector2& operator=(Vector2&& other) noexcept;
 
@@ -71,7 +83,7 @@ namespace nCine
 			Vector2 operator*(T s) const;
 			Vector2 operator/(T s) const;
 
-			template<class S>
+			template <class S>
 			friend Vector2<S> operator*(S s, const Vector2<S>& v);
 
 			T Length() const;
@@ -82,8 +94,9 @@ namespace nCine
 			/**
 			 * @brief Converts the components to a different element type
 			 */
-			template<class S>
-			Vector2<S> As() {
+			template <class S>
+			Vector2<S> As()
+			{
 				return Vector2<S>(static_cast<S>(X), static_cast<S>(Y));
 			}
 
@@ -108,7 +121,7 @@ namespace nCine
 		/** @brief Two-component vector of 32-bit integers */
 		using Vector2i = Vector2<std::int32_t>;
 
-		template<class T>
+		template <class T>
 		inline Vector2<T>& Vector2<T>::operator=(const Vector2<T>& other) noexcept
 		{
 			X = other.X;
@@ -117,7 +130,7 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector2<T>& Vector2<T>::operator=(Vector2<T>&& other) noexcept
 		{
 			X = other.X;
@@ -126,58 +139,58 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline void Vector2<T>::Set(T x, T y)
 		{
 			X = x;
 			Y = y;
 		}
 
-		template<class T>
+		template <class T>
 		inline T* Vector2<T>::Data()
 		{
 			return &X;
 		}
 
-		template<class T>
+		template <class T>
 		inline const T* Vector2<T>::Data() const
 		{
 			return &X;
 		}
 
-		template<class T>
+		template <class T>
 		inline T& Vector2<T>::operator[](std::size_t index)
 		{
 			DEATH_ASSERT(index < 2);
 			return (&X)[index];
 		}
 
-		template<class T>
+		template <class T>
 		inline const T& Vector2<T>::operator[](std::size_t index) const
 		{
 			DEATH_ASSERT(index < 2);
 			return (&X)[index];
 		}
 
-		template<class T>
+		template <class T>
 		inline bool Vector2<T>::operator==(const Vector2& v) const
 		{
 			return (X == v.X && Y == v.Y);
 		}
 
-		template<class T>
+		template <class T>
 		inline bool Vector2<T>::operator!=(const Vector2& v) const
 		{
 			return (X != v.X || Y != v.Y);
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector2<T> Vector2<T>::operator-() const
 		{
 			return Vector2(-X, -Y);
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector2<T>& Vector2<T>::operator+=(const Vector2& v)
 		{
 			X += v.X;
@@ -186,7 +199,7 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector2<T>& Vector2<T>::operator-=(const Vector2& v)
 		{
 			X -= v.X;
@@ -195,7 +208,7 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector2<T>& Vector2<T>::operator*=(const Vector2& v)
 		{
 			X *= v.X;
@@ -204,7 +217,7 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector2<T>& Vector2<T>::operator/=(const Vector2& v)
 		{
 			X /= v.X;
@@ -213,7 +226,7 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector2<T>& Vector2<T>::operator+=(T s)
 		{
 			X += s;
@@ -222,7 +235,7 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector2<T>& Vector2<T>::operator-=(T s)
 		{
 			X -= s;
@@ -231,7 +244,7 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector2<T>& Vector2<T>::operator*=(T s)
 		{
 			X *= s;
@@ -240,7 +253,7 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector2<T>& Vector2<T>::operator/=(T s)
 		{
 			X /= s;
@@ -249,81 +262,81 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector2<T> Vector2<T>::operator+(const Vector2& v) const
 		{
 			return Vector2(X + v.X, Y + v.Y);
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector2<T> Vector2<T>::operator-(const Vector2& v) const
 		{
 			return Vector2(X - v.X, Y - v.Y);
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector2<T> Vector2<T>::operator*(const Vector2& v) const
 		{
 			return Vector2(X * v.X, Y * v.Y);
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector2<T> Vector2<T>::operator/(const Vector2& v) const
 		{
 			return Vector2(X / v.X, Y / v.Y);
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector2<T> Vector2<T>::operator+(T s) const
 		{
 			return Vector2(X + s, Y + s);
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector2<T> Vector2<T>::operator-(T s) const
 		{
 			return Vector2(X - s, Y - s);
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector2<T> Vector2<T>::operator*(T s) const
 		{
 			return Vector2(X * s, Y * s);
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector2<T> Vector2<T>::operator/(T s) const
 		{
 			return Vector2(X / s, Y / s);
 		}
 
-		template<class S>
+		template <class S>
 		inline Vector2<S> operator*(S s, const Vector2<S>& v)
 		{
 			return Vector2<S>(s * v.X,
-							  s * v.Y);
+				s * v.Y);
 		}
 
-		template<class T>
+		template <class T>
 		inline T Vector2<T>::Length() const
 		{
 			return (T)sqrt(X * X + Y * Y);
 		}
 
-		template<class T>
+		template <class T>
 		inline T Vector2<T>::SqrLength() const
 		{
 			return X * X + Y * Y;
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector2<T> Vector2<T>::Normalized() const
 		{
 			const T len = Length();
 			return Vector2(X / len, Y / len);
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector2<T>& Vector2<T>::Normalize()
 		{
 			const T len = Length();
@@ -334,29 +347,29 @@ namespace nCine
 			return *this;
 		}
 
-		template<class T>
+		template <class T>
 		inline T Vector2<T>::Dot(Vector2<T> v1, Vector2<T> v2)
 		{
 			return static_cast<T>(v1.X * v2.X + v1.Y * v2.Y);
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector2<T> Vector2<T>::Lerp(Vector2<T> a, Vector2<T> b, float t)
 		{
 			return Vector2<T>(t * (b.X - a.X) + a.X, t * (b.Y - a.Y) + a.Y);
 		}
 
-		template<class T>
+		template <class T>
 		inline Vector2<T> Vector2<T>::FromAngleLength(T angle, T length)
 		{
 			return Vector2<T>((T)sinf(angle) * length, (T)cosf(angle) * -length);
 		}
 
-		template<class T>
+		template <class T>
 		const Vector2<T> Vector2<T>::Zero(0, 0);
-		template<class T>
+		template <class T>
 		const Vector2<T> Vector2<T>::XAxis(1, 0);
-		template<class T>
+		template <class T>
 		const Vector2<T> Vector2<T>::YAxis(0, 1);
 	}
 }

@@ -102,7 +102,7 @@ namespace Jazz2::Actors::Enemies
 
 		dest.WriteValueAsLE<float>(_speedPerTick.X);
 		dest.WriteValueAsLE<float>(_speedPerTick.Y);
-		dest.WriteValue<std::uint8_t>(0);	// Unused
+		dest.WriteValue<std::uint8_t>(0); // Unused
 	}
 
 	void Sparks::OnDeserializeState(Stream& src)
@@ -111,7 +111,7 @@ namespace Jazz2::Actors::Enemies
 
 		_speedPerTick.X = src.ReadValueAsLE<float>();
 		_speedPerTick.Y = src.ReadValueAsLE<float>();
-		src.ReadValue<std::uint8_t>();	// Unused
+		src.ReadValue<std::uint8_t>(); // Unused
 	}
 
 	bool Sparks::OnPerish(ActorBase* collider)

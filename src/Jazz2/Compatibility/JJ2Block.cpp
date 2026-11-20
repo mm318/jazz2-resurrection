@@ -125,7 +125,6 @@ namespace Jazz2::Compatibility
 		return AsLE(result);
 	}
 
-
 	std::int32_t JJ2Block::ReadUint7bitEncoded()
 	{
 		std::uint32_t result = 0;

@@ -89,33 +89,40 @@ namespace Jazz2::Editor
 		/** @brief Switches what the editor is used with, the hints follow */
 		void SetInputModality(InputModality modality);
 		/** @brief Forgets the mouse buttons pressed, for a press that isn't of the mouse of the system, as from the debug console */
-		void ForgetHeldButtons() {
+		void ForgetHeldButtons()
+		{
 			_heldButtons = 0;
 		}
 		/** @brief Returns what the editor was used with last */
-		InputModality GetInputModality() const {
+		InputModality GetInputModality() const
+		{
 			return _inputModality;
 		}
 		/** @brief Returns the cursor moved by a gamepad, in pixels of the screen */
-		Vector2f GetGamepadCursor() const {
+		Vector2f GetGamepadCursor() const
+		{
 			return _gamepadCursor;
 		}
 		/** @brief Places the cursor of a gamepad, the pointer isn't moved with it */
-		void SetGamepadCursor(Vector2f pos) {
+		void SetGamepadCursor(Vector2f pos)
+		{
 			_gamepadCursor = pos;
 		}
 		/** @brief Shows the menu of tools in a ring around a position on the screen */
 		void ShowToolMenu(Vector2f pos);
 		/** @brief Returns the menu of tools in a ring shown, or `nullptr` */
-		RadialMenu* GetRadialMenu() const {
+		RadialMenu* GetRadialMenu() const
+		{
 			return _radialMenu;
 		}
 		/** @brief Returns the modifier keys held, as the last key event had them */
-		std::int32_t GetModifiers() const {
+		std::int32_t GetModifiers() const
+		{
 			return _modifiers;
 		}
 		/** @brief Returns the last position of the pointer, `false` if it's not known yet */
-		bool GetPointerPos(Vector2f& pos) const {
+		bool GetPointerPos(Vector2f& pos) const
+		{
 			pos = _pointerPos;
 			return _pointerKnown;
 		}
@@ -123,15 +130,18 @@ namespace Jazz2::Editor
 		bool GetHoverPointer(ToolPointer& pointer);
 
 		/** @brief Returns `true` while the pointer holds a stroke of the active tool */
-		bool IsToolPointerDown() const {
+		bool IsToolPointerDown() const
+		{
 			return _toolPointerDown;
 		}
 		/** @brief Returns `true` while the tool is being told about the pointer, the commands it runs then are its own */
-		bool IsInToolCallback() const {
+		bool IsInToolCallback() const
+		{
 			return (_toolCallbackDepth > 0);
 		}
 		/** @brief Returns `true` while an action is run by its key, not chosen from a menu or by a button */
-		bool IsHandlingShortcut() const {
+		bool IsHandlingShortcut() const
+		{
 			return _handlingShortcut;
 		}
 		/**

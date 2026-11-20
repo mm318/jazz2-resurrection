@@ -80,7 +80,7 @@ namespace Jazz2::Compatibility
 			LevelEntry& levelEntry = LevelTexts.emplace_back(levelName);
 			StringUtils::lowercaseInPlace(levelEntry.Name);
 
-			/*uint8_t unknown =*/ s->ReadValue<std::uint8_t>();
+			/*uint8_t unknown =*/s->ReadValue<std::uint8_t>();
 			counts.emplace_back(s->ReadValue<std::uint8_t>());
 			offsets.emplace_back(s->ReadValueAsLE<std::uint16_t>());
 		}
@@ -102,7 +102,7 @@ namespace Jazz2::Compatibility
 				std::uint8_t size = s->ReadValue<std::uint8_t>();
 				k++;
 
-				String text{NoInit, size};
+				String text { NoInit, size };
 				s->Read(text.data(), size);
 				level.TextEvents[index] = text;
 				k += size;

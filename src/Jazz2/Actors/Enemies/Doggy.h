@@ -25,14 +25,16 @@ namespace Jazz2::Actors::Enemies
 		bool OnHandleCollision(ActorBase* other) override;
 
 		/** @brief Returns `true` while it runs after a player that touched or shot it */
-		bool IsAttacking() const {
+		bool IsAttacking() const
+		{
 			return (_attackTime > 0.0f);
 		}
 
 	protected:
 		Task<bool> OnActivatedAsync(const ActorActivationDetails& details) override;
 		void OnUpdate(float timeMult) override;
-		float GetTurnLookAhead() const override {
+		float GetTurnLookAhead() const override
+		{
 			return 34.0f;
 		}
 		void OnUpdateHitbox() override;

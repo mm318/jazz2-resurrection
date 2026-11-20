@@ -20,16 +20,20 @@ namespace Jazz2::Scripting
 	void RegisterImGuiBindings(asIScriptEngine* engine)
 	{
 		engine->SetDefaultNamespace("ImGui");
-		
+
 		engine->RegisterGlobalFunction("bool Begin(const string&in, bool, int=0)", asFUNCTION(+[](const String& name, bool opened, std::int32_t flags) {
-			return ImGui::Begin(name.data(), &opened, flags); }), asCALL_CDECL);
+			return ImGui::Begin(name.data(), &opened, flags);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("void End()", asFUNCTIONPR(ImGui::End, (), void), asCALL_CDECL);
-		engine->RegisterGlobalFunction("bool BeginChild(const string&in)", asFUNCTION(+[](const String& name) { 
-			return ImGui::Begin(name.data()); }), asCALL_CDECL);
+		engine->RegisterGlobalFunction("bool BeginChild(const string&in)", asFUNCTION(+[](const String& name) {
+			return ImGui::Begin(name.data());
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("void EndChild()", asFUNCTIONPR(ImGui::EndChild, (), void), asCALL_CDECL);
 
 		// Deprecated
-		//engine->RegisterGlobalFunction("vec2 GetContentRegionMax()", asFUNCTION(+[]() -> Vector2f { 
+		//engine->RegisterGlobalFunction("vec2 GetContentRegionMax()", asFUNCTION(+[]() -> Vector2f {
 		//	return ImGui::GetContentRegionMax(); }), asCALL_CDECL);
 		//engine->RegisterGlobalFunction("vec2 GetContentRegionAvail()", asFUNCTION(+[]() -> Vector2f {
 		//	return ImGui::GetContentRegionAvail(); }), asCALL_CDECL);
@@ -39,40 +43,71 @@ namespace Jazz2::Scripting
 		//	return ImGui::GetWindowContentRegionMax(); }), asCALL_CDECL);
 
 		engine->RegisterGlobalFunction("vec2 GetWindowPos()", asFUNCTION(+[]() -> Vector2f {
-			return ImGui::GetWindowPos(); }), asCALL_CDECL);
+			return ImGui::GetWindowPos();
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("vec2 GetWindowSize()", asFUNCTION(+[]() -> Vector2f {
-			return ImGui::GetWindowSize(); }), asCALL_CDECL);
+			return ImGui::GetWindowSize();
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("float GetWindowWedth()", asFUNCTIONPR(ImGui::GetWindowWidth, (), float), asCALL_CDECL);
 		engine->RegisterGlobalFunction("float GetWindowHeight()", asFUNCTIONPR(ImGui::GetWindowHeight, (), float), asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool IsWindowCollapsed()", asFUNCTIONPR(ImGui::IsWindowCollapsed, (), bool), asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool IsWindowAppearing()", asFUNCTIONPR(ImGui::IsWindowAppearing, (), bool), asCALL_CDECL);
 
 		engine->RegisterGlobalFunction("void SetNextWindowPos(const vec2&in)", asFUNCTION(+[](const Vector2f& v) {
-			ImGui::SetNextWindowPos(v); }), asCALL_CDECL);
+			ImGui::SetNextWindowPos(v);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("void SetNextWindowSize(const vec2&in)", asFUNCTION(+[](const Vector2f& v) {
-			ImGui::SetNextWindowSize(v); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("void SetNextWindowContentSize(const vec2&in)", asFUNCTION(+[](const Vector2f& v) { 
-			ImGui::SetNextWindowContentSize(v); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("void SetNextWindowCollapsed(bool)", asFUNCTION(+[](bool v) { 
-			ImGui::SetNextWindowCollapsed(v); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("void SetNextWindowFocus()", asFUNCTION(+[]() { 
-			ImGui::SetNextWindowFocus(); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("void SetWindowPos(const vec2&in)", asFUNCTION(+[](const Vector2f& v) { 
-			ImGui::SetWindowPos(v); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("void SetWindowSize(const vec2&in)", asFUNCTION(+[](const Vector2f& v) { 
-			ImGui::SetWindowSize(v); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("void SetWindowCollapsed(bool)", asFUNCTION(+[](bool v) { 
-			ImGui::SetWindowCollapsed(v); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("void SetWindowFocus()", asFUNCTION(+[]() { ImGui::SetWindowFocus(); }), asCALL_CDECL);
+			ImGui::SetNextWindowSize(v);
+		}),
+			asCALL_CDECL);
+		engine->RegisterGlobalFunction("void SetNextWindowContentSize(const vec2&in)", asFUNCTION(+[](const Vector2f& v) {
+			ImGui::SetNextWindowContentSize(v);
+		}),
+			asCALL_CDECL);
+		engine->RegisterGlobalFunction("void SetNextWindowCollapsed(bool)", asFUNCTION(+[](bool v) {
+			ImGui::SetNextWindowCollapsed(v);
+		}),
+			asCALL_CDECL);
+		engine->RegisterGlobalFunction("void SetNextWindowFocus()", asFUNCTION(+[]() {
+			ImGui::SetNextWindowFocus();
+		}),
+			asCALL_CDECL);
+		engine->RegisterGlobalFunction("void SetWindowPos(const vec2&in)", asFUNCTION(+[](const Vector2f& v) {
+			ImGui::SetWindowPos(v);
+		}),
+			asCALL_CDECL);
+		engine->RegisterGlobalFunction("void SetWindowSize(const vec2&in)", asFUNCTION(+[](const Vector2f& v) {
+			ImGui::SetWindowSize(v);
+		}),
+			asCALL_CDECL);
+		engine->RegisterGlobalFunction("void SetWindowCollapsed(bool)", asFUNCTION(+[](bool v) {
+			ImGui::SetWindowCollapsed(v);
+		}),
+			asCALL_CDECL);
+		engine->RegisterGlobalFunction("void SetWindowFocus()", asFUNCTION(+[]() {
+			ImGui::SetWindowFocus();
+		}),
+			asCALL_CDECL);
 
 		engine->RegisterGlobalFunction("void SetWindowPos(const string&in, const vec2&in)", asFUNCTION(+[](const String& name, const Vector2f& v) {
-			ImGui::SetWindowPos(name.data(), v); }), asCALL_CDECL);
+			ImGui::SetWindowPos(name.data(), v);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("void SetWindowSize(const string&in, const vec2&in)", asFUNCTION(+[](const String& name, const Vector2f& v) {
-			ImGui::SetWindowSize(name.data(), v); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("void SetWindowCollapsed(const string&in, bool)", asFUNCTION(+[](const String& name, bool v) { 
-			ImGui::SetWindowCollapsed(name.data(), v); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("void SetWindowFocus(const string&in)", asFUNCTION(+[](const String& v) { 
-			ImGui::SetWindowFocus(v.data()); }), asCALL_CDECL);
+			ImGui::SetWindowSize(name.data(), v);
+		}),
+			asCALL_CDECL);
+		engine->RegisterGlobalFunction("void SetWindowCollapsed(const string&in, bool)", asFUNCTION(+[](const String& name, bool v) {
+			ImGui::SetWindowCollapsed(name.data(), v);
+		}),
+			asCALL_CDECL);
+		engine->RegisterGlobalFunction("void SetWindowFocus(const string&in)", asFUNCTION(+[](const String& v) {
+			ImGui::SetWindowFocus(v.data());
+		}),
+			asCALL_CDECL);
 
 		engine->RegisterGlobalFunction("float GetScrollX()", asFUNCTIONPR(ImGui::GetScrollX, (), float), asCALL_CDECL);
 		engine->RegisterGlobalFunction("float GetScrollY()", asFUNCTIONPR(ImGui::GetScrollY, (), float), asCALL_CDECL);
@@ -80,26 +115,44 @@ namespace Jazz2::Scripting
 		engine->RegisterGlobalFunction("float GetScrollMaxY()", asFUNCTIONPR(ImGui::GetScrollMaxY, (), float), asCALL_CDECL);
 		engine->RegisterGlobalFunction("void SetScrollX(float)", asFUNCTIONPR(ImGui::SetScrollX, (float), void), asCALL_CDECL);
 		engine->RegisterGlobalFunction("void SetScrollY(float)", asFUNCTIONPR(ImGui::SetScrollY, (float), void), asCALL_CDECL);
-		engine->RegisterGlobalFunction("void SetScrollFromPosY(float, float = 0.5f)", asFUNCTIONPR(ImGui::SetScrollFromPosY, (float,float), void), asCALL_CDECL);
+		engine->RegisterGlobalFunction("void SetScrollFromPosY(float, float = 0.5f)", asFUNCTIONPR(ImGui::SetScrollFromPosY, (float, float), void), asCALL_CDECL);
 
 		engine->RegisterGlobalFunction("void Separator()", asFUNCTIONPR(ImGui::Separator, (), void), asCALL_CDECL);
-		engine->RegisterGlobalFunction("void SameLine(float = 0.0f, float = -1.0f)", asFUNCTIONPR(ImGui::SameLine, (float,float), void), asCALL_CDECL);
+		engine->RegisterGlobalFunction("void SameLine(float = 0.0f, float = -1.0f)", asFUNCTIONPR(ImGui::SameLine, (float, float), void), asCALL_CDECL);
 		engine->RegisterGlobalFunction("void NewLine()", asFUNCTIONPR(ImGui::NewLine, (), void), asCALL_CDECL);
 		engine->RegisterGlobalFunction("void Spacing()", asFUNCTIONPR(ImGui::Spacing, (), void), asCALL_CDECL);
-		engine->RegisterGlobalFunction("void Dummy(const vec2&in)", asFUNCTION(+[](const Vector2f& v) { ImGui::Dummy(v); }), asCALL_CDECL);
+		engine->RegisterGlobalFunction("void Dummy(const vec2&in)", asFUNCTION(+[](const Vector2f& v) {
+			ImGui::Dummy(v);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("void Indent(float = 0.0f)", asFUNCTIONPR(ImGui::Indent, (float), void), asCALL_CDECL);
 		engine->RegisterGlobalFunction("void Unindent(float = 0.0f)", asFUNCTIONPR(ImGui::Unindent, (float), void), asCALL_CDECL);
 		engine->RegisterGlobalFunction("void BeginGroup()", asFUNCTIONPR(ImGui::BeginGroup, (), void), asCALL_CDECL);
 		engine->RegisterGlobalFunction("void EndGroup()", asFUNCTIONPR(ImGui::EndGroup, (), void), asCALL_CDECL);
-		engine->RegisterGlobalFunction("vec2 GetCursorPos()", asFUNCTION(+[]() { return ImGui::GetCursorPos(); }), asCALL_CDECL);
+		engine->RegisterGlobalFunction("vec2 GetCursorPos()", asFUNCTION(+[]() {
+			return ImGui::GetCursorPos();
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("float GetCursorPosX()", asFUNCTIONPR(ImGui::GetCursorPosX, (), float), asCALL_CDECL);
 		engine->RegisterGlobalFunction("float GetCursorPosY()", asFUNCTIONPR(ImGui::GetCursorPosY, (), float), asCALL_CDECL);
-		engine->RegisterGlobalFunction("void SetCursorPos(const vec2&in)", asFUNCTION(+[](const Vector2f& v) { ImGui::SetCursorPos(v); }), asCALL_CDECL);
+		engine->RegisterGlobalFunction("void SetCursorPos(const vec2&in)", asFUNCTION(+[](const Vector2f& v) {
+			ImGui::SetCursorPos(v);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("void SetCursorPosX(float)", asFUNCTIONPR(ImGui::SetCursorPosX, (float), void), asCALL_CDECL);
 		engine->RegisterGlobalFunction("void SetCursorPosY(float)", asFUNCTIONPR(ImGui::SetCursorPosY, (float), void), asCALL_CDECL);
-		engine->RegisterGlobalFunction("vec2 GetCursorStartPos()", asFUNCTION(+[]() { return ImGui::GetCursorStartPos(); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("vec2 GetCursorScreenPos()", asFUNCTION(+[]() { return ImGui::GetCursorScreenPos(); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("void SetCursorScreenPos(const vec2&in)", asFUNCTION(+[](const Vector2f& v) { ImGui::SetCursorScreenPos(v); }), asCALL_CDECL);
+		engine->RegisterGlobalFunction("vec2 GetCursorStartPos()", asFUNCTION(+[]() {
+			return ImGui::GetCursorStartPos();
+		}),
+			asCALL_CDECL);
+		engine->RegisterGlobalFunction("vec2 GetCursorScreenPos()", asFUNCTION(+[]() {
+			return ImGui::GetCursorScreenPos();
+		}),
+			asCALL_CDECL);
+		engine->RegisterGlobalFunction("void SetCursorScreenPos(const vec2&in)", asFUNCTION(+[](const Vector2f& v) {
+			ImGui::SetCursorScreenPos(v);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("void AlignTextToFramePadding()", asFUNCTIONPR(ImGui::AlignTextToFramePadding, (), void), asCALL_CDECL);
 		engine->RegisterGlobalFunction("float GetTextLineHeight()", asFUNCTIONPR(ImGui::GetTextLineHeight, (), float), asCALL_CDECL);
 		engine->RegisterGlobalFunction("float GetTextLineHeightWithSpacing()", asFUNCTIONPR(ImGui::GetTextLineHeightWithSpacing, (), float), asCALL_CDECL);
@@ -108,59 +161,114 @@ namespace Jazz2::Scripting
 
 		// Columns
 		engine->RegisterGlobalFunction("void Columns(int = 1, const string&in = string(), bool = true)", asFUNCTION(+[](std::int32_t a, const String& b, bool c) {
-			ImGui::Columns(a, !b.empty() ? b.data() : nullptr, c); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("void NextColumn()", asFUNCTION(+[]() { ImGui::NextColumn(); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("int GetColumnIndex()", asFUNCTION(+[]() { return ImGui::GetColumnIndex(); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("float GetColumnWidth(int = -1)", asFUNCTION(+[](std::int32_t a) { return ImGui::GetColumnWidth(a); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("void SetColumnWidth(int, float)", asFUNCTION(+[](std::int32_t a, float b) { ImGui::SetColumnWidth(a, b); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("float GetColumnOffset(int = -1)", asFUNCTION(+[](std::int32_t a) { return ImGui::GetColumnOffset(a); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("void SetColumnOffset(int, float)", asFUNCTION(+[](std::int32_t a, float b) { ImGui::SetColumnOffset(a, b); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("int GetColumnsCount()", asFUNCTION(+[]() { return ImGui::GetColumnsCount(); }), asCALL_CDECL);
+			ImGui::Columns(a, !b.empty() ? b.data() : nullptr, c);
+		}),
+			asCALL_CDECL);
+		engine->RegisterGlobalFunction("void NextColumn()", asFUNCTION(+[]() {
+			ImGui::NextColumn();
+		}),
+			asCALL_CDECL);
+		engine->RegisterGlobalFunction("int GetColumnIndex()", asFUNCTION(+[]() {
+			return ImGui::GetColumnIndex();
+		}),
+			asCALL_CDECL);
+		engine->RegisterGlobalFunction("float GetColumnWidth(int = -1)", asFUNCTION(+[](std::int32_t a) {
+			return ImGui::GetColumnWidth(a);
+		}),
+			asCALL_CDECL);
+		engine->RegisterGlobalFunction("void SetColumnWidth(int, float)", asFUNCTION(+[](std::int32_t a, float b) {
+			ImGui::SetColumnWidth(a, b);
+		}),
+			asCALL_CDECL);
+		engine->RegisterGlobalFunction("float GetColumnOffset(int = -1)", asFUNCTION(+[](std::int32_t a) {
+			return ImGui::GetColumnOffset(a);
+		}),
+			asCALL_CDECL);
+		engine->RegisterGlobalFunction("void SetColumnOffset(int, float)", asFUNCTION(+[](std::int32_t a, float b) {
+			ImGui::SetColumnOffset(a, b);
+		}),
+			asCALL_CDECL);
+		engine->RegisterGlobalFunction("int GetColumnsCount()", asFUNCTION(+[]() {
+			return ImGui::GetColumnsCount();
+		}),
+			asCALL_CDECL);
 
 		// ID scopes
-		engine->RegisterGlobalFunction("void PushID(const string&in)", asFUNCTION(+[](const String& n) { ImGui::PushID(n.data()); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("void PushID(int int_id)", asFUNCTION(+[](std::int32_t id) { ImGui::PushID(id); }), asCALL_CDECL);
+		engine->RegisterGlobalFunction("void PushID(const string&in)", asFUNCTION(+[](const String& n) {
+			ImGui::PushID(n.data());
+		}),
+			asCALL_CDECL);
+		engine->RegisterGlobalFunction("void PushID(int int_id)", asFUNCTION(+[](std::int32_t id) {
+			ImGui::PushID(id);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("void PopID()", asFUNCTIONPR(ImGui::PopID, (), void), asCALL_CDECL);
-		engine->RegisterGlobalFunction("uint GetID(const string&in)", asFUNCTION(+[](const String& n) { return ImGui::GetID(n.data()); }), asCALL_CDECL);
+		engine->RegisterGlobalFunction("uint GetID(const string&in)", asFUNCTION(+[](const String& n) {
+			return ImGui::GetID(n.data());
+		}),
+			asCALL_CDECL);
 
 		// Widgets: Text
 		engine->RegisterGlobalFunction("void Text(const string&in)", asFUNCTION(+[](const String& n) {
-			ImGui::TextUnformatted(n.data()); }), asCALL_CDECL);
+			ImGui::TextUnformatted(n.data());
+		}),
+			asCALL_CDECL);
 		// TODO
 		engine->RegisterGlobalFunction("void TextColored(const Color&in, const string&in)", asFUNCTION(+[](const Colorf& c, const String& n) {
-			ImGui::TextColored(c, n.data()); }), asCALL_CDECL);
+			ImGui::TextColored(c, n.data());
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("void TextWrapped(const string&in)", asFUNCTION(+[](const String& n) {
-			ImGui::TextWrapped(n.data()); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("void LabelText(const string&in, const string&in)", asFUNCTION(+[](const String& l, const String& n) { 
-			ImGui::LabelText(l.data(), n.data()); }), asCALL_CDECL);
+			ImGui::TextWrapped(n.data());
+		}),
+			asCALL_CDECL);
+		engine->RegisterGlobalFunction("void LabelText(const string&in, const string&in)", asFUNCTION(+[](const String& l, const String& n) {
+			ImGui::LabelText(l.data(), n.data());
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("void Bullet()", asFUNCTIONPR(ImGui::Bullet, (), void), asCALL_CDECL);
-		engine->RegisterGlobalFunction("void BulletText(const string&in)", asFUNCTION(+[](const String& n) { 
-			ImGui::BulletText(n.data()); }), asCALL_CDECL);
+		engine->RegisterGlobalFunction("void BulletText(const string&in)", asFUNCTION(+[](const String& n) {
+			ImGui::BulletText(n.data());
+		}),
+			asCALL_CDECL);
 
 		// Widgets: Main
 		engine->RegisterGlobalFunction("bool Button(const string&in, const vec2&in = vec2(0,0))", asFUNCTION(+[](const String& n, const Vector2f& v) {
-			return ImGui::Button(n.data(), v); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("bool SmallButton(const string&in)", asFUNCTION(+[](const String& n) { 
-			return ImGui::SmallButton(n.data()); }), asCALL_CDECL);
+			return ImGui::Button(n.data(), v);
+		}),
+			asCALL_CDECL);
+		engine->RegisterGlobalFunction("bool SmallButton(const string&in)", asFUNCTION(+[](const String& n) {
+			return ImGui::SmallButton(n.data());
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool InvisibleButton(const string&in, const vec2&in)", asFUNCTION(+[](const String& id, const Vector2f& v) {
-			return ImGui::InvisibleButton(id.data(), v); }), asCALL_CDECL);
+			return ImGui::InvisibleButton(id.data(), v);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("void Image(uint, const vec2&in)", asFUNCTION(+[](std::uint32_t u, const Vector2f& v) {
-			ImGui::Image((ImTextureID)u, v); }), asCALL_CDECL);
-		//engine->RegisterGlobalFunction("bool Checkbox(const string&in, bool&inout)", asFUNCTION(+[](const String& n, bool& v) { 
+			ImGui::Image((ImTextureID)u, v);
+		}),
+			asCALL_CDECL);
+		//engine->RegisterGlobalFunction("bool Checkbox(const string&in, bool&inout)", asFUNCTION(+[](const String& n, bool& v) {
 		//	return ImGui::Checkbox(n.data(), &v); }), asCALL_CDECL);
-		//engine->RegisterGlobalFunction("bool CheckboxFlags(const string&in, uint&inout, uint)", asFUNCTION(+[](const String& n, unsigned& f, unsigned v) { 
+		//engine->RegisterGlobalFunction("bool CheckboxFlags(const string&in, uint&inout, uint)", asFUNCTION(+[](const String& n, unsigned& f, unsigned v) {
 		//	return ImGui::CheckboxFlags(n.data(), &f, v); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("bool RadioButton(const string&in, bool)", asFUNCTION(+[](const String& n, bool v) { 
-			return ImGui::RadioButton(n.data(), v); }), asCALL_CDECL);
-		//engine->RegisterGlobalFunction("bool RadioButton(const string&in, int&inout, int)", asFUNCTION(+[](const String& n, int& v, int vv) { 
+		engine->RegisterGlobalFunction("bool RadioButton(const string&in, bool)", asFUNCTION(+[](const String& n, bool v) {
+			return ImGui::RadioButton(n.data(), v);
+		}),
+			asCALL_CDECL);
+		//engine->RegisterGlobalFunction("bool RadioButton(const string&in, int&inout, int)", asFUNCTION(+[](const String& n, int& v, int vv) {
 		//	return ImGui::RadioButton(n.data(), &v, vv); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("void ProgressBar(float)", asFUNCTION(+[](float v) { 
-			ImGui::ProgressBar(v); }), asCALL_CDECL);
-
+		engine->RegisterGlobalFunction("void ProgressBar(float)", asFUNCTION(+[](float v) {
+			ImGui::ProgressBar(v);
+		}),
+			asCALL_CDECL);
 
 		// Widgets: Combo Box
 		engine->RegisterGlobalFunction("bool BeginCombo(const string&in, const string&in, int = 0)", asFUNCTION(+[](const String& id, const String& prevItem, std::int32_t flags) {
-			return ImGui::BeginCombo(id.data(), prevItem.data(), flags); }), asCALL_CDECL);
+			return ImGui::BeginCombo(id.data(), prevItem.data(), flags);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("void EndCombo()", asFUNCTIONPR(ImGui::EndCombo, (), void), asCALL_CDECL);
 
 		/*static char imgui_comboItem[4096];
@@ -175,7 +283,7 @@ namespace Jazz2::Scripting
 			return ImGui::Combo(lbl.data(), &index, imgui_comboItem, -1);
 		}), asCALL_CDECL);*/
 
-		// Widgets: Drags 
+		// Widgets: Drags
 		/*engine->RegisterGlobalFunction("bool DragFloat(const string&in, float&inout, float = 1.0f, float = 0.0f, float = 0.0f)", asFUNCTION(+[](const String& n, float& v, float speed, float mn, float mx) { 
 			return ImGui::DragFloat(n.data(), &v, speed, mn, mx); }), asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool DragFloat2(const string&in, vec2&inout)", asFUNCTION(+[](const String& n, Vector2f& v) { 
@@ -267,38 +375,56 @@ namespace Jazz2::Scripting
 
 		// Widgets: Trees
 		engine->RegisterGlobalFunction("bool TreeNode(const string&in)", asFUNCTION(+[](const String& id) {
-			return ImGui::TreeNode(id.data()); }), asCALL_CDECL);
+			return ImGui::TreeNode(id.data());
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("void TreePush(const string&in)", asFUNCTION(+[](const String& id) {
-			ImGui::TreePush(id.data()); }), asCALL_CDECL);
+			ImGui::TreePush(id.data());
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("void TreePop()", asFUNCTIONPR(ImGui::TreePop, (), void), asCALL_CDECL);
 		// TODO engine->RegisterGlobalFunction("void TreeAdvanceToLabelPos()", asFUNCTIONPR(ImGui::TreeAdvanceToLabelPos, (), void), asCALL_CDECL);
 		engine->RegisterGlobalFunction("float GetTreeNodeToLabelSpacing()", asFUNCTIONPR(ImGui::GetTreeNodeToLabelSpacing, (), float), asCALL_CDECL);
 		// TODO engine->RegisterGlobalFunction("void SetNextTreeNodeOpen(bool)", asFUNCTION(+[](bool val) {
 		//	ImGui::SetNextTreeNodeOpen(val); }), asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool CollapsingHeader(const string&in)", asFUNCTION(+[](const String& n) {
-			return ImGui::CollapsingHeader(n.data()); }), asCALL_CDECL);
+			return ImGui::CollapsingHeader(n.data());
+		}),
+			asCALL_CDECL);
 		//engine->RegisterGlobalFunction("bool CollapsingHeader(const string&in, bool&inout)", asFUNCTION(+[](const String& n, bool& v) {
 		//	return ImGui::CollapsingHeader(n.data(), &v); }), asCALL_CDECL);
 
 		// Widgets: Selectable / Lists
 		engine->RegisterGlobalFunction("bool Selectable(const string&in, bool = false)", asFUNCTION(+[](const String& n, bool v) {
-			return ImGui::Selectable(n.data(), v); }), asCALL_CDECL);
-		
+			return ImGui::Selectable(n.data(), v);
+		}),
+			asCALL_CDECL);
+
 		// Values
 		engine->RegisterGlobalFunction("void Value(const string&in, bool)", asFUNCTION(+[](const String& n, bool v) {
-			ImGui::Value(n.data(), v); }), asCALL_CDECL);
+			ImGui::Value(n.data(), v);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("void Value(const string&in, int)", asFUNCTION(+[](const String& n, std::int32_t v) {
-			ImGui::Value(n.data(), v); }), asCALL_CDECL);
+			ImGui::Value(n.data(), v);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("void Value(const string&in, uint)", asFUNCTION(+[](const String& n, std::uint32_t v) {
-			ImGui::Value(n.data(), v); }), asCALL_CDECL);
+			ImGui::Value(n.data(), v);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("void Value(const string&in, float)", asFUNCTION(+[](const String& n, float v) {
-			ImGui::Value(n.data(), v); }), asCALL_CDECL);
+			ImGui::Value(n.data(), v);
+		}),
+			asCALL_CDECL);
 
 		// Tooltips
 		engine->RegisterGlobalFunction("bool BeginTooltip()", asFUNCTIONPR(ImGui::BeginTooltip, (), bool), asCALL_CDECL);
 		engine->RegisterGlobalFunction("void EndTooltip()", asFUNCTIONPR(ImGui::EndTooltip, (), void), asCALL_CDECL);
 		engine->RegisterGlobalFunction("void SetTooltip(const string&in)", asFUNCTION(+[](const String& t) {
-			ImGui::SetTooltip(t.data()); }), asCALL_CDECL);
+			ImGui::SetTooltip(t.data());
+		}),
+			asCALL_CDECL);
 
 		// Menus (disabled for now)
 		/*engine->RegisterGlobalFunction("bool BeginMainMenuBar()", asFUNCTIONPR(+[]() { return ImGui::BeginMainMenuBar(); }, (), bool), asCALL_CDECL);
@@ -315,77 +441,135 @@ namespace Jazz2::Scripting
 
 		// Popups
 		engine->RegisterGlobalFunction("void OpenPopup(const string&in)", asFUNCTION(+[](const String& a) {
-			ImGui::OpenPopup(!a.empty() ? a.data() : nullptr); }), asCALL_CDECL);
+			ImGui::OpenPopup(!a.empty() ? a.data() : nullptr);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool BeginPopup(const string&in, int = 0)", asFUNCTION(+[](const String& a, std::int32_t b) {
-			return ImGui::BeginPopup(!a.empty() ? a.data() : nullptr, (ImGuiWindowFlags)b); }), asCALL_CDECL);
+			return ImGui::BeginPopup(!a.empty() ? a.data() : nullptr, (ImGuiWindowFlags)b);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool BeginPopupContextItem(const string&in = string(), int = 1)", asFUNCTION(+[](const String& a, std::int32_t b) {
-			return ImGui::BeginPopupContextItem(!a.empty() ? a.data() : nullptr, b); }), asCALL_CDECL);
+			return ImGui::BeginPopupContextItem(!a.empty() ? a.data() : nullptr, b);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool BeginPopupContextWindow(const string&in = string(), int = 1)", asFUNCTION(+[](const String& a, std::int32_t b) {
-			return ImGui::BeginPopupContextWindow(!a.empty() ? a.data() : nullptr, b); }), asCALL_CDECL);
+			return ImGui::BeginPopupContextWindow(!a.empty() ? a.data() : nullptr, b);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool BeginPopupContextVoid(const string&in = string(), int = 1)", asFUNCTION(+[](const String& a, std::int32_t b) {
-			return ImGui::BeginPopupContextVoid(!a.empty() ? a.data() : nullptr, b); }), asCALL_CDECL);
-		//engine->RegisterGlobalFunction("bool BeginPopupModal(const string&in, bool&inout = null, int = 0)", asFUNCTION(+[](const String& a, bool& b, std::int32_t c) { 
+			return ImGui::BeginPopupContextVoid(!a.empty() ? a.data() : nullptr, b);
+		}),
+			asCALL_CDECL);
+		//engine->RegisterGlobalFunction("bool BeginPopupModal(const string&in, bool&inout = null, int = 0)", asFUNCTION(+[](const String& a, bool& b, std::int32_t c) {
 		//	return ImGui::BeginPopupModal(!a.empty() ? a.data() : nullptr, &b, (ImGuiWindowFlags)c); }), asCALL_CDECL);
 		engine->RegisterGlobalFunction("void EndPopup()", asFUNCTION(+[]() {
-			ImGui::EndPopup(); }), asCALL_CDECL);
+			ImGui::EndPopup();
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool OpenPopupOnItemClick(const string&in = string(), int = 1)", asFUNCTION(+[](const String& a, std::int32_t b) {
-			return ImGui::OpenPopupOnItemClick(!a.empty() ? a.data() : nullptr, b); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("bool IsPopupOpen(const string&in)", asFUNCTION(+[](const String& a) { 
-			return ImGui::IsPopupOpen(!a.empty() ? a.data() : nullptr); }), asCALL_CDECL);
+			return ImGui::OpenPopupOnItemClick(!a.empty() ? a.data() : nullptr, b);
+		}),
+			asCALL_CDECL);
+		engine->RegisterGlobalFunction("bool IsPopupOpen(const string&in)", asFUNCTION(+[](const String& a) {
+			return ImGui::IsPopupOpen(!a.empty() ? a.data() : nullptr);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("void CloseCurrentPopup()", asFUNCTION(+[]() {
-			ImGui::CloseCurrentPopup(); }), asCALL_CDECL);
+			ImGui::CloseCurrentPopup();
+		}),
+			asCALL_CDECL);
 
 		// Clip-rects
 		engine->RegisterGlobalFunction("void PushClipRect(const vec2&in, const vec2&in, bool)", asFUNCTION(+[](const Vector2f& a, const Vector2f& b, bool c) {
-			ImGui::PushClipRect(a, b, c); }), asCALL_CDECL);
+			ImGui::PushClipRect(a, b, c);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("void PopClipRect()", asFUNCTION(+[]() {
-			ImGui::PopClipRect(); }), asCALL_CDECL);
+			ImGui::PopClipRect();
+		}),
+			asCALL_CDECL);
 
 		// Focus
 		engine->RegisterGlobalFunction("void SetItemDefaultFocus()", asFUNCTION(+[]() {
-			ImGui::SetItemDefaultFocus(); }), asCALL_CDECL);
+			ImGui::SetItemDefaultFocus();
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("void SetKeyboardFocusHere(int = 0)", asFUNCTION(+[](std::int32_t a) {
-			ImGui::SetKeyboardFocusHere(a); }), asCALL_CDECL);
+			ImGui::SetKeyboardFocusHere(a);
+		}),
+			asCALL_CDECL);
 
 		// Utilities
 		engine->RegisterGlobalFunction("bool IsItemHovered(int = 0)", asFUNCTION(+[](std::int32_t a) {
-			return ImGui::IsItemHovered((ImGuiHoveredFlags)a); }), asCALL_CDECL);
+			return ImGui::IsItemHovered((ImGuiHoveredFlags)a);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool IsItemActive()", asFUNCTION(+[]() {
-			return ImGui::IsItemActive(); }), asCALL_CDECL);
+			return ImGui::IsItemActive();
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool IsItemClicked(int = 0)", asFUNCTION(+[](std::int32_t a) {
-			return ImGui::IsItemClicked(a); }), asCALL_CDECL);
+			return ImGui::IsItemClicked(a);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool IsItemVisible()", asFUNCTION(+[]() {
-			return ImGui::IsItemVisible(); }), asCALL_CDECL);
+			return ImGui::IsItemVisible();
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool IsAnyItemHovered()", asFUNCTION(+[]() {
-			return ImGui::IsAnyItemHovered(); }), asCALL_CDECL);
+			return ImGui::IsAnyItemHovered();
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool IsAnyItemActive()", asFUNCTION(+[]() {
-			return ImGui::IsAnyItemActive(); }), asCALL_CDECL);
+			return ImGui::IsAnyItemActive();
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("vec2 GetItemRectMin()", asFUNCTION(+[]() {
-			return ImGui::GetItemRectMin(); }), asCALL_CDECL);
+			return ImGui::GetItemRectMin();
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("vec2 GetItemRectMax()", asFUNCTION(+[]() {
-			return ImGui::GetItemRectMax(); }), asCALL_CDECL);
+			return ImGui::GetItemRectMax();
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("vec2 GetItemRectSize()", asFUNCTION(+[]() {
-			return ImGui::GetItemRectSize(); }), asCALL_CDECL);
+			return ImGui::GetItemRectSize();
+		}),
+			asCALL_CDECL);
 		// TODO engine->RegisterGlobalFunction("void SetItemAllowOverlap()", asFUNCTION(+[]() {
 		//	ImGui::SetItemAllowOverlap(); }), asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool IsWindowFocused(int = 0)", asFUNCTION(+[](std::int32_t a) {
-			return ImGui::IsWindowFocused((ImGuiFocusedFlags)a); }), asCALL_CDECL);
+			return ImGui::IsWindowFocused((ImGuiFocusedFlags)a);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool IsWindowHovered(int = 0)", asFUNCTION(+[](std::int32_t a) {
-			return ImGui::IsWindowHovered((ImGuiHoveredFlags)a); }), asCALL_CDECL);
+			return ImGui::IsWindowHovered((ImGuiHoveredFlags)a);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool IsRectVisible(const vec2&in)", asFUNCTION(+[](const Vector2f& a) {
-			return ImGui::IsRectVisible(a); }), asCALL_CDECL);
+			return ImGui::IsRectVisible(a);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool IsRectVisible(const vec2&in, const vec2&in)", asFUNCTION(+[](const Vector2f& a, const Vector2f& b) {
-			return ImGui::IsRectVisible(a, b); }), asCALL_CDECL);
+			return ImGui::IsRectVisible(a, b);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("float GetTime()", asFUNCTION(+[]() {
-			return ImGui::GetTime(); }), asCALL_CDECL);
+			return ImGui::GetTime();
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("int GetFrameCount()", asFUNCTION(+[]() {
-			return ImGui::GetFrameCount(); }), asCALL_CDECL);
+			return ImGui::GetFrameCount();
+		}),
+			asCALL_CDECL);
 
-		engine->RegisterGlobalFunction("vec2 CalcTextSize(const string&in, const string&in = string(), bool = false, float = -1.0f)", asFUNCTION(+[](const String& a, const String& b, bool c, float d) { 
-			return ImGui::CalcTextSize(!a.empty() ? a.data() : nullptr, !b.empty() ? b.data() : nullptr, c, d); }), asCALL_CDECL);
-		// TODO engine->RegisterGlobalFunction("void CalcListClipping(int, float, int&inout, int&inout)", asFUNCTION(+[](int a, float b, int& c, int& d) { 
+		engine->RegisterGlobalFunction("vec2 CalcTextSize(const string&in, const string&in = string(), bool = false, float = -1.0f)", asFUNCTION(+[](const String& a, const String& b, bool c, float d) {
+			return ImGui::CalcTextSize(!a.empty() ? a.data() : nullptr, !b.empty() ? b.data() : nullptr, c, d);
+		}),
+			asCALL_CDECL);
+		// TODO engine->RegisterGlobalFunction("void CalcListClipping(int, float, int&inout, int&inout)", asFUNCTION(+[](int a, float b, int& c, int& d) {
 		//	ImGui::CalcListClipping(a, b, &c, &d); }), asCALL_CDECL);
-		// TODO engine->RegisterGlobalFunction("bool BeginChildFrame(uint, const vec2&, int = 0)", asFUNCTION(+[](unsigned a, const Vector2f& b, int c) { 
+		// TODO engine->RegisterGlobalFunction("bool BeginChildFrame(uint, const vec2&, int = 0)", asFUNCTION(+[](unsigned a, const Vector2f& b, int c) {
 		//	return ImGui::BeginChildFrame(a, b, (ImGuiWindowFlags)c); }), asCALL_CDECL);
 		// TODO engine->RegisterGlobalFunction("void EndChildFrame()", asFUNCTION(+[]() {
 		//	ImGui::EndChildFrame(); }), asCALL_CDECL);
@@ -393,44 +577,83 @@ namespace Jazz2::Scripting
 		//engine->RegisterGlobalFunction("int GetKeyIndex(int)", asFUNCTION(+[](int a) {
 		//	return ImGui::GetKeyIndex((ImGuiKey)a); }), asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool IsKeyDown(int)", asFUNCTION(+[](std::int32_t a) {
-			return ImGui::IsKeyDown((ImGuiKey)a); }), asCALL_CDECL);
+			return ImGui::IsKeyDown((ImGuiKey)a);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool IsKeyPressed(int, bool = true)", asFUNCTION(+[](std::int32_t a, bool b) {
-			return ImGui::IsKeyPressed((ImGuiKey)a, b); }), asCALL_CDECL);
+			return ImGui::IsKeyPressed((ImGuiKey)a, b);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool IsKeyReleased(int)", asFUNCTION(+[](std::int32_t a) {
-			return ImGui::IsKeyReleased((ImGuiKey)a); }), asCALL_CDECL);
+			return ImGui::IsKeyReleased((ImGuiKey)a);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("int GetKeyPressedAmount(int, float, float)", asFUNCTION(+[](std::int32_t a, float b, float c) {
-			return ImGui::GetKeyPressedAmount((ImGuiKey)a, b, c); }), asCALL_CDECL);
+			return ImGui::GetKeyPressedAmount((ImGuiKey)a, b, c);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool IsMouseDown(int)", asFUNCTION(+[](std::int32_t a) {
-			return ImGui::IsMouseDown(a); }), asCALL_CDECL);
+			return ImGui::IsMouseDown(a);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool IsMouseClicked(int, bool = false)", asFUNCTION(+[](std::int32_t a, bool b) {
-			return ImGui::IsMouseClicked(a, b); }), asCALL_CDECL);
+			return ImGui::IsMouseClicked(a, b);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool IsMouseDoubleClicked(int)", asFUNCTION(+[](std::int32_t a) {
-			return ImGui::IsMouseDoubleClicked(a); }), asCALL_CDECL);
+			return ImGui::IsMouseDoubleClicked(a);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool IsMouseReleased(int)", asFUNCTION(+[](std::int32_t a) {
-			return ImGui::IsMouseReleased(a); }), asCALL_CDECL);
+			return ImGui::IsMouseReleased(a);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool IsMouseDragging(int = 0, float = -1.0f)", asFUNCTION(+[](std::int32_t a, float b) {
-			return ImGui::IsMouseDragging(a, b); }), asCALL_CDECL);
+			return ImGui::IsMouseDragging(a, b);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool IsMouseHoveringRect(const vec2&in, const vec2&in, bool = true)", asFUNCTION(+[](const Vector2f& a, const Vector2f& b, bool c) {
-			return ImGui::IsMouseHoveringRect(a, b, c); }), asCALL_CDECL);
+			return ImGui::IsMouseHoveringRect(a, b, c);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("bool IsMousePosValid(const vec2&in)", asFUNCTION(+[](const Vector2f& a) {
-			ImVec2 v = a; return ImGui::IsMousePosValid(&v); }), asCALL_CDECL);
+			ImVec2 v = a;
+			return ImGui::IsMousePosValid(&v);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("vec2 GetMousePos()", asFUNCTION(+[]() {
-			return ImGui::GetMousePos(); }), asCALL_CDECL);
-		engine->RegisterGlobalFunction("vec2 GetMousePosOnOpeningCurrentPopup()", asFUNCTION(+[]() { 
-			return ImGui::GetMousePosOnOpeningCurrentPopup(); }), asCALL_CDECL);
+			return ImGui::GetMousePos();
+		}),
+			asCALL_CDECL);
+		engine->RegisterGlobalFunction("vec2 GetMousePosOnOpeningCurrentPopup()", asFUNCTION(+[]() {
+			return ImGui::GetMousePosOnOpeningCurrentPopup();
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("vec2 GetMouseDragDelta(int = 0, float = -1.0f)", asFUNCTION(+[](std::int32_t a, float b) {
-			return ImGui::GetMouseDragDelta(a, b); }), asCALL_CDECL);
+			return ImGui::GetMouseDragDelta(a, b);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("void ResetMouseDragDelta(int = 0)", asFUNCTION(+[](std::int32_t a) {
-			ImGui::ResetMouseDragDelta(a); }), asCALL_CDECL);
+			ImGui::ResetMouseDragDelta(a);
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("int GetMouseCursor()", asFUNCTION(+[]() {
-			return ImGui::GetMouseCursor(); }), asCALL_CDECL);
+			return ImGui::GetMouseCursor();
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("void SetMouseCursor(int)", asFUNCTION(+[](ImGuiMouseCursor a) {
-			ImGui::SetMouseCursor(a); }), asCALL_CDECL);
+			ImGui::SetMouseCursor(a);
+		}),
+			asCALL_CDECL);
 
 		engine->RegisterGlobalFunction("string GetClipboardText()", asFUNCTION(+[]() -> String {
-			return ImGui::GetClipboardText(); }), asCALL_CDECL);
+			return ImGui::GetClipboardText();
+		}),
+			asCALL_CDECL);
 		engine->RegisterGlobalFunction("void SetClipboardText(const string&in)", asFUNCTION(+[](const String& a) {
-			ImGui::SetClipboardText(!a.empty() ? a.data() : nullptr); }), asCALL_CDECL);
+			ImGui::SetClipboardText(!a.empty() ? a.data() : nullptr);
+		}),
+			asCALL_CDECL);
 
 		engine->SetDefaultNamespace("");
 	}

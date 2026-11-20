@@ -23,10 +23,12 @@ namespace Jazz2::Multiplayer::GameModes
 	public:
 		PestilenceMode();
 
-		MpGameMode GetMode() const override {
+		MpGameMode GetMode() const override
+		{
 			return MpGameMode::Pestilence;
 		}
-		bool IsTeamBased() const override {
+		bool IsTeamBased() const override
+		{
 			return false;
 		}
 
@@ -34,11 +36,13 @@ namespace Jazz2::Multiplayer::GameModes
 		void OnUpdate(IGameModeContext& ctx, float timeMult) override;
 		void OnPlayerKilled(IGameModeContext& ctx, Actors::Player* victim, Actors::Player* killer) override;
 		bool CanDamagePlayer(IGameModeContext& ctx, Actors::Player* victim, Actors::Player* attacker) override;
-		bool CanPlayersPush(IGameModeContext& ctx, Actors::Player* a, Actors::Player* b) override {
+		bool CanPlayersPush(IGameModeContext& ctx, Actors::Player* a, Actors::Player* b) override
+		{
 			return CanDamagePlayer(ctx, a, b);
 		}
 		std::int32_t GetDamage(IGameModeContext& ctx, Actors::Player* victim, Actors::Player* attacker, std::int32_t amount) override;
-		bool HasDamageAmplifierInOvertime() const override {
+		bool HasDamageAmplifierInOvertime() const override
+		{
 			return true;
 		}
 		GameEndResult CheckGameEnds(IGameModeContext& ctx) override;

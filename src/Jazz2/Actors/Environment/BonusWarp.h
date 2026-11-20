@@ -27,7 +27,8 @@ namespace Jazz2::Actors::Environment
 		void Activate(Player* player);
 
 		/** @brief Returns cost of the warp in coins */
-		std::uint16_t GetCost() const {
+		std::uint16_t GetCost() const
+		{
 			return _cost;
 		}
 

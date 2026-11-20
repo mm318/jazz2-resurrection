@@ -25,12 +25,14 @@ namespace nCine
 		/** @brief Sets the sprite size */
 		void SetSize(float width, float height);
 		/** @brief Sets the sprite size from a `Vector2f` */
-		inline void SetSize(Vector2f size) {
+		inline void SetSize(Vector2f size)
+		{
 			SetSize(size.X, size.Y);
 		}
 
 		/** @brief Returns the texture object */
-		inline const Texture* GetTexture() const {
+		inline const Texture* GetTexture() const
+		{
 			return _texture;
 		}
 		/** @brief Sets the texture object */
@@ -39,27 +41,31 @@ namespace nCine
 		void ResetTexture();
 
 		/** @brief Returns the texture source rectangle used for blitting */
-		inline Recti GetTexRect() const {
+		inline Recti GetTexRect() const
+		{
 			return _texRect;
 		}
 		/** @brief Sets the texture source rectangle used for blitting */
 		void SetTexRect(const Recti& rect);
 
 		/** @brief Returns whether the sprite texture is horizontally flipped */
-		inline bool IsFlippedX() const {
+		inline bool IsFlippedX() const
+		{
 			return _flippedX;
 		}
 		/** @brief Flips the texture rectangle horizontally */
 		void SetFlippedX(bool flippedX);
 		/** @brief Returns whether the sprite texture is vertically flipped */
-		inline bool IsFlippedY() const {
+		inline bool IsFlippedY() const
+		{
 			return _flippedY;
 		}
 		/** @brief Flips the texture rectangle vertically */
 		void SetFlippedY(bool flippedY);
 
 		/** @brief Returns the flat palette offset added to the per-pixel index by palette shaders */
-		inline float GetPaletteOffset() const {
+		inline float GetPaletteOffset() const
+		{
 			return _paletteOffset;
 		}
 		/** @brief Sets the flat palette offset used by palette shaders (no effect on non-palette shaders) */

@@ -33,7 +33,8 @@ namespace nCine::RHI::GL
 		GLShaderUniforms(GLShaderProgram* shaderProgram, const char* includeOnly, const char* exclude);
 
 		/** @brief Associates a shader program and imports all of its uniforms */
-		inline void SetProgram(GLShaderProgram* shaderProgram) {
+		inline void SetProgram(GLShaderProgram* shaderProgram)
+		{
 			SetProgram(shaderProgram, nullptr, nullptr);
 		}
 		/** @brief Associates a shader program and imports a filtered subset of its uniforms */
@@ -44,17 +45,20 @@ namespace nCine::RHI::GL
 		void SetDirty(bool isDirty);
 
 		/** @brief Returns the number of managed uniforms */
-		inline std::uint32_t GetUniformCount() const {
+		inline std::uint32_t GetUniformCount() const
+		{
 			return _uniformCaches.size();
 		}
 		/** @brief Returns whether a uniform with the specified name is managed */
-		inline bool HasUniform(const char* name) const {
+		inline bool HasUniform(const char* name) const
+		{
 			return (_uniformCaches.find(String::nullTerminatedView(name)) != nullptr);
 		}
 		/** @brief Returns the uniform cache with the specified name, or `nullptr` if not found */
 		GLUniformCache* GetUniform(const char* name);
 		/** @brief Returns the hashmap of all managed uniform caches */
-		inline const UniformHashMapType& GetAllUniforms() const {
+		inline const UniformHashMapType& GetAllUniforms() const
+		{
 			return _uniformCaches;
 		}
 		/**
@@ -63,7 +67,8 @@ namespace nCine::RHI::GL
 		 * Called automatically by the non-const @ref GetUniform(), it only has to be called
 		 * explicitly when a uniform is written through a long-lived cached pointer.
 		 */
-		inline void MarkDirty() {
+		inline void MarkDirty()
+		{
 			_maybeDirty = true;
 		}
 		/** @brief Uses the program and uploads all dirty uniforms to the GL */

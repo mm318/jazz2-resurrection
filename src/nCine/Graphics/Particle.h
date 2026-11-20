@@ -39,7 +39,8 @@ namespace nCine
 		Particle& operator=(Particle&&) = default;
 
 		/** @brief Returns `true` if the particle is still alive */
-		inline bool IsAlive() const {
+		inline bool IsAlive() const
+		{
 			return _life > 0.0f;
 		}
 
@@ -49,7 +50,8 @@ namespace nCine
 		 *
 		 * @note This method is protected as it should only be called by a `ParticleSystem`.
 		 */
-		inline Particle Clone() const {
+		inline Particle Clone() const
+		{
 			return Particle(*this);
 		}
 

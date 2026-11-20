@@ -26,7 +26,9 @@ namespace nCine
 	class IAudioReader
 	{
 	public:
-		virtual ~IAudioReader() { }
+		virtual ~IAudioReader()
+		{
+		}
 
 		/**
 		 * @brief Decodes audio data into the specified buffer
@@ -41,7 +43,9 @@ namespace nCine
 		virtual void Rewind() const = 0;
 
 		/** @brief Enables native stream looping if the format supports it */
-		virtual void SetLooping(bool value) { }
+		virtual void SetLooping(bool value)
+		{
+		}
 
 		/**
 		 * @{ @name Tracker modules
@@ -51,19 +55,40 @@ namespace nCine
 		 */
 
 		/** @brief Returns the number of frames decoded so far, it keeps counting across rewinds */
-		virtual std::int64_t GetDecodedFrames() const { return 0; }
+		virtual std::int64_t GetDecodedFrames() const
+		{
+			return 0;
+		}
 		/** @brief Returns the state of the module at a frame already decoded, see @ref GetDecodedFrames() */
-		virtual bool GetModuleStateAt(std::int64_t frame, AudioModuleState& state) const { return false; }
+		virtual bool GetModuleStateAt(std::int64_t frame, AudioModuleState& state) const
+		{
+			return false;
+		}
 		/** @brief Returns `true` if @ref SetModulePosition() is supported */
-		virtual bool CanSetModulePosition() const { return false; }
+		virtual bool CanSetModulePosition() const
+		{
+			return false;
+		}
 		/** @brief Jumps to a row of a position in the order list */
-		virtual bool SetModulePosition(std::int32_t order, std::int32_t row) { return false; }
+		virtual bool SetModulePosition(std::int32_t order, std::int32_t row)
+		{
+			return false;
+		}
 		/** @brief Sets the ticks per row until the module changes them */
-		virtual bool SetModuleSpeed(std::int32_t speed) { return false; }
+		virtual bool SetModuleSpeed(std::int32_t speed)
+		{
+			return false;
+		}
 		/** @brief Sets the tempo until the module changes it */
-		virtual bool SetModuleTempo(std::int32_t tempo) { return false; }
+		virtual bool SetModuleTempo(std::int32_t tempo)
+		{
+			return false;
+		}
 		/** @brief Changes the volume of a channel gradually, from its current one to @p volume in `0.0` to `1.0` */
-		virtual bool SlideModuleChannelVolume(std::int32_t channel, float volume, std::int32_t milliseconds) { return false; }
+		virtual bool SlideModuleChannelVolume(std::int32_t channel, float volume, std::int32_t milliseconds)
+		{
+			return false;
+		}
 
 		/** @} */
 	};
@@ -73,8 +98,11 @@ namespace nCine
 	class InvalidAudioReader : IAudioReader
 	{
 	public:
-		inline std::int32_t Read(void* buffer, std::int32_t bufferSize) const override { return 0; }
-		inline void Rewind() const override { };
+		inline std::int32_t Read(void* buffer, std::int32_t bufferSize) const override
+		{
+			return 0;
+		}
+		inline void Rewind() const override {};
 	};
 #endif
 }

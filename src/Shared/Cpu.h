@@ -475,16 +475,20 @@
 // too damn heavy to be included in a header. Declarations copied verbatim. Clang-cl doesn't like this (undefined
 // reference to __cpuidex), so using the GCC/Clang codepath on it instead.
 #if defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG_CL) && defined(DEATH_TARGET_X86)
-extern "C" {
+extern "C"
+{
 	void __cpuidex(int[4], int, int);
 	unsigned __int64 __cdecl _xgetbv(unsigned int);
 }
 #endif
 
-namespace Death { namespace Cpu {
-//###==##====#=====--==~--~=~- --- -- -  -  -   -
+namespace Death
+{
+	namespace Cpu
+	{
+		//###==##====#=====--==~--~=~- --- -- -  -  -   -
 
-	/**
+		/**
 		@brief Traits class for CPU detection tag types
 
 		Useful for detecting tag properties at compile time without the need for
@@ -493,381 +497,611 @@ namespace Death { namespace Cpu {
 		have this class implemented.
 	*/
 #ifdef DOXYGEN_GENERATING_OUTPUT
-	template<class T> struct TypeTraits {
-		enum : unsigned int {
-			/**
+		template <class T>
+		struct TypeTraits
+		{
+			enum : unsigned int
+			{
+				/**
 			 * Tag-specific index. Implementation-defined, is unique among all tags
 			 * on given platform.
 			 */
-			Index
-		};
+				Index
+			};
 
-		/**
+			/**
 		 * @brief Tag name
 		 *
 		 * Returns a string representation of the tag, such as @cpp "Avx2" @ce
 		 * for @ref Avx2.
 		 */
-		static const char* name();
-	};
+			static const char* name();
+		};
 #else
-	template<class> struct TypeTraits;
+		template <class>
+		struct TypeTraits;
 #endif
 
-	namespace Implementation
-	{
-		// A common type used in all tag constructors to avoid ambiguous calls when using {}
-		struct InitT { };
-		constexpr InitT Init{};
+		namespace Implementation
+		{
+			// A common type used in all tag constructors to avoid ambiguous calls when using {}
+			struct InitT
+			{
+			};
+			constexpr InitT Init {};
 
-		enum: unsigned int { ExtraTagBitOffset = 16 };
-	}
+			enum : unsigned int
+			{
+				ExtraTagBitOffset = 16
+			};
+		}
 
-	/**
+		/**
 		@brief Scalar tag type
 
 		See the @ref Cpu namespace and the @ref Scalar tag for more information.
 	*/
-	struct ScalarT {
+		struct ScalarT
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		// Explicit constructor to avoid ambiguous calls when using {}
-		constexpr explicit ScalarT(Implementation::InitT) {}
+			// Explicit constructor to avoid ambiguous calls when using {}
+			constexpr explicit ScalarT(Implementation::InitT)
+			{
+			}
 #endif
-	};
+		};
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
-	// Scalar code is when nothing else is available, thus no bits set
-	template<> struct TypeTraits<ScalarT> {
-		enum: unsigned int { Index = 0 };
-		static const char* name() { return "Scalar"; }
-	};
+		// Scalar code is when nothing else is available, thus no bits set
+		template <>
+		struct TypeTraits<ScalarT>
+		{
+			enum : unsigned int
+			{
+				Index = 0
+			};
+			static const char* name()
+			{
+				return "Scalar";
+			}
+		};
 #endif
 
 #if defined(DEATH_TARGET_X86) || defined(DOXYGEN_GENERATING_OUTPUT)
-	/**
+		/**
 		@brief SSE2 tag type
 
 		Available only on `DEATH_TARGET_X86 "x86". See the @ref Cpu namespace
 		and the @ref Sse2 tag for more information.
 	*/
-	struct Sse2T : ScalarT {
+		struct Sse2T : ScalarT
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		// Explicit constructor to avoid ambiguous calls when using {}
-		constexpr explicit Sse2T(Implementation::InitT) : ScalarT{Implementation::Init} {}
+			// Explicit constructor to avoid ambiguous calls when using {}
+			constexpr explicit Sse2T(Implementation::InitT)
+				: ScalarT { Implementation::Init }
+			{
+			}
 #endif
-	};
+		};
 
-	/**
+		/**
 		@brief SSE3 tag type
 
 		Available only on @ref DEATH_TARGET_X86 "x86". See the @ref Cpu namespace
 		and the @ref Sse3 tag for more information.
 	*/
-	struct Sse3T : Sse2T {
+		struct Sse3T : Sse2T
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		// Explicit constructor to avoid ambiguous calls when using {}
-		constexpr explicit Sse3T(Implementation::InitT) : Sse2T{Implementation::Init} {}
+			// Explicit constructor to avoid ambiguous calls when using {}
+			constexpr explicit Sse3T(Implementation::InitT)
+				: Sse2T { Implementation::Init }
+			{
+			}
 #endif
-	};
+		};
 
-	/**
+		/**
 		@brief SSSE3 tag type
 
 		Available only on @ref DEATH_TARGET_X86 "x86". See the @ref Cpu namespace
 		and the @ref Ssse3 tag for more information.
 	*/
-	struct Ssse3T : Sse3T {
+		struct Ssse3T : Sse3T
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		// Explicit constructor to avoid ambiguous calls when using {}
-		constexpr explicit Ssse3T(Implementation::InitT) : Sse3T{Implementation::Init} {}
+			// Explicit constructor to avoid ambiguous calls when using {}
+			constexpr explicit Ssse3T(Implementation::InitT)
+				: Sse3T { Implementation::Init }
+			{
+			}
 #endif
-	};
+		};
 
-	/**
+		/**
 		@brief SSE4.1 tag type
 
 		Available only on @ref DEATH_TARGET_X86 "x86". See the @ref Cpu namespace
 		and the @ref Sse41T tag for more information.
 	*/
-	struct Sse41T : Ssse3T {
+		struct Sse41T : Ssse3T
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		// Explicit constructor to avoid ambiguous calls when using {}
-		constexpr explicit Sse41T(Implementation::InitT) : Ssse3T{Implementation::Init} {}
+			// Explicit constructor to avoid ambiguous calls when using {}
+			constexpr explicit Sse41T(Implementation::InitT)
+				: Ssse3T { Implementation::Init }
+			{
+			}
 #endif
-	};
+		};
 
-	/**
+		/**
 		@brief SSE4.2 tag type
 
 		Available only on @ref DEATH_TARGET_X86 "x86". See the @ref Cpu namespace
 		and the @ref Sse42T tag for more information.
 	*/
-	struct Sse42T : Sse41T {
+		struct Sse42T : Sse41T
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		// Explicit constructor to avoid ambiguous calls when using {}
-		constexpr explicit Sse42T(Implementation::InitT) : Sse41T{Implementation::Init} {}
+			// Explicit constructor to avoid ambiguous calls when using {}
+			constexpr explicit Sse42T(Implementation::InitT)
+				: Sse41T { Implementation::Init }
+			{
+			}
 #endif
-	};
+		};
 
-	/**
+		/**
 		@brief POPCNT tag type
 
 		Available only on @ref DEATH_TARGET_X86 "x86". See the @ref Cpu namespace
 		and the @ref Popcnt tag for more information.
 	*/
-	struct PopcntT {
+		struct PopcntT
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		// Explicit constructor to avoid ambiguous calls when using {}
-		constexpr explicit PopcntT(Implementation::InitT) {}
+			// Explicit constructor to avoid ambiguous calls when using {}
+			constexpr explicit PopcntT(Implementation::InitT)
+			{
+			}
 #endif
-	};
+		};
 
-	/**
+		/**
 		@brief LZCNT tag type
 
 		Available only on @ref DEATH_TARGET_X86 "x86". See the @ref Cpu namespace
 		and the @ref Lzcnt tag for more information.
 	*/
-	struct LzcntT {
+		struct LzcntT
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		// Explicit constructor to avoid ambiguous calls when using {}
-		constexpr explicit LzcntT(Implementation::InitT) {}
+			// Explicit constructor to avoid ambiguous calls when using {}
+			constexpr explicit LzcntT(Implementation::InitT)
+			{
+			}
 #endif
-	};
+		};
 
-	/**
+		/**
 		@brief BMI1 tag type
 
 		Available only on @ref DEATH_TARGET_X86 "x86". See the @ref Cpu namespace
 		and the @ref Bmi1 tag for more information.
 	*/
-	struct Bmi1T {
+		struct Bmi1T
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		// Explicit constructor to avoid ambiguous calls when using {}
-		constexpr explicit Bmi1T(Implementation::InitT) {}
+			// Explicit constructor to avoid ambiguous calls when using {}
+			constexpr explicit Bmi1T(Implementation::InitT)
+			{
+			}
 #endif
-	};
+		};
 
-	/**
+		/**
 		@brief BMI2 tag type
 
 		Available only on @ref DEATH_TARGET_X86 "x86". See the @ref Cpu namespace
 		and the @ref Bmi2 tag for more information.
 	*/
-	struct Bmi2T {
+		struct Bmi2T
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		// Explicit constructor to avoid ambiguous calls when using {}
-		constexpr explicit Bmi2T(Implementation::InitT) {}
+			// Explicit constructor to avoid ambiguous calls when using {}
+			constexpr explicit Bmi2T(Implementation::InitT)
+			{
+			}
 #endif
-	};
+		};
 
-	/**
+		/**
 		@brief AVX tag type
 
 		Available only on @ref DEATH_TARGET_X86 "x86". See the @ref Cpu namespace
 		and the @ref Avx tag for more information.
 	*/
-	struct AvxT: Sse42T {
+		struct AvxT : Sse42T
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		// Explicit constructor to avoid ambiguous calls when using {}
-		constexpr explicit AvxT(Implementation::InitT) : Sse42T{Implementation::Init} {}
+			// Explicit constructor to avoid ambiguous calls when using {}
+			constexpr explicit AvxT(Implementation::InitT)
+				: Sse42T { Implementation::Init }
+			{
+			}
 #endif
-	};
+		};
 
-	/**
+		/**
 		@brief AVX F16C tag type
 
 		Available only on @ref DEATH_TARGET_X86 "x86". See the @ref Cpu namespace
 		and the @ref AvxF16c tag for more information.
 	*/
-	struct AvxF16cT {
+		struct AvxF16cT
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		// Explicit constructor to avoid ambiguous calls when using {}
-		constexpr explicit AvxF16cT(Implementation::InitT) {}
+			// Explicit constructor to avoid ambiguous calls when using {}
+			constexpr explicit AvxF16cT(Implementation::InitT)
+			{
+			}
 #endif
-	};
+		};
 
-	/**
+		/**
 		@brief AVX FMA tag type
 
 		Available only on @ref DEATH_TARGET_X86 "x86". See the @ref Cpu namespace
 		and the @ref AvxFma tag for more information.
 	*/
-	struct AvxFmaT {
+		struct AvxFmaT
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		// Explicit constructor to avoid ambiguous calls when using {}
-		constexpr explicit AvxFmaT(Implementation::InitT) {}
+			// Explicit constructor to avoid ambiguous calls when using {}
+			constexpr explicit AvxFmaT(Implementation::InitT)
+			{
+			}
 #endif
-	};
+		};
 
-	/**
+		/**
 		@brief AVX2 tag type
 
 		Available only on @ref DEATH_TARGET_X86 "x86". See the @ref Cpu namespace
 		and the @ref Avx2 tag for more information.
 	*/
-	struct Avx2T : AvxT {
+		struct Avx2T : AvxT
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		// Explicit constructor to avoid ambiguous calls when using {}
-		constexpr explicit Avx2T(Implementation::InitT) : AvxT{Implementation::Init} {}
+			// Explicit constructor to avoid ambiguous calls when using {}
+			constexpr explicit Avx2T(Implementation::InitT)
+				: AvxT { Implementation::Init }
+			{
+			}
 #endif
-	};
+		};
 
-	/**
+		/**
 		@brief AVX-512 Foundation tag type
 
 		Available only on @ref DEATH_TARGET_X86 "x86". See the @ref Cpu namespace
 		and the @ref Avx512f tag for more information.
 	*/
-	struct Avx512fT : Avx2T {
+		struct Avx512fT : Avx2T
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		// Explicit constructor to avoid ambiguous calls when using {}
-		constexpr explicit Avx512fT(Implementation::InitT) : Avx2T{Implementation::Init} {}
+			// Explicit constructor to avoid ambiguous calls when using {}
+			constexpr explicit Avx512fT(Implementation::InitT)
+				: Avx2T { Implementation::Init }
+			{
+			}
 #endif
-	};
+		};
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
-	// Features earlier in the hierarchy should have lower bits set
-	template<> struct TypeTraits<Sse2T> {
-		enum: unsigned int { Index = 1 << 0 };
-		static const char* name() { return "Sse2"; }
-	};
-	template<> struct TypeTraits<Sse3T> {
-		enum: unsigned int { Index = 1 << 1 };
-		static const char* name() { return "Sse3"; }
-	};
-	template<> struct TypeTraits<Ssse3T> {
-		enum: unsigned int { Index = 1 << 2 };
-		static const char* name() { return "Ssse3"; }
-	};
-	template<> struct TypeTraits<Sse41T> {
-		enum: unsigned int { Index = 1 << 3 };
-		static const char* name() { return "Sse41"; }
-	};
-	template<> struct TypeTraits<Sse42T> {
-		enum: unsigned int { Index = 1 << 4 };
-		static const char* name() { return "Sse42"; }
-	};
-	template<> struct TypeTraits<AvxT> {
-		enum: unsigned int { Index = 1 << 5 };
-		static const char* name() { return "Avx"; }
-	};
-	template<> struct TypeTraits<Avx2T> {
-		enum: unsigned int { Index = 1 << 6 };
-		static const char* name() { return "Avx2"; }
-	};
-	template<> struct TypeTraits<Avx512fT> {
-		enum: unsigned int { Index = 1 << 7 };
-		static const char* name() { return "Avx512f"; }
-	};
+		// Features earlier in the hierarchy should have lower bits set
+		template <>
+		struct TypeTraits<Sse2T>
+		{
+			enum : unsigned int
+			{
+				Index = 1 << 0
+			};
+			static const char* name()
+			{
+				return "Sse2";
+			}
+		};
+		template <>
+		struct TypeTraits<Sse3T>
+		{
+			enum : unsigned int
+			{
+				Index = 1 << 1
+			};
+			static const char* name()
+			{
+				return "Sse3";
+			}
+		};
+		template <>
+		struct TypeTraits<Ssse3T>
+		{
+			enum : unsigned int
+			{
+				Index = 1 << 2
+			};
+			static const char* name()
+			{
+				return "Ssse3";
+			}
+		};
+		template <>
+		struct TypeTraits<Sse41T>
+		{
+			enum : unsigned int
+			{
+				Index = 1 << 3
+			};
+			static const char* name()
+			{
+				return "Sse41";
+			}
+		};
+		template <>
+		struct TypeTraits<Sse42T>
+		{
+			enum : unsigned int
+			{
+				Index = 1 << 4
+			};
+			static const char* name()
+			{
+				return "Sse42";
+			}
+		};
+		template <>
+		struct TypeTraits<AvxT>
+		{
+			enum : unsigned int
+			{
+				Index = 1 << 5
+			};
+			static const char* name()
+			{
+				return "Avx";
+			}
+		};
+		template <>
+		struct TypeTraits<Avx2T>
+		{
+			enum : unsigned int
+			{
+				Index = 1 << 6
+			};
+			static const char* name()
+			{
+				return "Avx2";
+			}
+		};
+		template <>
+		struct TypeTraits<Avx512fT>
+		{
+			enum : unsigned int
+			{
+				Index = 1 << 7
+			};
+			static const char* name()
+			{
+				return "Avx512f";
+			}
+		};
 
-	// The total bit range should not be larger than ExtraTagCount
-	template<> struct TypeTraits<PopcntT> {
-		enum: unsigned int { Index = 1 << (0 + Implementation::ExtraTagBitOffset) };
-		static const char* name() { return "Popcnt"; }
-	};
-	template<> struct TypeTraits<LzcntT> {
-		enum: unsigned int { Index = 1 << (1 + Implementation::ExtraTagBitOffset) };
-		static const char* name() { return "Lzcnt"; }
-	};
-	template<> struct TypeTraits<Bmi1T> {
-		enum: unsigned int { Index = 1 << (2 + Implementation::ExtraTagBitOffset) };
-		static const char* name() { return "Bmi1"; }
-	};
-	template<> struct TypeTraits<Bmi2T> {
-		enum: unsigned int { Index = 1 << (3 + Implementation::ExtraTagBitOffset) };
-		static const char* name() { return "Bmi2"; }
-	};
-	template<> struct TypeTraits<AvxF16cT> {
-		enum: unsigned int { Index = 1 << (4 + Implementation::ExtraTagBitOffset) };
-		static const char* name() { return "AvxF16c"; }
-	};
-	template<> struct TypeTraits<AvxFmaT> {
-		enum: unsigned int { Index = 1 << (5 + Implementation::ExtraTagBitOffset) };
-		static const char* name() { return "AvxFma"; }
-	};
+		// The total bit range should not be larger than ExtraTagCount
+		template <>
+		struct TypeTraits<PopcntT>
+		{
+			enum : unsigned int
+			{
+				Index = 1 << (0 + Implementation::ExtraTagBitOffset)
+			};
+			static const char* name()
+			{
+				return "Popcnt";
+			}
+		};
+		template <>
+		struct TypeTraits<LzcntT>
+		{
+			enum : unsigned int
+			{
+				Index = 1 << (1 + Implementation::ExtraTagBitOffset)
+			};
+			static const char* name()
+			{
+				return "Lzcnt";
+			}
+		};
+		template <>
+		struct TypeTraits<Bmi1T>
+		{
+			enum : unsigned int
+			{
+				Index = 1 << (2 + Implementation::ExtraTagBitOffset)
+			};
+			static const char* name()
+			{
+				return "Bmi1";
+			}
+		};
+		template <>
+		struct TypeTraits<Bmi2T>
+		{
+			enum : unsigned int
+			{
+				Index = 1 << (3 + Implementation::ExtraTagBitOffset)
+			};
+			static const char* name()
+			{
+				return "Bmi2";
+			}
+		};
+		template <>
+		struct TypeTraits<AvxF16cT>
+		{
+			enum : unsigned int
+			{
+				Index = 1 << (4 + Implementation::ExtraTagBitOffset)
+			};
+			static const char* name()
+			{
+				return "AvxF16c";
+			}
+		};
+		template <>
+		struct TypeTraits<AvxFmaT>
+		{
+			enum : unsigned int
+			{
+				Index = 1 << (5 + Implementation::ExtraTagBitOffset)
+			};
+			static const char* name()
+			{
+				return "AvxFma";
+			}
+		};
 #endif
 #endif
 
 #if defined(DEATH_TARGET_ARM) || defined(DOXYGEN_GENERATING_OUTPUT)
-	/**
+		/**
 		@brief NEON tag type
 
 		Available only on @ref DEATH_TARGET_ARM "ARM". See the @ref Cpu namespace
 		and the @ref Neon tag for more information.
 	*/
-	struct NeonT : ScalarT {
+		struct NeonT : ScalarT
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		// Explicit constructor to avoid ambiguous calls when using {}
-		constexpr explicit NeonT(Implementation::InitT) : ScalarT{Implementation::Init} {}
+			// Explicit constructor to avoid ambiguous calls when using {}
+			constexpr explicit NeonT(Implementation::InitT)
+				: ScalarT { Implementation::Init }
+			{
+			}
 #endif
-	};
+		};
 
-	/**
+		/**
 		@brief NEON FMA tag type
 
 		Available only on @ref DEATH_TARGET_ARM "ARM". See the @ref Cpu namespace
 		and the @ref NeonFma tag for more information.
 	*/
-	struct NeonFmaT : NeonT {
+		struct NeonFmaT : NeonT
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		// Explicit constructor to avoid ambiguous calls when using {}
-		constexpr explicit NeonFmaT(Implementation::InitT) : NeonT{Implementation::Init} {}
+			// Explicit constructor to avoid ambiguous calls when using {}
+			constexpr explicit NeonFmaT(Implementation::InitT)
+				: NeonT { Implementation::Init }
+			{
+			}
 #endif
-	};
+		};
 
-	/**
+		/**
 		@brief NEON FP16 tag type
 
 		Available only on @ref DEATH_TARGET_ARM "ARM". See the @ref Cpu namespace
 		and the @ref NeonFp16 tag for more information.
 	*/
-	struct NeonFp16T : NeonFmaT {
+		struct NeonFp16T : NeonFmaT
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		// Explicit constructor to avoid ambiguous calls when using {}
-		constexpr explicit NeonFp16T(Implementation::InitT) : NeonFmaT{Implementation::Init} {}
+			// Explicit constructor to avoid ambiguous calls when using {}
+			constexpr explicit NeonFp16T(Implementation::InitT)
+				: NeonFmaT { Implementation::Init }
+			{
+			}
 #endif
-	};
+		};
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
-	template<> struct TypeTraits<NeonT> {
-		enum: unsigned int { Index = 1 << 0 };
-		static const char* name() { return "Neon"; }
-	};
-	template<> struct TypeTraits<NeonFmaT> {
-		enum: unsigned int { Index = 1 << 1 };
-		static const char* name() { return "NeonFma"; }
-	};
-	template<> struct TypeTraits<NeonFp16T> {
-		enum: unsigned int { Index = 1 << 2 };
-		static const char* name() { return "NeonFp16"; }
-	};
+		template <>
+		struct TypeTraits<NeonT>
+		{
+			enum : unsigned int
+			{
+				Index = 1 << 0
+			};
+			static const char* name()
+			{
+				return "Neon";
+			}
+		};
+		template <>
+		struct TypeTraits<NeonFmaT>
+		{
+			enum : unsigned int
+			{
+				Index = 1 << 1
+			};
+			static const char* name()
+			{
+				return "NeonFma";
+			}
+		};
+		template <>
+		struct TypeTraits<NeonFp16T>
+		{
+			enum : unsigned int
+			{
+				Index = 1 << 2
+			};
+			static const char* name()
+			{
+				return "NeonFp16";
+			}
+		};
 #endif
 #endif
 
 #if defined(DEATH_TARGET_WASM) || defined(DOXYGEN_GENERATING_OUTPUT)
-	/**
+		/**
 		@brief SIMD128 tag type
 
 		Available only on @ref DEATH_TARGET_WASM "WebAssembly". See the @ref Cpu
 		namespace and the @ref Simd128 tag for more information.
 	*/
-	struct Simd128T: ScalarT {
+		struct Simd128T : ScalarT
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		// Explicit constructor to avoid ambiguous calls when using {}
-		constexpr explicit Simd128T(Implementation::InitT): ScalarT{Implementation::Init} { }
+			// Explicit constructor to avoid ambiguous calls when using {}
+			constexpr explicit Simd128T(Implementation::InitT)
+				: ScalarT { Implementation::Init }
+			{
+			}
 #endif
-	};
+		};
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
-	template<> struct TypeTraits<Simd128T> {
-		enum: unsigned int { Index = 1 << 0 };
-		static const char* name() { return "Simd128"; }
-	};
+		template <>
+		struct TypeTraits<Simd128T>
+		{
+			enum : unsigned int
+			{
+				Index = 1 << 0
+			};
+			static const char* name()
+			{
+				return "Simd128";
+			}
+		};
 #endif
 #endif
 
-	/**
+		/**
 		@brief Scalar tag
 
 		Code that isn't explicitly optimized with any advanced CPU instruction set.
@@ -875,10 +1109,10 @@ namespace Death { namespace Cpu {
 		widely supported instruction sets are @ref Sse2 on x86, @ref Neon on ARM and
 		@ref Simd128 on WebAssembly.
 	*/
-	constexpr ScalarT Scalar{Implementation::Init};
+		constexpr ScalarT Scalar { Implementation::Init };
 
 #if defined(DEATH_TARGET_X86) || defined(DOXYGEN_GENERATING_OUTPUT)
-	/**
+		/**
 		@brief SSE2 tag
 
 		[Streaming SIMD Extensions 2](https://en.wikipedia.org/wiki/SSE2). Available
@@ -886,18 +1120,18 @@ namespace Death { namespace Cpu {
 		and is present on majority of contemporary 32-bit x86 processors as well.
 		Superset of @ref Scalar, implied by @ref Sse3.
 	*/
-	constexpr Sse2T Sse2{Implementation::Init};
+		constexpr Sse2T Sse2 { Implementation::Init };
 
-	/**
+		/**
 		@brief SSE3 tag
 
 		[Streaming SIMD Extensions 3](https://en.wikipedia.org/wiki/SSE3). Available
 		only on @ref DEATH_TARGET_X86 "x86". Superset of @ref Sse2, implied by
 		@ref Ssse3.
 	*/
-	constexpr Sse3T Sse3{Implementation::Init};
+		constexpr Sse3T Sse3 { Implementation::Init };
 
-	/**
+		/**
 		@brief SSSE3 tag
 
 		[Supplemental Streaming SIMD Extensions 3](https://en.wikipedia.org/wiki/SSSE3).
@@ -908,9 +1142,9 @@ namespace Death { namespace Cpu {
 		but neither SSSE3 nor SSE4.1. Both can be however treated as a subset of SSE4.1
 		to a large extent, and it's recommended to use @ref Sse41 to handle those.
 	*/
-	constexpr Ssse3T Ssse3{Implementation::Init};
+		constexpr Ssse3T Ssse3 { Implementation::Init };
 
-	/**
+		/**
 		@brief SSE4.1 tag
 
 		[Streaming SIMD Extensions 4.1](https://en.wikipedia.org/wiki/SSE4#SSE4.1).
@@ -921,18 +1155,18 @@ namespace Death { namespace Cpu {
 		but neither SSSE3 nor SSE4.1. Both can be however treated as a subset of SSE4.1
 		to a large extent, and it's recommended to use @ref Sse41 to handle those.
 	*/
-	constexpr Sse41T Sse41{Implementation::Init};
+		constexpr Sse41T Sse41 { Implementation::Init };
 
-	/**
+		/**
 		@brief SSE4.2 tag
 
 		[Streaming SIMD Extensions 4.2](https://en.wikipedia.org/wiki/SSE4#SSE4.2).
 		Available only on @ref DEATH_TARGET_X86 "x86". Superset of @ref Sse41,
 		implied by @ref Avx.
 	*/
-	constexpr Sse42T Sse42{Implementation::Init};
+		constexpr Sse42T Sse42 { Implementation::Init };
 
-	/**
+		/**
 		@brief POPCNT tag
 
 		[POPCNT](https://en.wikipedia.org/wiki/X86_Bit_manipulation_instruction_set#ABM_(Advanced_Bit_Manipulation))
@@ -940,9 +1174,9 @@ namespace Death { namespace Cpu {
 		set is treated as an *extra*, i.e. is neither a superset of nor implied by any
 		other instruction set. See @ref Cpu-usage-extra for more information.
 	*/
-	constexpr PopcntT Popcnt{Implementation::Init};
+		constexpr PopcntT Popcnt { Implementation::Init };
 
-	/**
+		/**
 		@brief LZCNT tag
 
 		[LZCNT](https://en.wikipedia.org/wiki/X86_Bit_manipulation_instruction_set#ABM_(Advanced_Bit_Manipulation))
@@ -955,9 +1189,9 @@ namespace Death { namespace Cpu {
 		it isn't available, prefer to always detect its presence with
 		@ref runtimeFeatures() instead of a compile-time check.
 	*/
-	constexpr LzcntT Lzcnt{Implementation::Init};
+		constexpr LzcntT Lzcnt { Implementation::Init };
 
-	/**
+		/**
 		@brief BMI1 tag
 
 		[BMI1](https://en.wikipedia.org/wiki/X86_Bit_manipulation_instruction_set#BMI1_(Bit_Manipulation_Instruction_Set_1))
@@ -971,9 +1205,9 @@ namespace Death { namespace Cpu {
 		it isn't available, prefer to always detect its presence with
 		@ref runtimeFeatures() instead of a compile-time check.
 	*/
-	constexpr Bmi1T Bmi1{Implementation::Init};
+		constexpr Bmi1T Bmi1 { Implementation::Init };
 
-	/**
+		/**
 		@brief BMI2 tag
 
 		[BMI2](https://en.wikipedia.org/wiki/X86_Bit_manipulation_instruction_set#BMI2_(Bit_Manipulation_Instruction_Set_2))
@@ -981,18 +1215,18 @@ namespace Death { namespace Cpu {
 		set is treated as an *extra*, i.e. is neither a superset of nor implied by any
 		other instruction set. See @ref Cpu-usage-extra for more information.
 	*/
-	constexpr Bmi2T Bmi2{Implementation::Init};
+		constexpr Bmi2T Bmi2 { Implementation::Init };
 
-	/**
+		/**
 		@brief AVX tag
 
 		[Advanced Vector Extensions](https://en.wikipedia.org/wiki/Advanced_Vector_Extensions).
 		Available only on @ref DEATH_TARGET_X86 "x86". Superset of @ref Sse42,
 		implied by @ref Avx2.
 	*/
-	constexpr AvxT Avx{Implementation::Init};
+		constexpr AvxT Avx { Implementation::Init };
 
-	/**
+		/**
 		@brief AVX F16C tag
 
 		[F16C](https://en.wikipedia.org/wiki/F16C) instructions. Available only on
@@ -1000,9 +1234,9 @@ namespace Death { namespace Cpu {
 		i.e. is neither a superset of nor implied by any other instruction set. See
 		@ref Cpu-usage-extra for more information.
 	*/
-	constexpr AvxF16cT AvxF16c{Implementation::Init};
+		constexpr AvxF16cT AvxF16c { Implementation::Init };
 
-	/**
+		/**
 		@brief AVX FMA tag
 
 		[FMA3 instruction set](https://en.wikipedia.org/wiki/FMA_instruction_set).
@@ -1010,315 +1244,378 @@ namespace Death { namespace Cpu {
 		treated as an *extra*, i.e. is neither a superset of nor implied by any other
 		instruction set. See @ref Cpu-usage-extra for more information.
 	*/
-	constexpr AvxFmaT AvxFma{Implementation::Init};
+		constexpr AvxFmaT AvxFma { Implementation::Init };
 
-	/**
+		/**
 		@brief AVX2 tag
 
 		[Advanced Vector Extensions 2](https://en.wikipedia.org/wiki/Advanced_Vector_Extensions#Advanced_Vector_Extensions_2).
 		Available only on @ref DEATH_TARGET_X86 "x86". Superset of @ref Avx,
 		implied by @ref Avx512f.
 	*/
-	constexpr Avx2T Avx2{Implementation::Init};
+		constexpr Avx2T Avx2 { Implementation::Init };
 
-	/**
+		/**
 		@brief AVX-512 Foundation tag
 
 		[AVX-512](https://en.wikipedia.org/wiki/AVX-512) Foundation. Available only on
 		@ref DEATH_TARGET_X86 "x86". Superset of @ref Avx2.
 	*/
-	constexpr Avx512fT Avx512f{Implementation::Init};
+		constexpr Avx512fT Avx512f { Implementation::Init };
 #endif
 
 #if defined(DEATH_TARGET_ARM) || defined(DOXYGEN_GENERATING_OUTPUT)
-	/**
+		/**
 		@brief NEON tag type
 
 		[ARM NEON](https://en.wikipedia.org/wiki/ARM_architecture#Advanced_SIMD_(Neon)).
 		Available only on @ref DEATH_TARGET_ARM "ARM". Superset of @ref Scalar,
 		implied by @ref NeonFp16.
 	*/
-	constexpr NeonT Neon{Implementation::Init};
+		constexpr NeonT Neon { Implementation::Init };
 
-	/**
+		/**
 		@brief NEON FMA tag type
 
 		[ARM NEON](https://en.wikipedia.org/wiki/ARM_architecture#Advanced_SIMD_(Neon))
 		with FMA instructions. Available only on @ref DEATH_TARGET_ARM "ARM".
 		Superset of @ref Neon, implied by @ref NeonFp16.
 	*/
-	constexpr NeonFmaT NeonFma{Implementation::Init};
+		constexpr NeonFmaT NeonFma { Implementation::Init };
 
-	/**
+		/**
 		@brief NEON FP16 tag type
 
 		[ARM NEON](https://en.wikipedia.org/wiki/ARM_architecture#Advanced_SIMD_(Neon))
 		with ARMv8.2-a FP16 vector arithmetic. Available only on
 		@ref DEATH_TARGET_ARM "ARM". Superset of @ref NeonFma.
 	*/
-	constexpr NeonFp16T NeonFp16{Implementation::Init};
+		constexpr NeonFp16T NeonFp16 { Implementation::Init };
 #endif
 
 #if defined(DEATH_TARGET_WASM) || defined(DOXYGEN_GENERATING_OUTPUT)
-	/**
+		/**
 		@brief SIMD128 tag type
 
 		[128-bit WebAssembly SIMD](https://github.com/webassembly/simd). Available only
 		on @ref DEATH_TARGET_WASM "WebAssembly". Superset of @ref Scalar.
 	*/
-	constexpr Simd128T Simd128{Implementation::Init};
+		constexpr Simd128T Simd128 { Implementation::Init };
 #endif
 
-	namespace Implementation
-	{
-		template<unsigned i> struct Priority : Priority<i - 1> {};
-		template<> struct Priority<0> {};
+		namespace Implementation
+		{
+			template <unsigned i>
+			struct Priority : Priority<i - 1>
+			{
+			};
+			template <>
+			struct Priority<0>
+			{
+			};
 
-		// Count of "extra" tags that are not in the hierarchy. Should not be larger than strictly
-		// necessary as it deepens inheritance hierarchy when picking best overload candidate.
-		enum : unsigned int {
-			BaseTagMask = (1 << ExtraTagBitOffset) - 1,
-			ExtraTagMask = 0xffffffffu & ~BaseTagMask,
+			// Count of "extra" tags that are not in the hierarchy. Should not be larger than strictly
+			// necessary as it deepens inheritance hierarchy when picking best overload candidate.
+			enum : unsigned int
+			{
+				BaseTagMask = (1 << ExtraTagBitOffset) - 1,
+				ExtraTagMask = 0xffffffffu & ~BaseTagMask,
 #if defined(DEATH_TARGET_X86)
-			ExtraTagCount = 6,
+				ExtraTagCount = 6,
 #else
-			ExtraTagCount = 0,
+				ExtraTagCount = 0,
 #endif
-		};
-
-		// On sane compilers (and on MSVC with /permissive-), these two could be directly in the Tag constructor enable_if expressions.
-		// But MSVC chokes hard on those ("C2988: unrecognizable template declaration/definition", haha), so they have to be extracted
-		// outside. I could also #ifdef around the workaround and extract it only for MSVC, but I don't think the code duplication would
-		// be worth it.
-		template<unsigned int value, unsigned int otherValue> struct IsTagConversionAllowed {
-			enum : bool {
-				Value =
-				// There should be at most one base tag set in both, if there's none then it's Cpu::Scalar
-				!((value & BaseTagMask) & ((value & BaseTagMask) - 1)) &&
-				!((otherValue & BaseTagMask) & ((otherValue & BaseTagMask) - 1)) &&
-				// The other base tag should be the same or derived (i.e, having same or larger value)
-				(otherValue & BaseTagMask) >= (value & BaseTagMask) &&
-				// The other extra bits should be a superset of this
-				((otherValue & value) & ExtraTagMask) == (value & ExtraTagMask)
-			};
-		};
-		template<unsigned int value, unsigned int otherIndex> struct IsSingleTagConversionAllowed {
-			enum : bool {
-				Value =
-				// There should be at most one base tag set in this one, the other satisfies that implicitly as it's constrained by TypeTraits
-				!((value & BaseTagMask) & ((value & BaseTagMask) - 1)) &&
-				// The other base tag should be the same or derived (i.e, having same or larger value)
-				(otherIndex & BaseTagMask) >= (value & BaseTagMask) &&
-				// The other extra bits should be a superset of this. Since a single tag can be only one bit, this condition gets satisfied
-				// only either if we're Cpu::Scalar or if we have no extra bits.
-				((otherIndex & value) & ExtraTagMask) == (value & ExtraTagMask)
-			};
-		};
-
-		// Holds a compile-time combination of tags. Kept private, since it isn't really directly
-		// needed in user code and it would only lead to confusion.
-		template<unsigned int value> struct Tags {
-			enum : unsigned int {
-				Value = value
 			};
 
-			// Empty initialization. Should not be needed by public code.
-			constexpr explicit Tags(InitT) {}
+			// On sane compilers (and on MSVC with /permissive-), these two could be directly in the Tag constructor enable_if expressions.
+			// But MSVC chokes hard on those ("C2988: unrecognizable template declaration/definition", haha), so they have to be extracted
+			// outside. I could also #ifdef around the workaround and extract it only for MSVC, but I don't think the code duplication would
+			// be worth it.
+			template <unsigned int value, unsigned int otherValue>
+			struct IsTagConversionAllowed
+			{
+				enum : bool
+				{
+					Value =
+						// There should be at most one base tag set in both, if there's none then it's Cpu::Scalar
+						!((value & BaseTagMask) & ((value & BaseTagMask) - 1)) &&
+						!((otherValue & BaseTagMask) & ((otherValue & BaseTagMask) - 1)) &&
+						// The other base tag should be the same or derived (i.e, having same or larger value)
+						(otherValue & BaseTagMask) >= (value & BaseTagMask) &&
+						// The other extra bits should be a superset of this
+						((otherValue & value) & ExtraTagMask) == (value & ExtraTagMask)
+				};
+			};
+			template <unsigned int value, unsigned int otherIndex>
+			struct IsSingleTagConversionAllowed
+			{
+				enum : bool
+				{
+					Value =
+						// There should be at most one base tag set in this one, the other satisfies that implicitly as it's constrained by TypeTraits
+						!((value & BaseTagMask) & ((value & BaseTagMask) - 1)) &&
+						// The other base tag should be the same or derived (i.e, having same or larger value)
+						(otherIndex & BaseTagMask) >= (value & BaseTagMask) &&
+						// The other extra bits should be a superset of this. Since a single tag can be only one bit, this condition gets satisfied
+						// only either if we're Cpu::Scalar or if we have no extra bits.
+						((otherIndex & value) & ExtraTagMask) == (value & ExtraTagMask)
+				};
+			};
 
-			// Conversion from other tag combination, allowed only if the other is not a subset
-			// MSVC 2015 and 2017 cannot handle SFINAE in the template, putting it in the argument instead
+			// Holds a compile-time combination of tags. Kept private, since it isn't really directly
+			// needed in user code and it would only lead to confusion.
+			template <unsigned int value>
+			struct Tags
+			{
+				enum : unsigned int
+				{
+					Value = value
+				};
+
+				// Empty initialization. Should not be needed by public code.
+				constexpr explicit Tags(InitT)
+				{
+				}
+
+				// Conversion from other tag combination, allowed only if the other is not a subset
+				// MSVC 2015 and 2017 cannot handle SFINAE in the template, putting it in the argument instead
 #ifndef DEATH_MSVC2017_COMPATIBILITY
-			template<unsigned int otherValue, typename std::enable_if<IsTagConversionAllowed<value, otherValue>::Value, int>::type = 0> constexpr Tags(Tags<otherValue>) {}
+				template <unsigned int otherValue, typename std::enable_if<IsTagConversionAllowed<value, otherValue>::Value, int>::type = 0>
+				constexpr Tags(Tags<otherValue>)
+				{
+				}
 #else
-			template<unsigned int otherValue> constexpr Tags(Tags<otherValue>, typename std::enable_if<IsTagConversionAllowed<value, otherValue>::Value>::type* = {}) {}
+				template <unsigned int otherValue>
+				constexpr Tags(Tags<otherValue>, typename std::enable_if<IsTagConversionAllowed<value, otherValue>::Value>::type* = {})
+				{
+				}
 #endif
 
-			// Conversion from a single tag, allowed only if we're a single bit and the other is not a subset
-			// MSVC 2015 and 2017 cannot handle SFINAE in the template, putting it in the argument instead
+				// Conversion from a single tag, allowed only if we're a single bit and the other is not a subset
+				// MSVC 2015 and 2017 cannot handle SFINAE in the template, putting it in the argument instead
 #ifndef DEATH_MSVC2017_COMPATIBILITY
-			template<class T, typename std::enable_if<IsSingleTagConversionAllowed<Value, TypeTraits<T>::Index>::Value, int>::type = 0> constexpr Tags(T) {}
+				template <class T, typename std::enable_if<IsSingleTagConversionAllowed<Value, TypeTraits<T>::Index>::Value, int>::type = 0>
+				constexpr Tags(T)
+				{
+				}
 #else
-			template<class T> constexpr Tags(T, typename std::enable_if<IsSingleTagConversionAllowed<Value, TypeTraits<T>::Index>::Value>::type* = {}) {}
+				template <class T>
+				constexpr Tags(T, typename std::enable_if<IsSingleTagConversionAllowed<Value, TypeTraits<T>::Index>::Value>::type* = {})
+				{
+				}
 #endif
 
-			//A subset of operators on Features, excluding the assignment ones -- since they modify the type, they make no sense here
-			template<unsigned int otherValue> constexpr Tags<value | otherValue> operator|(Tags<otherValue>) const {
-				return Tags<value | otherValue>{Init};
-			}
-			template<class U> constexpr Tags<value | TypeTraits<U>::Index> operator|(U) const {
-				return Tags<value | TypeTraits<U>::Index>{Init};
-			}
-			template<unsigned int otherValue> constexpr Tags<value& otherValue> operator&(Tags<otherValue>) const {
-				return Tags<value& otherValue>{Init};
-			}
-			template<class U> constexpr Tags<value& TypeTraits<U>::Index> operator&(U) const {
-				return Tags<value& TypeTraits<U>::Index>{Init};
-			}
-			template<unsigned int otherValue> constexpr Tags<value^ otherValue> operator^(Tags<otherValue>) const {
-				return Tags<value^ otherValue>{Init};
-			}
-			template<class U> constexpr Tags<value^ TypeTraits<U>::Index> operator^(U) const {
-				return Tags<value^ TypeTraits<U>::Index>{Init};
-			}
-			constexpr Tags<~value> operator~() const {
-				return Tags<~value>{Init};
-			}
-			constexpr explicit operator bool() const {
-				// An explicit cast to avoid "C4305: 'return': truncation from 'unsigned int' to 'bool'" on MSVC
-				return bool(value);
-			}
-			constexpr operator unsigned int() const {
-				return value;
-			}
-		};
-
-		template<class T> constexpr Tags<TypeTraits<T>::Index> tags(T) {
-			return Tags<TypeTraits<T>::Index>{Init};
-		}
-		template<unsigned int value> constexpr Tags<value> tags(Tags<value> tags) {
-			return tags;
-		}
-
-		// Base-2 log, "plus one" (returns 0 for A == 0). For a base tag, which is always just one bit, returns position of that bit.
-		// Used for calculating distance between two tags in order to calculate overload priority. But since there's also
-		// the Scalar tag, which is 0, it's plus one.
-		template<unsigned short A> struct BitIndex {
-			enum : unsigned short {
-				Value = 1 + BitIndex<(A >> 1)>::Value
+				//A subset of operators on Features, excluding the assignment ones -- since they modify the type, they make no sense here
+				template <unsigned int otherValue>
+				constexpr Tags<value | otherValue> operator|(Tags<otherValue>) const
+				{
+					return Tags<value | otherValue> { Init };
+				}
+				template <class U>
+				constexpr Tags<value | TypeTraits<U>::Index> operator|(U) const
+				{
+					return Tags<value | TypeTraits<U>::Index> { Init };
+				}
+				template <unsigned int otherValue>
+				constexpr Tags<value & otherValue> operator&(Tags<otherValue>) const
+				{
+					return Tags<value & otherValue> { Init };
+				}
+				template <class U>
+				constexpr Tags<value & TypeTraits<U>::Index> operator&(U) const
+				{
+					return Tags<value & TypeTraits<U>::Index> { Init };
+				}
+				template <unsigned int otherValue>
+				constexpr Tags<value ^ otherValue> operator^(Tags<otherValue>) const
+				{
+					return Tags<value ^ otherValue> { Init };
+				}
+				template <class U>
+				constexpr Tags<value ^ TypeTraits<U>::Index> operator^(U) const
+				{
+					return Tags<value ^ TypeTraits<U>::Index> { Init };
+				}
+				constexpr Tags<~value> operator~() const
+				{
+					return Tags<~value> { Init };
+				}
+				constexpr explicit operator bool() const
+				{
+					// An explicit cast to avoid "C4305: 'return': truncation from 'unsigned int' to 'bool'" on MSVC
+					return bool(value);
+				}
+				constexpr operator unsigned int() const
+				{
+					return value;
+				}
 			};
-		};
-		template<> struct BitIndex<0> {
-			enum : unsigned short {
-				Value = 0
+
+			template <class T>
+			constexpr Tags<TypeTraits<T>::Index> tags(T)
+			{
+				return Tags<TypeTraits<T>::Index> { Init };
+			}
+			template <unsigned int value>
+			constexpr Tags<value> tags(Tags<value> tags)
+			{
+				return tags;
+			}
+
+			// Base-2 log, "plus one" (returns 0 for A == 0). For a base tag, which is always just one bit, returns position of that bit.
+			// Used for calculating distance between two tags in order to calculate overload priority. But since there's also
+			// the Scalar tag, which is 0, it's plus one.
+			template <unsigned short A>
+			struct BitIndex
+			{
+				enum : unsigned short
+				{
+					Value = 1 + BitIndex<(A >> 1)>::Value
+				};
 			};
-		};
-
-		// Popcount, but constexpr. No, not related to Cpu::Popcnt, in any way. Used for calculating a difference between
-		// two extra tag sets in order to calculate overload priority.
-		template<unsigned short A> struct BitCount {
-			enum : unsigned short {
-				Bits1 = 0x5555, /* 0b0101010101010101 */
-				Bits2 = 0x3333, /* 0b0011001100110011 */
-				Bits4 = 0x0f0f, /* 0b0000111100001111 */
-				Bits8 = 0x00ff, /* 0b0000000011111111 */
-
-				B0 = (A >> 0) & Bits1,
-				B1 = (A >> 1) & Bits1,
-				C = B0 + B1,
-				D0 = (C >> 0) & Bits2,
-				D2 = (C >> 2) & Bits2,
-				E = D0 + D2,
-				F0 = (E >> 0) & Bits4,
-				F4 = (E >> 4) & Bits4,
-				G = F0 + F4,
-				H0 = (G >> 0) & Bits8,
-				H8 = (G >> 8) & Bits8,
-				Value = H0 + H8
+			template <>
+			struct BitIndex<0>
+			{
+				enum : unsigned short
+				{
+					Value = 0
+				};
 			};
-		};
 
-		// Calculates an absolute priority index for given tag, which is either a base-2 log "plus one" of its index
-		// if it's a base tag, or is 1 if it's an extra tag.
-		//
-		// MSVC 2015 and 2017 need the extra () inside Priority<>, otherwise they demand that a typename is used
-		// for TypeTraits<T>::Index. Heh. Clang 14 warns if I don't cast because bitwise operations between
-		// different enums are deprecated in C++20.
-		template<class T> Priority<(static_cast<unsigned int>(TypeTraits<T>::Index)& ExtraTagMask ? 1 : BitIndex<static_cast<unsigned int>(TypeTraits<T>::Index)& BaseTagMask>::Value * (ExtraTagCount + 1))> constexpr priority(T) {
-			return {};
-		}
-		template<unsigned int value> Priority<(BitIndex<value& BaseTagMask>::Value* (ExtraTagCount + 1) + BitCount<((value& ExtraTagMask) >> ExtraTagBitOffset)>::Value)> constexpr priority(Tags<value>) {
-			static_assert(!((value & BaseTagMask) & ((value & BaseTagMask) - 1)), "more than one base tag used");
-			// GCC 4.8 loudly complains about enum comparison if I don't cast, sigh
-			static_assert(((value & ExtraTagMask) >> ExtraTagBitOffset) < (1 << static_cast<unsigned int>(ExtraTagCount)), "extra tag out of expected bounds");
-			return {};
-		}
-	}
+			// Popcount, but constexpr. No, not related to Cpu::Popcnt, in any way. Used for calculating a difference between
+			// two extra tag sets in order to calculate overload priority.
+			template <unsigned short A>
+			struct BitCount
+			{
+				enum : unsigned short
+				{
+					Bits1 = 0x5555, /* 0b0101010101010101 */
+					Bits2 = 0x3333, /* 0b0011001100110011 */
+					Bits4 = 0x0f0f, /* 0b0000111100001111 */
+					Bits8 = 0x00ff, /* 0b0000000011111111 */
 
-	/**
+					B0 = (A >> 0) & Bits1,
+					B1 = (A >> 1) & Bits1,
+					C = B0 + B1,
+					D0 = (C >> 0) & Bits2,
+					D2 = (C >> 2) & Bits2,
+					E = D0 + D2,
+					F0 = (E >> 0) & Bits4,
+					F4 = (E >> 4) & Bits4,
+					G = F0 + F4,
+					H0 = (G >> 0) & Bits8,
+					H8 = (G >> 8) & Bits8,
+					Value = H0 + H8
+				};
+			};
+
+			// Calculates an absolute priority index for given tag, which is either a base-2 log "plus one" of its index
+			// if it's a base tag, or is 1 if it's an extra tag.
+			//
+			// MSVC 2015 and 2017 need the extra () inside Priority<>, otherwise they demand that a typename is used
+			// for TypeTraits<T>::Index. Heh. Clang 14 warns if I don't cast because bitwise operations between
+			// different enums are deprecated in C++20.
+			template <class T>
+			Priority<(static_cast<unsigned int>(TypeTraits<T>::Index) & ExtraTagMask ? 1 : BitIndex<static_cast<unsigned int>(TypeTraits<T>::Index) & BaseTagMask>::Value * (ExtraTagCount + 1))> constexpr priority(T)
+			{
+				return {};
+			}
+			template <unsigned int value>
+			Priority<(BitIndex<value & BaseTagMask>::Value * (ExtraTagCount + 1) + BitCount<((value & ExtraTagMask) >> ExtraTagBitOffset)>::Value)> constexpr priority(Tags<value>)
+			{
+				static_assert(!((value & BaseTagMask) & ((value & BaseTagMask) - 1)), "more than one base tag used");
+				// GCC 4.8 loudly complains about enum comparison if I don't cast, sigh
+				static_assert(((value & ExtraTagMask) >> ExtraTagBitOffset) < (1 << static_cast<unsigned int>(ExtraTagCount)), "extra tag out of expected bounds");
+				return {};
+			}
+		}
+
+		/**
 		@brief Default base tag type
 
 		See the @ref DefaultBase tag for more information.
 	*/
-	typedef
+		typedef
 #if defined(DEATH_TARGET_X86)
-#	if defined(DEATH_TARGET_AVX512F)
-		Avx512fT
-#	elif defined(DEATH_TARGET_AVX2)
-		Avx2T
-#	elif defined(DEATH_TARGET_AVX)
-		AvxT
-#	elif defined(DEATH_TARGET_SSE42)
-		Sse42T
-#	elif defined(DEATH_TARGET_SSE41)
-		Sse41T
-#	elif defined(DEATH_TARGET_SSSE3)
-		Ssse3T
-#	elif defined(DEATH_TARGET_SSE3)
-		Sse3T
-#	elif defined(DEATH_TARGET_SSE2)
-		Sse2T
+#if defined(DEATH_TARGET_AVX512F)
+			Avx512fT
+#elif defined(DEATH_TARGET_AVX2)
+			Avx2T
+#elif defined(DEATH_TARGET_AVX)
+			AvxT
+#elif defined(DEATH_TARGET_SSE42)
+			Sse42T
+#elif defined(DEATH_TARGET_SSE41)
+			Sse41T
+#elif defined(DEATH_TARGET_SSSE3)
+			Ssse3T
+#elif defined(DEATH_TARGET_SSE3)
+			Sse3T
+#elif defined(DEATH_TARGET_SSE2)
+			Sse2T
 #else
-		ScalarT
-#	endif
-#elif defined(DEATH_TARGET_ARM)
-#	if defined(DEATH_TARGET_NEON_FP16)
-		NeonFp16T
-#	elif defined(DEATH_TARGET_NEON_FMA)
-		NeonFmaT
-#	elif defined(DEATH_TARGET_NEON)
-		NeonT
-#	else
-		ScalarT
-#	endif
-#elif defined(DEATH_TARGET_WASM)
-#	if defined(DEATH_TARGET_SIMD128)
-		Simd128T
-#	else
-		ScalarT
-#	endif
-#else
-		ScalarT
+			ScalarT
 #endif
-		DefaultBaseT;
+#elif defined(DEATH_TARGET_ARM)
+#if defined(DEATH_TARGET_NEON_FP16)
+			NeonFp16T
+#elif defined(DEATH_TARGET_NEON_FMA)
+			NeonFmaT
+#elif defined(DEATH_TARGET_NEON)
+			NeonT
+#else
+			ScalarT
+#endif
+#elif defined(DEATH_TARGET_WASM)
+#if defined(DEATH_TARGET_SIMD128)
+			Simd128T
+#else
+			ScalarT
+#endif
+#else
+			ScalarT
+#endif
+				DefaultBaseT;
 
-	/**
+		/**
 		@brief Default extra tag type
 
 		See the @ref DefaultExtra tag for more information.
 	*/
-	// Clang 14 warns if zero (an int) isn't first because bitwise operations between different enums are deprecated in C++20.
-	typedef Implementation::Tags<0
+		// Clang 14 warns if zero (an int) isn't first because bitwise operations between different enums are deprecated in C++20.
+		typedef Implementation::Tags<0
 #if defined(DEATH_TARGET_X86)
-#	if defined(DEATH_TARGET_POPCNT)
-		| TypeTraits<PopcntT>::Index
-#	endif
-#	if defined(DEATH_TARGET_LZCNT)
-		| TypeTraits<LzcntT>::Index
-#	endif
-#	if defined(DEATH_TARGET_BMI1)
-		| TypeTraits<Bmi1T>::Index
-#	endif
-#	if defined(DEATH_TARGET_BMI2)
-		| TypeTraits<Bmi2T>::Index
-#	endif
-#	if defined(DEATH_TARGET_AVX_FMA)
-		| TypeTraits<AvxFmaT>::Index
-#	endif
-#	if defined(DEATH_TARGET_AVX_F16C)
-		| TypeTraits<AvxF16cT>::Index
-#	endif
+#if defined(DEATH_TARGET_POPCNT)
+			| TypeTraits<PopcntT>::Index
 #endif
-	> DefaultExtraT;
+#if defined(DEATH_TARGET_LZCNT)
+			| TypeTraits<LzcntT>::Index
+#endif
+#if defined(DEATH_TARGET_BMI1)
+			| TypeTraits<Bmi1T>::Index
+#endif
+#if defined(DEATH_TARGET_BMI2)
+			| TypeTraits<Bmi2T>::Index
+#endif
+#if defined(DEATH_TARGET_AVX_FMA)
+			| TypeTraits<AvxFmaT>::Index
+#endif
+#if defined(DEATH_TARGET_AVX_F16C)
+			| TypeTraits<AvxF16cT>::Index
+#endif
+#endif
+			>
+			DefaultExtraT;
 
-	/**
+		/**
 		@brief Default tag type
 
 		See the @ref Default tag for more information.
 	*/
-	// Clang 14 warns if I don't cast because bitwise operations between different enums are deprecated in C++20
-	typedef Implementation::Tags<static_cast<unsigned int>(TypeTraits<DefaultBaseT>::Index) | DefaultExtraT::Value> DefaultT;
+		// Clang 14 warns if I don't cast because bitwise operations between different enums are deprecated in C++20
+		typedef Implementation::Tags<static_cast<unsigned int>(TypeTraits<DefaultBaseT>::Index) | DefaultExtraT::Value> DefaultT;
 
-	/**
+		/**
 		@brief Default base tag
 
 		Highest base instruction set available on given architecture with current
@@ -1353,9 +1650,9 @@ namespace Death { namespace Cpu {
 		together with the extra instruction sets, and @ref runtimeFeatures() which is
 		capable of detecting the available CPU feature set at runtime.
 	*/
-	constexpr DefaultBaseT DefaultBase{Implementation::Init};
+		constexpr DefaultBaseT DefaultBase { Implementation::Init };
 
-	/**
+		/**
 		@brief Default extra tags
 
 		Instruction sets available in addition to @ref DefaultBase on
@@ -1378,312 +1675,377 @@ namespace Death { namespace Cpu {
 		base instruction sets available, and @ref runtimeFeatures() which is capable of
 		detecting the available CPU feature set at runtime.
 	*/
-	constexpr DefaultExtraT DefaultExtra{Implementation::Init};
+		constexpr DefaultExtraT DefaultExtra { Implementation::Init };
 
-	/**
+		/**
 		@brief Default tags
 
 		A combination of @ref DefaultBase and @ref DefaultExtra, see their
 		documentation for more information.
 	*/
-	constexpr DefaultT Default{Implementation::Init};
+		constexpr DefaultT Default { Implementation::Init };
 
-	/**
+		/**
 		@brief Tag for a tag type
 
 		Returns a tag corresponding to tag type @p T.
 	*/
-	template<class T> constexpr T tag() {
-		return T{Implementation::Init};
-	}
+		template <class T>
+		constexpr T tag()
+		{
+			return T { Implementation::Init };
+		}
 
 #if defined(DEATH_TARGET_ARM) && ((defined(__linux__) && !(defined(DEATH_TARGET_ANDROID) && __ANDROID_API__ < 18)) || defined(__FreeBSD__))
-	namespace Implementation
-	{
-		// Needed for a friend declaration, implementation is at the very end of the header
-		Features runtimeFeatures(unsigned long caps);
-	}
+		namespace Implementation
+		{
+			// Needed for a friend declaration, implementation is at the very end of the header
+			Features runtimeFeatures(unsigned long caps);
+		}
 #endif
 
-	/**
+		/**
 		@brief Feature set
 
 		Provides storage and comparison as well as runtime detection of CPU instruction set.
 		See the @ref Cpu namespace for an overview and usage examples.
 	*/
-	class Features {
-	public:
-		/**
+		class Features
+		{
+		public:
+			/**
 		 * @brief Default constructor
 		 *
 		 * Equivalent to @ref Scalar.
 		 */
-		constexpr explicit Features() noexcept : _data{} {}
+			constexpr explicit Features() noexcept
+				: _data {}
+			{
+			}
 
-		/**
+			/**
 		 * @brief Construct from a tag
 		 */
-		template<class T, class = decltype(TypeTraits<T>::Index)> constexpr /*implicit*/ Features(T) noexcept : _data{TypeTraits<T>::Index} {
-			// GCC 4.8 loudly complains about enum comparison if I don't cast; Clang 14 warns if I don't cast
-			// because bitwise operations between different enums are deprecated in C++20
-			static_assert(((static_cast<unsigned int>(TypeTraits<T>::Index) & Implementation::ExtraTagMask) >> Implementation::ExtraTagBitOffset) < (1 << static_cast<unsigned int>(Implementation::ExtraTagCount)),
-				"Extra tag out of expected bounds");
-		}
+			template <class T, class = decltype(TypeTraits<T>::Index)>
+			constexpr /*implicit*/ Features(T) noexcept
+				: _data { TypeTraits<T>::Index }
+			{
+				// GCC 4.8 loudly complains about enum comparison if I don't cast; Clang 14 warns if I don't cast
+				// because bitwise operations between different enums are deprecated in C++20
+				static_assert(((static_cast<unsigned int>(TypeTraits<T>::Index) & Implementation::ExtraTagMask) >> Implementation::ExtraTagBitOffset) < (1 << static_cast<unsigned int>(Implementation::ExtraTagCount)),
+					"Extra tag out of expected bounds");
+			}
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		// The compile-time Tags<> is an implementation detail, don't show that in the docs
-		template<unsigned int value> constexpr /*implicit*/ Features(Implementation::Tags<value>) noexcept : _data{value} {}
+			// The compile-time Tags<> is an implementation detail, don't show that in the docs
+			template <unsigned int value>
+			constexpr /*implicit*/ Features(Implementation::Tags<value>) noexcept
+				: _data { value }
+			{
+			}
 #endif
 
-		/** @brief Equality comparison */
-		constexpr bool operator==(Features other) const {
-			return _data == other._data;
-		}
+			/** @brief Equality comparison */
+			constexpr bool operator==(Features other) const
+			{
+				return _data == other._data;
+			}
 
-		/** @brief Non-equality comparison */
-		constexpr bool operator!=(Features other) const {
-			return _data != other._data;
-		}
+			/** @brief Non-equality comparison */
+			constexpr bool operator!=(Features other) const
+			{
+				return _data != other._data;
+			}
 
-		/**
+			/**
 		 * @brief Whether @p other is a subset of this (@f$ a \supseteq o @f$)
 		 *
 		 * Equivalent to @cpp (a & other) == other @ce.
 		 */
-		constexpr bool operator>=(Features other) const {
-			return (_data & other._data) == other._data;
-		}
+			constexpr bool operator>=(Features other) const
+			{
+				return (_data & other._data) == other._data;
+			}
 
-		/**
+			/**
 		 * @brief Whether @p other is a superset of this (@f$ a \subseteq o @f$)
 		 *
 		 * Equivalent to @cpp (a & other) == a @ce.
 		 */
-		constexpr bool operator<=(Features other) const {
-			return (_data & other._data) == _data;
-		}
+			constexpr bool operator<=(Features other) const
+			{
+				return (_data & other._data) == _data;
+			}
 
-		/** @brief Union of two feature sets */
-		constexpr Features operator|(Features other) const {
-			return Features{_data | other._data};
-		}
+			/** @brief Union of two feature sets */
+			constexpr Features operator|(Features other) const
+			{
+				return Features { _data | other._data };
+			}
 
-		/** @brief Union two feature sets and assign */
-		Features& operator|=(Features other) {
-			_data |= other._data;
-			return *this;
-		}
+			/** @brief Union two feature sets and assign */
+			Features& operator|=(Features other)
+			{
+				_data |= other._data;
+				return *this;
+			}
 
-		/** @brief Intersection of two feature sets */
-		constexpr Features operator&(Features other) const {
-			return Features{_data & other._data};
-		}
+			/** @brief Intersection of two feature sets */
+			constexpr Features operator&(Features other) const
+			{
+				return Features { _data & other._data };
+			}
 
-		/** @brief Intersect two feature sets and assign */
-		Features& operator&=(Features other) {
-			_data &= other._data;
-			return *this;
-		}
+			/** @brief Intersect two feature sets and assign */
+			Features& operator&=(Features other)
+			{
+				_data &= other._data;
+				return *this;
+			}
 
-		/** @brief XOR of two feature sets */
-		constexpr Features operator^(Features other) const {
-			return Features{_data ^ other._data};
-		}
+			/** @brief XOR of two feature sets */
+			constexpr Features operator^(Features other) const
+			{
+				return Features { _data ^ other._data };
+			}
 
-		/** @brief XOR two feature sets and assign */
-		Features& operator^=(Features other) {
-			_data ^= other._data;
-			return *this;
-		}
+			/** @brief XOR two feature sets and assign */
+			Features& operator^=(Features other)
+			{
+				_data ^= other._data;
+				return *this;
+			}
 
-		/** @brief Feature set complement */
-		constexpr Features operator~() const {
-			return Features{~_data};
-		}
+			/** @brief Feature set complement */
+			constexpr Features operator~() const
+			{
+				return Features { ~_data };
+			}
 
-		/**
+			/**
 		 * @brief Boolean conversion
 		 *
 		 * Returns @cpp true @ce if at least one feature apart from @ref Scalar
 		 * is present, @cpp false @ce otherwise.
 		 */
-		constexpr explicit operator bool() const {
-			return _data;
-		}
+			constexpr explicit operator bool() const
+			{
+				return _data;
+			}
 
-		/**
+			/**
 		 * @brief Integer representation
 		 *
 		 * For testing purposes. @ref Cpu::Scalar is always @cpp 0 @ce, values
 		 * corresponding to other feature tags are unspecified.
 		 */
-		constexpr explicit operator unsigned int() const {
-			return _data;
-		}
+			constexpr explicit operator unsigned int() const
+			{
+				return _data;
+			}
 
-	private:
-		template<class> friend constexpr Features features();
-		friend constexpr Features compiledFeatures();
+		private:
+			template <class>
+			friend constexpr Features features();
+			friend constexpr Features compiledFeatures();
 #if (defined(DEATH_TARGET_X86) && (defined(DEATH_TARGET_MSVC) || defined(DEATH_TARGET_GCC))) || (defined(DEATH_TARGET_ARM) && defined(DEATH_TARGET_APPLE))
-		friend Features runtimeFeatures();
+			friend Features runtimeFeatures();
 #endif
 #if defined(DEATH_TARGET_ARM) && ((defined(__linux__) && !(defined(DEATH_TARGET_ANDROID) && __ANDROID_API__ < 18)) || defined(__FreeBSD__))
-		friend Features Implementation::runtimeFeatures(unsigned long);
+			friend Features Implementation::runtimeFeatures(unsigned long);
 #endif
 
-		constexpr explicit Features(unsigned int data) noexcept : _data{data} {}
+			constexpr explicit Features(unsigned int data) noexcept
+				: _data { data }
+			{
+			}
 
-		unsigned int _data;
-	};
+			unsigned int _data;
+		};
 
-	/**
+		/**
 		@brief Feature set for a tag type
 
 		Returns @ref Features with a tag corresponding to tag type @p T, avoiding a
 		need to form the tag value in order to pass it to @ref Features::Features(T).
 	*/
-	template<class T> constexpr Features features() {
-		return Features{TypeTraits<T>::Index};
-	}
+		template <class T>
+		constexpr Features features()
+		{
+			return Features { TypeTraits<T>::Index };
+		}
 
-	/** @relates Features
+		/** @relates Features
 		@brief Equality comparison of a tag and a feature set
 
 		Same as @ref Features::operator==().
 	*/
-	template<class T, class = decltype(TypeTraits<T>::Index)> constexpr bool operator==(T a, Features b) {
-		return Features(a) == b;
-	}
+		template <class T, class = decltype(TypeTraits<T>::Index)>
+		constexpr bool operator==(T a, Features b)
+		{
+			return Features(a) == b;
+		}
 
-	/** @relates Features
+		/** @relates Features
 		@brief Equality comparison of two tags
 
 		Same as @ref Features::operator==(). Needs to be present to avoid ambiguity in C++20.
 	*/
-	template<class T, class U, class = decltype(TypeTraits<T>::Index), class = decltype(TypeTraits<U>::Index)> constexpr bool operator==(T, U) {
-		// Need to cast because operations between different enums are deprecated in C++20.
-		return static_cast<unsigned int>(TypeTraits<T>::Index) == TypeTraits<U>::Index;
-	}
+		template <class T, class U, class = decltype(TypeTraits<T>::Index), class = decltype(TypeTraits<U>::Index)>
+		constexpr bool operator==(T, U)
+		{
+			// Need to cast because operations between different enums are deprecated in C++20.
+			return static_cast<unsigned int>(TypeTraits<T>::Index) == TypeTraits<U>::Index;
+		}
 
-	/** @relates Features
+		/** @relates Features
 		@brief Non-equality comparison of a tag and a feature set
 
 		Same as @ref Features::operator!=().
 	*/
-	template<class T, class = decltype(TypeTraits<T>::Index)> constexpr bool operator!=(T a, Features b) {
-		return Features(a) != b;
-	}
+		template <class T, class = decltype(TypeTraits<T>::Index)>
+		constexpr bool operator!=(T a, Features b)
+		{
+			return Features(a) != b;
+		}
 
-	/** @relates Features
+		/** @relates Features
 		@brief Non-equality comparison of two tags
 
 		Same as @ref Features::operator!=(). Needs to be present to avoid ambiguity in
 		C++20.
 	*/
-	template<class T, class U, class = decltype(TypeTraits<T>::Index), class = decltype(TypeTraits<U>::Index)> constexpr bool operator!=(T, U) {
-		// Need to cast because operations between different enums are deprecated in C++20.
-		return static_cast<unsigned int>(TypeTraits<T>::Index) != TypeTraits<U>::Index;
-	}
+		template <class T, class U, class = decltype(TypeTraits<T>::Index), class = decltype(TypeTraits<U>::Index)>
+		constexpr bool operator!=(T, U)
+		{
+			// Need to cast because operations between different enums are deprecated in C++20.
+			return static_cast<unsigned int>(TypeTraits<T>::Index) != TypeTraits<U>::Index;
+		}
 
-	/** @relates Features
+		/** @relates Features
 		@brief Whether @p a is a superset of @p b (@f$ a \supseteq b @f$)
 
 		Same as @ref Features::operator>=().
 	*/
-	template<class T, class = decltype(TypeTraits<T>::Index)> constexpr bool operator>=(T a, Features b) {
-		return Features(a) >= b;
-	}
+		template <class T, class = decltype(TypeTraits<T>::Index)>
+		constexpr bool operator>=(T a, Features b)
+		{
+			return Features(a) >= b;
+		}
 
-	/** @relates Features
+		/** @relates Features
 		@brief Whether @p a is a subset of @p b (@f$ a \subseteq b @f$)
 
 		Same as @ref Features::operator<=().
 	*/
-	template<class T, class = decltype(TypeTraits<T>::Index)> constexpr bool operator<=(T a, Features b) {
-		return Features(a) <= b;
-	}
+		template <class T, class = decltype(TypeTraits<T>::Index)>
+		constexpr bool operator<=(T a, Features b)
+		{
+			return Features(a) <= b;
+		}
 
-	/** @relates Features
+		/** @relates Features
 		@brief Union of two feature sets
 
 		Same as @ref Features::operator|().
 	*/
-	template<class T, class = decltype(TypeTraits<T>::Index)> constexpr Features operator|(T a, Features b) {
-		return b | a;
-	}
+		template <class T, class = decltype(TypeTraits<T>::Index)>
+		constexpr Features operator|(T a, Features b)
+		{
+			return b | a;
+		}
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
-	// Compared to the above, this produces a type that encodes the value instead of Features. Has to be in the same namespace
-	// as the tags, but since Tags<> is an implementation detail, this is hidden from plain sight as well.
-	//
-	// Clang 14 warns if I don't cast because bitwise operations between different enums are deprecated in C++20.
-	template<class T, class U> constexpr Implementation::Tags<static_cast<unsigned int>(TypeTraits<T>::Index) | TypeTraits<U>::Index> operator|(T, U) {
-		return Implementation::Tags<static_cast<unsigned int>(TypeTraits<T>::Index) | TypeTraits<U>::Index>{Implementation::Init};
-	}
-	template<class T, unsigned int value> constexpr Implementation::Tags<TypeTraits<T>::Index | value> operator|(T, Implementation::Tags<value>) {
-		return Implementation::Tags<TypeTraits<T>::Index | value>{Implementation::Init};
-	}
+		// Compared to the above, this produces a type that encodes the value instead of Features. Has to be in the same namespace
+		// as the tags, but since Tags<> is an implementation detail, this is hidden from plain sight as well.
+		//
+		// Clang 14 warns if I don't cast because bitwise operations between different enums are deprecated in C++20.
+		template <class T, class U>
+		constexpr Implementation::Tags<static_cast<unsigned int>(TypeTraits<T>::Index) | TypeTraits<U>::Index> operator|(T, U)
+		{
+			return Implementation::Tags<static_cast<unsigned int>(TypeTraits<T>::Index) | TypeTraits<U>::Index> { Implementation::Init };
+		}
+		template <class T, unsigned int value>
+		constexpr Implementation::Tags<TypeTraits<T>::Index | value> operator|(T, Implementation::Tags<value>)
+		{
+			return Implementation::Tags<TypeTraits<T>::Index | value> { Implementation::Init };
+		}
 #endif
 
-	/** @relates Features
+		/** @relates Features
 		@brief Intersection of two feature sets
 
 		Same as @ref Features::operator&().
 	*/
-	template<class T, class = decltype(TypeTraits<T>::Index)> constexpr Features operator&(T a, Features b) {
-		return b & a;
-	}
+		template <class T, class = decltype(TypeTraits<T>::Index)>
+		constexpr Features operator&(T a, Features b)
+		{
+			return b & a;
+		}
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
-	// Compared to the above, this produces a type that encodes the value instead of Features. Has to be in the same namespace
-	// as the tags, but since Tags<> is an implementation detail, this is hidden from plain sight as well.
-	//
-	// Clang 14 warns if I don't cast because bitwise operations between different enums are deprecated in C++20.
-	template<class T, class U> constexpr Implementation::Tags<static_cast<unsigned int>(TypeTraits<T>::Index)& TypeTraits<U>::Index> operator&(T, U) {
-		return Implementation::Tags<static_cast<unsigned int>(TypeTraits<T>::Index)& TypeTraits<U>::Index>{Implementation::Init};
-	}
-	template<class T, unsigned int value> constexpr Implementation::Tags<TypeTraits<T>::Index& value> operator&(T, Implementation::Tags<value>) {
-		return Implementation::Tags<TypeTraits<T>::Index& value>{Implementation::Init};
-	}
+		// Compared to the above, this produces a type that encodes the value instead of Features. Has to be in the same namespace
+		// as the tags, but since Tags<> is an implementation detail, this is hidden from plain sight as well.
+		//
+		// Clang 14 warns if I don't cast because bitwise operations between different enums are deprecated in C++20.
+		template <class T, class U>
+		constexpr Implementation::Tags<static_cast<unsigned int>(TypeTraits<T>::Index) & TypeTraits<U>::Index> operator&(T, U)
+		{
+			return Implementation::Tags<static_cast<unsigned int>(TypeTraits<T>::Index) & TypeTraits<U>::Index> { Implementation::Init };
+		}
+		template <class T, unsigned int value>
+		constexpr Implementation::Tags<TypeTraits<T>::Index & value> operator&(T, Implementation::Tags<value>)
+		{
+			return Implementation::Tags<TypeTraits<T>::Index & value> { Implementation::Init };
+		}
 #endif
 
-	/** @relates Features
+		/** @relates Features
 		@brief XOR of two feature sets
 
 		Same as @ref Features::operator^().
 	*/
-	template<class T, class = decltype(TypeTraits<T>::Index)> constexpr Features operator^(T a, Features b) {
-		return b ^ a;
-	}
+		template <class T, class = decltype(TypeTraits<T>::Index)>
+		constexpr Features operator^(T a, Features b)
+		{
+			return b ^ a;
+		}
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
-	// Compared to the above, this produces a type that encodes the value instead of Features. Has to be in the same namespace
-	// as the tags, but since Tags<> is an implementation detail, this is hidden from plain sight as well.
-	//
-	// Clang 14 warns if I don't cast because bitwise operations between different enums are deprecated in C++20.
-	template<class T, class U> constexpr Implementation::Tags<static_cast<unsigned int>(TypeTraits<T>::Index) ^ TypeTraits<U>::Index> operator^(T, U) {
-		return Implementation::Tags<static_cast<unsigned int>(TypeTraits<T>::Index) ^ TypeTraits<U>::Index>{Implementation::Init};
-	}
-	template<class T, unsigned int value> constexpr Implementation::Tags<TypeTraits<T>::Index^ value> operator^(T, Implementation::Tags<value>) {
-		return Implementation::Tags<TypeTraits<T>::Index^ value>{Implementation::Init};
-	}
+		// Compared to the above, this produces a type that encodes the value instead of Features. Has to be in the same namespace
+		// as the tags, but since Tags<> is an implementation detail, this is hidden from plain sight as well.
+		//
+		// Clang 14 warns if I don't cast because bitwise operations between different enums are deprecated in C++20.
+		template <class T, class U>
+		constexpr Implementation::Tags<static_cast<unsigned int>(TypeTraits<T>::Index) ^ TypeTraits<U>::Index> operator^(T, U)
+		{
+			return Implementation::Tags<static_cast<unsigned int>(TypeTraits<T>::Index) ^ TypeTraits<U>::Index> { Implementation::Init };
+		}
+		template <class T, unsigned int value>
+		constexpr Implementation::Tags<TypeTraits<T>::Index ^ value> operator^(T, Implementation::Tags<value>)
+		{
+			return Implementation::Tags<TypeTraits<T>::Index ^ value> { Implementation::Init };
+		}
 #endif
 
-	/** @relates Features
+		/** @relates Features
 		@brief Feature set complement
 
 		Same as @ref Features::operator~().
 	*/
 #ifdef DOXYGEN_GENERATING_OUTPUT
-	template<class T> constexpr Features operator~(T a);
+		template <class T>
+		constexpr Features operator~(T a);
 #else
-	// To avoid confusion, to the docs use it's shown that the operator produces a Features, but in fact it's a type with a compile-time-encoded value
-	template<class T> constexpr Implementation::Tags<~TypeTraits<T>::Index> operator~(T) {
-		return Implementation::Tags<~TypeTraits<T>::Index>{Implementation::Init};
-	}
+		// To avoid confusion, to the docs use it's shown that the operator produces a Features, but in fact it's a type with a compile-time-encoded value
+		template <class T>
+		constexpr Implementation::Tags<~TypeTraits<T>::Index> operator~(T)
+		{
+			return Implementation::Tags<~TypeTraits<T>::Index> { Implementation::Init };
+		}
 #endif
 
-	/**
+		/**
 		@brief CPU instruction sets enabled at compile time
 
 		On @ref DEATH_TARGET_X86 "x86" returns a combination of @ref Sse2, @ref Sse3,
@@ -1702,71 +2064,72 @@ namespace Death { namespace Cpu {
 		value is equal to @ref Scalar, which in turn is equivalent to empty (or
 		default-constructed) @ref Features.
 	*/
-	constexpr Features compiledFeatures() {
-		// Clang 14 warns if zero (an int) isn't first because bitwise operations between different enums are deprecated in C++20.
-		return Features{0
+		constexpr Features compiledFeatures()
+		{
+			// Clang 14 warns if zero (an int) isn't first because bitwise operations between different enums are deprecated in C++20.
+			return Features { 0
 #if defined(DEATH_TARGET_X86)
-#	if defined(DEATH_TARGET_SSE2)
-			| TypeTraits<Sse2T>::Index
-#	endif
-#	if defined(DEATH_TARGET_SSE3)
-			| TypeTraits<Sse3T>::Index
-#	endif
-#	if defined(DEATH_TARGET_SSSE3)
-			| TypeTraits<Ssse3T>::Index
-#	endif
-#	if defined(DEATH_TARGET_SSE41)
-			| TypeTraits<Sse41T>::Index
-#	endif
-#	if defined(DEATH_TARGET_SSE42)
-			| TypeTraits<Sse42T>::Index
-#	endif
-#	if defined(DEATH_TARGET_POPCNT)
-			| TypeTraits<PopcntT>::Index
-#	endif
-#	if defined(DEATH_TARGET_LZCNT)
-			| TypeTraits<LzcntT>::Index
-#	endif
-#	if defined(DEATH_TARGET_BMI1)
-			| TypeTraits<Bmi1T>::Index
-#	endif
-#	if defined(DEATH_TARGET_BMI2)
-			| TypeTraits<Bmi2T>::Index
-#	endif
-#	if defined(DEATH_TARGET_AVX)
-			| TypeTraits<AvxT>::Index
-#	endif
-#	if defined(DEATH_TARGET_AVX_FMA)
-			| TypeTraits<AvxFmaT>::Index
-#	endif
-#	if defined(DEATH_TARGET_AVX_F16C)
-			| TypeTraits<AvxF16cT>::Index
-#	endif
-#	if defined(DEATH_TARGET_AVX2)
-			| TypeTraits<Avx2T>::Index
-#	endif
-#	if defined(DEATH_TARGET_AVX512F)
-			| TypeTraits<Avx512fT>::Index
-#	endif
-#elif defined(DEATH_TARGET_ARM)
-#	if defined(DEATH_TARGET_NEON)
-			| TypeTraits<NeonT>::Index
-#	endif
-#	if defined(DEATH_TARGET_NEON_FMA)
-			| TypeTraits<NeonFmaT>::Index
-#	endif
-#	if defined(DEATH_TARGET_NEON_FP16)
-			| TypeTraits<NeonFp16T>::Index
-#	endif
-#elif defined(DEATH_TARGET_WASM)
-#	if defined(DEATH_TARGET_SIMD128)
-			| TypeTraits<Simd128T>::Index
-#	endif
+#if defined(DEATH_TARGET_SSE2)
+				| TypeTraits<Sse2T>::Index
 #endif
-		};
-	}
+#if defined(DEATH_TARGET_SSE3)
+				| TypeTraits<Sse3T>::Index
+#endif
+#if defined(DEATH_TARGET_SSSE3)
+				| TypeTraits<Ssse3T>::Index
+#endif
+#if defined(DEATH_TARGET_SSE41)
+				| TypeTraits<Sse41T>::Index
+#endif
+#if defined(DEATH_TARGET_SSE42)
+				| TypeTraits<Sse42T>::Index
+#endif
+#if defined(DEATH_TARGET_POPCNT)
+				| TypeTraits<PopcntT>::Index
+#endif
+#if defined(DEATH_TARGET_LZCNT)
+				| TypeTraits<LzcntT>::Index
+#endif
+#if defined(DEATH_TARGET_BMI1)
+				| TypeTraits<Bmi1T>::Index
+#endif
+#if defined(DEATH_TARGET_BMI2)
+				| TypeTraits<Bmi2T>::Index
+#endif
+#if defined(DEATH_TARGET_AVX)
+				| TypeTraits<AvxT>::Index
+#endif
+#if defined(DEATH_TARGET_AVX_FMA)
+				| TypeTraits<AvxFmaT>::Index
+#endif
+#if defined(DEATH_TARGET_AVX_F16C)
+				| TypeTraits<AvxF16cT>::Index
+#endif
+#if defined(DEATH_TARGET_AVX2)
+				| TypeTraits<Avx2T>::Index
+#endif
+#if defined(DEATH_TARGET_AVX512F)
+				| TypeTraits<Avx512fT>::Index
+#endif
+#elif defined(DEATH_TARGET_ARM)
+#if defined(DEATH_TARGET_NEON)
+				| TypeTraits<NeonT>::Index
+#endif
+#if defined(DEATH_TARGET_NEON_FMA)
+				| TypeTraits<NeonFmaT>::Index
+#endif
+#if defined(DEATH_TARGET_NEON_FP16)
+				| TypeTraits<NeonFp16T>::Index
+#endif
+#elif defined(DEATH_TARGET_WASM)
+#if defined(DEATH_TARGET_SIMD128)
+				| TypeTraits<Simd128T>::Index
+#endif
+#endif
+			};
+		}
 
-	/**
+		/**
 		@brief Detect available CPU instruction sets at runtime
 
 		On @ref DEATH_TARGET_X86 "x86" and GCC, Clang or MSVC uses the
@@ -1797,14 +2160,15 @@ namespace Death { namespace Cpu {
 		default-constructed) @ref Features.
 	*/
 #if (defined(DEATH_TARGET_X86) && (defined(DEATH_TARGET_MSVC) || defined(DEATH_TARGET_GCC))) || (defined(DEATH_TARGET_ARM) && ((defined(__linux__) && !(defined(DEATH_TARGET_ANDROID) && __ANDROID_API__ < 18)) || defined(DEATH_TARGET_APPLE) || defined(__FreeBSD__)))
-	Features runtimeFeatures();
+		Features runtimeFeatures();
 #else
-	constexpr Features runtimeFeatures() {
-		return compiledFeatures();
-	}
+		constexpr Features runtimeFeatures()
+		{
+			return compiledFeatures();
+		}
 #endif
 
-	/**
+/**
 		@brief Declare a CPU tag for a compile-time dispatch
 
 		Meant to be used to declare a function overload that uses given combination of
@@ -1816,9 +2180,9 @@ namespace Death { namespace Cpu {
 		by a comma, one that ensures only an overload matching the desired instruction
 		sets get picked, and one that assigns an absolute priority to this overload.
 	*/
-	#define DEATH_CPU_DECLARE(tag) decltype(Death::Cpu::Implementation::tags(tag)), decltype(Death::Cpu::Implementation::priority(tag))
+#define DEATH_CPU_DECLARE(tag) decltype(Death::Cpu::Implementation::tags(tag)), decltype(Death::Cpu::Implementation::priority(tag))
 
-	/**
+/**
 		@brief Select a CPU tag for a compile-time dispatch
 
 		Meant to be used to select among function overloads declared with
@@ -1830,9 +2194,9 @@ namespace Death { namespace Cpu {
 		against and another that converts the sets to an absolute priority to pick the
 		best viable overload.
 	*/
-	#define DEATH_CPU_SELECT(tag) tag, Death::Cpu::Implementation::priority(tag)
+#define DEATH_CPU_SELECT(tag) tag, Death::Cpu::Implementation::priority(tag)
 
-	/**
+		/**
 		@brief Create a function for a runtime dispatch on a base CPU instruction set
 
 		Given a set of function overloads named @p function that accept a CPU tag as a
@@ -1850,125 +2214,135 @@ namespace Death { namespace Cpu {
 		@relativeref{Death,Cpu::AvxFma}. For a dispatch that takes extra instruction
 		sets into account as well use @ref DEATH_CPU_DISPATCHER() instead.
 	*/
-	// Ideally this would reuse __DEATH_CPU_DISPATCHER_IMPLEMENTATION(), unfortunately due to MSVC not being able
-	// to defer macro calls unless "the new preprocessor" is enabled it wouldn't be possible to get rid of the
-	// DEATH_CPU_SELECT() macro from there.
+		// Ideally this would reuse __DEATH_CPU_DISPATCHER_IMPLEMENTATION(), unfortunately due to MSVC not being able
+		// to defer macro calls unless "the new preprocessor" is enabled it wouldn't be possible to get rid of the
+		// DEATH_CPU_SELECT() macro from there.
 #ifdef DOXYGEN_GENERATING_OUTPUT
-	#define DEATH_CPU_DISPATCHER_BASE(function)
+#define DEATH_CPU_DISPATCHER_BASE(function)
 #elif defined(DEATH_TARGET_X86)
-	#define __DEATH_CPU_DISPATCHER_BASE(function)								\
-		decltype(function(Death::Cpu::Scalar)) function(Death::Cpu::Features features) {	\
-			if(features & Death::Cpu::Avx512f)									\
-				return function(Death::Cpu::Avx512f);							\
-			if(features & Death::Cpu::Avx2)										\
-				return function(Death::Cpu::Avx2);								\
-			if(features & Death::Cpu::Avx)										\
-				return function(Death::Cpu::Avx);								\
-			if(features & Death::Cpu::Sse42)									\
-				return function(Death::Cpu::Sse42);								\
-			if(features & Death::Cpu::Sse41)									\
-				return function(Death::Cpu::Sse41);								\
-			if(features & Death::Cpu::Ssse3)									\
-				return function(Death::Cpu::Ssse3);								\
-			if(features & Death::Cpu::Sse3)										\
-				return function(Death::Cpu::Sse3);								\
-			if(features & Death::Cpu::Sse2)										\
-				return function(Death::Cpu::Sse2);								\
-			return function(Death::Cpu::Scalar);								\
-		}
+#define __DEATH_CPU_DISPATCHER_BASE(function)                                      \
+	decltype(function(Death::Cpu::Scalar)) function(Death::Cpu::Features features) \
+	{                                                                              \
+		if (features & Death::Cpu::Avx512f)                                        \
+			return function(Death::Cpu::Avx512f);                                  \
+		if (features & Death::Cpu::Avx2)                                           \
+			return function(Death::Cpu::Avx2);                                     \
+		if (features & Death::Cpu::Avx)                                            \
+			return function(Death::Cpu::Avx);                                      \
+		if (features & Death::Cpu::Sse42)                                          \
+			return function(Death::Cpu::Sse42);                                    \
+		if (features & Death::Cpu::Sse41)                                          \
+			return function(Death::Cpu::Sse41);                                    \
+		if (features & Death::Cpu::Ssse3)                                          \
+			return function(Death::Cpu::Ssse3);                                    \
+		if (features & Death::Cpu::Sse3)                                           \
+			return function(Death::Cpu::Sse3);                                     \
+		if (features & Death::Cpu::Sse2)                                           \
+			return function(Death::Cpu::Sse2);                                     \
+		return function(Death::Cpu::Scalar);                                       \
+	}
 #elif defined(DEATH_TARGET_ARM)
-	#define __DEATH_CPU_DISPATCHER_BASE(function)								\
-		decltype(function(Death::Cpu::Scalar)) function(Death::Cpu::Features features) {	\
-			if(features & Death::Cpu::NeonFp16)									\
-				return function(Death::Cpu::NeonFp16);							\
-			if(features & Death::Cpu::NeonFma)									\
-				return function(Death::Cpu::NeonFma);							\
-			if(features & Death::Cpu::Neon)										\
-				return function(Death::Cpu::Neon);								\
-			return function(Death::Cpu::Scalar);								\
-		}
+#define __DEATH_CPU_DISPATCHER_BASE(function)                                      \
+	decltype(function(Death::Cpu::Scalar)) function(Death::Cpu::Features features) \
+	{                                                                              \
+		if (features & Death::Cpu::NeonFp16)                                       \
+			return function(Death::Cpu::NeonFp16);                                 \
+		if (features & Death::Cpu::NeonFma)                                        \
+			return function(Death::Cpu::NeonFma);                                  \
+		if (features & Death::Cpu::Neon)                                           \
+			return function(Death::Cpu::Neon);                                     \
+		return function(Death::Cpu::Scalar);                                       \
+	}
 #elif defined(DEATH_TARGET_WASM)
-	#define __DEATH_CPU_DISPATCHER_BASE(function)								\
-		decltype(function(Death::Cpu::Scalar)) function(Death::Cpu::Features features) {	\
-			if(features & Death::Cpu::Simd128)									\
-				return function(Death::Cpu::Simd128);							\
-			return function(Death::Cpu::Scalar);								\
-		}
+#define __DEATH_CPU_DISPATCHER_BASE(function)                                      \
+	decltype(function(Death::Cpu::Scalar)) function(Death::Cpu::Features features) \
+	{                                                                              \
+		if (features & Death::Cpu::Simd128)                                        \
+			return function(Death::Cpu::Simd128);                                  \
+		return function(Death::Cpu::Scalar);                                       \
+	}
 #else
-	#define __DEATH_CPU_DISPATCHER_BASE(function)								\
-		decltype(function(Death::Cpu::Scalar)) function(Death::Cpu::Features features) {	\
-			return function(Death::Cpu::Scalar);								\
-		}
+#define __DEATH_CPU_DISPATCHER_BASE(function)                                      \
+	decltype(function(Death::Cpu::Scalar)) function(Death::Cpu::Features features) \
+	{                                                                              \
+		return function(Death::Cpu::Scalar);                                       \
+	}
 #endif
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
 #if defined(DEATH_TARGET_X86)
-	#define __DEATH_CPU_DISPATCHER_IMPLEMENTATION(function, extra)				\
-		if(features >= (Death::Cpu::Avx512f extra))								\
-			return function(DEATH_CPU_SELECT(Death::Cpu::Avx512f extra));		\
-		if(features >= (Death::Cpu::Avx2 extra))								\
-			return function(DEATH_CPU_SELECT(Death::Cpu::Avx2 extra));			\
-		if(features >= (Death::Cpu::Avx extra))									\
-			return function(DEATH_CPU_SELECT(Death::Cpu::Avx extra));			\
-		if(features >= (Death::Cpu::Sse42 extra))								\
-			return function(DEATH_CPU_SELECT(Death::Cpu::Sse42 extra));			\
-		if(features >= (Death::Cpu::Sse41 extra))								\
-			return function(DEATH_CPU_SELECT(Death::Cpu::Sse41 extra));			\
-		if(features >= (Death::Cpu::Ssse3 extra))								\
-			return function(DEATH_CPU_SELECT(Death::Cpu::Ssse3 extra));			\
-		if(features >= (Death::Cpu::Sse3 extra))								\
-			return function(DEATH_CPU_SELECT(Death::Cpu::Sse3 extra));			\
-		if(features >= (Death::Cpu::Sse2 extra))								\
-			return function(DEATH_CPU_SELECT(Death::Cpu::Sse2 extra));			\
-		return function(DEATH_CPU_SELECT(Death::Cpu::Scalar extra));
+#define __DEATH_CPU_DISPATCHER_IMPLEMENTATION(function, extra)        \
+	if (features >= (Death::Cpu::Avx512f extra))                      \
+		return function(DEATH_CPU_SELECT(Death::Cpu::Avx512f extra)); \
+	if (features >= (Death::Cpu::Avx2 extra))                         \
+		return function(DEATH_CPU_SELECT(Death::Cpu::Avx2 extra));    \
+	if (features >= (Death::Cpu::Avx extra))                          \
+		return function(DEATH_CPU_SELECT(Death::Cpu::Avx extra));     \
+	if (features >= (Death::Cpu::Sse42 extra))                        \
+		return function(DEATH_CPU_SELECT(Death::Cpu::Sse42 extra));   \
+	if (features >= (Death::Cpu::Sse41 extra))                        \
+		return function(DEATH_CPU_SELECT(Death::Cpu::Sse41 extra));   \
+	if (features >= (Death::Cpu::Ssse3 extra))                        \
+		return function(DEATH_CPU_SELECT(Death::Cpu::Ssse3 extra));   \
+	if (features >= (Death::Cpu::Sse3 extra))                         \
+		return function(DEATH_CPU_SELECT(Death::Cpu::Sse3 extra));    \
+	if (features >= (Death::Cpu::Sse2 extra))                         \
+		return function(DEATH_CPU_SELECT(Death::Cpu::Sse2 extra));    \
+	return function(DEATH_CPU_SELECT(Death::Cpu::Scalar extra));
 #elif defined(DEATH_TARGET_ARM)
-	#define __DEATH_CPU_DISPATCHER_IMPLEMENTATION(function, extra)				\
-		if(features >= (Death::Cpu::NeonFp16 extra))							\
-			return function(DEATH_CPU_SELECT(Death::Cpu::NeonFp16 extra));		\
-		if(features >= (Death::Cpu::NeonFma extra))								\
-			return function(DEATH_CPU_SELECT(Death::Cpu::NeonFma extra));		\
-		if(features >= (Death::Cpu::Neon extra))								\
-			return function(DEATH_CPU_SELECT(Death::Cpu::Neon extra));			\
-		return function(DEATH_CPU_SELECT(Death::Cpu::Scalar extra));
+#define __DEATH_CPU_DISPATCHER_IMPLEMENTATION(function, extra)         \
+	if (features >= (Death::Cpu::NeonFp16 extra))                      \
+		return function(DEATH_CPU_SELECT(Death::Cpu::NeonFp16 extra)); \
+	if (features >= (Death::Cpu::NeonFma extra))                       \
+		return function(DEATH_CPU_SELECT(Death::Cpu::NeonFma extra));  \
+	if (features >= (Death::Cpu::Neon extra))                          \
+		return function(DEATH_CPU_SELECT(Death::Cpu::Neon extra));     \
+	return function(DEATH_CPU_SELECT(Death::Cpu::Scalar extra));
 #elif defined(DEATH_TARGET_WASM)
-	#define __DEATH_CPU_DISPATCHER_IMPLEMENTATION(function, extra)				\
-		if(features >= (Death::Cpu::Simd128 extra))								\
-			return function(DEATH_CPU_SELECT(Death::Cpu::Simd128 extra));		\
-		return function(DEATH_CPU_SELECT(Death::Cpu::Scalar extra));
+#define __DEATH_CPU_DISPATCHER_IMPLEMENTATION(function, extra)        \
+	if (features >= (Death::Cpu::Simd128 extra))                      \
+		return function(DEATH_CPU_SELECT(Death::Cpu::Simd128 extra)); \
+	return function(DEATH_CPU_SELECT(Death::Cpu::Scalar extra));
 #else
-	#define __DEATH_CPU_DISPATCHER_IMPLEMENTATION(function, extra)				\
-		return function(DEATH_CPU_SELECT(Death::Cpu::Scalar extra));
+#define __DEATH_CPU_DISPATCHER_IMPLEMENTATION(function, extra) \
+	return function(DEATH_CPU_SELECT(Death::Cpu::Scalar extra));
 #endif
 
-	// __DEATH_CPU_DISPATCHER() specialization for 0 extra instruction sets. Basically equivalent to DEATH_CPU_DISPATCHER_BASE()
-	// except for the extra DEATH_CPU_SELECT() macro.
-	#define __DEATH_CPU_DISPATCHER0(function)									\
-		decltype(function(DEATH_CPU_SELECT(Death::Cpu::Scalar))) function(Death::Cpu::Features features) {	\
-			__DEATH_CPU_DISPATCHER_IMPLEMENTATION(function, )					\
-		}
+// __DEATH_CPU_DISPATCHER() specialization for 0 extra instruction sets. Basically equivalent to DEATH_CPU_DISPATCHER_BASE()
+// except for the extra DEATH_CPU_SELECT() macro.
+#define __DEATH_CPU_DISPATCHER0(function)                                                            \
+	decltype(function(DEATH_CPU_SELECT(Death::Cpu::Scalar))) function(Death::Cpu::Features features) \
+	{                                                                                                \
+		__DEATH_CPU_DISPATCHER_IMPLEMENTATION(function, )                                            \
+	}
 
-	// __DEATH_CPU_DISPATCHER() specialization for 1+ extra instruction sets. On Clang this still generates quite a reasonable code
-	// for 2 extra sets compared to DEATH_CPU_DISPATCHER_BASE(), on GCC it's ~25% longer but also still reasonable.
-	// I attempted adding an "unrolled" __DEATH_CPU_DISPATCHER2() but it made everything significantly worse on both compilers,
-	// more than doubling the amount of generated code.
-	#define __DEATH_CPU_DISPATCHERn(function, ...)								\
-		template<unsigned int value> DEATH_ALWAYS_INLINE decltype(function(DEATH_CPU_SELECT(Death::Cpu::Scalar))) function ## Internal(Death::Cpu::Features features, Death::Cpu::Implementation::Tags<value>) { \
-			__DEATH_CPU_DISPATCHER_IMPLEMENTATION(function, |Death::Cpu::Implementation::Tags<value>{Death::Cpu::Implementation::Init})	\
-		}																		\
-		template<unsigned int value, class First, class ...Next> DEATH_ALWAYS_INLINE decltype(function(DEATH_CPU_SELECT(Death::Cpu::Scalar))) function ## Internal(Death::Cpu::Features features, Death::Cpu::Implementation::Tags<value> extra, First first, Next... next) { \
-			static_assert(!(static_cast<unsigned int>(Death::Cpu::Implementation::tags(First{Death::Cpu::Implementation::Init})) & Death::Cpu::Implementation::BaseTagMask),	\
-				"Only extra instruction set tags should be explicitly listed");	\
-			if(features & first)												\
-				return function ## Internal(features, extra|first, next...);	\
-			else																\
-				return function ## Internal(features, extra, next...);			\
-		}																		\
-		decltype(function(DEATH_CPU_SELECT(Death::Cpu::Scalar))) function(Death::Cpu::Features features) {	\
-			return function ## Internal(features, Death::Cpu::Implementation::Tags<0>{Death::Cpu::Implementation::Init}, __VA_ARGS__);	\
-		}
+// __DEATH_CPU_DISPATCHER() specialization for 1+ extra instruction sets. On Clang this still generates quite a reasonable code
+// for 2 extra sets compared to DEATH_CPU_DISPATCHER_BASE(), on GCC it's ~25% longer but also still reasonable.
+// I attempted adding an "unrolled" __DEATH_CPU_DISPATCHER2() but it made everything significantly worse on both compilers,
+// more than doubling the amount of generated code.
+#define __DEATH_CPU_DISPATCHERn(function, ...)                                                                                                                                                               \
+	template <unsigned int value>                                                                                                                                                                            \
+	DEATH_ALWAYS_INLINE decltype(function(DEATH_CPU_SELECT(Death::Cpu::Scalar))) function##Internal(Death::Cpu::Features features, Death::Cpu::Implementation::Tags<value>)                                  \
+	{                                                                                                                                                                                                        \
+		__DEATH_CPU_DISPATCHER_IMPLEMENTATION(function, | Death::Cpu::Implementation::Tags<value> { Death::Cpu::Implementation::Init })                                                                      \
+	}                                                                                                                                                                                                        \
+	template <unsigned int value, class First, class... Next>                                                                                                                                                \
+	DEATH_ALWAYS_INLINE decltype(function(DEATH_CPU_SELECT(Death::Cpu::Scalar))) function##Internal(Death::Cpu::Features features, Death::Cpu::Implementation::Tags<value> extra, First first, Next... next) \
+	{                                                                                                                                                                                                        \
+		static_assert(!(static_cast<unsigned int>(Death::Cpu::Implementation::tags(First { Death::Cpu::Implementation::Init })) & Death::Cpu::Implementation::BaseTagMask),                                  \
+			"Only extra instruction set tags should be explicitly listed");                                                                                                                                  \
+		if (features & first)                                                                                                                                                                                \
+			return function##Internal(features, extra | first, next...);                                                                                                                                     \
+		else                                                                                                                                                                                                 \
+			return function##Internal(features, extra, next...);                                                                                                                                             \
+	}                                                                                                                                                                                                        \
+	decltype(function(DEATH_CPU_SELECT(Death::Cpu::Scalar))) function(Death::Cpu::Features features)                                                                                                         \
+	{                                                                                                                                                                                                        \
+		return function##Internal(features, Death::Cpu::Implementation::Tags<0> { Death::Cpu::Implementation::Init }, __VA_ARGS__);                                                                          \
+	}
 #endif
 
-	/**
+		/**
 		@brief Create a function for a runtime dispatch on a base CPU instruction set and select extra instruction sets
 
 		Given a set of function overloads named @p function that accept a CPU tag
@@ -1987,14 +2361,14 @@ namespace Death { namespace Cpu {
 		@ref DEATH_CPU_DISPATCHER_BASE() instead.
 	*/
 #ifdef DOXYGEN_GENERATING_OUTPUT
-	#define DEATH_CPU_DISPATCHER(function, ...)
+#define DEATH_CPU_DISPATCHER(function, ...)
 #else
-	#define __DEATH_CPU_DISPATCHER(...)										\
-		DEATH_HELPER_EXPAND(DEATH_HELPER_PICK(__VA_ARGS__, __DEATH_CPU_DISPATCHERn, __DEATH_CPU_DISPATCHERn, __DEATH_CPU_DISPATCHERn, __DEATH_CPU_DISPATCHERn, __DEATH_CPU_DISPATCHERn, __DEATH_CPU_DISPATCHERn, __DEATH_CPU_DISPATCHERn, __DEATH_CPU_DISPATCHER0, )(__VA_ARGS__))
+#define __DEATH_CPU_DISPATCHER(...) \
+	DEATH_HELPER_EXPAND(DEATH_HELPER_PICK(__VA_ARGS__, __DEATH_CPU_DISPATCHERn, __DEATH_CPU_DISPATCHERn, __DEATH_CPU_DISPATCHERn, __DEATH_CPU_DISPATCHERn, __DEATH_CPU_DISPATCHERn, __DEATH_CPU_DISPATCHERn, __DEATH_CPU_DISPATCHERn, __DEATH_CPU_DISPATCHER0, )(__VA_ARGS__))
 #endif
 
 #ifdef DOXYGEN_GENERATING_OUTPUT
-	/**
+/**
 		@brief Create a dispatched function according to the build configuration
 
 		Assuming a @p dispatcher was defined with either @ref DEATH_CPU_DISPATCHER()
@@ -2003,10 +2377,10 @@ namespace Death { namespace Cpu {
 
 		See @ref Cpu-usage for more information and overhead comparison.
 	*/
-	#define DEATH_CPU_DISPATCHED(dispatcher, ...)
+#define DEATH_CPU_DISPATCHED(dispatcher, ...)
 #endif
 
-	/**
+/**
 		@brief Create a runtime-dispatched function pointer
 
 		Assuming a @p dispatcher was defined with either @ref DEATH_CPU_DISPATCHER()
@@ -2021,10 +2395,10 @@ namespace Death { namespace Cpu {
 
 		See @ref Cpu-usage-automatic-cached-dispatch for more information and overhead comparison.
 	*/
-	#define DEATH_CPU_DISPATCHED_POINTER(dispatcher, ...)					\
-		__VA_ARGS__ = dispatcher(Death::Cpu::runtimeFeatures());
+#define DEATH_CPU_DISPATCHED_POINTER(dispatcher, ...) \
+	__VA_ARGS__ = dispatcher(Death::Cpu::runtimeFeatures());
 
-	/**
+		/**
 		@brief Create a runtime-dispatched function via GNU IFUNC
 
 		Available only if @ref DEATH_CPU_USE_IFUNC is enabled. Assuming a
@@ -2055,62 +2429,80 @@ namespace Death { namespace Cpu {
 // ... unfortunately the static makes Clang not find the name again, so there we can't use it. But, to drown even deeper, not using the static causes
 // the -Wmissing-prototypes macro to get fired (which is enabled globally because it has obvious benefits), so to avoid noise it has to be disabled here.
 #if !defined(DEATH_TARGET_ARM)
-#define DEATH_CPU_DISPATCHED_IFUNC(dispatcher, ...)							\
-	_Pragma("GCC diagnostic push")											\
-	_Pragma("GCC diagnostic ignored \"-Wmissing-prototypes\"")				\
-	extern "C" decltype(dispatcher(std::declval<Death::Cpu::Features>())) dispatcher() {	\
-		return dispatcher(Death::Cpu::runtimeFeatures());					\
-	}																		\
-	__VA_ARGS__ __attribute__((ifunc(#dispatcher)));						\
+#define DEATH_CPU_DISPATCHED_IFUNC(dispatcher, ...)                                                                                      \
+	_Pragma("GCC diagnostic push")                                                                                                       \
+		_Pragma("GCC diagnostic ignored \"-Wmissing-prototypes\"") extern "C" decltype(dispatcher(std::declval<Death::Cpu::Features>())) \
+		dispatcher()                                                                                                                     \
+	{                                                                                                                                    \
+		return dispatcher(Death::Cpu::runtimeFeatures());                                                                                \
+	}                                                                                                                                    \
+	__VA_ARGS__ __attribute__((ifunc(#dispatcher)));                                                                                     \
 	_Pragma("GCC diagnostic pop")
 #else
-#define DEATH_CPU_DISPATCHED_IFUNC(dispatcher, ...)							\
-	_Pragma("GCC diagnostic push")											\
-	_Pragma("GCC diagnostic ignored \"-Wmissing-prototypes\"")				\
-	extern "C" decltype(dispatcher(std::declval<Death::Cpu::Features>())) dispatcher(unsigned long caps) {	\
-		return dispatcher(Death::Cpu::Implementation::runtimeFeatures(caps));	\
-	}																		\
-	__VA_ARGS__ __attribute__((ifunc(#dispatcher)));						\
+#define DEATH_CPU_DISPATCHED_IFUNC(dispatcher, ...)                                                                                      \
+	_Pragma("GCC diagnostic push")                                                                                                       \
+		_Pragma("GCC diagnostic ignored \"-Wmissing-prototypes\"") extern "C" decltype(dispatcher(std::declval<Death::Cpu::Features>())) \
+		dispatcher(unsigned long caps)                                                                                                   \
+	{                                                                                                                                    \
+		return dispatcher(Death::Cpu::Implementation::runtimeFeatures(caps));                                                            \
+	}                                                                                                                                    \
+	__VA_ARGS__ __attribute__((ifunc(#dispatcher)));                                                                                     \
 	_Pragma("GCC diagnostic pop")
 #endif
-#elif defined(DEATH_TARGET_GCC) && __GNUC__*100 + __GNUC_MINOR__ < 409
+#elif defined(DEATH_TARGET_GCC) && __GNUC__ * 100 + __GNUC_MINOR__ < 409
 // Furthermore, due to https://gcc.gnu.org/bugzilla/show_bug.cgi?id=58105 the resolver function won't work on GCC 4.8 unless it's marked with
 // DEATH_NEVER_INLINE. That, however, causes GCC 4.8 to spit out a bogus warning that the dispatcher function is redeclared as noinline -- it thinks
 // it's the same function as the always-inline lambda wrappers which have the same name. Despite the warning it works, but to avoid useless noise the
 // ifunc dispatcher is named differently.
 #if !defined(DEATH_TARGET_ARM)
-#define DEATH_CPU_DISPATCHED_IFUNC(dispatcher, ...)							\
-	extern "C" { DEATH_NEVER_INLINE static decltype(dispatcher(std::declval<Death::Cpu::Features>())) dispatcher ## Ifunc() {	\
-		return dispatcher(Death::Cpu::runtimeFeatures());					\
-	}}																		\
+#define DEATH_CPU_DISPATCHED_IFUNC(dispatcher, ...)                                                              \
+	extern "C"                                                                                                   \
+	{                                                                                                            \
+		DEATH_NEVER_INLINE static decltype(dispatcher(std::declval<Death::Cpu::Features>())) dispatcher##Ifunc() \
+		{                                                                                                        \
+			return dispatcher(Death::Cpu::runtimeFeatures());                                                    \
+		}                                                                                                        \
+	}                                                                                                            \
 	__VA_ARGS__ __attribute__((ifunc(#dispatcher "Ifunc")));
 #else
-#define DEATH_CPU_DISPATCHED_IFUNC(dispatcher, ...)							\
-	extern "C" { DEATH_NEVER_INLINE static decltype(dispatcher(std::declval<Death::Cpu::Features>())) dispatcher ## Ifunc(unsigned long caps) {	\
-		return dispatcher(Death::Cpu::Implementation::runtimeFeatures(caps));	\
-	}}																		\
+#define DEATH_CPU_DISPATCHED_IFUNC(dispatcher, ...)                                                                                \
+	extern "C"                                                                                                                     \
+	{                                                                                                                              \
+		DEATH_NEVER_INLINE static decltype(dispatcher(std::declval<Death::Cpu::Features>())) dispatcher##Ifunc(unsigned long caps) \
+		{                                                                                                                          \
+			return dispatcher(Death::Cpu::Implementation::runtimeFeatures(caps));                                                  \
+		}                                                                                                                          \
+	}                                                                                                                              \
 	__VA_ARGS__ __attribute__((ifunc(#dispatcher "Ifunc")));
 #endif
 #else
 // Only GCC 4.9+ has the implementation in the most minimal form.
 #if !defined(DEATH_TARGET_ARM)
-#define DEATH_CPU_DISPATCHED_IFUNC(dispatcher, ...)							\
-	extern "C" { static decltype(dispatcher(std::declval<Death::Cpu::Features>())) dispatcher() {	\
-		return dispatcher(Death::Cpu::runtimeFeatures());					\
-	}}																		\
+#define DEATH_CPU_DISPATCHED_IFUNC(dispatcher, ...)                                    \
+	extern "C"                                                                         \
+	{                                                                                  \
+		static decltype(dispatcher(std::declval<Death::Cpu::Features>())) dispatcher() \
+		{                                                                              \
+			return dispatcher(Death::Cpu::runtimeFeatures());                          \
+		}                                                                              \
+	}                                                                                  \
 	__VA_ARGS__ __attribute__((ifunc(#dispatcher)));
 #else
-#define DEATH_CPU_DISPATCHED_IFUNC(dispatcher, ...)							\
-	extern "C" { static decltype(dispatcher(std::declval<Death::Cpu::Features>())) dispatcher(unsigned long caps) {	\
-		return dispatcher(Death::Cpu::Implementation::runtimeFeatures(caps));	\
-	}}																		\
+#define DEATH_CPU_DISPATCHED_IFUNC(dispatcher, ...)                                                      \
+	extern "C"                                                                                           \
+	{                                                                                                    \
+		static decltype(dispatcher(std::declval<Death::Cpu::Features>())) dispatcher(unsigned long caps) \
+		{                                                                                                \
+			return dispatcher(Death::Cpu::Implementation::runtimeFeatures(caps));                        \
+		}                                                                                                \
+	}                                                                                                    \
 	__VA_ARGS__ __attribute__((ifunc(#dispatcher)));
 #endif
 #endif
 #endif
 
 #if defined(DEATH_TARGET_X86) || defined(DOXYGEN_GENERATING_OUTPUT)
-	/**
+		/**
 		@brief Enable SSE2 for given function
 
 		On @ref DEATH_TARGET_X86 "x86" GCC, Clang and @ref DEATH_TARGET_CLANG_CL "Clang-CL"
@@ -2136,20 +2528,20 @@ namespace Death { namespace Cpu {
 			compiler.
 	*/
 #if defined(DEATH_TARGET_SSE2) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define DEATH_ENABLE_SSE2
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_SSE2
-#	endif
+#define DEATH_ENABLE_SSE2
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_SSE2
+#endif
 #elif defined(DEATH_TARGET_GCC) || defined(DEATH_TARGET_CLANG_CL)
-#	define DEATH_ENABLE_SSE2 __attribute__((__target__("sse2")))
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_SSE2 "sse2",
-#	endif
+#define DEATH_ENABLE_SSE2 __attribute__((__target__("sse2")))
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_SSE2 "sse2",
+#endif
 #elif defined(DEATH_TARGET_MSVC)
-#	define DEATH_ENABLE_SSE2
+#define DEATH_ENABLE_SSE2
 #endif
 
-	/**
+		/**
 		@brief Enable SSE3 for given function
 
 		On @ref DEATH_TARGET_X86 "x86" GCC and Clang expands to
@@ -2175,21 +2567,21 @@ namespace Death { namespace Cpu {
 			compiler.
 	*/
 #if defined(DEATH_TARGET_SSE3) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define DEATH_ENABLE_SSE3
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_SSE3
-#	endif
+#define DEATH_ENABLE_SSE3
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_SSE3
+#endif
 #elif defined(DEATH_TARGET_GCC) || defined(DEATH_TARGET_CLANG_CL)
 // The -msse3 option implies -msse2 on both GCC and Clang, so no need to specify those as well (verified with `echo | gcc -dM -E - -msse3`)
-#	define DEATH_ENABLE_SSE3 __attribute__((__target__("sse3")))
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_SSE3 "sse3",
-#	endif
+#define DEATH_ENABLE_SSE3 __attribute__((__target__("sse3")))
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_SSE3 "sse3",
+#endif
 #elif defined(DEATH_TARGET_MSVC)
-#	define DEATH_ENABLE_SSE3
+#define DEATH_ENABLE_SSE3
 #endif
 
-	/**
+		/**
 		@brief Enable SSSE3 for given function
 
 		On @ref DEATH_TARGET_X86 "x86" GCC, Clang and @ref DEATH_TARGET_CLANG_CL "Clang-CL"
@@ -2215,21 +2607,21 @@ namespace Death { namespace Cpu {
 			compiler.
 	*/
 #if defined(DEATH_TARGET_SSSE3) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define DEATH_ENABLE_SSSE3
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_SSSE3
-#	endif
+#define DEATH_ENABLE_SSSE3
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_SSSE3
+#endif
 #elif defined(DEATH_TARGET_GCC) || defined(DEATH_TARGET_CLANG_CL)
 // The -mssse3 option implies -msse2 -msse3 on both GCC and Clang, so no need to specify those as well (verified with `echo | gcc -dM -E - -mssse3`)
-#	define DEATH_ENABLE_SSSE3 __attribute__((__target__("ssse3")))
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_SSSE3 "ssse3",
-#	endif
+#define DEATH_ENABLE_SSSE3 __attribute__((__target__("ssse3")))
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_SSSE3 "ssse3",
+#endif
 #elif defined(DEATH_TARGET_MSVC)
-#	define DEATH_ENABLE_SSSE3
+#define DEATH_ENABLE_SSSE3
 #endif
 
-	/**
+		/**
 		@brief Enable SSE4.1 for given function
 
 		On @ref DEATH_TARGET_X86 "x86" GCC, Clang and @ref DEATH_TARGET_CLANG_CL "Clang-CL"
@@ -2256,18 +2648,18 @@ namespace Death { namespace Cpu {
 			only use @ref DEATH_ENABLE_SSE42 in this case.
 	*/
 #if defined(DEATH_TARGET_SSE41) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define DEATH_ENABLE_SSE41
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_SSE41
-#	endif
-#elif (defined(DEATH_TARGET_GCC) && __GNUC__*100 + __GNUC_MINOR__ >= 409) || defined(DEATH_TARGET_CLANG) /* also matches Clang-CL */
+#define DEATH_ENABLE_SSE41
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_SSE41
+#endif
+#elif (defined(DEATH_TARGET_GCC) && __GNUC__ * 100 + __GNUC_MINOR__ >= 409) || defined(DEATH_TARGET_CLANG) /* also matches Clang-CL */
 // The -msse4.1 option implies -msse2 -msse3 -mssse3 on both GCC and Clang, so no need to specify those as well (verified with `echo | gcc -dM -E - -msse4.1`)
-#	define DEATH_ENABLE_SSE41 __attribute__((__target__("sse4.1")))
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_SSE41 "sse4.1",
-#	endif
+#define DEATH_ENABLE_SSE41 __attribute__((__target__("sse4.1")))
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_SSE41 "sse4.1",
+#endif
 #elif defined(DEATH_TARGET_MSVC)
-#	define DEATH_ENABLE_SSE41
+#define DEATH_ENABLE_SSE41
 #endif
 
 /**
@@ -2296,21 +2688,21 @@ namespace Death { namespace Cpu {
 		able to access the intrinsics on this compiler.
 */
 #if defined(DEATH_TARGET_SSE42) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define DEATH_ENABLE_SSE42
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_SSE42
-#	endif
+#define DEATH_ENABLE_SSE42
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_SSE42
+#endif
 #elif defined(DEATH_TARGET_GCC) || defined(DEATH_TARGET_CLANG_CL)
 // The -msse4.2 option implies -msse2 -msse3 -mssse3 -msse4.1 on both GCC and Clang, so no need to specify those as well (verified with `echo | gcc -dM -E - -msse4.2`)
-#	define DEATH_ENABLE_SSE42 __attribute__((__target__("sse4.2")))
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_SSE42 "sse4.2",
-#	endif
+#define DEATH_ENABLE_SSE42 __attribute__((__target__("sse4.2")))
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_SSE42 "sse4.2",
+#endif
 #elif defined(DEATH_TARGET_MSVC)
-#	define DEATH_ENABLE_SSE42
+#define DEATH_ENABLE_SSE42
 #endif
 
-	/**
+		/**
 		@brief Enable POPCNT for given function
 
 		On @ref DEATH_TARGET_X86 "x86" GCC, Clang and @ref DEATH_TARGET_CLANG_CL "Clang-CL"
@@ -2339,20 +2731,20 @@ namespace Death { namespace Cpu {
 			compiler.
 	*/
 #if defined(DEATH_TARGET_POPCNT) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define DEATH_ENABLE_POPCNT
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_POPCNT
-#	endif
-#elif (defined(DEATH_TARGET_GCC) && __GNUC__*100 + __GNUC_MINOR__ >= 409) || defined(DEATH_TARGET_CLANG) /* matches Clang-CL */
-#	define DEATH_ENABLE_POPCNT __attribute__((__target__("popcnt")))
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_POPCNT "popcnt",
-#	endif
+#define DEATH_ENABLE_POPCNT
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_POPCNT
+#endif
+#elif (defined(DEATH_TARGET_GCC) && __GNUC__ * 100 + __GNUC_MINOR__ >= 409) || defined(DEATH_TARGET_CLANG) /* matches Clang-CL */
+#define DEATH_ENABLE_POPCNT __attribute__((__target__("popcnt")))
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_POPCNT "popcnt",
+#endif
 #elif defined(DEATH_TARGET_MSVC)
-#	define DEATH_ENABLE_POPCNT
+#define DEATH_ENABLE_POPCNT
 #endif
 
-	/**
+		/**
 		@brief Enable LZCNT for given function
 
 		On @ref DEATH_TARGET_X86 "x86" GCC and Clang expands to
@@ -2377,24 +2769,24 @@ namespace Death { namespace Cpu {
 		need to specify it together with others.
 	*/
 #if defined(DEATH_TARGET_LZCNT) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define DEATH_ENABLE_LZCNT
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_LZCNT
-#	endif
-#elif defined(DEATH_TARGET_GCC) && (__GNUC__*100 + __GNUC_MINOR__ >= 409 || defined(DEATH_TARGET_CLANG)) /* does not match Clang-CL */
-#	define DEATH_ENABLE_LZCNT __attribute__((__target__("lzcnt")))
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_LZCNT "lzcnt",
-#	endif
+#define DEATH_ENABLE_LZCNT
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_LZCNT
+#endif
+#elif defined(DEATH_TARGET_GCC) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 409 || defined(DEATH_TARGET_CLANG)) /* does not match Clang-CL */
+#define DEATH_ENABLE_LZCNT __attribute__((__target__("lzcnt")))
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_LZCNT "lzcnt",
+#endif
 #elif defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG_CL)
 // https://github.com/llvm/llvm-project/commit/379a1952b37247975d2df8d23498675c9c8cc730,
 // still present in Jul 2022, meaning we can only use these if __LZCNT__ is defined. Funnily enough the older headers don't have
 // this on their own, only <immintrin.h>. Also I don't think "Actually using intrinsics on Windows already requires
 // the right /arch: settings" is correct.
-#	define DEATH_ENABLE_LZCNT
+#define DEATH_ENABLE_LZCNT
 #endif
 
-	/**
+		/**
 		@brief Enable BMI1 for given function
 
 		On @ref DEATH_TARGET_X86 "x86" GCC, Clang expands to
@@ -2419,24 +2811,24 @@ namespace Death { namespace Cpu {
 		@ref Cpu-usage-target-attributes for more information.
 	*/
 #if defined(DEATH_TARGET_BMI1) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define DEATH_ENABLE_BMI1
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_BMI1
-#	endif
-#elif defined(DEATH_TARGET_GCC) && (__GNUC__*100 + __GNUC_MINOR__ >= 409 || defined(DEATH_TARGET_CLANG)) /* does not match Clang-CL */
-#	define DEATH_ENABLE_BMI1 __attribute__((__target__("bmi")))
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_BMI1 "bmi",
-#	endif
+#define DEATH_ENABLE_BMI1
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_BMI1
+#endif
+#elif defined(DEATH_TARGET_GCC) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 409 || defined(DEATH_TARGET_CLANG)) /* does not match Clang-CL */
+#define DEATH_ENABLE_BMI1 __attribute__((__target__("bmi")))
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_BMI1 "bmi",
+#endif
 #elif defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG_CL)
 // https://github.com/llvm/llvm-project/commit/379a1952b37247975d2df8d23498675c9c8cc730,
 // still present in Jul 2022, meaning we can only use these if __BMI__ is defined. Funnily enough the older headers don't have
 // this on their own, only <immintrin.h>. Also I don't think "Actually using intrinsics on Windows already requires
 // the right /arch: settings" is correct.
-#	define DEATH_ENABLE_BMI1
+#define DEATH_ENABLE_BMI1
 #endif
 
-	/**
+		/**
 		@brief Enable BMI2 for given function
 
 		On @ref DEATH_TARGET_X86 "x86" GCC, Clang expands to
@@ -2461,24 +2853,24 @@ namespace Death { namespace Cpu {
 		need to specify it together with others.
 	*/
 #if defined(DEATH_TARGET_BMI2) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define DEATH_ENABLE_BMI2
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_BMI2
-#	endif
-#elif defined(DEATH_TARGET_GCC) && (__GNUC__*100 + __GNUC_MINOR__ >= 409 || defined(DEATH_TARGET_CLANG)) /* does not match Clang-CL */
-#	define DEATH_ENABLE_BMI2 __attribute__((__target__("bmi2")))
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_BMI2 "bmi2",
-#	endif
+#define DEATH_ENABLE_BMI2
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_BMI2
+#endif
+#elif defined(DEATH_TARGET_GCC) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 409 || defined(DEATH_TARGET_CLANG)) /* does not match Clang-CL */
+#define DEATH_ENABLE_BMI2 __attribute__((__target__("bmi2")))
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_BMI2 "bmi2",
+#endif
 // https://github.com/llvm/llvm-project/commit/379a1952b37247975d2df8d23498675c9c8cc730,
 // still present in Jul 2022, meaning we can only use these if __BMI2__ is defined. Funnily enough the older headers don't have
 // this on their own, only <immintrin.h>. Also I don't think "Actually using intrinsics on Windows already requires
 // the right /arch: settings" is correct.
 #elif defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG_CL)
-#	define DEATH_ENABLE_BMI2
+#define DEATH_ENABLE_BMI2
 #endif
 
-	/**
+		/**
 		@brief Enable AVX for given function
 
 		On @ref DEATH_TARGET_X86 "x86" GCC and Clang expands to
@@ -2506,25 +2898,25 @@ namespace Death { namespace Cpu {
 			compiler.
 	*/
 #if defined(DEATH_TARGET_AVX) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define DEATH_ENABLE_AVX
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_AVX
-#	endif
+#define DEATH_ENABLE_AVX
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_AVX
+#endif
 #elif defined(DEATH_TARGET_GCC) /* does not match Clang-CL */
 // The -mavx option implies -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 on both GCC and Clang, so no need to specify those as well (verified with `echo | gcc -dM -E - -mavx`)
-#	define DEATH_ENABLE_AVX __attribute__((__target__("avx")))
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_AVX "avx",
-#	endif
+#define DEATH_ENABLE_AVX __attribute__((__target__("avx")))
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_AVX "avx",
+#endif
 // https://github.com/llvm/llvm-project/commit/379a1952b37247975d2df8d23498675c9c8cc730,
 // still present in Jul 2022, meaning we can only use these if __AVX__ is defined. Funnily enough the older headers don't have
 // this on their own, only <immintrin.h>. Also I don't think "Actually using intrinsics on Windows already requires
 // the right /arch: settings" is correct.
 #elif defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG_CL)
-#	define DEATH_ENABLE_AVX
+#define DEATH_ENABLE_AVX
 #endif
 
-	/**
+		/**
 		@brief Enable AVX F16C for given function
 
 		On @ref DEATH_TARGET_X86 "x86" GCC and Clang expands to
@@ -2549,25 +2941,25 @@ namespace Death { namespace Cpu {
 		information.
 	*/
 #if defined(DEATH_TARGET_AVX_F16C) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define DEATH_ENABLE_AVX_F16C
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_AVX_F16C
-#	endif
-#elif defined(DEATH_TARGET_GCC) && (__GNUC__*100 + __GNUC_MINOR__ >= 409 || defined(DEATH_TARGET_CLANG)) /* does not match Clang-CL */
+#define DEATH_ENABLE_AVX_F16C
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_AVX_F16C
+#endif
+#elif defined(DEATH_TARGET_GCC) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 409 || defined(DEATH_TARGET_CLANG)) /* does not match Clang-CL */
 // The -mf16c option implies -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -mavx on both GCC and Clang (verified with `echo | gcc -dM -E - -mf16c`)
-#	define DEATH_ENABLE_AVX_F16C __attribute__((__target__("f16c")))
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_AVX_F16C "f16c",
-#	endif
+#define DEATH_ENABLE_AVX_F16C __attribute__((__target__("f16c")))
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_AVX_F16C "f16c",
+#endif
 // https://github.com/llvm/llvm-project/commit/379a1952b37247975d2df8d23498675c9c8cc730,
 // still present in Jul 2022, meaning we can only use these if __F16C__ is defined. Funnily enough the older headers don't have
 // this on their own, only <immintrin.h>. Also I don't think "Actually using intrinsics on Windows already requires
 // the right /arch: settings" is correct.
 #elif defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG_CL)
-#	define DEATH_ENABLE_AVX_F16C
+#define DEATH_ENABLE_AVX_F16C
 #endif
 
-	/**
+		/**
 		@brief Enable AVX FMA for given function
 
 		On @ref DEATH_TARGET_X86 "x86" GCC and Clang expands to
@@ -2599,25 +2991,25 @@ namespace Death { namespace Cpu {
 			compiler.
 	*/
 #if defined(DEATH_TARGET_AVX_FMA) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define DEATH_ENABLE_AVX_FMA
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_AVX_FMA
-#	endif
-#elif defined(DEATH_TARGET_GCC) && (__GNUC__*100 + __GNUC_MINOR__ >= 409 || defined(DEATH_TARGET_CLANG)) /* does not match Clang-CL */
+#define DEATH_ENABLE_AVX_FMA
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_AVX_FMA
+#endif
+#elif defined(DEATH_TARGET_GCC) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 409 || defined(DEATH_TARGET_CLANG)) /* does not match Clang-CL */
 // The -mfma option implies -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -mavx on both GCC and Clang (verified with `echo | gcc -dM -E - -mf16c`)
-#	define DEATH_ENABLE_AVX_FMA __attribute__((__target__("fma")))
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_AVX_FMA "fma",
-#	endif
+#define DEATH_ENABLE_AVX_FMA __attribute__((__target__("fma")))
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_AVX_FMA "fma",
+#endif
 // https://github.com/llvm/llvm-project/commit/379a1952b37247975d2df8d23498675c9c8cc730,
 // still present in Jul 2022, meaning we can only use these if __FMA__ is defined. Funnily enough the older headers don't have
 // this on their own, only <immintrin.h>. Also I don't think "Actually using intrinsics on Windows already requires
 // the right /arch: settings" is correct.
 #elif defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG_CL)
-#	define DEATH_ENABLE_AVX_FMA
+#define DEATH_ENABLE_AVX_FMA
 #endif
 
-	/**
+		/**
 		@brief Enable AVX2 for given function
 
 		On @ref DEATH_TARGET_X86 "x86" GCC and Clang expands to
@@ -2646,25 +3038,25 @@ namespace Death { namespace Cpu {
 			compiler.
 	*/
 #if defined(DEATH_TARGET_AVX2) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define DEATH_ENABLE_AVX2
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_AVX2
-#	endif
+#define DEATH_ENABLE_AVX2
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_AVX2
+#endif
 #elif defined(DEATH_TARGET_GCC) /* does not match Clang-CL */
 // The -mavx2 option implies -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -mavx on both GCC and Clang, so no need to specify those as well (verified with `echo | gcc -dM -E - -mavx2`)
-#	define DEATH_ENABLE_AVX2 __attribute__((__target__("avx2")))
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_AVX2 "avx2",
-#	endif
+#define DEATH_ENABLE_AVX2 __attribute__((__target__("avx2")))
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_AVX2 "avx2",
+#endif
 // https://github.com/llvm/llvm-project/commit/379a1952b37247975d2df8d23498675c9c8cc730,
 // still present in Jul 2022, meaning we can only use these if __AVX2__ is defined. Funnily enough the older headers don't have
 // this on their own, only <immintrin.h>. Also I don't think "Actually using intrinsics on Windows already requires
 // the right /arch: settings" is correct.
 #elif defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG_CL)
-#	define DEATH_ENABLE_AVX2
+#define DEATH_ENABLE_AVX2
 #endif
 
-	/**
+		/**
 		@brief Enable AVX-512 Foundation for given function
 
 		On @ref DEATH_TARGET_X86 "x86" GCC 4.9+ and Clang expands to
@@ -2687,27 +3079,27 @@ namespace Death { namespace Cpu {
 		more information.
 	*/
 #if defined(DEATH_TARGET_AVX512F) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define DEATH_ENABLE_AVX512F
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_AVX512F
-#	endif
-#elif defined(DEATH_TARGET_GCC) && (__GNUC__*100 + __GNUC_MINOR__ >= 409 || defined(DEATH_TARGET_CLANG)) /* does not match Clang-CL */
+#define DEATH_ENABLE_AVX512F
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_AVX512F
+#endif
+#elif defined(DEATH_TARGET_GCC) && (__GNUC__ * 100 + __GNUC_MINOR__ >= 409 || defined(DEATH_TARGET_CLANG)) /* does not match Clang-CL */
 // The -mavx512 option implies -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -mavx -mavx2 on both GCC and Clang, so no need to specify those as well (verified with `echo | gcc -dM -E - -mavx512f`)
-#	define DEATH_ENABLE_AVX512F __attribute__((__target__("avx512f")))
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_AVX512F "avx512f",
-#	endif
+#define DEATH_ENABLE_AVX512F __attribute__((__target__("avx512f")))
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_AVX512F "avx512f",
+#endif
 // https://github.com/llvm/llvm-project/commit/379a1952b37247975d2df8d23498675c9c8cc730,
 // still present in Jul 2022, meaning we can only use these if __AVX512F__ is defined. Funnily enough the older headers don't have
 // this on their own, only <immintrin.h>. Also I don't think "Actually using intrinsics on Windows already requires
 // the right /arch: settings" is correct.
 #elif defined(DEATH_TARGET_MSVC) && _MSC_VER >= 1911 && !defined(DEATH_TARGET_CLANG_CL)
-#	define DEATH_ENABLE_AVX512F
+#define DEATH_ENABLE_AVX512F
 #endif
 #endif
 
 #if defined(DEATH_TARGET_ARM) || defined(DOXYGEN_GENERATING_OUTPUT)
-	/**
+		/**
 		@brief Enable NEON for given function
 
 		On 32-bit @ref DEATH_TARGET_ARM "ARM" GCC expands to
@@ -2729,23 +3121,23 @@ namespace Death { namespace Cpu {
 		for more information.
 	*/
 #if defined(DEATH_TARGET_NEON) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define DEATH_ENABLE_NEON
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_NEON
-#	endif
+#define DEATH_ENABLE_NEON
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_NEON
+#endif
 // https://github.com/android/ndk/issues/1066 is the only reported (and ignored) issue I found, feels strange that people would
 // just not use ifunc or target attributes on Android at all and instead put everything in separate files. Needs further
 // investigation. Too bad most ARM platforms ditched GCC, where this works properly.
 #elif defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG)
-#	define DEATH_ENABLE_NEON __attribute__((__target__("fpu=neon")))
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_NEON "fpu=neon",
-#	endif
+#define DEATH_ENABLE_NEON __attribute__((__target__("fpu=neon")))
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_NEON "fpu=neon",
+#endif
 #elif defined(DEATH_TARGET_MSVC)
-#	define DEATH_ENABLE_NEON
+#define DEATH_ENABLE_NEON
 #endif
 
-	/**
+		/**
 		@brief Enable NEON FMA for given function
 
 		On 32-bit @ref DEATH_TARGET_ARM "ARM" GCC expands to
@@ -2767,21 +3159,21 @@ namespace Death { namespace Cpu {
 		See @ref Cpu-usage-target-attributes for more information and usage example.
 	*/
 #if defined(DEATH_TARGET_NEON_FMA) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define DEATH_ENABLE_NEON_FMA
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_NEON_FMA
-#	endif
+#define DEATH_ENABLE_NEON_FMA
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_NEON_FMA
+#endif
 // See DEATH_ENABLE_NEON above for details about Clang
 #elif defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG)
-#	define DEATH_ENABLE_NEON_FMA __attribute__((__target__("fpu=neon-vfpv4")))
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_NEON_FMA "fpu=neon-vfpv4",
-#	endif
+#define DEATH_ENABLE_NEON_FMA __attribute__((__target__("fpu=neon-vfpv4")))
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_NEON_FMA "fpu=neon-vfpv4",
+#endif
 #elif defined(DEATH_TARGET_MSVC)
-#	define DEATH_ENABLE_NEON_FMA
+#define DEATH_ENABLE_NEON_FMA
 #endif
 
-	/**
+		/**
 		@brief Enable NEON FP16 for given function
 
 		On @ref DEATH_TARGET_ARM "ARM" GCC expands to
@@ -2802,23 +3194,23 @@ namespace Death { namespace Cpu {
 		for more information.
 	*/
 #if defined(DEATH_TARGET_NEON_FP16) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define DEATH_ENABLE_NEON_FP16
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_NEON_FP16
-#	endif
+#define DEATH_ENABLE_NEON_FP16
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_NEON_FP16
+#endif
 // See DEATH_ENABLE_NEON above for details about Clang
 #elif defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG)
-#	define DEATH_ENABLE_NEON_FP16 __attribute__((__target__("arch=armv8.2-a+fp16")))
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_NEON_FP16 "arch=armv8.2-a+fp16",
-#	endif
+#define DEATH_ENABLE_NEON_FP16 __attribute__((__target__("arch=armv8.2-a+fp16")))
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_NEON_FP16 "arch=armv8.2-a+fp16",
+#endif
 #elif defined(DEATH_TARGET_MSVC)
-#	define DEATH_ENABLE_NEON_FP16
+#define DEATH_ENABLE_NEON_FP16
 #endif
 #endif
 
 #if defined(DEATH_TARGET_WASM) || defined(DOXYGEN_GENERATING_OUTPUT)
-	/**
+		/**
 		@brief Enable SIMD128 for given function
 
 		Given that it's currently not possible to selectively use
@@ -2837,10 +3229,10 @@ namespace Death { namespace Cpu {
 		See @ref Cpu-usage-target-attributes for more information.
 	*/
 #if defined(DEATH_TARGET_SIMD128) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define DEATH_ENABLE_SIMD128
-#	if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
-#		define __DEATH_ENABLE_SIMD128
-#	endif
+#define DEATH_ENABLE_SIMD128
+#if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
+#define __DEATH_ENABLE_SIMD128
+#endif
 #endif
 #endif
 
@@ -2855,72 +3247,66 @@ namespace Death { namespace Cpu {
 // (without commas) from __DEATH_ENABLEn to __DEATH_ENABLE_CONCATENATE().
 #if (defined(DEATH_TARGET_GCC) && __GNUC__ < 12) || defined(DEATH_TARGET_CLANG)
 #define __DEATH_ENABLE_CONCATENATE0(unused)
-#define __DEATH_ENABLE_CONCATENATE1(v0, unused)								\
+#define __DEATH_ENABLE_CONCATENATE1(v0, unused) \
 	__attribute__((__target__(v0)))
-#define __DEATH_ENABLE_CONCATENATE2(v0, v1, unused)							\
+#define __DEATH_ENABLE_CONCATENATE2(v0, v1, unused) \
 	__attribute__((__target__(v0 "," v1)))
-#define __DEATH_ENABLE_CONCATENATE3(v0, v1, v2, unused)						\
+#define __DEATH_ENABLE_CONCATENATE3(v0, v1, v2, unused) \
 	__attribute__((__target__(v0 "," v1 "," v2)))
-#define __DEATH_ENABLE_CONCATENATE4(v0, v1, v2, v3, unused)					\
+#define __DEATH_ENABLE_CONCATENATE4(v0, v1, v2, v3, unused) \
 	__attribute__((__target__(v0 "," v1 "," v2 "," v3)))
-#define __DEATH_ENABLE_CONCATENATE5(v0, v1, v2, v3, v4, unused)				\
+#define __DEATH_ENABLE_CONCATENATE5(v0, v1, v2, v3, v4, unused) \
 	__attribute__((__target__(v0 "," v1 "," v2 "," v3 "," v4)))
-#define __DEATH_ENABLE_CONCATENATE6(v0, v1, v2, v3, v4, v5, unused)			\
+#define __DEATH_ENABLE_CONCATENATE6(v0, v1, v2, v3, v4, v5, unused) \
 	__attribute__((__target__(v0 "," v1 "," v2 "," v3 "," v4 "," v5)))
-#define __DEATH_ENABLE_CONCATENATE7(v0, v1, v2, v3, v4, v5, v6, unused)		\
+#define __DEATH_ENABLE_CONCATENATE7(v0, v1, v2, v3, v4, v5, v6, unused) \
 	__attribute__((__target__(v0 "," v1 "," v2 "," v3 "," v4 "," v5 "," v6)))
-#define __DEATH_ENABLE_CONCATENATE(...)										\
-	DEATH_HELPER_PICK(__VA_ARGS__, __DEATH_ENABLE_CONCATENATE7, __DEATH_ENABLE_CONCATENATE6, __DEATH_ENABLE_CONCATENATE5, __DEATH_ENABLE_CONCATENATE4, __DEATH_ENABLE_CONCATENATE3, __DEATH_ENABLE_CONCATENATE2, __DEATH_ENABLE_CONCATENATE1, __DEATH_ENABLE_CONCATENATE0, )(__VA_ARGS__)
+#define __DEATH_ENABLE_CONCATENATE(...)                                                                                                                                                                                                                                      \
+	DEATH_HELPER_PICK(__VA_ARGS__, __DEATH_ENABLE_CONCATENATE7, __DEATH_ENABLE_CONCATENATE6, __DEATH_ENABLE_CONCATENATE5, __DEATH_ENABLE_CONCATENATE4, __DEATH_ENABLE_CONCATENATE3, __DEATH_ENABLE_CONCATENATE2, __DEATH_ENABLE_CONCATENATE1, __DEATH_ENABLE_CONCATENATE0, ) \
+	(__VA_ARGS__)
 // No __DEATH_HELPER_PASTE() needed here, as there's enough other indirections to make that work
-#define __DEATH_ENABLE1(v0)													\
-	__DEATH_ENABLE_CONCATENATE(												\
-		__DEATH_ENABLE_ ## v0												\
-	)
-#define __DEATH_ENABLE2(v0, v1)												\
-	__DEATH_ENABLE_CONCATENATE(												\
-		__DEATH_ENABLE_ ## v0												\
-		__DEATH_ENABLE_ ## v1												\
-	)
-#define __DEATH_ENABLE3(v0, v1, v2)											\
-	__DEATH_ENABLE_CONCATENATE(												\
-		__DEATH_ENABLE_ ## v0												\
-		__DEATH_ENABLE_ ## v1												\
-		__DEATH_ENABLE_ ## v2												\
-	)
-#define __DEATH_ENABLE4(v0, v1, v2, v3)										\
-	__DEATH_ENABLE_CONCATENATE(												\
-		__DEATH_ENABLE_ ## v0												\
-		__DEATH_ENABLE_ ## v1												\
-		__DEATH_ENABLE_ ## v2												\
-		__DEATH_ENABLE_ ## v3												\
-	)
-#define __DEATH_ENABLE5(v0, v1, v2, v3, v4)									\
-	__DEATH_ENABLE_CONCATENATE(												\
-		__DEATH_ENABLE_ ## v0												\
-		__DEATH_ENABLE_ ## v1												\
-		__DEATH_ENABLE_ ## v2												\
-		__DEATH_ENABLE_ ## v3												\
-		__DEATH_ENABLE_ ## v4												\
-	)
-#define __DEATH_ENABLE6(v0, v1, v2, v3, v4, v5)								\
-	__DEATH_ENABLE_CONCATENATE(												\
-		__DEATH_ENABLE_ ## v0												\
-		__DEATH_ENABLE_ ## v1												\
-		__DEATH_ENABLE_ ## v2												\
-		__DEATH_ENABLE_ ## v3												\
-		__DEATH_ENABLE_ ## v4												\
-		__DEATH_ENABLE_ ## v5												\
-	)
-#define __DEATH_ENABLE7(v0, v1, v2, v3, v4, v5, v6)							\
-	__DEATH_ENABLE_CONCATENATE(												\
-		__DEATH_ENABLE_ ## v0												\
-		__DEATH_ENABLE_ ## v1												\
-		__DEATH_ENABLE_ ## v2												\
-		__DEATH_ENABLE_ ## v3												\
-		__DEATH_ENABLE_ ## v4												\
-		__DEATH_ENABLE_ ## v5												\
-		__DEATH_ENABLE_ ## v6												\
-	)
+#define __DEATH_ENABLE1(v0)     \
+	__DEATH_ENABLE_CONCATENATE( \
+		__DEATH_ENABLE_##v0)
+#define __DEATH_ENABLE2(v0, v1) \
+	__DEATH_ENABLE_CONCATENATE( \
+		__DEATH_ENABLE_##v0     \
+			__DEATH_ENABLE_##v1)
+#define __DEATH_ENABLE3(v0, v1, v2) \
+	__DEATH_ENABLE_CONCATENATE(     \
+		__DEATH_ENABLE_##v0         \
+			__DEATH_ENABLE_##v1     \
+				__DEATH_ENABLE_##v2)
+#define __DEATH_ENABLE4(v0, v1, v2, v3) \
+	__DEATH_ENABLE_CONCATENATE(         \
+		__DEATH_ENABLE_##v0             \
+			__DEATH_ENABLE_##v1         \
+				__DEATH_ENABLE_##v2     \
+					__DEATH_ENABLE_##v3)
+#define __DEATH_ENABLE5(v0, v1, v2, v3, v4) \
+	__DEATH_ENABLE_CONCATENATE(             \
+		__DEATH_ENABLE_##v0                 \
+			__DEATH_ENABLE_##v1             \
+				__DEATH_ENABLE_##v2         \
+					__DEATH_ENABLE_##v3     \
+						__DEATH_ENABLE_##v4)
+#define __DEATH_ENABLE6(v0, v1, v2, v3, v4, v5) \
+	__DEATH_ENABLE_CONCATENATE(                 \
+		__DEATH_ENABLE_##v0                     \
+			__DEATH_ENABLE_##v1                 \
+				__DEATH_ENABLE_##v2             \
+					__DEATH_ENABLE_##v3         \
+						__DEATH_ENABLE_##v4     \
+							__DEATH_ENABLE_##v5)
+#define __DEATH_ENABLE7(v0, v1, v2, v3, v4, v5, v6) \
+	__DEATH_ENABLE_CONCATENATE(                     \
+		__DEATH_ENABLE_##v0                         \
+			__DEATH_ENABLE_##v1                     \
+				__DEATH_ENABLE_##v2                 \
+					__DEATH_ENABLE_##v3             \
+						__DEATH_ENABLE_##v4         \
+							__DEATH_ENABLE_##v5     \
+								__DEATH_ENABLE_##v6)
 // None of this is needed for GCC 12+, fortunately, so here the whole thing expands to just DEATH_ENABLE_FOO DEATH_ENABLE_BAR.
 // I hope Clang eventually fixes this as well, thus keeping both variants so I can drop the nasty one in the future.
 // As another future-proof this also gets used for any compilers other than MSVC. MSVC's preprocessor isn't able to perform
@@ -2928,54 +3314,54 @@ namespace Death { namespace Cpu {
 #elif defined(DEATH_TARGET_GCC) || !defined(DEATH_TARGET_MSVC)
 // Using __DEATH_PASTE() instead of DEATH_PASTE() here, as that's enough to make that work and it's less
 // work for the preprocessor. Concatenating directly doesn't work, unlike in the above case for GCC.
-#define __DEATH_ENABLE1(v0)													\
+#define __DEATH_ENABLE1(v0) \
 	__DEATH_PASTE(DEATH_ENABLE_, v0)
-#define __DEATH_ENABLE2(v0, v1)												\
-	__DEATH_PASTE(DEATH_ENABLE_, v0)										\
+#define __DEATH_ENABLE2(v0, v1)      \
+	__DEATH_PASTE(DEATH_ENABLE_, v0) \
 	__DEATH_PASTE(DEATH_ENABLE_, v1)
-#define __DEATH_ENABLE3(v0, v1, v2)											\
-	__DEATH_PASTE(DEATH_ENABLE_, v0)										\
-	__DEATH_PASTE(DEATH_ENABLE_, v1)										\
+#define __DEATH_ENABLE3(v0, v1, v2)  \
+	__DEATH_PASTE(DEATH_ENABLE_, v0) \
+	__DEATH_PASTE(DEATH_ENABLE_, v1) \
 	__DEATH_PASTE(DEATH_ENABLE_, v2)
-#define __DEATH_ENABLE4(v0, v1, v2, v3)										\
-	__DEATH_PASTE(DEATH_ENABLE_, v0)										\
-	__DEATH_PASTE(DEATH_ENABLE_, v1)										\
-	__DEATH_PASTE(DEATH_ENABLE_, v2)										\
+#define __DEATH_ENABLE4(v0, v1, v2, v3) \
+	__DEATH_PASTE(DEATH_ENABLE_, v0)    \
+	__DEATH_PASTE(DEATH_ENABLE_, v1)    \
+	__DEATH_PASTE(DEATH_ENABLE_, v2)    \
 	__DEATH_PASTE(DEATH_ENABLE_, v3)
-#define __DEATH_ENABLE5(v0, v1, v2, v3, v4)									\
-	__DEATH_PASTE(DEATH_ENABLE_, v0)										\
-	__DEATH_PASTE(DEATH_ENABLE_, v1)										\
-	__DEATH_PASTE(DEATH_ENABLE_, v2)										\
-	__DEATH_PASTE(DEATH_ENABLE_, v3)										\
+#define __DEATH_ENABLE5(v0, v1, v2, v3, v4) \
+	__DEATH_PASTE(DEATH_ENABLE_, v0)        \
+	__DEATH_PASTE(DEATH_ENABLE_, v1)        \
+	__DEATH_PASTE(DEATH_ENABLE_, v2)        \
+	__DEATH_PASTE(DEATH_ENABLE_, v3)        \
 	__DEATH_PASTE(DEATH_ENABLE_, v4)
-#define __DEATH_ENABLE6(v0, v1, v2, v3, v4, v5)								\
-	__DEATH_PASTE(DEATH_ENABLE_, v0)										\
-	__DEATH_PASTE(DEATH_ENABLE_, v1)										\
-	__DEATH_PASTE(DEATH_ENABLE_, v2)										\
-	__DEATH_PASTE(DEATH_ENABLE_, v3)										\
-	__DEATH_PASTE(DEATH_ENABLE_, v4)										\
+#define __DEATH_ENABLE6(v0, v1, v2, v3, v4, v5) \
+	__DEATH_PASTE(DEATH_ENABLE_, v0)            \
+	__DEATH_PASTE(DEATH_ENABLE_, v1)            \
+	__DEATH_PASTE(DEATH_ENABLE_, v2)            \
+	__DEATH_PASTE(DEATH_ENABLE_, v3)            \
+	__DEATH_PASTE(DEATH_ENABLE_, v4)            \
 	__DEATH_PASTE(DEATH_ENABLE_, v5)
-#define __DEATH_ENABLE7(v0, v1, v2, v3, v4, v5, v6)							\
-	__DEATH_PASTE(DEATH_ENABLE_, v0)										\
-	__DEATH_PASTE(DEATH_ENABLE_, v1)										\
-	__DEATH_PASTE(DEATH_ENABLE_, v2)										\
-	__DEATH_PASTE(DEATH_ENABLE_, v3)										\
-	__DEATH_PASTE(DEATH_ENABLE_, v4)										\
-	__DEATH_PASTE(DEATH_ENABLE_, v5)										\
+#define __DEATH_ENABLE7(v0, v1, v2, v3, v4, v5, v6) \
+	__DEATH_PASTE(DEATH_ENABLE_, v0)                \
+	__DEATH_PASTE(DEATH_ENABLE_, v1)                \
+	__DEATH_PASTE(DEATH_ENABLE_, v2)                \
+	__DEATH_PASTE(DEATH_ENABLE_, v3)                \
+	__DEATH_PASTE(DEATH_ENABLE_, v4)                \
+	__DEATH_PASTE(DEATH_ENABLE_, v5)                \
 	__DEATH_PASTE(DEATH_ENABLE_, v6)
-#define __DEATH_ENABLE8(v0, v1, v2, v3, v4, v5, v6, v7)						\
-	__DEATH_PASTE(DEATH_ENABLE_, v0)										\
-	__DEATH_PASTE(DEATH_ENABLE_, v1)										\
-	__DEATH_PASTE(DEATH_ENABLE_, v2)										\
-	__DEATH_PASTE(DEATH_ENABLE_, v3)										\
-	__DEATH_PASTE(DEATH_ENABLE_, v4)										\
-	__DEATH_PASTE(DEATH_ENABLE_, v5)										\
-	__DEATH_PASTE(DEATH_ENABLE_, v6)										\
+#define __DEATH_ENABLE8(v0, v1, v2, v3, v4, v5, v6, v7) \
+	__DEATH_PASTE(DEATH_ENABLE_, v0)                    \
+	__DEATH_PASTE(DEATH_ENABLE_, v1)                    \
+	__DEATH_PASTE(DEATH_ENABLE_, v2)                    \
+	__DEATH_PASTE(DEATH_ENABLE_, v3)                    \
+	__DEATH_PASTE(DEATH_ENABLE_, v4)                    \
+	__DEATH_PASTE(DEATH_ENABLE_, v5)                    \
+	__DEATH_PASTE(DEATH_ENABLE_, v6)                    \
 	__DEATH_PASTE(DEATH_ENABLE_, v7)
 #endif
 #endif
 
-	/**
+		/**
 		@brief Enable multiple targets for given function
 
 		Accepts a comma-separated list of `DEATH_ENABLE_*` macro suffixes,
@@ -3000,9 +3386,9 @@ namespace Death { namespace Cpu {
 			@cpp #ifdef @ce guard.
 	*/
 #if !defined(DEATH_TARGET_MSVC) || defined(DEATH_TARGET_CLANG_CL)
-#	define DEATH_ENABLE(...) DEATH_HELPER_PICK(__VA_ARGS__, __DEATH_ENABLE8, __DEATH_ENABLE7, __DEATH_ENABLE6, __DEATH_ENABLE5, __DEATH_ENABLE4, __DEATH_ENABLE3, __DEATH_ENABLE2, __DEATH_ENABLE1, )(__VA_ARGS__)
+#define DEATH_ENABLE(...) DEATH_HELPER_PICK(__VA_ARGS__, __DEATH_ENABLE8, __DEATH_ENABLE7, __DEATH_ENABLE6, __DEATH_ENABLE5, __DEATH_ENABLE4, __DEATH_ENABLE3, __DEATH_ENABLE2, __DEATH_ENABLE1, )(__VA_ARGS__)
 #else
-#	define DEATH_ENABLE(...)
+#define DEATH_ENABLE(...)
 #endif
 
 // x86 CPUID implementation on GCC/Clang/MSVC. Has to be inlined in the header because otherwise in the IFUNC scenario it may result
@@ -3013,145 +3399,164 @@ namespace Death { namespace Cpu {
 // compared to using the intrinsics --- funnily enough --- reduces the amount of cursing and lengthy comments explaining compiler
 // bugs and differences to an absolute minimum. If any of the following misbehaves, please check Git history for the original implementation.
 #if defined(DEATH_TARGET_X86) && (defined(DEATH_TARGET_MSVC) || defined(DEATH_TARGET_GCC))
-	namespace Implementation {
-		inline void cpuid(int data[4], int leaf, int count) {
-			// What's in GCC's / Clang's cpuid.h. Clang-cl as well, as it doesn't seem to know the __cpuidex() intrinsics.
-#if defined(DEATH_TARGET_GCC) || defined(DEATH_TARGET_CLANG_CL)
-#	if defined(DEATH_TARGET_32BIT)
-			asm("cpuid":       \
-				"=a"(data[0]), "=b"(data[1]), "=c"(data[2]), "=d"(data[3]) : \
-				"0"(leaf), "2"(count));
-#	else
-			// Clang says "x86-64 uses %rbx as the base register", GCC says "%rbx may be the PIC register",
-			// so probably important to preserve it or some such?
-			asm("xchgq %%rbx,%q1\n" \
-				"cpuid\n" \
-				"xchgq %%rbx,%q1": \
-				"=a"(data[0]), "=b"(data[1]), "=c"(data[2]), "=d"(data[3]) : \
-				"0"(leaf), "2"(count));
-#	endif
-#elif defined(DEATH_TARGET_MSVC)
-			// Declared at the top of the file
-			__cpuidex(data, leaf, count);
-#else
-#	error Unsupported platform
-#endif
-		}
-	}
-
-	inline Features runtimeFeatures() {
-		union {
-			struct {
-				unsigned int ax, bx, cx, dx;
-			} e;
-			int data[4];
-		} cpuid;
-
-		Implementation::cpuid(cpuid.data, 1, 0);
-
-		// https://en.wikipedia.org/wiki/CPUID#EAX=1:_Processor_Info_and_Feature_Bits
-		unsigned int out = 0;
-		if (cpuid.e.dx & (1 << 26)) out |= TypeTraits<Sse2T>::Index;
-		if (cpuid.e.cx & (1 << 0)) out |= TypeTraits<Sse3T>::Index;
-		if (cpuid.e.cx & (1 << 9)) out |= TypeTraits<Ssse3T>::Index;
-		if (cpuid.e.cx & (1 << 19)) out |= TypeTraits<Sse41T>::Index;
-		if (cpuid.e.cx & (1 << 20)) out |= TypeTraits<Sse42T>::Index;
-
-		// https://en.wikipedia.org/wiki/CPUID#EAX=80000001h:_Extended_Processor_Info_and_Feature_Bits,
-		// bit 5 says "ABM (lzcnt and popcnt)", but
-		// https://en.wikipedia.org/wiki/X86_Bit_manipulation_instruction_set#ABM_(Advanced_Bit_Manipulation)
-		// says that while LZCNT is advertised in the ABM CPUID bit, POPCNT is a separate CPUID flag. Get POPCNT first, ABM later.
-		if (cpuid.e.cx & (1 << 23)) out |= TypeTraits<PopcntT>::Index;
-
-		// AVX needs OS support checked, as the OS needs to be capable of saving and restoring the expanded registers when switching contexts:
-		// https://en.wikipedia.org/wiki/Advanced_Vector_Extensions#Operating_system_support
-		if ((cpuid.e.cx & (1 << 27)) && /* XSAVE/XRESTORE CPU support */
-		    (cpuid.e.cx & (1 << 28)))   /* AVX CPU support */
+		namespace Implementation
 		{
-			// XGETBV indicates that the registers will be properly saved and restored by the OS: https://stackoverflow.com/a/22521619.
-
-			// https://github.com/vectorclass/version2/blob/ff7450acfad9d3a7c6825d92cfb782a42ccfa71f/instrset_detect.cpp#L30-L32
-			// Clang-cl as well, as it doesn't seem to know the MSVC intrinsics.
+			inline void cpuid(int data[4], int leaf, int count)
+			{
+				// What's in GCC's / Clang's cpuid.h. Clang-cl as well, as it doesn't seem to know the __cpuidex() intrinsics.
 #if defined(DEATH_TARGET_GCC) || defined(DEATH_TARGET_CLANG_CL)
-			unsigned int a, d;
-			__asm("xgetbv": "=a"(a), "=d"(d) : "c"(0) : );
-			const unsigned long long xgetbv = a | (static_cast<unsigned long long>(d) << 32);
-
-			// Declared at the top of the file
-#elif defined(DEATH_TARGET_MSVC)
-			const unsigned long long xgetbv = _xgetbv(0);
+#if defined(DEATH_TARGET_32BIT)
+				asm("cpuid" : "=a"(data[0]), "=b"(data[1]), "=c"(data[2]), "=d"(data[3]) : "0"(leaf), "2"(count));
 #else
-#	error Unsupported platform
+				// Clang says "x86-64 uses %rbx as the base register", GCC says "%rbx may be the PIC register",
+				// so probably important to preserve it or some such?
+				asm("xchgq %%rbx,%q1\n"
+					"cpuid\n"
+					"xchgq %%rbx,%q1" : "=a"(data[0]), "=b"(data[1]), "=c"(data[2]), "=d"(data[3]) : "0"(leaf), "2"(count));
 #endif
-
-			// If AVX is not supported, we don't check any following flags either
-			if ((xgetbv & 0x06) == 0x06 /* XSTATE_SSE|XSTATE_YMM */) {
-				out |= TypeTraits<AvxT>::Index;
-
-				if (cpuid.e.cx & (1 << 29)) out |= TypeTraits<AvxF16cT>::Index;
-				if (cpuid.e.cx & (1 << 12)) out |= TypeTraits<AvxFmaT>::Index;
-
-				// https://en.wikipedia.org/wiki/CPUID#EAX=7,_ECX=0:_Extended_Features
-				Implementation::cpuid(cpuid.data, 7, 0);
-				if (cpuid.e.bx & (1 << 3)) out |= TypeTraits<Bmi1T>::Index;
-				if (cpuid.e.bx & (1 << 8)) out |= TypeTraits<Bmi2T>::Index;
-				if (cpuid.e.bx & (1 << 5)) out |= TypeTraits<Avx2T>::Index;
-			}
-
-			// AVX-512 needs additional state saving support
-			// https://patchwork.ozlabs.org/project/gcc/patch/20180329124309.GA12667@intel.com/#1884915
-			// https://github.com/google/highway/blob/master/hwy/targets.cc#L279
-			if ((cpuid.e.bx & (1 << 16)) &&
-			   // XSTATE_SSE|XSTATE_YMM|XSTATE_OPMASK|XSTATE_ZMM|XSTATE_HI_ZMM
-			   (xgetbv & 0xe6) == 0xe6) {
-				out |= TypeTraits<Avx512fT>::Index;
+#elif defined(DEATH_TARGET_MSVC)
+				// Declared at the top of the file
+				__cpuidex(data, leaf, count);
+#else
+#error Unsupported platform
+#endif
 			}
 		}
 
-		// And now the LZCNT bit, finally
-		// https://en.wikipedia.org/wiki/CPUID#EAX=80000001h:_Extended_Processor_Info_and_Feature_Bits
-		Implementation::cpuid(cpuid.data, 0x80000001, 0);
-		if (cpuid.e.cx & (1 << 5)) out |= TypeTraits<LzcntT>::Index;
+		inline Features runtimeFeatures()
+		{
+			union
+			{
+				struct
+				{
+					unsigned int ax, bx, cx, dx;
+				} e;
+				int data[4];
+			} cpuid;
 
-		return Features{out};
-	}
-#endif
+			Implementation::cpuid(cpuid.data, 1, 0);
 
-	// ARM implementation on Linux and Android, inlined for the same reason as the x86 variant above -- to make IFUNC work.
-	// As getauxval() can't be called from within an ifunc resolver because there it's too early for an external call,
-	// the value of AT_HWCAP is instead passed to it from outside, on glibc 2.13+ and on Android API 30+:
-	// https://github.com/bminor/glibc/commit/7520ff8c744a704ca39741c165a2360d63a4f47a
-	// https://android.googlesource.com/platform/bionic/+/e949195f6489653ee3771535951ed06973246c3e/libc/include/sys/ifunc.h
-	// Which means we need a variant of runtimeFeatures() that is able to operate with a value fed from outside, which is
-	// then used inside such resolvers. A nice consequence of that is that we don't need any other headers.
-
-	// The public Cpu::runtimeFeatures() is deinlined, calls getauxval() and passes it into this function.
-#if defined(DEATH_TARGET_ARM) && ((defined(__linux__) && !(defined(DEATH_TARGET_ANDROID) && __ANDROID_API__ < 18)) || defined(__FreeBSD__))
-	namespace Implementation {
-		inline Features runtimeFeatures(const unsigned long caps) {
+			// https://en.wikipedia.org/wiki/CPUID#EAX=1:_Processor_Info_and_Feature_Bits
 			unsigned int out = 0;
-#	if defined(DEATH_TARGET_32BIT)
-			if (caps & (1 << 12) /*HWCAP_NEON*/) out |= TypeTraits<NeonT>::Index;
-			// Since FMA is enabled by passing -mfpu=neon-vfpv4, I assume this is the flag that corresponds to it.
-			if (caps & (1 << 16) /*HWCAP_VFPv4*/) out |= TypeTraits<NeonFmaT>::Index;
-#	else
-			// On ARM64 NEON and NEON FMA is implicit. For extra security make use of the DEATH_TARGET_ defines (which should be always there).
-			out |= 0
-#		if defined(DEATH_TARGET_NEON)
-				| TypeTraits<NeonT>::Index
-#		endif
-#		if defined(DEATH_TARGET_NEON_FMA)
-				| TypeTraits<NeonFmaT>::Index
-#		endif
-				;
-			// The HWCAP flags are extremely cryptic. The only vague confirmation is in a *commit message* to the kernel hwcaps file, FFS.
-			// The HWCAP_FPHP seems to correspond to scalar FP16, so the other should be the vector one?
-			// https://github.com/torvalds/linux/blame/master/arch/arm64/include/uapi/asm/hwcap.h
-			// This one also isn't present on 32-bit, so I assume it's ARM64-only?
-			if (caps & (1 << 10) /*HWCAP_ASIMDHP*/) out |= TypeTraits<NeonFp16T>::Index;
-#	endif
-			return Features{out};
-		}
-	}
+			if (cpuid.e.dx & (1 << 26))
+				out |= TypeTraits<Sse2T>::Index;
+			if (cpuid.e.cx & (1 << 0))
+				out |= TypeTraits<Sse3T>::Index;
+			if (cpuid.e.cx & (1 << 9))
+				out |= TypeTraits<Ssse3T>::Index;
+			if (cpuid.e.cx & (1 << 19))
+				out |= TypeTraits<Sse41T>::Index;
+			if (cpuid.e.cx & (1 << 20))
+				out |= TypeTraits<Sse42T>::Index;
+
+			// https://en.wikipedia.org/wiki/CPUID#EAX=80000001h:_Extended_Processor_Info_and_Feature_Bits,
+			// bit 5 says "ABM (lzcnt and popcnt)", but
+			// https://en.wikipedia.org/wiki/X86_Bit_manipulation_instruction_set#ABM_(Advanced_Bit_Manipulation)
+			// says that while LZCNT is advertised in the ABM CPUID bit, POPCNT is a separate CPUID flag. Get POPCNT first, ABM later.
+			if (cpuid.e.cx & (1 << 23))
+				out |= TypeTraits<PopcntT>::Index;
+
+			// AVX needs OS support checked, as the OS needs to be capable of saving and restoring the expanded registers when switching contexts:
+			// https://en.wikipedia.org/wiki/Advanced_Vector_Extensions#Operating_system_support
+			if ((cpuid.e.cx & (1 << 27)) && /* XSAVE/XRESTORE CPU support */
+				(cpuid.e.cx & (1 << 28))) /* AVX CPU support */
+			{
+				// XGETBV indicates that the registers will be properly saved and restored by the OS: https://stackoverflow.com/a/22521619.
+
+				// https://github.com/vectorclass/version2/blob/ff7450acfad9d3a7c6825d92cfb782a42ccfa71f/instrset_detect.cpp#L30-L32
+				// Clang-cl as well, as it doesn't seem to know the MSVC intrinsics.
+#if defined(DEATH_TARGET_GCC) || defined(DEATH_TARGET_CLANG_CL)
+				unsigned int a, d;
+				__asm("xgetbv" : "=a"(a), "=d"(d) : "c"(0) :);
+				const unsigned long long xgetbv = a | (static_cast<unsigned long long>(d) << 32);
+
+				// Declared at the top of the file
+#elif defined(DEATH_TARGET_MSVC)
+				const unsigned long long xgetbv = _xgetbv(0);
+#else
+#error Unsupported platform
 #endif
-}}
+
+				// If AVX is not supported, we don't check any following flags either
+				if ((xgetbv & 0x06) == 0x06 /* XSTATE_SSE|XSTATE_YMM */) {
+					out |= TypeTraits<AvxT>::Index;
+
+					if (cpuid.e.cx & (1 << 29))
+						out |= TypeTraits<AvxF16cT>::Index;
+					if (cpuid.e.cx & (1 << 12))
+						out |= TypeTraits<AvxFmaT>::Index;
+
+					// https://en.wikipedia.org/wiki/CPUID#EAX=7,_ECX=0:_Extended_Features
+					Implementation::cpuid(cpuid.data, 7, 0);
+					if (cpuid.e.bx & (1 << 3))
+						out |= TypeTraits<Bmi1T>::Index;
+					if (cpuid.e.bx & (1 << 8))
+						out |= TypeTraits<Bmi2T>::Index;
+					if (cpuid.e.bx & (1 << 5))
+						out |= TypeTraits<Avx2T>::Index;
+				}
+
+				// AVX-512 needs additional state saving support
+				// https://patchwork.ozlabs.org/project/gcc/patch/20180329124309.GA12667@intel.com/#1884915
+				// https://github.com/google/highway/blob/master/hwy/targets.cc#L279
+				if ((cpuid.e.bx & (1 << 16)) &&
+					// XSTATE_SSE|XSTATE_YMM|XSTATE_OPMASK|XSTATE_ZMM|XSTATE_HI_ZMM
+					(xgetbv & 0xe6) == 0xe6) {
+					out |= TypeTraits<Avx512fT>::Index;
+				}
+			}
+
+			// And now the LZCNT bit, finally
+			// https://en.wikipedia.org/wiki/CPUID#EAX=80000001h:_Extended_Processor_Info_and_Feature_Bits
+			Implementation::cpuid(cpuid.data, 0x80000001, 0);
+			if (cpuid.e.cx & (1 << 5))
+				out |= TypeTraits<LzcntT>::Index;
+
+			return Features { out };
+		}
+#endif
+
+		// ARM implementation on Linux and Android, inlined for the same reason as the x86 variant above -- to make IFUNC work.
+		// As getauxval() can't be called from within an ifunc resolver because there it's too early for an external call,
+		// the value of AT_HWCAP is instead passed to it from outside, on glibc 2.13+ and on Android API 30+:
+		// https://github.com/bminor/glibc/commit/7520ff8c744a704ca39741c165a2360d63a4f47a
+		// https://android.googlesource.com/platform/bionic/+/e949195f6489653ee3771535951ed06973246c3e/libc/include/sys/ifunc.h
+		// Which means we need a variant of runtimeFeatures() that is able to operate with a value fed from outside, which is
+		// then used inside such resolvers. A nice consequence of that is that we don't need any other headers.
+
+		// The public Cpu::runtimeFeatures() is deinlined, calls getauxval() and passes it into this function.
+#if defined(DEATH_TARGET_ARM) && ((defined(__linux__) && !(defined(DEATH_TARGET_ANDROID) && __ANDROID_API__ < 18)) || defined(__FreeBSD__))
+		namespace Implementation
+		{
+			inline Features runtimeFeatures(const unsigned long caps)
+			{
+				unsigned int out = 0;
+#if defined(DEATH_TARGET_32BIT)
+				if (caps & (1 << 12) /*HWCAP_NEON*/)
+					out |= TypeTraits<NeonT>::Index;
+				// Since FMA is enabled by passing -mfpu=neon-vfpv4, I assume this is the flag that corresponds to it.
+				if (caps & (1 << 16) /*HWCAP_VFPv4*/)
+					out |= TypeTraits<NeonFmaT>::Index;
+#else
+				// On ARM64 NEON and NEON FMA is implicit. For extra security make use of the DEATH_TARGET_ defines (which should be always there).
+				out |= 0
+#if defined(DEATH_TARGET_NEON)
+					| TypeTraits<NeonT>::Index
+#endif
+#if defined(DEATH_TARGET_NEON_FMA)
+					| TypeTraits<NeonFmaT>::Index
+#endif
+					;
+				// The HWCAP flags are extremely cryptic. The only vague confirmation is in a *commit message* to the kernel hwcaps file, FFS.
+				// The HWCAP_FPHP seems to correspond to scalar FP16, so the other should be the vector one?
+				// https://github.com/torvalds/linux/blame/master/arch/arm64/include/uapi/asm/hwcap.h
+				// This one also isn't present on 32-bit, so I assume it's ARM64-only?
+				if (caps & (1 << 10) /*HWCAP_ASIMDHP*/)
+					out |= TypeTraits<NeonFp16T>::Index;
+#endif
+				return Features { out };
+			}
+		}
+#endif
+	}
+}

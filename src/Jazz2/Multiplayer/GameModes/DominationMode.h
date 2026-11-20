@@ -23,10 +23,12 @@ namespace Jazz2::Multiplayer::GameModes
 	public:
 		DominationMode();
 
-		MpGameMode GetMode() const override {
+		MpGameMode GetMode() const override
+		{
 			return MpGameMode::Domination;
 		}
-		bool IsTeamBased() const override {
+		bool IsTeamBased() const override
+		{
 			return true;
 		}
 
@@ -41,7 +43,8 @@ namespace Jazz2::Multiplayer::GameModes
 		static constexpr float TouchRadius = 40.0f;
 		static constexpr float CaptureTimeSecs = 1.0f;
 
-		struct ControlPoint {
+		struct ControlPoint
+		{
 			std::uint32_t ObjectId;
 			Vector2f Pos;
 			std::uint8_t Team;

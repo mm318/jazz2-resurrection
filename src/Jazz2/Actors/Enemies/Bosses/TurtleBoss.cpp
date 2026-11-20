@@ -12,7 +12,7 @@ namespace Jazz2::Actors::Bosses
 {
 	TurtleBoss::TurtleBoss()
 		: _state(StateWaiting), _endText(0), _walkTicks(0.0f), _turnAcc(0.0f), _attackAcc(0.0f), _attackTicks(0.0f),
-			_attackEndStart(0.0f), _maceThrown(false), _aimCaptured(false)
+		  _attackEndStart(0.0f), _maceThrown(false), _aimCaptured(false)
 	{
 	}
 
@@ -59,8 +59,12 @@ namespace Jazz2::Actors::Bosses
 		}
 
 		switch (_state) {
-			case StateWalking: UpdateWalking(timeMult); break;
-			case StateAttacking: UpdateAttacking(timeMult); break;
+			case StateWalking:
+				UpdateWalking(timeMult);
+				break;
+			case StateAttacking:
+				UpdateAttacking(timeMult);
+				break;
 		}
 	}
 
@@ -77,8 +81,7 @@ namespace Jazz2::Actors::Bosses
 		shell->OnActivated(ActorActivationDetails(
 			_levelHandler,
 			Vector3i((std::int32_t)_pos.X, (std::int32_t)_pos.Y, _renderer.GetLayer()),
-			shellParams
-		));
+			shellParams));
 		_levelHandler->AddActor(shell);
 
 		Explosion::Create(_levelHandler, Vector3i((std::int32_t)_pos.X, (std::int32_t)_pos.Y, _renderer.GetLayer() - 2), Explosion::Type::SmokeGray);
@@ -193,8 +196,7 @@ namespace Jazz2::Actors::Bosses
 			_mace->Setup(shared_from_this(), _aimPos - spawnPos, difficulty);
 			_mace->OnActivated(ActorActivationDetails(
 				_levelHandler,
-				Vector3i((std::int32_t)spawnPos.X, (std::int32_t)spawnPos.Y, _renderer.GetLayer() + 2)
-			));
+				Vector3i((std::int32_t)spawnPos.X, (std::int32_t)spawnPos.Y, _renderer.GetLayer() + 2)));
 			_levelHandler->AddActor(_mace);
 		}
 

@@ -85,8 +85,8 @@ namespace Jazz2::Tiles
 		// when the layer is drawn, a palette-shifted one its shift. The color of an unknown renderer means something else to it - a
 		// renderer of a later version may have its parameters there - so it's drawn as it is.
 		description.Color = (knownRenderer
-			? Vector4f(record.Color[0] / 255.0f, record.Color[1] / 255.0f, record.Color[2] / 255.0f, record.Color[3] / 255.0f)
-			: Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
+				? Vector4f(record.Color[0] / 255.0f, record.Color[1] / 255.0f, record.Color[2] / 255.0f, record.Color[3] / 255.0f)
+				: Vector4f(1.0f, 1.0f, 1.0f, 1.0f));
 		description.SetTexturedParams(record.Textured);
 		return description;
 	}
@@ -105,28 +105,46 @@ namespace Jazz2::Tiles
 	{
 		// The values of `SPRITE::Mode` of JJ2+, which aren't consecutive
 		switch (spriteMode) {
-			case 1:		// SPRITE::TRANSLUCENT
-			case 29:	// SPRITE::BLEND_NORMAL
-			case 46:	// SPRITE::TRANSLUCENTTILE
+			case 1: // SPRITE::TRANSLUCENT
+			case 29: // SPRITE::BLEND_NORMAL
+			case 46: // SPRITE::TRANSLUCENTTILE
 				return LayerBlend::Translucent;
-			case 30: return LayerBlend::Darken;
-			case 31: return LayerBlend::Lighten;
-			case 32: return LayerBlend::Hue;
-			case 33: return LayerBlend::Saturation;
-			case 34: return LayerBlend::Color;
-			case 35: return LayerBlend::Luminosity;
-			case 36: return LayerBlend::Multiply;
-			case 37: return LayerBlend::Screen;
-			case 38: return LayerBlend::Dissolve;
-			case 39: return LayerBlend::Overlay;
-			case 40: return LayerBlend::HardLight;
-			case 41: return LayerBlend::SoftLight;
-			case 42: return LayerBlend::Difference;
-			case 43: return LayerBlend::Dodge;
-			case 44: return LayerBlend::Burn;
-			case 45: return LayerBlend::Exclusion;
-			case 47: return LayerBlend::ChromaKey;
-			default: return LayerBlend::Normal;
+			case 30:
+				return LayerBlend::Darken;
+			case 31:
+				return LayerBlend::Lighten;
+			case 32:
+				return LayerBlend::Hue;
+			case 33:
+				return LayerBlend::Saturation;
+			case 34:
+				return LayerBlend::Color;
+			case 35:
+				return LayerBlend::Luminosity;
+			case 36:
+				return LayerBlend::Multiply;
+			case 37:
+				return LayerBlend::Screen;
+			case 38:
+				return LayerBlend::Dissolve;
+			case 39:
+				return LayerBlend::Overlay;
+			case 40:
+				return LayerBlend::HardLight;
+			case 41:
+				return LayerBlend::SoftLight;
+			case 42:
+				return LayerBlend::Difference;
+			case 43:
+				return LayerBlend::Dodge;
+			case 44:
+				return LayerBlend::Burn;
+			case 45:
+				return LayerBlend::Exclusion;
+			case 47:
+				return LayerBlend::ChromaKey;
+			default:
+				return LayerBlend::Normal;
 		}
 	}
 
@@ -154,8 +172,7 @@ namespace Jazz2::Tiles
 
 	bool LayerDescription::HasPlusPerspective() const
 	{
-		return (RendererType == LayerRendererType::Cylinder || (TextureFlags & (Formats::TexturedLayerParams::Fullscreen |
-			Formats::TexturedLayerParams::InnerWindow | Formats::TexturedLayerParams::InnerLayer)) != 0);
+		return (RendererType == LayerRendererType::Cylinder || (TextureFlags & (Formats::TexturedLayerParams::Fullscreen | Formats::TexturedLayerParams::InnerWindow | Formats::TexturedLayerParams::InnerLayer)) != 0);
 	}
 
 	bool LayerDescription::IsTexturePlacedByLayer5(bool vertical) const

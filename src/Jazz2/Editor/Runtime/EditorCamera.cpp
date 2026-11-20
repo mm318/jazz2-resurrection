@@ -53,9 +53,9 @@ namespace Jazz2::Editor
 
 	EditorCamera::EditorCamera()
 		: _viewSize(1, 1), _gameplayScale(1.0f), _levelBounds(), _center(), _scale(1.0f),
-			_zooming(false), _targetScale(1.0f), _zoomStepsLeft(0.0f), _dragging(false), _dragFrames(0.0f),
-			_flying(false), _flyTime(0.0f), _flyDuration(0.0f), _flyLength(0.0f), _flyDistance(0.0f),
-			_flyWidth0(1.0f), _flyWidth1(1.0f), _flyR0(0.0f)
+		  _zooming(false), _targetScale(1.0f), _zoomStepsLeft(0.0f), _dragging(false), _dragFrames(0.0f),
+		  _flying(false), _flyTime(0.0f), _flyDuration(0.0f), _flyLength(0.0f), _flyDistance(0.0f),
+		  _flyWidth0(1.0f), _flyWidth1(1.0f), _flyR0(0.0f)
 	{
 	}
 

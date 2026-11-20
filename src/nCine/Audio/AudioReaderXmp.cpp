@@ -5,14 +5,14 @@
 #include <cstring>
 
 #if !defined(ZIG_BUILD) && defined(__has_include)
-#	if __has_include("../../Dependencies/libxmp/include/xmp.h")
-#		define __HAS_LOCAL_LIBXMP
-#	endif
+#if __has_include("../../Dependencies/libxmp/include/xmp.h")
+#define __HAS_LOCAL_LIBXMP
+#endif
 #endif
 #if defined(__HAS_LOCAL_LIBXMP)
-#	include "../../../deps/libxmp/include/xmp.h"
+#include "../../../deps/libxmp/include/xmp.h"
 #else
-#	include <xmp.h>
+#include <xmp.h>
 #endif
 
 using namespace Death::IO;

@@ -3,7 +3,7 @@
 #include "MenuSection.h"
 
 #if defined(WITH_THREADS) && !defined(DEATH_TARGET_EMSCRIPTEN)
-#	include "../../../nCine/Threading/Thread.h"
+#include "../../../nCine/Threading/Thread.h"
 #endif
 #include "../../../nCine/Graphics/Texture.h"
 
@@ -45,7 +45,8 @@ namespace Jazz2::UI::Menu
 	private:
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
-		struct ItemData {
+		struct ItemData
+		{
 			String LevelName;
 			String DisplayName;
 			/** @brief Path of the level file, to read its preview from */
@@ -56,7 +57,8 @@ namespace Jazz2::UI::Menu
 		};
 
 		// A preview read from a level file, as RGBA texels - empty if the level has none that can be read
-		struct PreviewData {
+		struct PreviewData
+		{
 			String Path;
 			SmallVector<std::uint8_t, 0> Texels;
 			Vector2i Size;

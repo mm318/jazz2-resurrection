@@ -17,13 +17,13 @@
 #include <IO/Compression/DeflateStream.h>
 
 #if defined(DEATH_TARGET_DREAMCAST)
-#	include <dc/sq.h>
-#	include <kos/thread.h>
+#include <dc/sq.h>
+#include <kos/thread.h>
 #elif defined(DEATH_TARGET_N64)
-#	include "../../nCine/Backends/N64/N64FullMotionVideo.h"
+#include "../../nCine/Backends/N64/N64FullMotionVideo.h"
 #endif
 #if defined(WITH_LZ4)
-#	include <lz4.h>
+#include <lz4.h>
 #endif
 
 using namespace Death::Memory;
@@ -243,7 +243,7 @@ namespace Jazz2::UI
 			@p palette565, which keeps a converted copy of the frame current at the cost of the pixels that
 			changed - instead of converting the whole frame again after it was decoded.
 		*/
-		template<bool WithColors>
+		template <bool WithColors>
 		void DecodeCommands(const std::uint8_t* DEATH_RESTRICT src, const std::uint8_t* const srcEnd,
 			std::uint8_t* DEATH_RESTRICT const frame, const std::size_t frameSize, std::uint16_t* DEATH_RESTRICT const colors,
 			const std::uint16_t* DEATH_RESTRICT const palette565)
@@ -363,10 +363,10 @@ namespace Jazz2::UI
 	}
 	Cinematics::Cinematics(IRootController* root, StringView path, Function<bool(IRootController*, bool)>&& callback)
 		: _root(root), _callback(Death::move(callback)), _frameDelay(0.0f), _frameProgress(0.0f), _framesLeft(0), _frameIndex(0),
-			_videoDownscale(1), _textureWidth(0), _textureHeight(0), _textureIndex(0),
-			_pressedKeys(ValueInit, (std::size_t)Keys::Count), _pressedActions(0), _decodingFailed(false),
-			_nativeFormat(false), _lz4Payloads(false), _convertTo565(false), _incremental565(false), _frame565Stale(false), _paletteDirty(true),
-			_paletteTextureDirty(false)
+		  _videoDownscale(1), _textureWidth(0), _textureHeight(0), _textureIndex(0),
+		  _pressedKeys(ValueInit, (std::size_t)Keys::Count), _pressedActions(0), _decodingFailed(false),
+		  _nativeFormat(false), _lz4Payloads(false), _convertTo565(false), _incremental565(false), _frame565Stale(false), _paletteDirty(true),
+		  _paletteTextureDirty(false)
 	{
 		Initialize(path);
 	}
@@ -424,7 +424,7 @@ namespace Jazz2::UI
 		// to be decoded, and decoding is nearly the whole cost (applying the palette and uploading the
 		// texture is a few percent on top).
 #if defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || \
-		defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PS2)
+	defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PS2)
 		// On a machine that decodes slower than the video's frame rate, catching up buys nothing: it hides
 		// all but the last of the decoded frames while making the stall worse. At most one frame is decoded
 		// per rendered frame, every frame is shown, and the picture may fall behind the music.
@@ -464,7 +464,7 @@ namespace Jazz2::UI
 			_framesLeft--;
 			PrepareNextFrame();
 			frameDecoded = true;
-			if DEATH_UNLIKELY(_decodingFailed) {
+			if DEATH_UNLIKELY (_decodingFailed) {
 				// The compressed streams ended prematurely (truncated or corrupted file), finish playback
 				// instead of looping on a dead stream
 				_framesLeft = 0;
@@ -584,7 +584,7 @@ namespace Jazz2::UI
 			LOGW("Cannot load \"{}.j2v\" - Cinematics skipped", path);
 			return false;
 		}
-		
+
 		DEATH_ASSERT(s->GetSize() > 32 && s->GetSize() < 64 * 1024 * 1024,
 			("Cannot load \"{}.j2v\" - Unexpected file size", path), false);
 
@@ -641,16 +641,15 @@ namespace Jazz2::UI
 		// default one is 720x405, SMALLER than a 640x480 video), the window can grow at any moment, and the
 		// downscale decided here would outlive it - so the desktop keeps decoding at full resolution and only
 		// the texture-size limit applies there.
-		const std::int32_t maxTextureSize = theServiceLocator().GetRhiCapabilities()
-			.GetValue(RHI::IRhiCapabilities::IntValues::MaxTextureSize);
+		const std::int32_t maxTextureSize = theServiceLocator().GetRhiCapabilities().GetValue(RHI::IRhiCapabilities::IntValues::MaxTextureSize);
 
-		std::uint32_t widthLimit = 0, heightLimit = 0;	// Zero being "not limited by this"
+		std::uint32_t widthLimit = 0, heightLimit = 0; // Zero being "not limited by this"
 		if (maxTextureSize > 0) {
 			widthLimit = heightLimit = (std::uint32_t)maxTextureSize;
 		}
-#if defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || \
-		defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_PS2) || \
-		defined(DEATH_TARGET_PS3) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_VITA)
+#if defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) ||        \
+	defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_PS2) || \
+	defined(DEATH_TARGET_PS3) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_VITA)
 		const Vector2i drawableSize = theApplication().GetResolution();
 		if (drawableSize.X > 0 && drawableSize.Y > 0) {
 			widthLimit = (widthLimit > 0 ? std::min(widthLimit, (std::uint32_t)drawableSize.X) : (std::uint32_t)drawableSize.X);
@@ -909,8 +908,7 @@ namespace Jazz2::UI
 			_decodingFailed = true;
 			return;
 		}
-		std::uint32_t payloadSize = std::uint32_t(sizeBytes[0]) | (std::uint32_t(sizeBytes[1]) << 8)
-			| (std::uint32_t(sizeBytes[2]) << 16) | (std::uint32_t(sizeBytes[3]) << 24);
+		std::uint32_t payloadSize = std::uint32_t(sizeBytes[0]) | (std::uint32_t(sizeBytes[1]) << 8) | (std::uint32_t(sizeBytes[2]) << 16) | (std::uint32_t(sizeBytes[3]) << 24);
 		if (payloadSize == 0 || payloadSize > 8 * 1024 * 1024) {
 			_decodingFailed = true;
 			return;
@@ -945,8 +943,7 @@ namespace Jazz2::UI
 				_decodingFailed = true;
 				return;
 			}
-			const std::uint32_t decompressedSize = std::uint32_t(src[0]) | (std::uint32_t(src[1]) << 8)
-				| (std::uint32_t(src[2]) << 16) | (std::uint32_t(src[3]) << 24);
+			const std::uint32_t decompressedSize = std::uint32_t(src[0]) | (std::uint32_t(src[1]) << 8) | (std::uint32_t(src[2]) << 16) | (std::uint32_t(src[3]) << 24);
 			src += 4;
 			// A size of zero marks a payload that LZ4 could not make smaller, stored as it is
 			if (decompressedSize > 0) {
@@ -1053,7 +1050,7 @@ namespace Jazz2::UI
 			s->Read(samplePath.data(), stringSize);
 
 			String samplePathNormalized = fs::ToNativeSeparators(samplePath);
-#	if defined(NCINE_HAS_NATIVE_AUDIO)
+#if defined(NCINE_HAS_NATIVE_AUDIO)
 			// The console only plays its own copy of the sample, which streams from the cartridge
 			String nativePath = resolver.GetNativeSoundPath(samplePathNormalized);
 			if (!nativePath.empty()) {
@@ -1061,7 +1058,7 @@ namespace Jazz2::UI
 			} else {
 				_sfxSamples.emplace_back(); // Sample not found
 			}
-#	else
+#else
 			String resolvedPath;
 			auto sample = resolver.OpenSoundFile(samplePathNormalized, resolvedPath);
 			if (sample->IsValid()) {
@@ -1069,7 +1066,7 @@ namespace Jazz2::UI
 			} else {
 				_sfxSamples.emplace_back(); // Sample not found
 			}
-#	endif
+#endif
 		}
 
 		std::uint32_t itemCount = s->ReadValueAsLE<std::uint16_t>();
@@ -1138,7 +1135,7 @@ namespace Jazz2::UI
 				// here forever - bail out as soon as the short read is detected. Everything not yet
 				// written this frame is then two frames old (the swap above), not one - acceptable,
 				// because a failed decode ends the playback anyway
-				if DEATH_UNLIKELY(_decodingFailed) {
+				if DEATH_UNLIKELY (_decodingFailed) {
 					return;
 				}
 				if (c < 0x80) {
@@ -1186,8 +1183,7 @@ namespace Jazz2::UI
 				// Packed once here, so converting a frame is a lookup and a 16-bit store per pixel
 				for (std::int32_t i = 0; i < 256; i++) {
 					const std::uint32_t color = _uploadPalette[i];
-					_palette565[i] = std::uint16_t((((color >> 3) & 0x1F) << 11)
-						| ((((color >> 8) >> 2) & 0x3F) << 5) | (((color >> 16) >> 3) & 0x1F));
+					_palette565[i] = std::uint16_t((((color >> 3) & 0x1F) << 11) | ((((color >> 8) >> 2) & 0x3F) << 5) | (((color >> 16) >> 3) & 0x1F));
 				}
 			} else {
 				std::uint32_t opaquePalette[256];
@@ -1243,9 +1239,7 @@ namespace Jazz2::UI
 				// but not by every possible one, so the plain copy stays as the alternative.
 				// (sq_fast_cpy wants the source 8-byte aligned, which is stricter than the 4 bytes the wide
 				// conversion above needs.)
-				const bool useStoreQueues = ((rowBytes & 31) == 0 && (strideBytes & 31) == 0
-					&& (reinterpret_cast<std::uintptr_t>(mapped) & 31) == 0
-					&& (reinterpret_cast<std::uintptr_t>(row) & 7) == 0);
+				const bool useStoreQueues = ((rowBytes & 31) == 0 && (strideBytes & 31) == 0 && (reinterpret_cast<std::uintptr_t>(mapped) & 31) == 0 && (reinterpret_cast<std::uintptr_t>(row) & 7) == 0);
 				if (useStoreQueues) {
 					sq_lock(mapped);
 					for (std::uint32_t y = 0; y < _textureHeight; y++) {
@@ -1380,7 +1374,7 @@ namespace Jazz2::UI
 		}
 
 		std::int64_t bytesRead = std::int64_t(bytes - remaining);
-		if DEATH_UNLIKELY(bytesRead < std::int64_t(bytes)) {
+		if DEATH_UNLIKELY (bytesRead < std::int64_t(bytes)) {
 			if (!_decodingFailed) {
 				_decodingFailed = true;
 				LOGE("Failed to read {} bytes from stream {} at frame {}", bytes, streamIndex, _frameIndex);
@@ -1548,9 +1542,15 @@ namespace Jazz2::UI
 	std::int64_t Cinematics::ChunkedStream::Seek(std::int64_t offset, SeekOrigin origin)
 	{
 		switch (origin) {
-			case SeekOrigin::Begin: _position = offset; break;
-			case SeekOrigin::Current: _position += offset; break;
-			case SeekOrigin::End: _position = _size + offset; break;
+			case SeekOrigin::Begin:
+				_position = offset;
+				break;
+			case SeekOrigin::Current:
+				_position += offset;
+				break;
+			case SeekOrigin::End:
+				_position = _size + offset;
+				break;
 		}
 		return _position;
 	}
@@ -1631,9 +1631,10 @@ namespace Jazz2::UI
 
 	Cinematics::VideoReader::VideoReader()
 		: _file(nullptr), _data(nullptr), _capacity(0), _pieceSize(0), _readPos(0), _writePos(0), _filled(0), _skip(0),
-			_fileOffset(0), _endOfFile(false), _background(false), _decompressAhead(false)
+		  _fileOffset(0), _endOfFile(false), _background(false), _decompressAhead(false)
 #if defined(WITH_THREADS)
-			, _stopRequested(false), _firstReadySlot(0), _readySlots(0), _framesEnded(false), _recordCapacity(0)
+		  ,
+		  _stopRequested(false), _firstReadySlot(0), _readySlots(0), _framesEnded(false), _recordCapacity(0)
 #endif
 	{
 	}
@@ -1656,8 +1657,7 @@ namespace Jazz2::UI
 			// Over-allocated so the ring itself can start on an aligned address
 			_allocation = std::make_unique<std::uint8_t[]>(_capacity + Alignment);
 		}
-		_data = reinterpret_cast<std::uint8_t*>((reinterpret_cast<std::uintptr_t>(_allocation.get()) + Alignment - 1)
-			& ~std::uintptr_t(Alignment - 1));
+		_data = reinterpret_cast<std::uint8_t*>((reinterpret_cast<std::uintptr_t>(_allocation.get()) + Alignment - 1) & ~std::uintptr_t(Alignment - 1));
 		_readPos = 0;
 		_writePos = 0;
 		_filled = 0;
@@ -1689,23 +1689,23 @@ namespace Jazz2::UI
 		if (background) {
 			_stopRequested = false;
 			_background = true;
-#	if defined(WITH_LZ4)
+#if defined(WITH_LZ4)
 			_decompressAhead = decompressAhead;
-#	else
+#else
 			static_cast<void>(decompressAhead);
-#	endif
+#endif
 			_firstReadySlot = 0;
 			_readySlots = 0;
 			_framesEnded = false;
 			_thread = Thread(ThreadFunc, this);
-#	if defined(WITH_LZ4)
+#if defined(WITH_LZ4)
 			if (_decompressAhead) {
-#		if defined(DEATH_TARGET_DREAMCAST)
+#if defined(DEATH_TARGET_DREAMCAST)
 				_mainThreadPriority = std::int32_t(thd_get_prio(thd_get_current()));
-#		endif
+#endif
 				_decompressThread = Thread(DecompressThreadFunc, this);
 			}
-#	endif
+#endif
 		}
 #else
 		static_cast<void>(background);
@@ -1880,7 +1880,7 @@ namespace Jazz2::UI
 		_mutex.Unlock();
 	}
 
-#	if defined(WITH_LZ4)
+#if defined(WITH_LZ4)
 	bool Cinematics::VideoReader::DecompressNextFrame(FrameSlot& slot)
 	{
 		// The same steps the main thread takes in DecodeFrameNative() otherwise
@@ -1888,8 +1888,7 @@ namespace Jazz2::UI
 		if (!ReadInto(sizeBytes, sizeof(sizeBytes))) {
 			return false;
 		}
-		const std::uint32_t recordSize = std::uint32_t(sizeBytes[0]) | (std::uint32_t(sizeBytes[1]) << 8)
-			| (std::uint32_t(sizeBytes[2]) << 16) | (std::uint32_t(sizeBytes[3]) << 24);
+		const std::uint32_t recordSize = std::uint32_t(sizeBytes[0]) | (std::uint32_t(sizeBytes[1]) << 8) | (std::uint32_t(sizeBytes[2]) << 16) | (std::uint32_t(sizeBytes[3]) << 24);
 		if (recordSize < 4 || recordSize > 8 * 1024 * 1024) {
 			return false;
 		}
@@ -1910,8 +1909,7 @@ namespace Jazz2::UI
 			src = _record.get();
 		}
 
-		const std::uint32_t decompressedSize = std::uint32_t(src[0]) | (std::uint32_t(src[1]) << 8)
-			| (std::uint32_t(src[2]) << 16) | (std::uint32_t(src[3]) << 24);
+		const std::uint32_t decompressedSize = std::uint32_t(src[0]) | (std::uint32_t(src[1]) << 8) | (std::uint32_t(src[2]) << 16) | (std::uint32_t(src[3]) << 24);
 		// A size of zero marks a payload that LZ4 could not make smaller, stored as it is
 		const std::uint32_t size = (decompressedSize > 0 ? decompressedSize : recordSize - 4);
 		bool decoded = (size <= 8 * 1024 * 1024);
@@ -1923,12 +1921,12 @@ namespace Jazz2::UI
 			if (decompressedSize == 0) {
 				std::memcpy(slot.Data.get(), src + 4, size);
 			} else {
-#		if defined(DEATH_TARGET_DREAMCAST)
+#if defined(DEATH_TARGET_DREAMCAST)
 				const std::int32_t decompressed = DecompressLz4Block(src + 4, recordSize - 4, slot.Data.get(), size);
-#		else
+#else
 				const std::int32_t decompressed = LZ4_decompress_safe(reinterpret_cast<const char*>(src + 4),
 					reinterpret_cast<char*>(slot.Data.get()), std::int32_t(recordSize - 4), std::int32_t(size));
-#		endif
+#endif
 				decoded = (decompressed == std::int32_t(size));
 			}
 			slot.Size = size;
@@ -1944,13 +1942,13 @@ namespace Jazz2::UI
 		Thread::SetCurrentName("Cinematics decompressor");
 
 		VideoReader* reader = static_cast<VideoReader*>(arg);
-#		if defined(DEATH_TARGET_DREAMCAST)
+#if defined(DEATH_TARGET_DREAMCAST)
 		// KallistiOS shares the processor between threads of one priority in timeslices, so this thread would take
 		// turns with the main thread in the middle of its frames. One step below it, it only runs while the main
 		// thread waits - for the display, or for a frame that is not decompressed yet. (A larger number is a lower
 		// priority there.)
 		thd_set_prio(thd_get_current(), prio_t(reader->_mainThreadPriority + 1));
-#		endif
+#endif
 
 		reader->_mutex.Lock();
 		while (!reader->_stopRequested && !reader->_framesEnded) {
@@ -1971,7 +1969,7 @@ namespace Jazz2::UI
 		}
 		reader->_mutex.Unlock();
 	}
-#	endif
+#endif
 
 	void Cinematics::VideoReader::ThreadFunc(void* arg)
 	{
@@ -1997,12 +1995,12 @@ namespace Jazz2::UI
 	{
 	}
 
-#	if !defined(NCINE_HAS_NATIVE_AUDIO)
+#if !defined(NCINE_HAS_NATIVE_AUDIO)
 	Cinematics::SfxItem::SfxItem(std::unique_ptr<Stream> stream, StringView path)
 		: Buffer(std::make_unique<AudioBuffer>(Death::move(stream), path))
 	{
 	}
-#	endif
+#endif
 
 	Cinematics::SfxItem::SfxItem(StringView path)
 		: Buffer(std::make_unique<AudioBuffer>(path))

@@ -24,7 +24,8 @@ namespace Jazz2::Actors::Bosses
 		/** @brief Preloads all assets required by this actor */
 		static void Preload(const ActorActivationDetails& details);
 
-		bool TakesSingleBlastDamage() const override {
+		bool TakesSingleBlastDamage() const override
+		{
 			return true;
 		}
 
@@ -37,7 +38,8 @@ namespace Jazz2::Actors::Bosses
 		Vector2f GetContactThrowSpeed() const override;
 
 	private:
-		enum class State {
+		enum class State
+		{
 			Waiting,
 			Crouching,
 			Rising,

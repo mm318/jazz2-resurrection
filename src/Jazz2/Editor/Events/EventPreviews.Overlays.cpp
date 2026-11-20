@@ -173,7 +173,7 @@ namespace Jazz2::Editor
 			}
 			return (a < b);
 		});
-		for (std::size_t first = 0; first < order.size(); ) {
+		for (std::size_t first = 0; first < order.size();) {
 			const LinkEnd& like = ends[groups[order[first]].First];
 			std::size_t last = first;
 			while (last < order.size()) {

@@ -23,8 +23,14 @@ namespace Jazz2::Editor
 		using ToolMath::HashCell;
 		using ToolMath::IsSolidTile;
 		using ToolMath::PositiveModulo;
-		inline std::uint64_t ToKey(Vector2i cell) { return ToolMath::ToCellKey(cell); }
-		inline Vector2i FromKey(std::uint64_t key) { return ToolMath::FromCellKey(key); }
+		inline std::uint64_t ToKey(Vector2i cell)
+		{
+			return ToolMath::ToCellKey(cell);
+		}
+		inline Vector2i FromKey(std::uint64_t key)
+		{
+			return ToolMath::FromCellKey(key);
+		}
 
 		// Points far beyond any level, a damaged chunk can have anything there
 		constexpr float MaxCoordinate = 65536.0f * 32.0f;
@@ -106,8 +112,8 @@ namespace Jazz2::Editor
 
 			explicit LayerState(const DocumentLayer& layer)
 				: Layer(layer),
-					RepeatX(!layer.IsSpriteLayer() && (layer.Record.Flags & Formats::LayerRecord::RepeatX) != 0),
-					RepeatY(!layer.IsSpriteLayer() && (layer.Record.Flags & Formats::LayerRecord::RepeatY) != 0)
+				  RepeatX(!layer.IsSpriteLayer() && (layer.Record.Flags & Formats::LayerRecord::RepeatX) != 0),
+				  RepeatY(!layer.IsSpriteLayer() && (layer.Record.Flags & Formats::LayerRecord::RepeatY) != 0)
 			{
 			}
 
@@ -236,7 +242,7 @@ namespace Jazz2::Editor
 			};
 			SmallVector<SurfaceCell, 0> surfaceCells;
 			auto addSurface = [&](Vector2i cell, float left, float right, bool ceiling) {
-				surfaceCells.push_back(SurfaceCell{ cell, std::clamp(left, 0.0f, 32.0f), std::clamp(right, 0.0f, 32.0f), ceiling });
+				surfaceCells.push_back(SurfaceCell { cell, std::clamp(left, 0.0f, 32.0f), std::clamp(right, 0.0f, 32.0f), ceiling });
 				surface.insert(ToKey(cell));
 			};
 
@@ -467,7 +473,7 @@ namespace Jazz2::Editor
 				bool hasLeft = neighborTile(-1, 0, left), hasUp = neighborTile(0, -1, up);
 				bool hasRight = neighborTile(1, 0, right), hasDown = neighborTile(0, 1, down);
 				if (model.Pick(neighbors, spriteLayer, hasLeft ? &left : nullptr, hasUp ? &up : nullptr,
-					hasRight ? &right : nullptr, hasDown ? &down : nullptr, HashCell(cell), picked, isNeighbor ? &existing : nullptr)) {
+						hasRight ? &right : nullptr, hasDown ? &down : nullptr, HashCell(cell), picked, isNeighbor ? &existing : nullptr)) {
 					decided[key] = picked;
 				} else if (solid.find(key) != solid.end()) {
 					decided[key] = fullTile;
@@ -514,7 +520,7 @@ namespace Jazz2::Editor
 				for (std::int32_t j = 0; j < std::int32_t(splines[i].Owned.size()); j++) {
 					const TerrainSpline::OwnedTile& owned = splines[i].Owned[j];
 					if (layer.Contains(owned.X, owned.Y)) {
-						others[ToKey(Vector2i(owned.X, owned.Y))].push_back(OtherOwner{ i, j });
+						others[ToKey(Vector2i(owned.X, owned.Y))].push_back(OtherOwner { i, j });
 					}
 				}
 			}
@@ -547,7 +553,7 @@ namespace Jazz2::Editor
 						if (spline != nullptr) {
 							covered.push_back(owned);
 						} else if (handovers != nullptr) {
-							handovers->push_back(Handover{ above->Spline, above->Owned, owned.Previous });
+							handovers->push_back(Handover { above->Spline, above->Owned, owned.Previous });
 						}
 						continue;
 					}
@@ -581,7 +587,7 @@ namespace Jazz2::Editor
 					}
 					TileRef previous = state.Get(wrapped);
 					state.Changed[wrappedKey] = tile;
-					result.Owned.push_back(TerrainSpline::OwnedTile{ wrapped.X, wrapped.Y, tile, previous });
+					result.Owned.push_back(TerrainSpline::OwnedTile { wrapped.X, wrapped.Y, tile, previous });
 				}
 			}
 			changed = Death::move(state.Changed);
@@ -591,7 +597,7 @@ namespace Jazz2::Editor
 
 	GroundLineTool::GroundLineTool(IToolHost& host)
 		: EditorTool(host), _dragSpline(-1), _dragPoint(-1), _dragInsert(false), _selectedSpline(-1), _selectedLayer(-1),
-			_options(std::make_shared<Options>()), _previewLayer(-1), _previewPending(false), _cacheValid(false), _overlayShapesRevision(0)
+		  _options(std::make_shared<Options>()), _previewLayer(-1), _previewPending(false), _cacheValid(false), _overlayShapesRevision(0)
 	{
 	}
 
@@ -718,7 +724,7 @@ namespace Jazz2::Editor
 			SampleLine(spline, overlay.Fine);
 			for (const TerrainSpline::OwnedTile& owned : spline.Owned) {
 				OwnedOverlay& item = overlay.Owned.emplace_back();
-				item = OwnedOverlay{ 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f };
+				item = OwnedOverlay { 0.0f, 0.0f, -1.0f, 0.0f, 0.0f, -1.0f };
 				std::uint32_t key = tileKey(owned.Written);
 				Vector2f origin(owned.X * 32.0f, owned.Y * 32.0f);
 				auto it = grounds.find(key);
@@ -748,7 +754,9 @@ namespace Jazz2::Editor
 		}
 		bool closed = (spline.Kind == SplineKind::Closed);
 		if (!closed) {
-			std::sort(points.begin(), points.end(), [](const Vector2f& a, const Vector2f& b) { return a.X < b.X; });
+			std::sort(points.begin(), points.end(), [](const Vector2f& a, const Vector2f& b) {
+				return a.X < b.X;
+			});
 		}
 		std::size_t count = points.size();
 		if (count < 2) {
@@ -960,7 +968,9 @@ namespace Jazz2::Editor
 			spline.Points[point] = _dragPos;
 		}
 		if (spline.Kind != SplineKind::Closed) {
-			std::sort(spline.Points.begin(), spline.Points.end(), [](const Vector2f& a, const Vector2f& b) { return a.X < b.X; });
+			std::sort(spline.Points.begin(), spline.Points.end(), [](const Vector2f& a, const Vector2f& b) {
+				return a.X < b.X;
+			});
 		}
 		return true;
 	}
@@ -1153,8 +1163,8 @@ namespace Jazz2::Editor
 				Vector2f a = screenLine[i], b = screenLine[i + 1];
 				float top = std::min(a.Y, b.Y), bottom = std::max(a.Y, b.Y);
 				Rectf rect = (drawing.Kind == SplineKind::Ceiling
-					? Rectf(a.X, top - depth, b.X - a.X, bottom - top + depth)
-					: Rectf(a.X, top, b.X - a.X, bottom - top + depth));
+						? Rectf(a.X, top - depth, b.X - a.X, bottom - top + depth)
+						: Rectf(a.X, top, b.X - a.X, bottom - top + depth));
 				painter.FillRect(rect, Colorf(0.55f, 0.4f, 0.2f, 0.12f), PaintLayer::Fill);
 			}
 		}
@@ -1190,7 +1200,9 @@ namespace Jazz2::Editor
 			spline.Points.push_back(p);
 		}
 		if (spline.Kind != SplineKind::Closed) {
-			std::sort(spline.Points.begin(), spline.Points.end(), [](const Vector2f& a, const Vector2f& b) { return a.X < b.X; });
+			std::sort(spline.Points.begin(), spline.Points.end(), [](const Vector2f& a, const Vector2f& b) {
+				return a.X < b.X;
+			});
 		}
 		// TRANSLATORS: Name of an undo step in the history, after a ground line laid new ground
 		if (ApplySpline(_host, splines, -1, &spline, _x("editor", "Lay ground"))) {
@@ -1215,7 +1227,9 @@ namespace Jazz2::Editor
 		}
 		// A shape and a line go through their points in another order
 		if ((changed.Kind == SplineKind::Closed) != (_options->Kind == SplineKind::Closed) && _options->Kind != SplineKind::Closed) {
-			std::sort(changed.Points.begin(), changed.Points.end(), [](const Vector2f& a, const Vector2f& b) { return a.X < b.X; });
+			std::sort(changed.Points.begin(), changed.Points.end(), [](const Vector2f& a, const Vector2f& b) {
+				return a.X < b.X;
+			});
 		}
 		if (_options->Kind == SplineKind::Closed && changed.Points.size() < 3) {
 			_host.ShowMessage(_x("editor", "A shape has three points at least"));
@@ -1251,22 +1265,27 @@ namespace Jazz2::Editor
 				}
 			}
 			return std::int32_t(0);
-		}, [this, options](std::int32_t index) {
-			if (index >= 0 && index < std::int32_t(sizeof(KindValues) / sizeof(KindValues[0]))) {
-				options->Kind = KindValues[index];
-				ApplyOptionsToSelected();
-			}
-		});
+		},
+			[this, options](std::int32_t index) {
+				if (index >= 0 && index < std::int32_t(sizeof(KindValues) / sizeof(KindValues[0]))) {
+					options->Kind = KindValues[index];
+					ApplyOptionsToSelected();
+				}
+			});
 		builder.AddSeparator();
 		// TRANSLATORS: Toggle in the toolbar, the ground line is a smooth curve through its points
-		builder.AddToggle({ _x("editor", "Smooth"), EditorIcon::None, nullptr, _x("editor", "Through the points in a curve, otherwise straight from one to the next") },
-			[options]() { return options->Smooth; }, [this, options](bool value) {
+		builder.AddToggle({ _x("editor", "Smooth"), EditorIcon::None, nullptr, _x("editor", "Through the points in a curve, otherwise straight from one to the next") }, [options]() {
+			return options->Smooth;
+		},
+			[this, options](bool value) {
 				options->Smooth = value;
 				ApplyOptionsToSelected();
 			});
 		// TRANSLATORS: Label of how deep the ground a ground line lays goes, in tiles
-		builder.AddNumber(_x("editor", "Depth"), _x("editor", "How deep the ground goes at most in tiles, how thick a band is"), 1.0f, 32.0f, 1.0f,
-			[options]() { return float(options->Depth); }, [this, options](float value, bool final) {
+		builder.AddNumber(_x("editor", "Depth"), _x("editor", "How deep the ground goes at most in tiles, how thick a band is"), 1.0f, 32.0f, 1.0f, [options]() {
+			return float(options->Depth);
+		},
+			[this, options](float value, bool final) {
 				options->Depth = std::clamp<std::int32_t>(std::int32_t(value), 1, 32);
 				if (final) {
 					ApplyOptionsToSelected();
@@ -1335,7 +1354,7 @@ namespace Jazz2::Editor
 				}
 				// Its own tiles, with nothing before them, but those of another line, with the same tile before them
 				bool other = (ownedByOthers.find(ToKey(Vector2i(x, y))) != ownedByOthers.end());
-				spline.Owned.push_back(TerrainSpline::OwnedTile{ x, y, tile, other ? tile : TileRef{} });
+				spline.Owned.push_back(TerrainSpline::OwnedTile { x, y, tile, other ? tile : TileRef {} });
 				count = y - top + 1;
 			}
 			deepest = std::max(deepest, count);
@@ -1348,7 +1367,7 @@ namespace Jazz2::Editor
 		spline.Depth = std::min<std::int32_t>(deepest, 255);
 
 		// Points on a straight line between their neighbors aren't needed
-		for (std::size_t i = 1; i + 1 < spline.Points.size(); ) {
+		for (std::size_t i = 1; i + 1 < spline.Points.size();) {
 			Vector2f a = spline.Points[i - 1], b = spline.Points[i], c = spline.Points[i + 1];
 			float t = (c.X > a.X ? (b.X - a.X) / (c.X - a.X) : 0.0f);
 			if (std::abs(a.Y + (c.Y - a.Y) * t - b.Y) < 1.0f) {

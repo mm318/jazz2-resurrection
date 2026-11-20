@@ -23,12 +23,12 @@ namespace Jazz2::Multiplayer
 	namespace
 	{
 		// Softened embed accent colors (midway between the vivid Discord palette and pastel)
-		constexpr std::uint32_t ColorPositive = 0x6FCF97;		// Soft green
-		constexpr std::uint32_t ColorNegative = 0xF28B82;		// Soft red
-		constexpr std::uint32_t ColorNeutral = 0xA8B4BE;		// Gray-blue
-		constexpr std::uint32_t ColorInfo = 0x8FA8EA;			// Soft periwinkle
-		constexpr std::uint32_t ColorHighlight = 0xF2CE6E;		// Soft gold
-		constexpr std::uint32_t ColorChampionship = 0xF2B27C;	// Soft orange
+		constexpr std::uint32_t ColorPositive = 0x6FCF97; // Soft green
+		constexpr std::uint32_t ColorNegative = 0xF28B82; // Soft red
+		constexpr std::uint32_t ColorNeutral = 0xA8B4BE; // Gray-blue
+		constexpr std::uint32_t ColorInfo = 0x8FA8EA; // Soft periwinkle
+		constexpr std::uint32_t ColorHighlight = 0xF2CE6E; // Soft gold
+		constexpr std::uint32_t ColorChampionship = 0xF2B27C; // Soft orange
 
 		// Discord limits the webhook user name to 80 characters
 		constexpr std::size_t MaxServerIdentityLength = 80;
@@ -46,11 +46,20 @@ namespace Jazz2::Multiplayer
 		{
 			for (char c : text) {
 				switch (c) {
-					case '"': AppendRaw(out, "\\\""_s); break;
-					case '\\': AppendRaw(out, "\\\\"_s); break;
-					case '\n': AppendRaw(out, "\\n"_s); break;
-					case '\t': AppendRaw(out, "\\t"_s); break;
-					case '\r': break;
+					case '"':
+						AppendRaw(out, "\\\""_s);
+						break;
+					case '\\':
+						AppendRaw(out, "\\\\"_s);
+						break;
+					case '\n':
+						AppendRaw(out, "\\n"_s);
+						break;
+					case '\t':
+						AppendRaw(out, "\\t"_s);
+						break;
+					case '\r':
+						break;
 					default: {
 						if ((unsigned char)c < 0x20) {
 							char buffer[8];
@@ -93,7 +102,7 @@ namespace Jazz2::Multiplayer
 
 		// One row per line as subtext (Discord renders "-# " lines in a smaller font), medals for the podium
 		void AppendRankedLeaderboard(SmallVectorImpl<char>& out, ArrayView<const WebhookClient::LeaderboardEntry> entries,
-									 StringView scoreLabel, std::size_t maxRows)
+			StringView scoreLabel, std::size_t maxRows)
 		{
 			static const StringView Medals[] = {
 				"\xF0\x9F\xA5\x87"_s /* 🥇 */, "\xF0\x9F\xA5\x88"_s /* 🥈 */, "\xF0\x9F\xA5\x89"_s /* 🥉 */
@@ -124,14 +133,16 @@ namespace Jazz2::Multiplayer
 			}
 
 			if (entries.size() > shown) {
-				std::size_t length = formatInto(buffer, "\n-# \xE2\x80\xA6" "and {} more", (std::uint32_t)(entries.size() - shown));
+				std::size_t length = formatInto(buffer, "\n-# \xE2\x80\xA6"
+														"and {} more",
+					(std::uint32_t)(entries.size() - shown));
 				AppendRaw(out, { buffer, length });
 			}
 		}
 
 		// The whole roster on a single subtext line, the unit is spelled out only for the first player
 		void AppendRosterLine(SmallVectorImpl<char>& out, ArrayView<const WebhookClient::LeaderboardEntry> entries,
-							  StringView scoreLabel, std::size_t maxRows)
+			StringView scoreLabel, std::size_t maxRows)
 		{
 			std::size_t shown = (entries.size() < maxRows ? entries.size() : maxRows);
 			char buffer[48];
@@ -219,7 +230,9 @@ namespace Jazz2::Multiplayer
 		auto& serverConfig = _server->GetServerConfiguration();
 
 		SmallVector<char, 256> description;
-		AppendRaw(description, "\xF0\x9F\x9F\xA2" "\xE2\x80\x83" "**"_s /* 🟢 + em space */);
+		AppendRaw(description, "\xF0\x9F\x9F\xA2"
+							   "\xE2\x80\x83"
+							   "**"_s /* 🟢 + em space */);
 		AppendSanitizedName(description, serverConfig.ServerName);
 		AppendRaw(description, "** is now online and accepting players"_s);
 
@@ -243,7 +256,9 @@ namespace Jazz2::Multiplayer
 		auto& serverConfig = _server->GetServerConfiguration();
 
 		SmallVector<char, 256> description;
-		AppendRaw(description, "\xF0\x9F\x94\xB4" "\xE2\x80\x83" "**"_s /* 🔴 + em space */);
+		AppendRaw(description, "\xF0\x9F\x94\xB4"
+							   "\xE2\x80\x83"
+							   "**"_s /* 🔴 + em space */);
 		AppendSanitizedName(description, serverConfig.ServerName);
 		AppendRaw(description, "** has been stopped"_s);
 
@@ -257,7 +272,9 @@ namespace Jazz2::Multiplayer
 		}
 
 		SmallVector<char, 256> description;
-		AppendRaw(description, "\xF0\x9F\x93\xA5" "\xE2\x80\x83" "**"_s /* 📥 + em space */);
+		AppendRaw(description, "\xF0\x9F\x93\xA5"
+							   "\xE2\x80\x83"
+							   "**"_s /* 📥 + em space */);
 		AppendSanitizedName(description, playerName);
 		AppendRaw(description, "** joined the server"_s);
 
@@ -270,27 +287,49 @@ namespace Jazz2::Multiplayer
 
 	void WebhookClient::OnPlayerDisconnected(StringView playerName, Reason reason, std::uint32_t playerCount, std::uint32_t maxPlayerCount)
 	{
-		WebhookEventType type; StringView prefix, suffix; std::uint32_t color;
+		WebhookEventType type;
+		StringView prefix, suffix;
+		std::uint32_t color;
 		switch (reason) {
 			case Reason::Kicked:
-				type = WebhookEventType::PlayerKicked; color = ColorNegative;
-				prefix = "\xF0\x9F\x91\xA2" "\xE2\x80\x83" "**"_s /* 👢 */; suffix = "** was kicked from the server"_s;
+				type = WebhookEventType::PlayerKicked;
+				color = ColorNegative;
+				prefix = "\xF0\x9F\x91\xA2"
+						 "\xE2\x80\x83"
+						 "**"_s /* 👢 */;
+				suffix = "** was kicked from the server"_s;
 				break;
 			case Reason::Banned:
-				type = WebhookEventType::PlayerKicked; color = ColorNegative;
-				prefix = "\xE2\x9B\x94" "\xE2\x80\x83" "**"_s /* ⛔ */; suffix = "** was banned from the server"_s;
+				type = WebhookEventType::PlayerKicked;
+				color = ColorNegative;
+				prefix = "\xE2\x9B\x94"
+						 "\xE2\x80\x83"
+						 "**"_s /* ⛔ */;
+				suffix = "** was banned from the server"_s;
 				break;
 			case Reason::CheatingDetected:
-				type = WebhookEventType::PlayerKicked; color = ColorNegative;
-				prefix = "\xF0\x9F\x9A\xA8" "\xE2\x80\x83" "**"_s /* 🚨 */; suffix = "** was kicked (cheating detected)"_s;
+				type = WebhookEventType::PlayerKicked;
+				color = ColorNegative;
+				prefix = "\xF0\x9F\x9A\xA8"
+						 "\xE2\x80\x83"
+						 "**"_s /* 🚨 */;
+				suffix = "** was kicked (cheating detected)"_s;
 				break;
 			case Reason::Idle:
-				type = WebhookEventType::PlayerKicked; color = ColorNeutral;
-				prefix = "\xF0\x9F\x92\xA4" "\xE2\x80\x83" "**"_s /* 💤 */; suffix = "** was kicked (inactivity)"_s;
+				type = WebhookEventType::PlayerKicked;
+				color = ColorNeutral;
+				prefix = "\xF0\x9F\x92\xA4"
+						 "\xE2\x80\x83"
+						 "**"_s /* 💤 */;
+				suffix = "** was kicked (inactivity)"_s;
 				break;
 			default:
-				type = WebhookEventType::PlayerDisconnected; color = ColorNeutral;
-				prefix = "\xF0\x9F\x93\xA4" "\xE2\x80\x83" "**"_s /* 📤 */; suffix = "** left the server"_s;
+				type = WebhookEventType::PlayerDisconnected;
+				color = ColorNeutral;
+				prefix = "\xF0\x9F\x93\xA4"
+						 "\xE2\x80\x83"
+						 "**"_s /* 📤 */;
+				suffix = "** left the server"_s;
 				break;
 		}
 
@@ -311,14 +350,16 @@ namespace Jazz2::Multiplayer
 	}
 
 	void WebhookClient::OnLevelChanged(StringView levelDisplayName, MpGameMode gameMode, bool reforgedGameplay, bool elimination,
-									   StringView targetLabel, std::uint32_t targetValue, std::int32_t playlistIndex, std::int32_t playlistSize)
+		StringView targetLabel, std::uint32_t targetValue, std::int32_t playlistIndex, std::int32_t playlistSize)
 	{
 		if (!IsEventEnabled(WebhookEventType::LevelChanged)) {
 			return;
 		}
 
 		SmallVector<char, 256> description;
-		AppendRaw(description, "\xF0\x9F\x97\xBA\xEF\xB8\x8F" "\xE2\x80\x83" "Now playing: **"_s /* 🗺️ + em space */);
+		AppendRaw(description, "\xF0\x9F\x97\xBA\xEF\xB8\x8F"
+							   "\xE2\x80\x83"
+							   "Now playing: **"_s /* 🗺️ + em space */);
 		AppendSanitizedName(description, levelDisplayName);
 		AppendRaw(description, "**"_s);
 
@@ -360,7 +401,9 @@ namespace Jazz2::Multiplayer
 		}
 
 		SmallVector<char, 256> description;
-		AppendRaw(description, "\xF0\x9F\x8F\x81" "\xE2\x80\x83" "Round started on **"_s /* 🏁 + em space */);
+		AppendRaw(description, "\xF0\x9F\x8F\x81"
+							   "\xE2\x80\x83"
+							   "Round started on **"_s /* 🏁 + em space */);
 		AppendSanitizedName(description, levelDisplayName);
 		AppendRaw(description, "** ("_s);
 		AppendRaw(description, NetworkManager::GameModeToString(gameMode));
@@ -376,7 +419,8 @@ namespace Jazz2::Multiplayer
 		}
 
 		SmallVector<char, 256> description;
-		AppendRaw(description, "\xF0\x9F\x8F\x86" "\xE2\x80\x83"_s /* 🏆 + em space */);
+		AppendRaw(description, "\xF0\x9F\x8F\x86"
+							   "\xE2\x80\x83"_s /* 🏆 + em space */);
 		if (!winnerName.empty()) {
 			AppendRaw(description, "**"_s);
 			AppendSanitizedName(description, winnerName);
@@ -407,7 +451,9 @@ namespace Jazz2::Multiplayer
 		}
 
 		SmallVector<char, 256> description;
-		AppendRaw(description, "\xF0\x9F\x8F\x86" "\xE2\x80\x83" "**"_s /* 🏆 + em space */);
+		AppendRaw(description, "\xF0\x9F\x8F\x86"
+							   "\xE2\x80\x83"
+							   "**"_s /* 🏆 + em space */);
 		AppendSanitizedName(description, teamName);
 		AppendRaw(description, " team** won the round!"_s);
 
@@ -433,7 +479,9 @@ namespace Jazz2::Multiplayer
 		}
 
 		SmallVector<char, 256> description;
-		AppendRaw(description, "\xF0\x9F\x91\x91" "\xE2\x80\x83" "**"_s /* 👑 + em space */);
+		AppendRaw(description, "\xF0\x9F\x91\x91"
+							   "\xE2\x80\x83"
+							   "**"_s /* 👑 + em space */);
 		AppendSanitizedName(description, championName);
 		AppendRaw(description, "** won the championship with **"_s);
 
@@ -463,9 +511,14 @@ namespace Jazz2::Multiplayer
 		}
 
 		SmallVector<char, 512> description;
-		AppendRaw(description, isAdmin
-			? "\xF0\x9F\x92\xAC" "\xE2\x80\x83" "\xF0\x9F\x9B\xA1\xEF\xB8\x8F" "\xE2\x80\x83" "**"_s /* 💬 🛡️ */
-			: "\xF0\x9F\x92\xAC" "\xE2\x80\x83" "**"_s /* 💬 + em space */);
+		AppendRaw(description, isAdmin ? "\xF0\x9F\x92\xAC"
+										 "\xE2\x80\x83"
+										 "\xF0\x9F\x9B\xA1\xEF\xB8\x8F"
+										 "\xE2\x80\x83"
+										 "**"_s /* 💬 🛡️ */
+									   : "\xF0\x9F\x92\xAC"
+										 "\xE2\x80\x83"
+										 "**"_s /* 💬 + em space */);
 		AppendSanitizedName(description, playerName);
 		AppendRaw(description, ":** "_s);
 		AppendRaw(description, text);
@@ -483,7 +536,9 @@ namespace Jazz2::Multiplayer
 		}
 
 		SmallVector<char, 256> description;
-		AppendRaw(description, "\xF0\x9F\x94\xA5" "\xE2\x80\x83" "**"_s /* 🔥 + em space */);
+		AppendRaw(description, "\xF0\x9F\x94\xA5"
+							   "\xE2\x80\x83"
+							   "**"_s /* 🔥 + em space */);
 		AppendSanitizedName(description, playerName);
 		if (!attackerName.empty()) {
 			AppendRaw(description, "** was roasted by **"_s);
@@ -503,7 +558,9 @@ namespace Jazz2::Multiplayer
 		}
 
 		SmallVector<char, 256> description;
-		AppendRaw(description, "\xE2\x8F\xB1\xEF\xB8\x8F" "\xE2\x80\x83" "**"_s /* ⏱️ + em space */);
+		AppendRaw(description, "\xE2\x8F\xB1\xEF\xB8\x8F"
+							   "\xE2\x80\x83"
+							   "**"_s /* ⏱️ + em space */);
 		AppendSanitizedName(description, playerName);
 		AppendRaw(description, "** finished lap **"_s);
 
@@ -536,7 +593,9 @@ namespace Jazz2::Multiplayer
 		}
 
 		SmallVector<char, 256> description;
-		AppendRaw(description, "\xF0\x9F\x9A\xA9" "\xE2\x80\x83" "**"_s /* 🚩 + em space */);
+		AppendRaw(description, "\xF0\x9F\x9A\xA9"
+							   "\xE2\x80\x83"
+							   "**"_s /* 🚩 + em space */);
 		AppendSanitizedName(description, playerName);
 		AppendRaw(description, "** captured the **"_s);
 		AppendSanitizedName(description, flagTeamName);
@@ -655,8 +714,10 @@ namespace Jazz2::Multiplayer
 				if (!retryAfter.empty()) {
 					retryAfterSecs = strtof(retryAfter.data(), nullptr);
 				}
-				if (retryAfterSecs < 1.0f) retryAfterSecs = 1.0f;
-				if (retryAfterSecs > 30.0f) retryAfterSecs = 30.0f;
+				if (retryAfterSecs < 1.0f)
+					retryAfterSecs = 1.0f;
+				if (retryAfterSecs > 30.0f)
+					retryAfterSecs = 30.0f;
 				SleepInterruptible((std::uint32_t)(retryAfterSecs * 1000.0f));
 				continue;
 			}

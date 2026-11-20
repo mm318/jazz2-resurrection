@@ -60,7 +60,8 @@ namespace Jazz2::Editor
 {
 	namespace
 	{
-		enum class TestResult {
+		enum class TestResult
+		{
 			Identical,
 			Equivalent,
 			NotNative,
@@ -72,16 +73,20 @@ namespace Jazz2::Editor
 		{
 		public:
 			explicit TestRandom(std::uint32_t seed)
-				: _state(seed != 0 ? seed : 0x9E3779B9u) {}
+				: _state(seed != 0 ? seed : 0x9E3779B9u)
+			{
+			}
 
-			std::uint32_t Next() {
+			std::uint32_t Next()
+			{
 				_state ^= _state << 13;
 				_state ^= _state >> 17;
 				_state ^= _state << 5;
 				return _state;
 			}
 
-			std::int32_t Next(std::int32_t max) {
+			std::int32_t Next(std::int32_t max)
+			{
 				return (max > 0 ? std::int32_t(Next() % std::uint32_t(max)) : 0);
 			}
 
@@ -289,7 +294,7 @@ namespace Jazz2::Editor
 					layer.Record.Kind = Formats::LayerKind::Other;
 					layer.Record.Width = 1 + random.Next(30);
 					layer.Record.Height = 1 + random.Next(30);
-					layer.Tiles.resize(std::size_t(layer.Record.Width) * std::size_t(layer.Record.Height), TileRef{});
+					layer.Tiles.resize(std::size_t(layer.Record.Width) * std::size_t(layer.Record.Height), TileRef {});
 					layer.Tiles[0] = MakeRandomTile(random, document);
 					ExecuteGrowingTileIdSpace(history, InsertLayerCommand::Add(document, random.Next(layerCount + 1), layer, "Add layer"_s), changes);
 				} else if (variant == 1 && !document.Layers[layerIndex].IsSpriteLayer()) {
@@ -308,7 +313,7 @@ namespace Jazz2::Editor
 					std::int32_t oldWidth = layer.GetWidth(), oldHeight = layer.GetHeight();
 					std::int32_t newWidth = oldWidth + 1, newHeight = oldHeight + 1;
 					SmallVector<TileRef, 0> tiles;
-					tiles.resize(std::size_t(newWidth) * std::size_t(newHeight), TileRef{});
+					tiles.resize(std::size_t(newWidth) * std::size_t(newHeight), TileRef {});
 					for (std::int32_t y = 0; y < oldHeight; y++) {
 						for (std::int32_t x = 0; x < oldWidth; x++) {
 							tiles[std::size_t(y) * newWidth + x] = layer.GetTile(x, y);
@@ -323,7 +328,7 @@ namespace Jazz2::Editor
 					layer.Record.Kind = Formats::LayerKind::Other;
 					layer.Record.Width = 1 + random.Next(30);
 					layer.Record.Height = 1 + random.Next(30);
-					layer.Tiles.resize(std::size_t(layer.Record.Width) * std::size_t(layer.Record.Height), TileRef{});
+					layer.Tiles.resize(std::size_t(layer.Record.Width) * std::size_t(layer.Record.Height), TileRef {});
 					document.Layers.insert(document.Layers.begin() + random.Next(std::int32_t(document.Layers.size()) + 1), Death::move(layer));
 				}
 				command->End(document, changes);
@@ -569,13 +574,15 @@ namespace Jazz2::Editor
 			if (bridge != nullptr && bridge->FieldCount > 0) {
 				const EventParamField& width = bridge->Fields[0];
 				expect(EventCatalog::ToDisplayValue(width, 8) == 128 && EventCatalog::FromDisplayValue(width, 130) == 8 &&
-					EventCatalog::FromDisplayValue(width, 136) == 9, "scaled values");
+						EventCatalog::FromDisplayValue(width, 136) == 9,
+					"scaled values");
 			}
 
 			// Events of the original game described from outside, each by its number in the passthrough event
 			std::size_t errorCount = EventCatalog::GetExtensionErrors().size();
 			EventCatalog::LoadExtensions("[{\"Original\":254,\"Name\":\"A\",\"Params\":[{\"Name\":\"X\",\"Bits\":2},{\"Name\":\"Y\",\"Bits\":5}]},"
-				"{\"Original\":82,\"Name\":\"B\"}]"_s, "test"_s, EventExtensionScope::Level);
+										 "{\"Original\":82,\"Name\":\"B\"}]"_s,
+				"test"_s, EventExtensionScope::Level);
 			expect(EventCatalog::GetExtensionErrors().size() == errorCount, "original events without errors");
 			{
 				Formats::EventRecord passthrough = EventCatalog::MakeDefault(EventType::PassthroughEvent);
@@ -583,7 +590,8 @@ namespace Jazz2::Editor
 				passthrough.Params[1] = 0x0E;
 				const EventDescriptor* remapped = EventCatalog::Find(EventType::PassthroughEvent, passthrough.Params);
 				expect(remapped != nullptr && remapped->OriginalEvent == 254 && remapped->FieldCount == 3 &&
-					EventCatalog::ReadField(passthrough, remapped->Fields[1]) == 2 && EventCatalog::ReadField(passthrough, remapped->Fields[2]) == 3, "original event described");
+						EventCatalog::ReadField(passthrough, remapped->Fields[1]) == 2 && EventCatalog::ReadField(passthrough, remapped->Fields[2]) == 3,
+					"original event described");
 				passthrough.Params[0] = 82;
 				expect(EventCatalog::Find(EventType::PassthroughEvent, passthrough.Params) != remapped, "both original events kept");
 				passthrough.Params[0] = 83;
@@ -593,15 +601,17 @@ namespace Jazz2::Editor
 
 			// As MLLE describes them in the script of the level
 			EventCatalog::LoadMlleEvents("void f() {}\n\t///@Event 240=Warp Target |+|Area      |Warp   |Target |WarpID:8|Character:{Any,Jazz,Spaz,Lori}2|Color:{Yellow,Blue}1|Par:5\r\n"
-				"///@Event 242=Corner|+|Area|Corner||WarpID:8\n///@Event 82=Thing|+|Scenery|Thing||Speed:4\n"_s, "test"_s, EventExtensionScope::Level);
+										 "///@Event 242=Corner|+|Area|Corner||WarpID:8\n///@Event 82=Thing|+|Scenery|Thing||Speed:4\n"_s,
+				"test"_s, EventExtensionScope::Level);
 			expect(EventCatalog::GetExtensionErrors().size() == errorCount, "MLLE events without errors");
 			{
 				Formats::EventRecord passthrough = EventCatalog::MakeDefault(EventType::PassthroughEvent);
 				passthrough.Params[0] = 240;
 				const EventDescriptor* warpTarget = EventCatalog::Find(EventType::PassthroughEvent, passthrough.Params);
 				expect(warpTarget != nullptr && StringView(warpTarget->Name) == "Warp Target"_s && warpTarget->Category == EventCategory::Area &&
-					warpTarget->FieldCount == 5 && warpTarget->Fields[2].Type == ParamType::Enum && warpTarget->Fields[2].OptionCount == 4 &&
-					warpTarget->Fields[4].Shift == 11 && warpTarget->Fields[4].Bits == 5, "MLLE event described");
+						warpTarget->FieldCount == 5 && warpTarget->Fields[2].Type == ParamType::Enum && warpTarget->Fields[2].OptionCount == 4 &&
+						warpTarget->Fields[4].Shift == 11 && warpTarget->Fields[4].Bits == 5,
+					"MLLE event described");
 				passthrough.Params[0] = 242;
 				const EventDescriptor* corner = EventCatalog::Find(EventType::PassthroughEvent, passthrough.Params);
 				expect(corner != nullptr && corner != warpTarget && corner->FieldCount == 2, "second MLLE event described");
@@ -611,14 +621,16 @@ namespace Jazz2::Editor
 				EventType picked = EventType(EventCatalog::FirstOriginalPickType + 82);
 				auto all = EventCatalog::GetAll();
 				expect(std::find(all.begin(), all.end(), EventCatalog::Find(picked)) != all.end() && EventCatalog::GetPickedOriginal(picked) == 82 &&
-					EventCatalog::GetPickedOriginal(EventType::PassthroughEvent) == 0, "MLLE event offered");
+						EventCatalog::GetPickedOriginal(EventType::PassthroughEvent) == 0,
+					"MLLE event offered");
 				expect(EventCatalog::MakeDefault(EventType(EventCatalog::FirstOriginalPickType + 240)).Type == std::uint16_t(EventType::WarpTarget),
 					"converted MLLE event offered");
 				Formats::EventRecord placed = EventCatalog::MakeDefault(picked);
 				passthrough.Params[0] = 82;
 				expect(placed.Type == std::uint16_t(EventType::PassthroughEvent) && placed.Params[0] == 82 &&
-					EventCatalog::Find(EventType(placed.Type), placed.Params) == EventCatalog::Find(EventType::PassthroughEvent, passthrough.Params) &&
-					StringView(EventCatalog::Find(picked)->Name) == "Thing"_s, "MLLE event placed");
+						EventCatalog::Find(EventType(placed.Type), placed.Params) == EventCatalog::Find(EventType::PassthroughEvent, passthrough.Params) &&
+						StringView(EventCatalog::Find(picked)->Name) == "Thing"_s,
+					"MLLE event placed");
 			}
 			EventCatalog::ClearExtensions(EventExtensionScope::Level);
 
@@ -629,8 +641,9 @@ namespace Jazz2::Editor
 				Formats::EventRecord placed = EventCatalog::MakeDefault(picked);
 				const EventDescriptor* clown = EventCatalog::Find(EventType(placed.Type), placed.Params);
 				expect(EventCatalog::GetPickedOriginal(picked) == 141 && placed.Type != std::uint16_t(EventType::PassthroughEvent) &&
-					clown != nullptr && StringView(clown->Name) == "Clown"_s && clown->FieldCount == 1 &&
-					clown->Fields[0].Offset == Formats::EventRecord::OriginalParamsOffset, "converted MLLE event described");
+						clown != nullptr && StringView(clown->Name) == "Clown"_s && clown->FieldCount == 1 &&
+						clown->Fields[0].Offset == Formats::EventRecord::OriginalParamsOffset,
+					"converted MLLE event described");
 				EventCatalog::WriteField(placed, clown->Fields[0], 9);
 				expect(placed.Params[Formats::EventRecord::OriginalParamsOffset] == 9 && EventCatalog::Find(EventType(placed.Type), placed.Params) == clown,
 					"converted MLLE event parameter");
@@ -642,7 +655,8 @@ namespace Jazz2::Editor
 			// Nothing after `=` hides what the event of the original game becomes, until the descriptions of the level go
 			EventCatalog::LoadMlleEvents("///@Event 100=\n///@Event 101= \n"_s, "test"_s, EventExtensionScope::Level);
 			expect(EventCatalog::GetExtensionErrors().size() == errorCount && EventCatalog::IsHidden(EventCatalog::Find(EventType::EnemyTurtleTough)) &&
-				!EventCatalog::IsHidden(EventCatalog::Find(EventType::EnemyTurtle)), "MLLE event hidden");
+					!EventCatalog::IsHidden(EventCatalog::Find(EventType::EnemyTurtle)),
+				"MLLE event hidden");
 			EventCatalog::ClearExtensions(EventExtensionScope::Level);
 			expect(!EventCatalog::IsHidden(EventCatalog::Find(EventType::EnemyTurtleTough)), "MLLE event shown again");
 
@@ -694,7 +708,8 @@ namespace Jazz2::Editor
 			document.SetEvent(18, 8, EventCatalog::MakeDefault(EventType::AreaEndOfLevel));
 			EventPreviews::CollectRaceTrack(document, links);
 			expect(links.size() == 3 && links[0].From.X == 12 * 32.0f && links[0].To.Y == 32.0f && links[0].To.H == 96.0f &&
-				links[1].From.Y == 6 * 32.0f && links[1].To.X == 18 * 32.0f && links[2].Id == 1 && links[2].To.X == 18 * 32.0f, "race track");
+					links[1].From.Y == 6 * 32.0f && links[1].To.X == 18 * 32.0f && links[2].Id == 1 && links[2].To.X == 18 * 32.0f,
+				"race track");
 
 			// Arrows: a belt of 5 to the right and 3 to the left is one of 2 to the right, a wind of its own
 			event = EventCatalog::MakeDefault(EventType::AreaHForce);
@@ -729,7 +744,8 @@ namespace Jazz2::Editor
 					Vector2f tubeDrag = EventGizmos::GetDragDirection(event, tubeGizmo);
 					expect(tubeDrag.X == 0.0f && tubeDrag.Y == 0.0f, "tube drag direction");
 					expect(EventGizmos::Apply(event, cell, 640, tubeGizmo, center + Vector2f(0.0f, EventPreviews::GetDirectionLength(5.0f))) &&
-						std::int8_t(event.Params[0]) == 0 && std::int8_t(event.Params[1]) == 5, "tube dragged down");
+							std::int8_t(event.Params[0]) == 0 && std::int8_t(event.Params[1]) == 5,
+						"tube dragged down");
 					EventGizmos::Apply(event, cell, 640, tubeGizmo, center + Vector2f(-2.0f, 0.0f));
 					expect(std::int8_t(event.Params[0]) == -1 && event.Params[1] == 0, "tube dragged into the event");
 					// Snapped, almost diagonally is diagonally with the same value on both axes, almost up is up
@@ -746,7 +762,8 @@ namespace Jazz2::Editor
 				if (belt != nullptr) {
 					EventGizmo beltGizmo = *belt;
 					expect(EventGizmos::Apply(event, cell, 640, beltGizmo, center + Vector2f(-EventPreviews::GetDirectionLength(3.0f), 20.0f)) &&
-						event.Params[0] == 3 && event.Params[1] == 0, "belt dragged to the left");
+							event.Params[0] == 3 && event.Params[1] == 0,
+						"belt dragged to the left");
 					// A belt goes only left or right
 					Vector2f beltDrag = EventGizmos::GetDragDirection(event, beltGizmo);
 					expect(beltDrag.X == 1.0f && beltDrag.Y == 0.0f, "belt drag direction");
@@ -778,7 +795,8 @@ namespace Jazz2::Editor
 				document.Properties.SecretLevel = "secret"_s;
 				String defaultLevel;
 				expect(exit != nullptr && exit->FieldCount > 3 && EventPreviews::DescribeDefaultLevel(document, event, exit->Fields[3], defaultLevel) &&
-					defaultLevel.contains("castle1n"_s), "default next level");
+						defaultLevel.contains("castle1n"_s),
+					"default next level");
 				if (exit != nullptr && exit->FieldCount > 3) {
 					event.Params[0] = 3;
 					expect(EventPreviews::DescribeDefaultLevel(document, event, exit->Fields[3], defaultLevel) && defaultLevel.contains("secret"_s), "default secret level");
@@ -796,7 +814,8 @@ namespace Jazz2::Editor
 
 			// The falloff of a light as the shader draws it
 			expect(EventPreviews::GetLightStrength(10.0f, 20.0f, 60.0f) == 1.0f && EventPreviews::GetLightStrength(40.0f, 20.0f, 60.0f) == 0.125f &&
-				EventPreviews::GetLightStrength(70.0f, 20.0f, 60.0f) == 0.0f, "light falloff");
+					EventPreviews::GetLightStrength(70.0f, 20.0f, 60.0f) == 0.0f,
+				"light falloff");
 
 			// A pulsing light starting a quarter of a pulse in is at its largest, one of no speed doesn't pulse
 			{
@@ -805,7 +824,8 @@ namespace Jazz2::Editor
 				event.Params[9] = 1;
 				EventLightShape light;
 				expect(EventPreviews::GetLight(event, light) && light.Pulse > 0.0f &&
-					std::abs(EventPreviews::GetLightPulse(light, 0.0f) - light.Pulse) < 0.01f, "light pulse");
+						std::abs(EventPreviews::GetLightPulse(light, 0.0f) - light.Pulse) < 0.01f,
+					"light pulse");
 				event.Params[8] = 0;
 				expect(EventPreviews::GetLight(event, light) && EventPreviews::GetLightPulse(light, 1.0f) == 0.0f, "light without pulse");
 			}
@@ -823,8 +843,9 @@ namespace Jazz2::Editor
 				Vector2i size;
 				SmallVector<std::uint8_t, 0> intensities;
 				expect(EventPreviews::CollectAmbientLight(lit, 1, size, intensities) && size == Vector2i(12, 4) && intensities.size() == 48 &&
-					intensities[1 + 12] == 0 && intensities[0 + 12] == 0 && intensities[9 + 12] == 200 && intensities[11 + 12] == 200 &&
-					intensities[5 + 12] == 100, "ambient light");
+						intensities[1 + 12] == 0 && intensities[0 + 12] == 0 && intensities[9 + 12] == 200 && intensities[11 + 12] == 200 &&
+						intensities[5 + 12] == 100,
+					"ambient light");
 				std::uint8_t intensity;
 				expect(!EventPreviews::GetAmbientLight(EventCatalog::MakeDefault(EventType::LightSteady), intensity), "not an ambient light");
 			}
@@ -980,14 +1001,14 @@ namespace Jazz2::Editor
 				document.ExtraTileSets.push_back(Death::move(tileSet));
 			}
 			DocumentLayer& layer = document.Layers[0];
-			layer.Tiles[0] = TileRef{ 5, 1, 0 };
-			layer.Tiles[1] = TileRef{ 7, 2, Formats::TileRecord::FlipX };
-			layer.Tiles[2] = TileRef{ 50, TileRef::DefaultTileSet, 0 };
+			layer.Tiles[0] = TileRef { 5, 1, 0 };
+			layer.Tiles[1] = TileRef { 7, 2, Formats::TileRecord::FlipX };
+			layer.Tiles[2] = TileRef { 50, TileRef::DefaultTileSet, 0 };
 			DocumentAnimation& animation = document.Animations.emplace_back();
-			animation.Frames.push_back(TileRef{ 3, 2, 0 });
+			animation.Frames.push_back(TileRef { 3, 2, 0 });
 			Formats::TileDiffuseOverride& tileOverride = document.DiffuseOverrides.emplace_back();
 			std::memset(&tileOverride, 0, sizeof(tileOverride));
-			tileOverride.TileId = std::uint16_t(document.ToTileId(TileRef{ 7, 2, 0 }));
+			tileOverride.TileId = std::uint16_t(document.ToTileId(TileRef { 7, 2, 0 }));
 			expect(tileOverride.TileId == 117, "override before");
 
 			// The first extra tile set is removed, the tiles of the second one move down
@@ -1004,18 +1025,20 @@ namespace Jazz2::Editor
 			};
 			std::int32_t cleared = document.RemapTiles(overrides, remove);
 			expect(cleared == 1 && layer.Tiles[0].IsEmpty(), "removed tile set cleared");
-			expect(layer.Tiles[1] == TileRef{ 7, 1, Formats::TileRecord::FlipX }, "tile moved down");
-			expect(layer.Tiles[2] == TileRef{ 50, TileRef::DefaultTileSet, 0 }, "default tile kept");
-			expect(document.Animations[0].Frames[0] == TileRef{ 3, 1, 0 }, "frame moved down");
+			expect(layer.Tiles[1] == TileRef { 7, 1, Formats::TileRecord::FlipX }, "tile moved down");
+			expect(layer.Tiles[2] == TileRef { 50, TileRef::DefaultTileSet, 0 }, "default tile kept");
+			expect(document.Animations[0].Frames[0] == TileRef { 3, 1, 0 }, "frame moved down");
 			expect(document.DiffuseOverrides.size() == 1 && document.DiffuseOverrides[0].TileId == 107, "override moved down");
 
 			// The tile set gets smaller, tiles past its end are gone
 			overrides = document.CaptureOverrideRefs();
 			document.ExtraTileSets[0].Count = 5;
-			Function<bool(TileRef&)> keep = [](TileRef&) { return true; };
+			Function<bool(TileRef&)> keep = [](TileRef&) {
+				return true;
+			};
 			cleared = document.RemapTiles(overrides, keep);
 			expect(cleared == 1 && layer.Tiles[1].IsEmpty(), "tile past the end cleared");
-			expect(document.Animations[0].Frames[0] == TileRef{ 3, 1, 0 }, "frame within the range kept");
+			expect(document.Animations[0].Frames[0] == TileRef { 3, 1, 0 }, "frame within the range kept");
 			expect(document.DiffuseOverrides.empty(), "override past the end dropped");
 
 			// Tile sets larger than the tile ID space push the animated tiles up
@@ -1042,12 +1065,12 @@ namespace Jazz2::Editor
 				}
 			};
 
-			const TileRef lastTile{ 19, TileRef::DefaultTileSet, 0 };
-			const TileRef animatedTile{ 0, TileRef::Animated, 0 };
+			const TileRef lastTile { 19, TileRef::DefaultTileSet, 0 };
+			const TileRef animatedTile { 0, TileRef::Animated, 0 };
 
 			LevelDocument document;
 			document.CreateNew("test"_s, 20, Vector2i(8, 8));
-			document.Animations.emplace_back().Frames.push_back(TileRef{ 2, TileRef::DefaultTileSet, 0 });
+			document.Animations.emplace_back().Frames.push_back(TileRef { 2, TileRef::DefaultTileSet, 0 });
 			document.TileIdSpace = 20;
 			document.Layers[0].Tiles[1 + 1 * 8] = animatedTile;
 			expect(document.GetAnimatedTilesOffset() == 19 && !document.IsTileAddressable(lastTile), "the last tile can't be addressed");
@@ -1057,7 +1080,7 @@ namespace Jazz2::Editor
 
 			// A tile within the space doesn't change it
 			auto paint = std::make_unique<SetTilesCommand>(document, 0, "Paint"_s);
-			paint->Set(2, 2, TileRef{ 5, TileRef::DefaultTileSet, 0 });
+			paint->Set(2, 2, TileRef { 5, TileRef::DefaultTileSet, 0 });
 			ExecuteGrowingTileIdSpace(history, Death::move(paint), changes);
 			expect(document.TileIdSpace == 20 && history.GetDoneCount() == 1, "a tile within the space keeps it");
 
@@ -1107,13 +1130,13 @@ namespace Jazz2::Editor
 			paint = std::make_unique<SetTilesCommand>(document, 0, "Paint"_s);
 			paint->Set(4, 2, lastTile);
 			ExecuteGrowingTileIdSpace(history, Death::move(paint), changes);
-			expect(document.GetAnimatedTilesOffset() == 25 && document.IsTileAddressable(TileRef{ 4, 1, 0 }), "the space fits the tile sets");
+			expect(document.GetAnimatedTilesOffset() == 25 && document.IsTileAddressable(TileRef { 4, 1, 0 }), "the space fits the tile sets");
 
 			// An override of the last tile, kept by its tile ID, makes it grow too, so it stays the tile's as the tile sets change
 			{
 				LevelDocument overridden;
 				overridden.CreateNew("test"_s, 20, Vector2i(8, 8));
-				overridden.Animations.emplace_back().Frames.push_back(TileRef{ 2, TileRef::DefaultTileSet, 0 });
+				overridden.Animations.emplace_back().Frames.push_back(TileRef { 2, TileRef::DefaultTileSet, 0 });
 				overridden.TileIdSpace = 20;
 				CommandHistory overrideHistory(overridden, SIZE_MAX);
 				std::uint8_t indices[Formats::LevelFile::TileSize * Formats::LevelFile::TileSize];
@@ -1318,7 +1341,10 @@ namespace Jazz2::Editor
 			image.Create(5 * 32, 32, false);
 			auto setPixel = [&image](std::int32_t x, std::int32_t y, std::uint32_t color) {
 				std::uint8_t* p = &image.Pixels[(std::size_t(y) * std::size_t(image.Width) + std::size_t(x)) * 4];
-				p[0] = std::uint8_t(color); p[1] = std::uint8_t(color >> 8); p[2] = std::uint8_t(color >> 16); p[3] = std::uint8_t(color >> 24);
+				p[0] = std::uint8_t(color);
+				p[1] = std::uint8_t(color >> 8);
+				p[2] = std::uint8_t(color >> 16);
+				p[3] = std::uint8_t(color >> 24);
 			};
 			std::uint32_t palette[256] = {};
 			bool locked[256] = {};
@@ -1518,7 +1544,8 @@ namespace Jazz2::Editor
 		std::int32_t TestLayerPlacement()
 		{
 			using M = Tiles::LayerSpeedModel;
-			struct Case {
+			struct Case
+			{
 				std::int32_t ViewWidth, ViewHeight;
 				float CameraX, CameraY;
 				M Model;
@@ -1659,14 +1686,14 @@ namespace Jazz2::Editor
 			std::int32_t sprite = document.GetSpriteLayerIndex();
 			auto& tiles = document.Layers[sprite].Tiles;
 			for (std::int32_t i = 0; i < 4; i++) {
-				tiles[i] = TileRef{ std::uint16_t(i + 1), TileRef::DefaultTileSet, std::uint8_t(i == 2 ? Formats::TileRecord::FlipX : 0) };
+				tiles[i] = TileRef { std::uint16_t(i + 1), TileRef::DefaultTileSet, std::uint8_t(i == 2 ? Formats::TileRecord::FlipX : 0) };
 			}
 			// 1 and 2 swap, an empty tile goes before 3, 4 is gone, 5 stays at the end
 			const std::int32_t order[] = { 0, 2, 1, -1, 3, 5 };
 			std::int32_t cleared = RemapLevelToTileSetOrder(document, order);
 			bool ok = (cleared == 1 && document.DefaultTileCount == 6 &&
-				tiles[0] == TileRef{ 2, TileRef::DefaultTileSet, 0 } && tiles[1] == TileRef{ 1, TileRef::DefaultTileSet, 0 } &&
-				tiles[2] == TileRef{ 4, TileRef::DefaultTileSet, Formats::TileRecord::FlipX } && tiles[3].IsEmpty());
+				tiles[0] == TileRef { 2, TileRef::DefaultTileSet, 0 } && tiles[1] == TileRef { 1, TileRef::DefaultTileSet, 0 } &&
+				tiles[2] == TileRef { 4, TileRef::DefaultTileSet, Formats::TileRecord::FlipX } && tiles[3].IsEmpty());
 			if (!ok) {
 				LOGE("Tile set order: tiles of the level don't follow the new order of their tile set");
 				return 1;
@@ -1702,7 +1729,10 @@ namespace Jazz2::Editor
 					for (std::int32_t x = 0; x < image.Width; x++) {
 						std::uint32_t color = palette[(y / 3) * 16 + x / 3];
 						std::uint8_t* pixel = &image.Pixels[(y * image.Width + x) * 4];
-						pixel[0] = std::uint8_t(color); pixel[1] = std::uint8_t(color >> 8); pixel[2] = std::uint8_t(color >> 16); pixel[3] = 255;
+						pixel[0] = std::uint8_t(color);
+						pixel[1] = std::uint8_t(color >> 8);
+						pixel[2] = std::uint8_t(color >> 16);
+						pixel[3] = 255;
 					}
 				}
 				String path = fs::CombinePath(fs::GetTempDirectory(), "selftest-palette-grid.png"_s);
@@ -1799,8 +1829,8 @@ namespace Jazz2::Editor
 			document.CreateNew("test"_s, 100, Vector2i(4, 3));
 			std::int32_t sprite = document.GetSpriteLayerIndex();
 			DocumentLayer& layer = document.Layers[sprite];
-			layer.GetTile(0, 0) = TileRef{ 5, TileRef::DefaultTileSet, 0 };
-			layer.GetTile(3, 2) = TileRef{ 7, TileRef::DefaultTileSet, 0 };
+			layer.GetTile(0, 0) = TileRef { 5, TileRef::DefaultTileSet, 0 };
+			layer.GetTile(3, 2) = TileRef { 7, TileRef::DefaultTileSet, 0 };
 			Formats::EventRecord event = LevelDocument::GetEmptyEvent();
 			event.Type = 1;
 			document.SetEvent(3, 2, event);
@@ -1810,9 +1840,9 @@ namespace Jazz2::Editor
 			expect(document.ResizeLayer(sprite, Vector2i(6, 4), Vector2i(2, 1), LevelDocument::ResizeFill::ExtendEdges), "resized");
 			DocumentLayer& resized = document.Layers[sprite];
 			expect(resized.GetWidth() == 6 && resized.GetHeight() == 4, "new size");
-			expect(resized.GetTile(2, 1) == TileRef{ 5, TileRef::DefaultTileSet, 0 }, "tile moved");
-			expect(resized.GetTile(0, 0) == TileRef{ 5, TileRef::DefaultTileSet, 0 }, "corner extended");
-			expect(resized.GetTile(5, 3) == TileRef{ 7, TileRef::DefaultTileSet, 0 }, "far tile moved");
+			expect(resized.GetTile(2, 1) == TileRef { 5, TileRef::DefaultTileSet, 0 }, "tile moved");
+			expect(resized.GetTile(0, 0) == TileRef { 5, TileRef::DefaultTileSet, 0 }, "corner extended");
+			expect(resized.GetTile(5, 3) == TileRef { 7, TileRef::DefaultTileSet, 0 }, "far tile moved");
 			expect(document.GetEvent(5, 3).Type == 1 && document.Events.size() == 1, "event moved");
 			expect(document.Properties.WaterLevel == 96, "water moved");
 
@@ -1849,7 +1879,7 @@ namespace Jazz2::Editor
 			for (std::int32_t i = 0; i < StepCount; i++) {
 				auto command = std::make_unique<SetTilesCommand>(document, 0, "Tiles"_s);
 				for (std::int32_t j = 0; j < 50; j++) {
-					command->Set(random.Next(64), random.Next(64), TileRef{ std::uint16_t(1 + random.Next(99)), TileRef::DefaultTileSet, 0 });
+					command->Set(random.Next(64), random.Next(64), TileRef { std::uint16_t(1 + random.Next(99)), TileRef::DefaultTileSet, 0 });
 				}
 				history.Execute(Death::move(command), changes);
 			}
@@ -1859,7 +1889,8 @@ namespace Jazz2::Editor
 			MemoryStream changed;
 			Export(document, changed);
 			std::int32_t doneCount = history.GetDoneCount();
-			while (history.Undo(changes)) {}
+			while (history.Undo(changes)) {
+			}
 			// The saved state was forgotten with the oldest changes, it can't be reached anymore
 			expect(history.IsDirty(), "dirty after the reachable changes were undone");
 			for (std::int32_t i = 0; i < doneCount; i++) {
@@ -1873,7 +1904,7 @@ namespace Jazz2::Editor
 			auto large = std::make_unique<SetTilesCommand>(document, 0, "Large"_s);
 			for (std::int32_t y = 0; y < 64; y++) {
 				for (std::int32_t x = 0; x < 64; x++) {
-					large->Set(x, y, TileRef{ std::uint16_t(1 + random.Next(99)), TileRef::DefaultTileSet, std::uint8_t(random.Next(4)) });
+					large->Set(x, y, TileRef { std::uint16_t(1 + random.Next(99)), TileRef::DefaultTileSet, std::uint8_t(random.Next(4)) });
 				}
 			}
 			history.Execute(Death::move(large), changes);
@@ -2036,7 +2067,7 @@ namespace Jazz2::Editor
 
 			auto snapshot = SnapshotCommand::Begin(document, SnapshotParts::Layers | SnapshotParts::Chunks, "Change"_s);
 			document.SetChunk(TestChunk, TestChunkData);
-			document.Layers[0].Tiles[0] = TileRef{ 5, TileRef::DefaultTileSet, 0 };
+			document.Layers[0].Tiles[0] = TileRef { 5, TileRef::DefaultTileSet, 0 };
 			snapshot->End(document, changes);
 			history.Record(Death::move(snapshot));
 
@@ -2079,7 +2110,7 @@ namespace Jazz2::Editor
 			spline.Layer = 2;
 			spline.Points.push_back(Vector2f(0.0f, 0.0f));
 			spline.Points.push_back(Vector2f(64.0f, 0.0f));
-			spline.Owned.push_back(TerrainSpline::OwnedTile{ 1, 1, TileRef{ 3, TileRef::DefaultTileSet, 0 }, TileRef{} });
+			spline.Owned.push_back(TerrainSpline::OwnedTile { 1, 1, TileRef { 3, TileRef::DefaultTileSet, 0 }, TileRef {} });
 			TerrainSpline::Write(splines, data);
 			TerrainSpline::SetChunkData(document, data);
 			auto splineLayer = [&document]() {
@@ -2091,7 +2122,7 @@ namespace Jazz2::Editor
 			layer.Record = document.Layers[0].Record;
 			layer.Record.Width = 4;
 			layer.Record.Height = 4;
-			layer.Tiles.resize(16, TileRef{});
+			layer.Tiles.resize(16, TileRef {});
 			layer.EditorFlags = DocumentLayer::EditorLocked;
 			history.Execute(InsertLayerCommand::Add(document, 0, layer, "Add layer"_s), changes);
 			expect(splineLayer() == 3 && document.Layers[0].EditorFlags == DocumentLayer::EditorLocked, "added layer");
@@ -2137,7 +2168,7 @@ namespace Jazz2::Editor
 			// Waited for, the copy is written on a worker thread otherwise
 			expect(autosave.SaveNow(document, history, true) && !fs::FileExists(recoveryPath), "nothing written without changes");
 			auto command = std::make_unique<SetTilesCommand>(document, 0, "Tiles"_s);
-			command->Set(3, 2, TileRef{ 7, TileRef::DefaultTileSet, 0 });
+			command->Set(3, 2, TileRef { 7, TileRef::DefaultTileSet, 0 });
 			history.Execute(Death::move(command), changes);
 			expect(autosave.SaveNow(document, history, true) && fs::FileExists(recoveryPath), "written with changes");
 			expect(document.FindChunk(AutosaveService::RecoveryChunk) == nullptr, "the document is left as it was");
@@ -2233,7 +2264,7 @@ namespace Jazz2::Editor
 				spline.Smooth = (i == 1);
 				spline.Points.push_back(Vector2f(1.5f, -2.0f));
 				spline.Points.push_back(Vector2f(100.25f, 40.0f));
-				spline.Owned.push_back(TerrainSpline::OwnedTile{ 2, 3, TileRef{ 9, TileRef::DefaultTileSet, 1 }, TileRef{ 4, TileRef::Animated, 0 } });
+				spline.Owned.push_back(TerrainSpline::OwnedTile { 2, 3, TileRef { 9, TileRef::DefaultTileSet, 1 }, TileRef { 4, TileRef::Animated, 0 } });
 			}
 			SmallVector<std::uint8_t, 0> data;
 			TerrainSpline::Write(splines, data);
@@ -2286,7 +2317,8 @@ namespace Jazz2::Editor
 			SmallVector<Annotation, 0> annotations;
 			Annotation::Read(document, annotations);
 			expect(annotations.size() == 1 && annotations[0].X == -12 && annotations[0].Y == 34 && annotations[0].Slot == 3 && annotations[0].Text == "Home"_s &&
-				document.FindChunk(Annotation::LegacyChunk) == nullptr, "bookmarks of 3.9.0 upgraded");
+					document.FindChunk(Annotation::LegacyChunk) == nullptr,
+				"bookmarks of 3.9.0 upgraded");
 
 			// A note of version 2, with its color, author, time, state and replies
 			{
@@ -2309,8 +2341,9 @@ namespace Jazz2::Editor
 				SmallVector<Annotation, 0> readNotes;
 				Annotation::Read(document, readNotes);
 				expect(readNotes.size() == 1 && readNotes[0].Color == note.Color && readNotes[0].Author == note.Author && readNotes[0].Time == note.Time &&
-					readNotes[0].Resolved && readNotes[0].Replies.size() == 1 && readNotes[0].Replies[0].Text == "Done"_s &&
-					readNotes[0].Replies[0].Time == 1700000100, "notes with replies");
+						readNotes[0].Resolved && readNotes[0].Replies.size() == 1 && readNotes[0].Replies[0].Text == "Done"_s &&
+						readNotes[0].Replies[0].Time == 1700000100,
+					"notes with replies");
 				// The bookmark of before is put back for the rest of the test
 				Annotation::Write(document, annotations);
 			}
@@ -2359,7 +2392,8 @@ namespace Jazz2::Editor
 				DocumentSnapshot::CompressLayer(document.Layers[0], compressed);
 				DocumentLayer restored;
 				expect(DocumentSnapshot::DecompressLayer(compressed, restored) && sameTexture(restored) &&
-					restored.Record.Textured.InnerAutoSpeedY == 1.25f, "the texture of a layer through a snapshot");
+						restored.Record.Textured.InnerAutoSpeedY == 1.25f,
+					"the texture of a layer through a snapshot");
 			}
 			document.SetChunk(Formats::LevelFile::PreviewChunk, Preview);
 			MemoryStream saved;
@@ -2377,14 +2411,16 @@ namespace Jazz2::Editor
 			expect(loaded.Layers[1].EditorOpacity == 128 && loaded.Layers[0].EditorOpacity == 255, "the opacity of layers through a file");
 			expect((loaded.Flags & LevelFlags::HasPreview) == LevelFlags::None, "the preview flag isn't kept in the document");
 			expect(loaded.Layers[1].Record.RendererType == document.Layers[1].Record.RendererType &&
-				std::memcmp(loaded.Layers[1].Record.Color, SpriteLayerColor, sizeof(SpriteLayerColor)) == 0 &&
-				loaded.FindChunk(Formats::LayerPropertiesChunk::Tag) == nullptr, "how the sprite layer is drawn through a file");
+					std::memcmp(loaded.Layers[1].Record.Color, SpriteLayerColor, sizeof(SpriteLayerColor)) == 0 &&
+					loaded.FindChunk(Formats::LayerPropertiesChunk::Tag) == nullptr,
+				"how the sprite layer is drawn through a file");
 			const Formats::TexturedLayerParams& textured = loaded.Layers[0].Record.Textured;
 			expect(textured.FadeX == 0.25f && textured.FadeY == 0.75f && textured.Fade == 28 && textured.Flags == Formats::TexturedLayerParams::InnerLayer &&
-				loaded.Layers[1].Record.Textured.IsDefault() && loaded.FindChunk(Formats::LayerPropertiesChunk::Tag) == nullptr,
+					loaded.Layers[1].Record.Textured.IsDefault() && loaded.FindChunk(Formats::LayerPropertiesChunk::Tag) == nullptr,
 				"the parameters of a reflection through a file");
 			expect(textured.InnerSpeedX == 0.3f && textured.InnerSpeedY == -0.5f && textured.InnerAutoSpeedX == 0.8f && textured.InnerAutoSpeedY == 1.25f &&
-				sameTexture(loaded.Layers[0]) && loaded.Layers[1].Texture.empty(), "the inner speeds and the texture of a reflection through a file");
+					sameTexture(loaded.Layers[0]) && loaded.Layers[1].Texture.empty(),
+				"the inner speeds and the texture of a reflection through a file");
 
 			document.SetChunk(Formats::LevelFile::PreviewChunk, {});
 			MemoryStream noPreview;
@@ -2396,7 +2432,8 @@ namespace Jazz2::Editor
 			expect(exported.Load(noPreview, nullptr) && exported.Layers[1].Record.RendererType == document.Layers[1].Record.RendererType,
 				"how the sprite layer is drawn kept by an export");
 			expect(exported.Layers[0].Record.Textured.Fade == 28 && exported.Layers[0].Record.Textured.InnerAutoSpeedX == 0.8f &&
-				sameTexture(exported.Layers[0]), "the parameters and the texture of a reflection kept by an export");
+					sameTexture(exported.Layers[0]),
+				"the parameters and the texture of a reflection kept by an export");
 
 			// A field of a newer version is skipped, and so are the bytes a newer version adds after a value
 			{
@@ -2404,7 +2441,7 @@ namespace Jazz2::Editor
 				static const std::uint8_t NewerEntry[] = { 1, 1, 9, 200, 2, 0xAA, 0xBB, 6, 3, 4, 77, 0xCC };
 				SmallVector<Formats::LayerPropertiesChunk::Entry, 1> entries;
 				expect(Formats::LayerPropertiesChunk::Read(NewerEntry, entries) && entries.size() == 1 && entries[0].Layer == 1 &&
-					entries[0].Blend == 4 && entries[0].BlendParam == 77 && entries[0].Name.empty() && entries[0].Textured.IsDefault(),
+						entries[0].Blend == 4 && entries[0].BlendParam == 77 && entries[0].Name.empty() && entries[0].Textured.IsDefault(),
 					"an entry of the properties of a layer of a newer version");
 				SmallVector<std::uint8_t, 0> written;
 				Formats::LayerPropertiesChunk::Write(entries, written);
@@ -2575,8 +2612,12 @@ namespace Jazz2::Editor
 			}
 			const std::uint8_t* data = zip.GetBuffer();
 			std::int64_t size = zip.GetSize();
-			auto read16 = [data](std::int64_t pos) { return std::uint32_t(data[pos] | (data[pos + 1] << 8)); };
-			auto read32 = [&read16](std::int64_t pos) { return read16(pos) | (read16(pos + 2) << 16); };
+			auto read16 = [data](std::int64_t pos) {
+				return std::uint32_t(data[pos] | (data[pos + 1] << 8));
+			};
+			auto read32 = [&read16](std::int64_t pos) {
+				return read16(pos) | (read16(pos + 2) << 16);
+			};
 			expect(size > 22 && read32(size - 22) == 0x06054B50u && read16(size - 22 + 10) == 2, "the end of the directory");
 			expect(read32(0) == 0x04034B50u, "the first file");
 			if (problems == 0) {
@@ -2685,7 +2726,7 @@ namespace Jazz2::Editor
 		std::int32_t TestSha256()
 		{
 			std::int32_t problems = 0;
-			auto toHex = [](const std::uint8_t (&digest)[Death::Cryptography::Sha256::DigestLength]) {
+			auto toHex = [](const std::uint8_t(&digest)[Death::Cryptography::Sha256::DigestLength]) {
 				static const char Digits[] = "0123456789abcdef";
 				String hex(Death::Containers::NoInit, Death::Cryptography::Sha256::DigestLength * 2);
 				for (std::size_t i = 0; i < Death::Cryptography::Sha256::DigestLength; i++) {
@@ -2880,7 +2921,8 @@ namespace Jazz2::Editor
 			Formats::WeaponsChunk::Write(stockOnly, stockData);
 			WeaponsDescription stockRead;
 			expect(Formats::WeaponsChunk::Read(stockData, stockRead) == Formats::WeaponsChunk::ReadResult::Success && stockRead.Weapons[4].StartAmmo == 3 &&
-				!stockRead.Weapons[4].HasCustom(), "an stock weapon keeps no icon");
+					!stockRead.Weapons[4].HasCustom(),
+				"an stock weapon keeps no icon");
 			for (std::int32_t i = 0; i < std::int32_t(WeaponType::Count); i++) {
 				expect(read.Weapons[i] == weapons.Weapons[i] && read.EditorData[i] == weapons.EditorData[i], "a weapon is the same");
 			}
@@ -2890,7 +2932,8 @@ namespace Jazz2::Editor
 			// The game skips what only the editor needs
 			WeaponsDescription game;
 			expect(Formats::WeaponsChunk::Read(data, game) == Formats::WeaponsChunk::ReadResult::Success && game.Weapons[8] == weapons.Weapons[8] &&
-				game.Weapons[8].ScriptParams.size() == 3, "read by the game");
+					game.Weapons[8].ScriptParams.size() == 3,
+				"read by the game");
 			expect(again.size() == data.size() && std::memcmp(again.data(), data.data(), data.size()) == 0, "written the same again, with the property it doesn't know");
 
 			// A weapon this version doesn't have is skipped
@@ -3019,7 +3062,13 @@ namespace Jazz2::Editor
 			sound.Name = "zap.wav"_s;
 
 			Json::Value item;
-			WriteCustomWeaponTemplate(weapon, weapons, [](std::int32_t) { return String("zap.png"_s); }, [](std::int32_t) { return String("zap.wav"_s); }, item);
+			WriteCustomWeaponTemplate(weapon, weapons, [](std::int32_t) {
+				return String("zap.png"_s);
+			},
+				[](std::int32_t) {
+					return String("zap.wav"_s);
+				},
+				item);
 			Json::Value file(Json::objectValue);
 			file["Weapons"].append(item);
 			std::string text = WriteWeaponTemplateFile(file);
@@ -3043,22 +3092,30 @@ namespace Jazz2::Editor
 				layoutRead &= (fs::GetFileName(templateImage.Path) == "zap.png"_s && templateImage.FrameColumns == 2 && templateImage.FrameRows == 1 &&
 					templateImage.FrameCount == 2 && templateImage.HasHotspot);
 				return 0;
-			}, [&](StringView path) {
-				soundCount++;
-				return (fs::GetFileName(path) == "zap.wav"_s ? 0 : -1);
-			});
+			},
+				[&](StringView path) {
+					soundCount++;
+					return (fs::GetFileName(path) == "zap.wav"_s ? 0 : -1);
+				});
 			expect(complete && imageCount >= 1 && soundCount == 1 && layoutRead, "the image and the sound next to the template");
 			// Angles are in degrees in the file, a float in radians may come back a step off
 			CustomWeaponOptions made = applied.GetCustom();
 			expect(std::abs(made.Shot.HomingTurnRate - custom.Shot.HomingTurnRate) < 1e-6f &&
-				std::abs(made.ShotPowered.HomingTurnRate - custom.ShotPowered.HomingTurnRate) < 1e-6f, "angles");
+					std::abs(made.ShotPowered.HomingTurnRate - custom.ShotPowered.HomingTurnRate) < 1e-6f,
+				"angles");
 			made.Shot.HomingTurnRate = custom.Shot.HomingTurnRate;
 			made.ShotPowered.HomingTurnRate = custom.ShotPowered.HomingTurnRate;
 			expect(applied.Name == weapon.Name && applied.Options.Maximum == 50 && applied.Options.Style == WeaponStyle::Missile, "the name and the options");
 			expect(made.Fire == custom.Fire && made.Shot == custom.Shot && made.ShotPowered == custom.ShotPowered, "how it fires and what");
 
 			Json::Value again;
-			WriteCustomWeaponTemplate(applied, weapons, [](std::int32_t) { return String("zap.png"_s); }, [](std::int32_t) { return String("zap.wav"_s); }, again);
+			WriteCustomWeaponTemplate(applied, weapons, [](std::int32_t) {
+				return String("zap.png"_s);
+			},
+				[](std::int32_t) {
+					return String("zap.wav"_s);
+				},
+				again);
 			expect(WriteWeaponTemplateFile(again) == WriteWeaponTemplateFile(item), "written the same again");
 			if (WriteWeaponTemplateFile(again) != WriteWeaponTemplateFile(item)) {
 				LOGW("{}\n----\n{}", WriteWeaponTemplateFile(item).c_str(), WriteWeaponTemplateFile(again).c_str());
@@ -3068,12 +3125,19 @@ namespace Jazz2::Editor
 			CustomWeaponTemplate partial;
 			Json::Value value;
 			expect(Utils::JsonFile::Parse(R"json({ "Kind": "custom", "BasedOn": "rf", "Shot": { "Speed": 2, "Sprite": { "File": "missing.png" } } })json"_s, value) &&
-				ReadCustomWeaponTemplate(value, "Weapons/Partial.json"_s, partial) && partial.BasedOn == WeaponType::RF, "a template with little in it");
+					ReadCustomWeaponTemplate(value, "Weapons/Partial.json"_s, partial) && partial.BasedOn == WeaponType::RF,
+				"a template with little in it");
 			applied = WeaponDefinition::MakeCustom(WeaponType::RF, WeaponType::RF);
 			WeaponDefinition stock = applied;
-			complete = ApplyCustomWeaponTemplate(partial, applied, [](const WeaponTemplateImage&) { return -1; }, [](StringView) { return -1; });
+			complete = ApplyCustomWeaponTemplate(partial, applied, [](const WeaponTemplateImage&) {
+				return -1;
+			},
+				[](StringView) {
+					return -1;
+				});
 			expect(!complete && applied.GetCustom().Shot.Speed == 2.0f && applied.GetCustom().ShotPowered.Speed == 2.0f &&
-				applied.GetCustom().Shot.Sprite == stock.GetCustom().Shot.Sprite && applied.GetCustom().Fire == stock.GetCustom().Fire, "the rest kept");
+					applied.GetCustom().Shot.Sprite == stock.GetCustom().Shot.Sprite && applied.GetCustom().Fire == stock.GetCustom().Fire,
+				"the rest kept");
 
 			if (problems == 0) {
 				LOGI("Custom weapon templates test passed");
@@ -3099,12 +3163,14 @@ namespace Jazz2::Editor
 				"Initialization = ArcaneWeapons::MeteorGun::Weapon()\r\nHooks = onMain, onPlayer\r\n"
 				"Options = Little rocks (normal):bool:true|Little rocks (PU):bool:true\r\n\r\n"
 				"[1]\r\nName = Pathfinder\r\nLibraryFilename = WeaponVMega4.asc\r\nInitialization = WeaponVMega::Pathfinder::Weapon()\r\n"
-				"Options = Nodes (idle):int:1 | Nodes (homing):int:4\r\n\r\n[2]\r\nName = No constructor\r\n"_s, "Weapons/Test.ini"_s, templates);
+				"Options = Nodes (idle):int:1 | Nodes (homing):int:4\r\n\r\n[2]\r\nName = No constructor\r\n"_s,
+				"Weapons/Test.ini"_s, templates);
 			expect(read == 2 && templates.size() == 2, "two weapons of an .ini, a section without a constructor isn't one");
 			if (templates.size() == 2) {
 				const ScriptWeaponTemplate& meteor = templates[0];
 				expect(meteor.Name == "Meteor Gun"_s && meteor.Library == "ArcaneWeapon2.asc"_s && meteor.Hooks.size() == 2 &&
-					meteor.Params.size() == 2 && meteor.Params[0].Type == ScriptParamType::Bool && meteor.Params[0].Default == 1.0, "options of an .ini");
+						meteor.Params.size() == 2 && meteor.Params[0].Type == ScriptParamType::Bool && meteor.Params[0].Default == 1.0,
+					"options of an .ini");
 				SmallVector<std::uint8_t, 0> data;
 				MakeDefaultScriptParams(templates[1], data);
 				const std::uint8_t nodes[] = { 1, 0, 0, 0, 4, 0, 0, 0 };
@@ -3128,13 +3194,15 @@ namespace Jazz2::Editor
 				{ "Name": "Text", "Type": "string", "Default": "hi" }, { "Name": "Speed", "Type": "float", "Default": 1.5, "Min": 0, "Max": 4 } ] } ] })json"_s,
 				"Weapons/Test.json"_s, templates);
 			expect(read == 1 && templates.size() == 1 && templates[0].Params.size() == 3 && templates[0].Params[0].Choices.size() == 2 &&
-				templates[0].Params[1].Type == ScriptParamType::String && templates[0].Params[2].Max == 4.0, "a .json description");
+					templates[0].Params[1].Type == ScriptParamType::String && templates[0].Params[2].Max == 4.0,
+				"a .json description");
 			if (templates.size() == 1) {
 				SmallVector<std::uint8_t, 0> data;
 				MakeDefaultScriptParams(templates[0], data);
 				SmallVector<ScriptParamValue, 4> values;
 				expect(ReadScriptParams(templates[0], data, values) == data.size() && values.size() == 3 && values[0].Number == 2.0 &&
-					values[1].Text == "hi"_s && values[2].Number == 1.5, "a text and a float round trip");
+						values[1].Text == "hi"_s && values[2].Number == 1.5,
+					"a text and a float round trip");
 			}
 			expect(ReadWeaponTemplates("not json"_s, "x.json"_s, templates) < 0, "a file that isn't JSON");
 
@@ -3145,9 +3213,11 @@ namespace Jazz2::Editor
 				"\tclass Weapon : MLLEWeapons::WeaponInterface {\n\t\tbool LittleRocksNormal = true, LittleRocksPowerup = true;\n\t}\n"
 				"\tbool Apply(uint, se::WeaponHook@, jjSTREAM@ parameter) {\n"
 				"\t\tif (parameter !is null && parameter.getSize() >= 2) { parameter.pop(LittleRocksNormal); parameter.pop(LittleRocksPowerup); }\n"
-				"\t\treturn true;\n\t}\n} }\n"_s, "ArcaneWeapons::MeteorGun::Weapon()"_s, guess);
+				"\t\treturn true;\n\t}\n} }\n"_s,
+				"ArcaneWeapons::MeteorGun::Weapon()"_s, guess);
 			expect(guessed && guess.Complete && guess.Params.size() == 2 && guess.Params[1].Type == ScriptParamType::Bool &&
-				guess.Params[1].Default == 1.0 && guess.Params[0].Name == "Little rocks normal"_s, "parameters guessed from a library");
+					guess.Params[1].Default == 1.0 && guess.Params[0].Name == "Little rocks normal"_s,
+				"parameters guessed from a library");
 
 			guessed = GuessScriptWeaponTemplate("Pathfinder.asc"_s,
 				"namespace WeaponVMega { namespace Pathfinder {\n\tclass Weapon : MLLEWeapons::WeaponInterface { }\n"
@@ -3155,7 +3225,8 @@ namespace Jazz2::Editor
 				"\t\tparameter.pop(p); node1 = p;\n\t\tparameter.pop(p); node2 = p;\n\t\tparameter.pop(Unknown.Thing);\n\t\treturn true;\n\t}\n} }\n"_s,
 				"WeaponVMega::Pathfinder::Weapon()"_s, guess);
 			expect(guessed && !guess.Complete && guess.Params.size() == 2 && guess.Params[0].Type == ScriptParamType::Int32 &&
-				guess.Params[1].Name == "Node 2"_s, "a guess named by where the values go stops at an unknown type");
+					guess.Params[1].Name == "Node 2"_s,
+				"a guess named by where the values go stops at an unknown type");
 
 			// Against the descriptions MLLE ships, where they are, only told
 			String source = fs::CombinePath({ ContentResolver::Get().GetContentPath(), "mlleweapons"_s });
@@ -3167,7 +3238,7 @@ namespace Jazz2::Editor
 				String mlleWeapons;
 				String mlleWeaponsPath = fs::FindPathCaseInsensitive(fs::CombinePath(ContentResolver::Get().GetContentPath(), "MLLE-Weapons.asc"_s));
 				if (auto m = (mlleWeaponsPath.empty() ? nullptr : fs::Open(mlleWeaponsPath, FileAccess::Read)); m != nullptr && m->IsValid() && m->GetSize() > 0) {
-					mlleWeapons = String{NoInit, std::size_t(m->GetSize())};
+					mlleWeapons = String { NoInit, std::size_t(m->GetSize()) };
 					m->Read(mlleWeapons.data(), std::int64_t(mlleWeapons.size()));
 				}
 				const StringView includes[] = { mlleWeapons };
@@ -3178,7 +3249,7 @@ namespace Jazz2::Editor
 					if (s == nullptr || !s->IsValid() || s->GetSize() <= 0) {
 						continue;
 					}
-					String text{NoInit, std::size_t(s->GetSize())};
+					String text { NoInit, std::size_t(s->GetSize()) };
 					s->Read(text.data(), std::int64_t(text.size()));
 					ScriptWeaponTemplate fromScript;
 					bool ok = GuessScriptWeaponTemplate(weaponTemplate.Library, text, weaponTemplate.Constructor, fromScript, includes);
@@ -3214,7 +3285,7 @@ namespace Jazz2::Editor
 			};
 
 			StringView library = "namespace Ns {\n\tnamespace Inner {\n\t\tclass Weapon : MLLEWeapons::WeaponInterface {\n\t\t\t// class Fake : MLLEWeaponApply\n\t\t}\n\t}\n"
-				"\tshared abstract class Base : MLLEWeaponApply { }\n\tclass Other { }\n}\nclass Top : se::WeaponInterface, MLLEWeaponApply { }\n"_s;
+								 "\tshared abstract class Base : MLLEWeaponApply { }\n\tclass Other { }\n}\nclass Top : se::WeaponInterface, MLLEWeaponApply { }\n"_s;
 			SmallVector<ScriptWeaponClass, 4> found;
 			FindScriptWeapons("Library.asc"_s, library, found);
 			expect(found.size() == 2 && found[0].Constructor == "Ns::Inner::Weapon()"_s && found[1].Constructor == "Top()"_s && found[0].Library == "Library.asc"_s,
@@ -3224,12 +3295,12 @@ namespace Jazz2::Editor
 			expect(found.empty(), "a weapon of the standard weapon interface alone isn't one MLLE can set up");
 
 			StringView script = "const bool MLLESetupSuccessful = MLLE::Setup(array<MLLEWeaponApply@> = {null, null, null, null, null, null, null, null, ArcaneWeapons::TornadoGun::Weapon()}); ///@MLLE-Generated\r\n"
-				"#include \"MLLE-Include-1.7w.asc\" ///@MLLE-Generated\r\n"
-				"#pragma require \"Level-MLLE-Data-1.j2l\" ///@MLLE-Generated\r\n"
-				"#include \"ArcaneWeapon6.asc\" ///@MLLE-Generated\r\n"
-				"#pragma require \"ArcaneWeapon6.asc\" ///@MLLE-Generated\r\n"
-				"\r\n"
-				"void onLevelBegin() { }\r\n"_s;
+								"#include \"MLLE-Include-1.7w.asc\" ///@MLLE-Generated\r\n"
+								"#pragma require \"Level-MLLE-Data-1.j2l\" ///@MLLE-Generated\r\n"
+								"#include \"ArcaneWeapon6.asc\" ///@MLLE-Generated\r\n"
+								"#pragma require \"ArcaneWeapon6.asc\" ///@MLLE-Generated\r\n"
+								"\r\n"
+								"void onLevelBegin() { }\r\n"_s;
 			LevelWeapons weapons;
 			weapons.Weapons[8].Kind = WeaponKind::Script;
 			weapons.EditorData[8].ScriptLibrary = "ArcaneWeapon6.asc"_s;
@@ -3241,24 +3312,28 @@ namespace Jazz2::Editor
 			weapons.EditorData[2].ScriptConstructor = "BubbleGun::Weapon()"_s;
 			String updated = UpdateScriptWeaponLines(script, weapons);
 			expect(updated.contains("{null, null, BubbleGun::Weapon(), null, null, null, null, null, ArcaneWeapons::TornadoGun::Weapon()}"_s) &&
-				updated.contains("#include \"BubbleGun.asc\" ///@MLLE-Generated\r\n"_s) && updated.contains("#include \"ArcaneWeapon6.asc\" ///@MLLE-Generated\r\n"_s) &&
-				updated.contains("#pragma require \"Level-MLLE-Data-1.j2l\""_s) && updated.hasSuffix("\r\nvoid onLevelBegin() { }\r\n"_s), "a weapon added");
+					updated.contains("#include \"BubbleGun.asc\" ///@MLLE-Generated\r\n"_s) && updated.contains("#include \"ArcaneWeapon6.asc\" ///@MLLE-Generated\r\n"_s) &&
+					updated.contains("#pragma require \"Level-MLLE-Data-1.j2l\""_s) && updated.hasSuffix("\r\nvoid onLevelBegin() { }\r\n"_s),
+				"a weapon added");
 
 			LevelWeapons none;
 			String removed = UpdateScriptWeaponLines(updated, none);
 			expect(removed.contains("MLLE::Setup(); ///@MLLE-Generated"_s) && !removed.contains("BubbleGun"_s) && !removed.contains("ArcaneWeapon6"_s) &&
-				removed.contains("void onLevelBegin"_s), "all weapons removed");
+					removed.contains("void onLevelBegin"_s),
+				"all weapons removed");
 			expect(UpdateScriptWeaponLines("void onLevelBegin() { }\n"_s, none) == "void onLevelBegin() { }\n"_s, "a script without weapons stays as it is");
 			String setUps[MaxScriptWeapons];
 			FindHandWrittenScriptWeapons("void onLevelLoad() {\n\tLaserBlaster::NonBouncing().Apply(WEAPON::ICE, MLLE::WeaponHook);\n"
-				"\t// Other::Weapon().Apply(WEAPON::RF);\n\tif (x) { Gun().Apply(9); }\n}\n"_s
-				"const bool MLLESetupSuccessful = MLLE::Setup(array<MLLEWeaponApply@> = {X().Apply(WEAPON::BLASTER)}); ///@MLLE-Generated\n"_s, setUps);
+										 "\t// Other::Weapon().Apply(WEAPON::RF);\n\tif (x) { Gun().Apply(9); }\n}\n"_s
+										 "const bool MLLESetupSuccessful = MLLE::Setup(array<MLLEWeaponApply@> = {X().Apply(WEAPON::BLASTER)}); ///@MLLE-Generated\n"_s,
+				setUps);
 			expect(setUps[2] == "LaserBlaster::NonBouncing()"_s && setUps[8] == "Gun()"_s && setUps[4].empty() && setUps[0].empty(),
 				"weapons the script sets up by itself");
 
 			String fresh = UpdateScriptWeaponLines("void onLevelBegin() { }\n"_s, weapons);
 			expect(fresh.hasPrefix("const bool MLLESetupSuccessful = MLLE::Setup(array<MLLEWeaponApply@>"_s) && fresh.contains("#include \"MLLE-Include-1.7w.asc\""_s) &&
-				fresh.hasSuffix("void onLevelBegin() { }\n"_s), "lines added to a script without them");
+					fresh.hasSuffix("void onLevelBegin() { }\n"_s),
+				"lines added to a script without them");
 
 			if (problems == 0) {
 				LOGI("Script weapons test passed");
@@ -3312,7 +3387,9 @@ namespace Jazz2::Editor
 				// Check Level runs on every level, what it finds in the original ones is mostly how they're made
 				SmallVector<LevelProblem, 0> problems;
 				CheckLevel(document, problems);
-				std::int32_t errors = std::int32_t(std::count_if(problems.begin(), problems.end(), [](const LevelProblem& p) { return p.Severity == LevelProblemSeverity::Error; }));
+				std::int32_t errors = std::int32_t(std::count_if(problems.begin(), problems.end(), [](const LevelProblem& p) {
+					return p.Severity == LevelProblemSeverity::Error;
+				}));
 				if (errors > 0) {
 					LOGD("[{}] Check Level: {} errors, the first: {}", path, errors, problems[0].Text);
 				}
@@ -3412,10 +3489,18 @@ namespace Jazz2::Editor
 		std::uint32_t seed = 1;
 		for (const String& file : files) {
 			switch (TestLevel(file, library, seed++, scan)) {
-				case TestResult::Identical: identical++; break;
-				case TestResult::Equivalent: equivalent++; break;
-				case TestResult::NotNative: notNative++; break;
-				default: failed++; break;
+				case TestResult::Identical:
+					identical++;
+					break;
+				case TestResult::Equivalent:
+					equivalent++;
+					break;
+				case TestResult::NotNative:
+					notNative++;
+					break;
+				default:
+					failed++;
+					break;
 			}
 		}
 		scan.Report();

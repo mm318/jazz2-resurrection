@@ -159,8 +159,10 @@ namespace Jazz2::Editor
 
 namespace Jazz2::UI::Windows
 {
-	template<>
-	struct IsIconEnum<Editor::EditorIcon> : std::true_type {};
+	template <>
+	struct IsIconEnum<Editor::EditorIcon> : std::true_type
+	{
+	};
 }
 
 #endif

@@ -42,11 +42,13 @@ namespace Jazz2::Actors::Weapons
 
 		bool OnHandleCollision(ActorBase* other) override;
 
-		WeaponType GetWeaponType() override {
+		WeaponType GetWeaponType() override
+		{
 			return WeaponType::Thunderbolt;
 		}
 
-		bool ThawsFrozen() const override {
+		bool ThawsFrozen() const override
+		{
 			return true;
 		}
 
@@ -57,7 +59,9 @@ namespace Jazz2::Actors::Weapons
 		void OnEmitLights(SmallVectorImpl<LightEmitter>& lights) override;
 		// The beam lights are spread along the whole bolt and `Multiplayer::RemoteThunderbolt` replays them
 		// client-side, so there is nothing to describe to remote peers
-		void OnEmitRemotedLights(SmallVectorImpl<LightEmitter>& lights) override { }
+		void OnEmitRemotedLights(SmallVectorImpl<LightEmitter>& lights) override
+		{
+		}
 		void OnAnimationFinished() override;
 		void OnHitWall(float timeMult) override;
 		void OnRicochet() override;

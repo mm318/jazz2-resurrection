@@ -32,9 +32,15 @@ namespace Jazz2::Editor
 		const char* Text;
 
 		/** @brief No text */
-		constexpr CatalogText(std::nullptr_t) noexcept : Text(nullptr) {}
+		constexpr CatalogText(std::nullptr_t) noexcept
+			: Text(nullptr)
+		{
+		}
 		/** @brief Text shown as it is */
-		constexpr CatalogText(const char* text) noexcept : Text(text) {}
+		constexpr CatalogText(const char* text) noexcept
+			: Text(text)
+		{
+		}
 		/** @brief Translated text, it's copied */
 		CatalogText(StringView translated);
 	};
@@ -42,19 +48,19 @@ namespace Jazz2::Editor
 	/** @brief Category of an event, the picker groups events by it */
 	enum class EventCategory : std::uint8_t
 	{
-		Basic,				/**< Starts and checkpoints */
-		Scenery,			/**< Destructible and collapsing tiles */
-		Modifier,			/**< What a tile does --- vines, poles, hurting... */
-		Area,				/**< What happens in an area */
-		Trigger,			/**< Triggers */
-		Warp,				/**< Warps */
-		Light,				/**< Lights */
-		Environment,		/**< Springs, platforms and other objects */
-		Enemy,				/**< Enemies */
-		Boss,				/**< Bosses */
-		Collectible,		/**< Things to collect */
-		Container,			/**< Crates, barrels and monitors */
-		Other,				/**< Anything else */
+		Basic, /**< Starts and checkpoints */
+		Scenery, /**< Destructible and collapsing tiles */
+		Modifier, /**< What a tile does --- vines, poles, hurting... */
+		Area, /**< What happens in an area */
+		Trigger, /**< Triggers */
+		Warp, /**< Warps */
+		Light, /**< Lights */
+		Environment, /**< Springs, platforms and other objects */
+		Enemy, /**< Enemies */
+		Boss, /**< Bosses */
+		Collectible, /**< Things to collect */
+		Container, /**< Crates, barrels and monitors */
+		Other, /**< Anything else */
 
 		Count
 	};
@@ -62,18 +68,18 @@ namespace Jazz2::Editor
 	/** @brief How a parameter of an event is edited */
 	enum class ParamType : std::uint8_t
 	{
-		UInt,				/**< Unsigned number */
-		Int,				/**< Signed number */
-		Bool,				/**< Yes or no */
-		Enum,				/**< One of the options */
-		Flags,				/**< Any of the options, each option is a bit */
-		EventType,			/**< Another event, 16 bits */
-		TextId,				/**< Index of a level text */
-		TriggerId,			/**< Index of a trigger, 0 to 31 */
-		WarpId,				/**< Identifier of a warp, a warp origin goes to the target with the same one */
-		String,				/**< Text of the given number of bytes, padded with zeros */
-		Raw,				/**< Bytes shown as they are */
-		Contents			/**< Parameters of another event inside this one, as a crate has them, see @ref EventParamField::ContentsTypeField */
+		UInt, /**< Unsigned number */
+		Int, /**< Signed number */
+		Bool, /**< Yes or no */
+		Enum, /**< One of the options */
+		Flags, /**< Any of the options, each option is a bit */
+		EventType, /**< Another event, 16 bits */
+		TextId, /**< Index of a level text */
+		TriggerId, /**< Index of a trigger, 0 to 31 */
+		WarpId, /**< Identifier of a warp, a warp origin goes to the target with the same one */
+		String, /**< Text of the given number of bytes, padded with zeros */
+		Raw, /**< Bytes shown as they are */
+		Contents /**< Parameters of another event inside this one, as a crate has them, see @ref EventParamField::ContentsTypeField */
 	};
 
 	/** @brief Unit of a parameter, shown next to its value */
@@ -82,7 +88,7 @@ namespace Jazz2::Editor
 		None,
 		Pixels,
 		Tiles,
-		Frames,				/**< Frames at 60 FPS */
+		Frames, /**< Frames at 60 FPS */
 		Seconds,
 		Percent,
 		Degrees
@@ -98,25 +104,28 @@ namespace Jazz2::Editor
 
 		constexpr ParamOption() noexcept = default;
 		/** @brief Option with a name and a value */
-		constexpr ParamOption(CatalogText label, std::int32_t value) noexcept : Label(label.Text), Value(value) {}
+		constexpr ParamOption(CatalogText label, std::int32_t value) noexcept
+			: Label(label.Text), Value(value)
+		{
+		}
 	};
 
 	/** @brief How the value of another field decides whether a field is shown, see @ref EventParamField::VisibleIfField */
 	enum class FieldCondition : std::uint8_t
 	{
-		Equals,				/**< The value is the given one */
-		NotEquals,			/**< The value isn't the given one */
-		AnyBits				/**< Any of the given bits is set */
+		Equals, /**< The value is the given one */
+		NotEquals, /**< The value isn't the given one */
+		AnyBits /**< Any of the given bits is set */
 	};
 
 	/** @brief What mirroring an event does to a value, see @ref EventCatalog::MirrorParams() */
 	enum class MirrorMode : std::uint8_t
 	{
-		None,				/**< The value stays */
-		Negate,				/**< The value turns negative, as a speed or an offset; a value whose negation is out of the range stays, so mirroring twice always gives it back */
-		Toggle,				/**< A yes becomes a no and the other way, as facing left */
-		Swap,				/**< Values, or bits of flags, are swapped in pairs, see @ref FieldMirror::Pairs */
-		SwapField			/**< The value is swapped with another field, as a belt to the left with one to the right */
+		None, /**< The value stays */
+		Negate, /**< The value turns negative, as a speed or an offset; a value whose negation is out of the range stays, so mirroring twice always gives it back */
+		Toggle, /**< A yes becomes a no and the other way, as facing left */
+		Swap, /**< Values, or bits of flags, are swapped in pairs, see @ref FieldMirror::Pairs */
+		SwapField /**< The value is swapped with another field, as a belt to the left with one to the right */
 	};
 
 	/** @brief How a value changes when its event is mirrored one way */
@@ -136,28 +145,28 @@ namespace Jazz2::Editor
 	enum class FieldGizmo : std::uint8_t
 	{
 		None,
-		Radius,				/**< A distance from the event in any direction */
-		LengthDown,			/**< A distance below the event, as a chain hangs */
-		WidthRight,			/**< A distance to the right of the event, as a bridge goes */
-		OffsetX,			/**< A horizontal offset from the center of the tile, paired with the next @ref OffsetY field */
-		OffsetY				/**< The vertical offset paired with an @ref OffsetX field */
+		Radius, /**< A distance from the event in any direction */
+		LengthDown, /**< A distance below the event, as a chain hangs */
+		WidthRight, /**< A distance to the right of the event, as a bridge goes */
+		OffsetX, /**< A horizontal offset from the center of the tile, paired with the next @ref OffsetY field */
+		OffsetY /**< The vertical offset paired with an @ref OffsetX field */
 	};
 
 	/** @brief What a link of an event to others with the same value is, see @ref EventPreviews::CollectLinks() */
 	enum class EventLinkRole : std::uint8_t
 	{
 		None,
-		Source,				/**< It acts on the targets, as a warp origin or a trigger crate */
-		Target,				/**< It's acted on, as a warp target or a trigger area */
-		Peer				/**< It's linked to the others without a direction */
+		Source, /**< It acts on the targets, as a warp origin or a trigger crate */
+		Target, /**< It's acted on, as a warp target or a trigger area */
+		Peer /**< It's linked to the others without a direction */
 	};
 
 	/** @brief Axis a value points an arrow along, see @ref EventPreviews::CollectDirections() */
 	enum class DirectionAxis : std::uint8_t
 	{
 		None,
-		X,					/**< Horizontal, positive to the right */
-		Y					/**< Vertical, positive down */
+		X, /**< Horizontal, positive to the right */
+		Y /**< Vertical, positive down */
 	};
 
 	/**
@@ -233,25 +242,29 @@ namespace Jazz2::Editor
 		bool IsWeapon = false;
 
 		/** @brief Returns the field with a unit */
-		constexpr EventParamField WithUnit(ParamUnit unit) const {
+		constexpr EventParamField WithUnit(ParamUnit unit) const
+		{
 			EventParamField copy = *this;
 			copy.Unit = unit;
 			return copy;
 		}
 		/** @brief Returns the field with a description */
-		constexpr EventParamField WithDescription(CatalogText description) const {
+		constexpr EventParamField WithDescription(CatalogText description) const
+		{
 			EventParamField copy = *this;
 			copy.Description = description.Text;
 			return copy;
 		}
 		/** @brief Returns the field with a default value */
-		constexpr EventParamField WithDefault(std::int32_t defaultValue) const {
+		constexpr EventParamField WithDefault(std::int32_t defaultValue) const
+		{
 			EventParamField copy = *this;
 			copy.Default = defaultValue;
 			return copy;
 		}
 		/** @brief Returns the field shown only while another one, by its index, has a value */
-		constexpr EventParamField ShowIf(std::int8_t field, std::int32_t value) const {
+		constexpr EventParamField ShowIf(std::int8_t field, std::int32_t value) const
+		{
 			EventParamField copy = *this;
 			copy.VisibleIfField = field;
 			copy.VisibleIfMode = FieldCondition::Equals;
@@ -259,7 +272,8 @@ namespace Jazz2::Editor
 			return copy;
 		}
 		/** @brief Returns the field shown only while another one, by its index, doesn't have a value */
-		constexpr EventParamField ShowIfNot(std::int8_t field, std::int32_t value) const {
+		constexpr EventParamField ShowIfNot(std::int8_t field, std::int32_t value) const
+		{
 			EventParamField copy = *this;
 			copy.VisibleIfField = field;
 			copy.VisibleIfMode = FieldCondition::NotEquals;
@@ -267,33 +281,38 @@ namespace Jazz2::Editor
 			return copy;
 		}
 		/** @brief Returns the field never shown, its value is kept */
-		constexpr EventParamField Hide() const {
+		constexpr EventParamField Hide() const
+		{
 			EventParamField copy = *this;
 			copy.Hidden = true;
 			return copy;
 		}
 		/** @brief Returns the field whose value is a weapon, see @ref IsWeapon */
-		constexpr EventParamField AsWeapon() const {
+		constexpr EventParamField AsWeapon() const
+		{
 			EventParamField copy = *this;
 			copy.IsWeapon = true;
 			return copy;
 		}
 		/** @brief Returns the field shown multiplied by a scale */
-		constexpr EventParamField WithScale(std::int32_t scale) const {
+		constexpr EventParamField WithScale(std::int32_t scale) const
+		{
 			EventParamField copy = *this;
 			copy.DisplayScale = scale;
 			return copy;
 		}
 		/** @brief Returns the field changed by mirroring the event horizontally */
-		constexpr EventParamField MirroredX(MirrorMode mode, std::int8_t otherField = -1) const {
+		constexpr EventParamField MirroredX(MirrorMode mode, std::int8_t otherField = -1) const
+		{
 			EventParamField copy = *this;
 			copy.MirrorX.Mode = mode;
 			copy.MirrorX.Field = otherField;
 			return copy;
 		}
 		/** @brief Returns the field whose values are swapped in pairs by mirroring the event horizontally */
-		template<std::size_t N>
-		constexpr EventParamField MirroredXPairs(const std::int32_t (&pairs)[N]) const {
+		template <std::size_t N>
+		constexpr EventParamField MirroredXPairs(const std::int32_t (&pairs)[N]) const
+		{
 			EventParamField copy = *this;
 			copy.MirrorX.Mode = MirrorMode::Swap;
 			copy.MirrorX.Pairs = pairs;
@@ -301,15 +320,17 @@ namespace Jazz2::Editor
 			return copy;
 		}
 		/** @brief Returns the field changed by mirroring the event vertically */
-		constexpr EventParamField MirroredY(MirrorMode mode, std::int8_t otherField = -1) const {
+		constexpr EventParamField MirroredY(MirrorMode mode, std::int8_t otherField = -1) const
+		{
 			EventParamField copy = *this;
 			copy.MirrorY.Mode = mode;
 			copy.MirrorY.Field = otherField;
 			return copy;
 		}
 		/** @brief Returns the field whose values are swapped in pairs by mirroring the event vertically */
-		template<std::size_t N>
-		constexpr EventParamField MirroredYPairs(const std::int32_t (&pairs)[N]) const {
+		template <std::size_t N>
+		constexpr EventParamField MirroredYPairs(const std::int32_t (&pairs)[N]) const
+		{
 			EventParamField copy = *this;
 			copy.MirrorY.Mode = MirrorMode::Swap;
 			copy.MirrorY.Pairs = pairs;
@@ -317,27 +338,31 @@ namespace Jazz2::Editor
 			return copy;
 		}
 		/** @brief Returns the field marked as a team */
-		constexpr EventParamField AsTeam() const {
+		constexpr EventParamField AsTeam() const
+		{
 			EventParamField copy = *this;
 			copy.IsTeam = true;
 			return copy;
 		}
 		/** @brief Returns the field with a handle in the level, @p step pixels for a unit */
-		constexpr EventParamField WithGizmo(FieldGizmo gizmo, std::int16_t step = 1) const {
+		constexpr EventParamField WithGizmo(FieldGizmo gizmo, std::int16_t step = 1) const
+		{
 			EventParamField copy = *this;
 			copy.Gizmo = gizmo;
 			copy.GizmoStep = step;
 			return copy;
 		}
 		/** @brief Returns the field linking the event to others with the same value in a channel */
-		constexpr EventParamField WithLink(const char* channel, EventLinkRole role) const {
+		constexpr EventParamField WithLink(const char* channel, EventLinkRole role) const
+		{
 			EventParamField copy = *this;
 			copy.LinkChannel = channel;
 			copy.LinkRole = role;
 			return copy;
 		}
 		/** @brief Returns the field pointing an arrow along an axis, values of the same group are summed */
-		constexpr EventParamField WithDirection(DirectionAxis axis, bool negative = false, std::uint8_t group = 0) const {
+		constexpr EventParamField WithDirection(DirectionAxis axis, bool negative = false, std::uint8_t group = 0) const
+		{
 			EventParamField copy = *this;
 			copy.Direction = axis;
 			copy.DirectionNegative = negative;
@@ -362,13 +387,13 @@ namespace Jazz2::Editor
 		return { name.Text, ParamType::Bool, offset, 1, bit, false, 0, 1, defaultValue ? 1 : 0, nullptr, 0, ParamUnit::None, nullptr };
 	}
 	/** @brief One of the options, @p bits bits at the byte @p offset */
-	template<std::size_t N>
+	template <std::size_t N>
 	constexpr EventParamField EnumField(CatalogText name, std::uint8_t offset, std::uint8_t bits, const ParamOption (&options)[N], std::int32_t defaultValue = 0, std::uint8_t shift = 0)
 	{
 		return { name.Text, ParamType::Enum, offset, bits, shift, false, 0, (1 << bits) - 1, defaultValue, options, std::uint8_t(N), ParamUnit::None, nullptr };
 	}
 	/** @brief Any of the options, each a bit of @p bits bits at the byte @p offset */
-	template<std::size_t N>
+	template <std::size_t N>
 	constexpr EventParamField FlagsField(CatalogText name, std::uint8_t offset, std::uint8_t bits, const ParamOption (&options)[N], std::int32_t defaultValue = 0, std::uint8_t shift = 0)
 	{
 		return { name.Text, ParamType::Flags, offset, bits, shift, false, 0, (1 << bits) - 1, defaultValue, options, std::uint8_t(N), ParamUnit::None, nullptr };
@@ -437,11 +462,11 @@ namespace Jazz2::Editor
 	enum class EventTraits : std::uint16_t
 	{
 		None = 0,
-		TileModifier = 0x01,		/**< Changes the tile it's placed on, it's not an object */
-		Area = 0x02,				/**< Acts on the area of its tile, it's not an object */
-		Object = 0x04,				/**< Spawns an object */
-		Unused = 0x08,				/**< Not used by the game, kept only so levels that have it load */
-		MultiplayerOnly = 0x10		/**< Means something only in multiplayer */
+		TileModifier = 0x01, /**< Changes the tile it's placed on, it's not an object */
+		Area = 0x02, /**< Acts on the area of its tile, it's not an object */
+		Object = 0x04, /**< Spawns an object */
+		Unused = 0x08, /**< Not used by the game, kept only so levels that have it load */
+		MultiplayerOnly = 0x10 /**< Means something only in multiplayer */
 	};
 
 	DEATH_ENUM_FLAGS(EventTraits);
@@ -489,8 +514,9 @@ namespace Jazz2::Editor
 		std::uint8_t OriginalEvent = 0;
 
 		/** @brief Returns the description with the looks for the values of a field, by its index */
-		template<std::size_t N>
-		constexpr EventDescriptor WithPreviewCases(std::int8_t field, const EventPreviewCase (&cases)[N]) const {
+		template <std::size_t N>
+		constexpr EventDescriptor WithPreviewCases(std::int8_t field, const EventPreviewCase (&cases)[N]) const
+		{
 			EventDescriptor copy = *this;
 			copy.PreviewCases = cases;
 			copy.PreviewCaseCount = std::uint8_t(N);
@@ -506,7 +532,7 @@ namespace Jazz2::Editor
 		return { type, key, name.Text, category, description.Text, nullptr, 0, previewMetadata, previewAnimation, traits };
 	}
 	/** @brief Description of an event with parameters */
-	template<std::size_t N>
+	template <std::size_t N>
 	constexpr EventDescriptor DescribeEvent(EventType type, const char* key, CatalogText name, EventCategory category, CatalogText description,
 		const EventParamField (&fields)[N], const char* previewMetadata, std::uint32_t previewAnimation, EventTraits traits)
 	{
@@ -684,7 +710,7 @@ namespace Jazz2::Editor
 		 * the event they're in. Descriptions of events from outside of the game can name each other as what's inside,
 		 * the depth is what ends it then. Returns `true` if anything changed.
 		 */
-		template<class Callback>
+		template <class Callback>
 		static bool ForEachContents(const EventDescriptor& descriptor, Formats::EventRecord& event, Callback&& callback, std::int32_t depth = 0);
 
 		/**
@@ -703,7 +729,7 @@ namespace Jazz2::Editor
 		static bool SwapTeamParams(const EventDescriptor* descriptor, std::uint8_t* params, std::int32_t first = 0, std::int32_t second = 1);
 	};
 
-	template<class Callback>
+	template <class Callback>
 	bool EventCatalog::ForEachContents(const EventDescriptor& descriptor, Formats::EventRecord& event, Callback&& callback, std::int32_t depth)
 	{
 		Formats::EventRecord original = event;
@@ -732,11 +758,11 @@ namespace Jazz2::Editor
 	// The parts of the catalog, one for each group of categories, each is built on its first call, the language must be loaded by then
 	namespace EventCatalogParts
 	{
-		ArrayView<const EventDescriptor> GetBasicEvents();			// Basic, Scenery, Modifier
-		ArrayView<const EventDescriptor> GetAreaEvents();			// Area, Trigger, Warp
-		ArrayView<const EventDescriptor> GetEnvironmentEvents();	// Light, Environment
-		ArrayView<const EventDescriptor> GetEnemyEvents();			// Enemy, Boss
-		ArrayView<const EventDescriptor> GetItemEvents();			// Collectible, Container, Other
+		ArrayView<const EventDescriptor> GetBasicEvents(); // Basic, Scenery, Modifier
+		ArrayView<const EventDescriptor> GetAreaEvents(); // Area, Trigger, Warp
+		ArrayView<const EventDescriptor> GetEnvironmentEvents(); // Light, Environment
+		ArrayView<const EventDescriptor> GetEnemyEvents(); // Enemy, Boss
+		ArrayView<const EventDescriptor> GetItemEvents(); // Collectible, Container, Other
 	}
 }
 

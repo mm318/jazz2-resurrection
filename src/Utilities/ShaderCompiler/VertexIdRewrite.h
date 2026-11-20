@@ -19,7 +19,6 @@
 	vertex layout is the one the engine already produces.
 */
 
-
 #include <cstring>
 
 #include <Containers/GrowableArray.h>
@@ -35,7 +34,7 @@ namespace ShaderCompiler
 	namespace VertexIdRewrite
 	{
 		/** @brief "Not found" sentinel of the string helpers below */
-		constexpr std::size_t Npos = ~std::size_t{0};
+		constexpr std::size_t Npos = ~std::size_t { 0 };
 
 		/** @brief Byte offset of @p needle in @p haystack, or `Npos` */
 		inline std::size_t FindSubstring(StringView haystack, StringView needle)
@@ -55,7 +54,7 @@ namespace ShaderCompiler
 		inline String ReplaceAllOf(StringView s, StringView from, StringView to)
 		{
 			if (from.empty()) {
-				return String{s.data(), s.size()};
+				return String { s.data(), s.size() };
 			}
 			Array<char> out;
 			std::size_t i = 0;
@@ -70,7 +69,7 @@ namespace ShaderCompiler
 				arrayAppend(out, to);
 				i = p + from.size();
 			}
-			return String{out.data(), out.size()};
+			return String { out.data(), out.size() };
 		}
 
 		/**
@@ -87,7 +86,7 @@ namespace ShaderCompiler
 		*/
 		inline String Apply(StringView src, bool& usedCorner, bool& usedInstance)
 		{
-			String text{src.data(), src.size()};
+			String text { src.data(), src.size() };
 			// Batched per-instance index (before the batched corner terms, which also contain gl_VertexID)
 			if (FindSubstring(text, "gl_VertexID / 6"_s) != Npos) {
 				text = ReplaceAllOf(text, "gl_VertexID / 6"_s, "int(aInstanceIndex)"_s);

@@ -42,11 +42,11 @@ namespace nCine
 		 */
 		enum class BlendingPreset
 		{
-			Disabled,					/**< Uses `BlendingFactor::One` and `BlendingFactor::Zero` */
-			Alpha,						/**< Uses `BlendingFactor::SrcAlpha` and `BlendingFactor::OneMinusSrcAlpha` */
-			PremultipliedAlpha,			/**< Uses `BlendingFactor::One` and `BlendingFactor::OneMinusSrcAlpha` */
-			Additive,					/**< Uses `BlendingFactor::SrcAlpha` and `BlendingFactor::One` */
-			Multiply					/**< Uses `BlendingFactor::DstColor` and `BlendingFactor::Zero` */
+			Disabled, /**< Uses `BlendingFactor::One` and `BlendingFactor::Zero` */
+			Alpha, /**< Uses `BlendingFactor::SrcAlpha` and `BlendingFactor::OneMinusSrcAlpha` */
+			PremultipliedAlpha, /**< Uses `BlendingFactor::One` and `BlendingFactor::OneMinusSrcAlpha` */
+			Additive, /**< Uses `BlendingFactor::SrcAlpha` and `BlendingFactor::One` */
+			Multiply /**< Uses `BlendingFactor::DstColor` and `BlendingFactor::Zero` */
 		};
 
 		/** @brief Creates a node as a child of @p parent at the relative position (@p xx, @p yy) */
@@ -66,39 +66,47 @@ namespace nCine
 		bool OnDraw(RenderQueue& renderQueue) override;
 
 		/** @brief Returns the width of the node area */
-		inline virtual float GetWidth() const {
+		inline virtual float GetWidth() const
+		{
 			return _width * _scaleFactor.X;
 		}
 		/** @brief Returns the height of the node area */
-		inline virtual float GetHeight() const {
+		inline virtual float GetHeight() const
+		{
 			return _height * _scaleFactor.Y;
 		}
 		/** @brief Returns the size of the node area */
-		inline Vector2f GetSize() const {
+		inline Vector2f GetSize() const
+		{
 			return Vector2f(GetWidth(), GetHeight());
 		}
 
 		/** @brief Returns the absolute width of the node area */
-		inline virtual float GetAbsWidth() const {
+		inline virtual float GetAbsWidth() const
+		{
 			return _width * _absScaleFactor.X;
 		}
 		/** @brief Returns the absolute height of the node area */
-		inline virtual float GetAbsHeight() const {
+		inline virtual float GetAbsHeight() const
+		{
 			return _height * _absScaleFactor.Y;
 		}
 		/** @brief Returns the absolute size of the node area */
-		inline Vector2f GetAbsSize() const {
+		inline Vector2f GetAbsSize() const
+		{
 			return Vector2f(GetAbsWidth(), GetAbsHeight());
 		}
 
 		/** @brief Returns the transformation anchor point */
-		inline Vector2f GetAnchorPoint() const {
+		inline Vector2f GetAnchorPoint() const
+		{
 			return (_anchorPoint / GetSize()) + 0.5f;
 		}
 		/** @brief Sets the transformation anchor point */
 		void SetAnchorPoint(float xx, float yy);
 		/** @brief Sets the transformation anchor point from a `Vector2f` */
-		inline void SetAnchorPoint(Vector2f point) {
+		inline void SetAnchorPoint(Vector2f point)
+		{
 			SetAnchorPoint(point.X, point.Y);
 		}
 
@@ -125,11 +133,13 @@ namespace nCine
 		void SetBlendingFactors(BlendingFactor srcBlendingFactor, BlendingFactor destBlendingFactor);
 
 		/** @brief Returns the last frame in which any viewport rendered this node (i.e. it was not culled) */
-		inline std::uint32_t GetLastFrameRendered() const {
+		inline std::uint32_t GetLastFrameRendered() const
+		{
 			return _lastFrameRendered;
 		}
 		/** @brief Returns the axis-aligned bounding box of the node area in the last frame */
-		inline Rectf GetAabb() const {
+		inline Rectf GetAabb() const
+		{
 			return _aabb;
 		}
 

@@ -45,7 +45,8 @@ namespace Jazz2::UI::Menu
 	private:
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
-		struct ItemData {
+		struct ItemData
+		{
 			std::shared_ptr<const LevelPacks::LevelPackManifest> Pack;
 			std::unique_ptr<Texture> Preview;
 			Vector2i PreviewSize;

@@ -32,7 +32,8 @@ namespace Jazz2::Actors::Environment
 		void OnDeserializeState(Stream& src) override;
 
 	private:
-		enum class RockState : std::uint8_t {
+		enum class RockState : std::uint8_t
+		{
 			Idle,
 			Shaking,
 			Rolling,

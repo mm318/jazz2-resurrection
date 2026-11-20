@@ -59,19 +59,20 @@ namespace Jazz2::Editor
 		/** @brief Advances time, for the moment a finger waits and a long press */
 		void Update(float timeMult);
 		/** @brief Returns `true` while a finger is on the screen */
-		bool IsActive() const {
+		bool IsActive() const
+		{
 			return !_fingers.empty();
 		}
 
 	private:
 		enum class Mode : std::uint8_t
 		{
-			None,			// No finger
-			Pending,		// One finger over the level, not yet known what it does
-			Pointer,		// One finger is the pointer
-			Interface,		// One finger on the interface
-			Gesture,		// More fingers move the view
-			Ignored			// Waiting until all fingers are up
+			None, // No finger
+			Pending, // One finger over the level, not yet known what it does
+			Pointer, // One finger is the pointer
+			Interface, // One finger on the interface
+			Gesture, // More fingers move the view
+			Ignored // Waiting until all fingers are up
 		};
 
 		struct Finger

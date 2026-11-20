@@ -5,28 +5,37 @@ using namespace Jazz2::Input;
 namespace Jazz2::UI::Menu
 {
 	MenuSection::MenuSection()
-		: _root(nullptr) {}
+		: _root(nullptr)
+	{
+	}
 
-	MenuSection::~MenuSection() {}
+	MenuSection::~MenuSection()
+	{
+	}
 
-	Recti MenuSection::GetClipRectangle(const Recti& contentBounds) {
+	Recti MenuSection::GetClipRectangle(const Recti& contentBounds)
+	{
 		return {};
 	}
 
-	void MenuSection::OnShow(IMenuContainer* root) {
+	void MenuSection::OnShow(IMenuContainer* root)
+	{
 		_root = root;
 	}
 
-	void MenuSection::OnHide() {
+	void MenuSection::OnHide()
+	{
 		_root = nullptr;
 	}
 
-	NavigationFlags MenuSection::GetNavigationFlags() const {
+	NavigationFlags MenuSection::GetNavigationFlags() const
+	{
 		return NavigationFlags::AllowAll;
 	}
 
-	TransitionInfo MenuSection::GetTransition() const {
-		return TransitionInfo{};
+	TransitionInfo MenuSection::GetTransition() const
+	{
+		return TransitionInfo {};
 	}
 
 	void MenuSection::UpdateNavigation(float timeMult, bool& outUp, bool& outDown, bool& outPlaySound)

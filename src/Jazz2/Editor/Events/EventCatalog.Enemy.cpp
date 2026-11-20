@@ -36,7 +36,8 @@ namespace Jazz2::Editor::EventCatalogParts
 			// TRANSLATORS: Parameter of an event in the event properties
 			BoolField(_x("editor", "Facing left"), 2)
 				.WithDescription(_x("editor", "Used only when falling, otherwise the direction is random"))
-				.ShowIf(1, 1).MirroredX(MirrorMode::Toggle),
+				.ShowIf(1, 1)
+				.MirroredX(MirrorMode::Toggle),
 		};
 
 		static const ParamOption SuckerDirections[] = {
@@ -50,7 +51,8 @@ namespace Jazz2::Editor::EventCatalogParts
 			// TRANSLATORS: Parameter of a sucker enemy, the direction it was popped off a floating sucker in
 			EnumField(_x("editor", "Pop direction"), 0, 8, SuckerDirections)
 				.WithDescription(_x("editor", "Starts deflating as if popped off a floating sucker in this direction, None for a normal sucker"))
-				.MirroredXPairs(SuckerMirrorX).MirroredYPairs(SuckerMirrorY),
+				.MirroredXPairs(SuckerMirrorX)
+				.MirroredYPairs(SuckerMirrorY),
 		};
 
 		static const EventParamField MonkeyFields[] = {

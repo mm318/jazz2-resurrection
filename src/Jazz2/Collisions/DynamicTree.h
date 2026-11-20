@@ -148,7 +148,7 @@ namespace Jazz2::Collisions
 		const AABBf& GetFatAABB(std::int32_t proxyId) const;
 
 		/** @brief Queries an AABB for overlapping proxies, the callback is called for each proxy that overlaps the supplied AABB */
-		template<typename T>
+		template <typename T>
 		void Query(T* callback, const AABBf& aabb) const;
 
 		// @brief Ray-cast against the proxies in the tree
@@ -191,7 +191,7 @@ namespace Jazz2::Collisions
 		void ShiftOrigin(Vector2f newOrigin);
 
 	private:
-		static constexpr std::int32_t DefaultNodeCapacity = /*16*/128;
+		static constexpr std::int32_t DefaultNodeCapacity = /*16*/ 128;
 
 		std::int32_t AllocateNode();
 		void FreeNode(std::int32_t node);
@@ -242,7 +242,7 @@ namespace Jazz2::Collisions
 		return _nodes[proxyId].Aabb;
 	}
 
-	template<typename T>
+	template <typename T>
 	inline void DynamicTree::Query(T* callback, const AABBf& aabb) const
 	{
 		SmallVector<std::int32_t, 256> stack;

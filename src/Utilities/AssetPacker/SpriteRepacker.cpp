@@ -22,10 +22,14 @@ namespace Jazz2::AssetPacker
 		inline bool IsCovered(const std::uint8_t* pixel, std::int32_t channelCount)
 		{
 			switch (channelCount) {
-				case 1: return (pixel[0] != 0);		// Palette index, 0 is transparent
-				case 2: return (pixel[1] != 0);		// Palette index and alpha
-				case 3: return true;				// No transparency at all
-				default: return (pixel[3] != 0);
+				case 1:
+					return (pixel[0] != 0); // Palette index, 0 is transparent
+				case 2:
+					return (pixel[1] != 0); // Palette index and alpha
+				case 3:
+					return true; // No transparency at all
+				default:
+					return (pixel[3] != 0);
 			}
 		}
 	}
@@ -240,7 +244,9 @@ namespace Jazz2::AssetPacker
 		JJ2Anims::WriteImageContentLz4(output, pixels.get(), sheetWidth, sheetHeight, channelCount, sheetHeight);
 		return true;
 #else
-		static_cast<void>(input); static_cast<void>(output); static_cast<void>(name);
+		static_cast<void>(input);
+		static_cast<void>(output);
+		static_cast<void>(name);
 		return false;
 #endif
 	}

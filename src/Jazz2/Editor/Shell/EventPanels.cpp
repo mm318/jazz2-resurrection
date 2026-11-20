@@ -168,8 +168,7 @@ namespace Jazz2::Editor
 				if (index < 0) {
 					return _x("editor", "Favourite events and those placed recently - right-click an event to make it a favourite");
 				}
-				_tooltip = EventPreviews::GetEventName(_items[index]) + "\n"_s + (index < _favoriteCount
-					? StringView(_x("editor", "Favourite - right-click to take it away")) : StringView(_x("editor", "Placed recently - right-click to make it a favourite")));
+				_tooltip = EventPreviews::GetEventName(_items[index]) + "\n"_s + (index < _favoriteCount ? StringView(_x("editor", "Favourite - right-click to take it away")) : StringView(_x("editor", "Placed recently - right-click to make it a favourite")));
 				return _tooltip;
 			}
 
@@ -296,7 +295,7 @@ namespace Jazz2::Editor
 
 	EventGrid::EventGrid(IEditorContext& session)
 		: _session(session), _category(AllCategories), _catalogRevision(0), _chipWidth(1.0f), _chipHeight(1.0f), _columns(1), _pressedIndex(-1),
-			_measuredScale(0.0f), _measuredNameWidth(-1.0f), _measuredFontVersion(0)
+		  _measuredScale(0.0f), _measuredNameWidth(-1.0f), _measuredFontVersion(0)
 	{
 		UpdateItems();
 	}
@@ -495,8 +494,7 @@ namespace Jazz2::Editor
 		if (descriptor->Description != nullptr) {
 			_tooltip = _tooltip + "\n"_s + StringView(descriptor->Description);
 		}
-		_tooltip = _tooltip + "\n"_s + (IsFavoriteEvent(_session.GetSettings(), std::uint16_t(descriptor->Type))
-			? StringView(_x("editor", "Right-click to take it away from the favourites")) : StringView(_x("editor", "Right-click to make it a favourite")));
+		_tooltip = _tooltip + "\n"_s + (IsFavoriteEvent(_session.GetSettings(), std::uint16_t(descriptor->Type)) ? StringView(_x("editor", "Right-click to take it away from the favourites")) : StringView(_x("editor", "Right-click to make it a favourite")));
 		return _tooltip;
 	}
 
@@ -516,15 +514,20 @@ namespace Jazz2::Editor
 		};
 		auto* categories = header->Add<Dropdown>([grid, categoryName]() {
 			return categoryName(grid->GetCategory());
-		}, [grid, categoryName](SmallVectorImpl<MenuEntry>& entries) {
-			for (std::int32_t category = EventGrid::AllCategories; category < std::int32_t(EventCategory::Count); category++) {
-				MenuEntry entry;
-				entry.Label = categoryName(category);
-				entry.IsChecked = [grid, category]() { return (grid->GetCategory() == category); };
-				entry.Execute = [grid, category]() { grid->SetFilter(category, grid->GetSearch()); };
-				entries.push_back(Death::move(entry));
-			}
-		});
+		},
+			[grid, categoryName](SmallVectorImpl<MenuEntry>& entries) {
+				for (std::int32_t category = EventGrid::AllCategories; category < std::int32_t(EventCategory::Count); category++) {
+					MenuEntry entry;
+					entry.Label = categoryName(category);
+					entry.IsChecked = [grid, category]() {
+						return (grid->GetCategory() == category);
+					};
+					entry.Execute = [grid, category]() {
+						grid->SetFilter(category, grid->GetSearch());
+					};
+					entries.push_back(Death::move(entry));
+				}
+			});
 		categories->Flex = 1.0f;
 		categories->Tooltip = _x("editor", "Category of the events shown");
 		auto* search = header->Add<TextBox>();
@@ -536,7 +539,9 @@ namespace Jazz2::Editor
 		};
 
 		auto* hint = Add<Label>(_x("editor", "Choose the event for the parameter - Esc cancels"), Theme::TextAccent);
-		hint->IsVisibleFunc = [s]() { return s->IsPickingEvent(); };
+		hint->IsVisibleFunc = [s]() {
+			return s->IsPickingEvent();
+		};
 		Add<EventShortcutStrip>(session);
 
 		ScrollView* scroll = static_cast<ScrollView*>(AddChild(Death::move(gridScroll)));
@@ -545,7 +550,7 @@ namespace Jazz2::Editor
 
 	EventInspectorPanel::EventInspectorPanel(IEditorContext& session)
 		: Panel(PanelStyle::None, Orientation::Vertical, Theme::Spacing, Thickness()), _session(session), _scroll(nullptr),
-			_shownType(-1), _shownCount(-1), _shownBrush(false), _shownRevision(0), _mixed(0), _mixedRevision(UINT32_MAX), _mixedSelectionRevision(UINT32_MAX)
+		  _shownType(-1), _shownCount(-1), _shownBrush(false), _shownRevision(0), _mixed(0), _mixedRevision(UINT32_MAX), _mixedSelectionRevision(UINT32_MAX)
 	{
 		// The edge above, between it and the list of layers, is drawn by the splitter that resizes them
 		// TRANSLATORS: Header of the panel with the properties of the selected events
@@ -642,11 +647,16 @@ namespace Jazz2::Editor
 				}
 			}
 			std::uint8_t flagDifferences = std::uint8_t(event.Flags ^ primary.Flags);
-			if ((flagDifferences & Formats::EventRecord::MultiplayerOnly) != 0) _mixed |= (std::uint64_t(1) << MixedMultiplayer);
-			if ((flagDifferences & Formats::EventRecord::Illuminated) != 0) _mixed |= (std::uint64_t(1) << MixedIlluminated);
-			if ((flagDifferences & Formats::EventRecord::Generator) != 0) _mixed |= (std::uint64_t(1) << MixedGenerator);
-			if (event.GeneratorDelay != primary.GeneratorDelay) _mixed |= (std::uint64_t(1) << MixedDelay);
-			if (((event.GeneratorFlags ^ primary.GeneratorFlags) & 0x01) != 0) _mixed |= (std::uint64_t(1) << MixedDelayFirst);
+			if ((flagDifferences & Formats::EventRecord::MultiplayerOnly) != 0)
+				_mixed |= (std::uint64_t(1) << MixedMultiplayer);
+			if ((flagDifferences & Formats::EventRecord::Illuminated) != 0)
+				_mixed |= (std::uint64_t(1) << MixedIlluminated);
+			if ((flagDifferences & Formats::EventRecord::Generator) != 0)
+				_mixed |= (std::uint64_t(1) << MixedGenerator);
+			if (event.GeneratorDelay != primary.GeneratorDelay)
+				_mixed |= (std::uint64_t(1) << MixedDelay);
+			if (((event.GeneratorFlags ^ primary.GeneratorFlags) & 0x01) != 0)
+				_mixed |= (std::uint64_t(1) << MixedDelayFirst);
 		};
 		for (std::uint32_t cell : cells) {
 			compare(document.GetEvent(std::int32_t(cell % std::uint32_t(gridSize.X)), std::int32_t(cell / std::uint32_t(gridSize.X))));
@@ -678,7 +688,9 @@ namespace Jazz2::Editor
 		auto* mark = parent->Add<Label>(_x("editor", "mixed"), Theme::TextAccent);
 		mark->Tooltip = _x("editor", "The selected events differ in it, a change sets it in all of them");
 		EventInspectorPanel* self = this;
-		mark->IsVisibleFunc = [self, mask]() { return (self->_mixed & mask) != 0; };
+		mark->IsVisibleFunc = [self, mask]() {
+			return (self->_mixed & mask) != 0;
+		};
 	}
 
 	void EventInspectorPanel::BeginEventPick(const EventParamField* field)
@@ -715,7 +727,8 @@ namespace Jazz2::Editor
 			const EventParamField* f = target->Field;
 			self->Change(f->Name, [f, type](Formats::EventRecord& event) {
 				WriteEventTypeField(event, *f, std::uint16_t(type));
-			}, true);
+			},
+				true);
 		});
 	}
 
@@ -735,15 +748,17 @@ namespace Jazz2::Editor
 	void EventInspectorPanel::Change(StringView name, Function<void(Formats::EventRecord&)>&& change, bool sameTypeOnly, bool final)
 	{
 		// A value that isn't dragged, or the end of a drag, ends the step, whichever way this returns
-		struct MergeBreak {
+		struct MergeBreak
+		{
 			CommandHistory& History;
 			bool Final;
-			~MergeBreak() {
+			~MergeBreak()
+			{
 				if (Final) {
 					History.BreakMerge();
 				}
 			}
-		} mergeBreak{ _session.GetHistory(), final };
+		} mergeBreak { _session.GetHistory(), final };
 
 		Formats::EventRecord primary;
 		if (!GetPrimary(primary)) {
@@ -891,7 +906,11 @@ namespace Jazz2::Editor
 		// Difficulties, an event of none of them is in all of them
 		{
 			auto* row = AddRow(rows, _("Difficulty"), _x("editor", "In which difficulties the event is in the level"));
-			struct Difficulty { String Label; std::uint8_t Bit; };
+			struct Difficulty
+			{
+				String Label;
+				std::uint8_t Bit;
+			};
 			static const Difficulty Difficulties[] = {
 				// TRANSLATORS: Check boxes of the difficulties the event is in, in the event properties
 				{ _x("editor", "Easy"), Formats::EventRecord::Easy },
@@ -906,24 +925,32 @@ namespace Jazz2::Editor
 				checks->Add<CheckBox>(difficulty.Label, [readFlags, bit]() {
 					std::uint8_t flags = readFlags();
 					return ((flags & Formats::EventRecord::DifficultyMask) == 0 || (flags & bit) != 0);
-				}, [self, bit](bool value) {
-					// TRANSLATORS: Name of an undo step in the history, the difficulties of events were changed
-					self->Change(_x("editor", "Difficulty"), [bit, value](Formats::EventRecord& event) {
-						std::uint8_t difficulties = event.Flags & Formats::EventRecord::DifficultyMask;
-						if (difficulties == 0) {
-							difficulties = Formats::EventRecord::DifficultyMask;
-						}
-						difficulties = (value ? (difficulties | bit) : (difficulties & ~bit));
-						// At least one stays, none would mean all of them
-						if (difficulties != 0) {
-							event.Flags = std::uint8_t((event.Flags & ~Formats::EventRecord::DifficultyMask) | difficulties);
-						}
-					}, false);
-				});
+				},
+					[self, bit](bool value) {
+						// TRANSLATORS: Name of an undo step in the history, the difficulties of events were changed
+						self->Change(_x("editor", "Difficulty"), [bit, value](Formats::EventRecord& event) {
+							std::uint8_t difficulties = event.Flags & Formats::EventRecord::DifficultyMask;
+							if (difficulties == 0) {
+								difficulties = Formats::EventRecord::DifficultyMask;
+							}
+							difficulties = (value ? (difficulties | bit) : (difficulties & ~bit));
+							// At least one stays, none would mean all of them
+							if (difficulties != 0) {
+								event.Flags = std::uint8_t((event.Flags & ~Formats::EventRecord::DifficultyMask) | difficulties);
+							}
+						},
+							false);
+					});
 			}
 		}
 
-		struct FlagRow { String Label; String Description; std::uint8_t Bit; std::int32_t Mixed; };
+		struct FlagRow
+		{
+			String Label;
+			String Description;
+			std::uint8_t Bit;
+			std::int32_t Mixed;
+		};
 		static const FlagRow FlagRows[] = {
 			// TRANSLATORS: Check boxes in the event properties with their tooltips, the labels are also names of undo steps in the history
 			{ _x("editor", "Multiplayer only"), _x("editor", "The event is in the level only in multiplayer"), Formats::EventRecord::MultiplayerOnly, MixedMultiplayer },
@@ -935,11 +962,13 @@ namespace Jazz2::Editor
 			StringView label = flagRow.Label;
 			auto* check = rows->Add<CheckBox>(label, [readFlags, bit]() {
 				return ((readFlags() & bit) != 0);
-			}, [self, bit, label](bool value) {
-				self->Change(label, [bit, value](Formats::EventRecord& event) {
-					event.Flags = std::uint8_t(value ? (event.Flags | bit) : (event.Flags & ~bit));
-				}, false);
-			});
+			},
+				[self, bit, label](bool value) {
+					self->Change(label, [bit, value](Formats::EventRecord& event) {
+						event.Flags = std::uint8_t(value ? (event.Flags | bit) : (event.Flags & ~bit));
+					},
+						false);
+				});
 			check->Tooltip = flagRow.Description;
 			AddMixedMark(rows, flagRow.Mixed);
 		}
@@ -953,18 +982,23 @@ namespace Jazz2::Editor
 			auto* number = row->Add<NumberBox>([self]() {
 				Formats::EventRecord event;
 				return (self->GetPrimary(event) ? float(event.GeneratorDelay) : 0.0f);
-			}, [self](float value, bool final) {
-				Formats::EventRecord primary;
-				if (self->GetPrimary(primary) && self->IsShownValue(primary.GeneratorDelay, std::int32_t(std::round(value)), nullptr, final)) {
-					return;
-				}
-				// TRANSLATORS: Name of an undo step in the history, the delay of generator events was changed
-				self->Change(_x("editor", "Generator delay"), [value](Formats::EventRecord& event) {
-					event.GeneratorDelay = std::uint8_t(std::clamp<std::int32_t>(std::int32_t(std::round(value)), 0, 255));
-				}, false, final);
-			}, 0.0f, 255.0f, 1.0f, 0);
+			},
+				[self](float value, bool final) {
+					Formats::EventRecord primary;
+					if (self->GetPrimary(primary) && self->IsShownValue(primary.GeneratorDelay, std::int32_t(std::round(value)), nullptr, final)) {
+						return;
+					}
+					// TRANSLATORS: Name of an undo step in the history, the delay of generator events was changed
+					self->Change(_x("editor", "Generator delay"), [value](Formats::EventRecord& event) {
+						event.GeneratorDelay = std::uint8_t(std::clamp<std::int32_t>(std::int32_t(std::round(value)), 0, 255));
+					},
+						false, final);
+				},
+				0.0f, 255.0f, 1.0f, 0);
 			number->Flex = 1.0f;
-			number->DefaultValue = []() { return 0.0f; };
+			number->DefaultValue = []() {
+				return 0.0f;
+			};
 			AddMixedMark(row, MixedDelay);
 			// The whole row, with its label
 			ShowRowWhen(row, isGenerator);
@@ -974,13 +1008,15 @@ namespace Jazz2::Editor
 			auto* check = rows->Add<CheckBox>(_x("editor", "Delay the first one too"), [self]() {
 				Formats::EventRecord event;
 				return (self->GetPrimary(event) && (event.GeneratorFlags & 0x01) != 0);
-			}, [self](bool value) {
-				// Named apart from the delay, changes of the same name would be merged into one step
-				// TRANSLATORS: Name of an undo step in the history, the same as the check box in the event properties of a generator
-				self->Change(_x("editor", "Delay the first one too"), [value](Formats::EventRecord& event) {
-					event.GeneratorFlags = std::uint8_t(value ? (event.GeneratorFlags | 0x01) : (event.GeneratorFlags & ~0x01));
-				}, false);
-			});
+			},
+				[self](bool value) {
+					// Named apart from the delay, changes of the same name would be merged into one step
+					// TRANSLATORS: Name of an undo step in the history, the same as the check box in the event properties of a generator
+					self->Change(_x("editor", "Delay the first one too"), [value](Formats::EventRecord& event) {
+						event.GeneratorFlags = std::uint8_t(value ? (event.GeneratorFlags | 0x01) : (event.GeneratorFlags & ~0x01));
+					},
+						false);
+				});
 			check->IsVisibleFunc = isGenerator;
 		}
 
@@ -1046,7 +1082,8 @@ namespace Jazz2::Editor
 								event.Params[i] = params[i];
 							}
 						}
-					}, true);
+					},
+						true);
 				};
 			}
 		}
@@ -1152,13 +1189,19 @@ namespace Jazz2::Editor
 					Formats::EventRecord inside = EventCatalog::GetContents(*d, *contents, event);
 					EventCatalog::WriteField(inside, *f, value);
 					EventCatalog::SetContents(*contents, event, inside);
-				}, true, final);
+				},
+					true, final);
 			};
 			String label = f->Name;
 			String tooltip = (f->Description != nullptr ? String(f->Description) : String());
 			switch (f->Type) {
 				case ParamType::Bool: {
-					auto* check = rows->Add<CheckBox>(label, [read]() { return (read() != 0); }, [write](bool value) { write(value ? 1 : 0, true); });
+					auto* check = rows->Add<CheckBox>(label, [read]() {
+						return (read() != 0);
+					},
+						[write](bool value) {
+							write(value ? 1 : 0, true);
+						});
 					check->Tooltip = tooltip;
 					break;
 				}
@@ -1172,17 +1215,22 @@ namespace Jazz2::Editor
 							}
 						}
 						return FormatInteger(value);
-					}, [self, read, write, f](SmallVectorImpl<MenuEntry>& entries) {
-						std::int32_t current = read();
-						for (std::uint8_t j = 0; j < f->OptionCount; j++) {
-							std::int32_t value = f->Options[j].Value;
-							MenuEntry entry;
-							entry.Label = GetEventOptionLabel(self->_session, *f, f->Options[j]);
-							entry.IsChecked = [current, value]() { return (current == value); };
-							entry.Execute = [write, value]() { write(value, true); };
-							entries.push_back(Death::move(entry));
-						}
-					});
+					},
+						[self, read, write, f](SmallVectorImpl<MenuEntry>& entries) {
+							std::int32_t current = read();
+							for (std::uint8_t j = 0; j < f->OptionCount; j++) {
+								std::int32_t value = f->Options[j].Value;
+								MenuEntry entry;
+								entry.Label = GetEventOptionLabel(self->_session, *f, f->Options[j]);
+								entry.IsChecked = [current, value]() {
+									return (current == value);
+								};
+								entry.Execute = [write, value]() {
+									write(value, true);
+								};
+								entries.push_back(Death::move(entry));
+							}
+						});
 					dropdown->Flex = 1.0f;
 					dropdown->Tooltip = tooltip;
 					break;
@@ -1194,18 +1242,20 @@ namespace Jazz2::Editor
 						std::int32_t mask = f->Options[j].Value;
 						checks->Add<CheckBox>(f->Options[j].Label, [read, mask]() {
 							return ((read() & mask) == mask);
-						}, [self, d, contents, inner, f, mask](bool value) {
-							// Only the bit, each event keeps its other flags
-							self->Change(f->Name, [d, contents, inner, f, mask, value](Formats::EventRecord& event) {
-								if (EventCatalog::GetContentsDescriptor(*d, *contents, event) != inner) {
-									return;
-								}
-								Formats::EventRecord inside = EventCatalog::GetContents(*d, *contents, event);
-								std::int32_t flags = EventCatalog::ReadField(inside, *f);
-								EventCatalog::WriteField(inside, *f, value ? (flags | mask) : (flags & ~mask));
-								EventCatalog::SetContents(*contents, event, inside);
-							}, true);
-						});
+						},
+							[self, d, contents, inner, f, mask](bool value) {
+								// Only the bit, each event keeps its other flags
+								self->Change(f->Name, [d, contents, inner, f, mask, value](Formats::EventRecord& event) {
+									if (EventCatalog::GetContentsDescriptor(*d, *contents, event) != inner) {
+										return;
+									}
+									Formats::EventRecord inside = EventCatalog::GetContents(*d, *contents, event);
+									std::int32_t flags = EventCatalog::ReadField(inside, *f);
+									EventCatalog::WriteField(inside, *f, value ? (flags | mask) : (flags & ~mask));
+									EventCatalog::SetContents(*contents, event, inside);
+								},
+									true);
+							});
 					}
 					break;
 				}
@@ -1218,16 +1268,20 @@ namespace Jazz2::Editor
 					auto* row = AddRow(rows, unit.empty() ? label : String(label + " ("_s + unit + ")"_s), tooltip);
 					auto* number = row->Add<NumberBox>([read, f]() {
 						return float(EventCatalog::ToDisplayValue(*f, read()));
-					}, [self, read, write, f](float value, bool final) {
-						std::int32_t stored = EventCatalog::FromDisplayValue(*f, std::int32_t(std::round(value)));
-						if (!self->IsShownValue(read(), stored, f, final)) {
-							write(stored, final);
-						}
-					}, float(EventCatalog::ToDisplayValue(*f, f->Min)), float(EventCatalog::ToDisplayValue(*f, f->Max)), float(std::max<std::int32_t>(f->DisplayScale, 1)), 0);
+					},
+						[self, read, write, f](float value, bool final) {
+							std::int32_t stored = EventCatalog::FromDisplayValue(*f, std::int32_t(std::round(value)));
+							if (!self->IsShownValue(read(), stored, f, final)) {
+								write(stored, final);
+							}
+						},
+						float(EventCatalog::ToDisplayValue(*f, f->Min)), float(EventCatalog::ToDisplayValue(*f, f->Max)), float(std::max<std::int32_t>(f->DisplayScale, 1)), 0);
 					number->Flex = 1.0f;
 					number->Tooltip = tooltip;
 					// The wheel pressed sets the value a new event has
-					number->DefaultValue = [f]() { return float(EventCatalog::ToDisplayValue(*f, f->Default)); };
+					number->DefaultValue = [f]() {
+						return float(EventCatalog::ToDisplayValue(*f, f->Default));
+					};
 					break;
 				}
 				default:
@@ -1274,11 +1328,13 @@ namespace Jazz2::Editor
 			case ParamType::Bool: {
 				auto* check = rows->Add<CheckBox>(label, [read]() {
 					return (read() != 0);
-				}, [self, f](bool value) {
-					self->Change(f->Name, [f, value](Formats::EventRecord& event) {
-						EventCatalog::WriteField(event, *f, value ? 1 : 0);
-					}, true);
-				});
+				},
+					[self, f](bool value) {
+						self->Change(f->Name, [f, value](Formats::EventRecord& event) {
+							EventCatalog::WriteField(event, *f, value ? 1 : 0);
+						},
+							true);
+					});
 				check->Tooltip = tooltip;
 				addMixedMark(rows);
 				break;
@@ -1293,21 +1349,25 @@ namespace Jazz2::Editor
 						}
 					}
 					return FormatInteger(value);
-				}, [self, read, f](SmallVectorImpl<MenuEntry>& entries) {
-					std::int32_t current = read();
-					for (std::uint8_t i = 0; i < f->OptionCount; i++) {
-						std::int32_t value = f->Options[i].Value;
-						MenuEntry entry;
-						entry.Label = GetEventOptionLabel(self->_session, *f, f->Options[i]);
-						entry.IsChecked = [current, value]() { return (current == value); };
-						entry.Execute = [self, f, value]() {
-							self->Change(f->Name, [f, value](Formats::EventRecord& event) {
-								EventCatalog::WriteField(event, *f, value);
-							}, true);
-						};
-						entries.push_back(Death::move(entry));
-					}
-				});
+				},
+					[self, read, f](SmallVectorImpl<MenuEntry>& entries) {
+						std::int32_t current = read();
+						for (std::uint8_t i = 0; i < f->OptionCount; i++) {
+							std::int32_t value = f->Options[i].Value;
+							MenuEntry entry;
+							entry.Label = GetEventOptionLabel(self->_session, *f, f->Options[i]);
+							entry.IsChecked = [current, value]() {
+								return (current == value);
+							};
+							entry.Execute = [self, f, value]() {
+								self->Change(f->Name, [f, value](Formats::EventRecord& event) {
+									EventCatalog::WriteField(event, *f, value);
+								},
+									true);
+							};
+							entries.push_back(Death::move(entry));
+						}
+					});
 				dropdown->Flex = 1.0f;
 				dropdown->Tooltip = tooltip;
 				addMixedMark(row);
@@ -1322,12 +1382,14 @@ namespace Jazz2::Editor
 					std::int32_t mask = field.Options[i].Value;
 					checks->Add<CheckBox>(field.Options[i].Label, [read, mask]() {
 						return ((read() & mask) == mask);
-					}, [self, f, mask](bool value) {
-						self->Change(f->Name, [f, mask, value](Formats::EventRecord& event) {
-							std::int32_t flags = EventCatalog::ReadField(event, *f);
-							EventCatalog::WriteField(event, *f, value ? (flags | mask) : (flags & ~mask));
-						}, true);
-					});
+					},
+						[self, f, mask](bool value) {
+							self->Change(f->Name, [f, mask, value](Formats::EventRecord& event) {
+								std::int32_t flags = EventCatalog::ReadField(event, *f);
+								EventCatalog::WriteField(event, *f, value ? (flags | mask) : (flags & ~mask));
+							},
+								true);
+						});
 				}
 				break;
 			}
@@ -1337,25 +1399,27 @@ namespace Jazz2::Editor
 					std::int32_t value = read();
 					// TRANSLATORS: Value of a parameter in the event properties that holds an event, when it holds none
 					return (value == 0 ? String(_x("editor", "Nothing")) : EventPreviews::GetEventName(std::uint16_t(value)));
-				}, [self, f](SmallVectorImpl<MenuEntry>& entries) {
-					MenuEntry choose;
-					// TRANSLATORS: Option of a parameter in the event properties that holds an event, the event is then picked in the Events tab
-					choose.Label = _x("editor", "Choose in the Events tab");
-					choose.Icon = EditorIcon::Event;
-					choose.Execute = [self, f]() {
-						self->BeginEventPick(f);
-					};
-					entries.push_back(Death::move(choose));
-					MenuEntry none;
-					// TRANSLATORS: Option of a parameter in the event properties that holds an event, sets it to no event
-					none.Label = _x("editor", "Nothing");
-					none.Execute = [self, f]() {
-						self->Change(f->Name, [f](Formats::EventRecord& event) {
-							WriteEventTypeField(event, *f, 0);
-						}, true);
-					};
-					entries.push_back(Death::move(none));
-				});
+				},
+					[self, f](SmallVectorImpl<MenuEntry>& entries) {
+						MenuEntry choose;
+						// TRANSLATORS: Option of a parameter in the event properties that holds an event, the event is then picked in the Events tab
+						choose.Label = _x("editor", "Choose in the Events tab");
+						choose.Icon = EditorIcon::Event;
+						choose.Execute = [self, f]() {
+							self->BeginEventPick(f);
+						};
+						entries.push_back(Death::move(choose));
+						MenuEntry none;
+						// TRANSLATORS: Option of a parameter in the event properties that holds an event, sets it to no event
+						none.Label = _x("editor", "Nothing");
+						none.Execute = [self, f]() {
+							self->Change(f->Name, [f](Formats::EventRecord& event) {
+								WriteEventTypeField(event, *f, 0);
+							},
+								true);
+						};
+						entries.push_back(Death::move(none));
+					});
 				dropdown->Flex = 1.0f;
 				dropdown->Tooltip = tooltip;
 				addMixedMark(row);
@@ -1385,7 +1449,8 @@ namespace Jazz2::Editor
 						for (std::size_t i = 0; i < length && f->Offset + i < std::size_t(Formats::LevelFile::EventParamsSize); i++) {
 							event.Params[f->Offset + i] = (i < copy.size() ? std::uint8_t(copy[i]) : 0);
 						}
-					}, true);
+					},
+						true);
 				};
 				break;
 			}
@@ -1401,19 +1466,24 @@ namespace Jazz2::Editor
 				auto* row = AddRow(rows, text, tooltip);
 				auto* number = row->Add<NumberBox>([read, f]() {
 					return float(EventCatalog::ToDisplayValue(*f, read()));
-				}, [self, read, f](float value, bool final) {
-					std::int32_t stored = EventCatalog::FromDisplayValue(*f, std::int32_t(std::round(value)));
-					if (self->IsShownValue(read(), stored, f, final)) {
-						return;
-					}
-					self->Change(f->Name, [f, stored](Formats::EventRecord& event) {
-						EventCatalog::WriteField(event, *f, stored);
-					}, true, final);
-				}, float(EventCatalog::ToDisplayValue(field, field.Min)), float(EventCatalog::ToDisplayValue(field, field.Max)), float(std::max<std::int32_t>(field.DisplayScale, 1)), 0);
+				},
+					[self, read, f](float value, bool final) {
+						std::int32_t stored = EventCatalog::FromDisplayValue(*f, std::int32_t(std::round(value)));
+						if (self->IsShownValue(read(), stored, f, final)) {
+							return;
+						}
+						self->Change(f->Name, [f, stored](Formats::EventRecord& event) {
+							EventCatalog::WriteField(event, *f, stored);
+						},
+							true, final);
+					},
+					float(EventCatalog::ToDisplayValue(field, field.Min)), float(EventCatalog::ToDisplayValue(field, field.Max)), float(std::max<std::int32_t>(field.DisplayScale, 1)), 0);
 				number->Flex = 1.0f;
 				number->Tooltip = tooltip;
 				// The wheel pressed sets the value a new event has
-				number->DefaultValue = [f]() { return float(EventCatalog::ToDisplayValue(*f, f->Default)); };
+				number->DefaultValue = [f]() {
+					return float(EventCatalog::ToDisplayValue(*f, f->Default));
+				};
 				addMixedMark(row);
 				break;
 			}

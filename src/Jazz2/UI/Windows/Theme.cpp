@@ -80,7 +80,7 @@ namespace Jazz2::UI::Windows
 				for (std::size_t i = 0; i < Count; i++) {
 					defaults[i] = *tokens[i].Value;
 				}
-				return ThemeTokens{ tokens, defaults, Count };
+				return ThemeTokens { tokens, defaults, Count };
 			}();
 			return result;
 		}

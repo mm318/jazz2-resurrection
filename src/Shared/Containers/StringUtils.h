@@ -33,46 +33,53 @@
 #include "String.h"
 #include "StringView.h"
 
-namespace Death { namespace Containers { namespace StringUtils {
-//###==##====#=====--==~--~=~- --- -- -  -  -   -
-
-	namespace Implementation
+namespace Death
+{
+	namespace Containers
 	{
-		extern const char* DEATH_CPU_DISPATCHED_DECLARATION(commonPrefix)(const char* a, const char* b, std::size_t sizeA, std::size_t sizeB);
-		DEATH_CPU_DISPATCHER_DECLARATION(commonPrefix)
-	}
+		namespace StringUtils
+		{
+			//###==##====#=====--==~--~=~- --- -- -  -  -   -
 
-	/**
+			namespace Implementation
+			{
+				extern const char* DEATH_CPU_DISPATCHED_DECLARATION(commonPrefix)(const char* a, const char* b, std::size_t sizeA, std::size_t sizeB);
+				DEATH_CPU_DISPATCHER_DECLARATION(commonPrefix)
+			}
+
+			/**
 	 * @brief Longest common prefix of two strings
 	 *
 	 * The returned view is a prefix of @p a.
 	 */
-	inline StringView commonPrefix(StringView a, StringView b) {
-		return a.prefix(Implementation::commonPrefix(a.data(), b.data(), a.size(), b.size()));
-	}
+			inline StringView commonPrefix(StringView a, StringView b)
+			{
+				return a.prefix(Implementation::commonPrefix(a.data(), b.data(), a.size(), b.size()));
+			}
 
-	namespace Implementation
-	{
-		extern void DEATH_CPU_DISPATCHED_DECLARATION(lowercaseInPlace)(char* data, std::size_t size);
-		DEATH_CPU_DISPATCHER_DECLARATION(lowercaseInPlace)
-		extern void DEATH_CPU_DISPATCHED_DECLARATION(uppercaseInPlace)(char* data, std::size_t size);
-		DEATH_CPU_DISPATCHER_DECLARATION(uppercaseInPlace)
-		extern bool DEATH_CPU_DISPATCHED_DECLARATION(equalsIgnoreCase)(const char* data1, const char* data2, std::size_t size);
-		DEATH_CPU_DISPATCHER_DECLARATION(equalsIgnoreCase)
-	}
+			namespace Implementation
+			{
+				extern void DEATH_CPU_DISPATCHED_DECLARATION(lowercaseInPlace)(char* data, std::size_t size);
+				DEATH_CPU_DISPATCHER_DECLARATION(lowercaseInPlace)
+				extern void DEATH_CPU_DISPATCHED_DECLARATION(uppercaseInPlace)(char* data, std::size_t size);
+				DEATH_CPU_DISPATCHER_DECLARATION(uppercaseInPlace)
+				extern bool DEATH_CPU_DISPATCHED_DECLARATION(equalsIgnoreCase)(const char* data1, const char* data2, std::size_t size);
+				DEATH_CPU_DISPATCHER_DECLARATION(equalsIgnoreCase)
+			}
 
-	/**
+			/**
 	 * @brief Convert ASCII characters in a string to lowercase, in place
 	 *
 	 * Replaces any character from `ABCDEFGHIJKLMNOPQRSTUVWXYZ` with a corresponding
 	 * character from `abcdefghijklmnopqrstuvwxyz`. Deliberately supports only ASCII
 	 * as Unicode-aware case conversion is a much more complex topic.
 	 */
-	inline void lowercaseInPlace(MutableStringView string) {
-		Implementation::lowercaseInPlace(string.data(), string.size());
-	}
+			inline void lowercaseInPlace(MutableStringView string)
+			{
+				Implementation::lowercaseInPlace(string.data(), string.size());
+			}
 
-	/**
+			/**
 	 * @brief Convert ASCII characters in a string to lowercase
 	 *
 	 * Allocates a copy and replaces any character from `ABCDEFGHIJKLMNOPQRSTUVWXYZ`
@@ -80,28 +87,29 @@ namespace Death { namespace Containers { namespace StringUtils {
 	 * supports only ASCII as Unicode-aware case conversion is a much more complex
 	 * topic.
 	 */
-	String lowercase(StringView string);
+			String lowercase(StringView string);
 
-	/** @overload
+			/** @overload
 	 *
 	 * Compared to @ref lowercase(StringView) is able to perform the
 	 * operation in-place if @p string is owned, transferring the data ownership to
 	 * the returned instance. Makes a owned copy first if not.
 	 */
-	String lowercase(String string);
+			String lowercase(String string);
 
-	/**
+			/**
 	 * @brief Convert ASCII characters in a string to uppercase, in place
 	 *
 	 * Replaces any character from `abcdefghijklmnopqrstuvwxyz` with a corresponding
 	 * character from `ABCDEFGHIJKLMNOPQRSTUVWXYZ`. Deliberately supports only ASCII
 	 * as Unicode-aware case conversion is a much more complex topic.
 	 */
-	inline void uppercaseInPlace(MutableStringView string) {
-		Implementation::uppercaseInPlace(string.data(), string.size());
-	}
+			inline void uppercaseInPlace(MutableStringView string)
+			{
+				Implementation::uppercaseInPlace(string.data(), string.size());
+			}
 
-	/**
+			/**
 	 * @brief Convert ASCII characters in a string to uppercase, in place
 	 *
 	 * Allocates a copy and replaces any character from `abcdefghijklmnopqrstuvwxyz`
@@ -109,52 +117,53 @@ namespace Death { namespace Containers { namespace StringUtils {
 	 * supports only ASCII as Unicode-aware case conversion is a much more complex
 	 * topic.
 	 */
-	String uppercase(StringView string);
+			String uppercase(StringView string);
 
-	/** @overload
+			/** @overload
 	 *
 	 * Compared to @ref uppercase(StringView) is able to perform the
 	 * operation in-place if @p string is owned, transferring the data ownership to
 	 * the returned instance. Makes a owned copy first if not.
 	 */
-	String uppercase(String string);
+			String uppercase(String string);
 
-	/**
+			/**
 	 * @brief Convert characters in a UTF-8 string to lowercase with slower Unicode-aware method
 	 *
 	 * Allocates a copy and replaces most of the Latin, Greek, Cyrillic, Armenian, Georgian, Cherokee,
 	 * Glagolitic, Coptic, Deseret, Osage, Old Hungarian, Warang Citi, Medefaidrin and Adlam characters.
 	 * Doesn't support locale-specific replacements.
 	 */
-	String lowercaseUnicode(StringView string);
+			String lowercaseUnicode(StringView string);
 
-	/**
+			/**
 	 * @brief Convert characters in a UTF-8 string to uppercase with slower Unicode-aware method
 	 *
 	 * Allocates a copy and replaces most of the Latin, Greek, Cyrillic, Armenian, Georgian, Cherokee,
 	 * Glagolitic, Coptic, Deseret, Osage, Old Hungarian, Warang Citi, Medefaidrin and Adlam characters.
 	 * Doesn't support locale-specific replacements.
 	 */
-	String uppercaseUnicode(StringView string);
+			String uppercaseUnicode(StringView string);
 
-	/**
+			/**
 	 * @brief Determine whether two strings have the same value, ignoring case (ASCII characters only)
 	 */
-	inline bool equalsIgnoreCase(StringView string1, StringView string2) {
-		std::size_t size1 = string1.size();
-		std::size_t size2 = string2.size();
-		return (size1 == size2 && Implementation::equalsIgnoreCase(string1.data(), string2.data(), size1));
-	}
+			inline bool equalsIgnoreCase(StringView string1, StringView string2)
+			{
+				std::size_t size1 = string1.size();
+				std::size_t size2 = string2.size();
+				return (size1 == size2 && Implementation::equalsIgnoreCase(string1.data(), string2.data(), size1));
+			}
 
-	/**
+			/**
 	 * @brief Replace first occurrence in a string
 	 *
 	 * Returns @p string unmodified if it doesn't contain @p search. Having empty
 	 * @p search causes @p replace to be prepended to @p string.
 	 */
-	String replaceFirst(StringView string, StringView search, StringView replace);
+			String replaceFirst(StringView string, StringView search, StringView replace);
 
-	/**
+			/**
 	 * @brief Replace all occurrences in a string
 	 *
 	 * Returns @p string unmodified if it doesn't contain @p search. Expects that
@@ -162,9 +171,9 @@ namespace Death { namespace Containers { namespace StringUtils {
 	 * a single character with another the @ref replaceAll(String, char, char)
 	 * variant is more optimal.
 	 */
-	String replaceAll(StringView string, StringView search, StringView replace);
+			String replaceAll(StringView string, StringView search, StringView replace);
 
-	/**
+			/**
 	 * @brief Replace all occurrences of a character in a string with another character
 	 *
 	 * The @p string is passed through unmodified if it doesn't contain @p search.
@@ -173,19 +182,22 @@ namespace Death { namespace Containers { namespace StringUtils {
 	 * if not. See also @ref replaceAllInPlace() for a variant that operates on string
 	 * views.
 	 */
-	String replaceAll(String string, char search, char replace);
+			String replaceAll(String string, char search, char replace);
 
-	namespace Implementation
-	{
-		extern void DEATH_CPU_DISPATCHED_DECLARATION(replaceAllInPlaceCharacter)(char* data, std::size_t size, char search, char replace);
-		DEATH_CPU_DISPATCHER_DECLARATION(replaceAllInPlaceCharacter)
-	}
+			namespace Implementation
+			{
+				extern void DEATH_CPU_DISPATCHED_DECLARATION(replaceAllInPlaceCharacter)(char* data, std::size_t size, char search, char replace);
+				DEATH_CPU_DISPATCHER_DECLARATION(replaceAllInPlaceCharacter)
+			}
 
-	/**
+			/**
 	 * @brief Replace all occurrences of a character in a string with another character in-place
 	 */
-	inline void replaceAllInPlace(MutableStringView string, char search, char replace) {
-		Implementation::replaceAllInPlaceCharacter(string.data(), string.size(), search, replace);
-	}
+			inline void replaceAllInPlace(MutableStringView string, char search, char replace)
+			{
+				Implementation::replaceAllInPlaceCharacter(string.data(), string.size(), search, replace);
+			}
 
-}}}
+		}
+	}
+}

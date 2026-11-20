@@ -31,7 +31,7 @@ namespace Jazz2::UI::Windows
 		constexpr float CaretBlinkPeriod = 60.0f;
 
 		// Breaks a text into lines at spaces, each as long as fits the width, a word wider than it gets a line of its own
-		template<class TMeasurer>
+		template <class TMeasurer>
 		void BreakLines(const TMeasurer& measurer, StringView text, float width, SmallVectorImpl<StringView>& lines)
 		{
 			lines.clear();
@@ -124,7 +124,7 @@ namespace Jazz2::UI::Windows
 	{
 	}
 
-	template<class TMeasurer>
+	template <class TMeasurer>
 	const WrappedLabel::WrappedLines& WrappedLabel::GetLines(WrappedLines& cache, const TMeasurer& measurer, float width)
 	{
 		StringView text = GetText();
@@ -177,7 +177,7 @@ namespace Jazz2::UI::Windows
 
 	Button::Button(StringView text, IconId icon, Function<void()>&& onClick)
 		: Text(text), Icon(icon), Style(ButtonStyle::Normal), OnClick(Death::move(onClick)), IconColor(Theme::IconColor), MinWidth(0.0f),
-			TextAlign(Alignment::Center), TextColor(0.0f, 0.0f, 0.0f, 0.0f), _textHidden(false), _neededWidth(0.0f)
+		  TextAlign(Alignment::Center), TextColor(0.0f, 0.0f, 0.0f, 0.0f), _textHidden(false), _neededWidth(0.0f)
 	{
 	}
 
@@ -198,7 +198,7 @@ namespace Jazz2::UI::Windows
 		return false;
 	}
 
-	template<class TMeasurer>
+	template <class TMeasurer>
 	float Button::GetTextWidth(const TMeasurer& measurer)
 	{
 		float textHeight = measurer.GetTextHeight();
@@ -294,7 +294,7 @@ namespace Jazz2::UI::Windows
 				border = LerpColor(LerpColor(Theme::ButtonChecked, Theme::AccentDim, 0.5f), LerpColor(Theme::ButtonCheckedHover, Theme::Accent, 0.5f), outline);
 			} else {
 				border = (Style == ButtonStyle::Normal ? Theme::PanelBorderDim
-					: Colorf(Theme::ButtonOutline.R, Theme::ButtonOutline.G, Theme::ButtonOutline.B, 0.0f));
+													   : Colorf(Theme::ButtonOutline.R, Theme::ButtonOutline.G, Theme::ButtonOutline.B, 0.0f));
 				border = LerpColor(border, Theme::ButtonOutline, outline);
 			}
 			if (border.A > 0.0f) {
@@ -550,7 +550,8 @@ namespace Jazz2::UI::Windows
 		float barWidth = (OverlayBar ? 0.0f : context.Px(Theme::ScrollBarWidth));
 		std::uint32_t layoutFrame = GetLayoutFrame();
 		_contentHeight = (layoutFrame != 0 && _measuredFrame == layoutFrame && _measuredWidth == bounds.W
-			? _measuredHeight : content->MeasureCached(context, Vector2f(bounds.W, 1.0e6f)).Y);
+				? _measuredHeight
+				: content->MeasureCached(context, Vector2f(bounds.W, 1.0e6f)).Y);
 		if (_contentHeight > bounds.H && barWidth > 0.0f) {
 			// The scroll bar takes its own space
 			_contentHeight = content->MeasureCached(context, Vector2f(bounds.W - barWidth, 1.0e6f)).Y;
@@ -734,8 +735,8 @@ namespace Jazz2::UI::Windows
 		// A line along the middle of the edge
 		float thickness = std::max(1.0f, std::round(painter.GetScale()));
 		Rectf line = (Orientation == Orientation::Vertical
-			? Rectf(std::round(Bounds.X + (Bounds.W - thickness) * 0.5f), Bounds.Y, thickness, Bounds.H)
-			: Rectf(Bounds.X, std::round(Bounds.Y + (Bounds.H - thickness) * 0.5f), Bounds.W, thickness));
+				? Rectf(std::round(Bounds.X + (Bounds.W - thickness) * 0.5f), Bounds.Y, thickness, Bounds.H)
+				: Rectf(Bounds.X, std::round(Bounds.Y + (Bounds.H - thickness) * 0.5f), Bounds.W, thickness));
 		if (ShowLine) {
 			painter.FillRect(line, Theme::Separator, PaintLayer::Content);
 		}
@@ -836,7 +837,7 @@ namespace Jazz2::UI::Windows
 
 	Form::Form(float spacing, Thickness padding)
 		: Stack(Orientation::Vertical, spacing, padding), MaxLabelWidth(120.0f), MaxLabelFraction(0.5f), MinLabelWidth(0.0f), _labelColumn(0.0f),
-			_maxLabelColumn(0.0f)
+		  _maxLabelColumn(0.0f)
 	{
 	}
 
@@ -932,7 +933,7 @@ namespace Jazz2::UI::Windows
 
 	TextBox::TextBox(StringView text)
 		: Text(text), MaxLength(255), Multiline(false), _caret(0), _selectionStart(0), _scrollX(0.0f), _blinkTime(0.0f), _cancelled(false),
-			_lastContext{ 1.0f }
+		  _lastContext { 1.0f }
 	{
 	}
 
@@ -1087,7 +1088,7 @@ namespace Jazz2::UI::Windows
 
 	void TextBox::Draw(Painter& painter)
 	{
-		_lastContext = Context{ painter.GetScale() };
+		_lastContext = Context { painter.GetScale() };
 		ClampCaret();
 
 		bool usable = IsUsable();
@@ -1405,7 +1406,7 @@ namespace Jazz2::UI::Windows
 		if (_undo.size() >= MaxUndoSteps) {
 			_undo.erase(_undo.begin());
 		}
-		_undo.push_back(EditState{ Text, _caret, _selectionStart });
+		_undo.push_back(EditState { Text, _caret, _selectionStart });
 		_redo.clear();
 		_lastEdit = kind;
 	}
@@ -1415,7 +1416,7 @@ namespace Jazz2::UI::Windows
 		if (_undo.empty()) {
 			return false;
 		}
-		_redo.push_back(EditState{ Text, _caret, _selectionStart });
+		_redo.push_back(EditState { Text, _caret, _selectionStart });
 		EditState& state = _undo.back();
 		Text = Death::move(state.Text);
 		_caret = state.Caret;
@@ -1431,7 +1432,7 @@ namespace Jazz2::UI::Windows
 		if (_redo.empty()) {
 			return false;
 		}
-		_undo.push_back(EditState{ Text, _caret, _selectionStart });
+		_undo.push_back(EditState { Text, _caret, _selectionStart });
 		EditState& state = _redo.back();
 		Text = Death::move(state.Text);
 		_caret = state.Caret;
@@ -1631,7 +1632,7 @@ namespace Jazz2::UI::Windows
 
 	NumberBox::NumberBox(Function<float()>&& getter, Function<void(float, bool)>&& setter, float minValue, float maxValue, float step, std::int32_t decimals)
 		: Getter(Death::move(getter)), Setter(Death::move(setter)), MinValue(minValue), MaxValue(maxValue), Step(step), Decimals(decimals),
-			_dragStartX(0.0f), _dragStartValue(0.0f), _dragging(false)
+		  _dragStartX(0.0f), _dragStartValue(0.0f), _dragging(false)
 	{
 		TextFunc = [this]() {
 			return FormatValue(Getter ? Getter() : 0.0f);

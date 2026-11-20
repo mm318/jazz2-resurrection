@@ -25,10 +25,12 @@ namespace Jazz2::Actors::Enemies
 	protected:
 		Task<bool> OnActivatedAsync(const ActorActivationDetails& details) override;
 		void OnUpdate(float timeMult) override;
-		bool StopsAtStopEnemy() const override {
+		bool StopsAtStopEnemy() const override
+		{
 			return false;
 		}
-		float GetTurnLookAhead() const override {
+		float GetTurnLookAhead() const override
+		{
 			return 0.0f;
 		}
 		bool OnPerish(ActorBase* collider) override;
@@ -40,7 +42,8 @@ namespace Jazz2::Actors::Enemies
 
 	private:
 		/** @brief Stage of a sucker that has just deflated */
-		enum class FallStage : std::uint8_t {
+		enum class FallStage : std::uint8_t
+		{
 			None,
 			Deflating,
 			Falling

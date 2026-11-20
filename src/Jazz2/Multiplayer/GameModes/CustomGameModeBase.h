@@ -16,32 +16,52 @@ namespace Jazz2::Multiplayer::GameModes
 	class CustomGameModeBase : public GameModeBase
 	{
 	public:
-		bool SkipsPreGameCountdown() const override {
+		bool SkipsPreGameCountdown() const override
+		{
 			return false;
 		}
-		bool HasUnlimitedHealth() const override {
+		bool HasUnlimitedHealth() const override
+		{
 			return false;
 		}
-		bool LowerScoreWins() const override {
+		bool LowerScoreWins() const override
+		{
 			return false;
 		}
 
-		void OnRoundStarted(IGameModeContext& ctx) override { }
-		void OnUpdate(IGameModeContext& ctx, float timeMult) override { }
-		void OnPlayerSpawned(IGameModeContext& ctx, Actors::Player* player) override { }
-		void OnPlayerKilled(IGameModeContext& ctx, Actors::Player* victim, Actors::Player* killer) override { }
+		void OnRoundStarted(IGameModeContext& ctx) override
+		{
+		}
+		void OnUpdate(IGameModeContext& ctx, float timeMult) override
+		{
+		}
+		void OnPlayerSpawned(IGameModeContext& ctx, Actors::Player* player) override
+		{
+		}
+		void OnPlayerKilled(IGameModeContext& ctx, Actors::Player* victim, Actors::Player* killer) override
+		{
+		}
 		RespawnDecision DecideRespawn(IGameModeContext& ctx, Actors::Player* player) override;
-		void OnCoinsCollected(IGameModeContext& ctx, Actors::Player* player, std::int32_t prevCount, std::int32_t newCount) override { }
-		void OnGemsCollected(IGameModeContext& ctx, Actors::Player* player, std::uint8_t gemType, std::int32_t prevCount, std::int32_t newCount) override { }
-		LevelExitAction OnLevelExitReached(IGameModeContext& ctx, Actors::Player* player) override {
+		void OnCoinsCollected(IGameModeContext& ctx, Actors::Player* player, std::int32_t prevCount, std::int32_t newCount) override
+		{
+		}
+		void OnGemsCollected(IGameModeContext& ctx, Actors::Player* player, std::uint8_t gemType, std::int32_t prevCount, std::int32_t newCount) override
+		{
+		}
+		LevelExitAction OnLevelExitReached(IGameModeContext& ctx, Actors::Player* player) override
+		{
 			return LevelExitAction::Ignore;
 		}
 		GameEndResult CheckGameEnds(IGameModeContext& ctx) override;
-		void AssignTeams(IGameModeContext& ctx) override { }
-		std::uint32_t GetRoundScore(IGameModeContext& ctx, Actors::Player* player) override {
+		void AssignTeams(IGameModeContext& ctx) override
+		{
+		}
+		std::uint32_t GetRoundScore(IGameModeContext& ctx, Actors::Player* player) override
+		{
 			return GetStateScore(ctx.GetPlayerState(player));
 		}
-		std::uint32_t GetStateScore(const MpPlayerState& state) const override {
+		std::uint32_t GetStateScore(const MpPlayerState& state) const override
+		{
 			return state.ModePoints;
 		}
 		void OnDrawHUD(IGameModeContext& ctx, IGameModeHUD& hud, Actors::Player* player, const Rectf& view) override;
@@ -50,19 +70,22 @@ namespace Jazz2::Multiplayer::GameModes
 
 	protected:
 		/** @brief How the overtime of a mode works */
-		enum class OvertimeRule {
-			None,			/**< No overtime */
-			ScoreCap,		/**< First to the best score + 2 (never above the max score) wins */
-			NextLead,		/**< First to the best score + 1 (never above the max score) wins */
-			TiedLeaders		/**< Only if several are tied for the best score, the round then ends by its own rules */
+		enum class OvertimeRule
+		{
+			None, /**< No overtime */
+			ScoreCap, /**< First to the best score + 2 (never above the max score) wins */
+			NextLead, /**< First to the best score + 1 (never above the max score) wins */
+			TiedLeaders /**< Only if several are tied for the best score, the round then ends by its own rules */
 		};
 
 		/** @brief Returns how the overtime works in the mode */
-		virtual OvertimeRule GetOvertimeRule() const {
+		virtual OvertimeRule GetOvertimeRule() const
+		{
 			return (IsTeamBased() ? OvertimeRule::NextLead : OvertimeRule::ScoreCap);
 		}
 		/** @brief Returns the score the overtime looks at, the round score by default */
-		virtual std::uint32_t GetLeaderScore(IGameModeContext& ctx, Actors::Player* player) {
+		virtual std::uint32_t GetLeaderScore(IGameModeContext& ctx, Actors::Player* player)
+		{
 			return GetRoundScore(ctx, player);
 		}
 		/** @brief Returns `true` if the round should go into overtime when its time runs out */

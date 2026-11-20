@@ -63,9 +63,12 @@ namespace Jazz2::Editor
 		{
 		public:
 			explicit SnapshotWriter(SmallVectorImpl<std::uint8_t>& data, BlobList* blobs = nullptr, const BlobList* shareFrom = nullptr)
-				: _data(data), _blobs(blobs), _shareFrom(shareFrom) {}
+				: _data(data), _blobs(blobs), _shareFrom(shareFrom)
+			{
+			}
 
-			void WriteBlob(const SmallVectorImpl<std::uint8_t>& values) {
+			void WriteBlob(const SmallVectorImpl<std::uint8_t>& values)
+			{
 				if (_blobs != nullptr && values.size() >= BlobThreshold) {
 					WriteValue<std::uint8_t>(1);
 					WriteValue<std::uint32_t>(std::uint32_t(_blobs->size()));
@@ -87,25 +90,29 @@ namespace Jazz2::Editor
 				}
 			}
 
-			void WriteBytes(const void* source, std::size_t size) {
+			void WriteBytes(const void* source, std::size_t size)
+			{
 				const std::uint8_t* bytes = static_cast<const std::uint8_t*>(source);
 				_data.append(bytes, bytes + size);
 			}
 
-			template<typename T>
-			void WriteValue(const T& value) {
+			template <typename T>
+			void WriteValue(const T& value)
+			{
 				static_assert(std::is_trivially_copyable<T>::value, "The value has to be trivially copyable");
 				WriteBytes(&value, sizeof(T));
 			}
 
-			template<typename T>
-			void WriteArray(const SmallVectorImpl<T>& values) {
+			template <typename T>
+			void WriteArray(const SmallVectorImpl<T>& values)
+			{
 				static_assert(std::is_trivially_copyable<T>::value, "The values have to be trivially copyable");
 				WriteValue<std::uint32_t>(std::uint32_t(values.size()));
 				WriteBytes(values.data(), values.size() * sizeof(T));
 			}
 
-			void WriteString(StringView value) {
+			void WriteString(StringView value)
+			{
 				WriteValue<std::uint32_t>(std::uint32_t(value.size()));
 				WriteBytes(value.data(), value.size());
 			}
@@ -121,25 +128,32 @@ namespace Jazz2::Editor
 		public:
 			// Without `keepBlobs` the data kept aside is only checked, not copied, for a reader that only walks through
 			explicit SnapshotReader(ArrayView<const std::uint8_t> data, const BlobList* blobs = nullptr, bool keepBlobs = true)
-				: _start(data.data()), _pos(data.data()), _end(data.data() + data.size()), _blobs(blobs), _failed(false), _keepBlobs(keepBlobs) {}
+				: _start(data.data()), _pos(data.data()), _end(data.data() + data.size()), _blobs(blobs), _failed(false), _keepBlobs(keepBlobs)
+			{
+			}
 
-			bool IsValid() const {
+			bool IsValid() const
+			{
 				return !_failed;
 			}
 
-			void Fail() {
+			void Fail()
+			{
 				_failed = true;
 			}
 
-			std::size_t GetOffset() const {
+			std::size_t GetOffset() const
+			{
 				return std::size_t(_pos - _start);
 			}
 
-			std::size_t GetRemaining() const {
+			std::size_t GetRemaining() const
+			{
 				return std::size_t(_end - _pos);
 			}
 
-			void ReadBlob(SmallVectorImpl<std::uint8_t>& values) {
+			void ReadBlob(SmallVectorImpl<std::uint8_t>& values)
+			{
 				if (ReadValue<std::uint8_t>() == 0) {
 					ReadArray(values);
 					return;
@@ -158,7 +172,8 @@ namespace Jazz2::Editor
 				values.assign(blob.begin(), blob.end());
 			}
 
-			void ReadBytes(void* destination, std::size_t size) {
+			void ReadBytes(void* destination, std::size_t size)
+			{
 				if (std::size_t(_end - _pos) < size) {
 					_failed = true;
 					std::memset(destination, 0, size);
@@ -169,15 +184,17 @@ namespace Jazz2::Editor
 				_pos += size;
 			}
 
-			template<typename T>
-			T ReadValue() {
+			template <typename T>
+			T ReadValue()
+			{
 				T value;
 				ReadBytes(&value, sizeof(T));
 				return value;
 			}
 
-			template<typename T>
-			void ReadArray(SmallVectorImpl<T>& values) {
+			template <typename T>
+			void ReadArray(SmallVectorImpl<T>& values)
+			{
 				std::uint32_t count = ReadValue<std::uint32_t>();
 				if (std::size_t(_end - _pos) / sizeof(T) < count) {
 					_failed = true;
@@ -188,7 +205,8 @@ namespace Jazz2::Editor
 				ReadBytes(values.data(), count * sizeof(T));
 			}
 
-			String ReadString() {
+			String ReadString()
+			{
 				std::uint32_t length = ReadValue<std::uint32_t>();
 				if (std::size_t(_end - _pos) < length) {
 					_failed = true;
@@ -469,7 +487,7 @@ namespace Jazz2::Editor
 			document.Events = Death::move(staged.Events);
 			document.OffGridEvents = Death::move(staged.OffGridEvents);
 
-			for (std::size_t i = 0; i < document.Chunks.size(); ) {
+			for (std::size_t i = 0; i < document.Chunks.size();) {
 				if (DocumentSnapshot::IsLayerChunk(document.Chunks[i].Tag)) {
 					document.Chunks.erase(document.Chunks.begin() + i);
 				} else {

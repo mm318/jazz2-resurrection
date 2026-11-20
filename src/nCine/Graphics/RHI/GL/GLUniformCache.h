@@ -29,15 +29,18 @@ namespace nCine::RHI::GL
 		explicit GLUniformCache(const GLUniform* uniform);
 
 		/** @brief Returns the uniform described by this cache */
-		inline const GLUniform* GetUniform() const {
+		inline const GLUniform* GetUniform() const
+		{
 			return _uniform;
 		}
 		/** @brief Returns the host-side data pointer holding the cached value */
-		inline const GLubyte* GetDataPointer() const {
+		inline const GLubyte* GetDataPointer() const
+		{
 			return _dataPointer;
 		}
 		/** @brief Sets the host-side data pointer holding the cached value */
-		inline void SetDataPointer(GLubyte* dataPointer) {
+		inline void SetDataPointer(GLubyte* dataPointer)
+		{
 			_dataPointer = dataPointer;
 		}
 
@@ -72,11 +75,13 @@ namespace nCine::RHI::GL
 		bool SetIntValue(GLint v0, GLint v1, GLint v2, GLint v3);
 
 		/** @brief Returns whether the cached value still needs to be committed to the GL */
-		inline bool IsDirty() const {
+		inline bool IsDirty() const
+		{
 			return _isDirty;
 		}
 		/** @brief Sets the dirty flag controlling whether the value is committed */
-		inline void SetDirty(bool isDirty) {
+		inline void SetDirty(bool isDirty)
+		{
 			_isDirty = isDirty;
 		}
 		/**

@@ -711,7 +711,7 @@ namespace Jazz2::AssetPacker
 		};
 
 		/** @brief Predicts a block at a motion vector in half pixels, interpolating with MPEG-1's rounding */
-		template<std::int32_t Size>
+		template <std::int32_t Size>
 		void PredictBlock(const std::uint8_t* reference, std::int32_t stride, std::int32_t x, std::int32_t y,
 			std::int32_t mvX, std::int32_t mvY, std::uint8_t* target)
 		{
@@ -1108,8 +1108,7 @@ namespace Jazz2::AssetPacker
 						needed++;
 					}
 					for (std::int32_t c = needed; c <= classes; c++) {
-						const std::int32_t cost = sad + lambda * (MotionComponentBits(WrapMotionDelta(mvX - predictors[c].X, c), c) +
-							MotionComponentBits(WrapMotionDelta(mvY - predictors[c].Y, c), c));
+						const std::int32_t cost = sad + lambda * (MotionComponentBits(WrapMotionDelta(mvX - predictors[c].X, c), c) + MotionComponentBits(WrapMotionDelta(mvY - predictors[c].Y, c), c));
 						if (cost < best[c].Cost) {
 							best[c] = { cost, std::int16_t(mvX), std::int16_t(mvY) };
 						}
@@ -1124,8 +1123,7 @@ namespace Jazz2::AssetPacker
 				};
 				// The search itself is steered by the cost with the largest f_code
 				auto topCost = [&](std::int32_t x, std::int32_t y, std::int32_t sad) {
-					return sad + lambda * (MotionComponentBits(WrapMotionDelta(x * 2 - predictors[classes].X, classes), classes) +
-						MotionComponentBits(WrapMotionDelta(y * 2 - predictors[classes].Y, classes), classes));
+					return sad + lambda * (MotionComponentBits(WrapMotionDelta(x * 2 - predictors[classes].X, classes), classes) + MotionComponentBits(WrapMotionDelta(y * 2 - predictors[classes].Y, classes), classes));
 				};
 
 				// Whole-pixel candidates from the neighbours and the previous picture, tried after the origin
@@ -1478,9 +1476,7 @@ namespace Jazz2::AssetPacker
 							trial.Cost = distortion * CostScale + lambda * (incrementBits + 2 + bits);
 						} else {
 							trial.Kind = MacroblockKind::Forward;
-							trial.Cost = zeroError * CostScale + lambda * (incrementBits + 3 +
-								MotionComponentBits(WrapMotionDelta(-predX, fCode), fCode) +
-								MotionComponentBits(WrapMotionDelta(-predY, fCode), fCode));
+							trial.Cost = zeroError * CostScale + lambda * (incrementBits + 3 + MotionComponentBits(WrapMotionDelta(-predX, fCode), fCode) + MotionComponentBits(WrapMotionDelta(-predY, fCode), fCode));
 						}
 						if (trial.Cost < best.Cost) {
 							std::swap(best, trial);
@@ -1611,17 +1607,17 @@ namespace Jazz2::AssetPacker
 		bw.StartCode(PictureStartCode);
 		bw.Put(std::uint32_t(temporalReference & 1023), 10);
 		bw.Put(std::uint32_t(type), 3);
-		bw.Put(0xFFFF, 16);		// vbv_delay
+		bw.Put(0xFFFF, 16); // vbv_delay
 		if (predicted) {
-			bw.Put(0, 1);		// full_pel_forward_vector
+			bw.Put(0, 1); // full_pel_forward_vector
 			bw.Put(std::uint32_t(fCode), 3);
 		}
-		bw.Put(0, 1);			// extra_bit_picture
+		bw.Put(0, 1); // extra_bit_picture
 
 		for (std::int32_t mbY = 0; mbY < MbHeight; mbY++) {
 			bw.StartCode(std::uint8_t(mbY + 1));
 			bw.Put(std::uint32_t(RowQuantizers[std::size_t(mbY)]), 5);
-			bw.Put(0, 1);		// extra_bit_slice
+			bw.Put(0, 1); // extra_bit_slice
 
 			std::int32_t previousAddress = mbY * MbWidth - 1;
 			std::int32_t predX = 0, predY = 0;
@@ -1700,26 +1696,26 @@ namespace Jazz2::AssetPacker
 		bw.StartCode(SequenceHeaderCode);
 		bw.Put(std::uint32_t(Settings.Width), 12);
 		bw.Put(std::uint32_t(Settings.Height), 12);
-		bw.Put(1, 4);			// Square pixels
+		bw.Put(1, 4); // Square pixels
 		bw.Put(std::uint32_t(FrameRateCode), 4);
 		bw.Put(std::uint32_t(bitRate), 18);
-		bw.Put(1, 1);			// marker_bit
+		bw.Put(1, 1); // marker_bit
 		bw.Put(std::uint32_t(vbvBufferSize), 10);
-		bw.Put(0, 1);			// constrained_parameters_flag
-		bw.Put(0, 1);			// load_intra_quantizer_matrix
-		bw.Put(0, 1);			// load_non_intra_quantizer_matrix
+		bw.Put(0, 1); // constrained_parameters_flag
+		bw.Put(0, 1); // load_intra_quantizer_matrix
+		bw.Put(0, 1); // load_non_intra_quantizer_matrix
 
 		const std::int32_t rate = FrameRates[FrameRateCode].TimeCodeRate;
 		const std::int64_t frame = QueueStart + first;
 		bw.StartCode(GroupStartCode);
-		bw.Put(0, 1);			// drop_frame_flag
+		bw.Put(0, 1); // drop_frame_flag
 		bw.Put(std::uint32_t((frame / (std::int64_t(rate) * 3600)) % 24), 5);
 		bw.Put(std::uint32_t((frame / (std::int64_t(rate) * 60)) % 60), 6);
-		bw.Put(1, 1);			// marker_bit
+		bw.Put(1, 1); // marker_bit
 		bw.Put(std::uint32_t((frame / rate) % 60), 6);
 		bw.Put(std::uint32_t(frame % rate), 6);
-		bw.Put(1, 1);			// closed_gop
-		bw.Put(0, 1);			// broken_link
+		bw.Put(1, 1); // closed_gop
+		bw.Put(0, 1); // broken_link
 
 		const std::int32_t intraQuantizer16 = std::max(MinIntraQuantizer16, (quantizer16 * IntraQuantizerRatio + 8) / 16);
 		const std::int32_t macroblocks = MbWidth * MbHeight;

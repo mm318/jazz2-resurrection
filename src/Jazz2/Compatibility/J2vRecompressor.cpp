@@ -16,8 +16,8 @@
 #include <IO/Compression/DeflateStream.h>
 
 #if defined(WITH_LZ4)
-#	include <lz4.h>
-#	include <lz4hc.h>
+#include <lz4.h>
+#include <lz4hc.h>
 #endif
 
 using namespace Death::Containers;
@@ -85,8 +85,6 @@ namespace Jazz2::Compatibility
 			arrayAppend(target, std::uint8_t(value & 0xFF));
 			arrayAppend(target, std::uint8_t((value >> 8) & 0xFF));
 		}
-
-
 
 		/** @brief Leaves a span of the previous frame in place */
 		void EmitSkip(Array<std::uint8_t>& payload, std::int32_t length)
@@ -173,8 +171,7 @@ namespace Jazz2::Compatibility
 
 				// A run of one repeated value, but only where it beats storing the bytes themselves
 				std::int32_t run = 1;
-				while (i + run < framePixels && scaled[i + run] == scaled[i]
-						&& (firstFrame || scaled[i + run] != previousScaled[i + run])) {
+				while (i + run < framePixels && scaled[i + run] == scaled[i] && (firstFrame || scaled[i + run] != previousScaled[i + run])) {
 					run++;
 				}
 				if (run >= VideoFormat::CommandRunMinLength) {
@@ -301,7 +298,8 @@ namespace Jazz2::Compatibility
 		public:
 			static constexpr std::int32_t BinCount = 64 * 64 * 64;
 
-			struct Bin {
+			struct Bin
+			{
 				std::uint32_t Count;
 				std::uint64_t Sum[3];
 			};
@@ -364,7 +362,7 @@ namespace Jazz2::Compatibility
 				const auto& bin = histogram[i];
 				if (bin.Count > 0) {
 					const double weight = double(bin.Count);
-					colors.push_back(WeightedColor{ { bin.Sum[0] / weight, bin.Sum[1] / weight, bin.Sum[2] / weight }, weight, i });
+					colors.push_back(WeightedColor { { bin.Sum[0] / weight, bin.Sum[1] / weight, bin.Sum[2] / weight }, weight, i });
 				}
 			}
 
@@ -374,7 +372,8 @@ namespace Jazz2::Compatibility
 			}
 
 			// Median cut: boxes are index ranges of `colors`, which is reordered as they are split
-			struct Box {
+			struct Box
+			{
 				std::size_t First, Last;
 				double Error;
 				std::int32_t Channel;
@@ -406,7 +405,7 @@ namespace Jazz2::Compatibility
 			};
 
 			std::vector<Box> boxes;
-			boxes.push_back(Box{ 0, colors.size(), 0.0, 0 });
+			boxes.push_back(Box { 0, colors.size(), 0.0, 0 });
 			measure(boxes[0]);
 			while (std::int32_t(boxes.size()) < PaletteSize) {
 				std::size_t target = 0;
@@ -437,7 +436,7 @@ namespace Jazz2::Compatibility
 						break;
 					}
 				}
-				Box upper{ split, box.Last, 0.0, 0 };
+				Box upper { split, box.Last, 0.0, 0 };
 				box.Last = split;
 				measure(box);
 				measure(upper);
@@ -595,7 +594,7 @@ namespace Jazz2::Compatibility
 		J2vVideoInfo video;
 		video.Width = std::int32_t(input->ReadValueAsLE<std::uint32_t>());
 		video.Height = std::int32_t(input->ReadValueAsLE<std::uint32_t>());
-		input->ReadValueAsLE<std::uint16_t>();	// Bits per pixel
+		input->ReadValueAsLE<std::uint16_t>(); // Bits per pixel
 		video.FrameDelay = input->ReadValueAsLE<std::uint16_t>();
 		video.FrameCount = std::int32_t(input->ReadValueAsLE<std::uint32_t>());
 		std::uint8_t reserved[20];
@@ -756,15 +755,15 @@ namespace Jazz2::Compatibility
 		bool decoded;
 		if (downscale == 1) {
 			// At the original size the frames are taken over exactly as they are, indices and palettes alike
-			decoded = DecodeFrames(sourcePath, [&](const J2vVideoInfo& info, std::int32_t f, const std::uint8_t* frame,
-				const std::uint8_t* palette, bool paletteChanged) {
+			decoded = DecodeFrames(sourcePath, [&](const J2vVideoInfo& info, std::int32_t f, const std::uint8_t* frame, const std::uint8_t* palette, bool paletteChanged) {
 				if (f == 0) {
 					setUpFrames(info);
 				}
 				std::memcpy(scaled.get(), frame, std::size_t(targetWidth) * targetHeight);
 				encodeFrame(f, paletteChanged ? palette : nullptr);
 				return true;
-			}, &video);
+			},
+				&video);
 		} else {
 			// A smaller picture is not taken by picking every n-th pixel out of the original. The cinematics were
 			// rendered with heavy dithering (the skies, the smoke, every gradient), and point sampling a dithered
@@ -780,8 +779,7 @@ namespace Jazz2::Compatibility
 			Array<Segment> segments;
 			std::unique_ptr<std::uint8_t[]> rgb;
 
-			decoded = DecodeFrames(sourcePath, [&](const J2vVideoInfo& info, std::int32_t f, const std::uint8_t* frame,
-				const std::uint8_t* palette, bool paletteChanged) {
+			decoded = DecodeFrames(sourcePath, [&](const J2vVideoInfo& info, std::int32_t f, const std::uint8_t* frame, const std::uint8_t* palette, bool paletteChanged) {
 				if (f == 0) {
 					setUpFrames(info);
 					rgb = std::make_unique<std::uint8_t[]>(std::size_t(targetWidth) * targetHeight * 3);
@@ -790,7 +788,7 @@ namespace Jazz2::Compatibility
 					if (f > 0) {
 						segments.back().PaletteCount = FitPalette(histogram, segments.back().Palette);
 					}
-					Segment& segment = arrayAppend(segments, Segment{});
+					Segment& segment = arrayAppend(segments, Segment {});
 					segment.FirstFrame = f;
 					std::memcpy(segment.SourcePalette, palette, sizeof(segment.SourcePalette));
 					histogram.Clear();
@@ -798,7 +796,8 @@ namespace Jazz2::Compatibility
 				downscaler.Downscale(frame, width, height, palette, downscale, rgb.get());
 				histogram.Add(rgb.get(), std::size_t(targetWidth) * targetHeight);
 				return true;
-			}, &video);
+			},
+				&video);
 			if (!decoded || segments.empty()) {
 				return false;
 			}
@@ -806,8 +805,7 @@ namespace Jazz2::Compatibility
 
 			NearestColorCache cache;
 			std::size_t segmentIndex = 0;
-			decoded = DecodeFrames(sourcePath, [&](const J2vVideoInfo& info, std::int32_t f, const std::uint8_t* frame,
-				const std::uint8_t* palette, bool paletteChanged) {
+			decoded = DecodeFrames(sourcePath, [&](const J2vVideoInfo& info, std::int32_t f, const std::uint8_t* frame, const std::uint8_t* palette, bool paletteChanged) {
 				static_cast<void>(info);
 				static_cast<void>(paletteChanged);
 				const bool segmentStart = (segmentIndex < segments.size() && segments[segmentIndex].FirstFrame == f);
@@ -822,7 +820,8 @@ namespace Jazz2::Compatibility
 				}
 				encodeFrame(f, segmentStart ? segments[segmentIndex - 1].Palette : nullptr);
 				return true;
-			}, &video);
+			},
+				&video);
 		}
 		if (!decoded) {
 			return false;
@@ -845,7 +844,7 @@ namespace Jazz2::Compatibility
 		output_->WriteValueAsLE<std::uint32_t>(std::uint32_t(framesWritten));
 		output_->WriteValue<std::uint8_t>(VideoFormat::PixelFormatIndexed8);
 		output_->WriteValue<std::uint8_t>(lz4 ? VideoFormat::CodecDeltaRleLz4 : VideoFormat::CodecDeltaRle);
-		output_->WriteValueAsLE<std::uint16_t>(0);	// No extension fields yet
+		output_->WriteValueAsLE<std::uint16_t>(0); // No extension fields yet
 
 		std::size_t position = 0;
 		for (std::uint32_t frameSize : frameSizes) {

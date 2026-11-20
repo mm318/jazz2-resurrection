@@ -75,7 +75,7 @@ namespace Jazz2::Actors::Environment
 					Recti frameRect = res->Base->GetFrameRect(frame);
 					Vector2i frameOffset = res->Base->GetFrameOffset(frame);
 
-					Tiles::TileMap::DestructibleDebris debris = { };
+					Tiles::TileMap::DestructibleDebris debris = {};
 					debris.Pos = _pos;
 					debris.Depth = _renderer.GetLayer();
 					debris.Size = Vector2f((float)frameRect.W, (float)frameRect.H);

@@ -11,7 +11,8 @@ namespace Jazz2::Actors
 		: IsOneWay(false), Movable(false), _pushingSpeedX(0.0f), _pushingTime(0.0f)
 	{
 		SetState(ActorState::CollideWithSolidObjects | ActorState::CollideWithSolidObjectsBelow |
-			ActorState::IsSolidObject | ActorState::SkipPerPixelCollisions, true);
+				ActorState::IsSolidObject | ActorState::SkipPerPixelCollisions,
+			true);
 	}
 
 	SolidObjectBase::~SolidObjectBase()

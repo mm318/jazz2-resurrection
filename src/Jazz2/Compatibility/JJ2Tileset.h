@@ -33,7 +33,10 @@ namespace Jazz2::Compatibility
 		/** @} */
 
 		/** @brief Creates a new instance */
-		JJ2Tileset() : _version(JJ2Version::Unknown) { }
+		JJ2Tileset()
+			: _version(JJ2Version::Unknown)
+		{
+		}
 
 		/** @brief Opens and parses the specified tile set file */
 		bool Open(StringView path, bool strictParser);
@@ -54,21 +57,24 @@ namespace Jazz2::Compatibility
 		static bool ConvertTiles(StringView path, ArrayView<const std::int32_t> tiles, Formats::TileSetData& data, std::int32_t& tileCount);
 
 		/** @brief Returns maximum number of supported tiles */
-		std::int32_t GetMaxSupportedTiles() const {
+		std::int32_t GetMaxSupportedTiles() const
+		{
 			return (_version == JJ2Version::BaseGame ? 1024 : 4096);
 		}
 
 	private:
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
-		struct TileOffsets {
+		struct TileOffsets
+		{
 			std::uint32_t Image;
 			std::uint32_t Alpha;
 			std::uint32_t Mask;
 		};
 
 		// Sizes of the blocks of the file, packed and unpacked
-		struct BlockSizes {
+		struct BlockSizes
+		{
 			std::int32_t InfoPacked, InfoUnpacked;
 			std::int32_t ImagePacked, ImageUnpacked;
 			std::int32_t AlphaPacked, AlphaUnpacked;

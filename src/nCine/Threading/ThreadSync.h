@@ -5,15 +5,15 @@
 #if defined(WITH_THREADS) || defined(DOXYGEN_GENERATING_OUTPUT)
 
 #if !defined(DEATH_TARGET_WINDOWS)
-#	include <pthread.h>
+#include <pthread.h>
 #endif
 
 #if defined(DEATH_TARGET_MORPHOS)
 // MorphOS's <pthread.h> turns exec's Wait(), WaitIO() and WaitPort() into macros that add a
 // cancellation point - and a macro named Wait rewrites every Wait() member declared below
-#	undef Wait
-#	undef WaitIO
-#	undef WaitPort
+#undef Wait
+#undef WaitIO
+#undef WaitPort
 #endif
 
 namespace nCine
@@ -43,7 +43,8 @@ namespace nCine
 		int TryLock();
 
 #if defined(WITH_TRACY)
-		inline int try_lock() {
+		inline int try_lock()
+		{
 			return TryLock();
 		}
 #endif
@@ -107,7 +108,8 @@ namespace nCine
 		ReadWriteLock& operator=(const ReadWriteLock&) = delete;
 
 		/** @brief Acquires the lock for shared (read) access, blocking until available */
-		inline void EnterReadLock() {
+		inline void EnterReadLock()
+		{
 #if defined(DEATH_TARGET_WINDOWS)
 			::AcquireSRWLockShared(&_rwlock);
 #else
@@ -115,7 +117,8 @@ namespace nCine
 #endif
 		}
 		/** @brief Acquires the lock for exclusive (write) access, blocking until available */
-		inline void EnterWriteLock() {
+		inline void EnterWriteLock()
+		{
 #if defined(DEATH_TARGET_WINDOWS)
 			::AcquireSRWLockExclusive(&_rwlock);
 #else
@@ -123,7 +126,8 @@ namespace nCine
 #endif
 		}
 		/** @brief Tries to acquire shared (read) access without blocking */
-		inline int TryEnterReadLock() {
+		inline int TryEnterReadLock()
+		{
 #if defined(DEATH_TARGET_WINDOWS)
 			return ::TryAcquireSRWLockShared(&_rwlock);
 #else
@@ -131,7 +135,8 @@ namespace nCine
 #endif
 		}
 		/** @brief Tries to acquire exclusive (write) access without blocking */
-		inline int TryEnterWriteLock() {
+		inline int TryEnterWriteLock()
+		{
 #if defined(DEATH_TARGET_WINDOWS)
 			return ::TryAcquireSRWLockExclusive(&_rwlock);
 #else
@@ -139,7 +144,8 @@ namespace nCine
 #endif
 		}
 		/** @brief Releases shared (read) access */
-		inline void ExitReadLock() {
+		inline void ExitReadLock()
+		{
 #if defined(DEATH_TARGET_WINDOWS)
 			::ReleaseSRWLockShared(&_rwlock);
 #else
@@ -147,7 +153,8 @@ namespace nCine
 #endif
 		}
 		/** @brief Releases exclusive (write) access */
-		inline void ExitWriteLock() {
+		inline void ExitWriteLock()
+		{
 #if defined(DEATH_TARGET_WINDOWS)
 			::ReleaseSRWLockExclusive(&_rwlock);
 #else
@@ -165,7 +172,7 @@ namespace nCine
 
 // AmigaOS 4's newlib has pthreads but not the barrier API, like Android and Apple
 #if !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_WINDOWS) && \
-		!defined(DEATH_TARGET_AMIGAOS4)
+	!defined(DEATH_TARGET_AMIGAOS4)
 
 	/**
 		@brief Barrier for thread synchronization
@@ -185,7 +192,8 @@ namespace nCine
 		Barrier& operator=(const Barrier&) = delete;
 
 		/** @brief Blocks the calling thread until the required number of threads have arrived */
-		inline std::int32_t Wait() {
+		inline std::int32_t Wait()
+		{
 			return pthread_barrier_wait(&_barrier);
 		}
 

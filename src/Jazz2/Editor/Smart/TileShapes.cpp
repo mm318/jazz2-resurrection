@@ -28,8 +28,10 @@ namespace Jazz2::Editor
 			}
 			for (std::size_t i = 0; i < a.size(); i++) {
 				char ca = a[i], cb = b[i];
-				if (ca >= 'A' && ca <= 'Z') ca = char(ca - 'A' + 'a');
-				if (cb >= 'A' && cb <= 'Z') cb = char(cb - 'A' + 'a');
+				if (ca >= 'A' && ca <= 'Z')
+					ca = char(ca - 'A' + 'a');
+				if (cb >= 'A' && cb <= 'Z')
+					cb = char(cb - 'A' + 'a');
 				if (ca != cb) {
 					return false;
 				}
@@ -37,7 +39,7 @@ namespace Jazz2::Editor
 			return true;
 		}
 
-		template<class T>
+		template <class T>
 		void MixValue(std::uint64_t& hash, const T& value)
 		{
 			hash = xxHash3(&value, sizeof(value), hash);
@@ -91,10 +93,10 @@ namespace Jazz2::Editor
 		_ceilings.clear();
 
 		auto addCeiling = [this](TileRef tile, float left, float right, float error) {
-			_ceilings.push_back(Surface{ tile, left, right, error });
+			_ceilings.push_back(Surface { tile, left, right, error });
 			if (std::abs(left - right) > 0.5f) {
 				tile.Flags ^= Formats::TileRecord::FlipX;
-				_ceilings.push_back(Surface{ tile, right, left, error });
+				_ceilings.push_back(Surface { tile, right, left, error });
 			}
 		};
 
@@ -128,10 +130,14 @@ namespace Jazz2::Editor
 				converted.TileId = mask.TileId;
 				TileMasks::Pack(mask.Mask, converted.Bits);
 			}
-			std::sort(overrides.begin(), overrides.end(), [](const OverriddenMask& a, const OverriddenMask& b) { return a.TileId < b.TileId; });
+			std::sort(overrides.begin(), overrides.end(), [](const OverriddenMask& a, const OverriddenMask& b) {
+				return a.TileId < b.TileId;
+			});
 		}
 		auto findOverride = [&overrides](std::int32_t tileId) -> const std::uint8_t* {
-			auto it = std::lower_bound(overrides.begin(), overrides.end(), tileId, [](const OverriddenMask& item, std::int32_t value) { return item.TileId < value; });
+			auto it = std::lower_bound(overrides.begin(), overrides.end(), tileId, [](const OverriddenMask& item, std::int32_t value) {
+				return item.TileId < value;
+			});
 			return (it != overrides.end() && it->TileId == tileId ? it->Bits : nullptr);
 		};
 
@@ -220,7 +226,7 @@ namespace Jazz2::Editor
 		};
 
 		for (std::int32_t index = 1; index < data.TileCount; index++) {
-			TileRef tile{ std::uint16_t(index), TileRef::DefaultTileSet, 0 };
+			TileRef tile { std::uint16_t(index), TileRef::DefaultTileSet, 0 };
 			// Tagged by hand, the heights are from the bottom of the tile
 			if (const TerrainRules::SlopeTag* tag = (rules != nullptr ? rules->FindSlope(std::uint16_t(index)) : nullptr)) {
 				if (!tag->Excluded) {
@@ -239,7 +245,7 @@ namespace Jazz2::Editor
 				}
 				const Formats::ExtraTileSetRecord& record = document->ExtraTileSets[tiles.Source - 1];
 				for (std::int32_t index = 0; index < std::int32_t(record.Count); index++) {
-					analyze(*tiles.Data, std::int32_t(record.Offset) + index, TileRef{ std::uint16_t(index), tiles.Source, 0 });
+					analyze(*tiles.Data, std::int32_t(record.Offset) + index, TileRef { std::uint16_t(index), tiles.Source, 0 });
 				}
 			}
 		}
@@ -250,7 +256,7 @@ namespace Jazz2::Editor
 			const Surface& ground = _surfaces[i];
 			TileRef flipped = ground.Tile;
 			flipped.Flags |= Formats::TileRecord::FlipY;
-			_ceilings.push_back(Surface{ flipped, float(Size) - ground.Left, float(Size) - ground.Right, ground.Error + 2.0f });
+			_ceilings.push_back(Surface { flipped, float(Size) - ground.Left, float(Size) - ground.Right, ground.Error + 2.0f });
 		}
 	}
 }

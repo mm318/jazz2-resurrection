@@ -63,7 +63,8 @@ namespace Jazz2::Editor
 		 */
 		void SetOptions(const PlayTestDebugOptions& options);
 		/** @brief Returns the debug toggles */
-		const PlayTestDebugOptions& GetOptions() const {
+		const PlayTestDebugOptions& GetOptions() const
+		{
 			return _options;
 		}
 		/**
@@ -101,11 +102,13 @@ namespace Jazz2::Editor
 		/** @brief Applies the toggles at the beginning of a frame, returns the time of the level in it */
 		float BeginFrame(float timeMult);
 		/** @brief Returns the time of the level in this frame, the same as @ref BeginFrame() returned, for the normal @p timeMult */
-		float GetFrameTimeMult(float timeMult) const {
+		float GetFrameTimeMult(float timeMult) const
+		{
 			return (_timeControlled ? _frameTimeMult : timeMult);
 		}
 		/** @brief Returns `true` if the time of the level stands still in this frame, nothing of the level goes on then */
-		bool IsFrameFrozen() const {
+		bool IsFrameFrozen() const
+		{
 			return _frameFrozen;
 		}
 		/** @brief Creates the node every object of the level is under, it updates them with the time of the level */

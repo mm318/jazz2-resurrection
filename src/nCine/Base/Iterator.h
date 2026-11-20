@@ -24,7 +24,7 @@ namespace nCine
 	};
 
 	/// Base iterator traits structure
-	template<class T>
+	template <class T>
 	struct IteratorTraits<T*>
 	{
 		/// Type of the values deferenced by the iterator (never const)
@@ -34,7 +34,8 @@ namespace nCine
 		/// Reference to the type of the values deferenced by the iterator
 		using Reference = const T&;
 		/// Type trait for iterator category
-		static inline RandomAccessIteratorTag IteratorCategory() {
+		static inline RandomAccessIteratorTag IteratorCategory()
+		{
 			return RandomAccessIteratorTag();
 		}
 	};
@@ -46,14 +47,14 @@ namespace nCine
 	namespace Implementation
 	{
 		/// Increments an iterator by n elements, for random access iterators
-		template<class Iterator>
+		template <class Iterator>
 		inline void advance(Iterator& it, int n, RandomAccessIteratorTag)
 		{
 			it += n;
 		}
 
 		/// Increments an iterator by n elements, for bidirectional iterators
-		template<class Iterator>
+		template <class Iterator>
 		inline void advance(Iterator& it, int n, BidirectionalIteratorTag)
 		{
 			if (n < 0) {
@@ -66,7 +67,7 @@ namespace nCine
 		}
 
 		/// Increments an iterator by n elements, for forward iterators
-		template<class Iterator>
+		template <class Iterator>
 		inline void advance(Iterator& it, int n, ForwardIteratorTag)
 		{
 			if (n > 0) {
@@ -77,14 +78,14 @@ namespace nCine
 	}
 
 	/// Increments an iterator by n elements
-	template<class Iterator>
+	template <class Iterator>
 	inline void advance(Iterator& it, int n)
 	{
 		Implementation::advance(it, n, IteratorTraits<Iterator>::IteratorCategory());
 	}
 
 	/// Return the nth successor of an iterator
-	template<class Iterator>
+	template <class Iterator>
 	inline Iterator next(Iterator it, unsigned int n)
 	{
 		Implementation::advance(it, n);
@@ -92,7 +93,7 @@ namespace nCine
 	}
 
 	/// Return the successor of an iterator
-	template<class Iterator>
+	template <class Iterator>
 	inline Iterator next(Iterator it)
 	{
 		Implementation::advance(it, 1);
@@ -100,7 +101,7 @@ namespace nCine
 	}
 
 	/// Return the nth predecessor of an iterator
-	template<class Iterator>
+	template <class Iterator>
 	inline Iterator prev(Iterator it, unsigned int n)
 	{
 		Implementation::advance(it, -n);
@@ -108,7 +109,7 @@ namespace nCine
 	}
 
 	/// Return the predecessor of an iterator
-	template<class Iterator>
+	template <class Iterator>
 	inline Iterator prev(Iterator it)
 	{
 		Implementation::advance(it, -1);
@@ -118,14 +119,14 @@ namespace nCine
 	namespace Implementation
 	{
 		/// Returns the distance between two random access iterators with a pointer subtraction
-		template<class RandomAccessIterator>
+		template <class RandomAccessIterator>
 		inline int distance(RandomAccessIterator& first, const RandomAccessIterator& last, RandomAccessIteratorTag)
 		{
 			return (int)(last - first);
 		}
 
 		/// Returns the distance in number of increments between two forward iterators
-		template<class ForwardIterator>
+		template <class ForwardIterator>
 		inline int distance(ForwardIterator& first, const ForwardIterator& last, ForwardIteratorTag)
 		{
 			int counter = 0;
@@ -139,7 +140,7 @@ namespace nCine
 	}
 
 	/// Returns the distance between two iterators
-	template<class Iterator>
+	template <class Iterator>
 	inline int distance(Iterator first, const Iterator last)
 	{
 		return Implementation::distance(first, last, IteratorTraits<Iterator>::IteratorCategory());
@@ -149,77 +150,77 @@ namespace nCine
 	// REVERSE RANGE ADAPTER
 	///////////////////////////////////////////////////////////
 
-	template<class T>
+	template <class T>
 	struct ReversionWrapper
 	{
 		T& iterable;
 	};
 
-	template<class T>
+	template <class T>
 	auto begin(ReversionWrapper<T> c) -> decltype(rBegin(c.iterable))
 	{
 		return rbegin(c.iterable);
 	}
 
-	template<class T>
+	template <class T>
 	auto end(ReversionWrapper<T> c) -> decltype(rEnd(c.iterable))
 	{
 		return rend(c.iterable);
 	}
 
-	template<class T>
+	template <class T>
 	ReversionWrapper<T> reverse(T&& iterable)
 	{
-		return {iterable};
+		return { iterable };
 	}
 
 	///////////////////////////////////////////////////////////
 	// RANGE
 	///////////////////////////////////////////////////////////
 
-	template<class Container>
+	template <class Container>
 	typename Container::Iterator begin(Container& c)
 	{
 		return c.begin();
 	}
 
-	template<class Container>
+	template <class Container>
 	typename Container::ConstIterator cbegin(const Container& c)
 	{
 		return c.begin();
 	}
 
-	template<class Container>
+	template <class Container>
 	typename Container::Iterator end(Container& c)
 	{
 		return c.end();
 	}
 
-	template<class Container>
+	template <class Container>
 	typename Container::ConstIterator cend(const Container& c)
 	{
 		return c.end();
 	}
 
-	template<class Container>
+	template <class Container>
 	typename Container::ReverseIterator rbegin(Container& c)
 	{
 		return c.rbegin();
 	}
 
-	template<class Container>
+	template <class Container>
 	typename Container::ConstReverseIterator crbegin(const Container& c)
 	{
 		return c.rbegin();
 	}
 
-	template<class Container>
+	template <class Container>
 	typename Container::ReverseIterator rend(Container& c)
 	{
 		return c.rend();
 	}
 
-	template<class Container>
+	template <class Container>
 	typename Container::ConstReverseIterator crend(const Container& c)
 	{
 		return c.rend();

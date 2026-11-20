@@ -90,7 +90,8 @@ namespace Jazz2::Utils
 		ZipError Open(StringView path, std::uint32_t maxEntries = 65536);
 
 		/** @brief Returns all entries of the archive */
-		ArrayView<const ZipEntry> GetEntries() const {
+		ArrayView<const ZipEntry> GetEntries() const
+		{
 			return _entries;
 		}
 

@@ -14,7 +14,8 @@ namespace Jazz2::Scripting
 		 * Red, green and blue components, plus alpha used only by 32-bit images. Also provides conversions to and from
 		 * hue, saturation and lightness.
 		 */
-		struct jjPALCOLOR {
+		struct jjPALCOLOR
+		{
 			/** @brief Red component, 0 to 255 */
 			std::uint8_t red;
 			/** @brief Green component, 0 to 255 */

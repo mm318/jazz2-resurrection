@@ -66,7 +66,8 @@ namespace Jazz2::UI::Menu
 		list->Add<ListItem>(_("Reset"), [this]() {
 			PreferencesCache::ResetSafeArea();
 			_isDirty = true;
-		}, 36.0f);
+		},
+			36.0f);
 
 		_list = list.get();
 		SetContent(Death::move(list));
@@ -74,9 +75,12 @@ namespace Jazz2::UI::Menu
 
 	void SafeAreaOptionsSection::AddEdgeRow(ScrollView* list, SafeAreaEdge edge, StringView label)
 	{
-		auto* item = list->Add<ChoiceItem>(label,
-			[this, edge]() -> StringView { return FormatEdge(edge); },
-			[this, edge](std::int32_t direction) { ChangeEdge(edge, direction); });
+		auto* item = list->Add<ChoiceItem>(label, [this, edge]() -> StringView {
+			return FormatEdge(edge);
+		},
+			[this, edge](std::int32_t direction) {
+				ChangeEdge(edge, direction);
+			});
 		// The value reads as "5.0% (36 px)", which is wider than a plain Enabled/Disabled
 		item->ArrowSpacing = 16.0f;
 		// Tighter than the default row, so the four of them and the Reset below leave as much of the screen
@@ -376,24 +380,53 @@ namespace Jazz2::UI::Menu
 			AnimState anim;
 			float defaultSize;
 			switch (slot) {
-				case Jazz2::TouchButtonSlot::Dpad: anim = TouchDpad; defaultSize = HUD::DpadSize; break;
-				case Jazz2::TouchButtonSlot::Fire: anim = TouchFire; defaultSize = HUD::ButtonSize; break;
-				case Jazz2::TouchButtonSlot::Jump: anim = TouchJump; defaultSize = HUD::ButtonSize; break;
-				case Jazz2::TouchButtonSlot::Run: anim = TouchRun; defaultSize = HUD::ButtonSize; break;
-				case Jazz2::TouchButtonSlot::ChangeWeapon: anim = TouchChange; defaultSize = HUD::SmallButtonSize; break;
-				case Jazz2::TouchButtonSlot::Menu: anim = TouchPause; defaultSize = HUD::SmallButtonSize; break;
-				default: anim = TouchClose; defaultSize = HUD::SmallButtonSize; break;
+				case Jazz2::TouchButtonSlot::Dpad:
+					anim = TouchDpad;
+					defaultSize = HUD::DpadSize;
+					break;
+				case Jazz2::TouchButtonSlot::Fire:
+					anim = TouchFire;
+					defaultSize = HUD::ButtonSize;
+					break;
+				case Jazz2::TouchButtonSlot::Jump:
+					anim = TouchJump;
+					defaultSize = HUD::ButtonSize;
+					break;
+				case Jazz2::TouchButtonSlot::Run:
+					anim = TouchRun;
+					defaultSize = HUD::ButtonSize;
+					break;
+				case Jazz2::TouchButtonSlot::ChangeWeapon:
+					anim = TouchChange;
+					defaultSize = HUD::SmallButtonSize;
+					break;
+				case Jazz2::TouchButtonSlot::Menu:
+					anim = TouchPause;
+					defaultSize = HUD::SmallButtonSize;
+					break;
+				default:
+					anim = TouchClose;
+					defaultSize = HUD::SmallButtonSize;
+					break;
 			}
 
 			// The native size of the sprite the menu draws, which is not the size the button is laid out at
 			float nativeHalf;
 			switch (slot) {
-				case Jazz2::TouchButtonSlot::Dpad: nativeHalf = 46.0f; break;
+				case Jazz2::TouchButtonSlot::Dpad:
+					nativeHalf = 46.0f;
+					break;
 				case Jazz2::TouchButtonSlot::Fire:
 				case Jazz2::TouchButtonSlot::Jump:
-				case Jazz2::TouchButtonSlot::Run: nativeHalf = 35.0f; break;
-				case Jazz2::TouchButtonSlot::Console: nativeHalf = 17.5f; break;
-				default: nativeHalf = 20.0f; break;
+				case Jazz2::TouchButtonSlot::Run:
+					nativeHalf = 35.0f;
+					break;
+				case Jazz2::TouchButtonSlot::Console:
+					nativeHalf = 17.5f;
+					break;
+				default:
+					nativeHalf = 20.0f;
+					break;
 			}
 
 			float halfSize = defaultSize * DefaultRef * layout.Scale * 0.5f;
@@ -487,14 +520,23 @@ namespace Jazz2::UI::Menu
 
 				float inset;
 				switch ((SafeAreaEdge)_draggedEdge) {
-					case SafeAreaEdge::Left: inset = px; break;
-					case SafeAreaEdge::Top: inset = py; break;
-					case SafeAreaEdge::Right: inset = (float)viewSize.X - px; break;
-					default: inset = (float)viewSize.Y - py; break;
+					case SafeAreaEdge::Left:
+						inset = px;
+						break;
+					case SafeAreaEdge::Top:
+						inset = py;
+						break;
+					case SafeAreaEdge::Right:
+						inset = (float)viewSize.X - px;
+						break;
+					default:
+						inset = (float)viewSize.Y - py;
+						break;
 				}
 
 				float extent = ((SafeAreaEdge)_draggedEdge == SafeAreaEdge::Left || (SafeAreaEdge)_draggedEdge == SafeAreaEdge::Right
-					? (float)viewSize.X : (float)viewSize.Y);
+						? (float)viewSize.X
+						: (float)viewSize.Y);
 				std::int32_t value = (extent > 0.0f ? (std::int32_t)std::round(inset * 1000.0f / extent) : 0);
 				value = std::clamp<std::int32_t>(value, 0, PreferencesCache::MaxSafeArea);
 

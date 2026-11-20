@@ -47,9 +47,9 @@ namespace Jazz2::Actors::Multiplayer
 
 	RemoteActor::RemoteActor()
 		: _lastAnim(AnimState::Idle), _isAttachedLocally(false), _alwaysInterpolate(false), _furColor(0),
-			_paletteOffset(-1), _blendingPreset(DrawableNode::BlendingPreset::Alpha),
-			_activeShield(ShieldType::None), _activeShieldTime(0.0f), _sugarRushLeft(0.0f), _sugarRushStarsTime(0.0f),
-			_revUpTime(0.0f), _revUpSparkCooldown(0.0f)
+		  _paletteOffset(-1), _blendingPreset(DrawableNode::BlendingPreset::Alpha),
+		  _activeShield(ShieldType::None), _activeShieldTime(0.0f), _sugarRushLeft(0.0f), _sugarRushStarsTime(0.0f),
+		  _revUpTime(0.0f), _revUpSparkCooldown(0.0f)
 	{
 	}
 
@@ -165,7 +165,7 @@ namespace Jazz2::Actors::Multiplayer
 		// Keyed on what is actually drawn, transition included: the wind-up has a start animation played over
 		// the top, and a remote actor is sent whichever of the two is on screen.
 		AnimState drawnState = (_currentTransition != nullptr ? _currentTransition->State
-			: (_currentAnimation != nullptr ? _currentAnimation->State : _lastAnim));
+															  : (_currentAnimation != nullptr ? _currentAnimation->State : _lastAnim));
 		if ((drawnState & AnimState::RevUp) == AnimState::RevUp && _metadata != nullptr) {
 			float speedUp = Player::UpdateRemoteRevUp(_levelHandler, _metadata, _pos, _renderer.GetLayer(),
 				IsFacingLeft(), timeMult, _revUpTime, _revUpSparkCooldown);

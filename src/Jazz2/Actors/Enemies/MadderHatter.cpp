@@ -11,10 +11,9 @@
 namespace Jazz2::Actors::Enemies
 {
 	MadderHatter::MadderHatter()
-		:
-		_attackTime(WalkTicks / TicksPerFrame),
-		_stuck(false),
-		_extraLoops(0)
+		: _attackTime(WalkTicks / TicksPerFrame),
+		  _stuck(false),
+		  _extraLoops(0)
 	{
 	}
 
@@ -101,8 +100,7 @@ namespace Jazz2::Actors::Enemies
 				bulletSpit->OnActivated(ActorActivationDetails(
 					_levelHandler,
 					Vector3i((std::int32_t)_pos.X + (IsFacingLeft() ? -42 : 42), (std::int32_t)_pos.Y - 6, _renderer.GetLayer() + 2),
-					bulletSpitParams
-				));
+					bulletSpitParams));
 				_levelHandler->AddActor(bulletSpit);
 			}
 
@@ -125,8 +123,10 @@ namespace Jazz2::Actors::Enemies
 		dest.WriteValueAsLE<float>(_attackTime);
 
 		std::uint8_t flags = 0;
-		if (_stuck) flags |= 0x01;
-		if (_currentTransition != nullptr) flags |= 0x02;
+		if (_stuck)
+			flags |= 0x01;
+		if (_currentTransition != nullptr)
+			flags |= 0x02;
 		dest.WriteValue<std::uint8_t>(flags);
 	}
 

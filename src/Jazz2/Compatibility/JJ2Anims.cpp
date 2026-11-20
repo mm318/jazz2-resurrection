@@ -14,8 +14,8 @@
 #include <IO/MemoryStream.h>
 
 #if defined(WITH_LZ4)
-#	include <lz4.h>
-#	include <lz4hc.h>
+#include <lz4.h>
+#include <lz4hc.h>
 #endif
 
 using namespace Death::IO;
@@ -132,7 +132,7 @@ namespace Jazz2::Compatibility
 						}
 					}
 					if (!placed) {
-						return false;		// Wider than any column
+						return false; // Wider than any column
 					}
 				}
 
@@ -202,10 +202,10 @@ namespace Jazz2::Compatibility
 					const std::int64_t area = std::int64_t(usedWidth) * usedHeight;
 					const std::int32_t skew = std::abs(usedWidth - usedHeight);
 					// The widths only get narrower from here, and the narrower one wins a complete tie
-					if (paddedArea != bestPaddedArea ? paddedArea < bestPaddedArea
-						: exceedsPage != bestExceedsPage ? !exceedsPage
-						: area != bestArea ? area < bestArea
-						: skew <= bestSkew) {
+					if (paddedArea != bestPaddedArea         ? paddedArea < bestPaddedArea
+							: exceedsPage != bestExceedsPage ? !exceedsPage
+							: area != bestArea               ? area < bestArea
+															 : skew <= bestSkew) {
 						bestPaddedArea = paddedArea;
 						bestExceedsPage = exceedsPage;
 						bestArea = area;
@@ -306,11 +306,11 @@ namespace Jazz2::Compatibility
 
 		std::uint32_t headerLen = s->ReadValueAsLE<std::uint32_t>();
 
-		std::uint32_t magicUnknown = s->ReadValueAsLE<std::uint32_t>();	// Probably `uint16_t version` and `uint16_t unknown`
+		std::uint32_t magicUnknown = s->ReadValueAsLE<std::uint32_t>(); // Probably `uint16_t version` and `uint16_t unknown`
 		DEATH_ASSERT(magicUnknown == 0x18080200, "Invalid version", JJ2Version::Unknown);
 
-		/*std::uint32_t fileLen =*/ s->ReadValueAsLE<std::uint32_t>();
-		/*std::uint32_t crc =*/ s->ReadValueAsLE<std::uint32_t>();
+		/*std::uint32_t fileLen =*/s->ReadValueAsLE<std::uint32_t>();
+		/*std::uint32_t crc =*/s->ReadValueAsLE<std::uint32_t>();
 		std::int32_t setCount = s->ReadValueAsLE<std::int32_t>();
 		SmallVector<std::uint32_t, 0> setAddresses(setCount);
 
@@ -333,8 +333,8 @@ namespace Jazz2::Compatibility
 			std::uint32_t magicANIM = s->ReadValueAsLE<std::uint32_t>();
 			std::uint8_t animCount = s->ReadValue<std::uint8_t>();
 			std::uint8_t sndCount = s->ReadValue<std::uint8_t>();
-			/*std::uint16_t frameCount =*/ s->ReadValueAsLE<std::uint16_t>();
-			/*std::uint32_t cumulativeSndIndex =*/ s->ReadValueAsLE<std::uint32_t>();
+			/*std::uint16_t frameCount =*/s->ReadValueAsLE<std::uint16_t>();
+			/*std::uint32_t cumulativeSndIndex =*/s->ReadValueAsLE<std::uint32_t>();
 			std::int32_t infoBlockLenC = s->ReadValueAsLE<std::int32_t>();
 			std::int32_t infoBlockLenU = s->ReadValueAsLE<std::int32_t>();
 			std::int32_t frameDataBlockLenC = s->ReadValueAsLE<std::int32_t>();
@@ -374,7 +374,7 @@ namespace Jazz2::Compatibility
 				bool isASFF = (format == 0x46465341);
 
 				std::uint32_t magicSAMP = sampleDataBlock.ReadUInt32();
-				/*std::uint32_t sampSize =*/ sampleDataBlock.ReadUInt32();
+				/*std::uint32_t sampSize =*/sampleDataBlock.ReadUInt32();
 				DEATH_ASSERT(magicRIFF == 0x46464952 && magicSAMP == 0x504D4153, "Invalid sound format", JJ2Version::Unknown);
 
 				// Padding/unknown data #1
@@ -398,7 +398,7 @@ namespace Jazz2::Compatibility
 				// Unknown. s0s0 1.20: 00 80, 1.24: 80 00
 				sampleDataBlock.DiscardBytes(2);
 
-				/*uint32_t payloadSize =*/ sampleDataBlock.ReadUInt32();
+				/*uint32_t payloadSize =*/sampleDataBlock.ReadUInt32();
 				// Padding #2, all zeroes in both
 				sampleDataBlock.DiscardBytes(8);
 
@@ -478,10 +478,10 @@ namespace Jazz2::Compatibility
 			return false;
 		}
 
-		/*std::uint32_t headerLen =*/ s->ReadValueAsLE<std::uint32_t>();
-		/*std::uint32_t magicUnknown =*/ s->ReadValueAsLE<std::uint32_t>();
-		/*std::uint32_t fileLen =*/ s->ReadValueAsLE<std::uint32_t>();
-		/*std::uint32_t crc =*/ s->ReadValueAsLE<std::uint32_t>();
+		/*std::uint32_t headerLen =*/s->ReadValueAsLE<std::uint32_t>();
+		/*std::uint32_t magicUnknown =*/s->ReadValueAsLE<std::uint32_t>();
+		/*std::uint32_t fileLen =*/s->ReadValueAsLE<std::uint32_t>();
+		/*std::uint32_t crc =*/s->ReadValueAsLE<std::uint32_t>();
 		std::int32_t setCount = s->ReadValueAsLE<std::int32_t>();
 		if (setIndex < 0 || setIndex >= setCount) {
 			return false;
@@ -498,9 +498,9 @@ namespace Jazz2::Compatibility
 
 		std::uint32_t magicANIM = s->ReadValueAsLE<std::uint32_t>();
 		std::uint8_t animCount = s->ReadValue<std::uint8_t>();
-		/*std::uint8_t sndCount =*/ s->ReadValue<std::uint8_t>();
-		/*std::uint16_t frameCount =*/ s->ReadValueAsLE<std::uint16_t>();
-		/*std::uint32_t cumulativeSndIndex =*/ s->ReadValueAsLE<std::uint32_t>();
+		/*std::uint8_t sndCount =*/s->ReadValue<std::uint8_t>();
+		/*std::uint16_t frameCount =*/s->ReadValueAsLE<std::uint16_t>();
+		/*std::uint32_t cumulativeSndIndex =*/s->ReadValueAsLE<std::uint32_t>();
 		std::int32_t infoBlockLenC = s->ReadValueAsLE<std::int32_t>();
 		std::int32_t infoBlockLenU = s->ReadValueAsLE<std::int32_t>();
 		std::int32_t frameDataBlockLenC = s->ReadValueAsLE<std::int32_t>();
@@ -563,7 +563,7 @@ namespace Jazz2::Compatibility
 					imageDataBlock.SeekTo(dpos - 4);
 					std::uint16_t width2 = imageDataBlock.ReadUInt16();
 					imageDataBlock.SeekTo(dpos - 2);
-					/*std::uint16_t height2 =*/ imageDataBlock.ReadUInt16();
+					/*std::uint16_t height2 =*/imageDataBlock.ReadUInt16();
 
 					frame.DrawTransparent = (width2 & 0x8000) > 0;
 
@@ -888,8 +888,7 @@ namespace Jazz2::Compatibility
 			so.Seek(0, SeekOrigin::Begin);
 			// LZ4 content is stored as it is: compressing it again would only put an inflate in front of the
 			// decoder it was chosen for
-			bool success = output.AddFile(so, filename, PreferredImageCompression == ImageCompression::Lz4
-				? PakPreferredCompression::None : PakPreferredCompression::Deflate);
+			bool success = output.AddFile(so, filename, PreferredImageCompression == ImageCompression::Lz4 ? PakPreferredCompression::None : PakPreferredCompression::Deflate);
 			DEATH_ASSERT(success, "Failed to write converted asset", );
 
 			/*if (!string.IsNullOrEmpty(data.Name) && !data.SkipNormalMap) {
@@ -994,7 +993,8 @@ namespace Jazz2::Compatibility
 			return;
 		}
 
-		struct Shift {
+		struct Shift
+		{
 			std::int32_t X, Y;
 			std::int32_t Count;
 			const AnimFrameSection* Reference;
@@ -1007,7 +1007,9 @@ namespace Jazz2::Compatibility
 				}
 				std::int32_t x = greenFrame.HotspotX - frame.HotspotX;
 				std::int32_t y = greenFrame.HotspotY - frame.HotspotY;
-				auto it = std::find_if(shifts.begin(), shifts.end(), [x, y](const Shift& shift) { return (shift.X == x && shift.Y == y); });
+				auto it = std::find_if(shifts.begin(), shifts.end(), [x, y](const Shift& shift) {
+					return (shift.X == x && shift.Y == y);
+				});
 				if (it != shifts.end()) {
 					it->Count++;
 				} else {
@@ -1016,7 +1018,9 @@ namespace Jazz2::Compatibility
 				break;
 			}
 		}
-		auto shift = std::max_element(shifts.begin(), shifts.end(), [](const Shift& a, const Shift& b) { return (a.Count < b.Count); });
+		auto shift = std::max_element(shifts.begin(), shifts.end(), [](const Shift& a, const Shift& b) {
+			return (a.Count < b.Count);
+		});
 		if (shift == shifts.end() || shift->Count * 2 < (std::int32_t)anim.Frames.size()) {
 			return;
 		}
@@ -1223,23 +1227,25 @@ namespace Jazz2::Compatibility
 
 	void JJ2Anims::WriteImageContent(Stream& so, const std::uint8_t* data, std::int32_t width, std::int32_t height, std::int32_t channelCount)
 	{
-		typedef union {
-			struct {
+		typedef union
+		{
+			struct
+			{
 				std::uint8_t r, g, b, a;
 			} rgba;
 			std::uint32_t v;
 		} rgba_t;
 
-		#define QOI_OP_INDEX  0x00 /* 00xxxxxx */
-		#define QOI_OP_DIFF   0x40 /* 01xxxxxx */
-		#define QOI_OP_LUMA   0x80 /* 10xxxxxx */
-		#define QOI_OP_RUN    0xc0 /* 11xxxxxx */
-		#define QOI_OP_RGB    0xfe /* 11111110 */
-		#define QOI_OP_RGBA   0xff /* 11111111 */
+#define QOI_OP_INDEX 0x00 /* 00xxxxxx */
+#define QOI_OP_DIFF 0x40 /* 01xxxxxx */
+#define QOI_OP_LUMA 0x80 /* 10xxxxxx */
+#define QOI_OP_RUN 0xc0 /* 11xxxxxx */
+#define QOI_OP_RGB 0xfe /* 11111110 */
+#define QOI_OP_RGBA 0xff /* 11111111 */
 
-		#define QOI_MASK_2    0xc0 /* 11000000 */
+#define QOI_MASK_2 0xc0 /* 11000000 */
 
-		#define QOI_COLOR_HASH(C) (C.rgba.r*3 + C.rgba.g*5 + C.rgba.b*7 + C.rgba.a*11)
+#define QOI_COLOR_HASH(C) (C.rgba.r * 3 + C.rgba.g * 5 + C.rgba.b * 7 + C.rgba.a * 11)
 
 		auto pixels = (const std::uint8_t*)data;
 
@@ -1299,14 +1305,12 @@ namespace Jazz2::Compatibility
 						if (
 							vr > -3 && vr < 2 &&
 							vg > -3 && vg < 2 &&
-							vb > -3 && vb < 2
-						) {
+							vb > -3 && vb < 2) {
 							so.WriteValue<std::uint8_t>(QOI_OP_DIFF | (vr + 2) << 4 | (vg + 2) << 2 | (vb + 2));
 						} else if (
-							vg_r >  -9 && vg_r < 8 &&
-							vg   > -33 && vg   < 32 &&
-							vg_b >  -9 && vg_b < 8
-						) {
+							vg_r > -9 && vg_r < 8 &&
+							vg > -33 && vg < 32 &&
+							vg_b > -9 && vg_b < 8) {
 							so.WriteValue<std::uint8_t>(QOI_OP_LUMA | (vg + 32));
 							so.WriteValue<std::uint8_t>((vg_r + 8) << 4 | (vg_b + 8));
 						} else {
@@ -1339,14 +1343,16 @@ namespace Jazz2::Compatibility
 	}
 
 	JJ2Anims::ImageContentDecoder::ImageContentDecoder()
-		: _index{}, _px{0, 0, 0, 255}, _run(0)
+		: _index {}, _px { 0, 0, 0, 255 }, _run(0)
 	{
 	}
 
 	void JJ2Anims::ImageContentDecoder::Decode(Stream& s, std::uint8_t* data, std::int32_t pixelCount, std::int32_t channelCount)
 	{
-		typedef union {
-			struct {
+		typedef union
+		{
+			struct
+			{
 				std::uint8_t r, g, b, a;
 			} rgba;
 			std::uint32_t v;
@@ -1407,8 +1413,10 @@ namespace Jazz2::Compatibility
 
 	namespace
 	{
-		typedef union {
-			struct {
+		typedef union
+		{
+			struct
+			{
 				std::uint8_t r, g, b, a;
 			} rgba;
 			std::uint32_t v;
@@ -1432,21 +1440,27 @@ namespace Jazz2::Compatibility
 			  one whole operation (5 bytes at most) is left; past that point every read is checked as before.
 			A run fills its pixels in a loop of its own.
 		*/
-		template<std::int32_t Channels>
+		template <std::int32_t Channels>
 		DEATH_ALWAYS_INLINE void StoreDecodedPixel(std::uint8_t* DEATH_RESTRICT data, DecoderPixel px)
 		{
 			if (Channels == 1) {
 				data[0] = px.rgba.r;
 			} else if (Channels == 2) {
-				data[0] = px.rgba.r; data[1] = px.rgba.g;
+				data[0] = px.rgba.r;
+				data[1] = px.rgba.g;
 			} else if (Channels == 3) {
-				data[0] = px.rgba.r; data[1] = px.rgba.g; data[2] = px.rgba.b;
+				data[0] = px.rgba.r;
+				data[1] = px.rgba.g;
+				data[2] = px.rgba.b;
 			} else {
-				data[0] = px.rgba.r; data[1] = px.rgba.g; data[2] = px.rgba.b; data[3] = px.rgba.a;
+				data[0] = px.rgba.r;
+				data[1] = px.rgba.g;
+				data[2] = px.rgba.b;
+				data[3] = px.rgba.a;
 			}
 		}
 
-		template<std::int32_t Channels>
+		template <std::int32_t Channels>
 		void DecodeFromMemory(const std::uint8_t*& src, const std::uint8_t* end, DecoderPixel* index, DecoderPixel& pxRef, std::int32_t& runRef,
 			std::uint8_t* DEATH_RESTRICT data, std::int32_t pixelCount)
 		{
@@ -1473,7 +1487,7 @@ namespace Jazz2::Compatibility
 				}
 
 				std::int32_t b1;
-				if DEATH_LIKELY(end - s >= MaxOpSize) {
+				if DEATH_LIKELY (end - s >= MaxOpSize) {
 					b1 = *s++;
 					if ((b1 & QOI_MASK_2) == QOI_OP_INDEX) {
 						px = index[b1];
@@ -1482,8 +1496,16 @@ namespace Jazz2::Compatibility
 						continue;
 					} else if (b1 == QOI_OP_RGB) {
 						px.rgba.r = *s++;
-						if (Channels >= 2) { px.rgba.g = *s++; } else { px.rgba.g = 0; }
-						if (Channels >= 3) { px.rgba.b = *s++; } else { px.rgba.b = 0; }
+						if (Channels >= 2) {
+							px.rgba.g = *s++;
+						} else {
+							px.rgba.g = 0;
+						}
+						if (Channels >= 3) {
+							px.rgba.b = *s++;
+						} else {
+							px.rgba.b = 0;
+						}
 					} else if (b1 == QOI_OP_RGBA) {
 						px.rgba.r = s[0];
 						px.rgba.g = s[1];
@@ -1509,8 +1531,16 @@ namespace Jazz2::Compatibility
 					b1 = (s < end ? *s++ : 0);
 					if (b1 == QOI_OP_RGB) {
 						px.rgba.r = (s < end ? *s++ : 0);
-						if (Channels >= 2) { px.rgba.g = (s < end ? *s++ : 0); } else { px.rgba.g = 0; }
-						if (Channels >= 3) { px.rgba.b = (s < end ? *s++ : 0); } else { px.rgba.b = 0; }
+						if (Channels >= 2) {
+							px.rgba.g = (s < end ? *s++ : 0);
+						} else {
+							px.rgba.g = 0;
+						}
+						if (Channels >= 3) {
+							px.rgba.b = (s < end ? *s++ : 0);
+						} else {
+							px.rgba.b = 0;
+						}
 					} else if (b1 == QOI_OP_RGBA) {
 						px.rgba.r = (s < end ? *s++ : 0);
 						px.rgba.g = (s < end ? *s++ : 0);
@@ -1553,10 +1583,18 @@ namespace Jazz2::Compatibility
 		std::memcpy(&px, _px, sizeof(px));
 
 		switch (channelCount) {
-			case 1: DecodeFromMemory<1>(src, end, index, px, run, data, pixelCount); break;
-			case 2: DecodeFromMemory<2>(src, end, index, px, run, data, pixelCount); break;
-			case 3: DecodeFromMemory<3>(src, end, index, px, run, data, pixelCount); break;
-			default: DecodeFromMemory<4>(src, end, index, px, run, data, pixelCount); break;
+			case 1:
+				DecodeFromMemory<1>(src, end, index, px, run, data, pixelCount);
+				break;
+			case 2:
+				DecodeFromMemory<2>(src, end, index, px, run, data, pixelCount);
+				break;
+			case 3:
+				DecodeFromMemory<3>(src, end, index, px, run, data, pixelCount);
+				break;
+			default:
+				DecodeFromMemory<4>(src, end, index, px, run, data, pixelCount);
+				break;
 		}
 
 		_run = run;
@@ -1614,7 +1652,7 @@ namespace Jazz2::Compatibility
 			return false;
 		}
 		return (LZ4_decompress_safe(reinterpret_cast<const char*>(compressed.get()), reinterpret_cast<char*>(data),
-			std::int32_t(size), byteCount) == byteCount);
+					std::int32_t(size), byteCount) == byteCount);
 	}
 #endif
 }

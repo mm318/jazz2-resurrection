@@ -52,9 +52,9 @@ namespace Jazz2::Scripting
 		void* At(std::uint32_t index);
 		const void* At(std::uint32_t index) const;
 
-		// Set value of an element. 
+		// Set value of an element.
 		// The value arg should be a pointer to the value that will be copied to the element.
-		// Remember, if the array holds handles the value parameter should be the 
+		// Remember, if the array holds handles the value parameter should be the
 		// address of the handle. The refCount of the object will also be incremented
 		void SetValue(std::uint32_t index, void* value);
 
@@ -110,20 +110,20 @@ namespace Jazz2::Scripting
 		CScriptArray(const CScriptArray& other);
 		virtual ~CScriptArray();
 
-		bool  Less(const void* a, const void* b, bool asc);
+		bool Less(const void* a, const void* b, bool asc);
 		void* GetArrayItemPointer(std::int32_t index);
 		void* GetDataPointer(void* buffer);
-		void  Copy(void* dst, void* src);
-		void  Swap(void* a, void* b);
-		void  Precache();
-		bool  CheckMaxSize(std::uint32_t numElements);
-		void  Resize(std::int32_t delta, std::uint32_t at);
-		void  CreateBuffer(SArrayBuffer** buf, std::uint32_t numElements);
-		void  DeleteBuffer(SArrayBuffer* buf);
-		void  CopyBuffer(SArrayBuffer* dst, SArrayBuffer* src);
-		void  Construct(SArrayBuffer* buf, std::uint32_t start, std::uint32_t end);
-		void  Destruct(SArrayBuffer* buf, std::uint32_t start, std::uint32_t end);
-		bool  Equals(const void* a, const void* b, asIScriptContext* ctx, SArrayCache* cache) const;
+		void Copy(void* dst, void* src);
+		void Swap(void* a, void* b);
+		void Precache();
+		bool CheckMaxSize(std::uint32_t numElements);
+		void Resize(std::int32_t delta, std::uint32_t at);
+		void CreateBuffer(SArrayBuffer** buf, std::uint32_t numElements);
+		void DeleteBuffer(SArrayBuffer* buf);
+		void CopyBuffer(SArrayBuffer* dst, SArrayBuffer* src);
+		void Construct(SArrayBuffer* buf, std::uint32_t start, std::uint32_t end);
+		void Destruct(SArrayBuffer* buf, std::uint32_t start, std::uint32_t end);
+		bool Equals(const void* a, const void* b, asIScriptContext* ctx, SArrayCache* cache) const;
 	};
 
 	/** @relatesalso CScriptArray

@@ -25,7 +25,8 @@ namespace Jazz2::Actors::Enemies
 	protected:
 		Task<bool> OnActivatedAsync(const ActorActivationDetails& details) override;
 		void OnUpdate(float timeMult) override;
-		float GetTurnLookAhead() const override {
+		float GetTurnLookAhead() const override
+		{
 			return 25.0f;
 		}
 		void OnUpdateHitbox() override;

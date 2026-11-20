@@ -35,18 +35,18 @@ namespace Jazz2::Editor
 	/** @brief Where a play-test starts */
 	enum class PlayStartMode : std::uint8_t
 	{
-		Resume,			/**< Where the last play-test was left, as it was if the level wasn't changed since */
-		Here,			/**< At the pointer, or at the center of the view */
-		FromStart		/**< At the start of the level */
+		Resume, /**< Where the last play-test was left, as it was if the level wasn't changed since */
+		Here, /**< At the pointer, or at the center of the view */
+		FromStart /**< At the start of the level */
 	};
 
 	/** @brief State of the play-tests of the level editor, see @ref PlayTestController */
 	enum class PlayTestMode : std::uint8_t
 	{
-		Edit,			/**< The level is edited */
-		Entering,		/**< The view flies into the level, it's played once it's there */
-		Play,			/**< The level is played */
-		Returning		/**< The level is edited again, while the ring back into the editor grows */
+		Edit, /**< The level is edited */
+		Entering, /**< The view flies into the level, it's played once it's there */
+		Play, /**< The level is played */
+		Returning /**< The level is edited again, while the ring back into the editor grows */
 	};
 
 	/**
@@ -57,10 +57,10 @@ namespace Jazz2::Editor
 		/** @brief What ended a segment of the path */
 		enum class Break : std::uint8_t
 		{
-			None,			/**< The segment goes on */
-			Died,			/**< The player died */
-			Warped,			/**< The player was moved far away at once */
-			Exited			/**< The level was left */
+			None, /**< The segment goes on */
+			Died, /**< The player died */
+			Warped, /**< The player was moved far away at once */
+			Exited /**< The level was left */
 		};
 
 		/** @brief Part of the path without a break */

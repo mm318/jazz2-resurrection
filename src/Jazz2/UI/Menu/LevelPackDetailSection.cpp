@@ -12,8 +12,8 @@
 #include "../../../nCine/I18n.h"
 
 #if defined(WITH_MULTIPLAYER)
-#	include "CreateServerOptionsSection.h"
-#	include "CreateLocalGameOptionsSection.h"
+#include "CreateServerOptionsSection.h"
+#include "CreateLocalGameOptionsSection.h"
 #endif
 
 #include <Containers/StringConcatenable.h>
@@ -24,7 +24,7 @@ namespace Jazz2::UI::Menu
 {
 	LevelPackDetailSection::LevelPackDetailSection(std::shared_ptr<const LevelPacks::LevelPackManifest> pack, EpisodeSelectMode mode, bool privateServer)
 		: _pack(Death::move(pack)), _mode(mode), _privateServer(privateServer), _confirmRemove(false), _selectedIndex(0), _animation(0.0f),
-			_y(0.0f), _height(0.0f), _availableHeight(0.0f), _noiseCooldown(0.0f), _pressedCount(0), _touchTime(0.0f)
+		  _y(0.0f), _height(0.0f), _availableHeight(0.0f), _noiseCooldown(0.0f), _pressedCount(0), _touchTime(0.0f)
 	{
 		for (const auto& episode : _pack->Episodes) {
 			ItemData& item = _items.emplace_back();
@@ -227,10 +227,10 @@ namespace Jazz2::UI::Menu
 						break;
 					case ItemType::Remove:
 						label = (_confirmRemove
-							// TRANSLATORS: Item in the details of a level pack after it was selected once, to confirm the removal
-							? _("Press again to remove the pack")
-							// TRANSLATORS: Item in the details of a level pack that removes it
-							: _("Remove pack"));
+								// TRANSLATORS: Item in the details of a level pack after it was selected once, to confirm the removal
+								? _("Press again to remove the pack")
+								// TRANSLATORS: Item in the details of a level pack that removes it
+								: _("Remove pack"));
 						break;
 				}
 

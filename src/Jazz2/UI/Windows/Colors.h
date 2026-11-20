@@ -138,7 +138,13 @@ namespace Jazz2::UI::Windows
 		void OnPointerUp(const PointerEvent& event, bool inside) override;
 
 	private:
-		enum class Part { None, Square, Hue, Alpha };
+		enum class Part
+		{
+			None,
+			Square,
+			Hue,
+			Alpha
+		};
 
 		Function<Colorf()> _color;
 		Function<void(const Colorf&)> _onChange;

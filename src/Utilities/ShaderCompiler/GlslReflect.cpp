@@ -9,15 +9,17 @@ namespace ShaderCompiler
 {
 	namespace
 	{
-		constexpr std::size_t Npos = ~std::size_t{0};
+		constexpr std::size_t Npos = ~std::size_t { 0 };
 
 		// substr helper with standard-library semantics — clamps count to available (pos never exceeds size here)
 		StringView Substr(StringView s, std::size_t pos, std::size_t count = Npos)
 		{
 			std::size_t size = s.size();
-			if (pos > size) pos = size;
+			if (pos > size)
+				pos = size;
 			std::size_t avail = size - pos;
-			if (count > avail) count = avail;
+			if (count > avail)
+				count = avail;
 			return s.slice(pos, pos + count);
 		}
 
@@ -95,7 +97,7 @@ namespace ShaderCompiler
 						t.Text = Substr(s, begin, i - begin);
 					} else {
 						t.Type = TokType::Punct;
-						t.Text = String{&c, 1};
+						t.Text = String { &c, 1 };
 						i++;
 					}
 					out.push_back(Death::move(t));
@@ -243,7 +245,7 @@ namespace ShaderCompiler
 			{
 				std::size_t i = _pos + ahead;
 				if (i >= _tokens.size()) {
-					i = _tokens.size() - 1;	// End token
+					i = _tokens.size() - 1; // End token
 				}
 				return _tokens[i];
 			}
@@ -382,7 +384,7 @@ namespace ShaderCompiler
 
 			bool ParseArraySuffix(MemberInfo& m, bool allowSymbolic)
 			{
-				Get();	// '['
+				Get(); // '['
 				const Tok sizeTok = Get();
 				if (sizeTok.Type == TokType::Number) {
 					std::uint32_t n;
@@ -456,7 +458,7 @@ namespace ShaderCompiler
 			bool ComputeStd140(SmallVectorImpl<MemberInfo>& members, bool allowSymbolic, std::uint32_t& size, std::uint32_t& align, std::uint32_t& instanceStride, std::int32_t line)
 			{
 				std::uint32_t offset = 0;
-				std::uint32_t maxAlign = 16;	// aggregates are aligned to at least 16 in std140
+				std::uint32_t maxAlign = 16; // aggregates are aligned to at least 16 in std140
 				bool sawSymbolic = false;
 				instanceStride = 0;
 
@@ -504,7 +506,7 @@ namespace ShaderCompiler
 
 			bool ParseStruct()
 			{
-				const Tok structTok = Get();	// "struct"
+				const Tok structTok = Get(); // "struct"
 				const Tok nameTok = Get();
 				if (nameTok.Type != TokType::Identifier) {
 					return Fail(_diag, "expected struct name", nameTok.Line);
@@ -533,7 +535,7 @@ namespace ShaderCompiler
 
 			bool ParseLayoutDecl()
 			{
-				const Tok layoutTok = Get();	// "layout"
+				const Tok layoutTok = Get(); // "layout"
 				if (!Expect("(")) {
 					return false;
 				}
@@ -608,7 +610,7 @@ namespace ShaderCompiler
 					return false;
 				}
 				if (Peek().Type == TokType::Identifier) {
-					Get();	// optional instance name
+					Get(); // optional instance name
 				}
 				if (!Expect(";")) {
 					return false;

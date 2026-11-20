@@ -3,8 +3,8 @@
 
 #include "GLRhiCapabilities.h"
 
-#include <cstdio>	// for sscanf()
-#include <cstring>	// for CheckGLExtensions()
+#include <cstdio> // for sscanf()
+#include <cstring> // for CheckGLExtensions()
 
 #include <Containers/ArrayView.h>
 
@@ -18,17 +18,17 @@ namespace nCine::RHI::GL
 
 		if (version != nullptr) {
 #if defined(RHI_GL_PROFILE_ES) || defined(DEATH_TARGET_EMSCRIPTEN)
-#	if defined(DEATH_TARGET_MSVC)
+#if defined(DEATH_TARGET_MSVC)
 			sscanf_s(version, "OpenGL ES %2d.%2d", &_majorVersion, &_minorVersion);
-#	else
-			sscanf(version, "OpenGL ES %2d.%2d", &_majorVersion, &_minorVersion);
-#	endif
 #else
-#	if defined(DEATH_TARGET_MSVC)
+			sscanf(version, "OpenGL ES %2d.%2d", &_majorVersion, &_minorVersion);
+#endif
+#else
+#if defined(DEATH_TARGET_MSVC)
 			sscanf_s(version, "%2d.%2d.%2d", &_majorVersion, &_minorVersion, &_releaseVersion);
-#	else
+#else
 			sscanf(version, "%2d.%2d.%2d", &_majorVersion, &_minorVersion, &_releaseVersion);
-#	endif
+#endif
 #endif
 		}
 
@@ -64,9 +64,9 @@ namespace nCine::RHI::GL
 		glGetIntegerv(GL_MAX_VERTEX_UNIFORM_BLOCKS, &_intValues[(std::int32_t)IntValues::MaxVertexUniformBlocks]);
 		glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_BLOCKS, &_intValues[(std::int32_t)IntValues::MaxFragmentUniformBlocks]);
 		glGetIntegerv(GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, &_intValues[(std::int32_t)IntValues::UniformBufferOffsetAlignment]);
-#	if !defined(DEATH_TARGET_EMSCRIPTEN) && !(defined(DEATH_TARGET_APPLE) && defined(DEATH_TARGET_ARM)) && (defined(RHI_GL_PROFILE_CORE) || GL_ES_VERSION_3_1)
+#if !defined(DEATH_TARGET_EMSCRIPTEN) && !(defined(DEATH_TARGET_APPLE) && defined(DEATH_TARGET_ARM)) && (defined(RHI_GL_PROFILE_CORE) || GL_ES_VERSION_3_1)
 		glGetIntegerv(GL_MAX_VERTEX_ATTRIB_STRIDE, &_intValues[(std::int32_t)IntValues::MaxVertexAttribStride]);
-#	endif
+#endif
 		glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS, &_intValues[(std::int32_t)IntValues::MaxColorAttachments]);
 
 		// MAX_UNIFORM_BLOCK_SIZE is sometimes not reported correctly, so try to adjust it here
@@ -84,20 +84,31 @@ namespace nCine::RHI::GL
 #endif
 
 		const char* ExtensionNames[] = {
-			"GL_KHR_debug", "GL_ARB_texture_storage", "GL_ARB_buffer_storage", "GL_ARB_get_program_binary",
+			"GL_KHR_debug",
+			"GL_ARB_texture_storage",
+			"GL_ARB_buffer_storage",
+			"GL_ARB_get_program_binary",
 			"GL_EXT_disjoint_timer_query",
 #if defined(RHI_GL_PROFILE_ES) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_UNIX)
 			"GL_OES_get_program_binary",
 #endif
 #if defined(DEATH_TARGET_EMSCRIPTEN)
-			"WEBGL_compressed_texture_s3tc", "WEBGL_compressed_texture_atc", "WEBGL_compressed_texture_pvrtc", "WEBGL_compressed_texture_astc"
+			"WEBGL_compressed_texture_s3tc",
+			"WEBGL_compressed_texture_atc",
+			"WEBGL_compressed_texture_pvrtc",
+			"WEBGL_compressed_texture_astc"
 #else
-			"GL_EXT_texture_compression_s3tc", "GL_AMD_compressed_ATC_texture", "GL_IMG_texture_compression_pvrtc", "GL_KHR_texture_compression_astc_ldr"
+			"GL_EXT_texture_compression_s3tc",
+			"GL_AMD_compressed_ATC_texture",
+			"GL_IMG_texture_compression_pvrtc",
+			"GL_KHR_texture_compression_astc_ldr"
 #endif
 #if defined(DEATH_TARGET_EMSCRIPTEN)
-			, "WEBGL_compressed_texture_etc1",
+			,
+			"WEBGL_compressed_texture_etc1",
 #elif defined(RHI_GL_PROFILE_ES)
-			, "GL_OES_compressed_ETC1_RGB8_texture",
+			,
+			"GL_OES_compressed_ETC1_RGB8_texture",
 #endif
 		};
 		static_assert(std::int32_t(arraySize(ExtensionNames)) == (std::int32_t)Extensions::Count, "Extensions count mismatch");
@@ -108,14 +119,14 @@ namespace nCine::RHI::GL
 		// the OES spelling) and does not support shader binary caching, so this query is skipped there,
 		// NUM_PROGRAM_BINARY_FORMATS then stays 0 and the cache stays off.
 #if !defined(DEATH_TARGET_VITA)
-#	if defined(RHI_GL_PROFILE_ES) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_UNIX) && !defined(DEATH_TARGET_IOS)
+#if defined(RHI_GL_PROFILE_ES) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_UNIX) && !defined(DEATH_TARGET_IOS)
 		if (HasExtension(Extensions::OesGetProgramBinary)) {
 			glGetIntegerv(GL_NUM_PROGRAM_BINARY_FORMATS_OES, &_intValues[(std::int32_t)IntValues::NumProgramBinaryFormats]);
 			DEATH_ASSERT(_intValues[(std::int32_t)IntValues::NumProgramBinaryFormats] <= MaxProgramBinaryFormats);
 			glGetIntegerv(GL_PROGRAM_BINARY_FORMATS_OES, _programBinaryFormats);
 		} else
-#	endif
-		if (HasExtension(Extensions::ArbGetProgramBinary)) {
+#endif
+			if (HasExtension(Extensions::ArbGetProgramBinary)) {
 			glGetIntegerv(GL_NUM_PROGRAM_BINARY_FORMATS, &_intValues[(std::int32_t)IntValues::NumProgramBinaryFormats]);
 			DEATH_ASSERT(_intValues[(std::int32_t)IntValues::NumProgramBinaryFormats] <= MaxProgramBinaryFormats);
 			glGetIntegerv(GL_PROGRAM_BINARY_FORMATS, _programBinaryFormats);
@@ -133,16 +144,16 @@ namespace nCine::RHI::GL
 		LOGI("GL_ARB_texture_storage: {}", _extensions[(std::int32_t)Extensions::ArbTextureStorage]);
 		LOGI("GL_ARB_buffer_storage: {}", _extensions[(std::int32_t)Extensions::ArbBufferStorage]);
 		LOGI("GL_ARB_get_program_binary: {}", _extensions[(std::int32_t)Extensions::ArbGetProgramBinary]);
-#	if defined(RHI_GL_PROFILE_ES) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_UNIX)
+#if defined(RHI_GL_PROFILE_ES) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_UNIX)
 		LOGI("GL_OES_get_program_binary: {}", _extensions[(std::int32_t)Extensions::OesGetProgramBinary]);
-#	endif
-#	if defined(RHI_GL_PROFILE_ES)
+#endif
+#if defined(RHI_GL_PROFILE_ES)
 		LOGI("GL_EXT_disjoint_timer_query: {}", _extensions[(std::int32_t)Extensions::ExtDisjointTimerQuery]);
-#	endif
+#endif
 		LOGI("GL_EXT_texture_compression_s3tc: {}", _extensions[(std::int32_t)Extensions::ExtTextureCompressionS3tc]);
-#	if defined(RHI_GL_PROFILE_ES) || defined(DEATH_TARGET_EMSCRIPTEN)
+#if defined(RHI_GL_PROFILE_ES) || defined(DEATH_TARGET_EMSCRIPTEN)
 		LOGI("GL_OES_compressed_ETC1_RGB8_texture: {}", _extensions[(std::int32_t)Extensions::OesCompressedEtc1Rgb8Texture]);
-#	endif
+#endif
 		LOGI("GL_AMD_compressed_ATC_texture: {}", _extensions[(std::int32_t)Extensions::AmdCompressedAtcTexture]);
 		LOGI("GL_IMG_texture_compression_pvrtc: {}", _extensions[(std::int32_t)Extensions::ImgTextureCompressionPvrtc]);
 		LOGI("GL_KHR_texture_compression_astc_ldr: {}", _extensions[(std::int32_t)Extensions::KhrTextureCompressionAstcLdr]);

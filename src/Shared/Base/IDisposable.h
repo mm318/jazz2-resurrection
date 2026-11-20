@@ -6,8 +6,9 @@
 
 #include "../CommonBase.h"
 
-namespace Death {
-//###==##====#=====--==~--~=~- --- -- -  -  -   -
+namespace Death
+{
+	//###==##====#=====--==~--~=~- --- -- -  -  -   -
 
 	/**
 		@brief Base interface for releasing resources on object destruction
@@ -15,14 +16,18 @@ namespace Death {
 	class
 #if defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG_CL)
 		__declspec(novtable)
-#endif		
+#endif
 		IDisposable
 	{
 	public:
-		IDisposable() {}
+		IDisposable()
+		{
+		}
 		virtual ~IDisposable() = 0;
 	};
 
-	inline IDisposable::~IDisposable() {}
+	inline IDisposable::~IDisposable()
+	{
+	}
 
 }

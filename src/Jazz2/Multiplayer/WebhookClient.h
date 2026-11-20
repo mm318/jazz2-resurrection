@@ -7,11 +7,12 @@
 #include "ServerInitialization.h"
 
 #if (defined(WITH_ONLINE_MULTIPLAYER) && defined(WITH_THREADS) && !defined(DEATH_TARGET_EMSCRIPTEN) && \
-		(defined(DEATH_TARGET_WINDOWS) || defined(WITH_CURL))) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	include "../../nCine/Threading/Thread.h"
-#	include "../../nCine/Threading/ThreadSync.h"
+	(defined(DEATH_TARGET_WINDOWS) || defined(WITH_CURL))) ||                                          \
+	defined(DOXYGEN_GENERATING_OUTPUT)
+#include "../../nCine/Threading/Thread.h"
+#include "../../nCine/Threading/ThreadSync.h"
 
-#	include <atomic>
+#include <atomic>
 #endif
 
 #include <Containers/ArrayView.h>
@@ -27,7 +28,8 @@ namespace Jazz2::Multiplayer
 	class NetworkManager;
 
 #if (defined(WITH_ONLINE_MULTIPLAYER) && defined(WITH_THREADS) && !defined(DEATH_TARGET_EMSCRIPTEN) && \
-		(defined(DEATH_TARGET_WINDOWS) || defined(WITH_CURL))) || defined(DOXYGEN_GENERATING_OUTPUT)
+	(defined(DEATH_TARGET_WINDOWS) || defined(WITH_CURL))) ||                                          \
+	defined(DOXYGEN_GENERATING_OUTPUT)
 
 	/**
 		@brief Posts selected server events to a configured webhook
@@ -86,7 +88,7 @@ namespace Jazz2::Multiplayer
 		 * and @cpp 10 @ce); pass a zero value to omit it, for example when the target is auto-weighted.
 		 */
 		void OnLevelChanged(StringView levelDisplayName, MpGameMode gameMode, bool reforgedGameplay, bool elimination,
-							StringView targetLabel, std::uint32_t targetValue, std::int32_t playlistIndex, std::int32_t playlistSize);
+			StringView targetLabel, std::uint32_t targetValue, std::int32_t playlistIndex, std::int32_t playlistSize);
 		/** @brief Called when the round countdown finished and the round is running */
 		void OnRoundStarted(StringView levelDisplayName, MpGameMode gameMode);
 		/**
@@ -119,7 +121,8 @@ namespace Jazz2::Multiplayer
 		static constexpr std::uint32_t RetryDelayMs = 5000;
 		static constexpr std::int32_t MaxSendAttempts = 4;
 
-		struct EmbedField {
+		struct EmbedField
+		{
 			StringView Name;
 			StringView Value;
 		};
@@ -129,9 +132,9 @@ namespace Jazz2::Multiplayer
 		std::atomic<bool> _shuttingDown;
 		Mutex _queueMutex;
 		CondVariable _queueRefreshed;
-		SmallVector<String, 0> _queue;	// Guarded by _queueMutex
-		String _url;					// Guarded by _queueMutex
-		String _serverIdentity;			// Guarded by _queueMutex
+		SmallVector<String, 0> _queue; // Guarded by _queueMutex
+		String _url; // Guarded by _queueMutex
+		String _serverIdentity; // Guarded by _queueMutex
 		Thread _thread;
 
 		void Enqueue(String&& embed);
@@ -154,28 +157,61 @@ namespace Jazz2::Multiplayer
 			std::uint32_t Value;
 		};
 
-		WebhookClient(NetworkManager* server) {}
+		WebhookClient(NetworkManager* server)
+		{
+		}
 
 		WebhookClient(const WebhookClient&) = delete;
 		WebhookClient& operator=(const WebhookClient&) = delete;
 
-		bool IsEventEnabled(WebhookEventType type) const { return false; }
-		void UpdateConfiguration() {}
+		bool IsEventEnabled(WebhookEventType type) const
+		{
+			return false;
+		}
+		void UpdateConfiguration()
+		{
+		}
 
-		void OnServerStarted() {}
-		void OnServerStopping() {}
-		void OnPlayerConnected(StringView playerName, std::uint32_t playerCount, std::uint32_t maxPlayerCount) {}
-		void OnPlayerDisconnected(StringView playerName, Reason reason, std::uint32_t playerCount, std::uint32_t maxPlayerCount) {}
+		void OnServerStarted()
+		{
+		}
+		void OnServerStopping()
+		{
+		}
+		void OnPlayerConnected(StringView playerName, std::uint32_t playerCount, std::uint32_t maxPlayerCount)
+		{
+		}
+		void OnPlayerDisconnected(StringView playerName, Reason reason, std::uint32_t playerCount, std::uint32_t maxPlayerCount)
+		{
+		}
 		void OnLevelChanged(StringView levelDisplayName, MpGameMode gameMode, bool reforgedGameplay, bool elimination,
-							StringView targetLabel, std::uint32_t targetValue, std::int32_t playlistIndex, std::int32_t playlistSize) {}
-		void OnRoundStarted(StringView levelDisplayName, MpGameMode gameMode) {}
-		void OnRoundEnded(StringView winnerName, StringView levelDisplayName, MpGameMode gameMode, ArrayView<const LeaderboardEntry> standings = {}, StringView scoreLabel = {}) {}
-		void OnRoundEndedWithTeamWinner(StringView teamName, StringView levelDisplayName, MpGameMode gameMode, ArrayView<const LeaderboardEntry> teamMembers = {}, StringView scoreLabel = {}) {}
-		void OnChampionshipEnded(StringView championName, std::uint32_t points, ArrayView<const LeaderboardEntry> standings = {}) {}
-		void OnChatMessage(StringView playerName, StringView message, bool isAdmin) {}
-		void OnPlayerRoasted(StringView playerName, StringView attackerName) {}
-		void OnPlayerLapFinished(StringView playerName, float lapSecs, std::uint32_t lap, std::uint32_t totalLaps) {}
-		void OnFlagCaptured(StringView playerName, StringView teamName, StringView flagTeamName, std::uint32_t captures, std::uint32_t totalCaptures) {}
+			StringView targetLabel, std::uint32_t targetValue, std::int32_t playlistIndex, std::int32_t playlistSize)
+		{
+		}
+		void OnRoundStarted(StringView levelDisplayName, MpGameMode gameMode)
+		{
+		}
+		void OnRoundEnded(StringView winnerName, StringView levelDisplayName, MpGameMode gameMode, ArrayView<const LeaderboardEntry> standings = {}, StringView scoreLabel = {})
+		{
+		}
+		void OnRoundEndedWithTeamWinner(StringView teamName, StringView levelDisplayName, MpGameMode gameMode, ArrayView<const LeaderboardEntry> teamMembers = {}, StringView scoreLabel = {})
+		{
+		}
+		void OnChampionshipEnded(StringView championName, std::uint32_t points, ArrayView<const LeaderboardEntry> standings = {})
+		{
+		}
+		void OnChatMessage(StringView playerName, StringView message, bool isAdmin)
+		{
+		}
+		void OnPlayerRoasted(StringView playerName, StringView attackerName)
+		{
+		}
+		void OnPlayerLapFinished(StringView playerName, float lapSecs, std::uint32_t lap, std::uint32_t totalLaps)
+		{
+		}
+		void OnFlagCaptured(StringView playerName, StringView teamName, StringView flagTeamName, std::uint32_t captures, std::uint32_t totalCaptures)
+		{
+		}
 	};
 
 #endif

@@ -3,17 +3,17 @@
 #if defined(WITH_OPENMPT)
 
 #if defined(DEATH_TARGET_WINDOWS) && !defined(ZIG_BUILD) && !defined(WITH_OPENMPT_DYNAMIC)
-#	if defined(_M_X64)
-#		pragma comment(lib, "../Libs/Windows/x64/libopenmpt.lib")
-#	elif defined(_M_IX86)
-#		pragma comment(lib, "../Libs/Windows/x86/libopenmpt.lib")
-#	else
-#		error Unsupported architecture
-#	endif
+#if defined(_M_X64)
+#pragma comment(lib, "../Libs/Windows/x64/libopenmpt.lib")
+#elif defined(_M_IX86)
+#pragma comment(lib, "../Libs/Windows/x86/libopenmpt.lib")
+#else
+#error Unsupported architecture
+#endif
 #endif
 
 #if defined(WITH_OPENMPT_DYNAMIC) && (defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_APPLE))
-#	include <dlfcn.h>
+#include <dlfcn.h>
 #endif
 
 #include <algorithm>
@@ -40,15 +40,15 @@ namespace nCine
 	AudioReaderMpt::openmpt_module_get_current_int_t* AudioReaderMpt::_openmpt_module_get_current_tempo = nullptr;
 	AudioReaderMpt::openmpt_module_get_current_tempo2_t* AudioReaderMpt::_openmpt_module_get_current_tempo2 = nullptr;
 	AudioReaderMpt::openmpt_module_get_current_int_t* AudioReaderMpt::_openmpt_module_get_num_channels = nullptr;
-#	if defined(NCINE_HAS_OPENMPT_EXT)
+#if defined(NCINE_HAS_OPENMPT_EXT)
 	AudioReaderMpt::openmpt_module_ext_create_t* AudioReaderMpt::_openmpt_module_ext_create = nullptr;
 	AudioReaderMpt::openmpt_module_ext_destroy_t* AudioReaderMpt::_openmpt_module_ext_destroy = nullptr;
 	AudioReaderMpt::openmpt_module_ext_get_module_t* AudioReaderMpt::_openmpt_module_ext_get_module = nullptr;
 	AudioReaderMpt::openmpt_module_ext_get_interface_t* AudioReaderMpt::_openmpt_module_ext_get_interface = nullptr;
-#	endif
-#	define MPT_FUNC(name) _##name
+#endif
+#define MPT_FUNC(name) _##name
 #else
-#	define MPT_FUNC(name) name
+#define MPT_FUNC(name) name
 #endif
 
 	// Spelled with the fixed-width type the declaration uses: where `std::int32_t` is `long int` (MIPS,
@@ -56,13 +56,13 @@ namespace nCine
 	AudioReaderMpt::AudioReaderMpt(std::unique_ptr<Stream> fileHandle, std::int32_t frequency)
 		: _fileHandle(Death::move(fileHandle)), _frequency(frequency), _module(nullptr),
 #if defined(NCINE_HAS_OPENMPT_EXT)
-			_moduleExt(nullptr), _interactive{}, _hasInteractive(false),
-#	if defined(NCINE_HAS_OPENMPT_TEMPO2)
-			_interactive3{}, _hasInteractive3(false),
-#	endif
+		  _moduleExt(nullptr), _interactive {}, _hasInteractive(false),
+#if defined(NCINE_HAS_OPENMPT_TEMPO2)
+		  _interactive3 {}, _hasInteractive3(false),
 #endif
-			_decodedFrames(0), _timeline{}, _timelineNext(0), _timelineCount(0), _pendingPosition(false),
-			_pendingOrder(0), _pendingRow(0), _pendingSpeed(0), _pendingTempo(0), _recordedOrder(-1), _recordedRow(-1)
+#endif
+		  _decodedFrames(0), _timeline {}, _timelineNext(0), _timelineCount(0), _pendingPosition(false),
+		  _pendingOrder(0), _pendingRow(0), _pendingSpeed(0), _pendingTempo(0), _recordedOrder(-1), _recordedRow(-1)
 	{
 		if (!_fileHandle->IsValid()) {
 			return;
@@ -81,22 +81,22 @@ namespace nCine
 
 #if defined(NCINE_HAS_OPENMPT_EXT)
 		// The extended module is the one that can change speed, tempo and channel volumes while it plays
-#	if defined(WITH_OPENMPT_DYNAMIC)
+#if defined(WITH_OPENMPT_DYNAMIC)
 		bool hasExt = (_openmpt_module_ext_create != nullptr && _openmpt_module_ext_destroy != nullptr &&
 			_openmpt_module_ext_get_module != nullptr && _openmpt_module_ext_get_interface != nullptr);
-#	else
+#else
 		bool hasExt = true;
-#	endif
+#endif
 		if (hasExt) {
 			_moduleExt = MPT_FUNC(openmpt_module_ext_create)(stream_callbacks, this, InternalLog, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr);
 			if (_moduleExt != nullptr) {
 				_module = MPT_FUNC(openmpt_module_ext_get_module)(_moduleExt);
 				_hasInteractive = (MPT_FUNC(openmpt_module_ext_get_interface)(_moduleExt, LIBOPENMPT_EXT_C_INTERFACE_INTERACTIVE,
-					&_interactive, sizeof(_interactive)) != 0);
-#	if defined(NCINE_HAS_OPENMPT_TEMPO2)
+									   &_interactive, sizeof(_interactive)) != 0);
+#if defined(NCINE_HAS_OPENMPT_TEMPO2)
 				_hasInteractive3 = (MPT_FUNC(openmpt_module_ext_get_interface)(_moduleExt, LIBOPENMPT_EXT_C_INTERFACE_INTERACTIVE3,
-					&_interactive3, sizeof(_interactive3)) != 0);
-#	endif
+										&_interactive3, sizeof(_interactive3)) != 0);
+#endif
 			} else {
 				_fileHandle->Seek(0, SeekOrigin::Begin);
 			}
@@ -117,13 +117,15 @@ namespace nCine
 #if defined(NCINE_HAS_OPENMPT_EXT)
 		if (_moduleExt != nullptr) {
 			// Destroys the module too
-			MPT_FUNC(openmpt_module_ext_destroy)(_moduleExt);
+			MPT_FUNC(openmpt_module_ext_destroy)
+			(_moduleExt);
 			_moduleExt = nullptr;
 			_module = nullptr;
 		}
 #endif
 		if (_module != nullptr) {
-			MPT_FUNC(openmpt_module_destroy)(_module);
+			MPT_FUNC(openmpt_module_destroy)
+			(_module);
 			_module = nullptr;
 		}
 	}
@@ -174,7 +176,8 @@ namespace nCine
 	void AudioReaderMpt::Rewind() const
 	{
 		if (_module != nullptr) {
-			MPT_FUNC(openmpt_module_set_position_seconds)(_module, 0.0);
+			MPT_FUNC(openmpt_module_set_position_seconds)
+			(_module, 0.0);
 		}
 	}
 
@@ -182,7 +185,8 @@ namespace nCine
 	{
 		if (_module != nullptr) {
 			// Turn on infinite repeat if required
-			MPT_FUNC(openmpt_module_set_repeat_count)(_module, value ? -1 : 0);
+			MPT_FUNC(openmpt_module_set_repeat_count)
+			(_module, value ? -1 : 0);
 		}
 	}
 
@@ -309,7 +313,8 @@ namespace nCine
 		_lock.unlock();
 
 		if (position) {
-			MPT_FUNC(openmpt_module_set_position_order_row)(_module, order, row);
+			MPT_FUNC(openmpt_module_set_position_order_row)
+			(_module, order, row);
 		}
 #if defined(NCINE_HAS_OPENMPT_EXT)
 		if (speed > 0 && _hasInteractive) {
@@ -333,15 +338,15 @@ namespace nCine
 	{
 #if defined(NCINE_HAS_OPENMPT_EXT)
 		std::int32_t channelCount = 0;
-#	if defined(WITH_OPENMPT_DYNAMIC)
+#if defined(WITH_OPENMPT_DYNAMIC)
 		if (_openmpt_module_get_num_channels != nullptr) {
 			channelCount = _openmpt_module_get_num_channels(_module);
 		}
-#	else
+#else
 		channelCount = openmpt_module_get_num_channels(_module);
-#	endif
+#endif
 
-		for (std::size_t i = 0; i < _activeSlides.size(); ) {
+		for (std::size_t i = 0; i < _activeSlides.size();) {
 			ChannelSlide& slide = _activeSlides[i];
 			if (slide.Channel >= channelCount) {
 				_activeSlides.erase(_activeSlides.begin() + i);
@@ -354,7 +359,7 @@ namespace nCine
 
 			slide.Elapsed = std::min(slide.Elapsed + frames, slide.Length);
 			float volume = (slide.Elapsed >= slide.Length ? slide.To
-				: slide.From + (slide.To - slide.From) * float(double(slide.Elapsed) / double(slide.Length)));
+														  : slide.From + (slide.To - slide.From) * float(double(slide.Elapsed) / double(slide.Length)));
 			_interactive.set_channel_volume(_moduleExt, slide.Channel, double(volume));
 
 			if (slide.Elapsed >= slide.Length) {
@@ -422,11 +427,11 @@ namespace nCine
 		}
 #else
 		state.Speed = openmpt_module_get_current_speed(_module);
-#	if defined(NCINE_HAS_OPENMPT_0_7)
+#if defined(NCINE_HAS_OPENMPT_0_7)
 		state.Tempo = std::int32_t(openmpt_module_get_current_tempo2(_module) + 0.5);
-#	else
+#else
 		state.Tempo = openmpt_module_get_current_tempo(_module);
-#	endif
+#endif
 #endif
 	}
 
@@ -474,12 +479,12 @@ namespace nCine
 		_openmpt_module_get_current_tempo = (openmpt_module_get_current_int_t*)::dlsym(_openmptLib, "openmpt_module_get_current_tempo");
 		_openmpt_module_get_current_tempo2 = (openmpt_module_get_current_tempo2_t*)::dlsym(_openmptLib, "openmpt_module_get_current_tempo2");
 		_openmpt_module_get_num_channels = (openmpt_module_get_current_int_t*)::dlsym(_openmptLib, "openmpt_module_get_num_channels");
-#	if defined(NCINE_HAS_OPENMPT_EXT)
+#if defined(NCINE_HAS_OPENMPT_EXT)
 		_openmpt_module_ext_create = (openmpt_module_ext_create_t*)::dlsym(_openmptLib, "openmpt_module_ext_create");
 		_openmpt_module_ext_destroy = (openmpt_module_ext_destroy_t*)::dlsym(_openmptLib, "openmpt_module_ext_destroy");
 		_openmpt_module_ext_get_module = (openmpt_module_ext_get_module_t*)::dlsym(_openmptLib, "openmpt_module_ext_get_module");
 		_openmpt_module_ext_get_interface = (openmpt_module_ext_get_interface_t*)::dlsym(_openmptLib, "openmpt_module_ext_get_interface");
-#	endif
+#endif
 
 		return true;
 	}
@@ -496,9 +501,15 @@ namespace nCine
 		SeekOrigin origin;
 		switch (whence) {
 			default:
-			case OPENMPT_STREAM_SEEK_SET: origin = SeekOrigin::Begin; break;
-			case OPENMPT_STREAM_SEEK_CUR: origin = SeekOrigin::Current; break;
-			case OPENMPT_STREAM_SEEK_END: origin = SeekOrigin::End; break;
+			case OPENMPT_STREAM_SEEK_SET:
+				origin = SeekOrigin::Begin;
+				break;
+			case OPENMPT_STREAM_SEEK_CUR:
+				origin = SeekOrigin::Current;
+				break;
+			case OPENMPT_STREAM_SEEK_END:
+				origin = SeekOrigin::End;
+				break;
 		}
 
 		AudioReaderMpt* _this = static_cast<AudioReaderMpt*>(stream);

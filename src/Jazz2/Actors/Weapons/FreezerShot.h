@@ -21,12 +21,14 @@ namespace Jazz2::Actors::Weapons
 		/** @brief Called when the shot is fired */
 		void OnFire(const std::shared_ptr<ActorBase>& owner, Vector2f gunspotPos, Vector2f speed, float angle, bool isFacingLeft);
 
-		WeaponType GetWeaponType() override {
+		WeaponType GetWeaponType() override
+		{
 			return WeaponType::Freezer;
 		}
 
 		/** @brief Makes the shot of the powered-up weapon wave around its path, @p phase is in 1/1024 of a turn */
-		void SetWavePhase(float phase) {
+		void SetWavePhase(float phase)
+		{
 			_wavePhase = phase;
 			_waves = true;
 		}

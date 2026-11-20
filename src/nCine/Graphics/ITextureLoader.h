@@ -21,43 +21,51 @@ namespace nCine
 	class ITextureLoader
 	{
 	public:
-		virtual ~ITextureLoader() { }
+		virtual ~ITextureLoader()
+		{
+		}
 
 		/**
 		 * @brief Returns `true` if the texture has been correctly loaded
 		 */
-		inline bool HasLoaded() const {
+		inline bool HasLoaded() const
+		{
 			return _hasLoaded;
 		}
 
 		/**
 		 * @brief Returns texture width in pixels
 		 */
-		inline std::int32_t GetWidth() const {
+		inline std::int32_t GetWidth() const
+		{
 			return _width;
 		}
 		/**
 		 * @brief Returns texture height in pixels
 		 */
-		inline std::int32_t GetHeight() const {
+		inline std::int32_t GetHeight() const
+		{
 			return _height;
 		}
 		/**
 		 * @brief Returns texture size as a `Vector2i`
 		 */
-		inline Vector2i GetSize() const {
+		inline Vector2i GetSize() const
+		{
 			return Vector2i(_width, _height);
 		}
 		/**
 		 * @brief Returns the number of MIP maps stored in the texture file
 		 */
-		inline std::int32_t GetMipMapCount() const {
+		inline std::int32_t GetMipMapCount() const
+		{
 			return _mipMapCount;
 		}
 		/**
 		 * @brief Returns texture data size in bytes
 		 */
-		inline std::uint32_t GetDataSize() const {
+		inline std::uint32_t GetDataSize() const
+		{
 			return _dataSize;
 		}
 		/**
@@ -69,13 +77,15 @@ namespace nCine
 		/**
 		 * @brief Returns the texture format object
 		 */
-		inline const TextureFormat& GetTexFormat() const {
+		inline const TextureFormat& GetTexFormat() const
+		{
 			return _texFormat;
 		}
 		/**
 		 * @brief Returns the pointer to pixel data
 		 */
-		inline const std::uint8_t* GetPixels() const {
+		inline const std::uint8_t* GetPixels() const
+		{
 			return _pixels.get();
 		}
 		/**
@@ -140,7 +150,9 @@ namespace nCine
 	{
 	public:
 		explicit InvalidTextureLoader(std::unique_ptr<Death::IO::Stream> fileHandle)
-			: ITextureLoader(Death::move(fileHandle)) { }
+			: ITextureLoader(Death::move(fileHandle))
+		{
+		}
 	};
 #endif
 }

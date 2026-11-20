@@ -72,7 +72,7 @@ namespace Jazz2::Actors::Lighting
 			auto& light2 = lights.emplace_back();
 			light2.Pos = part.Pos;
 			light2.Intensity = _intensity * phase * 0.6f;
-			light2.Brightness = _brightness  * phase * 0.4f;
+			light2.Brightness = _brightness * phase * 0.4f;
 			light2.RadiusNear = 0.0f;
 			light2.RadiusFar = part.Radius;
 		}

@@ -19,10 +19,10 @@ namespace Jazz2
 	*/
 	enum class WeaponStyle : std::int8_t
 	{
-		Normal,				/**< Fires as long as the button is held, tapping fires faster */
-		Missile,			/**< Fires once per press */
-		Popcorn,			/**< Fires as long as the button is held, at least as often as without fast fire */
-		Capped				/**< Fires as long as the button is held, tapping doesn't fire faster */
+		Normal, /**< Fires as long as the button is held, tapping fires faster */
+		Missile, /**< Fires once per press */
+		Popcorn, /**< Fires as long as the button is held, at least as often as without fast fire */
+		Capped /**< Fires as long as the button is held, tapping doesn't fire faster */
 	};
 
 	/**
@@ -32,15 +32,15 @@ namespace Jazz2
 	*/
 	enum class WeaponSpread : std::int32_t
 	{
-		Normal = 0,					/**< One shot */
-		Double = 1,					/**< Two shots, angled up and down */
-		Triple = 2,					/**< Three shots */
-		DoubleOrTriple = 3,			/**< Two shots, three when powered up */
-		DirectionAndAim = 4,		/**< Two shots, one where the player faces and one where it aims */
-		NormalOrDirectionAndAim = 5,	/**< One shot, two when powered up */
-		Pepper = 6,					/**< A spray of shots */
-		NormalOrPepper = 7,			/**< One shot, a spray when powered up */
-		Toaster = 8					/**< One shot, faster with fast fire */
+		Normal = 0, /**< One shot */
+		Double = 1, /**< Two shots, angled up and down */
+		Triple = 2, /**< Three shots */
+		DoubleOrTriple = 3, /**< Two shots, three when powered up */
+		DirectionAndAim = 4, /**< Two shots, one where the player faces and one where it aims */
+		NormalOrDirectionAndAim = 5, /**< One shot, two when powered up */
+		Pepper = 6, /**< A spray of shots */
+		NormalOrPepper = 7, /**< One shot, a spray when powered up */
+		Toaster = 8 /**< One shot, faster with fast fire */
 	};
 
 	/**
@@ -93,7 +93,8 @@ namespace Jazz2
 		std::int32_t GetMaximumAmmo() const;
 
 		bool operator==(const WeaponOptions& other) const;
-		bool operator!=(const WeaponOptions& other) const {
+		bool operator!=(const WeaponOptions& other) const
+		{
 			return !operator==(other);
 		}
 	};
@@ -101,34 +102,34 @@ namespace Jazz2
 	/** @brief What a level makes of one of the weapons */
 	enum class WeaponKind : std::uint8_t
 	{
-		Stock,				/**< The weapon of the game, maybe with other options */
-		Custom,				/**< A weapon of the level, which fires shots it describes */
-		Script				/**< A weapon the script of the level sets up */
+		Stock, /**< The weapon of the game, maybe with other options */
+		Custom, /**< A weapon of the level, which fires shots it describes */
+		Script /**< A weapon the script of the level sets up */
 	};
 
 	/** @brief When a custom shot goes off */
 	enum class ShotTrigger : std::uint8_t
 	{
-		Contact,			/**< When it hits something */
-		Proximity,			/**< When something comes close, it doesn't move once placed */
-		Timer				/**< When its time runs out */
+		Contact, /**< When it hits something */
+		Proximity, /**< When something comes close, it doesn't move once placed */
+		Timer /**< When its time runs out */
 	};
 
 	/** @brief How a custom shot is drawn */
 	enum class ShotLook : std::uint8_t
 	{
-		Sprite,				/**< Its sprite */
-		Glow,				/**< Its sprite added to what's behind, as the pepper spray */
-		Electro,			/**< A swirl of sparks of its sprite left behind it, as the electro blaster */
-		Beam				/**< A beam from the muzzle, as the thunderbolt, as long as it would fly in its time */
+		Sprite, /**< Its sprite */
+		Glow, /**< Its sprite added to what's behind, as the pepper spray */
+		Electro, /**< A swirl of sparks of its sprite left behind it, as the electro blaster */
+		Beam /**< A beam from the muzzle, as the thunderbolt, as long as it would fly in its time */
 	};
 
 	/** @brief Whether the sprite of a custom shot is flipped, beyond turning to where it's fired */
 	enum class ShotFlip : std::uint8_t
 	{
-		Normal,				/**< Not flipped */
-		Flipped,			/**< Flipped */
-		Random				/**< Each shot at random */
+		Normal, /**< Not flipped */
+		Flipped, /**< Flipped */
+		Random /**< Each shot at random */
 	};
 
 	/**
@@ -147,12 +148,14 @@ namespace Jazz2
 		std::int32_t Image = -1;
 
 		/** @brief Returns `true` if it's the sprite of the weapon of the game */
-		bool IsEmpty() const {
+		bool IsEmpty() const
+		{
 			return (Metadata.empty() && Image < 0);
 		}
 
 		bool operator==(const WeaponSprite& other) const;
-		bool operator!=(const WeaponSprite& other) const {
+		bool operator!=(const WeaponSprite& other) const
+		{
 			return !operator==(other);
 		}
 	};
@@ -188,7 +191,8 @@ namespace Jazz2
 		bool Flare = true;
 
 		bool operator==(const WeaponFireOptions& other) const;
-		bool operator!=(const WeaponFireOptions& other) const {
+		bool operator!=(const WeaponFireOptions& other) const
+		{
 			return !operator==(other);
 		}
 	};
@@ -256,7 +260,8 @@ namespace Jazz2
 		bool RotatesWithSpeed = true;
 
 		bool operator==(const WeaponShotOptions& other) const;
-		bool operator!=(const WeaponShotOptions& other) const {
+		bool operator!=(const WeaponShotOptions& other) const
+		{
 			return !operator==(other);
 		}
 	};
@@ -280,12 +285,14 @@ namespace Jazz2
 		WeaponType BasedOn = WeaponType::Unknown;
 
 		/** @brief Returns the weapon of the game it was made from, @p slot if it's not set */
-		WeaponType GetBasedOn(WeaponType slot) const {
+		WeaponType GetBasedOn(WeaponType slot) const
+		{
 			return (BasedOn != WeaponType::Unknown ? BasedOn : slot);
 		}
 
 		bool operator==(const CustomWeaponOptions& other) const;
-		bool operator!=(const CustomWeaponOptions& other) const {
+		bool operator!=(const CustomWeaponOptions& other) const
+		{
 			return !operator==(other);
 		}
 	};
@@ -323,11 +330,13 @@ namespace Jazz2
 		/** @brief Returns how it fires and what to change, made with the defaults if it has none yet */
 		CustomWeaponOptions& GetCustom();
 		/** @brief Returns `true` if it has options of a custom weapon of its own */
-		bool HasCustom() const {
+		bool HasCustom() const
+		{
 			return (_custom != nullptr);
 		}
 		/** @brief Forgets the options of a custom weapon */
-		void ResetCustom() {
+		void ResetCustom()
+		{
 			_custom = nullptr;
 		}
 
@@ -340,7 +349,8 @@ namespace Jazz2
 		bool IsDefault(WeaponType weaponType) const;
 
 		bool operator==(const WeaponDefinition& other) const;
-		bool operator!=(const WeaponDefinition& other) const {
+		bool operator!=(const WeaponDefinition& other) const
+		{
 			return !operator==(other);
 		}
 
@@ -364,12 +374,14 @@ namespace Jazz2
 		SmallVector<std::uint8_t, 0> UnknownProperties;
 
 		/** @brief Returns `true` if there's nothing to keep */
-		bool IsEmpty() const {
+		bool IsEmpty() const
+		{
 			return (ScriptLibrary.empty() && ScriptConstructor.empty() && UnknownProperties.empty());
 		}
 
 		bool operator==(const WeaponEditorData& other) const;
-		bool operator!=(const WeaponEditorData& other) const {
+		bool operator!=(const WeaponEditorData& other) const
+		{
 			return !operator==(other);
 		}
 	};
@@ -383,7 +395,8 @@ namespace Jazz2
 		SmallVector<std::uint8_t, 0> Data;
 
 		bool operator==(const WeaponSound& other) const;
-		bool operator!=(const WeaponSound& other) const {
+		bool operator!=(const WeaponSound& other) const
+		{
 			return !operator==(other);
 		}
 	};
@@ -416,16 +429,19 @@ namespace Jazz2
 		std::int32_t HotspotY = 0;
 
 		/** @brief Returns the width of a frame */
-		std::int32_t GetFrameWidth() const {
+		std::int32_t GetFrameWidth() const
+		{
 			return (FrameColumns > 0 ? Width / FrameColumns : 0);
 		}
 		/** @brief Returns the height of a frame */
-		std::int32_t GetFrameHeight() const {
+		std::int32_t GetFrameHeight() const
+		{
 			return (FrameRows > 0 ? Height / FrameRows : 0);
 		}
 
 		bool operator==(const WeaponImage& other) const;
-		bool operator!=(const WeaponImage& other) const {
+		bool operator!=(const WeaponImage& other) const
+		{
 			return !operator==(other);
 		}
 	};

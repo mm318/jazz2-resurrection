@@ -36,39 +36,58 @@
 #include "String.h"
 #include "StringView.h"
 
-namespace Death { namespace Containers { namespace Implementation {
-//###==##====#=====--==~--~=~- --- -- -  -  -   -
+namespace Death
+{
+	namespace Containers
+	{
+		namespace Implementation
+		{
+			//###==##====#=====--==~--~=~- --- -- -  -  -   -
 
-	/** @brief Provides automatic conversion from/to STL @ref std::string */
-	template<> struct StringConverter<std::string> {
-		static String from(const std::string& other) {
-			return String{other.data(), other.size()};
-		}
-		static std::string to(const String& other) {
-			return std::string{other.data(), other.size()};
-		}
-	};
+			/** @brief Provides automatic conversion from/to STL @ref std::string */
+			template <>
+			struct StringConverter<std::string>
+			{
+				static String from(const std::string& other)
+				{
+					return String { other.data(), other.size() };
+				}
+				static std::string to(const String& other)
+				{
+					return std::string { other.data(), other.size() };
+				}
+			};
 
-	/** @brief Provides automatic conversion from/to STL @ref std::string */
-	template<> struct StringViewConverter<const char, std::string> {
-		static StringView from(const std::string& other) {
-			return StringView{other.data(), other.size(), StringViewFlags::NullTerminated};
-		}
-		static std::string to(StringView other) {
-			return std::string{other.data(), other.size()};
-		}
-	};
+			/** @brief Provides automatic conversion from/to STL @ref std::string */
+			template <>
+			struct StringViewConverter<const char, std::string>
+			{
+				static StringView from(const std::string& other)
+				{
+					return StringView { other.data(), other.size(), StringViewFlags::NullTerminated };
+				}
+				static std::string to(StringView other)
+				{
+					return std::string { other.data(), other.size() };
+				}
+			};
 
-	/** @brief Provides automatic conversion from/to STL @ref std::string */
-	template<> struct StringViewConverter<char, std::string> {
-		static MutableStringView from(std::string& other) {
-			// .data() returns a const pointer until C++17, so have to use &other[0]. It's guaranteed
-			// to return a pointer to a single null character if the string is empty.
-			return MutableStringView{&other[0], other.size(), StringViewFlags::NullTerminated};
-		}
-		static std::string to(MutableStringView other) {
-			return std::string{other.data(), other.size()};
-		}
-	};
+			/** @brief Provides automatic conversion from/to STL @ref std::string */
+			template <>
+			struct StringViewConverter<char, std::string>
+			{
+				static MutableStringView from(std::string& other)
+				{
+					// .data() returns a const pointer until C++17, so have to use &other[0]. It's guaranteed
+					// to return a pointer to a single null character if the string is empty.
+					return MutableStringView { &other[0], other.size(), StringViewFlags::NullTerminated };
+				}
+				static std::string to(MutableStringView other)
+				{
+					return std::string { other.data(), other.size() };
+				}
+			};
 
-}}}
+		}
+	}
+}

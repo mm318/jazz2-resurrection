@@ -57,7 +57,7 @@ namespace nCine::RHI::GL
 			case GL_INT_VEC3:
 			case GL_INT_VEC4:
 				return GL_INT;
-#if !defined(DEATH_TARGET_VITA)	// vitaGL declares none of the bool / unsigned-int vector types
+#if !defined(DEATH_TARGET_VITA) // vitaGL declares none of the bool / unsigned-int vector types
 			case GL_BOOL:
 			case GL_BOOL_VEC2:
 			case GL_BOOL_VEC3:

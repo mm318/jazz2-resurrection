@@ -52,9 +52,12 @@ namespace Jazz2::Editor
 			if (!text.empty() && *sharedConfirmed) {
 				(*sharedConfirmed)(text);
 			}
-		}, true);
+		},
+			true);
 		// TRANSLATORS: Button in a dialog that asks for a text, closes it without a change
-		dialog->AddButton(_x("editor", "Cancel"), [dialogPtr]() { dialogPtr->Close(); });
+		dialog->AddButton(_x("editor", "Cancel"), [dialogPtr]() {
+			dialogPtr->Close();
+		});
 
 		ShowModal(surface, Death::move(dialog));
 		// Typed right away

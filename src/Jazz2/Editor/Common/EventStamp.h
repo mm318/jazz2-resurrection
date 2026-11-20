@@ -40,19 +40,23 @@ namespace Jazz2::Editor
 		SmallVector<OffGridItem, 0> OffGrid;
 
 		/** @brief Returns `true` if the stamp places nothing */
-		bool IsEmpty() const {
+		bool IsEmpty() const
+		{
 			return (Items.empty() && OffGrid.empty());
 		}
 		/** @brief Returns `true` if the stamp is a single event on the grid */
-		bool IsSingle() const {
+		bool IsSingle() const
+		{
 			return (Items.size() == 1 && OffGrid.empty() && Items[0].Offset == Vector2i(0, 0));
 		}
 		/** @brief Returns the first event of the stamp, on the grid or off it, or `nullptr` if it's empty */
-		const Formats::EventRecord* GetFirst() const {
+		const Formats::EventRecord* GetFirst() const
+		{
 			return (!Items.empty() ? &Items[0].Event : (!OffGrid.empty() ? &OffGrid[0].Event : nullptr));
 		}
 		/** @brief Makes a stamp of a single event */
-		static EventStamp FromEvent(const Formats::EventRecord& event) {
+		static EventStamp FromEvent(const Formats::EventRecord& event)
+		{
 			EventStamp stamp;
 			Item& item = stamp.Items.emplace_back();
 			item.Offset = Vector2i(0, 0);

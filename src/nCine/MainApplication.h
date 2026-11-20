@@ -3,9 +3,9 @@
 #include "Application.h"
 
 #if defined(DEATH_TARGET_PSP)
-#	include <psputility.h>
+#include <psputility.h>
 #elif defined(DEATH_TARGET_VITA)
-#	include <psp2/ime_dialog.h>
+#include <psp2/ime_dialog.h>
 #endif
 
 namespace nCine
@@ -18,7 +18,10 @@ namespace nCine
 #endif
 
 #if defined(WITH_QT5)
-	namespace Backends { class Qt5Widget; }
+	namespace Backends
+	{
+		class Qt5Widget;
+	}
 #endif
 
 	/**
@@ -38,7 +41,7 @@ namespace nCine
 		bool EnablePlayStationExtendedSupport(bool enable) override;
 		String GetUserName() override;
 		bool OpenUrl(StringView url) override;
-		
+
 #if defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_VITA) || defined(DOXYGEN_GENERATING_OUTPUT)
 		/**
 			@brief Advances the on-screen keyboard, turning a finished IME dialog into text input events
@@ -119,12 +122,11 @@ namespace nCine
 #endif
 
 		MainApplication()
-			:
-			Application(),
+			: Application(),
 #if defined(WITH_QT5)
-			_qt5Widget(nullptr),
+			  _qt5Widget(nullptr),
 #endif
-			_wasSuspended(false)
+			  _wasSuspended(false)
 		{
 		}
 

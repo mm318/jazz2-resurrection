@@ -39,7 +39,7 @@ namespace Jazz2::Editor
 			static constexpr float WindowFraction = 0.8f;
 
 			CommandPalettePanel()
-				: Panel(PanelStyle::Floating), _widthElements{}
+				: Panel(PanelStyle::Floating), _widthElements {}
 			{
 			}
 
@@ -82,8 +82,14 @@ namespace Jazz2::Editor
 		bool IsModifierKey(Keys key)
 		{
 			switch (key) {
-				case Keys::LCtrl: case Keys::RCtrl: case Keys::LShift: case Keys::RShift: case Keys::LAlt: case Keys::RAlt:
-				case Keys::LSuper: case Keys::RSuper:
+				case Keys::LCtrl:
+				case Keys::RCtrl:
+				case Keys::LShift:
+				case Keys::RShift:
+				case Keys::LAlt:
+				case Keys::RAlt:
+				case Keys::LSuper:
+				case Keys::RSuper:
 					return true;
 				default:
 					return false;
@@ -104,16 +110,20 @@ namespace Jazz2::Editor
 			explicit ShortcutList(IEditorContext& session)
 				: _session(session), _listening(nullptr)
 			{
-				CountFunc = [this]() { return std::int32_t(_shown.size()); };
-				RowText = [this](std::int32_t index) { return _shown[index]->Label; };
+				CountFunc = [this]() {
+					return std::int32_t(_shown.size());
+				};
+				RowText = [this](std::int32_t index) {
+					return _shown[index]->Label;
+				};
 				RowTooltip = [this](std::int32_t index) {
 					// A shortcut of playing may be the same as one of editing, they don't conflict
 					if (_session.GetActions().HasConflict(*_shown[index])) {
 						return String(_x("editor", "Another action has the same shortcut, only the first one in the list runs by it - click and press other keys"));
 					}
 					return String(_shown[index]->Scope == ActionScope::Play
-						? _x("editor", "The shortcut works while the level is played - click and press the keys of a new one, Backspace removes it, Esc keeps it")
-						: _x("editor", "Click and press the keys of a new shortcut, or a side button of the mouse - Backspace removes it, Esc keeps it"));
+							? _x("editor", "The shortcut works while the level is played - click and press the keys of a new one, Backspace removes it, Esc keeps it")
+							: _x("editor", "Click and press the keys of a new shortcut, or a side button of the mouse - Backspace removes it, Esc keeps it"));
 				};
 				DrawRow = [this](Painter& painter, std::int32_t index, const Rectf& rect, bool selected, float hover) {
 					DrawShortcutRow(painter, index, rect, selected, hover);
@@ -124,7 +134,9 @@ namespace Jazz2::Editor
 						Listen(index);
 					}
 				};
-				OnActivated = [this](std::int32_t index) { Listen(index); };
+				OnActivated = [this](std::int32_t index) {
+					Listen(index);
+				};
 			}
 
 			/**
@@ -139,8 +151,7 @@ namespace Jazz2::Editor
 				// A single letter is a word to look for too, it's taken as a key only when it was pressed, a side button of
 				// the mouse is no word of any action
 				StringView trimmed = text.trimmed();
-				bool looksLikeKeys = (byKey || trimmed.contains('+') || (trimmed.size() >= 2 && trimmed.size() <= 3 &&
-					(trimmed[0] == 'F' || trimmed[0] == 'f') && trimmed[1] >= '0' && trimmed[1] <= '9'));
+				bool looksLikeKeys = (byKey || trimmed.contains('+') || (trimmed.size() >= 2 && trimmed.size() <= 3 && (trimmed[0] == 'F' || trimmed[0] == 'f') && trimmed[1] >= '0' && trimmed[1] <= '9'));
 				bool searchKey = (Shortcut::Parse(text, shortcut) &&
 					(looksLikeKeys || shortcut.Key == Shortcut::Mouse4 || shortcut.Key == Shortcut::Mouse5));
 				for (const auto& action : _session.GetActions().GetAll()) {
@@ -293,7 +304,9 @@ namespace Jazz2::Editor
 			{
 				Style = ButtonStyle::Flat;
 				Tooltip = _x("editor", "Press the keys of a shortcut, or a side button of the mouse, to find what it does");
-				IsCheckedFunc = [this]() { return _listening; };
+				IsCheckedFunc = [this]() {
+					return _listening;
+				};
 				OnClick = [this]() {
 					_listening = true;
 					if (Surface* surface = GetSurface()) {
@@ -349,7 +362,7 @@ namespace Jazz2::Editor
 		void GetKeymapRoots(IEditorContext& session, SmallVectorImpl<FileRoot>& roots)
 		{
 			// TRANSLATORS: Name of a place in the file dialog, the folder of the settings of the game
-			roots.push_back(FileRoot{ String(_x("editor", "Settings")), String(fs::GetDirectoryName(IEditorContext::GetHotkeysPath())), true });
+			roots.push_back(FileRoot { String(_x("editor", "Settings")), String(fs::GetDirectoryName(IEditorContext::GetHotkeysPath())), true });
 			session.GetFileRoots(true, roots);
 		}
 	}
@@ -391,11 +404,15 @@ namespace Jazz2::Editor
 				}
 				EditorAction* actionPtr = action.get();
 				auto* row = rows->Add<Stack>(Orientation::Horizontal, Theme::Spacing);
-				auto* button = row->Add<Button>(action->Label, action->Icon, [run, actionPtr]() { run(actionPtr); });
+				auto* button = row->Add<Button>(action->Label, action->Icon, [run, actionPtr]() {
+					run(actionPtr);
+				});
 				button->Style = ButtonStyle::Flat;
 				button->TextAlign = Alignment::Left;
 				button->Flex = 1.0f;
-				button->IsEnabledFunc = [actionPtr]() { return actionPtr->CanExecute(); };
+				button->IsEnabledFunc = [actionPtr]() {
+					return actionPtr->CanExecute();
+				};
 				String shortcut = action->Key.ToString();
 				if (!shortcut.empty()) {
 					row->Add<Label>(shortcut, Theme::TextDim);
@@ -408,7 +425,9 @@ namespace Jazz2::Editor
 				rows->Add<Label>(_x("editor", "Nothing is called like that"), Theme::TextDisabled);
 			}
 		};
-		search->OnChanged = [fill](StringView text) { (*fill)(text); };
+		search->OnChanged = [fill](StringView text) {
+			(*fill)(text);
+		};
 		panel->OnEnter = [s, run, search]() {
 			// The first one that can be done, nothing without a search, the first action of all would be a guess
 			StringView text = search->Text;
@@ -447,7 +466,11 @@ namespace Jazz2::Editor
 		auto* content = dialog->GetContent();
 
 		// What isn't an action, so isn't in the list, in rows as the list has them
-		struct MouseHint { String Action; String Input; };
+		struct MouseHint
+		{
+			String Action;
+			String Input;
+		};
 		static const MouseHint MouseHints[] = {
 			// TRANSLATORS: Rows above the list of the Keyboard Shortcuts dialog, what is done (verbs) and by which mouse input
 			{ _x("editor", "Zoom"), _x("editor", "Mouse wheel") },
@@ -476,9 +499,15 @@ namespace Jazz2::Editor
 		ShortcutList* list = scroll->SetContent<ShortcutList>(session);
 
 		auto fill = std::make_shared<Function<void(StringView)>>();
-		*fill = [list](StringView text) { list->Filter(text); };
-		search->OnChanged = [fill](StringView text) { (*fill)(text); };
-		searchRow->Add<KeySearchButton>(search, [list](StringView text) { list->Filter(text, true); });
+		*fill = [list](StringView text) {
+			list->Filter(text);
+		};
+		search->OnChanged = [fill](StringView text) {
+			(*fill)(text);
+		};
+		searchRow->Add<KeySearchButton>(search, [list](StringView text) {
+			list->Filter(text, true);
+		});
 		(*fill)({});
 
 		// Sets of shortcuts like those of other level editors, and keymaps of other computers
@@ -486,76 +515,85 @@ namespace Jazz2::Editor
 		// TRANSLATORS: Label in the Keyboard Shortcuts dialog before the choice of shortcuts like those of another level editor
 		keymapRow->Add<Label>(_x("editor", "Shortcuts like"), Theme::TextDim);
 		// TRANSLATORS: Text of the choice of shortcuts like those of another level editor in the Keyboard Shortcuts dialog (verb)
-		auto* presets = keymapRow->Add<Dropdown>([]() { return String(_x("editor", "Choose")); }, [s, fill, search](SmallVectorImpl<MenuEntry>& entries) {
-			struct PresetChoice { String Label; KeymapPreset Preset; };
-			static const PresetChoice Choices[] = {
-				// TRANSLATORS: Level editor whose shortcuts can be chosen in the Keyboard Shortcuts dialog, this one, the others are names of programs
-				{ _x("editor", "This Editor"), KeymapPreset::Default },
-				// Names of programs aren't translated
-				{ "Jazz Creation Station", KeymapPreset::Jcs },
-				{ "MLLE", KeymapPreset::Mlle },
-			};
-			for (const PresetChoice& choice : Choices) {
-				MenuEntry entry;
-				entry.Label = choice.Label;
-				KeymapPreset preset = choice.Preset;
-				entry.Execute = [s, fill, search, preset]() {
-					Surface* surface = s->GetSurface();
-					if (surface == nullptr) {
-						return;
-					}
-					// The shortcuts changed by hand would be lost
-					MessageDialog::Show(*surface, _x("editor", "Keyboard Shortcuts"), _x("editor", "Replace all shortcuts by the chosen ones? The ones you changed are lost."),
-						// TRANSLATORS: Buttons of the message box asking before replacing all shortcuts by those of another level editor
-						{ _x("editor", "Replace"), _x("editor", "Cancel") }, [s, fill, search, preset](std::int32_t button) {
-							if (button != 0) {
-								return;
-							}
-							SmallVector<String, 8> cleared;
-							s->GetActions().ApplyPreset(preset, &cleared);
-							s->GetActions().SaveOverrides(IEditorContext::GetHotkeysPath());
-							(*fill)(search->Text);
-							s->ShowMessage(cleared.empty() ? String(_x("editor", "The shortcuts were replaced"))
-								: _fx("editor", "The shortcuts were replaced, {} actions gave their key away", std::int32_t(cleared.size())));
-						});
+		auto* presets = keymapRow->Add<Dropdown>([]() {
+			return String(_x("editor", "Choose"));
+		},
+			[s, fill, search](SmallVectorImpl<MenuEntry>& entries) {
+				struct PresetChoice
+				{
+					String Label;
+					KeymapPreset Preset;
 				};
-				entries.push_back(Death::move(entry));
-			}
-		});
+				static const PresetChoice Choices[] = {
+					// TRANSLATORS: Level editor whose shortcuts can be chosen in the Keyboard Shortcuts dialog, this one, the others are names of programs
+					{ _x("editor", "This Editor"), KeymapPreset::Default },
+					// Names of programs aren't translated
+					{ "Jazz Creation Station", KeymapPreset::Jcs },
+					{ "MLLE", KeymapPreset::Mlle },
+				};
+				for (const PresetChoice& choice : Choices) {
+					MenuEntry entry;
+					entry.Label = choice.Label;
+					KeymapPreset preset = choice.Preset;
+					entry.Execute = [s, fill, search, preset]() {
+						Surface* surface = s->GetSurface();
+						if (surface == nullptr) {
+							return;
+						}
+						// The shortcuts changed by hand would be lost
+						MessageDialog::Show(*surface, _x("editor", "Keyboard Shortcuts"), _x("editor", "Replace all shortcuts by the chosen ones? The ones you changed are lost."),
+							// TRANSLATORS: Buttons of the message box asking before replacing all shortcuts by those of another level editor
+							{ _x("editor", "Replace"), _x("editor", "Cancel") }, [s, fill, search, preset](std::int32_t button) {
+								if (button != 0) {
+									return;
+								}
+								SmallVector<String, 8> cleared;
+								s->GetActions().ApplyPreset(preset, &cleared);
+								s->GetActions().SaveOverrides(IEditorContext::GetHotkeysPath());
+								(*fill)(search->Text);
+								s->ShowMessage(cleared.empty() ? String(_x("editor", "The shortcuts were replaced"))
+															   : _fx("editor", "The shortcuts were replaced, {} actions gave their key away", std::int32_t(cleared.size())));
+							});
+					};
+					entries.push_back(Death::move(entry));
+				}
+			});
 		presets->Width = 120.0f;
 		keymapRow->Add<Element>()->Flex = 1.0f;
 		// TRANSLATORS: Button in the Keyboard Shortcuts dialog, reads shortcuts from a file (verb)
 		keymapRow->Add<Button>(_x("editor", "Import"), EditorIcon::Import, [s, fill, search]() {
-			Surface* surface = s->GetSurface();
-			if (surface == nullptr) {
-				return;
-			}
-			SmallVector<FileRoot, 4> roots;
-			GetKeymapRoots(*s, roots);
-			// TRANSLATORS: Title of the file dialog that reads shortcuts from a file
-			FileDialog::Show(*surface, _x("editor", "Import Shortcuts"), FileDialogMode::Open, Death::move(roots), ".json"_s, {}, {}, [s, fill, search](StringView path) {
-				if (!s->GetActions().ImportKeymap(path)) {
-					s->ShowMessage(_x("editor", "The shortcuts couldn't be read"));
-					return;
-				}
-				s->GetActions().SaveOverrides(IEditorContext::GetHotkeysPath());
-				(*fill)(search->Text);
-				s->ShowMessage(_x("editor", "The shortcuts were imported"));
-			});
-		})->Tooltip = _x("editor", "Take the shortcuts of a file exported elsewhere");
+					 Surface* surface = s->GetSurface();
+					 if (surface == nullptr) {
+						 return;
+					 }
+					 SmallVector<FileRoot, 4> roots;
+					 GetKeymapRoots(*s, roots);
+					 // TRANSLATORS: Title of the file dialog that reads shortcuts from a file
+					 FileDialog::Show(*surface, _x("editor", "Import Shortcuts"), FileDialogMode::Open, Death::move(roots), ".json"_s, {}, {}, [s, fill, search](StringView path) {
+						 if (!s->GetActions().ImportKeymap(path)) {
+							 s->ShowMessage(_x("editor", "The shortcuts couldn't be read"));
+							 return;
+						 }
+						 s->GetActions().SaveOverrides(IEditorContext::GetHotkeysPath());
+						 (*fill)(search->Text);
+						 s->ShowMessage(_x("editor", "The shortcuts were imported"));
+					 });
+				 })
+			->Tooltip = _x("editor", "Take the shortcuts of a file exported elsewhere");
 		// TRANSLATORS: Button in the Keyboard Shortcuts dialog, saves all shortcuts into a file (verb)
 		keymapRow->Add<Button>(_x("editor", "Export"), EditorIcon::Export, [s]() {
-			Surface* surface = s->GetSurface();
-			if (surface == nullptr) {
-				return;
-			}
-			SmallVector<FileRoot, 4> roots;
-			GetKeymapRoots(*s, roots);
-			// TRANSLATORS: Title of the file dialog that saves all shortcuts into a file
-			FileDialog::Show(*surface, _x("editor", "Export Shortcuts"), FileDialogMode::Save, Death::move(roots), ".json"_s, {}, "Shortcuts.json"_s, [s](StringView path) {
-				s->ShowMessage(s->GetActions().ExportKeymap(path) ? String(_x("editor", "The shortcuts were exported")) : String(_x("editor", "The shortcuts couldn't be saved")));
-			});
-		})->Tooltip = _x("editor", "Save all shortcuts into a file, to take them to another computer");
+					 Surface* surface = s->GetSurface();
+					 if (surface == nullptr) {
+						 return;
+					 }
+					 SmallVector<FileRoot, 4> roots;
+					 GetKeymapRoots(*s, roots);
+					 // TRANSLATORS: Title of the file dialog that saves all shortcuts into a file
+					 FileDialog::Show(*surface, _x("editor", "Export Shortcuts"), FileDialogMode::Save, Death::move(roots), ".json"_s, {}, "Shortcuts.json"_s, [s](StringView path) {
+						 s->ShowMessage(s->GetActions().ExportKeymap(path) ? String(_x("editor", "The shortcuts were exported")) : String(_x("editor", "The shortcuts couldn't be saved")));
+					 });
+				 })
+			->Tooltip = _x("editor", "Save all shortcuts into a file, to take them to another computer");
 
 		// TRANSLATORS: Button in the Keyboard Shortcuts dialog, sets all shortcuts back to how they were
 		dialog->AddButton(_x("editor", "Reset All"), [s, fill, search]() {
@@ -578,7 +616,9 @@ namespace Jazz2::Editor
 				});
 		});
 		// Closed by its cross or Escape, Reset All isn't what they do
-		dialog->OnCancel = [dialogPtr]() { dialogPtr->Close(); };
+		dialog->OnCancel = [dialogPtr]() {
+			dialogPtr->Close();
+		};
 
 		ShowModal(*surface, Death::move(dialog));
 	}
@@ -607,7 +647,12 @@ namespace Jazz2::Editor
 		scroll->FollowEnd = true;
 
 		// The list follows the history, it's rebuilt when the number of changes or the current one differs
-		struct ListState { std::int32_t Count = -1; std::int32_t Done = -1; const CommandHistory* History = nullptr; };
+		struct ListState
+		{
+			std::int32_t Count = -1;
+			std::int32_t Done = -1;
+			const CommandHistory* History = nullptr;
+		};
 		auto state = std::make_shared<ListState>();
 		state->History = &session.GetHistory();
 		auto rebuild = std::make_shared<Function<void()>>();
@@ -625,7 +670,9 @@ namespace Jazz2::Editor
 			first->Style = ButtonStyle::Flat;
 			first->TextAlign = Alignment::Left;
 			first->TextColor = Theme::TextDim;
-			first->IsCheckedFunc = [s]() { return (s->GetHistory().GetDoneCount() == 0); };
+			first->IsCheckedFunc = [s]() {
+				return (s->GetHistory().GetDoneCount() == 0);
+			};
 			for (std::int32_t i = 0; i < state->Count; i++) {
 				std::int32_t target = i + 1;
 				auto* button = rows->Add<Button>(history.GetName(i), EditorIcon::None, [s, target]() {
@@ -636,7 +683,9 @@ namespace Jazz2::Editor
 				});
 				button->Style = ButtonStyle::Flat;
 				button->TextAlign = Alignment::Left;
-				button->IsCheckedFunc = [s, target]() { return (s->GetHistory().GetDoneCount() == target); };
+				button->IsCheckedFunc = [s, target]() {
+					return (s->GetHistory().GetDoneCount() == target);
+				};
 				// Undone changes are dimmed, they're gone once something else is changed
 				if (target > state->Done) {
 					button->TextColor = Theme::TextDisabled;

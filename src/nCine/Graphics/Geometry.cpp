@@ -8,8 +8,8 @@ namespace nCine
 {
 	Geometry::Geometry()
 		: _primitiveType(PrimitiveType::Triangles), _firstVertex(0), _numVertices(0), _numElementsPerVertex(2), _firstIndex(0), _numIndices(0),
-			_hostVertexPointer(nullptr), _hostIndexPointer(nullptr), _vboUsageFlags(BufferUsage::StaticDraw), _sharedVboParams(nullptr),
-			_iboUsageFlags(BufferUsage::StaticDraw), _sharedIboParams(nullptr), _hasDirtyVertices(true), _hasDirtyIndices(true)
+		  _hostVertexPointer(nullptr), _hostIndexPointer(nullptr), _vboUsageFlags(BufferUsage::StaticDraw), _sharedVboParams(nullptr),
+		  _iboUsageFlags(BufferUsage::StaticDraw), _sharedIboParams(nullptr), _hasDirtyVertices(true), _hasDirtyIndices(true)
 	{
 	}
 

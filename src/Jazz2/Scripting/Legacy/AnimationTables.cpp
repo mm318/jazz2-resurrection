@@ -17,9 +17,11 @@
 using namespace Jazz2::Resources;
 
 #if defined(DEATH_TRACE)
-#	define noop() Unimplemented(NCINE_CURRENT_FUNCTION)
+#define noop() Unimplemented(NCINE_CURRENT_FUNCTION)
 #else
-#	define noop() do {} while (false)
+#define noop() \
+	do {       \
+	} while (false)
 #endif
 
 namespace Jazz2::Scripting::Legacy
@@ -29,113 +31,114 @@ namespace Jazz2::Scripting::Legacy
 		// Set IDs of the sets of the original in the animation file of 1.24 and of 1.23, by `anim`, -1 where the version
 		// has no such set. The sets of the files are in the order of their names, but the files have sets that aren't
 		// named here (and 1.23 has none of Lori and the Christmas enemies), so the two drift apart after the dragon.
-		struct OriginalSetID {
+		struct OriginalSetID
+		{
 			std::int16_t TSF;
 			std::int16_t BaseGame;
 		};
 
 		constexpr OriginalSetID OriginalSetIDs[] = {
-			{ 0, 0 },		// AMMO
-			{ 1, 1 },		// BAT
-			{ 2, 2 },		// BEEBOY
-			{ 3, 3 },		// BEES
-			{ 4, 4 },		// BIGBOX
-			{ 5, 5 },		// BIGROCK
-			{ 6, 6 },		// BIGTREE
-			{ 7, 7 },		// BILSBOSS
-			{ 8, 8 },		// BIRD
-			{ 9, 9 },		// BIRD3D
-			{ 10, 10 },		// BOLLPLAT
-			{ 11, 11 },		// BONUS
-			{ 12, 12 },		// BOSS
-			{ 13, 13 },		// BRIDGE
-			{ 14, 14 },		// BUBBA
-			{ 15, 15 },		// BUMBEE
-			{ 16, 16 },		// BUTTERFLY
-			{ 17, 17 },		// CARROTPOLE
-			{ 18, 18 },		// CAT
-			{ 19, 19 },		// CAT2
-			{ 20, 20 },		// CATERPIL
-			{ 21, 21 },		// CHUCK
-			{ 22, 22 },		// COMMON
-			{ 23, 23 },		// CONTINUE
-			{ 24, 24 },		// DEMON
-			{ 25, 25 },		// DESTSCEN
-			{ 26, 26 },		// DEVAN
-			{ 27, 27 },		// DEVILDEVAN
-			{ 28, 28 },		// DIAMPOLE
-			{ 29, 29 },		// DOG
-			{ 30, 30 },		// DOOR
-			{ 31, 31 },		// DRAGFLY
-			{ 32, 32 },		// DRAGON
-			{ 38, 37 },		// EVA
-			{ 39, 38 },		// FACES
-			{ 41, 40 },		// FATCHK
-			{ 42, 41 },		// FENCER
-			{ 43, 42 },		// FISH
-			{ 44, 43 },		// FLAG
-			{ 45, 44 },		// FLARE
-			{ 46, 45 },		// FONT
-			{ 47, 46 },		// FROG
-			{ 48, 47 },		// FRUITPLAT
-			{ 49, 48 },		// GEMRING
-			{ 50, 49 },		// GLOVE
-			{ 51, 50 },		// GRASSPLAT
-			{ 52, 51 },		// HATTER
-			{ 53, 52 },		// HELMUT
-			{ 55, 54 },		// JAZZ
-			{ 56, 55 },		// JAZZ3D
-			{ 58, 57 },		// JUNGLEPOLE
-			{ 59, 58 },		// LABRAT
-			{ 60, 59 },		// LIZARD
-			{ 61, -1 },		// LORI
-			{ 62, -1 },		// LORI2
-			{ 64, 60 },		// MENU
-			{ 65, 61 },		// MENUFONT
-			{ 67, 63 },		// MONKEY
-			{ 68, 64 },		// MOTH
-			{ 71, 67 },		// PICKUPS
-			{ 72, 68 },		// PINBALL
-			{ 73, 69 },		// PINKPLAT
-			{ 74, 70 },		// PSYCHPOLE
-			{ 75, 71 },		// QUEEN
-			{ 76, 72 },		// RAPIER
-			{ 77, 73 },		// RAVEN
-			{ 78, 74 },		// ROBOT
-			{ 79, 75 },		// ROCK
-			{ 80, 76 },		// ROCKTURT
-			{ 83, 79 },		// SKELETON
-			{ 84, 80 },		// SMALTREE
-			{ 85, 81 },		// SNOW
-			{ 86, 82 },		// SONCSHIP
-			{ 87, 83 },		// SONICPLAT
-			{ 88, 84 },		// SPARK
-			{ 89, 85 },		// SPAZ
-			{ 90, 86 },		// SPAZ2
-			{ 91, 87 },		// SPAZ3D
-			{ 93, 89 },		// SPIKEBOLL
-			{ 94, 90 },		// SPIKEBOLL3D
-			{ 95, 91 },		// SPIKEPLAT
-			{ 96, 92 },		// SPRING
-			{ 97, 93 },		// STEAM
-			{ 99, 95 },		// SUCKER
-			{ 100, 96 },	// TUBETURT
-			{ 101, 97 },	// TUFBOSS
-			{ 102, 98 },	// TUFTURT
-			{ 103, 99 },	// TURTLE
-			{ 104, 100 },	// TWEEDLE
-			{ 105, 101 },	// UTERUS
-			{ 106, 102 },	// VINE
-			{ 107, 103 },	// WARP10
-			{ 108, 104 },	// WARP100
-			{ 109, 105 },	// WARP20
-			{ 110, 106 },	// WARP50
-			{ 112, 108 },	// WITCH
-			{ 113, -1 },	// XBILSY
-			{ 114, -1 },	// XLIZARD
-			{ 115, -1 },	// XTURTLE
-			{ 116, -1 },	// ZDOG
-			{ 117, -1 }		// ZSPARK
+			{ 0, 0 }, // AMMO
+			{ 1, 1 }, // BAT
+			{ 2, 2 }, // BEEBOY
+			{ 3, 3 }, // BEES
+			{ 4, 4 }, // BIGBOX
+			{ 5, 5 }, // BIGROCK
+			{ 6, 6 }, // BIGTREE
+			{ 7, 7 }, // BILSBOSS
+			{ 8, 8 }, // BIRD
+			{ 9, 9 }, // BIRD3D
+			{ 10, 10 }, // BOLLPLAT
+			{ 11, 11 }, // BONUS
+			{ 12, 12 }, // BOSS
+			{ 13, 13 }, // BRIDGE
+			{ 14, 14 }, // BUBBA
+			{ 15, 15 }, // BUMBEE
+			{ 16, 16 }, // BUTTERFLY
+			{ 17, 17 }, // CARROTPOLE
+			{ 18, 18 }, // CAT
+			{ 19, 19 }, // CAT2
+			{ 20, 20 }, // CATERPIL
+			{ 21, 21 }, // CHUCK
+			{ 22, 22 }, // COMMON
+			{ 23, 23 }, // CONTINUE
+			{ 24, 24 }, // DEMON
+			{ 25, 25 }, // DESTSCEN
+			{ 26, 26 }, // DEVAN
+			{ 27, 27 }, // DEVILDEVAN
+			{ 28, 28 }, // DIAMPOLE
+			{ 29, 29 }, // DOG
+			{ 30, 30 }, // DOOR
+			{ 31, 31 }, // DRAGFLY
+			{ 32, 32 }, // DRAGON
+			{ 38, 37 }, // EVA
+			{ 39, 38 }, // FACES
+			{ 41, 40 }, // FATCHK
+			{ 42, 41 }, // FENCER
+			{ 43, 42 }, // FISH
+			{ 44, 43 }, // FLAG
+			{ 45, 44 }, // FLARE
+			{ 46, 45 }, // FONT
+			{ 47, 46 }, // FROG
+			{ 48, 47 }, // FRUITPLAT
+			{ 49, 48 }, // GEMRING
+			{ 50, 49 }, // GLOVE
+			{ 51, 50 }, // GRASSPLAT
+			{ 52, 51 }, // HATTER
+			{ 53, 52 }, // HELMUT
+			{ 55, 54 }, // JAZZ
+			{ 56, 55 }, // JAZZ3D
+			{ 58, 57 }, // JUNGLEPOLE
+			{ 59, 58 }, // LABRAT
+			{ 60, 59 }, // LIZARD
+			{ 61, -1 }, // LORI
+			{ 62, -1 }, // LORI2
+			{ 64, 60 }, // MENU
+			{ 65, 61 }, // MENUFONT
+			{ 67, 63 }, // MONKEY
+			{ 68, 64 }, // MOTH
+			{ 71, 67 }, // PICKUPS
+			{ 72, 68 }, // PINBALL
+			{ 73, 69 }, // PINKPLAT
+			{ 74, 70 }, // PSYCHPOLE
+			{ 75, 71 }, // QUEEN
+			{ 76, 72 }, // RAPIER
+			{ 77, 73 }, // RAVEN
+			{ 78, 74 }, // ROBOT
+			{ 79, 75 }, // ROCK
+			{ 80, 76 }, // ROCKTURT
+			{ 83, 79 }, // SKELETON
+			{ 84, 80 }, // SMALTREE
+			{ 85, 81 }, // SNOW
+			{ 86, 82 }, // SONCSHIP
+			{ 87, 83 }, // SONICPLAT
+			{ 88, 84 }, // SPARK
+			{ 89, 85 }, // SPAZ
+			{ 90, 86 }, // SPAZ2
+			{ 91, 87 }, // SPAZ3D
+			{ 93, 89 }, // SPIKEBOLL
+			{ 94, 90 }, // SPIKEBOLL3D
+			{ 95, 91 }, // SPIKEPLAT
+			{ 96, 92 }, // SPRING
+			{ 97, 93 }, // STEAM
+			{ 99, 95 }, // SUCKER
+			{ 100, 96 }, // TUBETURT
+			{ 101, 97 }, // TUFBOSS
+			{ 102, 98 }, // TUFTURT
+			{ 103, 99 }, // TURTLE
+			{ 104, 100 }, // TWEEDLE
+			{ 105, 101 }, // UTERUS
+			{ 106, 102 }, // VINE
+			{ 107, 103 }, // WARP10
+			{ 108, 104 }, // WARP100
+			{ 109, 105 }, // WARP20
+			{ 110, 106 }, // WARP50
+			{ 112, 108 }, // WITCH
+			{ 113, -1 }, // XBILSY
+			{ 114, -1 }, // XLIZARD
+			{ 115, -1 }, // XTURTLE
+			{ 116, -1 }, // ZDOG
+			{ 117, -1 } // ZSPARK
 		};
 
 		static_assert(sizeof(OriginalSetIDs) / sizeof(OriginalSetIDs[0]) == mZZAMMO, "There has to be an entry for every set of the original");
@@ -200,7 +203,8 @@ namespace Jazz2::Scripting::Legacy
 		// Largest sheet made of the frames of an animation
 		constexpr std::int32_t MaxSheetSize = 4096;
 
-		struct PackedRect {
+		struct PackedRect
+		{
 			std::int32_t X, Y, W, H;
 		};
 
@@ -253,9 +257,15 @@ namespace Jazz2::Scripting::Legacy
 			const std::uint8_t* pixel = &sheet.Pixels[(std::size_t(y) * sheet.Size.X + x) * sheet.ChannelCount];
 			std::uint8_t alpha;
 			switch (sheet.ChannelCount) {
-				case 1: alpha = (pixel[0] != 0 ? 255 : 0); break;
-				case 2: alpha = pixel[1]; break;
-				default: alpha = pixel[3]; break;
+				case 1:
+					alpha = (pixel[0] != 0 ? 255 : 0);
+					break;
+				case 2:
+					alpha = pixel[1];
+					break;
+				default:
+					alpha = pixel[3];
+					break;
 			}
 			if (alpha == 0) {
 				return 0;
@@ -828,7 +838,8 @@ namespace Jazz2::Scripting::Legacy
 			return false;
 		}
 
-		struct Placement {
+		struct Placement
+		{
 			std::int32_t Left, Top;
 			bool FlipX, FlipY;
 		};
@@ -961,7 +972,7 @@ namespace Jazz2::Scripting::Legacy
 		EnsureFrameImage(frame);
 		auto it = _frameGraphics.find(frameIndex);
 		if (it == _frameGraphics.end()) {
-			it = _frameGraphics.emplace(frameIndex, FrameGraphics{}).first;
+			it = _frameGraphics.emplace(frameIndex, FrameGraphics {}).first;
 		}
 		FrameGraphics& entry = it->second;
 		if (entry.Graphics == nullptr || entry.Version != frame._version) {
@@ -1055,7 +1066,7 @@ namespace Jazz2::Scripting::Legacy
 	void AnimationTables::Flush()
 	{
 		// What scripts wrote to the properties of the entries they hold, an entry no script holds anymore can't change
-		for (std::size_t i = 0; i < _watchedFrames.size(); ) {
+		for (std::size_t i = 0; i < _watchedFrames.size();) {
 			jjANIMFRAME* frame = _watchedFrames[i];
 			const std::int16_t spots[6] = { frame->hotSpotX, frame->hotSpotY, frame->coldSpotX, frame->coldSpotY, frame->gunSpotX, frame->gunSpotY };
 			if (std::memcmp(spots, frame->_seenSpots, sizeof(spots)) != 0) {
@@ -1069,7 +1080,7 @@ namespace Jazz2::Scripting::Legacy
 				i++;
 			}
 		}
-		for (std::size_t i = 0; i < _watchedAnimations.size(); ) {
+		for (std::size_t i = 0; i < _watchedAnimations.size();) {
 			jjANIMATION* anim = _watchedAnimations[i];
 			if (anim->frameCount != anim->_seenFrameCount) {
 				MarkChanged(*anim);
@@ -1082,7 +1093,7 @@ namespace Jazz2::Scripting::Legacy
 				i++;
 			}
 		}
-		for (std::size_t i = 0; i < _watchedSets.size(); ) {
+		for (std::size_t i = 0; i < _watchedSets.size();) {
 			jjANIMSET* set = _watchedSets[i];
 			if (set->firstAnim != set->_seenFirstAnim) {
 				set->_seenFirstAnim = set->firstAnim;
@@ -1262,7 +1273,7 @@ namespace Jazz2::Scripting::Legacy
 		jjANIMSET*& set = _sets[setID];
 		if (set == nullptr) {
 			void* mem = asAllocMem(sizeof(jjANIMSET));
-			set = new(mem) jjANIMSET(setID);
+			set = new (mem) jjANIMSET(setID);
 		}
 		return set;
 	}
@@ -1292,7 +1303,7 @@ namespace Jazz2::Scripting::Legacy
 	jjANIMATION* AnimationTables::AddAnimation()
 	{
 		void* mem = asAllocMem(sizeof(jjANIMATION));
-		jjANIMATION* anim = new(mem) jjANIMATION(std::uint32_t(_animations.size()));
+		jjANIMATION* anim = new (mem) jjANIMATION(std::uint32_t(_animations.size()));
 		_animations.push_back(anim);
 		return anim;
 	}
@@ -1300,7 +1311,7 @@ namespace Jazz2::Scripting::Legacy
 	jjANIMFRAME* AnimationTables::AddFrame(std::uint32_t owner)
 	{
 		void* mem = asAllocMem(sizeof(jjANIMFRAME));
-		jjANIMFRAME* frame = new(mem) jjANIMFRAME(std::uint32_t(_frames.size()));
+		jjANIMFRAME* frame = new (mem) jjANIMFRAME(std::uint32_t(_frames.size()));
 		frame->_owner = owner;
 		_frames.push_back(frame);
 		return frame;
@@ -1506,7 +1517,7 @@ namespace Jazz2::Scripting::Legacy
 			native.Original = Death::move(original);
 		}
 		if (written == NativeWrites.end()) {
-			written = NativeWrites.emplace(graphics, NativeWrite{this, native.Original->FrameRects}).first;
+			written = NativeWrites.emplace(graphics, NativeWrite { this, native.Original->FrameRects }).first;
 		}
 		written->second.Writer = this;
 		_nativeWriteGeneration = ++NativeWriteGeneration;
@@ -1577,9 +1588,15 @@ namespace Jazz2::Scripting::Legacy
 			const std::uint8_t* pixel = &sheet.Pixels[i * sheet.ChannelCount];
 			pixels[i * 2] = pixel[0];
 			switch (sheet.ChannelCount) {
-				case 1: pixels[i * 2 + 1] = (pixel[0] != 0 ? 255 : 0); break;
-				case 2: pixels[i * 2 + 1] = pixel[1]; break;
-				default: pixels[i * 2 + 1] = pixel[3]; break;
+				case 1:
+					pixels[i * 2 + 1] = (pixel[0] != 0 ? 255 : 0);
+					break;
+				case 2:
+					pixels[i * 2 + 1] = pixel[1];
+					break;
+				default:
+					pixels[i * 2 + 1] = pixel[3];
+					break;
 			}
 		}
 

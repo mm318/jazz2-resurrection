@@ -37,7 +37,7 @@
 #include <string>
 
 #if defined(DEATH_TARGET_EMSCRIPTEN)
-#	include <emscripten.h>
+#include <emscripten.h>
 
 /** Version of the game this tool was built for, the page shows it when a conversion starts (see Web/assetpacker-worker.js) */
 extern "C" EMSCRIPTEN_KEEPALIVE const char* GetGameVersion()
@@ -94,7 +94,8 @@ namespace
 	};
 
 	/** @brief What the output directory is going to be loaded by */
-	enum class TargetProfile {
+	enum class TargetProfile
+	{
 		/** @brief Desktop `Cache/` layout, including the index the game checks on startup */
 		Desktop,
 		/** @brief Staged `assets/` tree for the consoles, which cannot rewrite a cache of their own */
@@ -104,7 +105,8 @@ namespace
 	};
 
 	/** @brief How the cinematics end up in the output */
-	enum class VideoHandling {
+	enum class VideoHandling
+	{
 		/** @brief Not at all - the game reads the original files where they are */
 		None,
 		/** @brief Copied across unchanged */
@@ -133,7 +135,8 @@ namespace
 	};
 
 	/** @brief What the tool was asked to do */
-	enum class Command {
+	enum class Command
+	{
 		/** @brief Convert the original game data, which is what the tool exists for */
 		Convert,
 		/** @brief Pack an authored bitmap font into the file the game loads */
@@ -162,7 +165,8 @@ namespace
 		FuzzFormats
 	};
 
-	struct Options {
+	struct Options
+	{
 		Command Action = Command::Convert;
 		String SourcePath;
 		String TargetPath;
@@ -227,7 +231,8 @@ namespace
 		round. `--content=` therefore names @ref ContentPath on its own, which is what lets a console tree be
 		built from the two directories where they already are.
 	*/
-	struct SourceLayout {
+	struct SourceLayout
+	{
 		/** @brief Directory holding `Anims.j2a` and the rest of the original files */
 		String OriginalsPath;
 		/** @brief The game's own content directory, if one was found beside the originals or named explicitly */
@@ -290,7 +295,7 @@ namespace
 			return 2;
 		}
 		if (value == "dreamcast"_s || value == "gamecube"_s) {
-			return 1;	// Re-encoded, but at the original resolution
+			return 1; // Re-encoded, but at the original resolution
 		}
 		return 0;
 	}
@@ -345,7 +350,7 @@ namespace
 		if (value == "desktop"_s) {
 			profile = TargetProfile::Desktop;
 		} else if (value == "console"_s || value == "dreamcast"_s || value == "wii"_s || value == "gamecube"_s ||
-				value == "psp"_s || value == "ps2"_s || value == "n64"_s) {
+			value == "psp"_s || value == "ps2"_s || value == "n64"_s) {
 			// The consoles all consume the same staged tree, so they share one profile - only the cinematics
 			// are decided per platform, so that is tracked separately
 			profile = TargetProfile::Console;
@@ -552,7 +557,7 @@ namespace
 		if (options.Action == Command::Convert && !options.SourceOverride.empty()) {
 			if (options.TargetPath.empty()) {
 				options.TargetPath = Death::move(options.SourcePath);
-				options.SourcePath = String{};
+				options.SourcePath = String {};
 			} else if (!options.SourcePath.empty()) {
 				LOGE("A source directory and \"--source=\" were both given, which name the same thing");
 				return false;
@@ -574,7 +579,7 @@ namespace
 			}
 			if (options.ContentOverride.empty() || options.ApploaderPath.empty()) {
 				LOGE("\"create-image\" needs the directory that is to become the content of the disc, named by \"--content=\", "
-					"and the apploader, named by \"--apploader=\"");
+					 "and the apploader, named by \"--apploader=\"");
 				return false;
 			}
 			return !options.SourcePath.empty() && !options.TargetPath.empty();
@@ -592,7 +597,7 @@ namespace
 		if (options.Action == Command::SwapDiscContent) {
 			if (options.ContentOverride.empty() && options.SourceOverride.empty()) {
 				LOGE("\"swap-content\" needs the directory that is to become the content of the disc, named by \"--content=\", "
-					"or the original game files to convert into it, named by \"--source=\"");
+					 "or the original game files to convert into it, named by \"--source=\"");
 				return false;
 			}
 			return !options.SourcePath.empty();
@@ -770,8 +775,8 @@ namespace
 		// `--source=` and the positional argument name the same thing, so both go through the same resolution
 		// and a whole game installation is recognized either way
 		StringView sourcePath = (options.SourceOverride.empty()
-			? StringView(options.SourcePath)
-			: StringView(options.SourceOverride));
+				? StringView(options.SourcePath)
+				: StringView(options.SourceOverride));
 		if (!fs::DirectoryExists(sourcePath)) {
 			LOGE("Source directory \"{}\" does not exist", sourcePath);
 			return false;
@@ -799,7 +804,7 @@ namespace
 		// worth saying out loud here, which is the only place that knows both halves were expected
 		if (layout.ContentPath.empty()) {
 			LOGW("No game content directory was found beside the original files, so the output will have no fonts, "
-				"no \"Metadata\" and no translations. Pass \"--content=<dir>\" to point at the game's own \"assets\".");
+				 "no \"Metadata\" and no translations. Pass \"--content=<dir>\" to point at the game's own \"assets\".");
 		}
 
 		// All profiles produce the packaged tree loaded directly by the game.
@@ -818,7 +823,7 @@ namespace
 		if (selfContained) {
 			LOGI("Copying \"{}\"...", layout.ContentPath);
 			if (!CopyContentDirectory(layout.ContentPath, outputPath,
-				looseAssets ? ArrayView<const StringView>{} : ArrayView<const StringView>{PackedContentDirectories}, options.HasEditor)) {
+					looseAssets ? ArrayView<const StringView> {} : ArrayView<const StringView> { PackedContentDirectories }, options.HasEditor)) {
 				return false;
 			}
 			if (!options.HasEditor) {
@@ -875,8 +880,7 @@ namespace
 		Compatibility::JJ2Version version;
 		auto result = Compatibility::AssetConverter::ConvertSourceAssets(animsPath, layout.OriginalsPath, *output, version);
 		if (result != Compatibility::AssetConverter::Result::Success) {
-			LOGE("{}", result == Compatibility::AssetConverter::Result::UnsupportedVersion
-				? "Provided Jazz Jackrabbit 2 version is not supported" : "Cannot write converted assets");
+			LOGE("{}", result == Compatibility::AssetConverter::Result::UnsupportedVersion ? "Provided Jazz Jackrabbit 2 version is not supported" : "Cannot write converted assets");
 			return false;
 		}
 
@@ -926,7 +930,7 @@ namespace
 			// original data but nothing asks for it, so it is left out unless everything was asked for
 			static const StringView everyVideo[] = { "Intro"_s, "Ending"_s, "Logo"_s };
 			const ArrayView<const StringView> videoNames = ArrayView<const StringView>(everyVideo)
-				.prefix(options.AllVideos ? arraySize(everyVideo) : 2);
+															   .prefix(options.AllVideos ? arraySize(everyVideo) : 2);
 
 			String cinematicsPath = fs::CombinePath(outputPath, "Cinematics"_s);
 			fs::CreateDirectories(cinematicsPath);
@@ -1012,9 +1016,9 @@ namespace
 		const bool gameCube = AssetPacker::DiscImage::IsGameCubeImage(options.SourcePath);
 		if (conversion.ProfileName.empty()) {
 			conversion.ProfileName = (AssetPacker::CartridgeImage::IsCartridgeImage(options.SourcePath) ? "n64"_s
-				: AssetPacker::DiscImage::IsDiscJugglerImage(options.SourcePath) ? "dreamcast"_s
-				: gameCube ? "gamecube"_s
-				: "ps2"_s);
+					: AssetPacker::DiscImage::IsDiscJugglerImage(options.SourcePath)                    ? "dreamcast"_s
+					: gameCube                                                                          ? "gamecube"_s
+																										: "ps2"_s);
 			LOGI("\"{}\" is an image for the \"{}\" profile", fs::GetFileName(options.SourcePath), conversion.ProfileName);
 		}
 		if (!ResolveProfile(conversion)) {
@@ -1028,7 +1032,7 @@ namespace
 		if (conversion.Lz4Images && !AssetPacker::CartridgeImage::IsCartridgeImage(options.SourcePath) && !gameCube &&
 			!AssetPacker::DiscImage::CarriesLz4Images(options.SourcePath)) {
 			LOGI("The content on the disc keeps its sprite sheets and tilesets in the game's own format, which an older build "
-				"of the game needs, so the new content keeps to it too");
+				 "of the game needs, so the new content keeps to it too");
 			conversion.Lz4Images = false;
 		}
 		// The same goes for the frames of the cinematics, on a GameCube disc as well: a build older than them refuses
@@ -1036,7 +1040,7 @@ namespace
 		if (conversion.Lz4Videos && !AssetPacker::CartridgeImage::IsCartridgeImage(options.SourcePath) &&
 			!AssetPacker::DiscImage::CarriesLz4Videos(options.SourcePath)) {
 			LOGI("The cinematics on the disc are not in LZ4, which an older build of the game needs, so the new ones are "
-				"not either");
+				 "not either");
 			conversion.Lz4Videos = false;
 		}
 
@@ -1051,8 +1055,8 @@ namespace
 		bool success = ConvertGameData(conversion);
 		if (success) {
 			success = (AssetPacker::CartridgeImage::IsCartridgeImage(options.SourcePath)
-				? AssetPacker::CartridgeImage::SwapContent(options.SourcePath, options.TargetPath, conversion.TargetPath)
-				: AssetPacker::DiscImage::SwapContent(options.SourcePath, options.TargetPath, conversion.TargetPath));
+					? AssetPacker::CartridgeImage::SwapContent(options.SourcePath, options.TargetPath, conversion.TargetPath)
+					: AssetPacker::DiscImage::SwapContent(options.SourcePath, options.TargetPath, conversion.TargetPath));
 		}
 		fs::RemoveDirectoryRecursive(conversion.TargetPath);
 		return success;
@@ -1074,9 +1078,15 @@ namespace
 		if (options.Action != Command::Convert) {
 			bool success;
 			switch (options.Action) {
-				case Command::PackFont: success = AssetPacker::FontPacker::Pack(options.SourcePath, options.TargetPath); break;
-				case Command::UnpackFont: success = AssetPacker::FontPacker::Unpack(options.SourcePath, options.TargetPath); break;
-				case Command::ApplyPalette: success = AssetPacker::FontPacker::ApplyPalette(options.SourcePath, options.TargetPath); break;
+				case Command::PackFont:
+					success = AssetPacker::FontPacker::Pack(options.SourcePath, options.TargetPath);
+					break;
+				case Command::UnpackFont:
+					success = AssetPacker::FontPacker::Unpack(options.SourcePath, options.TargetPath);
+					break;
+				case Command::ApplyPalette:
+					success = AssetPacker::FontPacker::ApplyPalette(options.SourcePath, options.TargetPath);
+					break;
 				case Command::RecompressVideo:
 					success = Compatibility::J2vRecompressor::Recompress(options.SourcePath, options.TargetPath, options.VideoDownscale,
 						options.Lz4Videos);
@@ -1100,8 +1110,8 @@ namespace
 						success = SwapContentFromSource(options);
 					} else {
 						success = (AssetPacker::CartridgeImage::IsCartridgeImage(options.SourcePath)
-							? AssetPacker::CartridgeImage::SwapContent(options.SourcePath, options.TargetPath, options.ContentOverride)
-							: AssetPacker::DiscImage::SwapContent(options.SourcePath, options.TargetPath, options.ContentOverride));
+								? AssetPacker::CartridgeImage::SwapContent(options.SourcePath, options.TargetPath, options.ContentOverride)
+								: AssetPacker::DiscImage::SwapContent(options.SourcePath, options.TargetPath, options.ContentOverride));
 					}
 					break;
 				case Command::VerifyFormats:
@@ -1122,7 +1132,9 @@ namespace
 						LOGI("\"{}\" converted to \"{}\", {} bytes", options.SourcePath, options.TargetPath, fs::GetFileSize(options.TargetPath));
 					}
 					break;
-				default: success = AssetPacker::FontPacker::ConvertToIndices(options.SourcePath, options.TargetPath); break;
+				default:
+					success = AssetPacker::FontPacker::ConvertToIndices(options.SourcePath, options.TargetPath);
+					break;
 			}
 			if (!success) {
 				return 1;

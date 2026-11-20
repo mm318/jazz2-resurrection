@@ -18,19 +18,24 @@ namespace Jazz2::Multiplayer::GameModes
 	class CooperationMode : public GameModeBase
 	{
 	public:
-		MpGameMode GetMode() const override {
+		MpGameMode GetMode() const override
+		{
 			return MpGameMode::Cooperation;
 		}
-		bool IsTeamBased() const override {
+		bool IsTeamBased() const override
+		{
 			return false;
 		}
-		bool SkipsPreGameCountdown() const override {
+		bool SkipsPreGameCountdown() const override
+		{
 			return true;
 		}
-		bool HasUnlimitedHealth() const override {
+		bool HasUnlimitedHealth() const override
+		{
 			return false;
 		}
-		bool LowerScoreWins() const override {
+		bool LowerScoreWins() const override
+		{
 			return false;
 		}
 

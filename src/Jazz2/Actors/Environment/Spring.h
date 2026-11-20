@@ -37,7 +37,8 @@ namespace Jazz2::Actors::Environment
 		/** @brief Launches by a speed as the original has it, which also decides the way it faces */
 		void SetLegacyLaunchSpeed(Vector2f speed);
 		/** @brief Returns frames elapsed since the last launch, or -1 if it hasn't launched yet */
-		float GetTimeSinceLaunch() const {
+		float GetTimeSinceLaunch() const
+		{
 			return _launchTime;
 		}
 		/** @brief Thaws a frozen spring */
@@ -54,13 +55,15 @@ namespace Jazz2::Actors::Environment
 		void OnDeserializeState(Stream& src) override;
 
 	private:
-		enum class State {
+		enum class State
+		{
 			Default,
 			Frozen,
 			Heated
 		};
 
-		enum class Orientation : uint8_t {
+		enum class Orientation : uint8_t
+		{
 			Bottom,
 			Right,
 			Top,

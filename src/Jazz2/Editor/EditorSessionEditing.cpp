@@ -93,7 +93,7 @@ namespace Jazz2::Editor
 		// The inside of the ground, the flat tile the levels use the most, is cut to the line
 		const TileShapes& shapes = GetTileShapes();
 		SmartTileModel& model = GetSmartTiles();
-		TileRef fullTile{};
+		TileRef fullTile {};
 		float best = -1.0f;
 		for (const TileShapes::Surface& s : shapes.GetSurfaces()) {
 			// The shapes have tiles stored in the level too, the image is taken from the tile set
@@ -195,7 +195,7 @@ namespace Jazz2::Editor
 		auto command = std::make_unique<SetTilesCommand>(_document, spline.Layer, String(_x("editor", "Make tiles along ground line")));
 		for (std::size_t i = 0; i < cells.size(); i++) {
 			Vector2i cell = cells[i];
-			TileRef tile{ std::uint16_t(first.Index + i), first.Source, 0 };
+			TileRef tile { std::uint16_t(first.Index + i), first.Source, 0 };
 			command->Set(cell.X, cell.Y, tile);
 			bool owned = false;
 			for (TerrainSpline::OwnedTile& entry : splines[index].Owned) {
@@ -206,7 +206,7 @@ namespace Jazz2::Editor
 				}
 			}
 			if (!owned) {
-				splines[index].Owned.push_back(TerrainSpline::OwnedTile{ cell.X, cell.Y, tile, _document.Layers[spline.Layer].GetTile(cell.X, cell.Y) });
+				splines[index].Owned.push_back(TerrainSpline::OwnedTile { cell.X, cell.Y, tile, _document.Layers[spline.Layer].GetTile(cell.X, cell.Y) });
 			}
 		}
 		command->Seal();
@@ -348,7 +348,7 @@ namespace Jazz2::Editor
 				bool hasRight = neighborTile(x + 1, y, right), hasDown = neighborTile(x, y + 1, down);
 				std::uint32_t hash = (std::uint32_t(x) * 0x8DA6B343u) ^ (std::uint32_t(y) * 0xD8163841u);
 				if (model.Pick(neighbors, layer.IsSpriteLayer(), hasLeft ? &left : nullptr, hasUp ? &up : nullptr,
-					hasRight ? &right : nullptr, hasDown ? &down : nullptr, hash * 0x2C1B3C6Du, picked)) {
+						hasRight ? &right : nullptr, hasDown ? &down : nullptr, hash * 0x2C1B3C6Du, picked)) {
 					std::size_t i = std::size_t(y - bounds.Y) * std::size_t(bounds.W) + std::size_t(x - bounds.X);
 					decidedTiles[i] = picked;
 					decided[i] = true;
@@ -526,7 +526,7 @@ namespace Jazz2::Editor
 			for (std::int32_t index : _eventSelection.GetOffGrid()) {
 				if (index < std::int32_t(_document.OffGridEvents.size())) {
 					const Formats::OffGridEventRecord& record = _document.OffGridEvents[index];
-					stamp.OffGridEvents.push_back(TileStamp::OffGridEvent{
+					stamp.OffGridEvents.push_back(TileStamp::OffGridEvent {
 						Vector2i(std::int32_t(record.X) - bounds.X * 32, std::int32_t(record.Y) - bounds.Y * 32), record.Event });
 				}
 			}
@@ -603,7 +603,7 @@ namespace Jazz2::Editor
 		for (std::int32_t y = bounds.Y; y < bounds.Y + bounds.H; y++) {
 			for (std::int32_t x = bounds.X; x < bounds.X + bounds.W; x++) {
 				if (_selection.Contains(x, y)) {
-					command->Set(x, y, TileRef{});
+					command->Set(x, y, TileRef {});
 				}
 			}
 		}
@@ -703,7 +703,7 @@ namespace Jazz2::Editor
 		std::memset(layer.Record.Color, 255, sizeof(layer.Record.Color));
 		// TRANSLATORS: Name a newly added layer gets
 		layer.Name = _x("editor", "New Layer");
-		layer.Tiles.resize(std::size_t(size.X) * std::size_t(size.Y), TileRef{});
+		layer.Tiles.resize(std::size_t(size.X) * std::size_t(size.Y), TileRef {});
 
 		// Only the new layer is kept by the step, not the whole level, the ground lines of the layers after it follow them
 		std::int32_t index = std::min(_currentLayer + 1, std::int32_t(_document.Layers.size()));
@@ -759,8 +759,8 @@ namespace Jazz2::Editor
 		Execute(std::make_unique<SetOffGridEventsCommand>(_document, Death::move(kept), _x("editor", "Snap Off-Grid Events")));
 		_history->EndTransaction();
 		ShowMessage(keptCount == 0
-			? _fnx("editor", "{} event was moved onto the grid", "{} events were moved onto the grid", std::int32_t(taken.size()), std::int32_t(taken.size()))
-			: _fx("editor", "{} events were moved onto the grid, {} stay off it, their tiles have an event already", std::int32_t(taken.size()), keptCount));
+				? _fnx("editor", "{} event was moved onto the grid", "{} events were moved onto the grid", std::int32_t(taken.size()), std::int32_t(taken.size()))
+				: _fx("editor", "{} events were moved onto the grid, {} stay off it, their tiles have an event already", std::int32_t(taken.size()), keptCount));
 	}
 
 	void EditorSession::SelectEventsOfSameType()
@@ -852,8 +852,8 @@ namespace Jazz2::Editor
 		cells.push_back(cell);
 		_eventSelection.Assign(Death::move(cells));
 		ShowMessage(taken == 0
-			? _fnx("editor", "Copied to {} tile", "Copied to {} tiles", count, count)
-			: _fx("editor", "Copied to {} tiles, {} have an event already", count, taken));
+				? _fnx("editor", "Copied to {} tile", "Copied to {} tiles", count, count)
+				: _fx("editor", "Copied to {} tiles, {} have an event already", count, taken));
 	}
 
 	void EditorSession::RemoveLayer()
@@ -925,7 +925,7 @@ namespace Jazz2::Editor
 				std::int32_t lower = (hasLower ? depths[runFirst - 1] : 0), upper = (hasUpper ? depths[runLast + 1] : 0);
 				for (std::int32_t k = 0; k < runCount; k++) {
 					depths[runFirst + k] = (hasLower && hasUpper ? lower + (upper - lower) * (k + 1) / (runCount + 1)
-						: (hasLower ? lower + 10 * (k + 1) : upper - 10 * (runCount - k)));
+																 : (hasLower ? lower + 10 * (k + 1) : upper - 10 * (runCount - k)));
 				}
 			};
 			std::int32_t runFirst = spriteIndex;

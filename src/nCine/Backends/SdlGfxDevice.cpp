@@ -10,93 +10,93 @@
 #include <cstring>
 
 #if defined(DEATH_TARGET_IOS) && !defined(WITH_RHI_SOFTWARE) && !defined(WITH_RHI_METAL)
-	// The GL view's framebuffer and renderbuffer handles (see initDevice)
-#	include <SDL_syswm.h>
+// The GL view's framebuffer and renderbuffer handles (see initDevice)
+#include <SDL_syswm.h>
 #endif
 
 #include "../Graphics/RHI/Rhi.h"
 #if defined(DEATH_TARGET_IOS) && defined(WITH_SDL2)
-#	include "IosSceneDelegate.h"
+#include "IosSceneDelegate.h"
 #endif
 #if defined(WITH_RHI_GXM)
-#	include "../Application.h"	// setDrawableSize() re-lays the application out for the resized frame surface
+#include "../Application.h" // setDrawableSize() re-lays the application out for the resized frame surface
 #endif
 
 #if defined(WITH_RHI_D3D11) && defined(WITH_SDL2)
 // SDL2 only: the native HWND the DXGI swap chain is created for is obtained through SDL_syswm.h.
 // SDL3 removed SDL_syswm.h entirely (the HWND is read from the window property store instead, see initDevice).
-#	if defined(__HAS_LOCAL_SDL)
-#		include "SDL2/SDL_syswm.h"
-#	else
-#		include <SDL_syswm.h>
-#	endif
+#if defined(__HAS_LOCAL_SDL)
+#include "SDL2/SDL_syswm.h"
+#else
+#include <SDL_syswm.h>
+#endif
 #endif
 
 #if defined(WITH_RHI_VULKAN)
 // SDL_WINDOW_VULKAN + the drawable-size query for the Vulkan swap-chain window (the surface itself is
 // created inside VulkanDevice from this window via SDL_Vulkan_CreateSurface)
-#	if defined(WITH_SDL3)
-#		if defined(__HAS_LOCAL_SDL3)
-#			include "SDL3/SDL_vulkan.h"
-#		else
-#			include <SDL3/SDL_vulkan.h>
-#		endif
-#	elif defined(__HAS_LOCAL_SDL)
-#		include "SDL2/SDL_vulkan.h"
-#	else
-#		include <SDL_vulkan.h>
-#	endif
+#if defined(WITH_SDL3)
+#if defined(__HAS_LOCAL_SDL3)
+#include "SDL3/SDL_vulkan.h"
+#else
+#include <SDL3/SDL_vulkan.h>
+#endif
+#elif defined(__HAS_LOCAL_SDL)
+#include "SDL2/SDL_vulkan.h"
+#else
+#include <SDL_vulkan.h>
+#endif
 #elif defined(WITH_RHI_METAL)
 // SDL_WINDOW_METAL + the drawable-size query for the Metal window (the Metal view and its CAMetalLayer are
 // created inside MetalDevice from this window via SDL_Metal_CreateView)
-#	if defined(WITH_SDL3)
-#		if defined(__HAS_LOCAL_SDL3)
-#			include "SDL3/SDL_metal.h"
-#		else
-#			include <SDL3/SDL_metal.h>
-#		endif
-#	elif defined(__HAS_LOCAL_SDL)
-#		include "SDL2/SDL_metal.h"
-#	else
-#		include <SDL_metal.h>
-#	endif
+#if defined(WITH_SDL3)
+#if defined(__HAS_LOCAL_SDL3)
+#include "SDL3/SDL_metal.h"
+#else
+#include <SDL3/SDL_metal.h>
+#endif
+#elif defined(__HAS_LOCAL_SDL)
+#include "SDL2/SDL_metal.h"
+#else
+#include <SDL_metal.h>
+#endif
 #endif
 
 #if defined(WITH_GLEW)
-#	define GLEW_NO_GLU
-#	include <GL/glew.h>
+#define GLEW_NO_GLU
+#include <GL/glew.h>
 #elif defined(WITH_RHI_GL) && defined(RHI_GL_PROFILE_ES)
 // No GLEW on the OpenGL|ES (ANGLE) path; pull in the GL/ES headers (GLubyte, glGetString, ...) directly
-#	define NCINE_INCLUDE_OPENGL
-#	include "../CommonHeaders.h"
+#define NCINE_INCLUDE_OPENGL
+#include "../CommonHeaders.h"
 #endif
 
 #if defined(DEATH_TARGET_EMSCRIPTEN)
-#	include <emscripten/html5.h>
+#include <emscripten/html5.h>
 #endif
 
 // A handful of SDL2 window flags/helpers were renamed in SDL3; these keep the shared window-creation code
 // readable without an #if at every use site
 #if defined(WITH_SDL3)
-#	define NCINE_SDL_WINDOW_HIGHDPI SDL_WINDOW_HIGH_PIXEL_DENSITY
-#	define NCINE_SDL_WINDOW_FULLSCREEN_DESKTOP SDL_WINDOW_FULLSCREEN
-#	define NCINE_SDL_BOOL(x) (x)
+#define NCINE_SDL_WINDOW_HIGHDPI SDL_WINDOW_HIGH_PIXEL_DENSITY
+#define NCINE_SDL_WINDOW_FULLSCREEN_DESKTOP SDL_WINDOW_FULLSCREEN
+#define NCINE_SDL_BOOL(x) (x)
 // SDL3 renamed the alpha-less packed pixel formats to an "X" prefix. <SDL3/SDL_oldnames.h> maps the old names
 // as error sentinels (old names disabled), so #undef then remap them to keep the convertVideoModeInfo switch shared.
-#	undef SDL_PIXELFORMAT_RGB444
-#	undef SDL_PIXELFORMAT_RGB555
-#	undef SDL_PIXELFORMAT_BGR555
-#	undef SDL_PIXELFORMAT_RGB888
-#	undef SDL_PIXELFORMAT_BGR888
-#	define SDL_PIXELFORMAT_RGB444 SDL_PIXELFORMAT_XRGB4444
-#	define SDL_PIXELFORMAT_RGB555 SDL_PIXELFORMAT_XRGB1555
-#	define SDL_PIXELFORMAT_BGR555 SDL_PIXELFORMAT_XBGR1555
-#	define SDL_PIXELFORMAT_RGB888 SDL_PIXELFORMAT_XRGB8888
-#	define SDL_PIXELFORMAT_BGR888 SDL_PIXELFORMAT_XBGR8888
+#undef SDL_PIXELFORMAT_RGB444
+#undef SDL_PIXELFORMAT_RGB555
+#undef SDL_PIXELFORMAT_BGR555
+#undef SDL_PIXELFORMAT_RGB888
+#undef SDL_PIXELFORMAT_BGR888
+#define SDL_PIXELFORMAT_RGB444 SDL_PIXELFORMAT_XRGB4444
+#define SDL_PIXELFORMAT_RGB555 SDL_PIXELFORMAT_XRGB1555
+#define SDL_PIXELFORMAT_BGR555 SDL_PIXELFORMAT_XBGR1555
+#define SDL_PIXELFORMAT_RGB888 SDL_PIXELFORMAT_XRGB8888
+#define SDL_PIXELFORMAT_BGR888 SDL_PIXELFORMAT_XBGR8888
 #else
-#	define NCINE_SDL_WINDOW_HIGHDPI SDL_WINDOW_ALLOW_HIGHDPI
-#	define NCINE_SDL_WINDOW_FULLSCREEN_DESKTOP SDL_WINDOW_FULLSCREEN_DESKTOP
-#	define NCINE_SDL_BOOL(x) ((x) ? SDL_TRUE : SDL_FALSE)
+#define NCINE_SDL_WINDOW_HIGHDPI SDL_WINDOW_ALLOW_HIGHDPI
+#define NCINE_SDL_WINDOW_FULLSCREEN_DESKTOP SDL_WINDOW_FULLSCREEN_DESKTOP
+#define NCINE_SDL_BOOL(x) ((x) ? SDL_TRUE : SDL_FALSE)
 #endif
 
 namespace nCine::Backends
@@ -186,19 +186,19 @@ namespace nCine::Backends
 		// Vita renders through vitaGL (brought up with vglInit() in initDevice), not an SDL-managed GL context,
 		// and the Wii U's GX2 backend has no SDL context at all. No explicit teardown is issued here.
 #elif !defined(WITH_RHI_D3D11) && !defined(WITH_RHI_VULKAN) && !defined(WITH_RHI_METAL)
-#	if defined(WITH_RHI_LEGACYGL)
+#if defined(WITH_RHI_LEGACYGL)
 		// Leave the context idle before it is destroyed - anything still batched refers to memory that is
 		// about to go away with the backend's frame arena
 		RHI::Device::ShutdownGl();
-#		if defined(DEATH_TARGET_MORPHOS)
+#if defined(DEATH_TARGET_MORPHOS)
 		Backends::MorphOsDetachTinyGl();
-#		endif
-#	endif
-#	if defined(WITH_SDL3)
+#endif
+#endif
+#if defined(WITH_SDL3)
 		SDL_GL_DestroyContext(_glContextHandle);
-#	else
+#else
 		SDL_GL_DeleteContext(_glContextHandle);
-#	endif
+#endif
 		_glContextHandle = nullptr;
 #endif
 		SDL_DestroyWindow(_windowHandle);
@@ -234,11 +234,11 @@ namespace nCine::Backends
 #elif defined(WITH_RHI_SOFTWARE)
 		SDL_Renderer* renderer = SDL_GetRenderer(windowHandle);
 		if (renderer != nullptr) {
-#	if defined(WITH_SDL3)
+#if defined(WITH_SDL3)
 			SDL_GetRenderOutputSize(renderer, &width, &height);
-#	else
+#else
 			SDL_GetRendererOutputSize(renderer, &width, &height);
-#	endif
+#endif
 		} else {
 			width = 0;
 			height = 0;
@@ -278,16 +278,16 @@ namespace nCine::Backends
 #if defined(WITH_SDL3)
 		// SDL3: SDL_SetWindowFullscreen takes a bool; the fullscreen video mode (or desktop/borderless when
 		// NULL) is chosen separately via SDL_SetWindowFullscreenMode. SDL_WINDOW_FULLSCREEN_DESKTOP is gone.
-#	if defined(DEATH_TARGET_EMSCRIPTEN)
+#if defined(DEATH_TARGET_EMSCRIPTEN)
 		SDL_SetWindowFullscreen(_windowHandle, fullscreen);
 		if (width > 0 && height > 0) {
 			_width = width;
 			_height = height;
 		}
-#	else
+#else
 		if (fullscreen) {
 			if (width <= 0 || height <= 0) {
-				SDL_SetWindowFullscreenMode(_windowHandle, nullptr);	// desktop (borderless) fullscreen
+				SDL_SetWindowFullscreenMode(_windowHandle, nullptr); // desktop (borderless) fullscreen
 				SDL_SetWindowFullscreen(_windowHandle, true);
 			} else {
 				_width = width;
@@ -303,7 +303,7 @@ namespace nCine::Backends
 				SDL_SetWindowSize(_windowHandle, width, height);
 			}
 		}
-#	endif
+#endif
 #elif defined(DEATH_TARGET_EMSCRIPTEN)
 		SDL_SetWindowFullscreen(_windowHandle, fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0);
 		if (width > 0 && height > 0) {
@@ -332,7 +332,7 @@ namespace nCine::Backends
 
 		SDL_GetWindowSize(_windowHandle, &_width, &_height);
 		QueryDrawableSize(_windowHandle, _width, _height, _drawableWidth, _drawableHeight);
-		RHI::Device::ResizeSwapchain(_drawableWidth, _drawableHeight);	// no-op on OpenGL / software
+		RHI::Device::ResizeSwapchain(_drawableWidth, _drawableHeight); // no-op on OpenGL / software
 #if defined(WITH_RHI_SOFTWARE)
 		ResizeSoftwareTarget(_drawableWidth, _drawableHeight);
 #endif
@@ -375,21 +375,21 @@ namespace nCine::Backends
 		// created nor manages this GL context). GL_FALSE = do not pump the SceCommonDialog overlay here.
 		vglSwapBuffers(GL_FALSE);
 #else
-#	if defined(WITH_RHI_LEGACYGL)
+#if defined(WITH_RHI_LEGACYGL)
 		// The fixed-function backend batches draws and only submits them when it must, so the frame's tail
 		// is still unsubmitted at this point; the swap below is what makes it visible
 		RHI::Device::PresentFrame();
-#	endif
-#	if defined(DEATH_TARGET_IOS)
+#endif
+#if defined(DEATH_TARGET_IOS)
 		// SDL presents whatever renderbuffer is bound, and the engine's own render-target renderbuffers may have been
 		// bound since the last frame (see initDevice for the view's framebuffer)
 		glBindRenderbuffer(GL_RENDERBUFFER, _iosColorRenderbuffer);
-#	endif
+#endif
 		SDL_GL_SwapWindow(_windowHandle);
-#	if defined(DEATH_TARGET_IOS)
+#if defined(DEATH_TARGET_IOS)
 		// SDL rebinds framebuffers of its own during the present, so the engine's cached bindings are stale now
 		RHI::GL::GLFramebuffer::InvalidateCachedBindings();
-#	endif
+#endif
 #endif
 	}
 
@@ -414,7 +414,7 @@ namespace nCine::Backends
 		const unsigned int bytesPerPixel = image->GetTexFormat().GetChannelCount();
 		const int pitch = image->GetWidth() * bytesPerPixel;
 		void* pixels = reinterpret_cast<void*>(const_cast<std::uint8_t*>(image->GetPixels()));
-#	if defined(WITH_SDL3)
+#if defined(WITH_SDL3)
 		// SDL3: SDL_CreateRGBSurfaceWithFormatFrom -> SDL_CreateSurfaceFrom (reordered args, no bit-depth
 		// parameter), SDL_FreeSurface -> SDL_DestroySurface, and SDL_PIXELFORMAT_BGR888 -> SDL_PIXELFORMAT_XBGR8888
 		// RGBA32/RGB24 rather than the packed names, so the channel order holds on a big-endian machine too
@@ -422,12 +422,12 @@ namespace nCine::Backends
 		SDL_Surface* surface = SDL_CreateSurfaceFrom(image->GetWidth(), image->GetHeight(), pixelFormat, pixels, pitch);
 		SDL_SetWindowIcon(_windowHandle, surface);
 		SDL_DestroySurface(surface);
-#	else
+#else
 		const Uint32 pixelFormat = (bytesPerPixel == 4) ? SDL_PIXELFORMAT_RGBA32 : SDL_PIXELFORMAT_RGB24;
 		SDL_Surface* surface = SDL_CreateRGBSurfaceWithFormatFrom(pixels, image->GetWidth(), image->GetHeight(), bytesPerPixel * 8, pitch, pixelFormat);
 		SDL_SetWindowIcon(_windowHandle, surface);
 		SDL_FreeSurface(surface);
-#	endif
+#endif
 #endif
 	}
 
@@ -450,10 +450,10 @@ namespace nCine::Backends
 			SDL_SetWindowSize(_windowHandle, width, height);
 			SDL_GetWindowSize(_windowHandle, &_width, &_height);
 			QueryDrawableSize(_windowHandle, _width, _height, _drawableWidth, _drawableHeight);
-			RHI::Device::ResizeSwapchain(_drawableWidth, _drawableHeight);	// no-op on OpenGL / software
-#	if defined(WITH_RHI_SOFTWARE)
+			RHI::Device::ResizeSwapchain(_drawableWidth, _drawableHeight); // no-op on OpenGL / software
+#if defined(WITH_RHI_SOFTWARE)
 			ResizeSoftwareTarget(_drawableWidth, _drawableHeight);
-#	endif
+#endif
 		}
 #endif
 	}
@@ -562,7 +562,7 @@ namespace nCine::Backends
 
 	void SdlGfxDevice::InitGraphics(bool enableWindowScaling)
 	{
-/*#if defined(DEATH_DEBUG) && defined(DEATH_TRACE)
+		/*#if defined(DEATH_DEBUG) && defined(DEATH_TRACE)
 		SDL_LogSetOutputFunction([](void* userdata, int category, SDL_LogPriority priority, const char* message) {
 			TraceLevel level;
 			switch (priority) {
@@ -595,12 +595,12 @@ namespace nCine::Backends
 #endif
 
 #if !defined(DEATH_TARGET_VITA)
-#	if SDL_VERSION_ATLEAST(2, 24, 0) && defined(SDL_HINT_WINDOWS_DPI_SCALING)
+#if SDL_VERSION_ATLEAST(2, 24, 0) && defined(SDL_HINT_WINDOWS_DPI_SCALING)
 		// Scaling is handled automatically by SDL (since v2.24.0)
 		if (enableWindowScaling) {
 			SDL_SetHint(SDL_HINT_WINDOWS_DPI_SCALING, "1");
 		}
-#	endif
+#endif
 #endif
 #if defined(WITH_SDL3)
 		// SDL3 return convention: functions report success as a bool (true) instead of SDL2's int 0
@@ -623,22 +623,22 @@ namespace nCine::Backends
 #if defined(WITH_RHI_SOFTWARE) || defined(WITH_RHI_D3D11) || defined(WITH_RHI_VULKAN) || defined(WITH_RHI_METAL)
 		// Non-OpenGL backends share one window-creation path: a plain SDL window (no GL context), from which
 		// the backend presenter is then created (SDL renderer blit / DXGI swap chain / VkSwapchainKHR / CAMetalLayer)
-#	if defined(WITH_RHI_SOFTWARE)
+#if defined(WITH_RHI_SOFTWARE)
 		LOGD("Initializing window (software renderer)...");
 		Uint32 windowFlags = 0;
-#	elif defined(WITH_RHI_D3D11)
+#elif defined(WITH_RHI_D3D11)
 		LOGD("Initializing window (Direct3D 11 renderer)...");
 		Uint32 windowFlags = 0;
-#	elif defined(WITH_RHI_METAL)
+#elif defined(WITH_RHI_METAL)
 		LOGD("Initializing window (Metal renderer)...");
 		Uint32 windowFlags = SDL_WINDOW_METAL;
-#	else
+#else
 		LOGD("Initializing window (Vulkan renderer)...");
 		Uint32 windowFlags = SDL_WINDOW_VULKAN;
-#	endif
-#	if !defined(DEATH_TARGET_EMSCRIPTEN)
+#endif
+#if !defined(DEATH_TARGET_EMSCRIPTEN)
 		windowFlags |= NCINE_SDL_WINDOW_HIGHDPI;
-#	endif
+#endif
 		if (_width <= 0 || _height <= 0) {
 			windowFlags |= NCINE_SDL_WINDOW_FULLSCREEN_DESKTOP;
 			_isFullscreen = true;
@@ -652,49 +652,49 @@ namespace nCine::Backends
 			windowPosY = SDL_WINDOWPOS_UNDEFINED;
 		}
 
-#	if defined(WITH_SDL3)
+#if defined(WITH_SDL3)
 		// SDL3 dropped the x/y parameters from SDL_CreateWindow; the position is applied separately afterwards
 		_windowHandle = SDL_CreateWindow("", _width, _height, windowFlags);
 		FATAL_ASSERT_MSG(_windowHandle, "SDL_CreateWindow failed: {}", SDL_GetError());
 		SDL_SetWindowPosition(_windowHandle, windowPosX, windowPosY);
-#	else
+#else
 		_windowHandle = SDL_CreateWindow("", windowPosX, windowPosY, _width, _height, windowFlags);
 		FATAL_ASSERT_MSG(_windowHandle, "SDL_CreateWindow failed: {}", SDL_GetError());
-#		if defined(DEATH_TARGET_IOS)
+#if defined(DEATH_TARGET_IOS)
 		Backends::IosAttachToWindowScene(_windowHandle);
-#		endif
-#	endif
+#endif
+#endif
 		SDL_SetWindowResizable(_windowHandle, NCINE_SDL_BOOL(isResizable));
 		// Resolution should be set to current screen size when it was left unspecified
 		if (_width <= 0 || _height <= 0) {
 			SDL_GetWindowSize(_windowHandle, &_width, &_height);
 		}
 
-#	if defined(WITH_RHI_SOFTWARE)
+#if defined(WITH_RHI_SOFTWARE)
 		InitSoftwarePresent(_displayMode.HasVSync());
-#	else
+#else
 		QueryDrawableSize(_windowHandle, _width, _height, _drawableWidth, _drawableHeight);
-#		if defined(WITH_RHI_D3D11)
+#if defined(WITH_RHI_D3D11)
 		{
 			// The DXGI swap chain is created for the window's native HWND
-#			if defined(WITH_SDL3)
+#if defined(WITH_SDL3)
 			// SDL3 removed SDL_syswm.h; the native HWND is read from the window's property store instead
 			void* nativeWindow = SDL_GetPointerProperty(SDL_GetWindowProperties(_windowHandle),
 				SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
 			FATAL_ASSERT_MSG(nativeWindow != nullptr, "SDL_GetWindowProperties(HWND) failed: {}", SDL_GetError());
 			const bool created = RHI::Device::CreateSwapchain(nativeWindow,
 				_drawableWidth, _drawableHeight, _displayMode.HasVSync());
-#			else
+#else
 			SDL_SysWMinfo wmInfo;
 			SDL_VERSION(&wmInfo.version);
 			const SDL_bool gotInfo = SDL_GetWindowWMInfo(_windowHandle, &wmInfo);
 			FATAL_ASSERT_MSG(gotInfo == SDL_TRUE, "SDL_GetWindowWMInfo failed: {}", SDL_GetError());
 			const bool created = RHI::Device::CreateSwapchain(reinterpret_cast<void*>(wmInfo.info.win.window),
 				_drawableWidth, _drawableHeight, _displayMode.HasVSync());
-#			endif
+#endif
 			FATAL_ASSERT_MSG(created, "Failed to create the Direct3D 11 device and swap chain");
 		}
-#		elif defined(WITH_RHI_METAL)
+#elif defined(WITH_RHI_METAL)
 		{
 			// The Metal backend takes the SDL_Window* directly (it attaches the Metal view to it via the SDL Metal
 			// API and presents through the view's CAMetalLayer)
@@ -702,7 +702,7 @@ namespace nCine::Backends
 				_drawableWidth, _drawableHeight, _displayMode.HasVSync());
 			FATAL_ASSERT_MSG(created, "Failed to create the Metal device (no Metal-capable GPU is available on this machine)");
 		}
-#		else
+#else
 		{
 			// The Vulkan backend takes the SDL_Window* directly (it queries the required instance extensions
 			// and creates the presentation surface from it via the SDL Vulkan API)
@@ -710,8 +710,8 @@ namespace nCine::Backends
 				_drawableWidth, _drawableHeight, _displayMode.HasVSync());
 			FATAL_ASSERT_MSG(created, "Failed to create the Vulkan device and swap chain");
 		}
-#		endif
-#	endif
+#endif
+#endif
 
 		InitDeviceViewport();
 		return;
@@ -732,9 +732,7 @@ namespace nCine::Backends
 #elif defined(DEATH_TARGET_EMSCRIPTEN)
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
 #else
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, _contextInfo.CoreProfile
-															 ? SDL_GL_CONTEXT_PROFILE_CORE
-															 : SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, _contextInfo.CoreProfile ? SDL_GL_CONTEXT_PROFILE_CORE : SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
 #endif
 #if defined(WITH_RHI_LEGACYGL)
 		// The fixed-function backend draws with what a forward-compatible context is defined to have
@@ -859,7 +857,7 @@ namespace nCine::Backends
 #if defined(RHI_GL_PROFILE_ES) || defined(DEATH_TARGET_EMSCRIPTEN)
 		FATAL_ASSERT_MSG(_glContextHandle, "SDL_GL_CreateContext() with OpenGL|ES {}.{} failed: {}",
 			_contextInfo.MajorVersion, _contextInfo.MinorVersion, SDL_GetError());
-#	if defined(DEATH_TARGET_IOS)
+#if defined(DEATH_TARGET_IOS)
 		// iOS has no system framebuffer: framebuffer object 0 is nothing, and the screen is a framebuffer SDL's GL view
 		// owns (a color renderbuffer backed by the CAEAGLLayer). Every "unbind" of the engine, which is how it returns
 		// from a render target to the screen, has to bind that object instead, and its renderbuffer has to be the
@@ -875,7 +873,7 @@ namespace nCine::Backends
 				LOGE("SDL_GetWindowWMInfo() failed, nothing can be drawn to the screen: {}", SDL_GetError());
 			}
 		}
-#	endif
+#endif
 #else
 		FATAL_ASSERT_MSG(_glContextHandle, _contextInfo.CoreProfile ? "SDL_GL_CreateContext() with OpenGL Core {}.{} failed: {}" : "SDL_GL_CreateContext() with OpenGL {}.{} failed: {}",
 			_contextInfo.MajorVersion, _contextInfo.MinorVersion, SDL_GetError());
@@ -895,12 +893,12 @@ namespace nCine::Backends
 #endif
 
 #if defined(WITH_RHI_LEGACYGL)
-#	if defined(DEATH_TARGET_MORPHOS)
+#if defined(DEATH_TARGET_MORPHOS)
 		// TinyGL is reached through two globals that live in the program rather than in sdl2.library, so
 		// the context SDL just created has to be handed to them before any `gl*` call is made
 		FATAL_ASSERT_MSG(Backends::MorphOsAttachTinyGl(_glContextHandle),
 			"Cannot open tinygl.library - the legacy OpenGL backend needs a 3D driver TinyGL supports");
-#	endif
+#endif
 		// Unlike the shader backend, the fixed-function one keeps state of its own that has to be
 		// programmed once per context, and it renders the screen pass in the drawable's pixels - so it is
 		// told how large that is here rather than only when the window is resized later
@@ -912,7 +910,7 @@ namespace nCine::Backends
 #if defined(WITH_RHI_SOFTWARE)
 	void SdlGfxDevice::InitSoftwarePresent(bool hasVSync)
 	{
-#	if defined(WITH_SDL3)
+#if defined(WITH_SDL3)
 		// SDL3: SDL_CreateRenderer takes only (window, driver-name); the accelerated/vsync flags are gone.
 		// Passing a null driver name lets SDL pick a suitable (accelerated when available) renderer, and vsync
 		// is configured afterwards through SDL_SetRenderVSync.
@@ -922,7 +920,7 @@ namespace nCine::Backends
 
 		SDL_GetRenderOutputSize(_softwareRenderer, &_drawableWidth, &_drawableHeight);
 		ResizeSoftwareTarget(_drawableWidth, _drawableHeight);
-#	else
+#else
 		Uint32 rendererFlags = SDL_RENDERER_ACCELERATED;
 		if (hasVSync) {
 			rendererFlags |= SDL_RENDERER_PRESENTVSYNC;
@@ -936,7 +934,7 @@ namespace nCine::Backends
 
 		SDL_GetRendererOutputSize(_softwareRenderer, &_drawableWidth, &_drawableHeight);
 		ResizeSoftwareTarget(_drawableWidth, _drawableHeight);
-#	endif
+#endif
 	}
 
 	void SdlGfxDevice::ResizeSoftwareTarget(int width, int height)
@@ -951,18 +949,18 @@ namespace nCine::Backends
 			SDL_DestroyTexture(_softwareTexture);
 			_softwareTexture = nullptr;
 		}
-#	if defined(RHI_USE_FB16)
+#if defined(RHI_USE_FB16)
 		// 16-bit mode: the backend framebuffer stores native-endian RGB565 texels, SDL's RGB565 packed format
 		_softwareTexture = SDL_CreateTexture(_softwareRenderer, SDL_PIXELFORMAT_RGB565,
 			SDL_TEXTUREACCESS_STREAMING, width, height);
-#	else
+#else
 		// The backend framebuffer is laid out as R,G,B,A bytes per texel. RGBA32 is SDL's name for exactly
 		// that byte order whatever the machine's endianness - the packed names (ABGR8888 here) describe a
 		// 32-bit value instead, so on a big-endian machine like the PowerPC Amigas one of them would put
 		// the channels in the wrong places
 		_softwareTexture = SDL_CreateTexture(_softwareRenderer, SDL_PIXELFORMAT_RGBA32,
 			SDL_TEXTUREACCESS_STREAMING, width, height);
-#	endif
+#endif
 		FATAL_ASSERT_MSG(_softwareTexture, "SDL_CreateTexture failed: {}", SDL_GetError());
 		_softwareTextureWidth = width;
 		_softwareTextureHeight = height;
@@ -998,12 +996,12 @@ namespace nCine::Backends
 		SDL_RenderClear(_softwareRenderer);
 		// The screen color buffer is top-down like every store (see RhiFwd.h), exactly as the window scans out,
 		// so it is presented as it is
-#	if defined(WITH_SDL3)
+#if defined(WITH_SDL3)
 		// SDL3: SDL_RenderCopy -> SDL_RenderTexture (float rects; null = whole texture / whole target)
 		SDL_RenderTexture(_softwareRenderer, _softwareTexture, nullptr, nullptr);
-#	else
+#else
 		SDL_RenderCopy(_softwareRenderer, _softwareTexture, nullptr, nullptr);
-#	endif
+#endif
 		SDL_RenderPresent(_softwareRenderer);
 	}
 #endif
@@ -1017,15 +1015,15 @@ namespace nCine::Backends
 		_monitors[0].Position = Vector2i(0, 0);
 		_monitors[0].Scale = Vector2f(1.0f, 1.0f);
 		_monitors[0].VideoModeCount = 1;
-#	if defined(WITH_SDL3)
+#if defined(WITH_SDL3)
 		if (const SDL_DisplayMode* mode = SDL_GetCurrentDisplayMode(SDL_GetPrimaryDisplay())) {
 			ConvertVideoModeInfo(*mode, _monitors[0].VideoModes[0]);
 		}
-#	else
+#else
 		SDL_DisplayMode mode;
 		SDL_GetCurrentDisplayMode(0, &mode);
 		ConvertVideoModeInfo(mode, _monitors[0].VideoModes[0]);
-#	endif
+#endif
 #elif defined(WITH_SDL3)
 		LOGD("Updating list of monitors...");
 
@@ -1148,8 +1146,8 @@ namespace nCine::Backends
 				break;
 			case SDL_PIXELFORMAT_RGB24:
 			case SDL_PIXELFORMAT_BGR24:
-			case SDL_PIXELFORMAT_RGB888:	// remapped to SDL_PIXELFORMAT_XRGB8888 on SDL3 (see the shims above)
-			case SDL_PIXELFORMAT_BGR888:	// remapped to SDL_PIXELFORMAT_XBGR8888 on SDL3
+			case SDL_PIXELFORMAT_RGB888: // remapped to SDL_PIXELFORMAT_XRGB8888 on SDL3 (see the shims above)
+			case SDL_PIXELFORMAT_BGR888: // remapped to SDL_PIXELFORMAT_XBGR8888 on SDL3
 			case SDL_PIXELFORMAT_RGBX8888:
 			case SDL_PIXELFORMAT_BGRX8888:
 			case SDL_PIXELFORMAT_ARGB8888:

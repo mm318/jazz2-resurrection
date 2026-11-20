@@ -4,7 +4,8 @@ namespace nCine
 {
 	inline namespace Primitives
 	{
-		union FloatBits {
+		union FloatBits
+		{
 			std::uint32_t u;
 			float f;
 		};
@@ -19,19 +20,19 @@ namespace nCine
 			const std::uint16_t h { value };
 			FloatBits o;
 
-			o.u = (h & 0x7fff) << 13;						// Exponent/mantissa bits
-			const std::uint32_t exp = ShiftedExp & o.u;		// Just the exponent
-			o.u += (127 - 15) << 23;						// Exponent adjust
+			o.u = (h & 0x7fff) << 13; // Exponent/mantissa bits
+			const std::uint32_t exp = ShiftedExp & o.u; // Just the exponent
+			o.u += (127 - 15) << 23; // Exponent adjust
 
 			// Handle exponent special cases
-			if (exp == ShiftedExp) {						// Inf/NaN?
-				o.u += (128 - 16) << 23;					// Extra exp adjust
-			} else if (exp == 0) {							// Zero/Denormal
-				o.u += 1 << 23;								// Extra exp adjust
-				o.f -= Magic.f;								// Renormalize
+			if (exp == ShiftedExp) { // Inf/NaN?
+				o.u += (128 - 16) << 23; // Extra exp adjust
+			} else if (exp == 0) { // Zero/Denormal
+				o.u += 1 << 23; // Extra exp adjust
+				o.f -= Magic.f; // Renormalize
 			}
 
-			o.u |= (h & 0x8000) << 16;						// Sign bit
+			o.u |= (h & 0x8000) << 16; // Sign bit
 			return o.f;
 		}
 
@@ -64,7 +65,8 @@ namespace nCine
 				f.u -= RoundMask;
 
 				// Clamp to signed infinity if overflowed
-				if (f.u > HalfInfinity.u) f.u = HalfInfinity.u;
+				if (f.u > HalfInfinity.u)
+					f.u = HalfInfinity.u;
 
 				// Take the bits!
 				h = f.u >> 13;

@@ -53,7 +53,7 @@
 	them, keeping any divergence from the GL source impossible to express.
 */
 
-#include "GlslReflect.h"		// StageReflection (uniforms, blocks, textures, attributes), Diagnostic, StringView
+#include "GlslReflect.h" // StageReflection (uniforms, blocks, textures, attributes), Diagnostic, StringView
 
 namespace ShaderCompiler
 {

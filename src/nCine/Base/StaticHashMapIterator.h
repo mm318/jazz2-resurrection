@@ -11,14 +11,15 @@ namespace nCine
 		Specialized on the `IsConst` flag to expose the hashmap pointer and node reference types with
 		the appropriate constness.
 	*/
-	template<class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
+	template <class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
 	struct StaticHashMapHelperTraits
-	{};
+	{
+	};
 
 	/**
 		@brief Type traits used by the non-constant @ref StaticHashMapIterator
 	*/
-	template<class K, class T, class HashFunc, std::uint32_t Capacity>
+	template <class K, class T, class HashFunc, std::uint32_t Capacity>
 	struct StaticHashMapHelperTraits<K, T, HashFunc, Capacity, false>
 	{
 		using HashMapPtr = StaticHashMap<K, T, Capacity, HashFunc>*;
@@ -28,7 +29,7 @@ namespace nCine
 	/**
 		@brief Type traits used by the constant @ref StaticHashMapIterator
 	*/
-	template<class K, class T, class HashFunc, std::uint32_t Capacity>
+	template <class K, class T, class HashFunc, std::uint32_t Capacity>
 	struct StaticHashMapHelperTraits<K, T, HashFunc, Capacity, true>
 	{
 		using HashMapPtr = const StaticHashMap<K, T, Capacity, HashFunc>*;
@@ -41,7 +42,7 @@ namespace nCine
 		Iterates over occupied buckets, skipping empty ones. The `IsConst` template parameter selects
 		between a mutable and a read-only iterator.
 	*/
-	template<class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
+	template <class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
 	class StaticHashMapIterator
 	{
 	public:
@@ -53,18 +54,22 @@ namespace nCine
 		 */
 		enum class SentinelTagInit
 		{
-			Beginning,	/**< Iterator before the first element; the next element is the first one */
-			End			/**< Iterator past the last element; the previous element is the last one */
+			Beginning, /**< Iterator before the first element; the next element is the first one */
+			End /**< Iterator past the last element; the previous element is the last one */
 		};
 
 		StaticHashMapIterator(typename StaticHashMapHelperTraits<K, T, HashFunc, Capacity, IsConst>::HashMapPtr hashMap, std::uint32_t bucketIndex)
-			: _hashMap(hashMap), _bucketIndex(bucketIndex), _tag(SentinelTag::Regular) {}
+			: _hashMap(hashMap), _bucketIndex(bucketIndex), _tag(SentinelTag::Regular)
+		{
+		}
 
 		StaticHashMapIterator(typename StaticHashMapHelperTraits<K, T, HashFunc, Capacity, IsConst>::HashMapPtr hashMap, SentinelTagInit tag);
 
 		/** @brief Implicitly converts a non-constant iterator to a constant one */
 		StaticHashMapIterator(const StaticHashMapIterator<K, T, HashFunc, Capacity, false>& it)
-			: _hashMap(it._hashMap), _bucketIndex(it._bucketIndex), _tag(SentinelTag(it._tag)) {}
+			: _hashMap(it._hashMap), _bucketIndex(it._bucketIndex), _tag(SentinelTag(it._tag))
+		{
+		}
 
 		/** @brief Dereferences the iterator, returning the value of the pointed element */
 		Reference operator*() const;
@@ -110,10 +115,11 @@ namespace nCine
 
 	private:
 		// Sentinel tag used to detect the begin and end conditions
-		enum SentinelTag {
-			Regular,	// Iterator pointing to a real element
-			Beginning,	// Iterator before the first element
-			End			// Iterator past the last element
+		enum SentinelTag
+		{
+			Regular, // Iterator pointing to a real element
+			Beginning, // Iterator before the first element
+			End // Iterator past the last element
 		};
 
 		typename StaticHashMapHelperTraits<K, T, HashFunc, Capacity, IsConst>::HashMapPtr _hashMap;
@@ -132,7 +138,7 @@ namespace nCine
 #ifndef DOXYGEN_GENERATING_OUTPUT
 
 	/// Iterator traits structure specialization for `HashMapIterator` class
-	template<class K, class T, class HashFunc, std::uint32_t Capacity>
+	template <class K, class T, class HashFunc, std::uint32_t Capacity>
 	struct IteratorTraits<StaticHashMapIterator<K, T, HashFunc, Capacity, false>>
 	{
 		/// Type of the values deferenced by the iterator
@@ -142,13 +148,14 @@ namespace nCine
 		/// Reference to the type of the values deferenced by the iterator
 		using Reference = T&;
 		/// Type trait for iterator category
-		static inline BidirectionalIteratorTag IteratorCategory() {
+		static inline BidirectionalIteratorTag IteratorCategory()
+		{
 			return BidirectionalIteratorTag();
 		}
 	};
 
 	/// Iterator traits structure specialization for constant `HashMapIterator` class
-	template<class K, class T, class HashFunc, std::uint32_t Capacity>
+	template <class K, class T, class HashFunc, std::uint32_t Capacity>
 	struct IteratorTraits<StaticHashMapIterator<K, T, HashFunc, Capacity, true>>
 	{
 		/// Type of the values deferenced by the iterator (never const)
@@ -158,37 +165,42 @@ namespace nCine
 		/// Reference to the type of the values deferenced by the iterator
 		using Reference = const T&;
 		/// Type trait for iterator category
-		static inline BidirectionalIteratorTag IteratorCategory() {
+		static inline BidirectionalIteratorTag IteratorCategory()
+		{
 			return BidirectionalIteratorTag();
 		}
 	};
 
 #endif
 
-	template<class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
+	template <class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
 	StaticHashMapIterator<K, T, HashFunc, Capacity, IsConst>::StaticHashMapIterator(typename StaticHashMapHelperTraits<K, T, HashFunc, Capacity, IsConst>::HashMapPtr hashMap, SentinelTagInit tag)
 		: _hashMap(hashMap), _bucketIndex(0)
 	{
 		switch (tag) {
-			case SentinelTagInit::Beginning: _tag = SentinelTag::Beginning; break;
-			case SentinelTagInit::End: _tag = SentinelTag::End; break;
+			case SentinelTagInit::Beginning:
+				_tag = SentinelTag::Beginning;
+				break;
+			case SentinelTagInit::End:
+				_tag = SentinelTag::End;
+				break;
 		}
 	}
 
-	template<class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
+	template <class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
 	typename StaticHashMapIterator<K, T, HashFunc, Capacity, IsConst>::Reference StaticHashMapIterator<K, T, HashFunc, Capacity, IsConst>::operator*() const
 	{
 		return node().value;
 	}
 
-	template<class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
+	template <class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
 	StaticHashMapIterator<K, T, HashFunc, Capacity, IsConst>& StaticHashMapIterator<K, T, HashFunc, Capacity, IsConst>::operator++()
 	{
 		next();
 		return *this;
 	}
 
-	template<class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
+	template <class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
 	StaticHashMapIterator<K, T, HashFunc, Capacity, IsConst> StaticHashMapIterator<K, T, HashFunc, Capacity, IsConst>::operator++(int)
 	{
 		// Create an unmodified copy to return
@@ -197,14 +209,14 @@ namespace nCine
 		return iterator;
 	}
 
-	template<class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
+	template <class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
 	StaticHashMapIterator<K, T, HashFunc, Capacity, IsConst>& StaticHashMapIterator<K, T, HashFunc, Capacity, IsConst>::operator--()
 	{
 		previous();
 		return *this;
 	}
 
-	template<class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
+	template <class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
 	StaticHashMapIterator<K, T, HashFunc, Capacity, IsConst> StaticHashMapIterator<K, T, HashFunc, Capacity, IsConst>::operator--(int)
 	{
 		// Create an unmodified copy to return
@@ -213,31 +225,31 @@ namespace nCine
 		return iterator;
 	}
 
-	template<class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
+	template <class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
 	typename StaticHashMapHelperTraits<K, T, HashFunc, Capacity, IsConst>::NodeReference StaticHashMapIterator<K, T, HashFunc, Capacity, IsConst>::node() const
 	{
 		return _hashMap->_nodes[_bucketIndex];
 	}
 
-	template<class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
+	template <class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
 	const T& StaticHashMapIterator<K, T, HashFunc, Capacity, IsConst>::value() const
 	{
 		return node().value;
 	}
 
-	template<class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
+	template <class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
 	const K& StaticHashMapIterator<K, T, HashFunc, Capacity, IsConst>::key() const
 	{
 		return node().key;
 	}
 
-	template<class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
+	template <class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
 	hash_t StaticHashMapIterator<K, T, HashFunc, Capacity, IsConst>::hash() const
 	{
 		return _hashMap->_hashes[_bucketIndex];
 	}
 
-	template<class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
+	template <class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
 	void StaticHashMapIterator<K, T, HashFunc, Capacity, IsConst>::next()
 	{
 		if (_tag == SentinelTag::Regular) {
@@ -262,7 +274,7 @@ namespace nCine
 		}
 	}
 
-	template<class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
+	template <class K, class T, class HashFunc, std::uint32_t Capacity, bool IsConst>
 	void StaticHashMapIterator<K, T, HashFunc, Capacity, IsConst>::previous()
 	{
 		if (_tag == SentinelTag::Regular) {

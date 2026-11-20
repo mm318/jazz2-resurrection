@@ -8,8 +8,8 @@
 #include "MainMenu.h"
 
 #if defined(WITH_MULTIPLAYER)
-#	include "PlayMultiplayerSection.h"
-#	include "ServerSelectSection.h"
+#include "PlayMultiplayerSection.h"
+#include "ServerSelectSection.h"
 #endif
 
 #include "../../PreferencesCache.h"
@@ -18,8 +18,8 @@
 #include "../../../nCine/I18n.h"
 
 #if defined(DEATH_TARGET_ANDROID)
-#	include "../../../nCine/Backends/Android/AndroidApplication.h"
-#	include "../../../nCine/Backends/Android/AndroidJniHelper.h"
+#include "../../../nCine/Backends/Android/AndroidApplication.h"
+#include "../../../nCine/Backends/Android/AndroidJniHelper.h"
 #endif
 
 #include <Containers/StringConcatenable.h>
@@ -32,7 +32,7 @@ namespace Jazz2::UI::Menu
 {
 	BeginSection::BeginSection()
 		: _selectedIndex(0), _animation(0.0f), _isPlayable(true), _skipSecondItem(false),
-			_shouldStart(false), _alreadyStarted(false)
+		  _shouldStart(false), _alreadyStarted(false)
 	{
 	}
 
@@ -55,29 +55,29 @@ namespace Jazz2::UI::Menu
 			// TRANSLATORS: Menu item in main menu
 			_items.emplace_back(Item::PlaySingleplayer, _("Play Story"));
 
-#	if defined(WITH_MULTIPLAYER) && !defined(SHAREWARE_DEMO_ALLOW_MULTIPLAYER)
-#		if defined(DEATH_TARGET_EMSCRIPTEN)
-		if (!_isEmbedded)
-#		endif
-		{
-			// TRANSLATORS: Menu item in main menu
-			_items.emplace_back(Item::PlayMultiplayer, _("Play Multiplayer"));
-		}
-#	endif
+#if defined(WITH_MULTIPLAYER) && !defined(SHAREWARE_DEMO_ALLOW_MULTIPLAYER)
+#if defined(DEATH_TARGET_EMSCRIPTEN)
+			if (!_isEmbedded)
+#endif
+			{
+				// TRANSLATORS: Menu item in main menu
+				_items.emplace_back(Item::PlayMultiplayer, _("Play Multiplayer"));
+			}
+#endif
 		} else {
 			// TRANSLATORS: Menu item in main menu (Emscripten only)
 			_items.emplace_back(Item::PlaySingleplayer, _("Play Shareware Demo"));
 		}
 
-#	if defined(WITH_MULTIPLAYER) && defined(SHAREWARE_DEMO_ALLOW_MULTIPLAYER)
-#		if defined(DEATH_TARGET_EMSCRIPTEN)
+#if defined(WITH_MULTIPLAYER) && defined(SHAREWARE_DEMO_ALLOW_MULTIPLAYER)
+#if defined(DEATH_TARGET_EMSCRIPTEN)
 		if (!_isEmbedded)
-#		endif
+#endif
 		{
 			// TRANSLATORS: Menu item in main menu
 			_items.emplace_back(Item::PlayMultiplayer, _("Play Multiplayer"));
 		}
-#	endif
+#endif
 
 #else
 		if (_isPlayable && root->HasResumableState()) {
@@ -88,19 +88,19 @@ namespace Jazz2::UI::Menu
 		// TRANSLATORS: Menu item in main menu
 		_items.emplace_back(Item::PlaySingleplayer, _("Play Story"));
 
-#	if defined(WITH_MULTIPLAYER)
+#if defined(WITH_MULTIPLAYER)
 		if (_isPlayable) {
 			// TRANSLATORS: Menu item in main menu
 			_items.emplace_back(Item::PlayMultiplayer, _("Play Multiplayer"));
 		}
-#	endif
+#endif
 #endif
 
 #if defined(WITH_EDITOR)
-#	if defined(SHAREWARE_DEMO_ONLY) && defined(DEATH_TARGET_EMSCRIPTEN)
+#if defined(SHAREWARE_DEMO_ONLY) && defined(DEATH_TARGET_EMSCRIPTEN)
 		// The editor needs at least one imported episode, episodes can be imported only in the web version
 		if (PreferencesCache::UnlockedEpisodes != UnlockableEpisodes::None)
-#	endif
+#endif
 		{
 			// TRANSLATORS: Menu item in main menu
 			_items.emplace_back(Item::LevelEditor, _("Level Editor"));
@@ -114,12 +114,12 @@ namespace Jazz2::UI::Menu
 		_items.emplace_back(Item::About, _("About"));
 // Consoles with nowhere to quit to (no system menu to return to) omit the item entirely
 #if !defined(DEATH_TARGET_IOS) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_N64) && !defined(DEATH_TARGET_GAMECUBE)
-#	if defined(DEATH_TARGET_EMSCRIPTEN)
+#if defined(DEATH_TARGET_EMSCRIPTEN)
 		// Show quit button only in PWA/standalone environment
 		if (PreferencesCache::IsStandalone)
-#	endif
-		// TRANSLATORS: Menu item in main menu
-		_items.emplace_back(Item::Quit, _("Quit"));
+#endif
+			// TRANSLATORS: Menu item in main menu
+			_items.emplace_back(Item::Quit, _("Quit"));
 #endif
 
 #if !defined(DEATH_TARGET_EMSCRIPTEN)
@@ -130,7 +130,7 @@ namespace Jazz2::UI::Menu
 				// Resolve a missing packaged-content path for display
 				_contentPath = fs::CombinePath(fs::GetWorkingDirectory(), resolver.GetContentPath());
 			}
-#	if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
+#if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX)
 			String homeDirectory = fs::GetHomeDirectory();
 			if (!homeDirectory.empty()) {
 				StringView pathSeparator = fs::PathSeparator;
@@ -141,7 +141,7 @@ namespace Jazz2::UI::Menu
 					_contentPath = "~"_s + _contentPath.exceptPrefix(homeDirectory.size() - pathSeparator.size());
 				}
 			}
-#	endif
+#endif
 		}
 #endif
 	}
@@ -165,7 +165,8 @@ namespace Jazz2::UI::Menu
 					_selectedIndex = (std::int32_t)_items.size() - 1;
 				}
 			} else if (navUp) {
-				if (navSound) _root->PlaySfx("MenuSelect"_s, 0.5f);
+				if (navSound)
+					_root->PlaySfx("MenuSelect"_s, 0.5f);
 				_animation = 0.0f;
 				if (_selectedIndex > 0) {
 					_selectedIndex--;
@@ -176,7 +177,8 @@ namespace Jazz2::UI::Menu
 					_selectedIndex = (std::int32_t)_items.size() - 1;
 				}
 			} else if (navDown) {
-				if (navSound) _root->PlaySfx("MenuSelect"_s, 0.5f);
+				if (navSound)
+					_root->PlaySfx("MenuSelect"_s, 0.5f);
 				_animation = 0.0f;
 				if (_selectedIndex < (std::int32_t)_items.size() - 1) {
 					_selectedIndex++;
@@ -221,7 +223,8 @@ namespace Jazz2::UI::Menu
 		// over the whole screen from there would walk the last rows off the bottom of the safe area. The same
 		// number as before when no margins are set.
 		float layoutHeight = PreferencesCache::ApplySafeArea(
-			Rectf(0.0f, 0.0f, (float)canvas->ViewSize.X, (float)canvas->ViewSize.Y), canvas->ViewSize).H;
+			Rectf(0.0f, 0.0f, (float)canvas->ViewSize.X, (float)canvas->ViewSize.Y), canvas->ViewSize)
+								 .H;
 
 		Recti contentBounds = _root->GetContentBounds();
 		Vector2f center = Vector2f(contentBounds.X + contentBounds.W * 0.5f, contentBounds.Y + baseReduction + (0.2f * layoutHeight / itemCount));
@@ -239,7 +242,7 @@ namespace Jazz2::UI::Menu
 		}
 #else
 		if (!_isPlayable) {
-#	if defined(DEATH_TARGET_ANDROID)
+#if defined(DEATH_TARGET_ANDROID)
 			if (permissionGranted) {
 				if (_selectedIndex == 0) {
 					_root->DrawElement(MenuGlow, 0, center.X, center.Y * 0.96f - 14.0f, IMenuContainer::MainLayer, Alignment::Center, Colorf(1.0f, 1.0f, 1.0f, 0.16f), 26.0f, 12.0f, true, true);
@@ -251,7 +254,7 @@ namespace Jazz2::UI::Menu
 				_root->DrawStringShadow(_("\f[c:#337233]Restart the game to read \f[c:#9e7056]Jazz Jackrabbit 2\f[c:#337233] files correctly."), charOffset, center.X, center.Y * 0.96f, IMenuContainer::FontLayer,
 					Alignment::Center, Font::DefaultColor, 0.8f, 0.7f, 0.4f, 0.4f, 0.4f, 0.8f, 1.2f);
 			} else
-#	endif
+#endif
 			{
 				if (_selectedIndex == 0) {
 					_root->DrawElement(MenuGlow, 0, center.X, center.Y * 0.96f - 26.0f, IMenuContainer::MainLayer, Alignment::Center,
@@ -266,7 +269,7 @@ namespace Jazz2::UI::Menu
 				_root->DrawStringShadow(_contentPath.data(), charOffset, center.X, center.Y - 10.0f, IMenuContainer::FontLayer,
 					Alignment::Top, Colorf(0.44f, 0.44f, 0.44f, 0.5f), 0.8f, 0.7f, 0.4f, 0.4f, 0.4f, 0.8f, 1.2f);
 
-#	if defined(DEATH_TARGET_ANDROID)
+#if defined(DEATH_TARGET_ANDROID)
 				if (canGrantPermission) {
 					// TRANSLATORS: Menu item in main menu (Android 11+ only)
 					auto grantPermissionText = _("Allow access to external storage");
@@ -288,7 +291,7 @@ namespace Jazz2::UI::Menu
 						_root->DrawElement(Uac, 0, ceil(center.X - grantPermissionSize.X * 0.5f - 6.0f), center.Y * 0.96f + grantPermissionY, IMenuContainer::MainLayer + 10, Alignment::Center, Colorf::White, 1.0f, 1.0f);
 					}
 				}
-#	endif
+#endif
 			}
 		}
 #endif
@@ -307,10 +310,9 @@ namespace Jazz2::UI::Menu
 					_root->DrawStringShadow(_items[i].Name, charOffset, center.X, center.Y, IMenuContainer::FontLayer,
 						Alignment::Center, Colorf(0.51f, 0.51f, 0.51f, 0.35f), 0.9f);
 				}
-			}
-			else
+			} else
 #endif
-			if (_selectedIndex == i) {
+				if (_selectedIndex == i) {
 				float size = 0.5f + Easing::OutElastic(_animation) * 0.6f;
 
 				_root->DrawStringGlow(_items[i].Name, charOffset, center.X, center.Y, IMenuContainer::FontLayer + 10,
@@ -404,10 +406,10 @@ namespace Jazz2::UI::Menu
 				}
 #if !defined(DEATH_TARGET_EMSCRIPTEN)
 				else {
-#	if defined(DEATH_TARGET_ANDROID)
+#if defined(DEATH_TARGET_ANDROID)
 					// Show `ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION` intent on Android
 					Backends::AndroidJniWrap_Activity::RequestExternalStoragePermission();
-#	else
+#else
 					// `_contentPath` contains adjusted path for display purposes
 					auto& resolver = ContentResolver::Get();
 					String contentPath = fs::GetAbsolutePath(resolver.GetContentPath());
@@ -418,25 +420,25 @@ namespace Jazz2::UI::Menu
 					if (fs::LaunchDirectoryAsync(contentPath)) {
 						_root->PlaySfx("MenuSelect"_s, 0.6f);
 					}
-#	endif
+#endif
 				}
 #endif
 				break;
 #if defined(WITH_MULTIPLAYER)
 			case Item::PlayMultiplayer:
-#	if defined(DEATH_TARGET_EMSCRIPTEN)
+#if defined(DEATH_TARGET_EMSCRIPTEN)
 				if (_isPlayable && !_isEmbedded)
-#	else
+#else
 				if (_isPlayable)
-#	endif
+#endif
 				{
 					_root->PlaySfx("MenuSelect"_s, 0.6f);
-#	if defined(WITH_ONLINE_MULTIPLAYER)
+#if defined(WITH_ONLINE_MULTIPLAYER)
 					_root->SwitchToSection<PlayMultiplayerSection>();
-#	else
+#else
 					// No online transport in this build - go straight to the local splitscreen setup
 					_root->SwitchToSection<EpisodeSelectSection>(EpisodeSelectMode::LocalMultiplayer);
-#	endif
+#endif
 				}
 				break;
 #endif

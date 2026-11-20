@@ -73,16 +73,16 @@ namespace Jazz2::UI::Windows
 		WrappedLines _measured;
 		WrappedLines _drawn;
 
-		template<class TMeasurer>
+		template <class TMeasurer>
 		const WrappedLines& GetLines(WrappedLines& cache, const TMeasurer& measurer, float width);
 	};
 
 	/** @brief How a button is drawn */
 	enum class ButtonStyle : std::uint8_t
 	{
-		Normal,			/**< With a background */
-		Flat,			/**< With a background only when it's pointed at or checked */
-		Accent			/**< Highlighted, for the main action */
+		Normal, /**< With a background */
+		Flat, /**< With a background only when it's pointed at or checked */
+		Accent /**< Highlighted, for the main action */
 	};
 
 	/**
@@ -139,7 +139,8 @@ namespace Jazz2::UI::Windows
 		/** @brief Returns `true` if the button is shown checked */
 		bool IsChecked();
 		/** @brief Returns `true` if the icon and the text didn't fit into the button when it was drawn last */
-		bool IsTextCut() const {
+		bool IsTextCut() const
+		{
 			return (_neededWidth > Bounds.W + 0.5f);
 		}
 
@@ -154,7 +155,7 @@ namespace Jazz2::UI::Windows
 		float _measuredTextWidth = 0.0f;
 		std::uint32_t _measuredFontVersion = 0;
 
-		template<class TMeasurer>
+		template <class TMeasurer>
 		float GetTextWidth(const TMeasurer& measurer);
 	};
 
@@ -221,17 +222,20 @@ namespace Jazz2::UI::Windows
 		/** @brief Returns the content, the only child */
 		Element* GetContent() const;
 		/** @brief Sets the content */
-		template<class T, class... Args>
-		T* SetContent(Args&&... args) {
+		template <class T, class... Args>
+		T* SetContent(Args&&... args)
+		{
 			ClearChildren();
 			return Add<T>(std::forward<Args>(args)...);
 		}
 		/** @brief Returns how far the content is scrolled in pixels */
-		float GetScroll() const {
+		float GetScroll() const
+		{
 			return _scroll;
 		}
 		/** @brief Returns `true` if the content is larger than what is shown of it */
-		bool IsScrollable() const {
+		bool IsScrollable() const
+		{
 			return (_contentHeight > Bounds.H);
 		}
 		/** @brief Scrolls so that a part of the content in pixels from its top is visible */
@@ -386,11 +390,13 @@ namespace Jazz2::UI::Windows
 		/** @brief Adds a row with a label, what it's about is added to the returned stack */
 		Stack* AddRow(StringView label, StringView tooltip = {});
 		/** @brief Returns the width of the column of labels in pixels */
-		float GetLabelColumn() const {
+		float GetLabelColumn() const
+		{
 			return _labelColumn;
 		}
 		/** @brief Returns the widest a label can be in pixels before it's put above what it's about */
-		float GetMaxLabelColumn() const {
+		float GetMaxLabelColumn() const
+		{
 			return _maxLabelColumn;
 		}
 
@@ -416,11 +422,13 @@ namespace Jazz2::UI::Windows
 		FormRow(Form& form, StringView label, StringView tooltip);
 
 		/** @brief Returns the label */
-		Label* GetLabel() const {
+		Label* GetLabel() const
+		{
 			return _label;
 		}
 		/** @brief Returns the stack of what the row is about */
-		Stack* GetContent() const {
+		Stack* GetContent() const
+		{
 			return _content;
 		}
 		/** @brief Returns the width of the label in whole pixels */
@@ -603,7 +611,8 @@ namespace Jazz2::UI::Windows
 		bool OnKeyPressed(const KeyboardEvent& event) override;
 
 		/** @brief Changes the value by a number of steps, as the arrows at its edge do */
-		void StepBy(float steps) {
+		void StepBy(float steps)
+		{
 			StepValue(steps);
 		}
 
@@ -627,11 +636,12 @@ namespace Jazz2::UI::Windows
 	*/
 	struct ResizeEdges
 	{
-		enum : std::uint8_t {
-			Left = 0x01,		/**< Left edge */
-			Top = 0x02,			/**< Top edge */
-			Right = 0x04,		/**< Right edge */
-			Bottom = 0x08		/**< Bottom edge */
+		enum : std::uint8_t
+		{
+			Left = 0x01, /**< Left edge */
+			Top = 0x02, /**< Top edge */
+			Right = 0x04, /**< Right edge */
+			Bottom = 0x08 /**< Bottom edge */
 		};
 
 		/** @brief Width of an edge in units, the unit the corner with the dots is measured in */

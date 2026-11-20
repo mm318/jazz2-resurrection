@@ -169,7 +169,7 @@ namespace Jazz2::Editor
 		key.ModelRevision = modelRevision;
 		key.Changeable = 0;
 		for (TileRef& tile : key.Tiles) {
-			tile = TileRef{};
+			tile = TileRef {};
 		}
 		const LevelDocument& document = _host.GetDocument();
 		if (layerIndex < 0 || layerIndex >= std::int32_t(document.Layers.size())) {
@@ -185,7 +185,7 @@ namespace Jazz2::Editor
 				Vector2i tile;
 				if (!view.Wrap(Vector2i(cell.X + dx, cell.Y + dy), tile)) {
 					// Outside of the layer, unlike any tile
-					key.Tiles[i] = TileRef{ UINT16_MAX, TileRef::Raw, UINT8_MAX };
+					key.Tiles[i] = TileRef { UINT16_MAX, TileRef::Raw, UINT8_MAX };
 					continue;
 				}
 				key.Tiles[i] = layer.GetTile(tile.X, tile.Y);
@@ -217,11 +217,13 @@ namespace Jazz2::Editor
 		_pending[ToCellKey(tile)] = value;
 		if (_simulating) {
 			// Only shown, the last tile chosen for a cell is the one shown
-			auto it = std::find_if(_ghost.begin(), _ghost.end(), [cell](const GhostTile& ghost) { return ghost.Cell == cell; });
+			auto it = std::find_if(_ghost.begin(), _ghost.end(), [cell](const GhostTile& ghost) {
+				return ghost.Cell == cell;
+			});
 			if (it != _ghost.end()) {
 				it->Tile = value;
 			} else {
-				_ghost.push_back(GhostTile{ cell, value });
+				_ghost.push_back(GhostTile { cell, value });
 			}
 			return;
 		}
@@ -258,9 +260,9 @@ namespace Jazz2::Editor
 			if (!wasSolid && GetTile(layer, painted).IsEmpty()) {
 				return;
 			}
-			SetTile(painted, cell, TileRef{});
+			SetTile(painted, cell, TileRef {});
 		} else if (!wasSolid) {
-			SetTile(painted, cell, TileRef{ 1, TileRef::DefaultTileSet, 0 });
+			SetTile(painted, cell, TileRef { 1, TileRef::DefaultTileSet, 0 });
 		}
 
 		// The cell and its neighbors get tiles by the cells around them, left to right and top to bottom, so the tiles
@@ -301,7 +303,8 @@ namespace Jazz2::Editor
 				bool hasRight = neighborTile(1, 0, right), hasDown = neighborTile(0, 1, down);
 				TileRef picked;
 				if (model.Pick(neighbors, layer.IsSpriteLayer(), hasLeft ? &left : nullptr, hasUp ? &up : nullptr,
-					hasRight ? &right : nullptr, hasDown ? &down : nullptr, HashCell(tile), picked, isPainted ? nullptr : &current) && picked != current) {
+						hasRight ? &right : nullptr, hasDown ? &down : nullptr, HashCell(tile), picked, isPainted ? nullptr : &current) &&
+					picked != current) {
 					SetTile(tile, target, picked);
 				}
 			}

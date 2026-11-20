@@ -62,7 +62,8 @@ namespace Jazz2::UI::Menu
 		void ApplyPreferencesChanges(ChangedPreferencesType type) override;
 		void ApplyCursorPolicy() override;
 
-		Vector2i GetViewSize() const override {
+		Vector2i GetViewSize() const override
+		{
 			return _canvasBackground->ViewSize;
 		}
 
@@ -100,7 +101,10 @@ namespace Jazz2::UI::Menu
 		class MenuBackgroundCanvas : public Canvas
 		{
 		public:
-			MenuBackgroundCanvas(InGameMenu* owner) : _owner(owner) { }
+			MenuBackgroundCanvas(InGameMenu* owner)
+				: _owner(owner)
+			{
+			}
 
 			void OnUpdate(float timeMult) override;
 			bool OnDraw(RenderQueue& renderQueue) override;
@@ -114,7 +118,10 @@ namespace Jazz2::UI::Menu
 		class MenuClippedCanvas : public Canvas
 		{
 		public:
-			MenuClippedCanvas(InGameMenu* owner) : _owner(owner) { }
+			MenuClippedCanvas(InGameMenu* owner)
+				: _owner(owner)
+			{
+			}
 
 			bool OnDraw(RenderQueue& renderQueue) override;
 
@@ -125,7 +132,10 @@ namespace Jazz2::UI::Menu
 		class MenuOverlayCanvas : public Canvas
 		{
 		public:
-			MenuOverlayCanvas(InGameMenu* owner) : _owner(owner) { }
+			MenuOverlayCanvas(InGameMenu* owner)
+				: _owner(owner)
+			{
+			}
 
 			bool OnDraw(RenderQueue& renderQueue) override;
 
@@ -136,10 +146,12 @@ namespace Jazz2::UI::Menu
 
 	protected:
 		void RecreateSections() override;
-		Rendering::UpscaleRenderPassWithClipping& GetUpscalePass() override {
+		Rendering::UpscaleRenderPassWithClipping& GetUpscalePass() override
+		{
 			return _root->GetActiveOverlayPass();
 		}
-		const BitArray& GetPressedKeys() const override {
+		const BitArray& GetPressedKeys() const override
+		{
 			return _root->_pressedKeys;
 		}
 	};

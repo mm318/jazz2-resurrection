@@ -130,8 +130,10 @@ namespace Jazz2::Actors::Enemies
 		dest.WriteValueAsLE<float>(_cycleTimer);
 
 		std::uint8_t flags = 0;
-		if (_stuck) flags |= 0x01;
-		if (_currentTransition != nullptr) flags |= 0x02;
+		if (_stuck)
+			flags |= 0x01;
+		if (_currentTransition != nullptr)
+			flags |= 0x02;
 		dest.WriteValue<std::uint8_t>(flags);
 	}
 

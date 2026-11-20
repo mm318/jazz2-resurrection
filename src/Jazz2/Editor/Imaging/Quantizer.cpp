@@ -162,7 +162,7 @@ namespace Jazz2::Editor
 
 		SmallVector<std::uint32_t, 0> unique;
 		SmallVector<double, 0> counts;
-		for (std::size_t i = 0; i < sorted.size(); ) {
+		for (std::size_t i = 0; i < sorted.size();) {
 			std::size_t j = i;
 			while (j < sorted.size() && sorted[j] == sorted[i]) {
 				j++;
@@ -203,7 +203,7 @@ namespace Jazz2::Editor
 				double R, G, B, Weight;
 			};
 			SmallVector<Bin, 0> bins;
-			bins.resize(std::size_t(1) << 15, Bin{});
+			bins.resize(std::size_t(1) << 15, Bin {});
 			for (std::size_t i = 0; i < unique.size(); i++) {
 				std::uint32_t c = unique[i];
 				std::uint32_t key = ((c >> 3) & 0x1F) | (((c >> 11) & 0x1F) << 5) | (((c >> 19) & 0x1F) << 10);
@@ -271,7 +271,7 @@ namespace Jazz2::Editor
 				a += points[i].Color.A * points[i].Weight;
 				b += points[i].Color.B * points[i].Weight;
 			}
-			centers.push_back(OkLab{ float(l / weight), float(a / weight), float(b / weight) });
+			centers.push_back(OkLab { float(l / weight), float(a / weight), float(b / weight) });
 		}
 		if (!report(0.3f)) {
 			return -1;
@@ -286,10 +286,10 @@ namespace Jazz2::Editor
 			std::int32_t centerCount = std::int32_t(centers.size());
 			seeds.clear();
 			for (std::int32_t c = 0; c < centerCount; c++) {
-				seeds.push_back(Seed{ centers[c], c });
+				seeds.push_back(Seed { centers[c], c });
 			}
 			for (const OkLab& lockedColor : lockedColors) {
-				seeds.push_back(Seed{ lockedColor, -1 });
+				seeds.push_back(Seed { lockedColor, -1 });
 			}
 			std::sort(seeds.begin(), seeds.end(), [](const Seed& a, const Seed& b) {
 				return a.Color.L < b.Color.L;
@@ -310,7 +310,7 @@ namespace Jazz2::Editor
 			for (std::int32_t c = 0; c < centerCount; c++) {
 				double weight = sums[c * 4];
 				if (weight > 0.0) {
-					centers[c] = OkLab{ float(sums[c * 4 + 1] / weight), float(sums[c * 4 + 2] / weight), float(sums[c * 4 + 3] / weight) };
+					centers[c] = OkLab { float(sums[c * 4 + 1] / weight), float(sums[c * 4 + 2] / weight), float(sums[c * 4 + 3] / weight) };
 				}
 			}
 			if (!report(0.3f + 0.7f * float(round + 1) / float(Rounds))) {

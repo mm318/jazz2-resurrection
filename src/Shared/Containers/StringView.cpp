@@ -13,189 +13,217 @@
 // Clang-CL has DEATH_ENABLE_BMI1 enabled only when explicitly specified on command line, so the includes have to be
 // complicated like this to still include the headers for count() implementation which needs just POPCNT and not BMI1
 #if ((defined(DEATH_ENABLE_SSE2) || defined(DEATH_ENABLE_AVX)) && defined(DEATH_ENABLE_BMI1)) || (defined(DEATH_ENABLE_AVX) && defined(DEATH_ENABLE_POPCNT)) || defined(DEATH_ENABLE_AVX2)
-#	include "../IntrinsicsAvx.h" /* TZCNT is in AVX headers :( */
+#include "../IntrinsicsAvx.h" /* TZCNT is in AVX headers :( */
 #elif defined(DEATH_ENABLE_SSE2) && defined(DEATH_ENABLE_POPCNT)
-#	include "../IntrinsicsSse4.h"
+#include "../IntrinsicsSse4.h"
 #elif defined(DEATH_ENABLE_SSE2)
-#	include "../IntrinsicsSse2.h"
+#include "../IntrinsicsSse2.h"
 #endif
 #if defined(DEATH_ENABLE_SSE2) && defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG)
-#	include <intrin.h>
+#include <intrin.h>
 #endif
 #if defined(DEATH_ENABLE_NEON) && !defined(DEATH_TARGET_32BIT)
-#	include <arm_neon.h>
-#	if defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG)
-#		include <intrin.h> /* _CountTrailingZeros64() */
-#	endif
+#include <arm_neon.h>
+#if defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG)
+#include <intrin.h> /* _CountTrailingZeros64() */
+#endif
 #endif
 #if defined(DEATH_ENABLE_SIMD128)
-#	include <wasm_simd128.h>
+#include <wasm_simd128.h>
 #endif
 
-namespace Death { namespace Containers {
-//###==##====#=====--==~--~=~- --- -- -  -  -   -
-
-	template<class T> BasicStringView<T>::BasicStringView(T* const data, const StringViewFlags flags, std::nullptr_t) noexcept : BasicStringView{data,
-		data ? std::strlen(data) : 0,
-		flags | (data ? StringViewFlags::NullTerminated : StringViewFlags::Global)} {}
-
-	template<class T> BasicStringView<T>::BasicStringView(String& string) noexcept : BasicStringView{string.data(), string.size(), string.viewFlags()} {}
-
-	template<> template<> BasicStringView<const char>::BasicStringView(const String& string) noexcept : BasicStringView{string.data(), string.size(), string.viewFlags()} {}
-
-	template<class T> Array<BasicStringView<T>> BasicStringView<T>::split(const char delimiter) const {
-		Array<BasicStringView<T>> parts;
-		T* const end = this->end();
-		T* oldpos = _data;
-		T* pos;
-		while (oldpos < end && (pos = static_cast<T*>(std::memchr(oldpos, delimiter, end - oldpos)))) {
-			arrayAppend(parts, slice(oldpos, pos));
-			oldpos = pos + 1;
-		}
-
-		if (!empty())
-			arrayAppend(parts, suffix(oldpos));
-
-		return parts;
-	}
-
-	template<class T> Array<BasicStringView<T>> BasicStringView<T>::splitWithoutEmptyParts(const char delimiter) const {
-		Array<BasicStringView<T>> parts;
-		T* const end = this->end();
-		T* oldpos = _data;
-		while (oldpos < end) {
-			T* pos = static_cast<T*>(std::memchr(oldpos, delimiter, end - oldpos));
-			// Not sure why memchr can't just do this, it would make much more sense
-			if (!pos) pos = end;
-
-			if (pos != oldpos)
-				arrayAppend(parts, slice(oldpos, pos));
-
-			oldpos = pos + 1;
-		}
-
-		return parts;
-	}
-
-	namespace Implementation
+namespace Death
+{
+	namespace Containers
 	{
-		const char* stringFindString(const char* data, const std::size_t size, const char* const substring, const std::size_t substringSize) {
-			// If the substring is not larger than the string we search in
-			if (substringSize > 0 && substringSize <= size) {
-				const std::size_t substringSize_1 = substringSize - 1;
-				const char first = substring[0];
-				const char last = substring[substringSize_1];
-				const char* const end = data + size - substringSize_1;
+		//###==##====#=====--==~--~=~- --- -- -  -  -   -
 
-				// Jump between candidates via SIMD lookup of the first char, go scalar if they're too dense
-				const char* begin = data;
-				for (std::size_t candidates = 1; ; ++candidates) {
-					const char* const found = stringFindCharacter(begin, end - begin, first);
-					if (!found) return {};
-					if (found[substringSize_1] == last && std::memcmp(found + 1, substring + 1, substringSize_1) == 0)
-						return found;
-					begin = found + 1;
-					if (candidates >= 8 && std::size_t(begin - data) < candidates * 16)
-						break;
-				}
+		template <class T>
+		BasicStringView<T>::BasicStringView(T* const data, const StringViewFlags flags, std::nullptr_t) noexcept
+			: BasicStringView { data,
+				  data ? std::strlen(data) : 0,
+				  flags | (data ? StringViewFlags::NullTerminated : StringViewFlags::Global) }
+		{
+		}
 
-				// Simplified Boyer-Moore, zero skip means not computed yet
-				std::size_t skip = 0;
-				while (begin < end) {
-					// Boyer-Moore: match the last element in the needle
-					while (begin[substringSize_1] != last) {
-						if (++begin == end) {
-							return {};
-						}
-					}
-					// Here we know that the last char matches, continue in pedestrian mode
-					for (std::size_t j = 0; ; ) {
-						if (begin[j] != substring[j]) {
-							// Not found, we can skip, compute the skip value lazily
-							if (skip == 0) {
-								skip = 1;
-								while (skip <= substringSize_1 && substring[substringSize_1 - skip] != last) {
-									++skip;
-								}
-							}
-							begin += skip;
-							break;
-						}
+		template <class T>
+		BasicStringView<T>::BasicStringView(String& string) noexcept
+			: BasicStringView { string.data(), string.size(), string.viewFlags() }
+		{
+		}
 
-						if (++j == substringSize) {
-							return begin;
-						}
-					}
-				}
+		template <>
+		template <>
+		BasicStringView<const char>::BasicStringView(const String& string) noexcept
+			: BasicStringView { string.data(), string.size(), string.viewFlags() }
+		{
+		}
+
+		template <class T>
+		Array<BasicStringView<T>> BasicStringView<T>::split(const char delimiter) const
+		{
+			Array<BasicStringView<T>> parts;
+			T* const end = this->end();
+			T* oldpos = _data;
+			T* pos;
+			while (oldpos < end && (pos = static_cast<T*>(std::memchr(oldpos, delimiter, end - oldpos)))) {
+				arrayAppend(parts, slice(oldpos, pos));
+				oldpos = pos + 1;
 			}
 
-			// If the substring is larger or no match was found, fail
-			return {};
-		}
-	}
+			if (!empty())
+				arrayAppend(parts, suffix(oldpos));
 
-	template<class T> Array<BasicStringView<T>> BasicStringView<T>::split(const StringView delimiter) const {
-		const char* const delimiterData = delimiter.data();
-		const std::size_t delimiterSize = delimiter.size();
-		DEATH_ASSERT(delimiterSize, "Delimiter is empty", {});
-
-		Array<BasicStringView<T>> parts;
-		const char* const end = this->end();
-		const char* oldpos = _data;
-		const char* pos;
-		while (oldpos < end && (pos = Implementation::stringFindString(oldpos, end - oldpos, delimiterData, delimiterSize))) {
-			arrayAppend(parts, slice(const_cast<T*>(oldpos), const_cast<T*>(pos)));
-			oldpos = pos + delimiterSize;
+			return parts;
 		}
 
-		if (!empty())
-			arrayAppend(parts, suffix(const_cast<T*>(oldpos)));
+		template <class T>
+		Array<BasicStringView<T>> BasicStringView<T>::splitWithoutEmptyParts(const char delimiter) const
+		{
+			Array<BasicStringView<T>> parts;
+			T* const end = this->end();
+			T* oldpos = _data;
+			while (oldpos < end) {
+				T* pos = static_cast<T*>(std::memchr(oldpos, delimiter, end - oldpos));
+				// Not sure why memchr can't just do this, it would make much more sense
+				if (!pos)
+					pos = end;
 
-		return parts;
-	}
+				if (pos != oldpos)
+					arrayAppend(parts, slice(oldpos, pos));
 
-	namespace Implementation
-	{
-		const char* stringFindLastString(const char* const data, const std::size_t size, const char* const substring, const std::size_t substringSize) {
-			// If the substring is not larger than the string we search in
-			if (substringSize <= size) {
-				// Empty substring matches at the end
-				if (!substringSize) return data + size;
+				oldpos = pos + 1;
+			}
 
-				const std::size_t substringSize_1 = substringSize - 1;
-				const char first = substring[0];
-				const char last = substring[substringSize_1];
-				const char* const min = data + substringSize_1;
+			return parts;
+		}
 
-				// Same as stringFindString(), but backwards via the last char
-				const char* end = data + size;
-				for (std::size_t candidates = 1; ; ++candidates) {
-					const char* const found = stringFindLastCharacter(min, end - min, last);
-					if (!found) return {};
-					const char* const candidate = found - substringSize_1;
-					if (*candidate == first && std::memcmp(candidate, substring, substringSize_1) == 0)
-						return candidate;
-					end = found;
-					if (candidates >= 8 && std::size_t(data + size - end) < candidates * 16)
-						break;
+		namespace Implementation
+		{
+			const char* stringFindString(const char* data, const std::size_t size, const char* const substring, const std::size_t substringSize)
+			{
+				// If the substring is not larger than the string we search in
+				if (substringSize > 0 && substringSize <= size) {
+					const std::size_t substringSize_1 = substringSize - 1;
+					const char first = substring[0];
+					const char last = substring[substringSize_1];
+					const char* const end = data + size - substringSize_1;
+
+					// Jump between candidates via SIMD lookup of the first char, go scalar if they're too dense
+					const char* begin = data;
+					for (std::size_t candidates = 1;; ++candidates) {
+						const char* const found = stringFindCharacter(begin, end - begin, first);
+						if (!found)
+							return {};
+						if (found[substringSize_1] == last && std::memcmp(found + 1, substring + 1, substringSize_1) == 0)
+							return found;
+						begin = found + 1;
+						if (candidates >= 8 && std::size_t(begin - data) < candidates * 16)
+							break;
+					}
+
+					// Simplified Boyer-Moore, zero skip means not computed yet
+					std::size_t skip = 0;
+					while (begin < end) {
+						// Boyer-Moore: match the last element in the needle
+						while (begin[substringSize_1] != last) {
+							if (++begin == end) {
+								return {};
+							}
+						}
+						// Here we know that the last char matches, continue in pedestrian mode
+						for (std::size_t j = 0;;) {
+							if (begin[j] != substring[j]) {
+								// Not found, we can skip, compute the skip value lazily
+								if (skip == 0) {
+									skip = 1;
+									while (skip <= substringSize_1 && substring[substringSize_1 - skip] != last) {
+										++skip;
+									}
+								}
+								begin += skip;
+								break;
+							}
+
+							if (++j == substringSize) {
+								return begin;
+							}
+						}
+					}
 				}
 
-				while (end != min) {
-					if (*--end == last) {
-						const char* const candidate = end - substringSize_1;
+				// If the substring is larger or no match was found, fail
+				return {};
+			}
+		}
+
+		template <class T>
+		Array<BasicStringView<T>> BasicStringView<T>::split(const StringView delimiter) const
+		{
+			const char* const delimiterData = delimiter.data();
+			const std::size_t delimiterSize = delimiter.size();
+			DEATH_ASSERT(delimiterSize, "Delimiter is empty", {});
+
+			Array<BasicStringView<T>> parts;
+			const char* const end = this->end();
+			const char* oldpos = _data;
+			const char* pos;
+			while (oldpos < end && (pos = Implementation::stringFindString(oldpos, end - oldpos, delimiterData, delimiterSize))) {
+				arrayAppend(parts, slice(const_cast<T*>(oldpos), const_cast<T*>(pos)));
+				oldpos = pos + delimiterSize;
+			}
+
+			if (!empty())
+				arrayAppend(parts, suffix(const_cast<T*>(oldpos)));
+
+			return parts;
+		}
+
+		namespace Implementation
+		{
+			const char* stringFindLastString(const char* const data, const std::size_t size, const char* const substring, const std::size_t substringSize)
+			{
+				// If the substring is not larger than the string we search in
+				if (substringSize <= size) {
+					// Empty substring matches at the end
+					if (!substringSize)
+						return data + size;
+
+					const std::size_t substringSize_1 = substringSize - 1;
+					const char first = substring[0];
+					const char last = substring[substringSize_1];
+					const char* const min = data + substringSize_1;
+
+					// Same as stringFindString(), but backwards via the last char
+					const char* end = data + size;
+					for (std::size_t candidates = 1;; ++candidates) {
+						const char* const found = stringFindLastCharacter(min, end - min, last);
+						if (!found)
+							return {};
+						const char* const candidate = found - substringSize_1;
 						if (*candidate == first && std::memcmp(candidate, substring, substringSize_1) == 0)
 							return candidate;
+						end = found;
+						if (candidates >= 8 && std::size_t(data + size - end) < candidates * 16)
+							break;
+					}
+
+					while (end != min) {
+						if (*--end == last) {
+							const char* const candidate = end - substringSize_1;
+							if (*candidate == first && std::memcmp(candidate, substring, substringSize_1) == 0)
+								return candidate;
+						}
 					}
 				}
+
+				// If the substring is larger or no match was found, fail
+				return {};
 			}
 
-			// If the substring is larger or no match was found, fail
-			return {};
-		}
-
-		namespace
-		{
-			/* SIMD implementation of character lookup. Loosely based off
+			namespace
+			{
+				/* SIMD implementation of character lookup. Loosely based off
 			   https://docs.rs/memchr/2.3.4/src/memchr/x86/sse2.rs.html, which in turn is
 			   based off https://gms.tf/stdfind-and-memchr-optimizations.html, which at the
 			   time of writing (Jul 2022) uses m.css, so the circle is complete :))
@@ -244,10 +272,11 @@ namespace Death { namespace Containers {
 				as noted in code comments. */
 
 #if defined(DEATH_ENABLE_SSE2) && defined(DEATH_ENABLE_BMI1)
-			DEATH_CPU_MAYBE_UNUSED DEATH_ENABLE(SSE2, BMI1) typename std::decay<decltype(stringFindCharacter)>::type stringFindCharacterImplementation(DEATH_CPU_DECLARE(Cpu::Sse2 | Cpu::Bmi1)) {
-				// Can't use trailing return type due to a GCC 9.3 bug, which is the default on Ubuntu 20.04: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90333
-				return [](const char* const data, const std::size_t size, const char character) DEATH_ENABLE(SSE2, BMI1) {
-					/* If we have less than 16 bytes, do it the stupid way. Compared to a plain
+				DEATH_CPU_MAYBE_UNUSED DEATH_ENABLE(SSE2, BMI1) typename std::decay<decltype(stringFindCharacter)>::type stringFindCharacterImplementation(DEATH_CPU_DECLARE(Cpu::Sse2 | Cpu::Bmi1))
+				{
+					// Can't use trailing return type due to a GCC 9.3 bug, which is the default on Ubuntu 20.04: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90333
+					return [](const char* const data, const std::size_t size, const char character) DEATH_ENABLE(SSE2, BMI1) {
+						/* If we have less than 16 bytes, do it the stupid way. Compared to a plain
 					   loop this is 1.5-2x faster when unrolled. Interestingly enough, on GCC
 					   (11) doing a pre-increment and `return j` leads to
 						lea    0x1(%rcx),%rax
@@ -267,197 +296,246 @@ namespace Death { namespace Containers {
 					   different order?) the benchmark doesn't show any difference between the
 					   two. Since post-increment significantly helps GCC and doesn't make
 					   Clang slower, use it. */
-					{
-						const char* j = data;
-						switch (size) {
-							case 15: if (*j++ == character) return j - 1; DEATH_FALLTHROUGH
-							case 14: if (*j++ == character) return j - 1; DEATH_FALLTHROUGH
-							case 13: if (*j++ == character) return j - 1; DEATH_FALLTHROUGH
-							case 12: if (*j++ == character) return j - 1; DEATH_FALLTHROUGH
-							case 11: if (*j++ == character) return j - 1; DEATH_FALLTHROUGH
-							case 10: if (*j++ == character) return j - 1; DEATH_FALLTHROUGH
-							case  9: if (*j++ == character) return j - 1; DEATH_FALLTHROUGH
-							case  8: if (*j++ == character) return j - 1; DEATH_FALLTHROUGH
-							case  7: if (*j++ == character) return j - 1; DEATH_FALLTHROUGH
-							case  6: if (*j++ == character) return j - 1; DEATH_FALLTHROUGH
-							case  5: if (*j++ == character) return j - 1; DEATH_FALLTHROUGH
-							case  4: if (*j++ == character) return j - 1; DEATH_FALLTHROUGH
-							case  3: if (*j++ == character) return j - 1; DEATH_FALLTHROUGH
-							case  2: if (*j++ == character) return j - 1; DEATH_FALLTHROUGH
-							case  1: if (*j++ == character) return j - 1; DEATH_FALLTHROUGH
-							case  0: return static_cast<const char*>(nullptr);
+						{
+							const char* j = data;
+							switch (size) {
+								case 15:
+									if (*j++ == character)
+										return j - 1;
+									DEATH_FALLTHROUGH
+								case 14:
+									if (*j++ == character)
+										return j - 1;
+									DEATH_FALLTHROUGH
+								case 13:
+									if (*j++ == character)
+										return j - 1;
+									DEATH_FALLTHROUGH
+								case 12:
+									if (*j++ == character)
+										return j - 1;
+									DEATH_FALLTHROUGH
+								case 11:
+									if (*j++ == character)
+										return j - 1;
+									DEATH_FALLTHROUGH
+								case 10:
+									if (*j++ == character)
+										return j - 1;
+									DEATH_FALLTHROUGH
+								case 9:
+									if (*j++ == character)
+										return j - 1;
+									DEATH_FALLTHROUGH
+								case 8:
+									if (*j++ == character)
+										return j - 1;
+									DEATH_FALLTHROUGH
+								case 7:
+									if (*j++ == character)
+										return j - 1;
+									DEATH_FALLTHROUGH
+								case 6:
+									if (*j++ == character)
+										return j - 1;
+									DEATH_FALLTHROUGH
+								case 5:
+									if (*j++ == character)
+										return j - 1;
+									DEATH_FALLTHROUGH
+								case 4:
+									if (*j++ == character)
+										return j - 1;
+									DEATH_FALLTHROUGH
+								case 3:
+									if (*j++ == character)
+										return j - 1;
+									DEATH_FALLTHROUGH
+								case 2:
+									if (*j++ == character)
+										return j - 1;
+									DEATH_FALLTHROUGH
+								case 1:
+									if (*j++ == character)
+										return j - 1;
+									DEATH_FALLTHROUGH
+								case 0:
+									return static_cast<const char*>(nullptr);
+							}
 						}
-					}
 
-					const __m128i vn1 = _mm_set1_epi8(character);
+						const __m128i vn1 = _mm_set1_epi8(character);
 
-					// Unconditionally do a lookup in the first vector a slower, unaligned way. Any extra branching to avoid
-					// the unaligned load if already aligned would be most probably more expensive than the actual unaligned load.
-					{
-						const __m128i chunk = _mm_loadu_si128(reinterpret_cast<const __m128i*>(data));
-						if (const int mask = _mm_movemask_epi8(_mm_cmpeq_epi8(chunk, vn1)))
-							return data + _tzcnt_u32(mask);
-					}
-
-					// Go to the next aligned position. If the pointer was already aligned, we'll go to the next aligned vector;
-					// if not, there will be an overlap and we'll check some bytes twice.
-					const char* i = reinterpret_cast<const char*>(reinterpret_cast<std::uintptr_t>(data + 16) & ~0xf);
-					DEATH_DEBUG_ASSERT(i > data && reinterpret_cast<std::uintptr_t>(i) % 16 == 0);
-
-					// Go four vectors at a time with the aligned pointer
-					const char* const end = data + size;
-					for (; i + 4 * 16 <= end; i += 4 * 16) {
-						const __m128i a = _mm_load_si128(reinterpret_cast<const __m128i*>(i) + 0);
-						const __m128i b = _mm_load_si128(reinterpret_cast<const __m128i*>(i) + 1);
-						const __m128i c = _mm_load_si128(reinterpret_cast<const __m128i*>(i) + 2);
-						const __m128i d = _mm_load_si128(reinterpret_cast<const __m128i*>(i) + 3);
-
-						const __m128i eqA = _mm_cmpeq_epi8(vn1, a);
-						const __m128i eqB = _mm_cmpeq_epi8(vn1, b);
-						const __m128i eqC = _mm_cmpeq_epi8(vn1, c);
-						const __m128i eqD = _mm_cmpeq_epi8(vn1, d);
-
-						const __m128i or1 = _mm_or_si128(eqA, eqB);
-						const __m128i or2 = _mm_or_si128(eqC, eqD);
-						const __m128i or3 = _mm_or_si128(or1, or2);
-						if (_mm_movemask_epi8(or3)) {
-							if (const int mask = _mm_movemask_epi8(eqA))
-								return i + 0 * 16 + _tzcnt_u32(mask);
-							if (const int mask = _mm_movemask_epi8(eqB))
-								return i + 1 * 16 + _tzcnt_u32(mask);
-							if (const int mask = _mm_movemask_epi8(eqC))
-								return i + 2 * 16 + _tzcnt_u32(mask);
-							if (const int mask = _mm_movemask_epi8(eqD))
-								return i + 3 * 16 + _tzcnt_u32(mask);
-							// Unreachable
+						// Unconditionally do a lookup in the first vector a slower, unaligned way. Any extra branching to avoid
+						// the unaligned load if already aligned would be most probably more expensive than the actual unaligned load.
+						{
+							const __m128i chunk = _mm_loadu_si128(reinterpret_cast<const __m128i*>(data));
+							if (const int mask = _mm_movemask_epi8(_mm_cmpeq_epi8(chunk, vn1)))
+								return data + _tzcnt_u32(mask);
 						}
-					}
 
-					// Handle remaining less than four vectors
-					for (; i + 16 <= end; i += 16) {
-						const __m128i chunk = _mm_load_si128(reinterpret_cast<const __m128i*>(i));
-						if (const int mask = _mm_movemask_epi8(_mm_cmpeq_epi8(chunk, vn1)))
-							return i + _tzcnt_u32(mask);
-					}
+						// Go to the next aligned position. If the pointer was already aligned, we'll go to the next aligned vector;
+						// if not, there will be an overlap and we'll check some bytes twice.
+						const char* i = reinterpret_cast<const char*>(reinterpret_cast<std::uintptr_t>(data + 16) & ~0xf);
+						DEATH_DEBUG_ASSERT(i > data && reinterpret_cast<std::uintptr_t>(i) % 16 == 0);
 
-					// Handle remaining less than a vector with an unaligned search, again overlapping back
-					// with the previous already-searched elements
-					if (i < end) {
-						DEATH_DEBUG_ASSERT(i + 16 > end);
-						i = end - 16;
-						const __m128i chunk = _mm_loadu_si128(reinterpret_cast<const __m128i*>(i));
-						if (const int mask = _mm_movemask_epi8(_mm_cmpeq_epi8(chunk, vn1)))
-							return i + _tzcnt_u32(mask);
-					}
+						// Go four vectors at a time with the aligned pointer
+						const char* const end = data + size;
+						for (; i + 4 * 16 <= end; i += 4 * 16) {
+							const __m128i a = _mm_load_si128(reinterpret_cast<const __m128i*>(i) + 0);
+							const __m128i b = _mm_load_si128(reinterpret_cast<const __m128i*>(i) + 1);
+							const __m128i c = _mm_load_si128(reinterpret_cast<const __m128i*>(i) + 2);
+							const __m128i d = _mm_load_si128(reinterpret_cast<const __m128i*>(i) + 3);
 
-					return static_cast<const char*>(nullptr);
-				};
-			}
+							const __m128i eqA = _mm_cmpeq_epi8(vn1, a);
+							const __m128i eqB = _mm_cmpeq_epi8(vn1, b);
+							const __m128i eqC = _mm_cmpeq_epi8(vn1, c);
+							const __m128i eqD = _mm_cmpeq_epi8(vn1, d);
+
+							const __m128i or1 = _mm_or_si128(eqA, eqB);
+							const __m128i or2 = _mm_or_si128(eqC, eqD);
+							const __m128i or3 = _mm_or_si128(or1, or2);
+							if (_mm_movemask_epi8(or3)) {
+								if (const int mask = _mm_movemask_epi8(eqA))
+									return i + 0 * 16 + _tzcnt_u32(mask);
+								if (const int mask = _mm_movemask_epi8(eqB))
+									return i + 1 * 16 + _tzcnt_u32(mask);
+								if (const int mask = _mm_movemask_epi8(eqC))
+									return i + 2 * 16 + _tzcnt_u32(mask);
+								if (const int mask = _mm_movemask_epi8(eqD))
+									return i + 3 * 16 + _tzcnt_u32(mask);
+								// Unreachable
+							}
+						}
+
+						// Handle remaining less than four vectors
+						for (; i + 16 <= end; i += 16) {
+							const __m128i chunk = _mm_load_si128(reinterpret_cast<const __m128i*>(i));
+							if (const int mask = _mm_movemask_epi8(_mm_cmpeq_epi8(chunk, vn1)))
+								return i + _tzcnt_u32(mask);
+						}
+
+						// Handle remaining less than a vector with an unaligned search, again overlapping back
+						// with the previous already-searched elements
+						if (i < end) {
+							DEATH_DEBUG_ASSERT(i + 16 > end);
+							i = end - 16;
+							const __m128i chunk = _mm_loadu_si128(reinterpret_cast<const __m128i*>(i));
+							if (const int mask = _mm_movemask_epi8(_mm_cmpeq_epi8(chunk, vn1)))
+								return i + _tzcnt_u32(mask);
+						}
+
+						return static_cast<const char*>(nullptr);
+					};
+				}
 #endif
 
 #if defined(DEATH_ENABLE_AVX2) && defined(DEATH_ENABLE_BMI1)
-			DEATH_CPU_MAYBE_UNUSED DEATH_ENABLE(AVX2, BMI1) typename std::decay<decltype(stringFindCharacter)>::type stringFindCharacterImplementation(DEATH_CPU_DECLARE(Cpu::Avx2 | Cpu::Bmi1)) {
-				// Can't use trailing return type due to a GCC 9.3 bug, which is the default on Ubuntu 20.04: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90333
-				return [](const char* const data, const std::size_t size, const char character) DEATH_ENABLE(AVX2, BMI1) {
-					// If we have less than 32 bytes, fall back to the SSE variant
-					if (size < 32)
-						return stringFindCharacterImplementation(DEATH_CPU_SELECT(Cpu::Sse2 | Cpu::Bmi1))(data, size, character);
+				DEATH_CPU_MAYBE_UNUSED DEATH_ENABLE(AVX2, BMI1) typename std::decay<decltype(stringFindCharacter)>::type stringFindCharacterImplementation(DEATH_CPU_DECLARE(Cpu::Avx2 | Cpu::Bmi1))
+				{
+					// Can't use trailing return type due to a GCC 9.3 bug, which is the default on Ubuntu 20.04: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90333
+					return [](const char* const data, const std::size_t size, const char character) DEATH_ENABLE(AVX2, BMI1) {
+						// If we have less than 32 bytes, fall back to the SSE variant
+						if (size < 32)
+							return stringFindCharacterImplementation(DEATH_CPU_SELECT(Cpu::Sse2 | Cpu::Bmi1))(data, size, character);
 
-					const __m256i vn1 = _mm256_set1_epi8(character);
+						const __m256i vn1 = _mm256_set1_epi8(character);
 
-					// Unconditionally do a lookup in the first vector a slower, unaligned way. Any extra branching to avoid
-					// the unaligned load if already aligned would be most probably more expensive than the actual unaligned load.
-					{
-						// _mm256_lddqu_si256 is just an alias to _mm256_loadu_si256, no reason to use it: https://stackoverflow.com/a/47426790
-						const __m256i chunk = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(data));
-						if (const int mask = _mm256_movemask_epi8(_mm256_cmpeq_epi8(chunk, vn1)))
-							return data + _tzcnt_u32(mask);
-					}
-
-					// Go to the next aligned position. If the pointer was already aligned, we'll go to the next aligned vector;
-					// if not, there will be an overlap and we'll check some bytes twice.
-					const char* i = reinterpret_cast<const char*>(reinterpret_cast<std::uintptr_t>(data + 32) & ~0x1f);
-					DEATH_DEBUG_ASSERT(i > data && reinterpret_cast<std::uintptr_t>(i) % 32 == 0);
-
-					// Go four vectors at a time with the aligned pointer
-					const char* const end = data + size;
-					for (; i + 4 * 32 <= end; i += 4 * 32) {
-						const __m256i a = _mm256_load_si256(reinterpret_cast<const __m256i*>(i) + 0);
-						const __m256i b = _mm256_load_si256(reinterpret_cast<const __m256i*>(i) + 1);
-						const __m256i c = _mm256_load_si256(reinterpret_cast<const __m256i*>(i) + 2);
-						const __m256i d = _mm256_load_si256(reinterpret_cast<const __m256i*>(i) + 3);
-
-						const __m256i eqA = _mm256_cmpeq_epi8(vn1, a);
-						const __m256i eqB = _mm256_cmpeq_epi8(vn1, b);
-						const __m256i eqC = _mm256_cmpeq_epi8(vn1, c);
-						const __m256i eqD = _mm256_cmpeq_epi8(vn1, d);
-
-						const __m256i or1 = _mm256_or_si256(eqA, eqB);
-						const __m256i or2 = _mm256_or_si256(eqC, eqD);
-						const __m256i or3 = _mm256_or_si256(or1, or2);
-						if (_mm256_movemask_epi8(or3)) {
-							if (const int mask = _mm256_movemask_epi8(eqA))
-								return i + 0 * 32 + _tzcnt_u32(mask);
-							if (const int mask = _mm256_movemask_epi8(eqB))
-								return i + 1 * 32 + _tzcnt_u32(mask);
-							if (const int mask = _mm256_movemask_epi8(eqC))
-								return i + 2 * 32 + _tzcnt_u32(mask);
-							if (const int mask = _mm256_movemask_epi8(eqD))
-								return i + 3 * 32 + _tzcnt_u32(mask);
-							// Unreachable
+						// Unconditionally do a lookup in the first vector a slower, unaligned way. Any extra branching to avoid
+						// the unaligned load if already aligned would be most probably more expensive than the actual unaligned load.
+						{
+							// _mm256_lddqu_si256 is just an alias to _mm256_loadu_si256, no reason to use it: https://stackoverflow.com/a/47426790
+							const __m256i chunk = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(data));
+							if (const int mask = _mm256_movemask_epi8(_mm256_cmpeq_epi8(chunk, vn1)))
+								return data + _tzcnt_u32(mask);
 						}
-					}
 
-					// Handle remaining less than four vectors
-					for (; i + 32 <= end; i += 32) {
-						const __m256i chunk = _mm256_load_si256(reinterpret_cast<const __m256i*>(i));
-						if (const int mask = _mm256_movemask_epi8(_mm256_cmpeq_epi8(chunk, vn1)))
-							return i + _tzcnt_u32(mask);
-					}
+						// Go to the next aligned position. If the pointer was already aligned, we'll go to the next aligned vector;
+						// if not, there will be an overlap and we'll check some bytes twice.
+						const char* i = reinterpret_cast<const char*>(reinterpret_cast<std::uintptr_t>(data + 32) & ~0x1f);
+						DEATH_DEBUG_ASSERT(i > data && reinterpret_cast<std::uintptr_t>(i) % 32 == 0);
 
-					// Handle remaining less than a vector with an unaligned search, again overlapping back with the previous
-					// already-searched elements
-					if (i < end) {
-						DEATH_DEBUG_ASSERT(i + 32 > end);
-						i = end - 32;
-						const __m256i chunk = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(i));
-						if (const int mask = _mm256_movemask_epi8(_mm256_cmpeq_epi8(chunk, vn1)))
-							return i + _tzcnt_u32(mask);
-					}
+						// Go four vectors at a time with the aligned pointer
+						const char* const end = data + size;
+						for (; i + 4 * 32 <= end; i += 4 * 32) {
+							const __m256i a = _mm256_load_si256(reinterpret_cast<const __m256i*>(i) + 0);
+							const __m256i b = _mm256_load_si256(reinterpret_cast<const __m256i*>(i) + 1);
+							const __m256i c = _mm256_load_si256(reinterpret_cast<const __m256i*>(i) + 2);
+							const __m256i d = _mm256_load_si256(reinterpret_cast<const __m256i*>(i) + 3);
 
-					return static_cast<const char*>(nullptr);
-				};
-			}
+							const __m256i eqA = _mm256_cmpeq_epi8(vn1, a);
+							const __m256i eqB = _mm256_cmpeq_epi8(vn1, b);
+							const __m256i eqC = _mm256_cmpeq_epi8(vn1, c);
+							const __m256i eqD = _mm256_cmpeq_epi8(vn1, d);
+
+							const __m256i or1 = _mm256_or_si256(eqA, eqB);
+							const __m256i or2 = _mm256_or_si256(eqC, eqD);
+							const __m256i or3 = _mm256_or_si256(or1, or2);
+							if (_mm256_movemask_epi8(or3)) {
+								if (const int mask = _mm256_movemask_epi8(eqA))
+									return i + 0 * 32 + _tzcnt_u32(mask);
+								if (const int mask = _mm256_movemask_epi8(eqB))
+									return i + 1 * 32 + _tzcnt_u32(mask);
+								if (const int mask = _mm256_movemask_epi8(eqC))
+									return i + 2 * 32 + _tzcnt_u32(mask);
+								if (const int mask = _mm256_movemask_epi8(eqD))
+									return i + 3 * 32 + _tzcnt_u32(mask);
+								// Unreachable
+							}
+						}
+
+						// Handle remaining less than four vectors
+						for (; i + 32 <= end; i += 32) {
+							const __m256i chunk = _mm256_load_si256(reinterpret_cast<const __m256i*>(i));
+							if (const int mask = _mm256_movemask_epi8(_mm256_cmpeq_epi8(chunk, vn1)))
+								return i + _tzcnt_u32(mask);
+						}
+
+						// Handle remaining less than a vector with an unaligned search, again overlapping back with the previous
+						// already-searched elements
+						if (i < end) {
+							DEATH_DEBUG_ASSERT(i + 32 > end);
+							i = end - 32;
+							const __m256i chunk = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(i));
+							if (const int mask = _mm256_movemask_epi8(_mm256_cmpeq_epi8(chunk, vn1)))
+								return i + _tzcnt_u32(mask);
+						}
+
+						return static_cast<const char*>(nullptr);
+					};
+				}
 #endif
 
 #if defined(DEATH_ENABLE_NEON) && !defined(DEATH_TARGET_32BIT)
-			// `vshrn_n_u16` and `vmaxvq_u8` are missing in `armeabi-v7a` on Android, so enable it only on ARM64.
-			DEATH_CPU_MAYBE_UNUSED DEATH_ENABLE(NEON) typename std::decay<decltype(stringFindCharacter)>::type stringFindCharacterImplementation(DEATH_CPU_DECLARE(Cpu::Neon)) {
-				// Can't use trailing return type due to a GCC 9.3 bug, which is the default on Ubuntu 20.04: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90333
-				return [](const char* const data, const std::size_t size, const char character) DEATH_ENABLE(NEON) {
-					const char* const end = data + size;
+				// `vshrn_n_u16` and `vmaxvq_u8` are missing in `armeabi-v7a` on Android, so enable it only on ARM64.
+				DEATH_CPU_MAYBE_UNUSED DEATH_ENABLE(NEON) typename std::decay<decltype(stringFindCharacter)>::type stringFindCharacterImplementation(DEATH_CPU_DECLARE(Cpu::Neon))
+				{
+					// Can't use trailing return type due to a GCC 9.3 bug, which is the default on Ubuntu 20.04: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=90333
+					return [](const char* const data, const std::size_t size, const char character) DEATH_ENABLE(NEON) {
+						const char* const end = data + size;
 
-					// If we have less than 16 bytes, do it the stupid way. Unlike x86 or WASM, unrolling
-					// the loop here makes things actually worse.
-					if (size < 16) {
-						for (const char* i = data; i != end; ++i)
-							if (*i == character) return i;
-						return static_cast<const char*>(nullptr);
-					}
+						// If we have less than 16 bytes, do it the stupid way. Unlike x86 or WASM, unrolling
+						// the loop here makes things actually worse.
+						if (size < 16) {
+							for (const char* i = data; i != end; ++i)
+								if (*i == character)
+									return i;
+							return static_cast<const char*>(nullptr);
+						}
 
-					const uint8x16_t vn1 = vdupq_n_u8(character);
+						const uint8x16_t vn1 = vdupq_n_u8(character);
 
-					// Unconditionally do a lookup in the first vector a slower, unaligned way. Any extra branching to avoid
-					// the unaligned load if already aligned would be most probably more expensive than the actual unaligned load.
-					{
-						/* AArch64 doesn't differentiate between aligned and unaligned loads.
+						// Unconditionally do a lookup in the first vector a slower, unaligned way. Any extra branching to avoid
+						// the unaligned load if already aligned would be most probably more expensive than the actual unaligned load.
+						{
+							/* AArch64 doesn't differentiate between aligned and unaligned loads.
 						   ARM32 does, but it's not exposed in the intrinsics, only in
 						   compiler-specific ways. Since 32-bit ARM is increasingly rare (and
 						   this code doesn't work on it anyway), not bothering at all.
 						   https://stackoverflow.com/a/53245244 */
-						const uint8x16_t chunk = vld1q_u8(reinterpret_cast<const std::uint8_t*>(data));
+							const uint8x16_t chunk = vld1q_u8(reinterpret_cast<const std::uint8_t*>(data));
 
-						/* Emulating _mm_movemask_epi8() on ARM is rather expensive, even the
+							/* Emulating _mm_movemask_epi8() on ARM is rather expensive, even the
 						   most optimized variant listed at
 						   https://github.com/WebAssembly/simd/pull/201 is 6+ instructions.
 						   Instead, a "shift right and narrow" is used, based on an idea from
@@ -482,10 +560,10 @@ namespace Death { namespace Containers {
 						   `__builtin_ctzll(mask) >> 2` is equivalent to what TZCNT on a 16bit
 						   mask produced by _mm_movemask_epi8() would return -- there's simply
 						   just 4x more bits. */
-						const uint16x8_t eq16 = vreinterpretq_u16_u8(vceqq_u8(chunk, vn1));
-						const uint64x1_t shrn64 = vreinterpret_u64_u8(vshrn_n_u16(eq16, 4));
-						if (const uint64_t mask = vget_lane_u64(shrn64, 0))
-							return data +
+							const uint16x8_t eq16 = vreinterpretq_u16_u8(vceqq_u8(chunk, vn1));
+							const uint64x1_t shrn64 = vreinterpret_u64_u8(vshrn_n_u16(eq16, 4));
+							if (const uint64_t mask = vget_lane_u64(shrn64, 0))
+								return data +
 								/* https://learn.microsoft.com/en-us/cpp/intrinsics/arm64-intrinsics
 								   which hopefully just compiles down to the clz instruction.
 								   Clang has only _CountLeadingZeros64() and only since version
@@ -493,603 +571,754 @@ namespace Death { namespace Containers {
 								   keeping to use the GCC builtin there (which is documented to
 								   be undefined for 0, but again hoping it just compiles to clz
 								   which is well-defined for 0). */
-#	if defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG)
-								(_CountTrailingZeros64(mask) >> 2);
-#	else
-								(__builtin_ctzll(mask) >> 2);
-#	endif
-					}
-
-					// Go to the next aligned position. If the pointer was already aligned, we'll go to the next aligned vector;
-					// if not, there will be an overlap and we'll check some bytes twice.
-					const char* i = reinterpret_cast<const char*>(reinterpret_cast<std::uintptr_t>(data + 16) & ~0xf);
-					DEATH_DEBUG_ASSERT(i > data && reinterpret_cast<std::uintptr_t>(i) % 16 == 0);
-
-					// Go four vectors at a time with the aligned pointer
-					for (; i + 4 * 16 <= end; i += 4 * 16) {
-						const uint8x16_t a = vld1q_u8(reinterpret_cast<const std::uint8_t*>(i) + 0 * 16);
-						const uint8x16_t b = vld1q_u8(reinterpret_cast<const std::uint8_t*>(i) + 1 * 16);
-						const uint8x16_t c = vld1q_u8(reinterpret_cast<const std::uint8_t*>(i) + 2 * 16);
-						const uint8x16_t d = vld1q_u8(reinterpret_cast<const std::uint8_t*>(i) + 3 * 16);
-
-						const uint8x16_t eqA = vceqq_u8(vn1, a);
-						const uint8x16_t eqB = vceqq_u8(vn1, b);
-						const uint8x16_t eqC = vceqq_u8(vn1, c);
-						const uint8x16_t eqD = vceqq_u8(vn1, d);
-
-						// Similar to the first unaligned vector above, except that four "shift right and narrow" operations are done,
-						// interleaving the result into two registers instead of four
-						const uint8x8_t maskA = vshrn_n_u16(vreinterpretq_u16_u8(eqA), 4);
-						const uint8x16_t maskAB = vshrn_high_n_u16(maskA, vreinterpretq_u16_u8(eqB), 4);
-						const uint8x8_t maskC = vshrn_n_u16(vreinterpretq_u16_u8(eqC), 4);
-						const uint8x16_t maskCD = vshrn_high_n_u16(maskC, vreinterpretq_u16_u8(eqD), 4);
-
-						// Which makes it possible to test with just one OR and a horizontal max instead of three ORs and a horizontal max.
-						// Not an add, sixteen 0xf0 bytes would wrap to zero
-						if (vmaxvq_u8(vorrq_u8(maskAB, maskCD))) {
-							if (const std::uint64_t mask = vgetq_lane_u64(vreinterpretq_u64_u8(maskAB), 0))
-								return i + 0 * 16 + /* The clz instruction, see comment above */
-#	if defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG)
+#if defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG)
 									(_CountTrailingZeros64(mask) >> 2);
-#	else
+#else
 									(__builtin_ctzll(mask) >> 2);
-#	endif
-							if (const std::uint64_t mask = vgetq_lane_u64(vreinterpretq_u64_u8(maskAB), 1))
-								return i + 1 * 16 +  /* The clz instruction, see comment above */
-#	if defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG)
-									(_CountTrailingZeros64(mask) >> 2);
-#	else
-									(__builtin_ctzll(mask) >> 2);
-#	endif
-							if (const std::uint64_t mask = vgetq_lane_u64(vreinterpretq_u64_u8(maskCD), 0))
-								return i + 2 * 16 +  /* The clz instruction, see comment above */
-#	if defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG)
-									(_CountTrailingZeros64(mask) >> 2);
-#	else
-									(__builtin_ctzll(mask) >> 2);
-#	endif
-							if (const std::uint64_t mask = vgetq_lane_u64(vreinterpretq_u64_u8(maskCD), 1))
-								return i + 3 * 16 +  /* The clz instruction, see comment above */
-#	if defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG)
-									(_CountTrailingZeros64(mask) >> 2);
-#	else
-									(__builtin_ctzll(mask) >> 2);
-#	endif
-							// Unreachable
+#endif
 						}
-					}
 
-					// Handle remaining less than four vectors
-					for (; i + 16 <= end; i += 16) {
-						const uint8x16_t chunk = vld1q_u8(reinterpret_cast<const std::uint8_t*>(i));
-						const uint16x8_t eq16 = vreinterpretq_u16_u8(vceqq_u8(chunk, vn1));
-						const uint64x1_t shrn64 = vreinterpret_u64_u8(vshrn_n_u16(eq16, 4));
-						if (const uint64_t mask = vget_lane_u64(shrn64, 0))
-							return i +  /* The clz instruction, see comment above */
-#	if defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG)
-								(_CountTrailingZeros64(mask) >> 2);
-#	else
-								(__builtin_ctzll(mask) >> 2);
-#	endif
-					}
+						// Go to the next aligned position. If the pointer was already aligned, we'll go to the next aligned vector;
+						// if not, there will be an overlap and we'll check some bytes twice.
+						const char* i = reinterpret_cast<const char*>(reinterpret_cast<std::uintptr_t>(data + 16) & ~0xf);
+						DEATH_DEBUG_ASSERT(i > data && reinterpret_cast<std::uintptr_t>(i) % 16 == 0);
 
-					// Handle remaining less than a vector with an unaligned search, again overlapping back with
-					// the previous already-searched elements
-					if (i < end) {
-						DEATH_DEBUG_ASSERT(i + 16 > end);
-						i = end - 16;
-						const uint8x16_t chunk = vld1q_u8(reinterpret_cast<const std::uint8_t*>(i));
-						const uint16x8_t eq16 = vreinterpretq_u16_u8(vceqq_u8(chunk, vn1));
-						const uint64x1_t shrn64 = vreinterpret_u64_u8(vshrn_n_u16(eq16, 4));
-						if (const uint64_t mask = vget_lane_u64(shrn64, 0))
-							return i +  /* The clz instruction, see comment above */
-#	if defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG)
-								(_CountTrailingZeros64(mask) >> 2);
-#	else
-								(__builtin_ctzll(mask) >> 2);
-#	endif
-					}
+						// Go four vectors at a time with the aligned pointer
+						for (; i + 4 * 16 <= end; i += 4 * 16) {
+							const uint8x16_t a = vld1q_u8(reinterpret_cast<const std::uint8_t*>(i) + 0 * 16);
+							const uint8x16_t b = vld1q_u8(reinterpret_cast<const std::uint8_t*>(i) + 1 * 16);
+							const uint8x16_t c = vld1q_u8(reinterpret_cast<const std::uint8_t*>(i) + 2 * 16);
+							const uint8x16_t d = vld1q_u8(reinterpret_cast<const std::uint8_t*>(i) + 3 * 16);
 
-					return static_cast<const char*>(nullptr);
-				};
-			}
+							const uint8x16_t eqA = vceqq_u8(vn1, a);
+							const uint8x16_t eqB = vceqq_u8(vn1, b);
+							const uint8x16_t eqC = vceqq_u8(vn1, c);
+							const uint8x16_t eqD = vceqq_u8(vn1, d);
+
+							// Similar to the first unaligned vector above, except that four "shift right and narrow" operations are done,
+							// interleaving the result into two registers instead of four
+							const uint8x8_t maskA = vshrn_n_u16(vreinterpretq_u16_u8(eqA), 4);
+							const uint8x16_t maskAB = vshrn_high_n_u16(maskA, vreinterpretq_u16_u8(eqB), 4);
+							const uint8x8_t maskC = vshrn_n_u16(vreinterpretq_u16_u8(eqC), 4);
+							const uint8x16_t maskCD = vshrn_high_n_u16(maskC, vreinterpretq_u16_u8(eqD), 4);
+
+							// Which makes it possible to test with just one OR and a horizontal max instead of three ORs and a horizontal max.
+							// Not an add, sixteen 0xf0 bytes would wrap to zero
+							if (vmaxvq_u8(vorrq_u8(maskAB, maskCD))) {
+								if (const std::uint64_t mask = vgetq_lane_u64(vreinterpretq_u64_u8(maskAB), 0))
+									return i + 0 * 16 + /* The clz instruction, see comment above */
+#if defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG)
+										(_CountTrailingZeros64(mask) >> 2);
+#else
+										(__builtin_ctzll(mask) >> 2);
+#endif
+								if (const std::uint64_t mask = vgetq_lane_u64(vreinterpretq_u64_u8(maskAB), 1))
+									return i + 1 * 16 + /* The clz instruction, see comment above */
+#if defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG)
+										(_CountTrailingZeros64(mask) >> 2);
+#else
+										(__builtin_ctzll(mask) >> 2);
+#endif
+								if (const std::uint64_t mask = vgetq_lane_u64(vreinterpretq_u64_u8(maskCD), 0))
+									return i + 2 * 16 + /* The clz instruction, see comment above */
+#if defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG)
+										(_CountTrailingZeros64(mask) >> 2);
+#else
+										(__builtin_ctzll(mask) >> 2);
+#endif
+								if (const std::uint64_t mask = vgetq_lane_u64(vreinterpretq_u64_u8(maskCD), 1))
+									return i + 3 * 16 + /* The clz instruction, see comment above */
+#if defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG)
+										(_CountTrailingZeros64(mask) >> 2);
+#else
+										(__builtin_ctzll(mask) >> 2);
+#endif
+								// Unreachable
+							}
+						}
+
+						// Handle remaining less than four vectors
+						for (; i + 16 <= end; i += 16) {
+							const uint8x16_t chunk = vld1q_u8(reinterpret_cast<const std::uint8_t*>(i));
+							const uint16x8_t eq16 = vreinterpretq_u16_u8(vceqq_u8(chunk, vn1));
+							const uint64x1_t shrn64 = vreinterpret_u64_u8(vshrn_n_u16(eq16, 4));
+							if (const uint64_t mask = vget_lane_u64(shrn64, 0))
+								return i + /* The clz instruction, see comment above */
+#if defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG)
+									(_CountTrailingZeros64(mask) >> 2);
+#else
+									(__builtin_ctzll(mask) >> 2);
+#endif
+						}
+
+						// Handle remaining less than a vector with an unaligned search, again overlapping back with
+						// the previous already-searched elements
+						if (i < end) {
+							DEATH_DEBUG_ASSERT(i + 16 > end);
+							i = end - 16;
+							const uint8x16_t chunk = vld1q_u8(reinterpret_cast<const std::uint8_t*>(i));
+							const uint16x8_t eq16 = vreinterpretq_u16_u8(vceqq_u8(chunk, vn1));
+							const uint64x1_t shrn64 = vreinterpret_u64_u8(vshrn_n_u16(eq16, 4));
+							if (const uint64_t mask = vget_lane_u64(shrn64, 0))
+								return i + /* The clz instruction, see comment above */
+#if defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG)
+									(_CountTrailingZeros64(mask) >> 2);
+#else
+									(__builtin_ctzll(mask) >> 2);
+#endif
+						}
+
+						return static_cast<const char*>(nullptr);
+					};
+				}
 #endif
 
 #if defined(DEATH_ENABLE_SIMD128)
-			// WASM doesn't differentiate between aligned and unaligned load, it's always unaligned :(
-			DEATH_CPU_MAYBE_UNUSED typename std::decay<decltype(stringFindCharacter)>::type stringFindCharacterImplementation(DEATH_CPU_DECLARE(Cpu::Simd128)) {
-				return [](const char* const data, const std::size_t size, const char character) DEATH_ENABLE_SIMD128 -> const char* {
-					// If we have less than 16 bytes, do it the stupid way. Compared to a plain loop, this is 25% faster when unrolled.
-					// Strangely enough, if the switch is put into an external always inline function to avoid duplication with
-					// the SSE2 variant, it no longer gives the advantage. Furthermore, the post-increment optimization from the x86 case
-					// doesn't help here at all, on the contrary makes the code slightly slower.
-					{
-						const char* j = data - 1;
-						switch (size) {
-							case 15: if (*++j == character) return j; DEATH_FALLTHROUGH
-							case 14: if (*++j == character) return j; DEATH_FALLTHROUGH
-							case 13: if (*++j == character) return j; DEATH_FALLTHROUGH
-							case 12: if (*++j == character) return j; DEATH_FALLTHROUGH
-							case 11: if (*++j == character) return j; DEATH_FALLTHROUGH
-							case 10: if (*++j == character) return j; DEATH_FALLTHROUGH
-							case  9: if (*++j == character) return j; DEATH_FALLTHROUGH
-							case  8: if (*++j == character) return j; DEATH_FALLTHROUGH
-							case  7: if (*++j == character) return j; DEATH_FALLTHROUGH
-							case  6: if (*++j == character) return j; DEATH_FALLTHROUGH
-							case  5: if (*++j == character) return j; DEATH_FALLTHROUGH
-							case  4: if (*++j == character) return j; DEATH_FALLTHROUGH
-							case  3: if (*++j == character) return j; DEATH_FALLTHROUGH
-							case  2: if (*++j == character) return j; DEATH_FALLTHROUGH
-							case  1: if (*++j == character) return j; DEATH_FALLTHROUGH
-							case  0: return {};
+				// WASM doesn't differentiate between aligned and unaligned load, it's always unaligned :(
+				DEATH_CPU_MAYBE_UNUSED typename std::decay<decltype(stringFindCharacter)>::type stringFindCharacterImplementation(DEATH_CPU_DECLARE(Cpu::Simd128))
+				{
+					return [](const char* const data, const std::size_t size, const char character) DEATH_ENABLE_SIMD128 -> const char* {
+						// If we have less than 16 bytes, do it the stupid way. Compared to a plain loop, this is 25% faster when unrolled.
+						// Strangely enough, if the switch is put into an external always inline function to avoid duplication with
+						// the SSE2 variant, it no longer gives the advantage. Furthermore, the post-increment optimization from the x86 case
+						// doesn't help here at all, on the contrary makes the code slightly slower.
+						{
+							const char* j = data - 1;
+							switch (size) {
+								case 15:
+									if (*++j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 14:
+									if (*++j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 13:
+									if (*++j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 12:
+									if (*++j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 11:
+									if (*++j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 10:
+									if (*++j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 9:
+									if (*++j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 8:
+									if (*++j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 7:
+									if (*++j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 6:
+									if (*++j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 5:
+									if (*++j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 4:
+									if (*++j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 3:
+									if (*++j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 2:
+									if (*++j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 1:
+									if (*++j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 0:
+									return {};
+							}
 						}
-					}
 
-					const v128_t vn1 = wasm_i8x16_splat(character);
+						const v128_t vn1 = wasm_i8x16_splat(character);
 
-					// Unconditionally do a lookup in the first vector a slower, unaligned way. Any extra branching to avoid
-					// the unaligned load if already aligned would be most probably more expensive than the actual unaligned load.
-					{
-						const v128_t chunk = wasm_v128_load(data);
-						if (const int mask = wasm_i8x16_bitmask(wasm_i8x16_eq(chunk, vn1)))
-							return data + __builtin_ctz(mask);
-					}
-
-					// Go to the next aligned position. If the pointer was already aligned, we'll go to the next aligned vector;
-					// if not, there will be an overlap and we'll check some bytes twice.
-					const char* i = reinterpret_cast<const char*>(reinterpret_cast<std::uintptr_t>(data + 16) & ~0xf);
-					DEATH_DEBUG_ASSERT(i > data && reinterpret_cast<std::uintptr_t>(i) % 16 == 0);
-
-					// Go four vectors at a time with the aligned pointer
-					const char* const end = data + size;
-					for (; i + 4 * 16 <= end; i += 4 * 16) {
-						const v128_t a = wasm_v128_load(reinterpret_cast<const v128_t*>(i) + 0);
-						const v128_t b = wasm_v128_load(reinterpret_cast<const v128_t*>(i) + 1);
-						const v128_t c = wasm_v128_load(reinterpret_cast<const v128_t*>(i) + 2);
-						const v128_t d = wasm_v128_load(reinterpret_cast<const v128_t*>(i) + 3);
-
-						const v128_t eqA = wasm_i8x16_eq(vn1, a);
-						const v128_t eqB = wasm_i8x16_eq(vn1, b);
-						const v128_t eqC = wasm_i8x16_eq(vn1, c);
-						const v128_t eqD = wasm_i8x16_eq(vn1, d);
-
-						const v128_t or1 = wasm_v128_or(eqA, eqB);
-						const v128_t or2 = wasm_v128_or(eqC, eqD);
-						const v128_t or3 = wasm_v128_or(or1, or2);
-						// wasm_i8x16_bitmask(or3) maps directly to the SSE2 variant and is thus fast on x86, but on ARM wasm_v128_any_true(or3)
-						// is faster. With StringViewBenchmark::findCharacterRare() and runtime dispatch disabled for tests, on x86 (node.js 17.8)
-						// bitmask is ~1.35 µs and any_true ~1.85 µs; on ARM (Huawei P10, Vivaldi w/ Chromium 102) bitmask is 14.3 µs
-						// and any_true 11.7 µs. Ideally we'd have two runtime versions, one picking x86-friendly instructions
-						// and the other ARM-friendly, but function pointer dispatch has a *massive* overhead currently. Related info
-						// about instruction complexity:
-						// https://github.com/WebAssembly/simd/pull/201
-						// https://github.com/zeux/wasm-simd/blob/master/Instructions.md */
-						if (wasm_i8x16_bitmask(or3)) {
-							if (const int mask = wasm_i8x16_bitmask(eqA))
-								return i + 0 * 16 + __builtin_ctz(mask);
-							if (const int mask = wasm_i8x16_bitmask(eqB))
-								return i + 1 * 16 + __builtin_ctz(mask);
-							if (const int mask = wasm_i8x16_bitmask(eqC))
-								return i + 2 * 16 + __builtin_ctz(mask);
-							if (const int mask = wasm_i8x16_bitmask(eqD))
-								return i + 3 * 16 + __builtin_ctz(mask);
-							// Unreachable
+						// Unconditionally do a lookup in the first vector a slower, unaligned way. Any extra branching to avoid
+						// the unaligned load if already aligned would be most probably more expensive than the actual unaligned load.
+						{
+							const v128_t chunk = wasm_v128_load(data);
+							if (const int mask = wasm_i8x16_bitmask(wasm_i8x16_eq(chunk, vn1)))
+								return data + __builtin_ctz(mask);
 						}
-					}
 
-					// Handle remaining less than four vectors
-					for (; i + 16 <= end; i += 16) {
-						const v128_t chunk = wasm_v128_load(i);
-						if (const int mask = wasm_i8x16_bitmask(wasm_i8x16_eq(chunk, vn1)))
-							return i + __builtin_ctz(mask);
-					}
+						// Go to the next aligned position. If the pointer was already aligned, we'll go to the next aligned vector;
+						// if not, there will be an overlap and we'll check some bytes twice.
+						const char* i = reinterpret_cast<const char*>(reinterpret_cast<std::uintptr_t>(data + 16) & ~0xf);
+						DEATH_DEBUG_ASSERT(i > data && reinterpret_cast<std::uintptr_t>(i) % 16 == 0);
 
-					// Handle remaining less than a vector with an unaligned search, again overlapping back with the previous
-					// already-searched elements
-					if (i < end) {
-						DEATH_DEBUG_ASSERT(i + 16 > end);
-						i = end - 16;
-						const v128_t chunk = wasm_v128_load(i);
-						if (const int mask = wasm_i8x16_bitmask(wasm_i8x16_eq(chunk, vn1)))
-							return i + __builtin_ctz(mask);
-					}
+						// Go four vectors at a time with the aligned pointer
+						const char* const end = data + size;
+						for (; i + 4 * 16 <= end; i += 4 * 16) {
+							const v128_t a = wasm_v128_load(reinterpret_cast<const v128_t*>(i) + 0);
+							const v128_t b = wasm_v128_load(reinterpret_cast<const v128_t*>(i) + 1);
+							const v128_t c = wasm_v128_load(reinterpret_cast<const v128_t*>(i) + 2);
+							const v128_t d = wasm_v128_load(reinterpret_cast<const v128_t*>(i) + 3);
 
-					return {};
-				};
-			}
+							const v128_t eqA = wasm_i8x16_eq(vn1, a);
+							const v128_t eqB = wasm_i8x16_eq(vn1, b);
+							const v128_t eqC = wasm_i8x16_eq(vn1, c);
+							const v128_t eqD = wasm_i8x16_eq(vn1, d);
+
+							const v128_t or1 = wasm_v128_or(eqA, eqB);
+							const v128_t or2 = wasm_v128_or(eqC, eqD);
+							const v128_t or3 = wasm_v128_or(or1, or2);
+							// wasm_i8x16_bitmask(or3) maps directly to the SSE2 variant and is thus fast on x86, but on ARM wasm_v128_any_true(or3)
+							// is faster. With StringViewBenchmark::findCharacterRare() and runtime dispatch disabled for tests, on x86 (node.js 17.8)
+							// bitmask is ~1.35 µs and any_true ~1.85 µs; on ARM (Huawei P10, Vivaldi w/ Chromium 102) bitmask is 14.3 µs
+							// and any_true 11.7 µs. Ideally we'd have two runtime versions, one picking x86-friendly instructions
+							// and the other ARM-friendly, but function pointer dispatch has a *massive* overhead currently. Related info
+							// about instruction complexity:
+							// https://github.com/WebAssembly/simd/pull/201
+							// https://github.com/zeux/wasm-simd/blob/master/Instructions.md */
+							if (wasm_i8x16_bitmask(or3)) {
+								if (const int mask = wasm_i8x16_bitmask(eqA))
+									return i + 0 * 16 + __builtin_ctz(mask);
+								if (const int mask = wasm_i8x16_bitmask(eqB))
+									return i + 1 * 16 + __builtin_ctz(mask);
+								if (const int mask = wasm_i8x16_bitmask(eqC))
+									return i + 2 * 16 + __builtin_ctz(mask);
+								if (const int mask = wasm_i8x16_bitmask(eqD))
+									return i + 3 * 16 + __builtin_ctz(mask);
+								// Unreachable
+							}
+						}
+
+						// Handle remaining less than four vectors
+						for (; i + 16 <= end; i += 16) {
+							const v128_t chunk = wasm_v128_load(i);
+							if (const int mask = wasm_i8x16_bitmask(wasm_i8x16_eq(chunk, vn1)))
+								return i + __builtin_ctz(mask);
+						}
+
+						// Handle remaining less than a vector with an unaligned search, again overlapping back with the previous
+						// already-searched elements
+						if (i < end) {
+							DEATH_DEBUG_ASSERT(i + 16 > end);
+							i = end - 16;
+							const v128_t chunk = wasm_v128_load(i);
+							if (const int mask = wasm_i8x16_bitmask(wasm_i8x16_eq(chunk, vn1)))
+								return i + __builtin_ctz(mask);
+						}
+
+						return {};
+					};
+				}
 #endif
 
-			DEATH_CPU_MAYBE_UNUSED typename std::decay<decltype(stringFindCharacter)>::type stringFindCharacterImplementation(DEATH_CPU_DECLARE(Cpu::Scalar)) {
-				return [](const char* const data, const std::size_t size, const char character) -> const char* {
-					// Yet again I'm not sure if null pointers are allowed and cppreference says nothing about that, so this might need to get patched
-					return static_cast<const char*>(std::memchr(data, character, size));
-				};
+				DEATH_CPU_MAYBE_UNUSED typename std::decay<decltype(stringFindCharacter)>::type stringFindCharacterImplementation(DEATH_CPU_DECLARE(Cpu::Scalar))
+				{
+					return [](const char* const data, const std::size_t size, const char character) -> const char* {
+						// Yet again I'm not sure if null pointers are allowed and cppreference says nothing about that, so this might need to get patched
+						return static_cast<const char*>(std::memchr(data, character, size));
+					};
+				}
 			}
-		}
 
 #if defined(DEATH_TARGET_X86)
-		DEATH_CPU_DISPATCHER(stringFindCharacterImplementation, Cpu::Bmi1)
+			DEATH_CPU_DISPATCHER(stringFindCharacterImplementation, Cpu::Bmi1)
 #else
-		DEATH_CPU_DISPATCHER(stringFindCharacterImplementation)
+			DEATH_CPU_DISPATCHER(stringFindCharacterImplementation)
 #endif
-		DEATH_CPU_DISPATCHED(stringFindCharacterImplementation, const char* DEATH_CPU_DISPATCHED_DECLARATION(stringFindCharacter)(const char* data, std::size_t size, char character))({
-			return stringFindCharacterImplementation(DEATH_CPU_SELECT(Cpu::Default))(data, size, character);
-		})
+			DEATH_CPU_DISPATCHED(stringFindCharacterImplementation, const char* DEATH_CPU_DISPATCHED_DECLARATION(stringFindCharacter)(const char* data, std::size_t size, char character))
+			({
+				return stringFindCharacterImplementation(DEATH_CPU_SELECT(Cpu::Default))(data, size, character);
+			})
 
-		namespace
-		{
-			// Mirror image of stringFindCharacterImplementation(), going from the end
+				namespace
+			{
+				// Mirror image of stringFindCharacterImplementation(), going from the end
 
 #if defined(DEATH_ENABLE_SSE2) || defined(DEATH_ENABLE_SIMD128)
-			// `mask` must not be zero
-			DEATH_ALWAYS_INLINE unsigned int highestSetBit(const unsigned int mask) {
-#	if defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG)
-				unsigned long index;
-				_BitScanReverse(&index, mask);
-				return index;
-#	else
-				return 31 - __builtin_clz(mask);
-#	endif
-			}
+				// `mask` must not be zero
+				DEATH_ALWAYS_INLINE unsigned int highestSetBit(const unsigned int mask)
+				{
+#if defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG)
+					unsigned long index;
+					_BitScanReverse(&index, mask);
+					return index;
+#else
+					return 31 - __builtin_clz(mask);
+#endif
+				}
 #endif
 
 #if defined(DEATH_ENABLE_SSE2)
-			DEATH_CPU_MAYBE_UNUSED DEATH_ENABLE_SSE2 typename std::decay<decltype(stringFindLastCharacter)>::type stringFindLastCharacterImplementation(Cpu::Sse2T) {
-				// No trailing return type due to the GCC 9.3 bug above
-				return [](const char* const data, const std::size_t size, const char character) DEATH_ENABLE_SSE2 {
-					const char* const end = data + size;
+				DEATH_CPU_MAYBE_UNUSED DEATH_ENABLE_SSE2 typename std::decay<decltype(stringFindLastCharacter)>::type stringFindLastCharacterImplementation(Cpu::Sse2T)
+				{
+					// No trailing return type due to the GCC 9.3 bug above
+					return [](const char* const data, const std::size_t size, const char character) DEATH_ENABLE_SSE2 {
+						const char* const end = data + size;
 
-					// Less than 16 bytes, check one by one
-					{
-						const char* j = end;
-						switch (size) {
-							case 15: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case 14: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case 13: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case 12: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case 11: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case 10: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case  9: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case  8: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case  7: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case  6: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case  5: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case  4: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case  3: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case  2: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case  1: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case  0: return static_cast<const char*>(nullptr);
+						// Less than 16 bytes, check one by one
+						{
+							const char* j = end;
+							switch (size) {
+								case 15:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 14:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 13:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 12:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 11:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 10:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 9:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 8:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 7:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 6:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 5:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 4:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 3:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 2:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 1:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 0:
+									return static_cast<const char*>(nullptr);
+							}
 						}
-					}
 
-					const __m128i vn1 = _mm_set1_epi8(character);
+						const __m128i vn1 = _mm_set1_epi8(character);
 
-					// Unaligned lookup in the last vector
-					{
-						const __m128i chunk = _mm_loadu_si128(reinterpret_cast<const __m128i*>(end - 16));
-						if (const int mask = _mm_movemask_epi8(_mm_cmpeq_epi8(chunk, vn1)))
-							return end - 16 + highestSetBit(mask);
-					}
-
-					// Previous aligned position, may overlap with the last vector
-					const char* i = reinterpret_cast<const char*>(reinterpret_cast<std::uintptr_t>(end - 1) & ~0xf);
-					DEATH_DEBUG_ASSERT(i < end && reinterpret_cast<std::uintptr_t>(i) % 16 == 0);
-
-					// Four aligned vectors at a time, ending at `i`
-					for (; i - data >= 4 * 16; i -= 4 * 16) {
-						const __m128i a = _mm_load_si128(reinterpret_cast<const __m128i*>(i) - 4);
-						const __m128i b = _mm_load_si128(reinterpret_cast<const __m128i*>(i) - 3);
-						const __m128i c = _mm_load_si128(reinterpret_cast<const __m128i*>(i) - 2);
-						const __m128i d = _mm_load_si128(reinterpret_cast<const __m128i*>(i) - 1);
-
-						const __m128i eqA = _mm_cmpeq_epi8(vn1, a);
-						const __m128i eqB = _mm_cmpeq_epi8(vn1, b);
-						const __m128i eqC = _mm_cmpeq_epi8(vn1, c);
-						const __m128i eqD = _mm_cmpeq_epi8(vn1, d);
-
-						const __m128i or1 = _mm_or_si128(eqA, eqB);
-						const __m128i or2 = _mm_or_si128(eqC, eqD);
-						const __m128i or3 = _mm_or_si128(or1, or2);
-						if (_mm_movemask_epi8(or3)) {
-							if (const int mask = _mm_movemask_epi8(eqD))
-								return i - 1 * 16 + highestSetBit(mask);
-							if (const int mask = _mm_movemask_epi8(eqC))
-								return i - 2 * 16 + highestSetBit(mask);
-							if (const int mask = _mm_movemask_epi8(eqB))
-								return i - 3 * 16 + highestSetBit(mask);
-							if (const int mask = _mm_movemask_epi8(eqA))
-								return i - 4 * 16 + highestSetBit(mask);
-							// Unreachable
+						// Unaligned lookup in the last vector
+						{
+							const __m128i chunk = _mm_loadu_si128(reinterpret_cast<const __m128i*>(end - 16));
+							if (const int mask = _mm_movemask_epi8(_mm_cmpeq_epi8(chunk, vn1)))
+								return end - 16 + highestSetBit(mask);
 						}
-					}
 
-					// Handle remaining less than four vectors
-					for (; i - data >= 16; i -= 16) {
-						const __m128i chunk = _mm_load_si128(reinterpret_cast<const __m128i*>(i) - 1);
-						if (const int mask = _mm_movemask_epi8(_mm_cmpeq_epi8(chunk, vn1)))
-							return i - 16 + highestSetBit(mask);
-					}
+						// Previous aligned position, may overlap with the last vector
+						const char* i = reinterpret_cast<const char*>(reinterpret_cast<std::uintptr_t>(end - 1) & ~0xf);
+						DEATH_DEBUG_ASSERT(i < end && reinterpret_cast<std::uintptr_t>(i) % 16 == 0);
 
-					// Unaligned lookup in the first vector, may overlap
-					if (i > data) {
-						DEATH_DEBUG_ASSERT(i - data < 16);
-						const __m128i chunk = _mm_loadu_si128(reinterpret_cast<const __m128i*>(data));
-						if (const int mask = _mm_movemask_epi8(_mm_cmpeq_epi8(chunk, vn1)))
-							return data + highestSetBit(mask);
-					}
+						// Four aligned vectors at a time, ending at `i`
+						for (; i - data >= 4 * 16; i -= 4 * 16) {
+							const __m128i a = _mm_load_si128(reinterpret_cast<const __m128i*>(i) - 4);
+							const __m128i b = _mm_load_si128(reinterpret_cast<const __m128i*>(i) - 3);
+							const __m128i c = _mm_load_si128(reinterpret_cast<const __m128i*>(i) - 2);
+							const __m128i d = _mm_load_si128(reinterpret_cast<const __m128i*>(i) - 1);
 
-					return static_cast<const char*>(nullptr);
-				};
-			}
+							const __m128i eqA = _mm_cmpeq_epi8(vn1, a);
+							const __m128i eqB = _mm_cmpeq_epi8(vn1, b);
+							const __m128i eqC = _mm_cmpeq_epi8(vn1, c);
+							const __m128i eqD = _mm_cmpeq_epi8(vn1, d);
+
+							const __m128i or1 = _mm_or_si128(eqA, eqB);
+							const __m128i or2 = _mm_or_si128(eqC, eqD);
+							const __m128i or3 = _mm_or_si128(or1, or2);
+							if (_mm_movemask_epi8(or3)) {
+								if (const int mask = _mm_movemask_epi8(eqD))
+									return i - 1 * 16 + highestSetBit(mask);
+								if (const int mask = _mm_movemask_epi8(eqC))
+									return i - 2 * 16 + highestSetBit(mask);
+								if (const int mask = _mm_movemask_epi8(eqB))
+									return i - 3 * 16 + highestSetBit(mask);
+								if (const int mask = _mm_movemask_epi8(eqA))
+									return i - 4 * 16 + highestSetBit(mask);
+								// Unreachable
+							}
+						}
+
+						// Handle remaining less than four vectors
+						for (; i - data >= 16; i -= 16) {
+							const __m128i chunk = _mm_load_si128(reinterpret_cast<const __m128i*>(i) - 1);
+							if (const int mask = _mm_movemask_epi8(_mm_cmpeq_epi8(chunk, vn1)))
+								return i - 16 + highestSetBit(mask);
+						}
+
+						// Unaligned lookup in the first vector, may overlap
+						if (i > data) {
+							DEATH_DEBUG_ASSERT(i - data < 16);
+							const __m128i chunk = _mm_loadu_si128(reinterpret_cast<const __m128i*>(data));
+							if (const int mask = _mm_movemask_epi8(_mm_cmpeq_epi8(chunk, vn1)))
+								return data + highestSetBit(mask);
+						}
+
+						return static_cast<const char*>(nullptr);
+					};
+				}
 #endif
 
 #if defined(DEATH_ENABLE_AVX2)
-			DEATH_CPU_MAYBE_UNUSED DEATH_ENABLE_AVX2 typename std::decay<decltype(stringFindLastCharacter)>::type stringFindLastCharacterImplementation(Cpu::Avx2T) {
-				// No trailing return type due to the GCC 9.3 bug above
-				return [](const char* const data, const std::size_t size, const char character) DEATH_ENABLE_AVX2 {
-					// If we have less than 32 bytes, fall back to the SSE variant
-					if (size < 32)
-						return stringFindLastCharacterImplementation(Cpu::Sse2)(data, size, character);
+				DEATH_CPU_MAYBE_UNUSED DEATH_ENABLE_AVX2 typename std::decay<decltype(stringFindLastCharacter)>::type stringFindLastCharacterImplementation(Cpu::Avx2T)
+				{
+					// No trailing return type due to the GCC 9.3 bug above
+					return [](const char* const data, const std::size_t size, const char character) DEATH_ENABLE_AVX2 {
+						// If we have less than 32 bytes, fall back to the SSE variant
+						if (size < 32)
+							return stringFindLastCharacterImplementation(Cpu::Sse2)(data, size, character);
 
-					const char* const end = data + size;
-					const __m256i vn1 = _mm256_set1_epi8(character);
+						const char* const end = data + size;
+						const __m256i vn1 = _mm256_set1_epi8(character);
 
-					// Unaligned lookup in the last vector
-					{
-						const __m256i chunk = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(end - 32));
-						if (const int mask = _mm256_movemask_epi8(_mm256_cmpeq_epi8(chunk, vn1)))
-							return end - 32 + highestSetBit(mask);
-					}
-
-					// Previous aligned position, may overlap with the last vector
-					const char* i = reinterpret_cast<const char*>(reinterpret_cast<std::uintptr_t>(end - 1) & ~0x1f);
-					DEATH_DEBUG_ASSERT(i < end && reinterpret_cast<std::uintptr_t>(i) % 32 == 0);
-
-					// Four aligned vectors at a time, ending at `i`
-					for (; i - data >= 4 * 32; i -= 4 * 32) {
-						const __m256i a = _mm256_load_si256(reinterpret_cast<const __m256i*>(i) - 4);
-						const __m256i b = _mm256_load_si256(reinterpret_cast<const __m256i*>(i) - 3);
-						const __m256i c = _mm256_load_si256(reinterpret_cast<const __m256i*>(i) - 2);
-						const __m256i d = _mm256_load_si256(reinterpret_cast<const __m256i*>(i) - 1);
-
-						const __m256i eqA = _mm256_cmpeq_epi8(vn1, a);
-						const __m256i eqB = _mm256_cmpeq_epi8(vn1, b);
-						const __m256i eqC = _mm256_cmpeq_epi8(vn1, c);
-						const __m256i eqD = _mm256_cmpeq_epi8(vn1, d);
-
-						const __m256i or1 = _mm256_or_si256(eqA, eqB);
-						const __m256i or2 = _mm256_or_si256(eqC, eqD);
-						const __m256i or3 = _mm256_or_si256(or1, or2);
-						if (_mm256_movemask_epi8(or3)) {
-							if (const int mask = _mm256_movemask_epi8(eqD))
-								return i - 1 * 32 + highestSetBit(mask);
-							if (const int mask = _mm256_movemask_epi8(eqC))
-								return i - 2 * 32 + highestSetBit(mask);
-							if (const int mask = _mm256_movemask_epi8(eqB))
-								return i - 3 * 32 + highestSetBit(mask);
-							if (const int mask = _mm256_movemask_epi8(eqA))
-								return i - 4 * 32 + highestSetBit(mask);
-							// Unreachable
+						// Unaligned lookup in the last vector
+						{
+							const __m256i chunk = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(end - 32));
+							if (const int mask = _mm256_movemask_epi8(_mm256_cmpeq_epi8(chunk, vn1)))
+								return end - 32 + highestSetBit(mask);
 						}
-					}
 
-					// Handle remaining less than four vectors
-					for (; i - data >= 32; i -= 32) {
-						const __m256i chunk = _mm256_load_si256(reinterpret_cast<const __m256i*>(i) - 1);
-						if (const int mask = _mm256_movemask_epi8(_mm256_cmpeq_epi8(chunk, vn1)))
-							return i - 32 + highestSetBit(mask);
-					}
+						// Previous aligned position, may overlap with the last vector
+						const char* i = reinterpret_cast<const char*>(reinterpret_cast<std::uintptr_t>(end - 1) & ~0x1f);
+						DEATH_DEBUG_ASSERT(i < end && reinterpret_cast<std::uintptr_t>(i) % 32 == 0);
 
-					// Unaligned lookup in the first vector, may overlap
-					if (i > data) {
-						DEATH_DEBUG_ASSERT(i - data < 32);
-						const __m256i chunk = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(data));
-						if (const int mask = _mm256_movemask_epi8(_mm256_cmpeq_epi8(chunk, vn1)))
-							return data + highestSetBit(mask);
-					}
+						// Four aligned vectors at a time, ending at `i`
+						for (; i - data >= 4 * 32; i -= 4 * 32) {
+							const __m256i a = _mm256_load_si256(reinterpret_cast<const __m256i*>(i) - 4);
+							const __m256i b = _mm256_load_si256(reinterpret_cast<const __m256i*>(i) - 3);
+							const __m256i c = _mm256_load_si256(reinterpret_cast<const __m256i*>(i) - 2);
+							const __m256i d = _mm256_load_si256(reinterpret_cast<const __m256i*>(i) - 1);
 
-					return static_cast<const char*>(nullptr);
-				};
-			}
+							const __m256i eqA = _mm256_cmpeq_epi8(vn1, a);
+							const __m256i eqB = _mm256_cmpeq_epi8(vn1, b);
+							const __m256i eqC = _mm256_cmpeq_epi8(vn1, c);
+							const __m256i eqD = _mm256_cmpeq_epi8(vn1, d);
+
+							const __m256i or1 = _mm256_or_si256(eqA, eqB);
+							const __m256i or2 = _mm256_or_si256(eqC, eqD);
+							const __m256i or3 = _mm256_or_si256(or1, or2);
+							if (_mm256_movemask_epi8(or3)) {
+								if (const int mask = _mm256_movemask_epi8(eqD))
+									return i - 1 * 32 + highestSetBit(mask);
+								if (const int mask = _mm256_movemask_epi8(eqC))
+									return i - 2 * 32 + highestSetBit(mask);
+								if (const int mask = _mm256_movemask_epi8(eqB))
+									return i - 3 * 32 + highestSetBit(mask);
+								if (const int mask = _mm256_movemask_epi8(eqA))
+									return i - 4 * 32 + highestSetBit(mask);
+								// Unreachable
+							}
+						}
+
+						// Handle remaining less than four vectors
+						for (; i - data >= 32; i -= 32) {
+							const __m256i chunk = _mm256_load_si256(reinterpret_cast<const __m256i*>(i) - 1);
+							if (const int mask = _mm256_movemask_epi8(_mm256_cmpeq_epi8(chunk, vn1)))
+								return i - 32 + highestSetBit(mask);
+						}
+
+						// Unaligned lookup in the first vector, may overlap
+						if (i > data) {
+							DEATH_DEBUG_ASSERT(i - data < 32);
+							const __m256i chunk = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(data));
+							if (const int mask = _mm256_movemask_epi8(_mm256_cmpeq_epi8(chunk, vn1)))
+								return data + highestSetBit(mask);
+						}
+
+						return static_cast<const char*>(nullptr);
+					};
+				}
 #endif
 
 #if defined(DEATH_ENABLE_NEON) && !defined(DEATH_TARGET_32BIT)
-			// Last matching byte of a non-zero "shift right and narrow" mask
-			DEATH_ALWAYS_INLINE unsigned int highestSetNibble(const std::uint64_t mask) {
-#	if defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG)
-				return (63 - _CountLeadingZeros64(mask)) >> 2;
-#	else
-				return (63 - __builtin_clzll(mask)) >> 2;
-#	endif
-			}
+				// Last matching byte of a non-zero "shift right and narrow" mask
+				DEATH_ALWAYS_INLINE unsigned int highestSetNibble(const std::uint64_t mask)
+				{
+#if defined(DEATH_TARGET_MSVC) && !defined(DEATH_TARGET_CLANG)
+					return (63 - _CountLeadingZeros64(mask)) >> 2;
+#else
+					return (63 - __builtin_clzll(mask)) >> 2;
+#endif
+				}
 
-			DEATH_CPU_MAYBE_UNUSED DEATH_ENABLE(NEON) typename std::decay<decltype(stringFindLastCharacter)>::type stringFindLastCharacterImplementation(Cpu::NeonT) {
-				// No trailing return type due to the GCC 9.3 bug above
-				return [](const char* const data, const std::size_t size, const char character) DEATH_ENABLE(NEON) {
-					const char* const end = data + size;
+				DEATH_CPU_MAYBE_UNUSED DEATH_ENABLE(NEON) typename std::decay<decltype(stringFindLastCharacter)>::type stringFindLastCharacterImplementation(Cpu::NeonT)
+				{
+					// No trailing return type due to the GCC 9.3 bug above
+					return [](const char* const data, const std::size_t size, const char character) DEATH_ENABLE(NEON) {
+						const char* const end = data + size;
 
-					// Less than 16 bytes, check one by one
-					if (size < 16) {
-						for (const char* i = end; i != data; )
-							if (*--i == character) return i;
-						return static_cast<const char*>(nullptr);
-					}
-
-					const uint8x16_t vn1 = vdupq_n_u8(character);
-
-					// Unaligned lookup in the last vector
-					{
-						const uint8x16_t chunk = vld1q_u8(reinterpret_cast<const std::uint8_t*>(end - 16));
-						const uint16x8_t eq16 = vreinterpretq_u16_u8(vceqq_u8(chunk, vn1));
-						const uint64x1_t shrn64 = vreinterpret_u64_u8(vshrn_n_u16(eq16, 4));
-						if (const std::uint64_t mask = vget_lane_u64(shrn64, 0))
-							return end - 16 + highestSetNibble(mask);
-					}
-
-					// Previous aligned position, may overlap with the last vector
-					const char* i = reinterpret_cast<const char*>(reinterpret_cast<std::uintptr_t>(end - 1) & ~0xf);
-					DEATH_DEBUG_ASSERT(i < end && reinterpret_cast<std::uintptr_t>(i) % 16 == 0);
-
-					// Four aligned vectors at a time, ending at `i`
-					for (; i - data >= 4 * 16; i -= 4 * 16) {
-						const uint8x16_t a = vld1q_u8(reinterpret_cast<const std::uint8_t*>(i) - 4 * 16);
-						const uint8x16_t b = vld1q_u8(reinterpret_cast<const std::uint8_t*>(i) - 3 * 16);
-						const uint8x16_t c = vld1q_u8(reinterpret_cast<const std::uint8_t*>(i) - 2 * 16);
-						const uint8x16_t d = vld1q_u8(reinterpret_cast<const std::uint8_t*>(i) - 1 * 16);
-
-						const uint8x16_t eqA = vceqq_u8(vn1, a);
-						const uint8x16_t eqB = vceqq_u8(vn1, b);
-						const uint8x16_t eqC = vceqq_u8(vn1, c);
-						const uint8x16_t eqD = vceqq_u8(vn1, d);
-
-						const uint8x8_t maskA = vshrn_n_u16(vreinterpretq_u16_u8(eqA), 4);
-						const uint8x16_t maskAB = vshrn_high_n_u16(maskA, vreinterpretq_u16_u8(eqB), 4);
-						const uint8x8_t maskC = vshrn_n_u16(vreinterpretq_u16_u8(eqC), 4);
-						const uint8x16_t maskCD = vshrn_high_n_u16(maskC, vreinterpretq_u16_u8(eqD), 4);
-
-						if (vmaxvq_u8(vorrq_u8(maskAB, maskCD))) {
-							if (const std::uint64_t mask = vgetq_lane_u64(vreinterpretq_u64_u8(maskCD), 1))
-								return i - 1 * 16 + highestSetNibble(mask);
-							if (const std::uint64_t mask = vgetq_lane_u64(vreinterpretq_u64_u8(maskCD), 0))
-								return i - 2 * 16 + highestSetNibble(mask);
-							if (const std::uint64_t mask = vgetq_lane_u64(vreinterpretq_u64_u8(maskAB), 1))
-								return i - 3 * 16 + highestSetNibble(mask);
-							if (const std::uint64_t mask = vgetq_lane_u64(vreinterpretq_u64_u8(maskAB), 0))
-								return i - 4 * 16 + highestSetNibble(mask);
-							// Unreachable
+						// Less than 16 bytes, check one by one
+						if (size < 16) {
+							for (const char* i = end; i != data;)
+								if (*--i == character)
+									return i;
+							return static_cast<const char*>(nullptr);
 						}
-					}
 
-					// Handle remaining less than four vectors
-					for (; i - data >= 16; i -= 16) {
-						const uint8x16_t chunk = vld1q_u8(reinterpret_cast<const std::uint8_t*>(i) - 16);
-						const uint16x8_t eq16 = vreinterpretq_u16_u8(vceqq_u8(chunk, vn1));
-						const uint64x1_t shrn64 = vreinterpret_u64_u8(vshrn_n_u16(eq16, 4));
-						if (const std::uint64_t mask = vget_lane_u64(shrn64, 0))
-							return i - 16 + highestSetNibble(mask);
-					}
+						const uint8x16_t vn1 = vdupq_n_u8(character);
 
-					// Unaligned lookup in the first vector, may overlap
-					if (i > data) {
-						DEATH_DEBUG_ASSERT(i - data < 16);
-						const uint8x16_t chunk = vld1q_u8(reinterpret_cast<const std::uint8_t*>(data));
-						const uint16x8_t eq16 = vreinterpretq_u16_u8(vceqq_u8(chunk, vn1));
-						const uint64x1_t shrn64 = vreinterpret_u64_u8(vshrn_n_u16(eq16, 4));
-						if (const std::uint64_t mask = vget_lane_u64(shrn64, 0))
-							return data + highestSetNibble(mask);
-					}
+						// Unaligned lookup in the last vector
+						{
+							const uint8x16_t chunk = vld1q_u8(reinterpret_cast<const std::uint8_t*>(end - 16));
+							const uint16x8_t eq16 = vreinterpretq_u16_u8(vceqq_u8(chunk, vn1));
+							const uint64x1_t shrn64 = vreinterpret_u64_u8(vshrn_n_u16(eq16, 4));
+							if (const std::uint64_t mask = vget_lane_u64(shrn64, 0))
+								return end - 16 + highestSetNibble(mask);
+						}
 
-					return static_cast<const char*>(nullptr);
-				};
-			}
+						// Previous aligned position, may overlap with the last vector
+						const char* i = reinterpret_cast<const char*>(reinterpret_cast<std::uintptr_t>(end - 1) & ~0xf);
+						DEATH_DEBUG_ASSERT(i < end && reinterpret_cast<std::uintptr_t>(i) % 16 == 0);
+
+						// Four aligned vectors at a time, ending at `i`
+						for (; i - data >= 4 * 16; i -= 4 * 16) {
+							const uint8x16_t a = vld1q_u8(reinterpret_cast<const std::uint8_t*>(i) - 4 * 16);
+							const uint8x16_t b = vld1q_u8(reinterpret_cast<const std::uint8_t*>(i) - 3 * 16);
+							const uint8x16_t c = vld1q_u8(reinterpret_cast<const std::uint8_t*>(i) - 2 * 16);
+							const uint8x16_t d = vld1q_u8(reinterpret_cast<const std::uint8_t*>(i) - 1 * 16);
+
+							const uint8x16_t eqA = vceqq_u8(vn1, a);
+							const uint8x16_t eqB = vceqq_u8(vn1, b);
+							const uint8x16_t eqC = vceqq_u8(vn1, c);
+							const uint8x16_t eqD = vceqq_u8(vn1, d);
+
+							const uint8x8_t maskA = vshrn_n_u16(vreinterpretq_u16_u8(eqA), 4);
+							const uint8x16_t maskAB = vshrn_high_n_u16(maskA, vreinterpretq_u16_u8(eqB), 4);
+							const uint8x8_t maskC = vshrn_n_u16(vreinterpretq_u16_u8(eqC), 4);
+							const uint8x16_t maskCD = vshrn_high_n_u16(maskC, vreinterpretq_u16_u8(eqD), 4);
+
+							if (vmaxvq_u8(vorrq_u8(maskAB, maskCD))) {
+								if (const std::uint64_t mask = vgetq_lane_u64(vreinterpretq_u64_u8(maskCD), 1))
+									return i - 1 * 16 + highestSetNibble(mask);
+								if (const std::uint64_t mask = vgetq_lane_u64(vreinterpretq_u64_u8(maskCD), 0))
+									return i - 2 * 16 + highestSetNibble(mask);
+								if (const std::uint64_t mask = vgetq_lane_u64(vreinterpretq_u64_u8(maskAB), 1))
+									return i - 3 * 16 + highestSetNibble(mask);
+								if (const std::uint64_t mask = vgetq_lane_u64(vreinterpretq_u64_u8(maskAB), 0))
+									return i - 4 * 16 + highestSetNibble(mask);
+								// Unreachable
+							}
+						}
+
+						// Handle remaining less than four vectors
+						for (; i - data >= 16; i -= 16) {
+							const uint8x16_t chunk = vld1q_u8(reinterpret_cast<const std::uint8_t*>(i) - 16);
+							const uint16x8_t eq16 = vreinterpretq_u16_u8(vceqq_u8(chunk, vn1));
+							const uint64x1_t shrn64 = vreinterpret_u64_u8(vshrn_n_u16(eq16, 4));
+							if (const std::uint64_t mask = vget_lane_u64(shrn64, 0))
+								return i - 16 + highestSetNibble(mask);
+						}
+
+						// Unaligned lookup in the first vector, may overlap
+						if (i > data) {
+							DEATH_DEBUG_ASSERT(i - data < 16);
+							const uint8x16_t chunk = vld1q_u8(reinterpret_cast<const std::uint8_t*>(data));
+							const uint16x8_t eq16 = vreinterpretq_u16_u8(vceqq_u8(chunk, vn1));
+							const uint64x1_t shrn64 = vreinterpret_u64_u8(vshrn_n_u16(eq16, 4));
+							if (const std::uint64_t mask = vget_lane_u64(shrn64, 0))
+								return data + highestSetNibble(mask);
+						}
+
+						return static_cast<const char*>(nullptr);
+					};
+				}
 #endif
 
 #if defined(DEATH_ENABLE_SIMD128)
-			DEATH_CPU_MAYBE_UNUSED DEATH_ENABLE_SIMD128 typename std::decay<decltype(stringFindLastCharacter)>::type stringFindLastCharacterImplementation(Cpu::Simd128T) {
-				return [](const char* const data, const std::size_t size, const char character) DEATH_ENABLE_SIMD128 -> const char* {
-					const char* const end = data + size;
+				DEATH_CPU_MAYBE_UNUSED DEATH_ENABLE_SIMD128 typename std::decay<decltype(stringFindLastCharacter)>::type stringFindLastCharacterImplementation(Cpu::Simd128T)
+				{
+					return [](const char* const data, const std::size_t size, const char character) DEATH_ENABLE_SIMD128 -> const char* {
+						const char* const end = data + size;
 
-					// Less than 16 bytes, check one by one
-					{
-						const char* j = end;
-						switch (size) {
-							case 15: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case 14: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case 13: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case 12: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case 11: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case 10: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case  9: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case  8: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case  7: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case  6: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case  5: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case  4: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case  3: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case  2: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case  1: if (*--j == character) return j; DEATH_FALLTHROUGH
-							case  0: return {};
+						// Less than 16 bytes, check one by one
+						{
+							const char* j = end;
+							switch (size) {
+								case 15:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 14:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 13:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 12:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 11:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 10:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 9:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 8:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 7:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 6:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 5:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 4:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 3:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 2:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 1:
+									if (*--j == character)
+										return j;
+									DEATH_FALLTHROUGH
+								case 0:
+									return {};
+							}
 						}
-					}
 
-					const v128_t vn1 = wasm_i8x16_splat(character);
+						const v128_t vn1 = wasm_i8x16_splat(character);
 
-					// Unaligned lookup in the last vector
-					{
-						const v128_t chunk = wasm_v128_load(end - 16);
-						if (const int mask = wasm_i8x16_bitmask(wasm_i8x16_eq(chunk, vn1)))
-							return end - 16 + highestSetBit(mask);
-					}
-
-					// Previous aligned position, may overlap with the last vector
-					const char* i = reinterpret_cast<const char*>(reinterpret_cast<std::uintptr_t>(end - 1) & ~0xf);
-					DEATH_DEBUG_ASSERT(i < end && reinterpret_cast<std::uintptr_t>(i) % 16 == 0);
-
-					// Four aligned vectors at a time, ending at `i`
-					for (; i - data >= 4 * 16; i -= 4 * 16) {
-						const v128_t a = wasm_v128_load(reinterpret_cast<const v128_t*>(i) - 4);
-						const v128_t b = wasm_v128_load(reinterpret_cast<const v128_t*>(i) - 3);
-						const v128_t c = wasm_v128_load(reinterpret_cast<const v128_t*>(i) - 2);
-						const v128_t d = wasm_v128_load(reinterpret_cast<const v128_t*>(i) - 1);
-
-						const v128_t eqA = wasm_i8x16_eq(vn1, a);
-						const v128_t eqB = wasm_i8x16_eq(vn1, b);
-						const v128_t eqC = wasm_i8x16_eq(vn1, c);
-						const v128_t eqD = wasm_i8x16_eq(vn1, d);
-
-						const v128_t or1 = wasm_v128_or(eqA, eqB);
-						const v128_t or2 = wasm_v128_or(eqC, eqD);
-						const v128_t or3 = wasm_v128_or(or1, or2);
-						// Bitmask, not any_true, see the forward variant
-						if (wasm_i8x16_bitmask(or3)) {
-							if (const int mask = wasm_i8x16_bitmask(eqD))
-								return i - 1 * 16 + highestSetBit(mask);
-							if (const int mask = wasm_i8x16_bitmask(eqC))
-								return i - 2 * 16 + highestSetBit(mask);
-							if (const int mask = wasm_i8x16_bitmask(eqB))
-								return i - 3 * 16 + highestSetBit(mask);
-							if (const int mask = wasm_i8x16_bitmask(eqA))
-								return i - 4 * 16 + highestSetBit(mask);
-							// Unreachable
+						// Unaligned lookup in the last vector
+						{
+							const v128_t chunk = wasm_v128_load(end - 16);
+							if (const int mask = wasm_i8x16_bitmask(wasm_i8x16_eq(chunk, vn1)))
+								return end - 16 + highestSetBit(mask);
 						}
-					}
 
-					// Handle remaining less than four vectors
-					for (; i - data >= 16; i -= 16) {
-						const v128_t chunk = wasm_v128_load(i - 16);
-						if (const int mask = wasm_i8x16_bitmask(wasm_i8x16_eq(chunk, vn1)))
-							return i - 16 + highestSetBit(mask);
-					}
+						// Previous aligned position, may overlap with the last vector
+						const char* i = reinterpret_cast<const char*>(reinterpret_cast<std::uintptr_t>(end - 1) & ~0xf);
+						DEATH_DEBUG_ASSERT(i < end && reinterpret_cast<std::uintptr_t>(i) % 16 == 0);
 
-					// Unaligned lookup in the first vector, may overlap
-					if (i > data) {
-						DEATH_DEBUG_ASSERT(i - data < 16);
-						const v128_t chunk = wasm_v128_load(data);
-						if (const int mask = wasm_i8x16_bitmask(wasm_i8x16_eq(chunk, vn1)))
-							return data + highestSetBit(mask);
-					}
+						// Four aligned vectors at a time, ending at `i`
+						for (; i - data >= 4 * 16; i -= 4 * 16) {
+							const v128_t a = wasm_v128_load(reinterpret_cast<const v128_t*>(i) - 4);
+							const v128_t b = wasm_v128_load(reinterpret_cast<const v128_t*>(i) - 3);
+							const v128_t c = wasm_v128_load(reinterpret_cast<const v128_t*>(i) - 2);
+							const v128_t d = wasm_v128_load(reinterpret_cast<const v128_t*>(i) - 1);
 
-					return {};
-				};
-			}
+							const v128_t eqA = wasm_i8x16_eq(vn1, a);
+							const v128_t eqB = wasm_i8x16_eq(vn1, b);
+							const v128_t eqC = wasm_i8x16_eq(vn1, c);
+							const v128_t eqD = wasm_i8x16_eq(vn1, d);
+
+							const v128_t or1 = wasm_v128_or(eqA, eqB);
+							const v128_t or2 = wasm_v128_or(eqC, eqD);
+							const v128_t or3 = wasm_v128_or(or1, or2);
+							// Bitmask, not any_true, see the forward variant
+							if (wasm_i8x16_bitmask(or3)) {
+								if (const int mask = wasm_i8x16_bitmask(eqD))
+									return i - 1 * 16 + highestSetBit(mask);
+								if (const int mask = wasm_i8x16_bitmask(eqC))
+									return i - 2 * 16 + highestSetBit(mask);
+								if (const int mask = wasm_i8x16_bitmask(eqB))
+									return i - 3 * 16 + highestSetBit(mask);
+								if (const int mask = wasm_i8x16_bitmask(eqA))
+									return i - 4 * 16 + highestSetBit(mask);
+								// Unreachable
+							}
+						}
+
+						// Handle remaining less than four vectors
+						for (; i - data >= 16; i -= 16) {
+							const v128_t chunk = wasm_v128_load(i - 16);
+							if (const int mask = wasm_i8x16_bitmask(wasm_i8x16_eq(chunk, vn1)))
+								return i - 16 + highestSetBit(mask);
+						}
+
+						// Unaligned lookup in the first vector, may overlap
+						if (i > data) {
+							DEATH_DEBUG_ASSERT(i - data < 16);
+							const v128_t chunk = wasm_v128_load(data);
+							if (const int mask = wasm_i8x16_bitmask(wasm_i8x16_eq(chunk, vn1)))
+								return data + highestSetBit(mask);
+						}
+
+						return {};
+					};
+				}
 #endif
 
-			DEATH_CPU_MAYBE_UNUSED typename std::decay<decltype(stringFindLastCharacter)>::type stringFindLastCharacterImplementation(Cpu::ScalarT) {
-				return [](const char* const data, const std::size_t size, const char character) -> const char* {
-					// No memrchr() outside Linux, works also for null data
-					for (const char* i = data + size; i != data; )
-						if (*--i == character) return i;
-					return {};
-				};
+				DEATH_CPU_MAYBE_UNUSED typename std::decay<decltype(stringFindLastCharacter)>::type stringFindLastCharacterImplementation(Cpu::ScalarT)
+				{
+					return [](const char* const data, const std::size_t size, const char character) -> const char* {
+						// No memrchr() outside Linux, works also for null data
+						for (const char* i = data + size; i != data;)
+							if (*--i == character)
+								return i;
+						return {};
+					};
+				}
 			}
-		}
 
-		DEATH_CPU_DISPATCHER_BASE(stringFindLastCharacterImplementation)
-		DEATH_CPU_DISPATCHED(stringFindLastCharacterImplementation, const char* DEATH_CPU_DISPATCHED_DECLARATION(stringFindLastCharacter)(const char* data, std::size_t size, char character))({
-			return stringFindLastCharacterImplementation(Cpu::DefaultBase)(data, size, character);
-		})
+			DEATH_CPU_DISPATCHER_BASE(stringFindLastCharacterImplementation)
+			DEATH_CPU_DISPATCHED(stringFindLastCharacterImplementation, const char* DEATH_CPU_DISPATCHED_DECLARATION(stringFindLastCharacter)(const char* data, std::size_t size, char character))
+			({
+				return stringFindLastCharacterImplementation(Cpu::DefaultBase)(data, size, character);
+			})
 
-		/* I don't want to include <algorithm> just for std::find_first_of() and
+				/* I don't want to include <algorithm> just for std::find_first_of() and
 			unfortunately there's no equivalent in the C string library. Coming close
 			are strpbrk() or strcspn() but both of them work with null-terminated
 			strings, which is absolutely useless here, not to mention that both do
@@ -1110,331 +1339,439 @@ namespace Death { namespace Containers {
 			std::find_first_of() because I doubt STL implementations explicitly optimize
 			for that case. Yes, std::string::find_first_of() probably would have that,
 			but I'd first need to allocate to make use of that and FUCK NO. */
-		const char* stringFindAny(const char* const data, const std::size_t size, const char* const characters, const std::size_t characterCount) {
-			for (const char* i = data, *end = data + size; i != end; ++i)
-				if (std::memchr(characters, *i, characterCount)) return i;
-			return {};
+				const char* stringFindAny(const char* const data, const std::size_t size, const char* const characters, const std::size_t characterCount)
+			{
+				for (const char *i = data, *end = data + size; i != end; ++i)
+					if (std::memchr(characters, *i, characterCount))
+						return i;
+				return {};
+			}
+
+			// Variants of the above. Not sure if those even have any vaguely corresponding C lib API. Probably not.
+
+			const char* stringFindLastAny(const char* const data, const std::size_t size, const char* const characters, const std::size_t characterCount)
+			{
+				for (const char* i = data + size; i != data; --i)
+					if (std::memchr(characters, *(i - 1), characterCount))
+						return i - 1;
+				return {};
+			}
+
+			const char* stringFindNotAny(const char* const data, const std::size_t size, const char* const characters, const std::size_t characterCount)
+			{
+				for (const char *i = data, *end = data + size; i != end; ++i)
+					if (!std::memchr(characters, *i, characterCount))
+						return i;
+				return {};
+			}
+
+			const char* stringFindLastNotAny(const char* const data, const std::size_t size, const char* const characters, const std::size_t characterCount)
+			{
+				for (const char* i = data + size; i != data; --i)
+					if (!std::memchr(characters, *(i - 1), characterCount))
+						return i - 1;
+				return {};
+			}
+
+			namespace
+			{
+				// SIMD implementation of character counting, which is basically just a simpler variant of stringFindCharacterImplementation()
+				// -- we don't need the extra branching logic with tzcnt for getting the first found position, instead just counting the matches.
+				// On the other hand have to ensure that the overlaps aren't counted twice.
+
+				// The 64-bit variants of POPCNT instructions aren't exposed on 32-bit systems for some reason. 32-bit x86 isn't that important
+				// nowadays so there it uses just the scalar code, I won't bother making a 32-bit variant.
+#if defined(DEATH_ENABLE_SSE2) && defined(DEATH_ENABLE_POPCNT) && !defined(DEATH_TARGET_32BIT)
+				DEATH_CPU_MAYBE_UNUSED DEATH_ENABLE(SSE2, POPCNT) typename std::decay<decltype(stringCountCharacter)>::type stringCountCharacterImplementation(DEATH_CPU_DECLARE(Cpu::Sse2 | Cpu::Popcnt))
+				{
+					return [](const char* const data, const std::size_t size, const char character) DEATH_ENABLE(SSE2, POPCNT) {
+						std::size_t count = 0;
+
+						// If we have less than 16 bytes, do it the stupid way
+						{
+							const char* j = data;
+							switch (size) {
+								case 15:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 14:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 13:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 12:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 11:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 10:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 9:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 8:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 7:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 6:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 5:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 4:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 3:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 2:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 1:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 0:
+									return count;
+							}
+						}
+
+						const __m128i vn1 = _mm_set1_epi8(character);
+
+						// Calculate the next aligned position. If the pointer was already aligned, we'll go to the next aligned vector;
+						// if not, there will be an overlap and we'll check some bytes twice.
+						const char* i = reinterpret_cast<const char*>(reinterpret_cast<std::uintptr_t>(data + 16) & ~0xf);
+						DEATH_DEBUG_ASSERT(i > data && reinterpret_cast<std::uintptr_t>(i) % 16 == 0);
+
+						// Unconditionally load the first vector a slower, unaligned way, and mask out the part that overlaps
+						// with the next aligned position to not count it twice
+						{
+							const __m128i chunk = _mm_loadu_si128(reinterpret_cast<const __m128i*>(data));
+							const std::uint32_t found = _mm_movemask_epi8(_mm_cmpeq_epi8(chunk, vn1));
+							// Masking the bytes before the aligned `i`, so if `data` is 12 and `i` 16, it creates a mask for the low 4 bits, 0x...01111
+							count += _mm_popcnt_u32(found & ((1 << (i - data)) - 1));
+						}
+
+						// Go four vectors at a time to make use of the full 64-bit popcnt instruction. This is significantly faster
+						// than calling popcnt for each 16-bit vector, and slightly faster than going just two vectors at a time.
+						const char* const end = data + size;
+						for (; i + 4 * 16 <= end; i += 4 * 16) {
+							const __m128i a = _mm_load_si128(reinterpret_cast<const __m128i*>(i) + 0);
+							const __m128i b = _mm_load_si128(reinterpret_cast<const __m128i*>(i) + 1);
+							const __m128i c = _mm_load_si128(reinterpret_cast<const __m128i*>(i) + 2);
+							const __m128i d = _mm_load_si128(reinterpret_cast<const __m128i*>(i) + 3);
+							count += _mm_popcnt_u64(
+								(std::uint64_t(_mm_movemask_epi8(_mm_cmpeq_epi8(a, vn1))) << 0) |
+								(std::uint64_t(_mm_movemask_epi8(_mm_cmpeq_epi8(b, vn1))) << 16) |
+								(std::uint64_t(_mm_movemask_epi8(_mm_cmpeq_epi8(c, vn1))) << 32) |
+								(std::uint64_t(_mm_movemask_epi8(_mm_cmpeq_epi8(d, vn1))) << 48));
+						}
+
+						// Handle remaining less than four aligned vectors. Try to make use of the full 32-bit width for popcnt if possible,
+						// as that's faster than calling popcnt separately for each 16-bit vector. Conversely, accumulating everything into
+						// a 64-bit integer to call popcnt just once doesn't make it faster either.
+						if (i + 2 * 16 <= end) {
+							const __m128i a = _mm_load_si128(reinterpret_cast<const __m128i*>(i) + 0);
+							const __m128i b = _mm_load_si128(reinterpret_cast<const __m128i*>(i) + 1);
+							count += _mm_popcnt_u32(
+								(_mm_movemask_epi8(_mm_cmpeq_epi8(a, vn1)) << 0) |
+								(_mm_movemask_epi8(_mm_cmpeq_epi8(b, vn1)) << 16));
+							i += 2 * 16;
+						}
+						if (i + 16 <= end) {
+							const __m128i c = _mm_load_si128(reinterpret_cast<const __m128i*>(i));
+							count += _mm_popcnt_u32(_mm_movemask_epi8(_mm_cmpeq_epi8(c, vn1)));
+							i += 16;
+						}
+
+						// Handle remaining less than a vector with an unaligned load, again with the overlapping part masked out to not count it twice
+						if (i < end) {
+							DEATH_DEBUG_ASSERT(i + 16 > end);
+							const __m128i chunk = _mm_loadu_si128(reinterpret_cast<const __m128i*>(end - 16));
+							const std::uint32_t found = _mm_movemask_epi8(_mm_cmpeq_epi8(chunk, vn1));
+							// Masking the bytes after the aligned `i`, so if `end` is 20 and `i` 16, it creates a mask for the low 12 bits
+							// and then inverts it, ending up with just the high 4 bits, 0x11110...
+							count += _mm_popcnt_u32(found & ~((1 << (i + 16 - end)) - 1));
+						}
+
+						return count;
+					};
+				}
+#endif
+
+				// The 64-bit variants of POPCNT instructions aren't exposed on 32-bit systems for some reason. 32-bit x86 isn't that
+				// important nowadays so there it uses just the scalar code, I won't bother making a 32-bit variant.
+#if defined(DEATH_ENABLE_AVX2) && defined(DEATH_ENABLE_POPCNT) && !defined(DEATH_TARGET_32BIT)
+				DEATH_CPU_MAYBE_UNUSED DEATH_ENABLE(AVX2, POPCNT) typename std::decay<decltype(stringCountCharacter)>::type stringCountCharacterImplementation(DEATH_CPU_DECLARE(Cpu::Avx2 | Cpu::Popcnt))
+				{
+					return [](const char* const data, const std::size_t size, const char character) DEATH_ENABLE(AVX2, POPCNT) {
+						// If we have less than 32 bytes, fall back to the SSE variant
+						if (size < 32)
+							return stringCountCharacterImplementation(DEATH_CPU_SELECT(Cpu::Sse2 | Cpu::Popcnt))(data, size, character);
+
+						std::size_t count = 0;
+						const __m256i vn1 = _mm256_set1_epi8(character);
+
+						/* Calculate the next aligned position. If the pointer was already aligned,
+					   we'll go to the next aligned vector; if not, there will be an overlap
+					   and we'll check some bytes twice. */
+						const char* i = reinterpret_cast<const char*>(reinterpret_cast<std::uintptr_t>(data + 32) & ~0x1f);
+						DEATH_DEBUG_ASSERT(i > data && reinterpret_cast<std::uintptr_t>(i) % 32 == 0);
+
+						// Unconditionally load the first vector a slower, unaligned way, and mask out the part that overlaps with
+						// the next aligned position to not count it twice
+						{
+							// _mm256_lddqu_si256 is just an alias to _mm256_loadu_si256, no reason to use it: https://stackoverflow.com/a/47426790
+							const __m256i chunk = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(data));
+							const std::uint32_t found = _mm256_movemask_epi8(_mm256_cmpeq_epi8(chunk, vn1));
+							// Masking the bytes before the aligned `i`, so if `data` is 28 and `i` 32, it creates a mask for the low 4 bits,
+							// 0x...01111. Have to use a 64-bit integer because otherwise `(1u << 32) - 1` is undefined behavior and evaluates
+							// to 0 or just whatever else.
+							count += _mm_popcnt_u32(found & ((1ull << (i - data)) - 1));
+						}
+
+						// Go two vectors at a time to make use of the full 64-bit popcnt instruction. Similarly as in the SSE2 case,
+						// this is significantly faster than calling popcnt for each 32-bit vector.
+						const char* const end = data + size;
+						for (; i + 2 * 32 <= end; i += 2 * 32) {
+							const __m256i a = _mm256_load_si256(reinterpret_cast<const __m256i*>(i) + 0);
+							const __m256i b = _mm256_load_si256(reinterpret_cast<const __m256i*>(i) + 1);
+							count += _mm_popcnt_u64(
+								// Movemask returns a *signed* int, which means if the highest bit is set, it gets sign-extended to 64-bit.
+								// Cast to an unsigned type first to avoid that. FFS.
+								(std::uint64_t(std::uint32_t(_mm256_movemask_epi8(_mm256_cmpeq_epi8(a, vn1)))) << 0) |
+								(std::uint64_t(std::uint32_t(_mm256_movemask_epi8(_mm256_cmpeq_epi8(b, vn1)))) << 32));
+						}
+
+						// Handle remaining less than two aligned vectors, i.e. just one vector
+						if (i + 32 <= end) {
+							const __m256i chunk = _mm256_load_si256(reinterpret_cast<const __m256i*>(i));
+							count += _mm_popcnt_u32(_mm256_movemask_epi8(_mm256_cmpeq_epi8(chunk, vn1)));
+							i += 32;
+						}
+
+						// Handle remaining less than a vector with an unaligned load, again with the overlapping part masked out to not count it twice
+						if (i < end) {
+							DEATH_DEBUG_ASSERT(i + 32 > end);
+							// _mm256_lddqu_si256 is just an alias to _mm256_loadu_si256, no reason to use it: https://stackoverflow.com/a/47426790
+							const __m256i chunk = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(end - 32));
+							const std::uint32_t found = _mm256_movemask_epi8(_mm256_cmpeq_epi8(chunk, vn1));
+							// Masking the bytes after the aligned `i`, so if `end` is 36 and `i` 32, it creates a mask for the low 28 bits
+							// and then inverts it, ending up with just the high 4 bits, 0x11110... Here don't need to use a 64-bit integer
+							// because the distance between i and end is never more than 32.
+							count += _mm_popcnt_u32(found & ~((1u << (i + 32 - end)) - 1));
+						}
+
+						return count;
+					};
+				}
+#endif
+
+				// Basically just a straight translation of the SSE2 code right now
+#if defined(DEATH_ENABLE_SIMD128)
+				DEATH_CPU_MAYBE_UNUSED DEATH_ENABLE_SIMD128 typename std::decay<decltype(stringCountCharacter)>::type stringCountCharacterImplementation(DEATH_CPU_DECLARE(Cpu::Simd128))
+				{
+					return [](const char* const data, const std::size_t size, const char character) DEATH_ENABLE_SIMD128 {
+						std::size_t count = 0;
+
+						// If we have less than 16 bytes, do it the stupid way
+						{
+							const char* j = data;
+							switch (size) {
+								case 15:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 14:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 13:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 12:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 11:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 10:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 9:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 8:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 7:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 6:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 5:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 4:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 3:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 2:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 1:
+									if (*j++ == character)
+										++count;
+									DEATH_FALLTHROUGH
+								case 0:
+									return count;
+							}
+						}
+
+						const v128_t vn1 = wasm_i8x16_splat(character);
+
+						// Calculate the next aligned position. If the pointer was already aligned, we'll go to the next aligned vector;
+						// if not, there will be an overlap and we'll check some bytes twice.
+						const char* i = reinterpret_cast<const char*>(reinterpret_cast<std::uintptr_t>(data + 16) & ~0xf);
+						DEATH_DEBUG_ASSERT(i > data && reinterpret_cast<std::uintptr_t>(i) % 16 == 0);
+
+						// Unconditionally load the first vector a slower, unaligned way and mask out the part that overlaps with
+						// the next aligned position to not count it twice. WASM doesn't differentiate between aligned and unaligned load,
+						// it's always unaligned, but the hardware might behave better if we try to avoid unaligned loads.
+						{
+							const v128_t chunk = wasm_v128_load(reinterpret_cast<const v128_t*>(data));
+							const std::uint32_t found = wasm_i8x16_bitmask(wasm_i8x16_eq(chunk, vn1));
+							count += __builtin_popcount(found & ((1 << (i - data)) - 1));
+						}
+
+						// Go four vectors at a time to make use of the full 64-bit popcnt instruction
+						const char* const end = data + size;
+						for (; i + 4 * 16 <= end; i += 4 * 16) {
+							const v128_t a = wasm_v128_load(reinterpret_cast<const v128_t*>(i) + 0);
+							const v128_t b = wasm_v128_load(reinterpret_cast<const v128_t*>(i) + 1);
+							const v128_t c = wasm_v128_load(reinterpret_cast<const v128_t*>(i) + 2);
+							const v128_t d = wasm_v128_load(reinterpret_cast<const v128_t*>(i) + 3);
+							count += __builtin_popcountll(
+								(std::uint64_t(wasm_i8x16_bitmask(wasm_i8x16_eq(a, vn1))) << 0) |
+								(std::uint64_t(wasm_i8x16_bitmask(wasm_i8x16_eq(b, vn1))) << 16) |
+								(std::uint64_t(wasm_i8x16_bitmask(wasm_i8x16_eq(c, vn1))) << 32) |
+								(std::uint64_t(wasm_i8x16_bitmask(wasm_i8x16_eq(d, vn1))) << 48));
+						}
+
+						// Handle remaining less than four aligned vectors
+						if (i + 2 * 16 <= end) {
+							const v128_t a = wasm_v128_load(reinterpret_cast<const v128_t*>(i) + 0);
+							const v128_t b = wasm_v128_load(reinterpret_cast<const v128_t*>(i) + 1);
+							count += __builtin_popcount(
+								(wasm_i8x16_bitmask(wasm_i8x16_eq(a, vn1)) << 0) |
+								(wasm_i8x16_bitmask(wasm_i8x16_eq(b, vn1)) << 16));
+							i += 2 * 16;
+						}
+						if (i + 16 <= end) {
+							const v128_t c = wasm_v128_load(reinterpret_cast<const v128_t*>(i));
+							count += __builtin_popcount(wasm_i8x16_bitmask(wasm_i8x16_eq(c, vn1)));
+							i += 16;
+						}
+
+						// Handle remaining less than a vector with an unaligned load, again with the overlapping part masked out
+						// to not count it twice. Again WASM doesn't have any dedicated unaligned load instruction.
+						if (i < end) {
+							DEATH_DEBUG_ASSERT(i + 16 > end);
+							const v128_t chunk = wasm_v128_load(reinterpret_cast<const v128_t*>(end - 16));
+							const std::uint32_t found = wasm_i8x16_bitmask(wasm_i8x16_eq(chunk, vn1));
+							count += __builtin_popcount(found & ~((1 << (i + 16 - end)) - 1));
+						}
+
+						return count;
+					};
+				}
+#endif
+
+				DEATH_CPU_MAYBE_UNUSED typename std::decay<decltype(stringCountCharacter)>::type stringCountCharacterImplementation(DEATH_CPU_DECLARE(Cpu::Scalar))
+				{
+					return [](const char* const data, const std::size_t size, const char character) -> std::size_t {
+						std::size_t count = 0;
+						for (const char *i = data, *end = data + size; i != end; ++i)
+							if (*i == character)
+								++count;
+						return count;
+					};
+				}
+
+			}
+
+#if defined(DEATH_TARGET_X86)
+			DEATH_CPU_DISPATCHER(stringCountCharacterImplementation, Cpu::Popcnt)
+#else
+			DEATH_CPU_DISPATCHER(stringCountCharacterImplementation)
+#endif
+			DEATH_CPU_DISPATCHED(stringCountCharacterImplementation, std::size_t DEATH_CPU_DISPATCHED_DECLARATION(stringCountCharacter)(const char* data, std::size_t size, char character))
+			({
+				return stringCountCharacterImplementation(DEATH_CPU_SELECT(Cpu::Default))(data, size, character);
+			})
 		}
 
-		// Variants of the above. Not sure if those even have any vaguely corresponding C lib API. Probably not.
+		template <class T>
+		Array<BasicStringView<T>> BasicStringView<T>::splitOnAnyWithoutEmptyParts(const StringView delimiters) const
+		{
+			Array<BasicStringView<T>> parts;
+			const char* const characters = delimiters._data;
+			const std::size_t characterCount = delimiters.size();
+			T* oldpos = _data;
+			T* const end = _data + size();
 
-		const char* stringFindLastAny(const char* const data, const std::size_t size, const char* const characters, const std::size_t characterCount) {
-			for (const char* i = data + size; i != data; --i)
-				if (std::memchr(characters, *(i - 1), characterCount)) return i - 1;
-			return {};
-		}
+			while (oldpos < end) {
+				if (T* const pos = const_cast<T*>(Implementation::stringFindAny(oldpos, end - oldpos, characters, characterCount))) {
+					if (pos != oldpos)
+						arrayAppend(parts, slice(oldpos, pos));
+					oldpos = pos + 1;
+				} else {
+					arrayAppend(parts, slice(oldpos, end));
+					break;
+				}
+			}
 
-		const char* stringFindNotAny(const char* const data, const std::size_t size, const char* const characters, const std::size_t characterCount) {
-			for (const char* i = data, *end = data + size; i != end; ++i)
-				if (!std::memchr(characters, *i, characterCount)) return i;
-			return {};
-		}
-
-		const char* stringFindLastNotAny(const char* const data, const std::size_t size, const char* const characters, const std::size_t characterCount) {
-			for (const char* i = data + size; i != data; --i)
-				if (!std::memchr(characters, *(i - 1), characterCount)) return i - 1;
-			return {};
+			return parts;
 		}
 
 		namespace
 		{
-			// SIMD implementation of character counting, which is basically just a simpler variant of stringFindCharacterImplementation()
-			// -- we don't need the extra branching logic with tzcnt for getting the first found position, instead just counting the matches.
-			// On the other hand have to ensure that the overlaps aren't counted twice.
-
-			// The 64-bit variants of POPCNT instructions aren't exposed on 32-bit systems for some reason. 32-bit x86 isn't that important
-			// nowadays so there it uses just the scalar code, I won't bother making a 32-bit variant.
-#if defined(DEATH_ENABLE_SSE2) && defined(DEATH_ENABLE_POPCNT) && !defined(DEATH_TARGET_32BIT)
-			DEATH_CPU_MAYBE_UNUSED DEATH_ENABLE(SSE2, POPCNT) typename std::decay<decltype(stringCountCharacter)>::type stringCountCharacterImplementation(DEATH_CPU_DECLARE(Cpu::Sse2 | Cpu::Popcnt)) {
-				return [](const char* const data, const std::size_t size, const char character) DEATH_ENABLE(SSE2, POPCNT) {
-					std::size_t count = 0;
-
-					// If we have less than 16 bytes, do it the stupid way
-					{
-						const char* j = data;
-						switch (size) {
-							case 15: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case 14: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case 13: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case 12: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case 11: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case 10: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case  9: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case  8: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case  7: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case  6: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case  5: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case  4: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case  3: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case  2: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case  1: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case  0: return count;
-						}
-					}
-
-					const __m128i vn1 = _mm_set1_epi8(character);
-
-					// Calculate the next aligned position. If the pointer was already aligned, we'll go to the next aligned vector;
-					// if not, there will be an overlap and we'll check some bytes twice.
-					const char* i = reinterpret_cast<const char*>(reinterpret_cast<std::uintptr_t>(data + 16) & ~0xf);
-					DEATH_DEBUG_ASSERT(i > data && reinterpret_cast<std::uintptr_t>(i) % 16 == 0);
-
-					// Unconditionally load the first vector a slower, unaligned way, and mask out the part that overlaps
-					// with the next aligned position to not count it twice
-					{
-						const __m128i chunk = _mm_loadu_si128(reinterpret_cast<const __m128i*>(data));
-						const std::uint32_t found = _mm_movemask_epi8(_mm_cmpeq_epi8(chunk, vn1));
-						// Masking the bytes before the aligned `i`, so if `data` is 12 and `i` 16, it creates a mask for the low 4 bits, 0x...01111
-						count += _mm_popcnt_u32(found & ((1 << (i - data)) - 1));
-					}
-
-					// Go four vectors at a time to make use of the full 64-bit popcnt instruction. This is significantly faster
-					// than calling popcnt for each 16-bit vector, and slightly faster than going just two vectors at a time.
-					const char* const end = data + size;
-					for (; i + 4 * 16 <= end; i += 4 * 16) {
-						const __m128i a = _mm_load_si128(reinterpret_cast<const __m128i*>(i) + 0);
-						const __m128i b = _mm_load_si128(reinterpret_cast<const __m128i*>(i) + 1);
-						const __m128i c = _mm_load_si128(reinterpret_cast<const __m128i*>(i) + 2);
-						const __m128i d = _mm_load_si128(reinterpret_cast<const __m128i*>(i) + 3);
-						count += _mm_popcnt_u64(
-							(std::uint64_t(_mm_movemask_epi8(_mm_cmpeq_epi8(a, vn1))) << 0) |
-							(std::uint64_t(_mm_movemask_epi8(_mm_cmpeq_epi8(b, vn1))) << 16) |
-							(std::uint64_t(_mm_movemask_epi8(_mm_cmpeq_epi8(c, vn1))) << 32) |
-							(std::uint64_t(_mm_movemask_epi8(_mm_cmpeq_epi8(d, vn1))) << 48));
-					}
-
-					// Handle remaining less than four aligned vectors. Try to make use of the full 32-bit width for popcnt if possible,
-					// as that's faster than calling popcnt separately for each 16-bit vector. Conversely, accumulating everything into
-					// a 64-bit integer to call popcnt just once doesn't make it faster either.
-					if (i + 2 * 16 <= end) {
-						const __m128i a = _mm_load_si128(reinterpret_cast<const __m128i*>(i) + 0);
-						const __m128i b = _mm_load_si128(reinterpret_cast<const __m128i*>(i) + 1);
-						count += _mm_popcnt_u32(
-							(_mm_movemask_epi8(_mm_cmpeq_epi8(a, vn1)) << 0) |
-							(_mm_movemask_epi8(_mm_cmpeq_epi8(b, vn1)) << 16));
-						i += 2 * 16;
-					}
-					if (i + 16 <= end) {
-						const __m128i c = _mm_load_si128(reinterpret_cast<const __m128i*>(i));
-						count += _mm_popcnt_u32(_mm_movemask_epi8(_mm_cmpeq_epi8(c, vn1)));
-						i += 16;
-					}
-
-					// Handle remaining less than a vector with an unaligned load, again with the overlapping part masked out to not count it twice
-					if (i < end) {
-						DEATH_DEBUG_ASSERT(i + 16 > end);
-						const __m128i chunk = _mm_loadu_si128(reinterpret_cast<const __m128i*>(end - 16));
-						const std::uint32_t found = _mm_movemask_epi8(_mm_cmpeq_epi8(chunk, vn1));
-						// Masking the bytes after the aligned `i`, so if `end` is 20 and `i` 16, it creates a mask for the low 12 bits
-						// and then inverts it, ending up with just the high 4 bits, 0x11110...
-						count += _mm_popcnt_u32(found & ~((1 << (i + 16 - end)) - 1));
-					}
-
-					return count;
-				};
-			}
-#endif
-
-			// The 64-bit variants of POPCNT instructions aren't exposed on 32-bit systems for some reason. 32-bit x86 isn't that
-			// important nowadays so there it uses just the scalar code, I won't bother making a 32-bit variant.
-#if defined(DEATH_ENABLE_AVX2) && defined(DEATH_ENABLE_POPCNT) && !defined(DEATH_TARGET_32BIT)
-			DEATH_CPU_MAYBE_UNUSED DEATH_ENABLE(AVX2, POPCNT) typename std::decay<decltype(stringCountCharacter)>::type stringCountCharacterImplementation(DEATH_CPU_DECLARE(Cpu::Avx2 | Cpu::Popcnt)) {
-				return [](const char* const data, const std::size_t size, const char character) DEATH_ENABLE(AVX2, POPCNT) {
-					// If we have less than 32 bytes, fall back to the SSE variant
-					if (size < 32)
-						return stringCountCharacterImplementation(DEATH_CPU_SELECT(Cpu::Sse2 | Cpu::Popcnt))(data, size, character);
-
-					std::size_t count = 0;
-					const __m256i vn1 = _mm256_set1_epi8(character);
-
-					/* Calculate the next aligned position. If the pointer was already aligned,
-					   we'll go to the next aligned vector; if not, there will be an overlap
-					   and we'll check some bytes twice. */
-					const char* i = reinterpret_cast<const char*>(reinterpret_cast<std::uintptr_t>(data + 32) & ~0x1f);
-					DEATH_DEBUG_ASSERT(i > data && reinterpret_cast<std::uintptr_t>(i) % 32 == 0);
-
-					// Unconditionally load the first vector a slower, unaligned way, and mask out the part that overlaps with
-					// the next aligned position to not count it twice
-					{
-						// _mm256_lddqu_si256 is just an alias to _mm256_loadu_si256, no reason to use it: https://stackoverflow.com/a/47426790
-						const __m256i chunk = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(data));
-						const std::uint32_t found = _mm256_movemask_epi8(_mm256_cmpeq_epi8(chunk, vn1));
-						// Masking the bytes before the aligned `i`, so if `data` is 28 and `i` 32, it creates a mask for the low 4 bits,
-						// 0x...01111. Have to use a 64-bit integer because otherwise `(1u << 32) - 1` is undefined behavior and evaluates
-						// to 0 or just whatever else.
-						count += _mm_popcnt_u32(found & ((1ull << (i - data)) - 1));
-					}
-
-					// Go two vectors at a time to make use of the full 64-bit popcnt instruction. Similarly as in the SSE2 case,
-					// this is significantly faster than calling popcnt for each 32-bit vector.
-					const char* const end = data + size;
-					for (; i + 2 * 32 <= end; i += 2 * 32) {
-						const __m256i a = _mm256_load_si256(reinterpret_cast<const __m256i*>(i) + 0);
-						const __m256i b = _mm256_load_si256(reinterpret_cast<const __m256i*>(i) + 1);
-						count += _mm_popcnt_u64(
-							// Movemask returns a *signed* int, which means if the highest bit is set, it gets sign-extended to 64-bit.
-							// Cast to an unsigned type first to avoid that. FFS.
-							(std::uint64_t(std::uint32_t(_mm256_movemask_epi8(_mm256_cmpeq_epi8(a, vn1)))) << 0) |
-							(std::uint64_t(std::uint32_t(_mm256_movemask_epi8(_mm256_cmpeq_epi8(b, vn1)))) << 32));
-					}
-
-					// Handle remaining less than two aligned vectors, i.e. just one vector
-					if (i + 32 <= end) {
-						const __m256i chunk = _mm256_load_si256(reinterpret_cast<const __m256i*>(i));
-						count += _mm_popcnt_u32(_mm256_movemask_epi8(_mm256_cmpeq_epi8(chunk, vn1)));
-						i += 32;
-					}
-
-					// Handle remaining less than a vector with an unaligned load, again with the overlapping part masked out to not count it twice
-					if (i < end) {
-						DEATH_DEBUG_ASSERT(i + 32 > end);
-						// _mm256_lddqu_si256 is just an alias to _mm256_loadu_si256, no reason to use it: https://stackoverflow.com/a/47426790
-						const __m256i chunk = _mm256_loadu_si256(reinterpret_cast<const __m256i*>(end - 32));
-						const std::uint32_t found = _mm256_movemask_epi8(_mm256_cmpeq_epi8(chunk, vn1));
-						// Masking the bytes after the aligned `i`, so if `end` is 36 and `i` 32, it creates a mask for the low 28 bits
-						// and then inverts it, ending up with just the high 4 bits, 0x11110... Here don't need to use a 64-bit integer
-						// because the distance between i and end is never more than 32.
-						count += _mm_popcnt_u32(found & ~((1u << (i + 32 - end)) - 1));
-					}
-
-					return count;
-				};
-			}
-#endif
-
-			// Basically just a straight translation of the SSE2 code right now
-#if defined(DEATH_ENABLE_SIMD128)
-			DEATH_CPU_MAYBE_UNUSED DEATH_ENABLE_SIMD128 typename std::decay<decltype(stringCountCharacter)>::type stringCountCharacterImplementation(DEATH_CPU_DECLARE(Cpu::Simd128)) {
-				return [](const char* const data, const std::size_t size, const char character) DEATH_ENABLE_SIMD128 {
-				  std::size_t count = 0;
-
-					// If we have less than 16 bytes, do it the stupid way
-					{
-						const char* j = data;
-						switch (size) {
-							case 15: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case 14: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case 13: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case 12: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case 11: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case 10: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case  9: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case  8: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case  7: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case  6: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case  5: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case  4: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case  3: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case  2: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case  1: if (*j++ == character) ++count; DEATH_FALLTHROUGH
-							case  0: return count;
-						}
-					}
-
-					const v128_t vn1 = wasm_i8x16_splat(character);
-
-					// Calculate the next aligned position. If the pointer was already aligned, we'll go to the next aligned vector;
-					// if not, there will be an overlap and we'll check some bytes twice.
-					const char* i = reinterpret_cast<const char*>(reinterpret_cast<std::uintptr_t>(data + 16) & ~0xf);
-					DEATH_DEBUG_ASSERT(i > data && reinterpret_cast<std::uintptr_t>(i) % 16 == 0);
-
-					// Unconditionally load the first vector a slower, unaligned way and mask out the part that overlaps with
-					// the next aligned position to not count it twice. WASM doesn't differentiate between aligned and unaligned load,
-					// it's always unaligned, but the hardware might behave better if we try to avoid unaligned loads.
-					{
-						const v128_t chunk = wasm_v128_load(reinterpret_cast<const v128_t*>(data));
-						const std::uint32_t found = wasm_i8x16_bitmask(wasm_i8x16_eq(chunk, vn1));
-						count += __builtin_popcount(found & ((1 << (i - data)) - 1));
-					}
-
-					// Go four vectors at a time to make use of the full 64-bit popcnt instruction
-					const char* const end = data + size;
-					for (; i + 4 * 16 <= end; i += 4 * 16) {
-						const v128_t a = wasm_v128_load(reinterpret_cast<const v128_t*>(i) + 0);
-						const v128_t b = wasm_v128_load(reinterpret_cast<const v128_t*>(i) + 1);
-						const v128_t c = wasm_v128_load(reinterpret_cast<const v128_t*>(i) + 2);
-						const v128_t d = wasm_v128_load(reinterpret_cast<const v128_t*>(i) + 3);
-						count += __builtin_popcountll(
-							(std::uint64_t(wasm_i8x16_bitmask(wasm_i8x16_eq(a, vn1))) << 0) |
-							(std::uint64_t(wasm_i8x16_bitmask(wasm_i8x16_eq(b, vn1))) << 16) |
-							(std::uint64_t(wasm_i8x16_bitmask(wasm_i8x16_eq(c, vn1))) << 32) |
-							(std::uint64_t(wasm_i8x16_bitmask(wasm_i8x16_eq(d, vn1))) << 48));
-					}
-
-					// Handle remaining less than four aligned vectors
-					if (i + 2 * 16 <= end) {
-						const v128_t a = wasm_v128_load(reinterpret_cast<const v128_t*>(i) + 0);
-						const v128_t b = wasm_v128_load(reinterpret_cast<const v128_t*>(i) + 1);
-						count += __builtin_popcount(
-							(wasm_i8x16_bitmask(wasm_i8x16_eq(a, vn1)) << 0) |
-							(wasm_i8x16_bitmask(wasm_i8x16_eq(b, vn1)) << 16));
-						i += 2 * 16;
-					}
-					if (i + 16 <= end) {
-						const v128_t c = wasm_v128_load(reinterpret_cast<const v128_t*>(i));
-						count += __builtin_popcount(wasm_i8x16_bitmask(wasm_i8x16_eq(c, vn1)));
-						i += 16;
-					}
-
-					// Handle remaining less than a vector with an unaligned load, again with the overlapping part masked out
-					// to not count it twice. Again WASM doesn't have any dedicated unaligned load instruction.
-					if (i < end) {
-						DEATH_DEBUG_ASSERT(i + 16 > end);
-						const v128_t chunk = wasm_v128_load(reinterpret_cast<const v128_t*>(end - 16));
-						const std::uint32_t found = wasm_i8x16_bitmask(wasm_i8x16_eq(chunk, vn1));
-						count += __builtin_popcount(found & ~((1 << (i + 16 - end)) - 1));
-					}
-
-					return count;
-				};
-			}
-#endif
-
-			DEATH_CPU_MAYBE_UNUSED typename std::decay<decltype(stringCountCharacter)>::type stringCountCharacterImplementation(DEATH_CPU_DECLARE(Cpu::Scalar)) {
-				return [](const char* const data, const std::size_t size, const char character) -> std::size_t {
-					std::size_t count = 0;
-					for (const char* i = data, *end = data + size; i != end; ++i)
-						if (*i == character) ++count;
-					return count;
-				};
-			}
-
-		}
-
-#if defined(DEATH_TARGET_X86)
-		DEATH_CPU_DISPATCHER(stringCountCharacterImplementation, Cpu::Popcnt)
-#else
-		DEATH_CPU_DISPATCHER(stringCountCharacterImplementation)
-#endif
-		DEATH_CPU_DISPATCHED(stringCountCharacterImplementation, std::size_t DEATH_CPU_DISPATCHED_DECLARATION(stringCountCharacter)(const char* data, std::size_t size, char character))({
-			return stringCountCharacterImplementation(DEATH_CPU_SELECT(Cpu::Default))(data, size, character);
-		})
-	}
-
-	template<class T> Array<BasicStringView<T>> BasicStringView<T>::splitOnAnyWithoutEmptyParts(const StringView delimiters) const {
-		Array<BasicStringView<T>> parts;
-		const char* const characters = delimiters._data;
-		const std::size_t characterCount = delimiters.size();
-		T* oldpos = _data;
-		T* const end = _data + size();
-
-		while (oldpos < end) {
-			if (T* const pos = const_cast<T*>(Implementation::stringFindAny(oldpos, end - oldpos, characters, characterCount))) {
-				if (pos != oldpos)
-					arrayAppend(parts, slice(oldpos, pos));
-				oldpos = pos + 1;
-			} else {
-				arrayAppend(parts, slice(oldpos, end));
-				break;
-			}
-		}
-
-		return parts;
-	}
-
-	namespace
-	{
-		/* If I use an externally defined view in splitWithoutEmptyParts(),
+			/* If I use an externally defined view in splitWithoutEmptyParts(),
 		   trimmed() and elsewhere, MSVC (2015, 2017, 2019) will blow up on the
 		   explicit template instantiation with
 
@@ -1445,270 +1782,329 @@ namespace Death { namespace Containers {
 		   splitWithoutEmptyParts(), added a non-asserting variants of slice() etc,
 		   but nothing helped. */
 #if !defined(DEATH_TARGET_MSVC) || defined(DEATH_TARGET_CLANG_CL) || _MSC_VER >= 1930 /* MSVC 2022 works */
-		using namespace Literals;
-		constexpr StringView Whitespace = " \t\f\v\r\n"_s;
+			using namespace Literals;
+			constexpr StringView Whitespace = " \t\f\v\r\n"_s;
 #else
-#	define WHITESPACE_MACRO_BECAUSE_MSVC_IS_STUPID " \t\f\v\r\n"_s
+#define WHITESPACE_MACRO_BECAUSE_MSVC_IS_STUPID " \t\f\v\r\n"_s
 #endif
-	}
+		}
 
-	template<class T> Array<BasicStringView<T>> BasicStringView<T>::splitOnWhitespaceWithoutEmptyParts() const {
+		template <class T>
+		Array<BasicStringView<T>> BasicStringView<T>::splitOnWhitespaceWithoutEmptyParts() const
+		{
 #if !defined(DEATH_TARGET_MSVC) || defined(DEATH_TARGET_CLANG_CL) || _MSC_VER >= 1930 /* MSVC 2022 works */
-		return splitOnAnyWithoutEmptyParts(Whitespace);
+			return splitOnAnyWithoutEmptyParts(Whitespace);
 #else
-		using namespace Literals;
-		return splitOnAnyWithoutEmptyParts(WHITESPACE_MACRO_BECAUSE_MSVC_IS_STUPID);
+			using namespace Literals;
+			return splitOnAnyWithoutEmptyParts(WHITESPACE_MACRO_BECAUSE_MSVC_IS_STUPID);
 #endif
-	}
+		}
 
-	template<class T> StaticArray<3, BasicStringView<T>> BasicStringView<T>::partition(const char separator) const {
-		const std::size_t size = this->size();
-		T* const pos = static_cast<T*>(std::memchr(_data, separator, size));
-		return {
-			pos ? prefix(pos) : *this,
-			pos ? slice(pos, pos + 1) : exceptPrefix(size),
-			pos ? suffix(pos + 1) : exceptPrefix(size)
-		};
-	}
+		template <class T>
+		StaticArray<3, BasicStringView<T>> BasicStringView<T>::partition(const char separator) const
+		{
+			const std::size_t size = this->size();
+			T* const pos = static_cast<T*>(std::memchr(_data, separator, size));
+			return {
+				pos ? prefix(pos) : *this,
+				pos ? slice(pos, pos + 1) : exceptPrefix(size),
+				pos ? suffix(pos + 1) : exceptPrefix(size)
+			};
+		}
 
-	template<class T> StaticArray<3, BasicStringView<T>> BasicStringView<T>::partition(const StringView separator) const {
-		const char* const separatorData = separator.data();
-		const std::size_t separatorSize = separator.size();
-		const std::size_t size = this->size();
-		T* const pos = const_cast<T*>(Implementation::stringFindString(_data, size, separatorData, separatorSize));
-		return {
-			pos ? prefix(pos) : *this,
-			pos ? slice(pos, pos + separatorSize) : exceptPrefix(size),
-			pos ? suffix(pos + separatorSize) : exceptPrefix(size)
-		};
-	}
+		template <class T>
+		StaticArray<3, BasicStringView<T>> BasicStringView<T>::partition(const StringView separator) const
+		{
+			const char* const separatorData = separator.data();
+			const std::size_t separatorSize = separator.size();
+			const std::size_t size = this->size();
+			T* const pos = const_cast<T*>(Implementation::stringFindString(_data, size, separatorData, separatorSize));
+			return {
+				pos ? prefix(pos) : *this,
+				pos ? slice(pos, pos + separatorSize) : exceptPrefix(size),
+				pos ? suffix(pos + separatorSize) : exceptPrefix(size)
+			};
+		}
 
-	template<class T> String BasicStringView<T>::join(const ArrayView<const StringView> strings) const {
-		// Calculate size of the resulting string including delimiters
-		const std::size_t delimiterSize = size();
-		std::size_t totalSize = strings.empty() ? 0 : (strings.size() - 1) * delimiterSize;
-		for (const StringView s : strings) totalSize += s.size();
+		template <class T>
+		String BasicStringView<T>::join(const ArrayView<const StringView> strings) const
+		{
+			// Calculate size of the resulting string including delimiters
+			const std::size_t delimiterSize = size();
+			std::size_t totalSize = strings.empty() ? 0 : (strings.size() - 1) * delimiterSize;
+			for (const StringView s : strings)
+				totalSize += s.size();
 
-		// Reserve memory for the resulting string
-		String result{NoInit, totalSize};
+			// Reserve memory for the resulting string
+			String result { NoInit, totalSize };
 
-		// Join strings
-		char* out = result.data();
-		char* const end = out + totalSize;
-		for (const StringView string : strings) {
-			const std::size_t stringSize = string.size();
+			// Join strings
+			char* out = result.data();
+			char* const end = out + totalSize;
+			for (const StringView string : strings) {
+				const std::size_t stringSize = string.size();
+				// Apparently memcpy() can't be called with null pointers, even if size is zero. I call that bullying.
+				if (stringSize != 0) {
+					std::memcpy(out, string._data, stringSize);
+					out += stringSize;
+				}
+				if (delimiterSize != 0 && out != end) {
+					std::memcpy(out, _data, delimiterSize);
+					out += delimiterSize;
+				}
+			}
+
+			return result;
+		}
+
+		template <class T>
+		String BasicStringView<T>::join(const std::initializer_list<StringView> strings) const
+		{
+			return join(arrayView(strings));
+		}
+
+		template <class T>
+		String BasicStringView<T>::joinWithoutEmptyParts(const ArrayView<const StringView> strings) const
+		{
+			// Calculate size of the resulting string including delimiters
+			const std::size_t delimiterSize = size();
+			std::size_t totalSize = 0;
+			for (const StringView string : strings) {
+				if (string.empty())
+					continue;
+				totalSize += string.size() + delimiterSize;
+			}
+			if (totalSize != 0)
+				totalSize -= delimiterSize;
+
+			// Reserve memory for the resulting string
+			String result { NoInit, totalSize };
+
+			// Join strings
+			char* out = result.data();
+			char* const end = out + totalSize;
+			for (const StringView string : strings) {
+				if (string.empty())
+					continue;
+
+				const std::size_t stringSize = string.size();
+				// Apparently memcpy() can't be called with null pointers, even if size is zero. I call that bullying.
+				if (stringSize != 0) {
+					std::memcpy(out, string._data, stringSize);
+					out += stringSize;
+				}
+				if (delimiterSize != 0 && out != end) {
+					std::memcpy(out, _data, delimiterSize);
+					out += delimiterSize;
+				}
+			}
+
+			return result;
+		}
+
+		template <class T>
+		String BasicStringView<T>::joinWithoutEmptyParts(const std::initializer_list<StringView> strings) const
+		{
+			return joinWithoutEmptyParts(arrayView(strings));
+		}
+
+		template <class T>
+		bool BasicStringView<T>::hasPrefix(const StringView prefix) const
+		{
+			const std::size_t prefixSize = prefix.size();
+			if (size() < prefixSize)
+				return false;
+
+			return prefixSize == 0 || std::memcmp(_data, prefix._data, prefixSize) == 0;
+		}
+
+		template <class T>
+		bool BasicStringView<T>::hasPrefix(const char prefix) const
+		{
+			const std::size_t size = this->size();
+			return size && _data[0] == prefix;
+		}
+
+		template <class T>
+		bool BasicStringView<T>::hasSuffix(const StringView suffix) const
+		{
+			const std::size_t size = this->size();
+			const std::size_t suffixSize = suffix.size();
+			if (size < suffixSize)
+				return false;
+
+			return suffixSize == 0 || std::memcmp(_data + size - suffixSize, suffix._data, suffixSize) == 0;
+		}
+
+		template <class T>
+		bool BasicStringView<T>::hasSuffix(const char suffix) const
+		{
+			const std::size_t size = this->size();
+			return size != 0 && _data[size - 1] == suffix;
+		}
+
+		template <class T>
+		BasicStringView<T> BasicStringView<T>::exceptPrefix(const StringView prefix) const
+		{
+			// Stripping a hardcoded prefix is unlikely to be called in a tight loop -- and the main purpose of this API is this
+			// check -- so it shouldn't be a debug assert
+			DEATH_ASSERT(hasPrefix(prefix), "String doesn't begin with specified prefix", {});
+			return exceptPrefix(prefix.size());
+		}
+
+		template <class T>
+		BasicStringView<T> BasicStringView<T>::exceptSuffix(const StringView suffix) const
+		{
+			// Stripping a hardcoded suffix is unlikely to be called in a tight loop -- and the main purpose of this API is this
+			// check -- so it shouldn't be a debug assert
+			DEATH_ASSERT(hasSuffix(suffix), "String doesn't end with specified suffix", {});
+			return exceptSuffix(suffix.size());
+		}
+
+		template <class T>
+		BasicStringView<T> BasicStringView<T>::trimmed() const
+		{
+#if !defined(DEATH_TARGET_MSVC) || defined(DEATH_TARGET_CLANG_CL) || _MSC_VER >= 1930 /* MSVC 2022 works */
+			return trimmed(Whitespace);
+#else
+			using namespace Literals;
+			return trimmed(WHITESPACE_MACRO_BECAUSE_MSVC_IS_STUPID);
+#endif
+		}
+
+		template <class T>
+		BasicStringView<T> BasicStringView<T>::trimmedPrefix() const
+		{
+#if !defined(DEATH_TARGET_MSVC) || defined(DEATH_TARGET_CLANG_CL) || _MSC_VER >= 1930 /* MSVC 2022 works */
+			return trimmedPrefix(Whitespace);
+#else
+			using namespace Literals;
+			return trimmedPrefix(WHITESPACE_MACRO_BECAUSE_MSVC_IS_STUPID);
+#endif
+		}
+
+		template <class T>
+		BasicStringView<T> BasicStringView<T>::trimmedSuffix() const
+		{
+#if !defined(DEATH_TARGET_MSVC) || defined(DEATH_TARGET_CLANG_CL) || _MSC_VER >= 1930 /* MSVC 2022 works */
+			return trimmedSuffix(Whitespace);
+#else
+			using namespace Literals;
+			return trimmedSuffix(WHITESPACE_MACRO_BECAUSE_MSVC_IS_STUPID);
+#endif
+		}
+
+		template class BasicStringView<char>;
+		template class BasicStringView<const char>;
+
+		bool operator==(const StringView a, const StringView b)
+		{
+			// Not using the size() accessor to speed up debug builds
+			const std::size_t aSize = a._sizePlusFlags & ~Implementation::StringViewSizeMask;
+			return aSize == (b._sizePlusFlags & ~Implementation::StringViewSizeMask) &&
+				(aSize == 0 || std::memcmp(a._data, b._data, aSize) == 0);
+		}
+
+		bool operator!=(const StringView a, const StringView b)
+		{
+			// Not using the size() accessor to speed up debug builds
+			const std::size_t aSize = a._sizePlusFlags & ~Implementation::StringViewSizeMask;
+			return aSize != (b._sizePlusFlags & ~Implementation::StringViewSizeMask) ||
+				(aSize != 0 && std::memcmp(a._data, b._data, aSize) != 0);
+		}
+
+		bool operator<(const StringView a, const StringView b)
+		{
+			// Not using the size() accessor to speed up debug builds
+			const std::size_t aSize = a._sizePlusFlags & ~Implementation::StringViewSizeMask;
+			const std::size_t bSize = b._sizePlusFlags & ~Implementation::StringViewSizeMask;
+			const auto compared = std::min(aSize, bSize);
+			const int result = compared ? std::memcmp(a._data, b._data, compared) : 0;
+			if (result != 0)
+				return result < 0;
+			if (aSize < bSize)
+				return true;
+			return false;
+		}
+
+		bool operator<=(const StringView a, const StringView b)
+		{
+			// Not using the size() accessor to speed up debug builds
+			const std::size_t aSize = a._sizePlusFlags & ~Implementation::StringViewSizeMask;
+			const std::size_t bSize = b._sizePlusFlags & ~Implementation::StringViewSizeMask;
+			const auto compared = std::min(aSize, bSize);
+			const int result = compared ? std::memcmp(a._data, b._data, compared) : 0;
+			if (result != 0)
+				return result < 0;
+			if (aSize <= bSize)
+				return true;
+			return false;
+		}
+
+		bool operator>=(const StringView a, const StringView b)
+		{
+			// Not using the size() accessor to speed up debug builds
+			const std::size_t aSize = a._sizePlusFlags & ~Implementation::StringViewSizeMask;
+			const std::size_t bSize = b._sizePlusFlags & ~Implementation::StringViewSizeMask;
+			const auto compared = std::min(aSize, bSize);
+			const int result = compared ? std::memcmp(a._data, b._data, compared) : 0;
+			if (result != 0)
+				return result > 0;
+			if (aSize >= bSize)
+				return true;
+			return false;
+		}
+
+		bool operator>(const StringView a, const StringView b)
+		{
+			// Not using the size() accessor to speed up debug builds
+			const std::size_t aSize = a._sizePlusFlags & ~Implementation::StringViewSizeMask;
+			const std::size_t bSize = b._sizePlusFlags & ~Implementation::StringViewSizeMask;
+			const auto compared = std::min(aSize, bSize);
+			const int result = compared ? std::memcmp(a._data, b._data, compared) : 0;
+			if (result != 0)
+				return result > 0;
+			if (aSize > bSize)
+				return true;
+			return false;
+		}
+
+		String operator*(const StringView string, const std::size_t count)
+		{
+			// Not using the size() accessor to speed up debug builds
+			const std::size_t size = string._sizePlusFlags & ~Implementation::StringViewSizeMask;
+
+			String result { NoInit, size * count };
+
 			// Apparently memcpy() can't be called with null pointers, even if size is zero. I call that bullying.
-			if (stringSize != 0) {
-				std::memcpy(out, string._data, stringSize);
-				out += stringSize;
-			}
-			if (delimiterSize != 0 && out != end) {
-				std::memcpy(out, _data, delimiterSize);
-				out += delimiterSize;
-			}
+			char* out = result.data();
+			if (size != 0)
+				for (std::size_t i = 0; i != count; ++i)
+					std::memcpy(out + i * size, string._data, size);
+
+			return result;
 		}
 
-		return result;
-	}
-
-	template<class T> String BasicStringView<T>::join(const std::initializer_list<StringView> strings) const {
-		return join(arrayView(strings));
-	}
-
-	template<class T> String BasicStringView<T>::joinWithoutEmptyParts(const ArrayView<const StringView> strings) const {
-		// Calculate size of the resulting string including delimiters
-		const std::size_t delimiterSize = size();
-		std::size_t totalSize = 0;
-		for (const StringView string : strings) {
-			if (string.empty()) continue;
-			totalSize += string.size() + delimiterSize;
+		String operator*(const std::size_t count, const StringView string)
+		{
+			return string * count;
 		}
-		if (totalSize != 0) totalSize -= delimiterSize;
 
-		// Reserve memory for the resulting string
-		String result{NoInit, totalSize};
-
-		// Join strings
-		char* out = result.data();
-		char* const end = out + totalSize;
-		for (const StringView string : strings) {
-			if (string.empty()) continue;
-
-			const std::size_t stringSize = string.size();
-			// Apparently memcpy() can't be called with null pointers, even if size is zero. I call that bullying.
-			if (stringSize != 0) {
-				std::memcpy(out, string._data, stringSize);
-				out += stringSize;
+		namespace Implementation
+		{
+			ArrayView<char> ArrayViewConverter<char, BasicStringView<char>>::from(const BasicStringView<char>& other)
+			{
+				return { other.data(), other.size() };
 			}
-			if (delimiterSize != 0 && out != end) {
-				std::memcpy(out, _data, delimiterSize);
-				out += delimiterSize;
+			ArrayView<const char> ArrayViewConverter<const char, BasicStringView<char>>::from(const BasicStringView<char>& other)
+			{
+				return { other.data(), other.size() };
+			}
+			ArrayView<const char> ArrayViewConverter<const char, BasicStringView<const char>>::from(const BasicStringView<const char>& other)
+			{
+				return { other.data(), other.size() };
 			}
 		}
 
-		return result;
 	}
-
-	template<class T> String BasicStringView<T>::joinWithoutEmptyParts(const std::initializer_list<StringView> strings) const {
-		return joinWithoutEmptyParts(arrayView(strings));
-	}
-
-	template<class T> bool BasicStringView<T>::hasPrefix(const StringView prefix) const {
-		const std::size_t prefixSize = prefix.size();
-		if (size() < prefixSize) return false;
-
-		return prefixSize == 0 || std::memcmp(_data, prefix._data, prefixSize) == 0;
-	}
-
-	template<class T> bool BasicStringView<T>::hasPrefix(const char prefix) const {
-		const std::size_t size = this->size();
-		return size && _data[0] == prefix;
-	}
-
-	template<class T> bool BasicStringView<T>::hasSuffix(const StringView suffix) const {
-		const std::size_t size = this->size();
-		const std::size_t suffixSize = suffix.size();
-		if (size < suffixSize) return false;
-
-		return suffixSize == 0 || std::memcmp(_data + size - suffixSize, suffix._data, suffixSize) == 0;
-	}
-
-	template<class T> bool BasicStringView<T>::hasSuffix(const char suffix) const {
-		const std::size_t size = this->size();
-		return size != 0 && _data[size - 1] == suffix;
-	}
-
-	template<class T> BasicStringView<T> BasicStringView<T>::exceptPrefix(const StringView prefix) const {
-		// Stripping a hardcoded prefix is unlikely to be called in a tight loop -- and the main purpose of this API is this
-		// check -- so it shouldn't be a debug assert
-		DEATH_ASSERT(hasPrefix(prefix), "String doesn't begin with specified prefix", {});
-		return exceptPrefix(prefix.size());
-	}
-
-	template<class T> BasicStringView<T> BasicStringView<T>::exceptSuffix(const StringView suffix) const {
-		// Stripping a hardcoded suffix is unlikely to be called in a tight loop -- and the main purpose of this API is this
-		// check -- so it shouldn't be a debug assert
-		DEATH_ASSERT(hasSuffix(suffix), "String doesn't end with specified suffix", {});
-		return exceptSuffix(suffix.size());
-	}
-
-	template<class T> BasicStringView<T> BasicStringView<T>::trimmed() const {
-#if !defined(DEATH_TARGET_MSVC) || defined(DEATH_TARGET_CLANG_CL) || _MSC_VER >= 1930 /* MSVC 2022 works */
-		return trimmed(Whitespace);
-#else
-		using namespace Literals;
-		return trimmed(WHITESPACE_MACRO_BECAUSE_MSVC_IS_STUPID);
-#endif
-	}
-
-	template<class T> BasicStringView<T> BasicStringView<T>::trimmedPrefix() const {
-#if !defined(DEATH_TARGET_MSVC) || defined(DEATH_TARGET_CLANG_CL) || _MSC_VER >= 1930 /* MSVC 2022 works */
-		return trimmedPrefix(Whitespace);
-#else
-		using namespace Literals;
-		return trimmedPrefix(WHITESPACE_MACRO_BECAUSE_MSVC_IS_STUPID);
-#endif
-	}
-
-	template<class T> BasicStringView<T> BasicStringView<T>::trimmedSuffix() const {
-#if !defined(DEATH_TARGET_MSVC) || defined(DEATH_TARGET_CLANG_CL) || _MSC_VER >= 1930 /* MSVC 2022 works */
-		return trimmedSuffix(Whitespace);
-#else
-		using namespace Literals;
-		return trimmedSuffix(WHITESPACE_MACRO_BECAUSE_MSVC_IS_STUPID);
-#endif
-	}
-
-	template class BasicStringView<char>;
-	template class BasicStringView<const char>;
-
-	bool operator==(const StringView a, const StringView b) {
-		// Not using the size() accessor to speed up debug builds
-		const std::size_t aSize = a._sizePlusFlags & ~Implementation::StringViewSizeMask;
-		return aSize == (b._sizePlusFlags & ~Implementation::StringViewSizeMask) &&
-			(aSize == 0 || std::memcmp(a._data, b._data, aSize) == 0);
-	}
-
-	bool operator!=(const StringView a, const StringView b) {
-		// Not using the size() accessor to speed up debug builds
-		const std::size_t aSize = a._sizePlusFlags & ~Implementation::StringViewSizeMask;
-		return aSize != (b._sizePlusFlags & ~Implementation::StringViewSizeMask) ||
-			(aSize != 0 && std::memcmp(a._data, b._data, aSize) != 0);
-	}
-
-	bool operator<(const StringView a, const StringView b) {
-		// Not using the size() accessor to speed up debug builds
-		const std::size_t aSize = a._sizePlusFlags & ~Implementation::StringViewSizeMask;
-		const std::size_t bSize = b._sizePlusFlags & ~Implementation::StringViewSizeMask;
-		const auto compared = std::min(aSize, bSize);
-		const int result = compared ? std::memcmp(a._data, b._data, compared) : 0;
-		if (result != 0) return result < 0;
-		if (aSize < bSize) return true;
-		return false;
-	}
-
-	bool operator<=(const StringView a, const StringView b) {
-		// Not using the size() accessor to speed up debug builds
-		const std::size_t aSize = a._sizePlusFlags & ~Implementation::StringViewSizeMask;
-		const std::size_t bSize = b._sizePlusFlags & ~Implementation::StringViewSizeMask;
-		const auto compared = std::min(aSize, bSize);
-		const int result = compared ? std::memcmp(a._data, b._data, compared) : 0;
-		if (result != 0) return result < 0;
-		if (aSize <= bSize) return true;
-		return false;
-	}
-
-	bool operator>=(const StringView a, const StringView b) {
-		// Not using the size() accessor to speed up debug builds
-		const std::size_t aSize = a._sizePlusFlags & ~Implementation::StringViewSizeMask;
-		const std::size_t bSize = b._sizePlusFlags & ~Implementation::StringViewSizeMask;
-		const auto compared = std::min(aSize, bSize);
-		const int result = compared ? std::memcmp(a._data, b._data, compared) : 0;
-		if (result != 0) return result > 0;
-		if (aSize >= bSize) return true;
-		return false;
-	}
-
-	bool operator>(const StringView a, const StringView b) {
-		// Not using the size() accessor to speed up debug builds
-		const std::size_t aSize = a._sizePlusFlags & ~Implementation::StringViewSizeMask;
-		const std::size_t bSize = b._sizePlusFlags & ~Implementation::StringViewSizeMask;
-		const auto compared = std::min(aSize, bSize);
-		const int result = compared ? std::memcmp(a._data, b._data, compared) : 0;
-		if (result != 0) return result > 0;
-		if (aSize > bSize) return true;
-		return false;
-	}
-
-	String operator*(const StringView string, const std::size_t count) {
-		// Not using the size() accessor to speed up debug builds
-		const std::size_t size = string._sizePlusFlags & ~Implementation::StringViewSizeMask;
-
-		String result{NoInit, size * count};
-
-		// Apparently memcpy() can't be called with null pointers, even if size is zero. I call that bullying.
-		char* out = result.data();
-		if (size != 0) for (std::size_t i = 0; i != count; ++i)
-			std::memcpy(out + i * size, string._data, size);
-
-		return result;
-	}
-
-	String operator*(const std::size_t count, const StringView string) {
-		return string * count;
-	}
-
-	namespace Implementation
-	{
-		ArrayView<char> ArrayViewConverter<char, BasicStringView<char>>::from(const BasicStringView<char>& other) {
-			return {other.data(), other.size()};
-		}
-		ArrayView<const char> ArrayViewConverter<const char, BasicStringView<char>>::from(const BasicStringView<char>& other) {
-			return {other.data(), other.size()};
-		}
-		ArrayView<const char> ArrayViewConverter<const char, BasicStringView<const char>>::from(const BasicStringView<const char>& other) {
-			return {other.data(), other.size()};
-		}
-	}
-
-}}
+}

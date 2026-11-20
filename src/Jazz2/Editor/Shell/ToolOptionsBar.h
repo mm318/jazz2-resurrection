@@ -30,7 +30,8 @@ namespace Jazz2::Editor
 		~ToolOptionsBar() override;
 
 		/** @brief Returns `true` if the chosen tool has options */
-		bool HasOptions() const {
+		bool HasOptions() const
+		{
 			return !_items.empty();
 		}
 

@@ -45,11 +45,16 @@ namespace Jazz2::Multiplayer
 	inline nCine::Colorf GetTeamColor(std::uint8_t team)
 	{
 		switch (team) {
-			case 0: return nCine::Colorf(0.3f, 0.48f, 0.74f, 1.0f);		// Blue
-			case 1: return nCine::Colorf(0.68f, 0.36f, 0.36f, 1.0f);	// Red
-			case 2: return nCine::Colorf(0.34f, 0.48f, 0.32f, 1.0f);	// Green
-			case 3: return nCine::Colorf(0.62f, 0.44f, 0.34f, 1.0f);	// Yellow
-			default: return nCine::Colorf(0.7f, 0.7f, 0.7f, 1.0f);		// Neutral
+			case 0:
+				return nCine::Colorf(0.3f, 0.48f, 0.74f, 1.0f); // Blue
+			case 1:
+				return nCine::Colorf(0.68f, 0.36f, 0.36f, 1.0f); // Red
+			case 2:
+				return nCine::Colorf(0.34f, 0.48f, 0.32f, 1.0f); // Green
+			case 3:
+				return nCine::Colorf(0.62f, 0.44f, 0.34f, 1.0f); // Yellow
+			default:
+				return nCine::Colorf(0.7f, 0.7f, 0.7f, 1.0f); // Neutral
 		}
 	}
 
@@ -57,11 +62,16 @@ namespace Jazz2::Multiplayer
 	inline Death::Containers::StringView GetTeamName(std::uint8_t team)
 	{
 		switch (team) {
-			case 0: return "Blue";
-			case 1: return "Red";
-			case 2: return "Green";
-			case 3: return "Yellow";
-			default: return "Neutral";
+			case 0:
+				return "Blue";
+			case 1:
+				return "Red";
+			case 2:
+				return "Green";
+			case 3:
+				return "Yellow";
+			default:
+				return "Neutral";
 		}
 	}
 
@@ -78,11 +88,20 @@ namespace Jazz2::Multiplayer
 	{
 		std::uint8_t gradient;
 		switch (team) {
-			case 0: gradient = 0x20; break;			// Blue
-			case 1: gradient = 0x18; break;			// Red
-			case 2: gradient = 0x58 | 0x80; break;	// Green (hue-shifted variant)
-			case 3: gradient = 0x28; break;			// Yellow
-			default: return furColor;				// Neutral / no team - leave the player's own color
+			case 0:
+				gradient = 0x20;
+				break; // Blue
+			case 1:
+				gradient = 0x18;
+				break; // Red
+			case 2:
+				gradient = 0x58 | 0x80;
+				break; // Green (hue-shifted variant)
+			case 3:
+				gradient = 0x28;
+				break; // Yellow
+			default:
+				return furColor; // Neutral / no team - leave the player's own color
 		}
 		return (furColor & 0xFFFFFF00u) | (std::uint32_t)gradient;
 	}

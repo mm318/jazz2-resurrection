@@ -17,12 +17,12 @@
 #include <Threading/Spinlock.h>
 
 #if defined(WITH_WEBSOCKET)
-#	if defined(DEATH_TARGET_EMSCRIPTEN)
-#		include <emscripten/websocket.h>
-#	else
-#		include <ixwebsocket/IXWebSocket.h>
-#		include <ixwebsocket/IXWebSocketServer.h>
-#	endif
+#if defined(DEATH_TARGET_EMSCRIPTEN)
+#include <emscripten/websocket.h>
+#else
+#include <ixwebsocket/IXWebSocket.h>
+#include <ixwebsocket/IXWebSocketServer.h>
+#endif
 #endif
 
 #if !defined(DEATH_TARGET_EMSCRIPTEN)
@@ -46,9 +46,9 @@ namespace Jazz2::Multiplayer
 	*/
 	enum class NetworkChannel : std::uint8_t
 	{
-		Main,				/**< Main */
-		UnreliableUpdates,	/**< Unreliable updates */
-		Count				/**< Count of supported channels */
+		Main, /**< Main */
+		UnreliableUpdates, /**< Unreliable updates */
+		Count /**< Count of supported channels */
 	};
 
 	/**
@@ -59,32 +59,42 @@ namespace Jazz2::Multiplayer
 	*/
 	enum class NetworkState
 	{
-		None,				/**< Disconnected */
-		Listening,			/**< Listening as server */
-		Connecting,			/**< Connecting to server as client */
-		Connected,			/**< Connected to server as client */
-		Local				/**< Local session with no socket (local splitscreen multiplayer) */
+		None, /**< Disconnected */
+		Listening, /**< Listening as server */
+		Connecting, /**< Connecting to server as client */
+		Connected, /**< Connected to server as client */
+		Local /**< Local session with no socket (local splitscreen multiplayer) */
 	};
 
 	/**
 		@brief All connected peers tag type
 	*/
-	struct AllPeersT {
+	struct AllPeersT
+	{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		struct Init {};
+		struct Init
+		{
+		};
 		// Explicit constructor to avoid ambiguous calls when using {}
-		constexpr explicit AllPeersT(Init) {}
+		constexpr explicit AllPeersT(Init)
+		{
+		}
 #endif
 	};
 
 	/**
 		@brief Local peer tag type
 	*/
-	struct LocalPeerT {
+	struct LocalPeerT
+	{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		struct Init {};
+		struct Init
+		{
+		};
 		// Explicit constructor to avoid ambiguous calls when using {}
-		constexpr explicit LocalPeerT(Init) {}
+		constexpr explicit LocalPeerT(Init)
+		{
+		}
 #endif
 	};
 
@@ -93,12 +103,12 @@ namespace Jazz2::Multiplayer
 		
 		Use in @ref NetworkManagerBase::SendTo() to send to all connected peers or the remote server peer.
 	*/
-	constexpr AllPeersT AllPeers{AllPeersT::Init{}};
+	constexpr AllPeersT AllPeers { AllPeersT::Init {} };
 
 	/**
 		@brief Local peer tag
 	*/
-	constexpr LocalPeerT LocalPeer{LocalPeerT::Init{}};
+	constexpr LocalPeerT LocalPeer { LocalPeerT::Init {} };
 
 	/**
 		@brief Allows to create generic network clients and servers
@@ -193,7 +203,7 @@ namespace Jazz2::Multiplayer
 #endif
 		/** @brief Converts the endpoint of the specified peer to the string representation */
 		String AddressToString(const Peer& peer) const;
-		
+
 		/** @brief Returns `true` if the specified string representation of the address is valid */
 		static bool IsAddressValid(StringView address);
 		/** @brief Returns `true` if the specified string representation of the domain name is valid */
@@ -245,7 +255,8 @@ namespace Jazz2::Multiplayer
 
 #if !defined(DEATH_TARGET_EMSCRIPTEN)
 		/** @brief Peer kicked by the server, waiting for its disconnect to be reported */
-		struct KickedPeer {
+		struct KickedPeer
+		{
 			Peer Target;
 			Reason KickReason;
 		};
@@ -253,10 +264,10 @@ namespace Jazz2::Multiplayer
 		_ENetHost* _host;
 		Thread _thread;
 		SmallVector<Peer, 1> _connectedPeers;
-		SmallVector<KickedPeer, 0> _kickedPeers;	/**< Guarded by `_lock` */
-#	if defined(WITH_ONLINE_MULTIPLAYER)
+		SmallVector<KickedPeer, 0> _kickedPeers; /**< Guarded by `_lock` */
+#if defined(WITH_ONLINE_MULTIPLAYER)
 		SmallVector<ENetAddress, 0> _desiredEndpoints;
-#	endif
+#endif
 #endif
 		NetworkState _state;
 		std::uint32_t _clientData;
@@ -265,34 +276,41 @@ namespace Jazz2::Multiplayer
 
 #if defined(WITH_WEBSOCKET) && !defined(DEATH_TARGET_EMSCRIPTEN)
 		/** @brief Queued event from WebSocket callbacks to the main processing thread */
-		struct WsQueuedEvent {
-			enum class Type : std::uint8_t { Open, Close, Message };
+		struct WsQueuedEvent
+		{
+			enum class Type : std::uint8_t
+			{
+				Open,
+				Close,
+				Message
+			};
 			Type type = Type::Open;
 			ix::WebSocket* peer = nullptr;
 			std::string data;
-			std::uint32_t clientData = 0;	/**< For Open: client data value to pass to OnPeerConnected */
-			std::uint16_t closeCode = 0;	/**< For Close: WebSocket close code */
+			std::uint32_t clientData = 0; /**< For Open: client data value to pass to OnPeerConnected */
+			std::uint16_t closeCode = 0; /**< For Close: WebSocket close code */
 		};
 
 		/** @brief Per-peer info stored by the WebSocket transport */
-		struct WsPeerInfo {
-			String address;			/**< Remote address string */
-			std::uint32_t rtt = 0;	/**< Last reported round trip time in milliseconds */
+		struct WsPeerInfo
+		{
+			String address; /**< Remote address string */
+			std::uint32_t rtt = 0; /**< Last reported round trip time in milliseconds */
 		};
 
 		std::unique_ptr<ix::WebSocketServer> _wsServer;
 		std::unique_ptr<ix::WebSocket> _wsClient;
-		HashMap<ix::WebSocket*, WsPeerInfo> _wsPeers;	/**< Maps ix::WebSocket* → peer info; also acts as lifetime guard */
+		HashMap<ix::WebSocket*, WsPeerInfo> _wsPeers; /**< Maps ix::WebSocket* → peer info; also acts as lifetime guard */
 		SmallVector<WsQueuedEvent, 0> _wsPendingEvents;
-		std::uint64_t _wsPingLastTime = 0;		/**< Timestamp (ms) of the last outgoing Ping on the client thread */
-		std::atomic<std::uint32_t> _wsRtt{0};	/**< Client-side measured RTT for the WebSocket server connection */
+		std::uint64_t _wsPingLastTime = 0; /**< Timestamp (ms) of the last outgoing Ping on the client thread */
+		std::atomic<std::uint32_t> _wsRtt { 0 }; /**< Client-side measured RTT for the WebSocket server connection */
 		mutable Spinlock _wsLock;
 
 		void ProcessWsQueue(INetworkHandler* handler);
 		bool SendToWsPeer(ix::WebSocket* ws, std::uint8_t packetType, ArrayView<const std::uint8_t> data);
 #elif defined(WITH_WEBSOCKET) && defined(DEATH_TARGET_EMSCRIPTEN)
 		/** @brief Emscripten WebSocket handle (0 = not connected) */
-		EMSCRIPTEN_WEBSOCKET_T _emWsSocket{0};
+		EMSCRIPTEN_WEBSOCKET_T _emWsSocket { 0 };
 		/** @brief URL of the WebSocket server being connected to */
 		String _emWsUrl;
 		/** @brief Client-side measured RTT for the Emscripten WebSocket connection */
@@ -336,9 +354,9 @@ namespace Jazz2::Multiplayer
 
 		static void OnClientThread(void* param);
 		static void OnServerThread(void* param);
-#	if defined(WITH_WEBSOCKET)
+#if defined(WITH_WEBSOCKET)
 		static void OnClientWsThread(void* param);
-#	endif
+#endif
 #endif
 	};
 }

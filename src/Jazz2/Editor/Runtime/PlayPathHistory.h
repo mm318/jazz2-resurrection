@@ -31,7 +31,8 @@ namespace Jazz2::Editor
 		/** @brief Forgets all paths */
 		void Clear();
 		/** @brief Returns `true` if there is no path */
-		bool IsEmpty() const {
+		bool IsEmpty() const
+		{
 			return _paths.empty();
 		}
 		/**
@@ -42,11 +43,13 @@ namespace Jazz2::Editor
 		 */
 		void Update(const PlayPath& path, std::uint32_t playTest);
 		/** @brief Returns the paths, the oldest first */
-		ArrayView<const PlayPath> GetPaths() const {
+		ArrayView<const PlayPath> GetPaths() const
+		{
 			return _paths;
 		}
 		/** @brief Returns a number that changes whenever the paths change, so what is made of them can be kept until then */
-		std::uint32_t GetRevision() const {
+		std::uint32_t GetRevision() const
+		{
 			return _revision;
 		}
 		/** @brief Returns the places where the player died in all paths */

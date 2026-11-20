@@ -103,7 +103,7 @@
 #include <Containers/String.h>
 #include <Containers/StringView.h>
 
-#include "ShaderParser.h"		// SourceLine, FixedFunctionBlock
+#include "ShaderParser.h" // SourceLine, FixedFunctionBlock
 
 namespace ShaderCompiler
 {
@@ -112,13 +112,13 @@ namespace ShaderCompiler
 	/** @brief Fixed-function backend a generated aggregate header targets */
 	enum class FixedFunctionBackend
 	{
-		Pvr,	/**< Dreamcast (CLX2 via KallistiOS) */
-		Gx,		/**< Wii/GameCube (Flipper/Hollywood) */
-		Pica,	/**< Nintendo 3DS (PICA200 via citro3d) */
-		Gu,		/**< PlayStation Portable (Graphics Engine via sceGu) */
-		Gs,		/**< PlayStation 2 (Graphics Synthesizer via PS2SDK's libdraw) */
-		Rdp,	/**< Nintendo 64 (Reality Display Processor via libdragon) */
-		LegacyGl	/**< Legacy OpenGL (MorphOS's TinyGL, and a desktop GL for testing that path) */
+		Pvr, /**< Dreamcast (CLX2 via KallistiOS) */
+		Gx, /**< Wii/GameCube (Flipper/Hollywood) */
+		Pica, /**< Nintendo 3DS (PICA200 via citro3d) */
+		Gu, /**< PlayStation Portable (Graphics Engine via sceGu) */
+		Gs, /**< PlayStation 2 (Graphics Synthesizer via PS2SDK's libdraw) */
+		Rdp, /**< Nintendo 64 (Reality Display Processor via libdragon) */
+		LegacyGl /**< Legacy OpenGL (MorphOS's TinyGL, and a desktop GL for testing that path) */
 	};
 
 	/**
@@ -131,11 +131,11 @@ namespace ShaderCompiler
 	enum class FixedFunctionRequirements : std::uint8_t
 	{
 		None = 0,
-		NeedsTexelStep = 0x01,		/**< `texel_size()` / `has_texel_size()` */
-		NeedsUniforms = 0x02,		/**< `has_uniform()` / `uniform_vec2/vec4()` */
-		NeedsStripBuilder = 0x04,	/**< `strip_*()` / `submit_strip[_shaded]()` */
-		NeedsQuadAxes = 0x08,		/**< `quad_origin()` / `quad_axis_x/y()` */
-		SamplesTexture = 0x10		/**< `submit_quad()` / `submit_strip()`, or `TINT_MIX` with a shaded strip */
+		NeedsTexelStep = 0x01, /**< `texel_size()` / `has_texel_size()` */
+		NeedsUniforms = 0x02, /**< `has_uniform()` / `uniform_vec2/vec4()` */
+		NeedsStripBuilder = 0x04, /**< `strip_*()` / `submit_strip[_shaded]()` */
+		NeedsQuadAxes = 0x08, /**< `quad_origin()` / `quad_axis_x/y()` */
+		SamplesTexture = 0x10 /**< `submit_quad()` / `submit_strip()`, or `TINT_MIX` with a shaded strip */
 	};
 
 	/** @brief Outcome of transpiling one fixed_function block variant to C++ */

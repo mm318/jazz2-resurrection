@@ -14,8 +14,8 @@ namespace Jazz2::UI::Windows
 	/** @brief Theme of the interface */
 	enum class ThemeKind : std::int32_t
 	{
-		Default,		/**< The usual one */
-		HighContrast	/**< Opaque panels, bright borders and text */
+		Default, /**< The usual one */
+		HighContrast /**< Opaque panels, bright borders and text */
 	};
 
 	/**

@@ -1,7 +1,7 @@
 #pragma once
 
 #if defined(WITH_COROUTINES)
-#	include <coroutine>
+#include <coroutine>
 #endif
 
 #include <optional>
@@ -102,9 +102,9 @@ namespace nCine
 		struct task_promise
 		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-			std::optional<T> m_value{};
-			std::coroutine_handle<promise_type> m_inner_handler{};
-			std::coroutine_handle<promise_type> m_outer_handler{};
+			std::optional<T> m_value {};
+			std::coroutine_handle<promise_type> m_inner_handler {};
+			std::coroutine_handle<promise_type> m_outer_handler {};
 #endif
 
 			auto value()
@@ -114,12 +114,12 @@ namespace nCine
 
 			auto initial_suspend()
 			{
-				return std::suspend_never{};
+				return std::suspend_never {};
 			}
 
 			auto final_suspend() noexcept
 			{
-				return std::suspend_always{};
+				return std::suspend_always {};
 			}
 
 			void return_value(T t)
@@ -144,15 +144,18 @@ namespace nCine
 		};
 #else
 
-		Task(T value) : _value(value) { }
+		Task(T value)
+			: _value(value)
+		{
+		}
 
-		operator T() const {
+		operator T() const
+		{
 			return _value;
 		}
 
 		T _value;
 
 #endif
-
 	};
 }

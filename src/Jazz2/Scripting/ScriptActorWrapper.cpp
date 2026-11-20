@@ -138,37 +138,64 @@ shared abstract class CollectibleBase : )" AsClassName R"(
 }
 )";
 		int r;
-		r = engine->RegisterObjectType(AsClassNameInternal, 0, asOBJ_REF); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectBehaviour(AsClassNameInternal, asBEHAVE_FACTORY, AsClassNameInternal " @f(int)", asFUNCTION(ScriptActorWrapper::Factory), asCALL_CDECL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectBehaviour(AsClassNameInternal, asBEHAVE_ADDREF, "void f()", asMETHOD(ScriptActorWrapper, AddRef), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectBehaviour(AsClassNameInternal, asBEHAVE_RELEASE, "void f()", asMETHOD(ScriptActorWrapper, Release), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectMethod(AsClassNameInternal, AsClassNameInternal " &opAssign(const " AsClassNameInternal " &in)", asMETHOD(ScriptActorWrapper, operator=), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectType(AsClassNameInternal, 0, asOBJ_REF);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectBehaviour(AsClassNameInternal, asBEHAVE_FACTORY, AsClassNameInternal " @f(int)", asFUNCTION(ScriptActorWrapper::Factory), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectBehaviour(AsClassNameInternal, asBEHAVE_ADDREF, "void f()", asMETHOD(ScriptActorWrapper, AddRef), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectBehaviour(AsClassNameInternal, asBEHAVE_RELEASE, "void f()", asMETHOD(ScriptActorWrapper, Release), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod(AsClassNameInternal, AsClassNameInternal " &opAssign(const " AsClassNameInternal " &in)", asMETHOD(ScriptActorWrapper, operator=), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 
-		r = engine->RegisterObjectProperty(AsClassNameInternal, "float X", asOFFSET(ScriptActorWrapper, _pos.X)); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectProperty(AsClassNameInternal, "float Y", asOFFSET(ScriptActorWrapper, _pos.Y)); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectProperty(AsClassNameInternal, "float SpeedX", asOFFSET(ScriptActorWrapper, _speed.X)); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectProperty(AsClassNameInternal, "float SpeedY", asOFFSET(ScriptActorWrapper, _speed.Y)); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectProperty(AsClassNameInternal, "float ExternalForceX", asOFFSET(ScriptActorWrapper, _externalForce.X)); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectProperty(AsClassNameInternal, "float ExternalForceY", asOFFSET(ScriptActorWrapper, _externalForce.Y)); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectProperty(AsClassNameInternal, "float Elasticity", asOFFSET(ScriptActorWrapper, _elasticity)); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectProperty(AsClassNameInternal, "float Friction", asOFFSET(ScriptActorWrapper, _friction)); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectProperty(AsClassNameInternal, "int Health", asOFFSET(ScriptActorWrapper, _health)); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectProperty(AsClassNameInternal, "int ScoreValue", asOFFSET(ScriptActorWrapper, _scoreValue)); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectProperty(AsClassNameInternal, "float X", asOFFSET(ScriptActorWrapper, _pos.X));
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectProperty(AsClassNameInternal, "float Y", asOFFSET(ScriptActorWrapper, _pos.Y));
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectProperty(AsClassNameInternal, "float SpeedX", asOFFSET(ScriptActorWrapper, _speed.X));
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectProperty(AsClassNameInternal, "float SpeedY", asOFFSET(ScriptActorWrapper, _speed.Y));
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectProperty(AsClassNameInternal, "float ExternalForceX", asOFFSET(ScriptActorWrapper, _externalForce.X));
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectProperty(AsClassNameInternal, "float ExternalForceY", asOFFSET(ScriptActorWrapper, _externalForce.Y));
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectProperty(AsClassNameInternal, "float Elasticity", asOFFSET(ScriptActorWrapper, _elasticity));
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectProperty(AsClassNameInternal, "float Friction", asOFFSET(ScriptActorWrapper, _friction));
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectProperty(AsClassNameInternal, "int Health", asOFFSET(ScriptActorWrapper, _health));
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectProperty(AsClassNameInternal, "int ScoreValue", asOFFSET(ScriptActorWrapper, _scoreValue));
+		RETURN_ASSERT(r >= 0);
 
-		r = engine->RegisterObjectMethod(AsClassNameInternal, "float get_Alpha() const property", asMETHOD(ScriptActorWrapper, asGetAlpha), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectMethod(AsClassNameInternal, "void set_Alpha(float) property", asMETHOD(ScriptActorWrapper, asSetAlpha), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectMethod(AsClassNameInternal, "uint16 get_Layer() const property", asMETHOD(ScriptActorWrapper, asGetLayer), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectMethod(AsClassNameInternal, "void set_Layer(uint16) property", asMETHOD(ScriptActorWrapper, asSetLayer), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod(AsClassNameInternal, "float get_Alpha() const property", asMETHOD(ScriptActorWrapper, asGetAlpha), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod(AsClassNameInternal, "void set_Alpha(float) property", asMETHOD(ScriptActorWrapper, asSetAlpha), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod(AsClassNameInternal, "uint16 get_Layer() const property", asMETHOD(ScriptActorWrapper, asGetLayer), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod(AsClassNameInternal, "void set_Layer(uint16) property", asMETHOD(ScriptActorWrapper, asSetLayer), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 
-		r = engine->RegisterObjectMethod(AsClassNameInternal, "void DecreaseHealth(int)", asMETHOD(ScriptActorWrapper, asDecreaseHealth), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectMethod(AsClassNameInternal, "bool MoveTo(float, float, bool)", asMETHOD(ScriptActorWrapper, asMoveTo), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectMethod(AsClassNameInternal, "bool MoveBy(float, float, bool)", asMETHOD(ScriptActorWrapper, asMoveBy), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectMethod(AsClassNameInternal, "void TryStandardMovement(float)", asMETHOD(ScriptActorWrapper, asTryStandardMovement), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectMethod(AsClassNameInternal, "void RequestMetadata(const string &in)", asMETHOD(ScriptActorWrapper, asRequestMetadata), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectMethod(AsClassNameInternal, "void PlaySfx(const string &in, float, float)", asMETHOD(ScriptActorWrapper, asPlaySfx), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterObjectMethod(AsClassNameInternal, "void SetAnimation(int)", asMETHOD(ScriptActorWrapper, asSetAnimationState), asCALL_THISCALL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod(AsClassNameInternal, "void DecreaseHealth(int)", asMETHOD(ScriptActorWrapper, asDecreaseHealth), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod(AsClassNameInternal, "bool MoveTo(float, float, bool)", asMETHOD(ScriptActorWrapper, asMoveTo), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod(AsClassNameInternal, "bool MoveBy(float, float, bool)", asMETHOD(ScriptActorWrapper, asMoveBy), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod(AsClassNameInternal, "void TryStandardMovement(float)", asMETHOD(ScriptActorWrapper, asTryStandardMovement), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod(AsClassNameInternal, "void RequestMetadata(const string &in)", asMETHOD(ScriptActorWrapper, asRequestMetadata), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod(AsClassNameInternal, "void PlaySfx(const string &in, float, float)", asMETHOD(ScriptActorWrapper, asPlaySfx), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterObjectMethod(AsClassNameInternal, "void SetAnimation(int)", asMETHOD(ScriptActorWrapper, asSetAnimationState), asCALL_THISCALL);
+		RETURN_ASSERT(r >= 0);
 
-		r = module->AddScriptSection("__" AsClassName, AsLibrary, arraySize(AsLibrary) - 1, 0); RETURN_ASSERT(r >= 0);
+		r = module->AddScriptSection("__" AsClassName, AsLibrary, arraySize(AsLibrary) - 1, 0);
+		RETURN_ASSERT(r >= 0);
 	}
 
 	ScriptActorWrapper* ScriptActorWrapper::Factory(std::int32_t actorType)
@@ -188,11 +215,11 @@ shared abstract class CollectibleBase : )" AsClassName R"(
 			default:
 			case 0: {
 				void* mem = asAllocMem(sizeof(ScriptActorWrapper));
-				return new(mem) ScriptActorWrapper(owner, obj);
+				return new (mem) ScriptActorWrapper(owner, obj);
 			}
 			case 1: {
 				void* mem = asAllocMem(sizeof(ScriptCollectibleWrapper));
-				return new(mem) ScriptCollectibleWrapper(owner, obj);
+				return new (mem) ScriptCollectibleWrapper(owner, obj);
 			}
 		}
 	}
@@ -412,7 +439,7 @@ shared abstract class CollectibleBase : )" AsClassName R"(
 					asIScriptContext* ctx = engine->RequestContext();
 
 					void* mem = asAllocMem(sizeof(ScriptPlayerWrapper));
-					ScriptPlayerWrapper* playerWrapper = new(mem) ScriptPlayerWrapper(_levelScripts, player);
+					ScriptPlayerWrapper* playerWrapper = new (mem) ScriptPlayerWrapper(_levelScripts, player);
 
 					CScriptHandle handle(playerWrapper, typeInfo);
 					ctx->Prepare(_onHandleCollision);
@@ -649,8 +676,7 @@ shared abstract class CollectibleBase : )" AsClassName R"(
 				return true;
 			}
 		} else {
-			bool shouldDrop = _untouched && (runtime_cast<Weapons::ShotBase>(other) ||
-				runtime_cast<Weapons::TNT>(other) || runtime_cast<Enemies::TurtleShell>(other));
+			bool shouldDrop = _untouched && (runtime_cast<Weapons::ShotBase>(other) || runtime_cast<Weapons::TNT>(other) || runtime_cast<Enemies::TurtleShell>(other));
 			if (shouldDrop) {
 				Vector2f speed = other->GetSpeed();
 				_externalForce.X += speed.X / 2.0f * (0.9f + Random().NextFloat(0.0f, 0.2f));
@@ -674,7 +700,7 @@ shared abstract class CollectibleBase : )" AsClassName R"(
 		asIScriptContext* ctx = engine->RequestContext();
 
 		void* mem = asAllocMem(sizeof(ScriptPlayerWrapper));
-		ScriptPlayerWrapper* playerWrapper = new(mem) ScriptPlayerWrapper(_levelScripts, player);
+		ScriptPlayerWrapper* playerWrapper = new (mem) ScriptPlayerWrapper(_levelScripts, player);
 
 		ctx->Prepare(_onCollect);
 		ctx->SetObject(_obj);

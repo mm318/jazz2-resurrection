@@ -44,7 +44,9 @@ namespace Jazz2::Compatibility
 		SmallVector<LevelEntry, 0> LevelTexts;
 
 		/** @brief Creates a new instance */
-		JJ2Strings() { }
+		JJ2Strings()
+		{
+		}
 
 		/** @brief Creates a new instance with the specified name */
 		JJ2Strings(StringView name)

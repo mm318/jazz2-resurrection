@@ -16,7 +16,7 @@ namespace Jazz2::Actors::Environment
 
 	Task<bool> SteamNote::OnActivatedAsync(const ActorActivationDetails& details)
 	{
-		
+
 		_pos.X -= 10.0f;
 
 		SetState(ActorState::SkipPerPixelCollisions, true);

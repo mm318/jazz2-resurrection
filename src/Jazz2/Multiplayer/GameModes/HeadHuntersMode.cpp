@@ -14,7 +14,7 @@
 namespace Jazz2::Multiplayer::GameModes
 {
 	HeadHuntersMode::HeadHuntersMode()
-		: _teamPoints{}, _pitVictim(nullptr)
+		: _teamPoints {}, _pitVictim(nullptr)
 	{
 	}
 

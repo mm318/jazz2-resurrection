@@ -25,7 +25,7 @@ namespace Jazz2::UI::Multiplayer
 	private:
 		static constexpr std::uint16_t FontLayer = 550;
 		static constexpr std::uint16_t FontShadowLayer = 546;
-		
+
 		Jazz2::Multiplayer::MpLevelHandler* _levelHandler;
 		Font* _smallFont;
 

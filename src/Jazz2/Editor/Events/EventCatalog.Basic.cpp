@@ -88,8 +88,7 @@ namespace Jazz2::Editor::EventCatalogParts
 
 		static const EventParamField SceneryCollapseFields[] = {
 			// TRANSLATORS: Parameter of an event in the event properties
-			UIntField(_x("editor", "Delay"), 0, 16, 0, 65535).WithUnit(ParamUnit::Frames)
-				.WithDescription(_x("editor", "Time after a player steps on the tile until it starts to crumble"))
+			UIntField(_x("editor", "Delay"), 0, 16, 0, 65535).WithUnit(ParamUnit::Frames).WithDescription(_x("editor", "Time after a player steps on the tile until it starts to crumble"))
 		};
 
 		// Direction, which side of the tile EventMap::IsHurting() is asked about
@@ -109,18 +108,21 @@ namespace Jazz2::Editor::EventCatalogParts
 			// TRANSLATORS: Parameter of an event in the event properties
 			FlagsField(_x("editor", "Sides"), 0, 8, HurtSideOptions, 0x01)
 				.WithDescription(_x("editor", "Sides of the tile that hurt a player touching them"))
-				.MirroredXPairs(HurtSidesMirrorX).MirroredYPairs(HurtSidesMirrorY)
+				.MirroredXPairs(HurtSidesMirrorX)
+				.MirroredYPairs(HurtSidesMirrorY)
 		};
 
 		static const EventParamField ModifierTubeFields[] = {
 			// TRANSLATORS: Parameter of an event in the event properties
 			IntField(_x("editor", "X Speed"), 0, 8, -128, 127, 8)
 				.WithDescription(_x("editor", "Horizontal speed in pixels per tick of the original (70 ticks per second), positive is to the right"))
-				.MirroredX(MirrorMode::Negate).WithDirection(DirectionAxis::X),
+				.MirroredX(MirrorMode::Negate)
+				.WithDirection(DirectionAxis::X),
 			// TRANSLATORS: Parameter of an event in the event properties
 			IntField(_x("editor", "Y Speed"), 1, 8, -128, 127)
 				.WithDescription(_x("editor", "Vertical speed in pixels per tick of the original (70 ticks per second), positive is down"))
-				.MirroredY(MirrorMode::Negate).WithDirection(DirectionAxis::Y),
+				.MirroredY(MirrorMode::Negate)
+				.WithDirection(DirectionAxis::Y),
 			// TRANSLATORS: Parameter of a tube event, a checkbox that makes the player go through walls ("noclip")
 			BoolField(_x("editor", "Become Noclip"), 4)
 				.WithDescription(_x("editor", "The player goes through walls until a tube without it")),
@@ -137,17 +139,14 @@ namespace Jazz2::Editor::EventCatalogParts
 
 		static const EventParamField ModifierSetWaterFields[] = {
 			// TRANSLATORS: Parameter of an event in the event properties
-			UIntField(_x("editor", "Height"), 0, 16, 0, 65535).WithUnit(ParamUnit::Pixels)
-				.WithDescription(_x("editor", "New water level, from the top of the level"))
+			UIntField(_x("editor", "Height"), 0, 16, 0, 65535).WithUnit(ParamUnit::Pixels).WithDescription(_x("editor", "New water level, from the top of the level"))
 		};
 
 		static const EventParamField ModifierLimitCameraViewFields[] = {
 			// TRANSLATORS: Parameter of a limit camera event, the column of the left edge of the camera range
-			UIntField(_x("editor", "Left"), 0, 16, 0, 65535).WithUnit(ParamUnit::Tiles)
-				.WithDescription(_x("editor", "Column of the left edge, counted from the left of the level, 0 is the column of this event")),
+			UIntField(_x("editor", "Left"), 0, 16, 0, 65535).WithUnit(ParamUnit::Tiles).WithDescription(_x("editor", "Column of the left edge, counted from the left of the level, 0 is the column of this event")),
 			// TRANSLATORS: Parameter of an event in the event properties
-			UIntField(_x("editor", "Width"), 2, 16, 0, 65535).WithUnit(ParamUnit::Tiles)
-				.WithDescription(_x("editor", "Width in tiles, 0 reaches to the right edge of the level, if it's narrower than the screen, the camera can go further to the left"))
+			UIntField(_x("editor", "Width"), 2, 16, 0, 65535).WithUnit(ParamUnit::Tiles).WithDescription(_x("editor", "Width in tiles, 0 reaches to the right edge of the level, if it's narrower than the screen, the camera can go further to the left"))
 		};
 
 		static const EventDescriptor Events[] = {

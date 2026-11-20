@@ -49,15 +49,18 @@ namespace Jazz2::Editor
 		 *
 		 * -1 where the player can't get. Empty while it's not shown, see @ref ToggleReachability().
 		 */
-		ArrayView<const std::int32_t> GetReachability() const {
+		ArrayView<const std::int32_t> GetReachability() const
+		{
 			return _reachability;
 		}
 		/** @brief Returns the largest distance of @ref GetReachability(), at least 1, found once when it's computed */
-		std::int32_t GetReachabilityMaxDistance() const {
+		std::int32_t GetReachabilityMaxDistance() const
+		{
 			return _reachabilityMaxDistance;
 		}
 		/** @brief Returns `true` while it's shown where the player can get */
-		bool IsReachabilityShown() const {
+		bool IsReachabilityShown() const
+		{
 			return !_reachability.empty();
 		}
 		/**

@@ -46,7 +46,8 @@ namespace Jazz2::Editor
 		/** @brief Returns `true` if there's nothing to change */
 		bool IsEmpty() const;
 		/** @brief Returns the layer */
-		std::int32_t GetLayer() const {
+		std::int32_t GetLayer() const
+		{
 			return _layer;
 		}
 		/** @brief Returns the area of all changed tiles */
@@ -56,7 +57,8 @@ namespace Jazz2::Editor
 		 *
 		 * A sealed command of many changes keeps them compressed, it returns none then.
 		 */
-		ArrayView<const Change> GetChanges() const {
+		ArrayView<const Change> GetChanges() const
+		{
 			return _changes;
 		}
 
@@ -117,7 +119,8 @@ namespace Jazz2::Editor
 		/** @brief Returns the area of all changed events */
 		Recti GetArea() const;
 		/** @brief Returns the changes collected so far */
-		ArrayView<const Change> GetChanges() const {
+		ArrayView<const Change> GetChanges() const
+		{
 			return _changes;
 		}
 
@@ -315,7 +318,8 @@ namespace Jazz2::Editor
 		 * As moving a layer by its frame changes either of its offsets or both as it's dragged, but is one step. Without
 		 * it, only a change of the same fields merges, as a value dragged in the properties.
 		 */
-		void SetMergesAnyField(bool value) {
+		void SetMergesAnyField(bool value)
+		{
 			_mergesAnyField = value;
 		}
 
@@ -502,11 +506,13 @@ namespace Jazz2::Editor
 		std::size_t GetMemoryUsage() const override;
 
 		/** @brief Returns the tile ID of the tile */
-		std::uint16_t GetTileId() const {
+		std::uint16_t GetTileId() const
+		{
 			return _tileId;
 		}
 		/** @brief Returns `true` if the tile is overridden after the change, its pixels or its mask */
-		bool IsOverriddenAfter() const {
+		bool IsOverriddenAfter() const
+		{
 			return (_new.HasDiffuse || _new.HasMask);
 		}
 

@@ -6,13 +6,13 @@
 #include "TextureLoaderKtx.h"
 #include "TextureLoaderPng.h"
 #if defined(WITH_WEBP)
-#	include "TextureLoaderWebP.h"
+#include "TextureLoaderWebP.h"
 #endif
 #if defined(DEATH_TARGET_ANDROID) && defined(RHI_GL_PROFILE_ES)
-#	include "TextureLoaderPkm.h"
+#include "TextureLoaderPkm.h"
 #endif
 #if defined(WITH_QOI)
-#	include "TextureLoaderQoi.h"
+#include "TextureLoaderQoi.h"
 #endif
 
 #include <IO/FileSystem.h>

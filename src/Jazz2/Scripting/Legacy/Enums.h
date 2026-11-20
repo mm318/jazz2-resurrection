@@ -8,19 +8,22 @@ namespace Jazz2::Scripting
 {
 	namespace Legacy
 	{
-		enum airjump {
+		enum airjump
+		{
 			airjumpNONE,
 			airjumpHELICOPTER,
 			airjumpSPAZ
 		};
 
-		enum ambientLighting {
+		enum ambientLighting
+		{
 			ambientLighting_OPTIONAL,
 			ambientLighting_BASIC,
 			ambientLighting_COMPLETE
 		};
 
-		enum anim {
+		enum anim
+		{
 			mAMMO,
 			mBAT,
 			mBEEBOY,
@@ -152,7 +155,8 @@ namespace Jazz2::Scripting
 			mCOUNT
 		};
 
-		enum dir {
+		enum dir
+		{
 			dirRIGHT,
 			dirLEFT,
 			dirUP,
@@ -160,7 +164,8 @@ namespace Jazz2::Scripting
 			dirCURRENT = 4
 		};
 
-		enum gameState {
+		enum gameState
+		{
 			gameSTARTED = 0,
 			gamePREGAME = 1,
 			gameOVERTIME = 2,
@@ -168,13 +173,15 @@ namespace Jazz2::Scripting
 			gameSTOPPED = 4
 		};
 
-		enum gameConnection {
+		enum gameConnection
+		{
 			gameLOCAL,
 			gameINTERNET,
 			gameLAN_TCP
 		};
 
-		enum GM_ {
+		enum GM_
+		{
 			GM_SP = 0,
 			GM_COOP = 1,
 			GM_BATTLE = 2,
@@ -183,7 +190,8 @@ namespace Jazz2::Scripting
 			GM_CTF = 5
 		};
 
-		enum groundjump {
+		enum groundjump
+		{
 			groundjumpNONE,
 			groundjumpREGULARJUMP,
 			groundjumpJAZZ,
@@ -191,7 +199,8 @@ namespace Jazz2::Scripting
 			groundjumpLORI
 		};
 
-		enum object {
+		enum object
+		{
 			aUNKNOWN,
 
 			aPLAYERBULLET1 = 0x01,
@@ -469,9 +478,11 @@ namespace Jazz2::Scripting
 			aWATERLEVEL = 0xD0,
 			aMORPHFROG = 0xDE,
 			aWATERBLOCK = 0xE9,
-			aCOUNT = 0x100};
+			aCOUNT = 0x100
+		};
 
-		enum particle {
+		enum particle
+		{
 			particleNONE,
 			particlePIXEL,
 			particleFIRE,
@@ -488,7 +499,8 @@ namespace Jazz2::Scripting
 			particleTILE = 64
 		};
 
-		enum playerAnim {
+		enum playerAnim
+		{
 			mJAZZ_AIRBOARD,
 			mJAZZ_AIRBOARDTURN,
 			mJAZZ_BUTTSTOMPLAND,
@@ -570,7 +582,8 @@ namespace Jazz2::Scripting
 		};
 
 		// The values of JJ2+, which has gaps between them - MLLE stores them in levels
-		enum spriteType {
+		enum spriteType
+		{
 			spriteType_NORMAL = 0,
 			spriteType_TRANSLUCENT = 1,
 			spriteType_TINTED = 2,
@@ -615,7 +628,8 @@ namespace Jazz2::Scripting
 			spriteType_INVERSE = 50
 		};
 
-		enum sound {
+		enum sound
+		{
 			sAMMO_BLUB1,
 			sAMMO_BLUB2,
 			sAMMO_BMP1,
@@ -1131,7 +1145,8 @@ namespace Jazz2::Scripting
 			sZDOG_WAF3
 		};
 
-		enum state {
+		enum state
+		{
 			sSTART,
 			sSLEEP,
 			sWAKE,
@@ -1170,7 +1185,8 @@ namespace Jazz2::Scripting
 			sDUCK
 		};
 
-		enum tbgMode {
+		enum tbgMode
+		{
 			tbgModeWARPHORIZON,
 			tbgModeTUNNEL,
 			tbgModeMENU,
@@ -1180,20 +1196,23 @@ namespace Jazz2::Scripting
 			tbgModeREFLECTION
 		};
 
-		enum waterInteraction_ {
+		enum waterInteraction_
+		{
 			waterInteraction_POSITIONBASED,
 			waterInteraction_SWIM,
 			waterInteraction_LOWGRAVITY
 		};
 
-		enum ws {
+		enum ws
+		{
 			wsNORMAL,
 			wsMISSILE,
 			wsPOPCORN,
 			wsCAPPED,
 		};
 
-		enum wsp {
+		enum wsp
+		{
 			wspNORMAL = 0,
 			wspDOUBLE = 1,
 			wspTRIPLE = 2,

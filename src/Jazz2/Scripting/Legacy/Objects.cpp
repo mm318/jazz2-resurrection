@@ -53,17 +53,20 @@ namespace Jazz2::Scripting
 				_pos = pos;
 			}
 
-			WeaponType GetWeaponType() override {
+			WeaponType GetWeaponType() override
+			{
 				return _weaponType;
 			}
 
 			bool Ricocheted = false;
 
 		protected:
-			void OnRicochet() override {
+			void OnRicochet() override
+			{
 				Ricocheted = true;
 			}
-			bool OnPerish(ActorBase* collider) override {
+			bool OnPerish(ActorBase* collider) override
+			{
 				return true;
 			}
 
@@ -95,7 +98,8 @@ namespace Jazz2::Scripting
 				}
 			}
 
-			jjOBJ* GetObject() const {
+			jjOBJ* GetObject() const
+			{
 				return _obj;
 			}
 
@@ -140,15 +144,18 @@ namespace Jazz2::Scripting
 
 			// Marks the object for removal at the end of the frame (SetState is protected, so the jjOBJ proxy routes
 			// deleteObject/deactivate through here)
-			void Remove() {
+			void Remove()
+			{
 				SetState(Actors::ActorState::IsDestroyed, true);
 			}
 			// Makes the object solid by its frame for this tick, as jjOBJ::beSolid() (see RunTick())
-			void BeSolid() {
+			void BeSolid()
+			{
 				_solidTick = _levelScripts->GetGameTick();
 				SetState(Actors::ActorState::IsSolidObject | Actors::ActorState::SkipPerPixelCollisions | Actors::ActorState::IsDirty, true);
 			}
-			bool GetSolidBox(AABBf& box) const {
+			bool GetSolidBox(AABBf& box) const
+			{
 				return GetSolidObjectBox(_levelScripts, *_obj, box);
 			}
 
@@ -217,8 +224,7 @@ namespace Jazz2::Scripting
 					return behaviorId;
 				}
 				// A bouncer bounces (snowballs), a flame of the toaster burns out, the others fly as a bullet does
-				return (behaviorId == aPLAYERBULLET6 || behaviorId == aPLAYERBULLETP6 ? aPLAYERBULLET6 :
-					(behaviorId == aPLAYERBULLET2 || behaviorId == aPLAYERBULLETP2 ? aPLAYERBULLET2 : aBULLET));
+				return (behaviorId == aPLAYERBULLET6 || behaviorId == aPLAYERBULLETP6 ? aPLAYERBULLET6 : (behaviorId == aPLAYERBULLET2 || behaviorId == aPLAYERBULLETP2 ? aPLAYERBULLET2 : aBULLET));
 			}
 
 			/** @brief Runs the behavior of the object for one tick of the scripts, the one it's made in isn't told to deactivate */
@@ -315,11 +321,11 @@ namespace Jazz2::Scripting
 							RunExplosion(true);
 							_drawnByBehavior = true;
 							break;
-						case aCOUNT + 1:	// BEHAVIOR::WALKINGENEMY
+						case aCOUNT + 1: // BEHAVIOR::WALKINGENEMY
 							_obj->RunWalkingEnemy(_levelScripts, true);
 							_drawnByBehavior = true;
 							break;
-						case aUNKNOWN:		// BEHAVIOR::INACTIVE
+						case aUNKNOWN: // BEHAVIOR::INACTIVE
 						case BehaviorExplosion2:
 							// What's left of a broken crate (see BreakCrate()), unless a behavior of the script keeps it
 							Remove();
@@ -717,9 +723,11 @@ namespace Jazz2::Scripting
 			// BEHAVIOR::CRATE, BEHAVIOR::EXPLOSION2, BEHAVIOR::PEPPERBULLET, HANDLING::PARTICLE and HANDLING::IGNOREBULLET of JJ2+
 			static constexpr std::uint32_t BehaviorCrate = aCOUNT + 9;
 			static constexpr std::uint32_t BehaviorExplosion2 = aCOUNT + 21;
+
 		public:
 			static constexpr std::uint32_t BehaviorPepperBullet = aCOUNT + 29;
 			static constexpr std::uint32_t BehaviorBilsyBullet = aCOUNT + 14;
+
 		private:
 			static constexpr std::uint32_t HandlingParticle = 3;
 			static constexpr std::uint32_t HandlingIgnoreBullet = 1;
@@ -892,8 +900,7 @@ namespace Jazz2::Scripting
 							break;
 						}
 					}
-					if (target != nullptr && target->_scriptedCollisions && (target->_playerHandlingSet
-						? target->_playerHandling == HandlingSpecial : runtime_cast<Actors::Collectibles::CollectibleBase>(other) == nullptr)) {
+					if (target != nullptr && target->_scriptedCollisions && (target->_playerHandlingSet ? target->_playerHandling == HandlingSpecial : runtime_cast<Actors::Collectibles::CollectibleBase>(other) == nullptr)) {
 						jjPLAYER* p = (owner != nullptr ? _levelScripts->GetPlayerBackingStore(owner) : nullptr);
 						ScriptObjectHost::CallObjectHit(_levelScripts, *target, &obj, p, strength);
 						if (obj.state == sEXPLODE) {
@@ -943,7 +950,8 @@ namespace Jazz2::Scripting
 				}
 				bool goesThrough = ((obj.get_var(6) & 16) != 0);
 				if (ScriptObjectHost::BreakScenery(_levelScripts, *this, obj, GetBulletWeaponType(obj.eventID), std::max<std::int32_t>(obj.animSpeed, 1),
-						goesThrough ? &_hitSceneryTiles : nullptr) && !goesThrough && obj.state != sEXPLODE) {
+						goesThrough ? &_hitSceneryTiles : nullptr) &&
+					!goesThrough && obj.state != sEXPLODE) {
 					obj.state = sEXPLODE;
 					obj.counter = 1;
 				}
@@ -954,14 +962,22 @@ namespace Jazz2::Scripting
 			{
 				std::uint8_t index = (eventID >= aPLAYERBULLETP1 && eventID <= aPLAYERBULLETP9 ? std::uint8_t(eventID - aPLAYERBULLETP1 + aPLAYERBULLET1) : eventID);
 				switch (index) {
-					case aPLAYERBULLET2: return WeaponType::Bouncer;
-					case aPLAYERBULLET3: return WeaponType::Freezer;
-					case aPLAYERBULLET4: return WeaponType::Seeker;
-					case aPLAYERBULLET5: return WeaponType::RF;
-					case aPLAYERBULLET6: return WeaponType::Toaster;
-					case aPLAYERBULLET8: return WeaponType::Pepper;
-					case aPLAYERBULLET9: return WeaponType::Electro;
-					default: return WeaponType::Blaster;
+					case aPLAYERBULLET2:
+						return WeaponType::Bouncer;
+					case aPLAYERBULLET3:
+						return WeaponType::Freezer;
+					case aPLAYERBULLET4:
+						return WeaponType::Seeker;
+					case aPLAYERBULLET5:
+						return WeaponType::RF;
+					case aPLAYERBULLET6:
+						return WeaponType::Toaster;
+					case aPLAYERBULLET8:
+						return WeaponType::Pepper;
+					case aPLAYERBULLET9:
+						return WeaponType::Electro;
+					default:
+						return WeaponType::Blaster;
 				}
 			}
 
@@ -971,19 +987,23 @@ namespace Jazz2::Scripting
 			}
 		};
 
-		jjBEHAVIOR* jjBEHAVIOR::Create(jjBEHAVIOR* self) {
-			return new(self) jjBEHAVIOR{};
+		jjBEHAVIOR* jjBEHAVIOR::Create(jjBEHAVIOR* self)
+		{
+			return new (self) jjBEHAVIOR {};
 		}
-		jjBEHAVIOR* jjBEHAVIOR::CreateFromBehavior(std::uint32_t behavior, jjBEHAVIOR* self) {
-			auto* result = new(self) jjBEHAVIOR{};
+		jjBEHAVIOR* jjBEHAVIOR::CreateFromBehavior(std::uint32_t behavior, jjBEHAVIOR* self)
+		{
+			auto* result = new (self) jjBEHAVIOR {};
 			result->behaviorId = behavior;
 			return result;
 		}
-		void jjBEHAVIOR::Destroy(jjBEHAVIOR* self) {
+		void jjBEHAVIOR::Destroy(jjBEHAVIOR* self)
+		{
 			self->~jjBEHAVIOR();
 		}
 
-		jjBEHAVIOR::~jjBEHAVIOR() {
+		jjBEHAVIOR::~jjBEHAVIOR()
+		{
 			if (function != nullptr) {
 				function->Release();
 			}
@@ -993,7 +1013,8 @@ namespace Jazz2::Scripting
 		}
 
 		jjBEHAVIOR::jjBEHAVIOR(const jjBEHAVIOR& other)
-			: behaviorId(other.behaviorId), function(other.function), object(other.object) {
+			: behaviorId(other.behaviorId), function(other.function), object(other.object)
+		{
 			if (function != nullptr) {
 				function->AddRef();
 			}
@@ -1002,7 +1023,8 @@ namespace Jazz2::Scripting
 			}
 		}
 
-		jjBEHAVIOR& jjBEHAVIOR::operator=(const jjBEHAVIOR& other) {
+		jjBEHAVIOR& jjBEHAVIOR::operator=(const jjBEHAVIOR& other)
+		{
 			if (this != &other) {
 				if (other.function != nullptr) {
 					other.function->AddRef();
@@ -1022,7 +1044,8 @@ namespace Jazz2::Scripting
 			}
 			return *this;
 		}
-		jjBEHAVIOR& jjBEHAVIOR::operator=(std::uint32_t other) {
+		jjBEHAVIOR& jjBEHAVIOR::operator=(std::uint32_t other)
+		{
 			if (function != nullptr) {
 				function->Release();
 				function = nullptr;
@@ -1034,7 +1057,8 @@ namespace Jazz2::Scripting
 			behaviorId = other;
 			return *this;
 		}
-		jjBEHAVIOR& jjBEHAVIOR::operator=(asIScriptFunction* other) {
+		jjBEHAVIOR& jjBEHAVIOR::operator=(asIScriptFunction* other)
+		{
 			if (other != nullptr) {
 				other->AddRef();
 			}
@@ -1049,7 +1073,8 @@ namespace Jazz2::Scripting
 			behaviorId = 0;
 			return *this;
 		}
-		jjBEHAVIOR& jjBEHAVIOR::operator=(asIScriptObject* other) {
+		jjBEHAVIOR& jjBEHAVIOR::operator=(asIScriptObject* other)
+		{
 			if (other != nullptr) {
 				other->AddRef();
 			}
@@ -1064,28 +1089,37 @@ namespace Jazz2::Scripting
 			behaviorId = 0;
 			return *this;
 		}
-		bool jjBEHAVIOR::operator==(const jjBEHAVIOR& other) const {
+		bool jjBEHAVIOR::operator==(const jjBEHAVIOR& other) const
+		{
 			return (behaviorId == other.behaviorId && function == other.function && object == other.object);
 		}
-		bool jjBEHAVIOR::operator==(std::uint32_t other) const {
+		bool jjBEHAVIOR::operator==(std::uint32_t other) const
+		{
 			return (function == nullptr && object == nullptr && behaviorId == other);
 		}
-		bool jjBEHAVIOR::operator==(const asIScriptFunction* other) const {
+		bool jjBEHAVIOR::operator==(const asIScriptFunction* other) const
+		{
 			return (function == other);
 		}
-		jjBEHAVIOR::operator std::uint32_t() {
+		jjBEHAVIOR::operator std::uint32_t()
+		{
 			return behaviorId;
 		}
-		jjBEHAVIOR::operator asIScriptFunction* () {
+		jjBEHAVIOR::operator asIScriptFunction*()
+		{
 			return function;
 		}
-		jjBEHAVIOR::operator asIScriptObject* () {
+		jjBEHAVIOR::operator asIScriptObject*()
+		{
 			return object;
 		}
 
-		jjOBJ::jjOBJ() : _refCount(1) {
+		jjOBJ::jjOBJ()
+			: _refCount(1)
+		{
 		}
-		jjOBJ::~jjOBJ() {
+		jjOBJ::~jjOBJ()
+		{
 		}
 
 		void jjOBJ::AddRef()
@@ -1101,7 +1135,8 @@ namespace Jazz2::Scripting
 			}
 		}
 
-		bool jjOBJ::get_isActive() const {
+		bool jjOBJ::get_isActive() const
+		{
 			// Active while its object exists, the one a script controls or the one of the game - a deleted one is gone at once, as
 			// in JJ2+, the object of the game is removed only after the frame
 			if (_wrapper != nullptr) {
@@ -1110,7 +1145,8 @@ namespace Jazz2::Scripting
 			std::shared_ptr<Actors::ActorBase> actor = _actor.lock();
 			return (actor != nullptr && !actor->GetState(Actors::ActorState::IsDestroyed));
 		}
-		jjOBJ* jjOBJ::objectHit(jjOBJ* target, std::uint32_t playerHandling) {
+		jjOBJ* jjOBJ::objectHit(jjOBJ* target, std::uint32_t playerHandling)
+		{
 			// This is a bullet that hits the target as the game would have it, even where they aren't - the game handles the
 			// collision of the two objects of the game, the script sees the energy the target has then
 			std::shared_ptr<Actors::ActorBase> bullet = _actor.lock();
@@ -1125,7 +1161,8 @@ namespace Jazz2::Scripting
 			// The handle is the function's to release, the result is the target
 			return target;
 		}
-		void jjOBJ::blast(std::int32_t maxDistance, bool blastObjects) {
+		void jjOBJ::blast(std::int32_t maxDistance, bool blastObjects)
+		{
 			// Hurts the players nearer than the square root of `maxDistance` (bombs pass 100*100), pushed
 			// away from it - what it does to objects (`blastObjects`) isn't done
 			auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
@@ -1137,7 +1174,8 @@ namespace Jazz2::Scripting
 			}
 		}
 
-		void jjOBJ::RunWalkingEnemy(LevelScriptLoader* owner, bool draw) {
+		void jjOBJ::RunWalkingEnemy(LevelScriptLoader* owner, bool draw)
+		{
 			// BEHAVIOR::WALKINGENEMY, as measured in JJ2+: the row of the cold spot of its frame stands on the ground, without
 			// it the object falls (0.125 a tick); it goes by xSpeed and faces the way it goes, it turns round on the spot if
 			// at the front edge of its frame (width + hot spot X beyond where it'd go) the feet row isn't masked or the row
@@ -1154,7 +1192,8 @@ namespace Jazz2::Scripting
 			};
 			auto& tables = owner->GetAnimationTables();
 			std::int32_t feet = 0, frontEdge = 0;
-			Recti frameRect; Vector2i coldSpot;
+			Recti frameRect;
+			Vector2i coldSpot;
 			if (curFrame != 0 && tables.GetFrameSpots(curFrame, frameRect, coldSpot)) {
 				feet = frameRect.Y - coldSpot.Y;
 				frontEdge = frameRect.W + frameRect.X;
@@ -1233,7 +1272,8 @@ namespace Jazz2::Scripting
 			}
 		}
 
-		void jjOBJ::behave1(std::uint32_t behavior, bool draw) {
+		void jjOBJ::behave1(std::uint32_t behavior, bool draw)
+		{
 			// BEHAVIOR::DEFAULT is the behavior the object has (`obj.behave()` of JJ2+ runs a behavior of the script given to
 			// it, puppets start so) - but not again from within itself, the one of the game runs then
 			constexpr std::uint32_t BehaviorDefault = UINT32_MAX;
@@ -1281,25 +1321,45 @@ namespace Jazz2::Scripting
 				// BEHAVIOR::CRATE of JJ2+
 				constexpr std::uint32_t BehaviorCrate = aCOUNT + 9;
 				switch (ScriptLegacyObject::ResolveWeaponBulletBehavior(behavior)) {
-					case aUNKNOWN: _wrapper->Remove(); break;
-					case ScriptLegacyObject::BehaviorPepperBullet: _wrapper->RunBullet(draw, true); break;
-					case aBULLET: _wrapper->RunBullet(draw); break;
-					case aPLAYERBULLET2: _wrapper->RunBouncerBullet(draw); break;
-					case ScriptLegacyObject::BehaviorBilsyBullet: _wrapper->RunBilsyBullet(draw); break;
-					case aPLAYERBULLET6: _wrapper->RunToasterBullet(draw); break;
-					case aSHARD: _wrapper->RunShard(draw); break;
-					case aEXPLOSION: _wrapper->RunExplosion(draw); break;
-					case BehaviorCrate: _wrapper->BreakCrate(); break;
+					case aUNKNOWN:
+						_wrapper->Remove();
+						break;
+					case ScriptLegacyObject::BehaviorPepperBullet:
+						_wrapper->RunBullet(draw, true);
+						break;
+					case aBULLET:
+						_wrapper->RunBullet(draw);
+						break;
+					case aPLAYERBULLET2:
+						_wrapper->RunBouncerBullet(draw);
+						break;
+					case ScriptLegacyObject::BehaviorBilsyBullet:
+						_wrapper->RunBilsyBullet(draw);
+						break;
+					case aPLAYERBULLET6:
+						_wrapper->RunToasterBullet(draw);
+						break;
+					case aSHARD:
+						_wrapper->RunShard(draw);
+						break;
+					case aEXPLOSION:
+						_wrapper->RunExplosion(draw);
+						break;
+					case BehaviorCrate:
+						_wrapper->BreakCrate();
+						break;
 				}
 			}
 		}
-		void jjOBJ::behave2(jjBEHAVIOR behavior, bool draw) {
+		void jjOBJ::behave2(jjBEHAVIOR behavior, bool draw)
+		{
 			auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 			if (!ScriptObjectHost::CallScriptBehavior(owner, *this, behavior, draw)) {
 				behave1(behavior.behaviorId, draw);
 			}
 		}
-		void jjOBJ::behave3(jjVOIDFUNCOBJ behavior, bool draw) {
+		void jjOBJ::behave3(jjVOIDFUNCOBJ behavior, bool draw)
+		{
 			// The funcdef handle comes with a reference that is this function's to release - the temporary takes it over
 			jjBEHAVIOR function;
 			function.function = behavior;
@@ -1307,7 +1367,8 @@ namespace Jazz2::Scripting
 			ScriptObjectHost::CallScriptBehavior(owner, *this, function, draw);
 		}
 
-		std::int32_t jjOBJ::jjAddObject(std::uint8_t eventID, float xPixel, float yPixel, std::uint16_t creatorID, std::uint32_t creatorType, std::uint32_t behavior) {
+		std::int32_t jjOBJ::jjAddObject(std::uint8_t eventID, float xPixel, float yPixel, std::uint16_t creatorID, std::uint32_t creatorType, std::uint32_t behavior)
+		{
 			// The object of the game the event has, with its creator, which its behavior may look at (an object that spawns
 			// one of its own kind tells the copy by it, or the copies spawn more forever)
 			constexpr std::uint32_t BehaviorDefault = UINT32_MAX;
@@ -1342,7 +1403,8 @@ namespace Jazz2::Scripting
 			}
 			return id;
 		}
-		std::int32_t jjOBJ::jjAddObjectEx(std::uint8_t eventID, float xPixel, float yPixel, std::uint16_t creatorID, std::uint32_t creatorType, jjVOIDFUNCOBJ behavior) {
+		std::int32_t jjOBJ::jjAddObjectEx(std::uint8_t eventID, float xPixel, float yPixel, std::uint16_t creatorID, std::uint32_t creatorType, jjVOIDFUNCOBJ behavior)
+		{
 			// The funcdef handle comes with a reference that is this function's to release - the temporary takes it over
 			auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 			jjBEHAVIOR function;
@@ -1371,14 +1433,16 @@ namespace Jazz2::Scripting
 			return id;
 		}
 
-		void jjOBJ::jjDeleteObject(std::int32_t objectID) {
+		void jjOBJ::jjDeleteObject(std::int32_t objectID)
+		{
 			// Silent removal, as by jjOBJ::delete()
 			auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 			jjOBJ* obj = owner->GetObjectById(objectID);
 			obj->deleteObject();
 			obj->Release();
 		}
-		void jjOBJ::jjKillObject(std::int32_t objectID) {
+		void jjOBJ::jjKillObject(std::int32_t objectID)
+		{
 			auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 			auto* actor = owner->GetScriptObject(objectID);
 			if (auto* wrapper = runtime_cast<ScriptLegacyObject>(actor)) {
@@ -1390,7 +1454,8 @@ namespace Jazz2::Scripting
 			}
 		}
 
-		std::uint32_t jjOBJ::determineCurFrame(bool change) {
+		std::uint32_t jjOBJ::determineCurFrame(bool change)
+		{
 			// As JJ2+ documents it, the frame of curAnim that frameID says
 			auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 			std::uint32_t frameCount, firstFrame, result = 0;
@@ -1405,28 +1470,35 @@ namespace Jazz2::Scripting
 
 		// CREATOR::LEVEL 0x4000 and CREATOR::PLAYER 0x8000 over the lower 14 bits of the ID, its 2 upper bits above them -
 		// scripts keep any 16-bit value there (puppet shards keep frames)
-		std::int32_t jjOBJ::PackCreator(std::uint32_t type, std::uint16_t id) {
+		std::int32_t jjOBJ::PackCreator(std::uint32_t type, std::uint16_t id)
+		{
 			return std::int32_t((type & 0xC000u) | (id & 0x3FFFu) | (std::uint32_t(id & 0xC000u) << 2));
 		}
-		std::uint16_t jjOBJ::get_creatorID() const {
+		std::uint16_t jjOBJ::get_creatorID() const
+		{
 			return std::uint16_t((std::uint32_t(creator) & 0x3FFFu) | ((std::uint32_t(creator) >> 2) & 0xC000u));
 		}
-		std::uint16_t jjOBJ::set_creatorID(std::uint16_t value) const {
+		std::uint16_t jjOBJ::set_creatorID(std::uint16_t value) const
+		{
 			creator = PackCreator(get_creatorType(), value);
 			return value;
 		}
-		std::uint32_t jjOBJ::get_creatorType() const {
+		std::uint32_t jjOBJ::get_creatorType() const
+		{
 			return std::uint32_t(creator) & 0xC000u;
 		}
-		std::uint32_t jjOBJ::set_creatorType(std::uint32_t value) const {
+		std::uint32_t jjOBJ::set_creatorType(std::uint32_t value) const
+		{
 			creator = PackCreator(value, get_creatorID());
 			return get_creatorType();
 		}
 
-		int16_t jjOBJ::determineCurAnim(std::uint8_t setID, std::uint8_t animation, bool change) {
+		int16_t jjOBJ::determineCurAnim(std::uint8_t setID, std::uint8_t animation, bool change)
+		{
 			return determineCurAnimOfSet(setID, animation, change);
 		}
-		int16_t jjOBJ::determineCurAnimOfSet(std::int32_t setID, std::uint8_t animation, bool change) {
+		int16_t jjOBJ::determineCurAnimOfSet(std::int32_t setID, std::uint8_t animation, bool change)
+		{
 			// As JJ2+ documents it, the animation of the set in jjAnimations (a set of the original is always loaded), and
 			// the hosted actor shows it
 			auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
@@ -1441,84 +1513,105 @@ namespace Jazz2::Scripting
 			return result;
 		}
 
-		std::uint32_t jjOBJ::get_bulletHandling() {
+		std::uint32_t jjOBJ::get_bulletHandling()
+		{
 			return _bulletHandling;
 		}
-		std::uint32_t jjOBJ::set_bulletHandling(std::uint32_t value) {
+		std::uint32_t jjOBJ::set_bulletHandling(std::uint32_t value)
+		{
 			_bulletHandling = value;
 			_bulletHandlingSet = true;
 			return _bulletHandling;
 		}
-		bool jjOBJ::get_ricochet() {
+		bool jjOBJ::get_ricochet()
+		{
 			return _ricochetProp;
 		}
-		bool jjOBJ::set_ricochet(bool value) {
+		bool jjOBJ::set_ricochet(bool value)
+		{
 			_ricochetProp = value;
 			return _ricochetProp;
 		}
-		bool jjOBJ::get_freezable() {
+		bool jjOBJ::get_freezable()
+		{
 			return _freezable;
 		}
-		bool jjOBJ::set_freezable(bool value) {
+		bool jjOBJ::set_freezable(bool value)
+		{
 			_freezable = value;
 			return _freezable;
 		}
-		bool jjOBJ::get_blastable() {
+		bool jjOBJ::get_blastable()
+		{
 			return _blastable;
 		}
-		bool jjOBJ::set_blastable(bool value) {
+		bool jjOBJ::set_blastable(bool value)
+		{
 			_blastable = value;
 			return _blastable;
 		}
 
-		std::uint32_t jjOBJ::get_playerHandling() {
+		std::uint32_t jjOBJ::get_playerHandling()
+		{
 			return _playerHandling;
 		}
-		std::uint32_t jjOBJ::set_playerHandling(std::uint32_t value) {
+		std::uint32_t jjOBJ::set_playerHandling(std::uint32_t value)
+		{
 			_playerHandling = value;
 			_playerHandlingSet = true;
 			return _playerHandling;
 		}
-		bool jjOBJ::get_isTarget() {
+		bool jjOBJ::get_isTarget()
+		{
 			return _isTarget;
 		}
-		bool jjOBJ::set_isTarget(bool value) {
+		bool jjOBJ::set_isTarget(bool value)
+		{
 			_isTarget = value;
 			return _isTarget;
 		}
-		bool jjOBJ::get_triggersTNT() {
+		bool jjOBJ::get_triggersTNT()
+		{
 			return _triggersTNT;
 		}
-		bool jjOBJ::set_triggersTNT(bool value) {
+		bool jjOBJ::set_triggersTNT(bool value)
+		{
 			_triggersTNT = value;
 			return _triggersTNT;
 		}
-		bool jjOBJ::get_deactivates() {
+		bool jjOBJ::get_deactivates()
+		{
 			return _deactivates;
 		}
-		bool jjOBJ::set_deactivates(bool value) {
+		bool jjOBJ::set_deactivates(bool value)
+		{
 			_deactivates = value;
 			return _deactivates;
 		}
-		bool jjOBJ::get_scriptedCollisions() {
+		bool jjOBJ::get_scriptedCollisions()
+		{
 			return _scriptedCollisions;
 		}
-		bool jjOBJ::set_scriptedCollisions(bool value) {
+		bool jjOBJ::set_scriptedCollisions(bool value)
+		{
 			_scriptedCollisions = value;
 			return _scriptedCollisions;
 		}
 
-		std::int32_t jjOBJ::get_var(std::uint8_t x) {
+		std::int32_t jjOBJ::get_var(std::uint8_t x)
+		{
 			return (x < MaxVars ? _vars[x] : 0);
 		}
-		std::int32_t jjOBJ::set_var(std::uint8_t x, std::int32_t value) {
+		std::int32_t jjOBJ::set_var(std::uint8_t x, std::int32_t value)
+		{
 			if (x < MaxVars) {
 				_vars[x] = value;
 			}
 			return value;
 		}
 
-		std::int32_t jjOBJ::draw() {
+		std::int32_t jjOBJ::draw()
+		{
 			// An object of the game a behavior of the script drives is drawn only when the behavior asks, one a script controls
 			// entirely draws its current frame
 			if (_host != nullptr) {
@@ -1532,7 +1625,8 @@ namespace Jazz2::Scripting
 			}
 			return 0;
 		}
-		std::int32_t jjOBJ::beSolid(bool shouldCheckForStompingLocalPlayers) {
+		std::int32_t jjOBJ::beSolid(bool shouldCheckForStompingLocalPlayers)
+		{
 			// As measured in JJ2+: -1/1 while a player holds a direction against it, `platform` names it while pushed or stood on
 			std::shared_ptr<Actors::ActorBase> hosted;
 			Actors::ActorBase* actor = nullptr;
@@ -1613,18 +1707,21 @@ namespace Jazz2::Scripting
 			}
 			return pushDir;
 		}
-		void jjOBJ::bePlatform(float xOld, float yOld, std::int32_t width, std::int32_t height) {
+		void jjOBJ::bePlatform(float xOld, float yOld, std::int32_t width, std::int32_t height)
+		{
 			// Only an object of the game can carry a player, one the script controls entirely has none
 			if (_host != nullptr) {
 				_host->BePlatform(xOld, yOld, width);
 			}
 		}
-		void jjOBJ::clearPlatform() {
+		void jjOBJ::clearPlatform()
+		{
 			if (_host != nullptr) {
 				_host->ClearPlatform();
 			}
 		}
-		void jjOBJ::putOnGround(bool precise) {
+		void jjOBJ::putOnGround(bool precise)
+		{
 			// As measured in JJ2+, in the column of the middle of the frame: the precise mode rests the row of the coldspot (at
 			// most the last row of the frame) on the topmost masked pixel under it - up out of the ground by 15 px at most, down
 			// to it if it's less than 50 px below - and lowers the frame in 4 px steps until the pixel below it is masked then,
@@ -1634,7 +1731,8 @@ namespace Jazz2::Scripting
 			constexpr std::int32_t MaxPreciseDrop = 50;
 
 			auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
-			Recti frameRect; Vector2i coldSpot;
+			Recti frameRect;
+			Vector2i coldSpot;
 			if (curFrame == 0 || !owner->GetAnimationTables().GetFrameSpots(curFrame, frameRect, coldSpot)) {
 				frameRect = Recti(0, 0, 1, 1);
 				coldSpot = Vector2i::Zero;
@@ -1666,7 +1764,8 @@ namespace Jazz2::Scripting
 			yPos += float(y - std::int32_t(yPos));
 			ySpeed = 0.0f;
 		}
-		bool jjOBJ::ricochet() {
+		bool jjOBJ::ricochet()
+		{
 			if (_wrapper != nullptr) {
 				// A bullet a script controls turns around as off an object that causes ricochets (see ScriptLegacyObject::HitEnemies())
 				constexpr std::uint32_t HandlingPlayerBullet = 1;
@@ -1688,13 +1787,15 @@ namespace Jazz2::Scripting
 			shot->TriggerRicochet(nullptr);
 			return true;
 		}
-		std::int32_t jjOBJ::unfreeze(std::int32_t style) {
+		std::int32_t jjOBJ::unfreeze(std::int32_t style)
+		{
 			// Thaw a frozen object; the shatter `style` effect isn't emulated for script-controlled objects
 			std::int32_t wasFrozen = freeze;
 			freeze = 0;
 			return wasFrozen;
 		}
-		void jjOBJ::deleteObject() {
+		void jjOBJ::deleteObject()
+		{
 			if (_wrapper != nullptr) {
 				_wrapper->Remove();
 			} else if (std::shared_ptr<Actors::ActorBase> actor = _actor.lock()) {
@@ -1704,7 +1805,8 @@ namespace Jazz2::Scripting
 			// the frame, which may have more ticks of the scripts
 			behavior = aUNKNOWN;
 		}
-		void jjOBJ::deactivate() {
+		void jjOBJ::deactivate()
+		{
 			if (_wrapper != nullptr) {
 				// Script-controlled objects don't return to the event map, so deactivation despawns them
 				_wrapper->Remove();
@@ -1719,10 +1821,12 @@ namespace Jazz2::Scripting
 			}
 			behavior = aUNKNOWN;
 		}
-		void jjOBJ::pathMovement() {
+		void jjOBJ::pathMovement()
+		{
 			noop();
 		}
-		int32_t jjOBJ::fireBullet(std::uint8_t eventID) {
+		int32_t jjOBJ::fireBullet(std::uint8_t eventID)
+		{
 			// As measured in JJ2+, an object of the event at the gun spot of the frame this one shows (hot spot less gun spot, a
 			// dragon breathes fire from its mouth), made by it - the speed of its template goes the way this one faces (see
 			// ScriptLegacyObject::RunBullet()), its handling is the one of the template
@@ -1740,10 +1844,12 @@ namespace Jazz2::Scripting
 			}
 			return jjAddObject(eventID, x, y, std::uint16_t(objectID), CreatorObject, BehaviorDefault);
 		}
-		void jjOBJ::particlePixelExplosion(std::int32_t style) {
+		void jjOBJ::particlePixelExplosion(std::int32_t style)
+		{
 			AddPixelExplosion(ScriptLoader::FromActiveContext<LevelScriptLoader>(), xPos, yPos, curFrame, direction);
 		}
-		void jjOBJ::AddPixelExplosion(LevelScriptLoader* owner, float xPixel, float yPixel, std::uint32_t frame, std::int32_t direction) {
+		void jjOBJ::AddPixelExplosion(LevelScriptLoader* owner, float xPixel, float yPixel, std::uint32_t frame, std::int32_t direction)
+		{
 			// As measured in JJ2+: a pixel particle for every 16 pixels of the frame, at a random pixel of it (none where that one
 			// is transparent), 1 to 3 px big (3 px half of the time) with the colors of the frame there, flying up - the styles of
 			// JJ2+ (colored or burning ones) aren't told apart
@@ -1791,7 +1897,8 @@ namespace Jazz2::Scripting
 			}
 			image->Release();
 		}
-		void jjOBJ::grantPickup(jjPLAYER* player, std::int32_t frequency) {
+		void jjOBJ::grantPickup(jjPLAYER* player, std::int32_t frequency)
+		{
 			// One time in `frequency` a pickup falls out of the object, chosen as the enemies of the game choose theirs (see
 			// Actors::Enemies::EnemyBase::TryGenerateRandomDrop())
 			if (frequency > 1 && Random().Next(0, std::uint32_t(frequency)) != 0) {
@@ -1804,7 +1911,8 @@ namespace Jazz2::Scripting
 			jjAddObject(eventID, xPos, yPos, std::uint16_t(objectID), CreatorObject, BehaviorDefault);
 		}
 
-		std::int32_t jjOBJ::findNearestPlayerEx(std::int32_t maxDistance, std::int32_t& foundDistance) const {
+		std::int32_t jjOBJ::findNearestPlayerEx(std::int32_t maxDistance, std::int32_t& foundDistance) const
+		{
 			// Both distances are squares of the distance in pixels, as JJ2+ documents them
 			auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 			auto players = owner->GetPlayers();
@@ -1823,12 +1931,14 @@ namespace Jazz2::Scripting
 			foundDistance = (nearest >= 0 ? (std::int32_t)std::min(bestSq, float(INT32_MAX)) : maxDistance);
 			return nearest;
 		}
-		std::int32_t jjOBJ::findNearestPlayer(std::int32_t maxDistance) const {
+		std::int32_t jjOBJ::findNearestPlayer(std::int32_t maxDistance) const
+		{
 			std::int32_t foundDistance;
 			return findNearestPlayerEx(maxDistance, foundDistance);
 		}
 
-		bool jjOBJ::doesCollide(const jjOBJ* object, bool always) const {
+		bool jjOBJ::doesCollide(const jjOBJ* object, bool always) const
+		{
 			// By the pixels of the frames the two show, as JJ2 has bullets hit objects - a single pixel is enough for a bullet
 			constexpr std::uint32_t HandlingPlayerBullet = 1;
 			constexpr std::uint32_t HandlingEnemyBullet = 2;
@@ -1854,7 +1964,8 @@ namespace Jazz2::Scripting
 			}
 			return result;
 		}
-		bool jjOBJ::doesCollidePlayer(const jjPLAYER* object, bool always) const {
+		bool jjOBJ::doesCollidePlayer(const jjPLAYER* object, bool always) const
+		{
 			// The pixels of the frame the object shows against those of the player
 			if (object == nullptr || object->_player == nullptr) {
 				return false;
@@ -1867,11 +1978,13 @@ namespace Jazz2::Scripting
 		// colors of a pixel follow its size, the text of a string fills them
 		constexpr std::size_t ParticleDataSize = 9;
 
-		std::uint8_t jjPARTICLEPIXEL::get_color(std::int32_t i) const {
+		std::uint8_t jjPARTICLEPIXEL::get_color(std::int32_t i) const
+		{
 			const std::uint8_t* data = reinterpret_cast<const std::uint8_t*>(this);
 			return (i >= 0 && i < std::int32_t(ParticleDataSize - 1) ? data[1 + i] : 0);
 		}
-		std::uint8_t jjPARTICLEPIXEL::set_color(std::int32_t i, std::uint8_t value) {
+		std::uint8_t jjPARTICLEPIXEL::set_color(std::int32_t i, std::uint8_t value)
+		{
 			std::uint8_t* data = reinterpret_cast<std::uint8_t*>(this);
 			if (i >= 0 && i < std::int32_t(ParticleDataSize - 1)) {
 				data[1 + i] = value;
@@ -1879,7 +1992,8 @@ namespace Jazz2::Scripting
 			return value;
 		}
 
-		String jjPARTICLESTRING::get_text() const {
+		String jjPARTICLESTRING::get_text() const
+		{
 			const char* data = reinterpret_cast<const char*>(this);
 			std::size_t length = 0;
 			while (length < ParticleDataSize && data[length] != '\0') {
@@ -1887,7 +2001,8 @@ namespace Jazz2::Scripting
 			}
 			return String(data, length);
 		}
-		void jjPARTICLESTRING::set_text(String text) {
+		void jjPARTICLESTRING::set_text(String text)
+		{
 			char* data = reinterpret_cast<char*>(this);
 			std::size_t length = std::min(text.size(), ParticleDataSize);
 			std::memcpy(data, text.data(), length);
@@ -1895,17 +2010,21 @@ namespace Jazz2::Scripting
 		}
 
 		jjPARTICLE::jjPARTICLE()
-			: xPos(0.0f), yPos(0.0f), xSpeed(0.0f), ySpeed(0.0f), particleType(particleNONE), active(false), GENERIC{},
-				_refCount(1), _age(0), _scale(0.0f), _weather(false), _snowFrameBase(0) {
+			: xPos(0.0f), yPos(0.0f), xSpeed(0.0f), ySpeed(0.0f), particleType(particleNONE), active(false), GENERIC {},
+			  _refCount(1), _age(0), _scale(0.0f), _weather(false), _snowFrameBase(0)
+		{
 		}
-		jjPARTICLE::~jjPARTICLE() {
+		jjPARTICLE::~jjPARTICLE()
+		{
 		}
 
-		void jjPARTICLE::AddRef() {
+		void jjPARTICLE::AddRef()
+		{
 			_refCount++;
 		}
 
-		void jjPARTICLE::Release() {
+		void jjPARTICLE::Release()
+		{
 			if (--_refCount == 0) {
 				this->~jjPARTICLE();
 				asFreeMem(this);
@@ -1926,18 +2045,22 @@ namespace Jazz2::Scripting
 		return owner->GetObjectPreset(std::uint8_t(id));
 	}
 
-	void jjAddParticleTileExplosion(std::uint16_t xTile, std::uint16_t yTile, std::uint16_t tile, bool collapseSceneryStyle) {
+	void jjAddParticleTileExplosion(std::uint16_t xTile, std::uint16_t yTile, std::uint16_t tile, bool collapseSceneryStyle)
+	{
 		noop();
 	}
-	void jjAddParticlePixelExplosion(float xPixel, float yPixel, int curFrame, int direction, int mode) {
+	void jjAddParticlePixelExplosion(float xPixel, float yPixel, int curFrame, int direction, int mode)
+	{
 		jjOBJ::AddPixelExplosion(ScriptLoader::FromActiveContext<LevelScriptLoader>(), xPixel, yPixel, std::uint32_t(curFrame), direction);
 	}
 
-	jjPARTICLE* GetParticle(std::int32_t index) {
+	jjPARTICLE* GetParticle(std::int32_t index)
+	{
 		return ScriptLoader::FromActiveContext<LevelScriptLoader>()->GetScriptParticle(index);
 	}
 
-	jjPARTICLE* AddParticle(std::int32_t particleType) {
+	jjPARTICLE* AddParticle(std::int32_t particleType)
+	{
 		return ScriptLoader::FromActiveContext<LevelScriptLoader>()->AddScriptParticle(std::uint32_t(particleType));
 	}
 
@@ -1996,11 +2119,28 @@ namespace Jazz2::Scripting
 			std::memcpy(&data[offset], &value, sizeof(value));
 		};
 		switch (type) {
-			case Legacy::particleFIRE: data[0] = 3; data[1] = 40; data[2] = 48; data[3] = 1; break;
-			case Legacy::particleSMOKE: data[0] = 71; break;
-			case Legacy::particleICETRAIL: data[0] = 32; data[1] = 40; data[2] = 1; break;
-			case Legacy::particleSPARK: data[0] = 40; data[1] = 46; data[2] = 1; break;
-			case Legacy::particleSNOW: data[2] = 35; break;
+			case Legacy::particleFIRE:
+				data[0] = 3;
+				data[1] = 40;
+				data[2] = 48;
+				data[3] = 1;
+				break;
+			case Legacy::particleSMOKE:
+				data[0] = 71;
+				break;
+			case Legacy::particleICETRAIL:
+				data[0] = 32;
+				data[1] = 40;
+				data[2] = 1;
+				break;
+			case Legacy::particleSPARK:
+				data[0] = 40;
+				data[1] = 46;
+				data[2] = 1;
+				break;
+			case Legacy::particleSNOW:
+				data[2] = 35;
+				break;
 			case Legacy::particleRAIN: {
 				// The drops are the third animation of the common set (bubbles of a garbage can in ThreedRealms)
 				particle->ySpeed = 6.0f;
@@ -2012,8 +2152,17 @@ namespace Jazz2::Scripting
 				}
 				break;
 			}
-			case Legacy::particleFLOWER: particle->ySpeed = 0.5f; data[0] = 64; data[1] = 16; data[4] = 5; break;
-			case Legacy::particleSTAR: data[0] = 16; data[1] = 40; particle->_scale = 16.0f; break;
+			case Legacy::particleFLOWER:
+				particle->ySpeed = 0.5f;
+				data[0] = 64;
+				data[1] = 16;
+				data[4] = 5;
+				break;
+			case Legacy::particleSTAR:
+				data[0] = 16;
+				data[1] = 40;
+				particle->_scale = 16.0f;
+				break;
 			case Legacy::particleLEAF: {
 				// The leaves of JJ2+ are the first animation of its scenery set (17 frames, the one MLLE recolors)
 				particle->ySpeed = 1.0f;
@@ -2300,10 +2449,16 @@ namespace Jazz2::Scripting
 					}
 					break;
 				}
-				case Legacy::particleFIRE: drawSolid(p.xPos, p.yPos, float(data[0]), data[1], Legacy::spriteType_NORMAL); break;
+				case Legacy::particleFIRE:
+					drawSolid(p.xPos, p.yPos, float(data[0]), data[1], Legacy::spriteType_NORMAL);
+					break;
 				case Legacy::particleICETRAIL:
-				case Legacy::particleSPARK: drawSolid(p.xPos, p.yPos, 2.0f, data[0], Legacy::spriteType_NORMAL); break;
-				case Legacy::particleSMOKE: drawSolid(p.xPos, p.yPos, 3.0f, 72, Legacy::spriteType_TRANSLUCENT); break;
+				case Legacy::particleSPARK:
+					drawSolid(p.xPos, p.yPos, 2.0f, data[0], Legacy::spriteType_NORMAL);
+					break;
+				case Legacy::particleSMOKE:
+					drawSolid(p.xPos, p.yPos, 3.0f, 72, Legacy::spriteType_TRANSLUCENT);
+					break;
 				case Legacy::particleFLOWER: {
 					// Thin petals from the middle, size / 8 long, turned by its angle (a whole turn is 256), the tips faded
 					float length = float(data[0]) / 8.0f;
@@ -2323,7 +2478,9 @@ namespace Jazz2::Scripting
 					}
 					break;
 				}
-				case Legacy::particleSTAR: drawSolid(p.xPos, p.yPos, std::max(float(data[0]) / 2.0f, 1.0f), data[1], Legacy::spriteType_NORMAL); break;
+				case Legacy::particleSTAR:
+					drawSolid(p.xPos, p.yPos, std::max(float(data[0]) / 2.0f, 1.0f), data[1], Legacy::spriteType_NORMAL);
+					break;
 				case Legacy::particleSCORE: {
 					const Legacy::jjPARTICLESTRING& text = p.GENERIC.string;
 					AddWorldText(p.xPos, p.yPos, text.get_text(), 1, UI::Font::DefaultColor, 4);
@@ -2342,7 +2499,8 @@ namespace Jazz2::Scripting
 						std::memcpy(&frameBase, &data[3], sizeof(frameBase));
 						// The full first frame of the weather, unless a script gave the snowflake another one
 						std::uint32_t base = (p._snowFrameBase != 0 && frameBase == std::min<std::uint32_t>(p._snowFrameBase, UINT16_MAX)
-							? p._snowFrameBase : frameBase);
+								? p._snowFrameBase
+								: frameBase);
 						frame = (base != 0 ? base + data[0] : 0);
 					} else {
 						// The splash is the frames that follow those of the drops (the splash of water of the common set), as
@@ -2430,8 +2588,8 @@ namespace Jazz2::Scripting
 				// Up to 32 px around the view, flowers anywhere in it, the rest not in its bottom 32 px
 				float spawnX = view.X + Random().FastFloat(-32.0f, view.W + 32.0f);
 				float spawnY = (type == Legacy::particleFLOWER
-					? view.Y + Random().FastFloat(-32.0f, view.H)
-					: view.Y + Random().FastFloat(-32.0f, view.H - 32.0f));
+						? view.Y + Random().FastFloat(-32.0f, view.H)
+						: view.Y + Random().FastFloat(-32.0f, view.H - 32.0f));
 				// The outdoors only weather isn't made where the sprite layer is drawn (indoors), whatever its mask, as JJ2+
 				// does; rain isn't made in a wall at all, JJ2+ removes it before it's drawn
 				if (snowingOutdoors && tileMap != nullptr && tileMap->IsTilePixelDrawn(std::int32_t(std::floor(spawnX)), std::int32_t(std::floor(spawnY)))) {
@@ -2541,7 +2699,7 @@ namespace Jazz2::Scripting
 		// The script-facing object, built from its template as in JJ2+; one reference is created here and handed to the
 		// hosting actor
 		void* mem = asAllocMem(sizeof(Legacy::jjOBJ));
-		auto* obj = new(mem) Legacy::jjOBJ();
+		auto* obj = new (mem) Legacy::jjOBJ();
 		Legacy::jjOBJ* preset = GetObjectPreset(eventId);
 		obj->CopyTemplate(*preset);
 		preset->Release();
@@ -2721,10 +2879,10 @@ namespace Jazz2::Scripting
 		engine->SetDefaultNamespace("CREATOR");
 		/** @brief What created an object, see @ref jjOBJ::creatorType */
 		engine->RegisterEnum("Type");
-		engine->RegisterEnumValue("Type", "OBJECT", 0);	///< Created by another object
+		engine->RegisterEnumValue("Type", "OBJECT", 0); ///< Created by another object
 		// As measured in JJ2+
-		engine->RegisterEnumValue("Type", "LEVEL", 0x4000);	///< Placed in the level
-		engine->RegisterEnumValue("Type", "PLAYER", 0x8000);	///< Created by a player, for example a fired bullet
+		engine->RegisterEnumValue("Type", "LEVEL", 0x4000); ///< Placed in the level
+		engine->RegisterEnumValue("Type", "PLAYER", 0x8000); ///< Created by a player, for example a fired bullet
 		engine->SetDefaultNamespace("AREA");
 		/** @brief Events that only mark an area of the level and have no object of their own */
 		engine->RegisterEnum("Area");
@@ -2739,9 +2897,9 @@ namespace Jazz2::Scripting
 		engine->SetDefaultNamespace("LIGHT");
 		/** @brief How much of the lighting players are allowed to turn off, see @ref jjEnforceLighting */
 		engine->RegisterEnum("Enforce");
-		engine->RegisterEnumValue("Enforce", "OPTIONAL", ambientLighting_OPTIONAL);	///< Players may turn off lighting completely
-		engine->RegisterEnumValue("Enforce", "BASIC", ambientLighting_BASIC);	///< Players may turn off ambient lighting, but lights of objects and players stay
-		engine->RegisterEnumValue("Enforce", "COMPLETE", ambientLighting_COMPLETE);	///< All lighting is always shown
+		engine->RegisterEnumValue("Enforce", "OPTIONAL", ambientLighting_OPTIONAL); ///< Players may turn off lighting completely
+		engine->RegisterEnumValue("Enforce", "BASIC", ambientLighting_BASIC); ///< Players may turn off ambient lighting, but lights of objects and players stay
+		engine->RegisterEnumValue("Enforce", "COMPLETE", ambientLighting_COMPLETE); ///< All lighting is always shown
 
 		engine->SetDefaultNamespace("");
 		/**
@@ -2773,39 +2931,39 @@ namespace Jazz2::Scripting
 		engine->SetDefaultNamespace("LIGHT");
 		/** @brief Kinds of light objects and players can emit, see @ref jjOBJ::lightType */
 		engine->RegisterEnum("Type");
-		engine->RegisterEnumValue("Type", "NONE", 0);	///< No light
-		engine->RegisterEnumValue("Type", "NORMAL", 3);	///< Round light whose size is given by @ref jjOBJ::light
-		engine->RegisterEnumValue("Type", "POINT", 1);	///< Small dim point of a fixed size
-		engine->RegisterEnumValue("Type", "POINT2", 2);	///< Small brighter point of a fixed size that slowly pulses
-		engine->RegisterEnumValue("Type", "FLICKER", 4);	///< Round light that randomly flickers
-		engine->RegisterEnumValue("Type", "BRIGHT", 5);	///< Round light that also brightens what it lights
-		engine->RegisterEnumValue("Type", "LASERBEAM", 6);	///< Beam of light, currently not shown @partialsupport
-		engine->RegisterEnumValue("Type", "LASER", 7);	///< Cloud of soft spots swirling around the object
-		engine->RegisterEnumValue("Type", "RING", 8);	///< Ring of light whose radius is given by @ref jjOBJ::light
-		engine->RegisterEnumValue("Type", "RING2", 9);	///< Wider ring of light around a dim disk
-		engine->RegisterEnumValue("Type", "PLAYER", 10);	///< Light around a player
+		engine->RegisterEnumValue("Type", "NONE", 0); ///< No light
+		engine->RegisterEnumValue("Type", "NORMAL", 3); ///< Round light whose size is given by @ref jjOBJ::light
+		engine->RegisterEnumValue("Type", "POINT", 1); ///< Small dim point of a fixed size
+		engine->RegisterEnumValue("Type", "POINT2", 2); ///< Small brighter point of a fixed size that slowly pulses
+		engine->RegisterEnumValue("Type", "FLICKER", 4); ///< Round light that randomly flickers
+		engine->RegisterEnumValue("Type", "BRIGHT", 5); ///< Round light that also brightens what it lights
+		engine->RegisterEnumValue("Type", "LASERBEAM", 6); ///< Beam of light, currently not shown @partialsupport
+		engine->RegisterEnumValue("Type", "LASER", 7); ///< Cloud of soft spots swirling around the object
+		engine->RegisterEnumValue("Type", "RING", 8); ///< Ring of light whose radius is given by @ref jjOBJ::light
+		engine->RegisterEnumValue("Type", "RING2", 9); ///< Wider ring of light around a dim disk
+		engine->RegisterEnumValue("Type", "PLAYER", 10); ///< Light around a player
 
 		engine->SetDefaultNamespace("HANDLING");
 		/** @brief How an object reacts when a bullet touches it, see @ref jjOBJ::bulletHandling */
 		engine->RegisterEnum("Bullet");
-		engine->RegisterEnumValue("Bullet", "HURTBYBULLET", 0);	///< The object loses energy, the bullet is usually destroyed
-		engine->RegisterEnumValue("Bullet", "IGNOREBULLET", 1);	///< Neither the object nor the bullet is affected
-		engine->RegisterEnumValue("Bullet", "DESTROYBULLET", 2);	///< The bullet is destroyed, the object is unaffected
-		engine->RegisterEnumValue("Bullet", "DETECTBULLET", 3);	///< The object is unaffected, the bullet is destroyed and @ref onObjectHit() is called if @ref jjOBJ::scriptedCollisions is set
+		engine->RegisterEnumValue("Bullet", "HURTBYBULLET", 0); ///< The object loses energy, the bullet is usually destroyed
+		engine->RegisterEnumValue("Bullet", "IGNOREBULLET", 1); ///< Neither the object nor the bullet is affected
+		engine->RegisterEnumValue("Bullet", "DESTROYBULLET", 2); ///< The bullet is destroyed, the object is unaffected
+		engine->RegisterEnumValue("Bullet", "DETECTBULLET", 3); ///< The object is unaffected, the bullet is destroyed and @ref onObjectHit() is called if @ref jjOBJ::scriptedCollisions is set
 		/** @brief How an object reacts when a player touches it, see @ref jjOBJ::playerHandling */
 		engine->RegisterEnum("Player");
-		engine->RegisterEnumValue("Player", "ENEMY", 0);	///< Hurts the player, unless the player attacks it
-		engine->RegisterEnumValue("Player", "PLAYERBULLET", 1);	///< Bullet fired by a player, hits enemies and other players
-		engine->RegisterEnumValue("Player", "ENEMYBULLET", 2);	///< Bullet fired by an enemy, hurts players
-		engine->RegisterEnumValue("Player", "PARTICLE", 3);	///< Players and bullets go through it
-		engine->RegisterEnumValue("Player", "EXPLOSION", 4);	///< No special handling
-		engine->RegisterEnumValue("Player", "PICKUP", 5);	///< Collected by the player, with an effect depending on @ref jjOBJ::eventID
-		engine->RegisterEnumValue("Player", "DELAYEDPICKUP", 6);	///< A pickup collected only after a short delay @partialsupport Collected at once, as @ref PICKUP.
-		engine->RegisterEnumValue("Player", "HURT", 7);	///< Hurts the player, attacks don't harm it
-		engine->RegisterEnumValue("Player", "SPECIAL", 8);	///< Reacts to players and bullets in a way specific to the object
-		engine->RegisterEnumValue("Player", "DYING", 9);	///< No special handling @partialsupport What this value means in JJ2+ isn't implemented.
-		engine->RegisterEnumValue("Player", "SPECIALDONE", 10);	///< No special handling @partialsupport What this value means in JJ2+ isn't implemented.
-		engine->RegisterEnumValue("Player", "SELFCOLLISION", 11);	///< No special handling @partialsupport What this value means in JJ2+ isn't implemented.
+		engine->RegisterEnumValue("Player", "ENEMY", 0); ///< Hurts the player, unless the player attacks it
+		engine->RegisterEnumValue("Player", "PLAYERBULLET", 1); ///< Bullet fired by a player, hits enemies and other players
+		engine->RegisterEnumValue("Player", "ENEMYBULLET", 2); ///< Bullet fired by an enemy, hurts players
+		engine->RegisterEnumValue("Player", "PARTICLE", 3); ///< Players and bullets go through it
+		engine->RegisterEnumValue("Player", "EXPLOSION", 4); ///< No special handling
+		engine->RegisterEnumValue("Player", "PICKUP", 5); ///< Collected by the player, with an effect depending on @ref jjOBJ::eventID
+		engine->RegisterEnumValue("Player", "DELAYEDPICKUP", 6); ///< A pickup collected only after a short delay @partialsupport Collected at once, as @ref PICKUP.
+		engine->RegisterEnumValue("Player", "HURT", 7); ///< Hurts the player, attacks don't harm it
+		engine->RegisterEnumValue("Player", "SPECIAL", 8); ///< Reacts to players and bullets in a way specific to the object
+		engine->RegisterEnumValue("Player", "DYING", 9); ///< No special handling @partialsupport What this value means in JJ2+ isn't implemented.
+		engine->RegisterEnumValue("Player", "SPECIALDONE", 10); ///< No special handling @partialsupport What this value means in JJ2+ isn't implemented.
+		engine->RegisterEnumValue("Player", "SELFCOLLISION", 11); ///< No special handling @partialsupport What this value means in JJ2+ isn't implemented.
 		engine->SetDefaultNamespace("");
 
 		// TODO
@@ -3047,19 +3205,19 @@ namespace Jazz2::Scripting
 		engine->SetDefaultNamespace("PARTICLE");
 		/** @brief Types of particles, see @ref jjPARTICLE::type and @ref jjAddParticle() */
 		engine->RegisterEnum("Type");
-		engine->RegisterEnumValue("Type", "INACTIVE", particleNONE);	///< Free particle slot
-		engine->RegisterEnumValue("Type", "PIXEL", particlePIXEL);	///< Small square of debris that bounces off the ground, see @ref jjPARTICLE::pixel
-		engine->RegisterEnumValue("Type", "FIRE", particleFIRE);	///< Small flame that changes color until it burns out, see @ref jjPARTICLE::fire
-		engine->RegisterEnumValue("Type", "SMOKE", particleSMOKE);	///< Puff of smoke drifting upward, see @ref jjPARTICLE::smoke
-		engine->RegisterEnumValue("Type", "ICETRAIL", particleICETRAIL);	///< Single dot left behind by ice bullets, see @ref jjPARTICLE::icetrail
-		engine->RegisterEnumValue("Type", "SPARK", particleSPARK);	///< Short-lived spark, for example from a bouncing bullet, see @ref jjPARTICLE::spark
-		engine->RegisterEnumValue("Type", "STRING", particleSCORE);	///< Floating text such as gained points, see @ref jjPARTICLE::string
-		engine->RegisterEnumValue("Type", "SNOW", particleSNOW);	///< Snowflake, see @ref jjPARTICLE::snow
-		engine->RegisterEnumValue("Type", "RAIN", particleRAIN);	///< Raindrop, see @ref jjPARTICLE::rain
-		engine->RegisterEnumValue("Type", "FLOWER", particleFLOWER);	///< Spinning flower that shrinks over time, see @ref jjPARTICLE::flower
-		engine->RegisterEnumValue("Type", "LEAF", particleLEAF);	///< Drifting leaf that settles on the ground, see @ref jjPARTICLE::leaf
-		engine->RegisterEnumValue("Type", "STAR", particleSTAR);	///< Shrinking star, as shown during a sugar rush, see @ref jjPARTICLE::star
-		engine->RegisterEnumValue("Type", "TILE", particleTILE);	///< Falling piece of a tile @partialsupport It disappears right away without being shown.
+		engine->RegisterEnumValue("Type", "INACTIVE", particleNONE); ///< Free particle slot
+		engine->RegisterEnumValue("Type", "PIXEL", particlePIXEL); ///< Small square of debris that bounces off the ground, see @ref jjPARTICLE::pixel
+		engine->RegisterEnumValue("Type", "FIRE", particleFIRE); ///< Small flame that changes color until it burns out, see @ref jjPARTICLE::fire
+		engine->RegisterEnumValue("Type", "SMOKE", particleSMOKE); ///< Puff of smoke drifting upward, see @ref jjPARTICLE::smoke
+		engine->RegisterEnumValue("Type", "ICETRAIL", particleICETRAIL); ///< Single dot left behind by ice bullets, see @ref jjPARTICLE::icetrail
+		engine->RegisterEnumValue("Type", "SPARK", particleSPARK); ///< Short-lived spark, for example from a bouncing bullet, see @ref jjPARTICLE::spark
+		engine->RegisterEnumValue("Type", "STRING", particleSCORE); ///< Floating text such as gained points, see @ref jjPARTICLE::string
+		engine->RegisterEnumValue("Type", "SNOW", particleSNOW); ///< Snowflake, see @ref jjPARTICLE::snow
+		engine->RegisterEnumValue("Type", "RAIN", particleRAIN); ///< Raindrop, see @ref jjPARTICLE::rain
+		engine->RegisterEnumValue("Type", "FLOWER", particleFLOWER); ///< Spinning flower that shrinks over time, see @ref jjPARTICLE::flower
+		engine->RegisterEnumValue("Type", "LEAF", particleLEAF); ///< Drifting leaf that settles on the ground, see @ref jjPARTICLE::leaf
+		engine->RegisterEnumValue("Type", "STAR", particleSTAR); ///< Shrinking star, as shown during a sugar rush, see @ref jjPARTICLE::star
+		engine->RegisterEnumValue("Type", "TILE", particleTILE); ///< Falling piece of a tile @partialsupport It disappears right away without being shown.
 		engine->SetDefaultNamespace("");
 	}
 
@@ -3074,7 +3232,7 @@ namespace Jazz2::Scripting
 		engine->RegisterObjectProperty("jjPARTICLE", "float ySpeed", asOFFSET(jjPARTICLE, ySpeed));
 		engine->RegisterObjectProperty("jjPARTICLE", "uint8 type", asOFFSET(jjPARTICLE, particleType));
 		engine->RegisterObjectProperty("jjPARTICLE", "bool isActive", asOFFSET(jjPARTICLE, active));
-		
+
 		/**
 		 * @brief Extra properties of a @ref PARTICLE::PIXEL particle, see @ref jjPARTICLE::pixel
 		 * @deprecated Not meant to be used by its name, it's reached through @ref jjPARTICLE::pixel.
@@ -3094,7 +3252,7 @@ namespace Jazz2::Scripting
 		 * @brief Extra properties of a @ref PARTICLE::FIRE particle, see @ref jjPARTICLE::fire
 		 * @deprecated Not meant to be used by its name, it's reached through @ref jjPARTICLE::fire.
 		 */
-		engine->RegisterObjectType("jjPARTICLEFIRE", 9, asOBJ_VALUE | asOBJ_POD);  // Private/deprecated
+		engine->RegisterObjectType("jjPARTICLEFIRE", 9, asOBJ_VALUE | asOBJ_POD); // Private/deprecated
 		/** @brief Size of the flame in pixels, defaults to 3 */
 		engine->RegisterObjectProperty("jjPARTICLEFIRE", "uint8 size", 0);
 		/** @brief Current palette color, defaults to 40 */
@@ -3113,7 +3271,7 @@ namespace Jazz2::Scripting
 		 * @brief Extra properties of a @ref PARTICLE::SMOKE particle, see @ref jjPARTICLE::smoke
 		 * @deprecated Not meant to be used by its name, it's reached through @ref jjPARTICLE::smoke.
 		 */
-		engine->RegisterObjectType("jjPARTICLESMOKE", 9, asOBJ_VALUE | asOBJ_POD);  // Private/deprecated
+		engine->RegisterObjectType("jjPARTICLESMOKE", 9, asOBJ_VALUE | asOBJ_POD); // Private/deprecated
 		/** @brief Decreases slowly over the particle's life, defaults to 71 @partialsupport The particle disappears after 102 ticks whatever its value is. */
 		engine->RegisterObjectProperty("jjPARTICLESMOKE", "uint8 countdown", 0);
 		/**
@@ -3140,7 +3298,7 @@ namespace Jazz2::Scripting
 		 * @brief Extra properties of a @ref PARTICLE::SPARK particle, see @ref jjPARTICLE::spark
 		 * @deprecated Not meant to be used by its name, it's reached through @ref jjPARTICLE::spark.
 		 */
-		engine->RegisterObjectType("jjPARTICLESPARK", 9, asOBJ_VALUE | asOBJ_POD);  // Private/deprecated
+		engine->RegisterObjectType("jjPARTICLESPARK", 9, asOBJ_VALUE | asOBJ_POD); // Private/deprecated
 		/** @brief Current palette color, defaults to 40 */
 		engine->RegisterObjectProperty("jjPARTICLESPARK", "uint8 color", 0);
 		/** @brief Palette color at which the particle disappears, defaults to 46 */

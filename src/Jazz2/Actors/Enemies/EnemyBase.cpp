@@ -58,8 +58,12 @@ namespace Jazz2::Actors::Enemies
 		// The original does not scale enemy health by difficulty
 		if (_levelHandler->IsReforged()) {
 			switch (_levelHandler->GetDifficulty()) {
-				case GameDifficulty::Easy: health = (std::int32_t)std::round(health * 0.6f); break;
-				case GameDifficulty::Hard: health = (std::int32_t)std::round(health * 1.4f); break;
+				case GameDifficulty::Easy:
+					health = (std::int32_t)std::round(health * 0.6f);
+					break;
+				case GameDifficulty::Hard:
+					health = (std::int32_t)std::round(health * 1.4f);
+					break;
 			}
 		}
 
@@ -130,7 +134,7 @@ namespace Jazz2::Actors::Enemies
 		} else {
 			success = false;
 		}
-		
+
 		SetState(prevState);
 
 		return success;
@@ -162,9 +166,12 @@ namespace Jazz2::Actors::Enemies
 	std::int32_t EnemyBase::GetDifficultyIndex() const
 	{
 		switch (_levelHandler->GetDifficulty()) {
-			case GameDifficulty::Easy: return 0;
-			case GameDifficulty::Hard: return 2;
-			default: return 1;
+			case GameDifficulty::Easy:
+				return 0;
+			case GameDifficulty::Hard:
+				return 2;
+			default:
+				return 1;
 		}
 	}
 
@@ -189,7 +196,8 @@ namespace Jazz2::Actors::Enemies
 
 	void EnemyBase::TryGenerateRandomDrop()
 	{
-		constexpr struct {
+		constexpr struct
+		{
 			EventType Event;
 			int Chance;
 		} DropChanges[] = {
@@ -208,7 +216,7 @@ namespace Jazz2::Actors::Enemies
 		for (auto& item : DropChanges) {
 			if (drop < item.Chance) {
 				if (item.Event != EventType::Empty) {
-					uint8_t eventParams[16] { };
+					uint8_t eventParams[16] {};
 					std::shared_ptr<ActorBase> actor = _levelHandler->EventSpawner()->SpawnEvent(item.Event, eventParams, ActorState::None, Vector3i((std::int32_t)_pos.X, (std::int32_t)_pos.Y, _renderer.GetLayer()));
 					if (actor != nullptr) {
 						_levelHandler->AddActor(actor);
@@ -237,9 +245,15 @@ namespace Jazz2::Actors::Enemies
 				if (_levelHandler->IsReforged()) {
 					bool hit;
 					switch (pole->GetFallDirection()) {
-						case Solid::Pole::FallDirection::Left: hit = (_pos.X < pole->GetPos().X); break;
-						case Solid::Pole::FallDirection::Right: hit = (_pos.X > pole->GetPos().X); break;
-						default: hit = false; break;
+						case Solid::Pole::FallDirection::Left:
+							hit = (_pos.X < pole->GetPos().X);
+							break;
+						case Solid::Pole::FallDirection::Right:
+							hit = (_pos.X > pole->GetPos().X);
+							break;
+						default:
+							hit = false;
+							break;
 					}
 					if (hit) {
 						DecreaseHealth(10, pole);
@@ -267,8 +281,10 @@ namespace Jazz2::Actors::Enemies
 		ActorBase::OnSerializeState(dest);
 
 		std::uint8_t flags = 0;
-		if (CanCollideWithShots) flags |= 0x01;
-		if (_canHurtPlayer) flags |= 0x02;
+		if (CanCollideWithShots)
+			flags |= 0x01;
+		if (_canHurtPlayer)
+			flags |= 0x02;
 		dest.WriteValue<std::uint8_t>(flags);
 		// Score is cleared once it's awarded, so the same enemy cannot be scored twice
 		dest.WriteVariableUint32(_scoreValue);

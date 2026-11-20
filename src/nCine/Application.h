@@ -14,7 +14,7 @@
 #include <IO/Stream.h>
 
 #if defined(DEATH_TARGET_WINDOWS)
-#	include <CommonWindows.h>
+#include <CommonWindows.h>
 #endif
 
 using namespace Death;
@@ -31,7 +31,10 @@ namespace nCine
 	class ImGuiDrawing;
 #endif
 #if defined(WITH_QT5)
-	namespace Backends { class Qt5Widget; }
+	namespace Backends
+	{
+		class Qt5Widget;
+	}
 #endif
 
 	/**
@@ -39,7 +42,7 @@ namespace nCine
 		
 		Passed to @ref MainApplication::Run() so the engine can instantiate the user's event handler.
 	*/
-	using CreateAppEventHandlerDelegate = std::unique_ptr<IAppEventHandler>(*)();
+	using CreateAppEventHandlerDelegate = std::unique_ptr<IAppEventHandler> (*)();
 
 	/**
 		@brief Base class for the main entry point of an nCine application
@@ -77,7 +80,8 @@ namespace nCine
 #else
 				  MaxBatchSize(585)
 #endif
-				  {}
+			{
+			}
 
 			/** @brief Whether batching is enabled */
 			bool BatchingEnabled;
@@ -143,28 +147,52 @@ namespace nCine
 		/** @} */
 
 		/** @brief Returns the configuration used to initialize the application */
-		inline const AppConfiguration& GetAppConfiguration() const { return _appCfg; }
+		inline const AppConfiguration& GetAppConfiguration() const
+		{
+			return _appCfg;
+		}
 		/** @brief Returns the run-time rendering settings */
-		inline RenderingSettings& GetRenderingSettings() { return _renderingSettings; }
+		inline RenderingSettings& GetRenderingSettings()
+		{
+			return _renderingSettings;
+		}
 #if defined(WITH_IMGUI) || defined(DOXYGEN_GENERATING_OUTPUT)
 		/** @brief Returns run-time GUI settings */
-		inline GuiSettings& GetGuiSettings() { return _guiSettings; }
+		inline GuiSettings& GetGuiSettings()
+		{
+			return _guiSettings;
+		}
 		/** @brief Returns debug overlay settings */
-		inline IDebugOverlay::DisplaySettings& GetDebugOverlaySettings() { return (_debugOverlay != nullptr ? _debugOverlay->GetSettings() : _debugOverlayNullSettings); }
+		inline IDebugOverlay::DisplaySettings& GetDebugOverlaySettings()
+		{
+			return (_debugOverlay != nullptr ? _debugOverlay->GetSettings() : _debugOverlayNullSettings);
+		}
 #endif
 #if defined(NCINE_PROFILING) || defined(DOXYGEN_GENERATING_OUTPUT)
 		/** @brief Returns all timings */
-		inline StaticArrayView<(std::int32_t)Timings::Count, const float> GetTimings() const { return _timings; }
+		inline StaticArrayView<(std::int32_t)Timings::Count, const float> GetTimings() const
+		{
+			return _timings;
+		}
 #endif
 
 		/** @brief Returns the graphics device instance */
-		inline IGfxDevice& GetGfxDevice() { return *_gfxDevice; }
+		inline IGfxDevice& GetGfxDevice()
+		{
+			return *_gfxDevice;
+		}
 		/** @brief Returns the root of the transformation graph */
-		inline SceneNode& GetRootNode() { return *_rootNode; }
+		inline SceneNode& GetRootNode()
+		{
+			return *_rootNode;
+		}
 		/** @brief Returns the screen viewport */
 		Viewport& GetScreenViewport();
 		/** @brief Returns the input manager instance */
-		inline IInputManager& GetInputManager() { return *_inputManager; }
+		inline IInputManager& GetInputManager()
+		{
+			return *_inputManager;
+		}
 
 		/** @brief Returns the total number of frames already rendered */
 		std::uint32_t GetFrameCount() const;
@@ -174,11 +202,20 @@ namespace nCine
 		const FrameTimer& GetFrameTimer() const;
 
 		/** @brief Returns the drawable screen width as an integer number */
-		inline std::int32_t GetWidth() const { return _gfxDevice->GetDrawableWidth(); }
+		inline std::int32_t GetWidth() const
+		{
+			return _gfxDevice->GetDrawableWidth();
+		}
 		/** @brief Returns the drawable screen height as an integer number */
-		inline std::int32_t GetHeight() const { return _gfxDevice->GetDrawableHeight(); }
+		inline std::int32_t GetHeight() const
+		{
+			return _gfxDevice->GetDrawableHeight();
+		}
 		/** @brief Returns the drawable screen resolution as a `Vector2i` object */
-		inline Vector2i GetResolution() const { return _gfxDevice->GetDrawableResolution(); }
+		inline Vector2i GetResolution() const
+		{
+			return _gfxDevice->GetDrawableResolution();
+		}
 
 		/** @brief Resizes the screen viewport, if exists */
 		void ResizeScreenViewport(std::int32_t width, std::int32_t height);
@@ -187,11 +224,13 @@ namespace nCine
 		bool ShouldSuspend();
 
 		/** @brief Returns the value of the auto-suspension flag (the application will be suspended when it loses focus) */
-		inline bool GetAutoSuspension() const {
+		inline bool GetAutoSuspension() const
+		{
 			return _autoSuspension;
 		}
 		/** @brief Sets the auto-suspension flag value */
-		inline void SetAutoSuspension(bool autoSuspension) {
+		inline void SetAutoSuspension(bool autoSuspension)
+		{
 			_autoSuspension = autoSuspension;
 		}
 
@@ -199,17 +238,20 @@ namespace nCine
 		virtual void Quit();
 
 		/** @brief Returns the quit flag value */
-		inline bool ShouldQuit() const {
+		inline bool ShouldQuit() const
+		{
 			return _shouldQuit;
 		}
 
 		/** @brief Returns the focus flag value */
-		inline bool HasFocus() const {
+		inline bool HasFocus() const
+		{
 			return _hasFocus;
 		}
 
 		/** @brief Returns the path for the application to load data from */
-		inline const String& GetDataPath() const {
+		inline const String& GetDataPath() const
+		{
 			return _appCfg.GetDataPath();
 		}
 
@@ -231,7 +273,7 @@ namespace nCine
 		static String GetDeviceHostname();
 		/** @brief Opens the specified URL in a default web browser */
 		virtual bool OpenUrl(StringView url);
-		
+
 		/** @brief Returns `true` if screen (software) keyboard is supported and @ref ShowScreenKeyboard() should succeed */
 		virtual bool CanShowScreenKeyboard();
 		/** @brief Returns `true` if the screen (software) keyboard is currently shown, always `false` if it cannot be queried */
@@ -384,13 +426,13 @@ namespace nCine
 		friend class Viewport;
 
 #if defined(DEATH_TRACE)
-#	if !defined(DEATH_TARGET_EMSCRIPTEN)
+#if !defined(DEATH_TARGET_EMSCRIPTEN)
 		void AppendLogFileHeader(IO::Stream& s);
-#	endif
-#	if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
+#endif
+#if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
 		bool CreateTraceConsole(StringView title, bool& hasVirtualTerminal);
 		void DestroyTraceConsole();
-#	endif
+#endif
 #endif
 	};
 

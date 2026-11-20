@@ -9,19 +9,20 @@
 #include <type_traits>
 
 #if defined(WITH_THREADS) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	if defined(DEATH_TARGET_APPLE)
-#		include <mach/mach_init.h>
-#	elif !defined(DEATH_TARGET_WINDOWS)
-#		include <pthread.h>
-#	endif
+#if defined(DEATH_TARGET_APPLE)
+#include <mach/mach_init.h>
+#elif !defined(DEATH_TARGET_WINDOWS)
+#include <pthread.h>
+#endif
 #endif
 
 namespace nCine
 {
-#if (defined(WITH_THREADS) && !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_EMSCRIPTEN) && \
-		!defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && \
-		!defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_PS2) && \
-		!defined(DEATH_TARGET_AMIGAOS4) && !defined(DEATH_TARGET_MORPHOS)) || defined(DOXYGEN_GENERATING_OUTPUT)
+#if (defined(WITH_THREADS) && !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_EMSCRIPTEN) &&                                 \
+	!defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && \
+	!defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_PS2) &&    \
+	!defined(DEATH_TARGET_AMIGAOS4) && !defined(DEATH_TARGET_MORPHOS)) ||                                                            \
+	defined(DOXYGEN_GENERATING_OUTPUT)
 
 	/**
 		@brief CPU affinity mask for a thread
@@ -55,13 +56,13 @@ namespace nCine
 		bool IsSet(std::int32_t cpuNum);
 
 	private:
-#	if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 		DWORD_PTR _affinityMask;
-#	elif defined(DEATH_TARGET_APPLE)
+#elif defined(DEATH_TARGET_APPLE)
 		integer_t _affinityTag;
-#	else
+#else
 		cpu_set_t _cpuSet;
-#	endif
+#endif
 	};
 
 #endif
@@ -97,8 +98,10 @@ namespace nCine
 		explicit Thread(ThreadFuncDelegate threadFunc, void* threadArg);
 
 		/** @overload */
-		template<class Fn, class ...Args, std::enable_if_t<!std::is_same<std::remove_cv_t<std::remove_reference_t<Fn>>, Thread>::value && !std::is_convertible<std::decay_t<Fn>, ThreadFuncDelegate>::value, int> = 0>
-		explicit Thread(Fn&& fn, Args&&... args) : _sharedBlock(nullptr) {
+		template <class Fn, class... Args, std::enable_if_t<!std::is_same<std::remove_cv_t<std::remove_reference_t<Fn>>, Thread>::value && !std::is_convertible<std::decay_t<Fn>, ThreadFuncDelegate>::value, int> = 0>
+		explicit Thread(Fn&& fn, Args&&... args)
+			: _sharedBlock(nullptr)
+		{
 			RunTemplate(std::forward<Fn>(fn), std::forward<Args>(args)...);
 		}
 
@@ -126,13 +129,13 @@ namespace nCine
 		/** @brief Sets the calling thread name (not supported on Emscripten and Switch) */
 		static void SetCurrentName(const char* name);
 
-#	if !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && \
-		!defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_PS2)
+#if !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && \
+	!defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && !defined(DEATH_TARGET_PS2)
 		/** @brief Gets the thread priority */
 		std::int32_t GetPriority() const;
 		/** @brief Sets the thread priority */
 		void SetPriority(std::int32_t priority);
-#	endif
+#endif
 
 		/** @brief Returns the calling thread ID */
 		static std::uintptr_t GetCurrentId() noexcept;
@@ -146,15 +149,15 @@ namespace nCine
 		/** @brief Tries to cancel or terminate the thread (depending on operating system) */
 		bool Abort();
 
-#	if !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && \
-		!defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && !defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && \
-		!defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_PS2) && !defined(DEATH_TARGET_AMIGAOS4) && \
-		!defined(DEATH_TARGET_MORPHOS)
+#if !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) &&                                                           \
+	!defined(DEATH_TARGET_WII) && !defined(DEATH_TARGET_WIIU) && !defined(DEATH_TARGET_GAMECUBE) && !defined(DEATH_TARGET_3DS) && !defined(DEATH_TARGET_DREAMCAST) && \
+	!defined(DEATH_TARGET_PSP) && !defined(DEATH_TARGET_PS2) && !defined(DEATH_TARGET_AMIGAOS4) &&                                                                    \
+	!defined(DEATH_TARGET_MORPHOS)
 		/** @brief Gets the thread affinity mask */
 		ThreadAffinityMask GetAffinityMask() const;
 		/** @brief Sets the thread affinity mask */
 		void SetAffinityMask(ThreadAffinityMask affinityMask);
-#	endif
+#endif
 
 	private:
 		struct SharedBlock;
@@ -166,23 +169,26 @@ namespace nCine
 		/** @brief Spawns a new thread if the object hasn't one already associated */
 		bool Run(ThreadFuncDelegate threadFunc, void* threadArg);
 
-		template<class Tuple, std::size_t... Indices>
-		static void Invoke(void* rawVals) noexcept {
+		template <class Tuple, std::size_t... Indices>
+		static void Invoke(void* rawVals) noexcept
+		{
 			const std::unique_ptr<Tuple> fnVals(static_cast<Tuple*>(rawVals));
 			Tuple& tup = *fnVals;
 			std::invoke(Death::move(std::get<Indices>(tup))...);
 		}
 
-		template<class Tuple, std::size_t... Indices>
-		static constexpr auto GetInvoke(std::index_sequence<Indices...>) noexcept {
+		template <class Tuple, std::size_t... Indices>
+		static constexpr auto GetInvoke(std::index_sequence<Indices...>) noexcept
+		{
 			return &Invoke<Tuple, Indices...>;
 		}
 
-		template<class Fn, class ...Args>
-		void RunTemplate(Fn&& fn, Args&&... args) {
+		template <class Fn, class... Args>
+		void RunTemplate(Fn&& fn, Args&&... args)
+		{
 			using Tuple = std::tuple<std::decay_t<Fn>, std::decay_t<Args>...>;
 			auto decayCopied = std::make_unique<Tuple>(std::forward<Fn>(fn), std::forward<Args>(args)...);
-			constexpr auto invokerProc = GetInvoke<Tuple>(std::make_index_sequence<1 + sizeof...(args)>{});
+			constexpr auto invokerProc = GetInvoke<Tuple>(std::make_index_sequence<1 + sizeof...(args)> {});
 
 			if (Run(invokerProc, decayCopied.get())) {
 				// Ownership transferred to the thread
@@ -190,15 +196,15 @@ namespace nCine
 			}
 		}
 
-#	if defined(DEATH_TARGET_WINDOWS)
-#		if defined(DEATH_TARGET_MINGW)
+#if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_MINGW)
 		static unsigned int(__attribute__((__stdcall__)) Process)(void* arg);
-#		else
+#else
 		static unsigned int __stdcall Process(void* arg);
-#		endif
-#	else
+#endif
+#else
 		static void* Process(void* arg);
-#	endif
+#endif
 #else
 		Thread() = delete;
 		~Thread() = delete;

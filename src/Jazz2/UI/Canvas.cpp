@@ -172,14 +172,32 @@ namespace Jazz2::UI
 		RenderBatcher::DirectBatch& batch = record->Batch;
 		std::uint8_t* instance = batch.Instances + batch.Count * batch.Stride;
 		float* modelMatrix = static_cast<float*>(static_cast<void*>(instance + record->ModelMatrixOffset));
-		modelMatrix[0] = 1.0f; modelMatrix[1] = 0.0f; modelMatrix[2] = 0.0f; modelMatrix[3] = 0.0f;
-		modelMatrix[4] = 0.0f; modelMatrix[5] = 1.0f; modelMatrix[6] = 0.0f; modelMatrix[7] = 0.0f;
-		modelMatrix[8] = 0.0f; modelMatrix[9] = 0.0f; modelMatrix[10] = 1.0f; modelMatrix[11] = 0.0f;
-		modelMatrix[12] = pos.X; modelMatrix[13] = pos.Y; modelMatrix[14] = record->Depth; modelMatrix[15] = 1.0f;
+		modelMatrix[0] = 1.0f;
+		modelMatrix[1] = 0.0f;
+		modelMatrix[2] = 0.0f;
+		modelMatrix[3] = 0.0f;
+		modelMatrix[4] = 0.0f;
+		modelMatrix[5] = 1.0f;
+		modelMatrix[6] = 0.0f;
+		modelMatrix[7] = 0.0f;
+		modelMatrix[8] = 0.0f;
+		modelMatrix[9] = 0.0f;
+		modelMatrix[10] = 1.0f;
+		modelMatrix[11] = 0.0f;
+		modelMatrix[12] = pos.X;
+		modelMatrix[13] = pos.Y;
+		modelMatrix[14] = record->Depth;
+		modelMatrix[15] = 1.0f;
 		float* instanceColor = static_cast<float*>(static_cast<void*>(instance + record->ColorOffset));
-		instanceColor[0] = finalColor.R; instanceColor[1] = finalColor.G; instanceColor[2] = finalColor.B; instanceColor[3] = finalColor.A;
+		instanceColor[0] = finalColor.R;
+		instanceColor[1] = finalColor.G;
+		instanceColor[2] = finalColor.B;
+		instanceColor[3] = finalColor.A;
 		float* texRect = static_cast<float*>(static_cast<void*>(instance + record->TexRectOffset));
-		texRect[0] = clippedTexCoords.X; texRect[1] = clippedTexCoords.Y; texRect[2] = clippedTexCoords.Z; texRect[3] = clippedTexCoords.W;
+		texRect[0] = clippedTexCoords.X;
+		texRect[1] = clippedTexCoords.Y;
+		texRect[2] = clippedTexCoords.Z;
+		texRect[3] = clippedTexCoords.W;
 		float* spriteSize = static_cast<float*>(static_cast<void*>(instance + record->SpriteSizeOffset));
 		spriteSize[0] = size.X;
 		spriteSize[1] = size.Y;
@@ -257,7 +275,8 @@ namespace Jazz2::UI
 			record.TexRectOffset = std::uint32_t(instanceUniforms->TexRect->GetDataPointer() - base);
 			record.SpriteSizeOffset = std::uint32_t(instanceUniforms->SpriteSize->GetDataPointer() - base);
 			record.PaletteOffsetOffset = (instanceUniforms->PaletteOffset != nullptr
-				? std::int32_t(instanceUniforms->PaletteOffset->GetDataPointer() - base) : -1);
+					? std::int32_t(instanceUniforms->PaletteOffset->GetDataPointer() - base)
+					: -1);
 			const Camera::ProjectionValues& projection = RenderResources::GetCurrentCamera()->GetProjectionValues();
 			record.Depth = RenderCommand::CalculateDepth(layer, projection.NearClip, projection.FarClip);
 		} else {
@@ -334,8 +353,8 @@ namespace Jazz2::UI
 		bool indexed = (paletteOffset >= 0);
 		auto command = RentRenderCommand();
 		bool shaderChanged = (shader != nullptr
-			? command->GetMaterial().SetShader(shader)
-			: indexed
+				? command->GetMaterial().SetShader(shader)
+				: indexed
 				? command->GetMaterial().SetShader(ContentResolver::Get().GetShader(PrecompiledShader::PaletteRemap))
 				: command->GetMaterial().SetShaderProgramType(Material::ShaderProgramType::Sprite));
 		if (shaderChanged) {
@@ -529,8 +548,8 @@ namespace Jazz2::UI
 		RenderCommand* command = RentRenderCommand();
 		command->SetType(RenderCommand::Type::Text);
 		const bool shaderChanged = (colorizeShader != nullptr
-			? command->GetMaterial().SetShader(colorizeShader)
-			: command->GetMaterial().SetShaderProgramType(Material::ShaderProgramType::Sprite));
+				? command->GetMaterial().SetShader(colorizeShader)
+				: command->GetMaterial().SetShaderProgramType(Material::ShaderProgramType::Sprite));
 		if (shaderChanged) {
 			command->GetMaterial().ReserveUniformsDataMemory();
 			command->GetGeometry().SetDrawParameters(PrimitiveType::TriangleStrip, 0, 4);
@@ -621,7 +640,8 @@ namespace Jazz2::UI
 				glyphBatch.TexRectOffset = std::uint32_t(instanceUniforms->TexRect->GetDataPointer() - base);
 				glyphBatch.SpriteSizeOffset = std::uint32_t(instanceUniforms->SpriteSize->GetDataPointer() - base);
 				glyphBatch.PaletteOffsetOffset = (instanceUniforms->PaletteOffset != nullptr
-					? std::int32_t(instanceUniforms->PaletteOffset->GetDataPointer() - base) : -1);
+						? std::int32_t(instanceUniforms->PaletteOffset->GetDataPointer() - base)
+						: -1);
 				// What RenderCommand::CommitNodeTransformation() puts in the z translation of a command on this layer
 				const Camera::ProjectionValues& projection = RenderResources::GetCurrentCamera()->GetProjectionValues();
 				glyphBatch.Depth = RenderCommand::CalculateDepth(layer, projection.NearClip, projection.FarClip);
@@ -767,12 +787,20 @@ namespace Jazz2::UI
 
 		// Sprites are aligned to center by default
 		switch (align & Alignment::HorizontalMask) {
-			case Alignment::Center: result.X -= size.X * 0.5f; break;
-			case Alignment::Right: result.X -= size.X; break;
+			case Alignment::Center:
+				result.X -= size.X * 0.5f;
+				break;
+			case Alignment::Right:
+				result.X -= size.X;
+				break;
 		}
 		switch (align & Alignment::VerticalMask) {
-			case Alignment::Center: result.Y -= size.Y * 0.5f; break;
-			case Alignment::Bottom: result.Y -= size.Y; break;
+			case Alignment::Center:
+				result.Y -= size.Y * 0.5f;
+				break;
+			case Alignment::Bottom:
+				result.Y -= size.Y;
+				break;
 		}
 
 		return result;

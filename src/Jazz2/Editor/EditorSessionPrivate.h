@@ -15,7 +15,7 @@
 #include "Runtime/PlayTestController.h"
 #include "Runtime/PlayTestLevelHandler.h"
 #if defined(WITH_MULTIPLAYER)
-#	include "Runtime/PlayTestMpLevelHandler.h"
+#include "Runtime/PlayTestMpLevelHandler.h"
 #endif
 #include "Runtime/PlayTransition.h"
 #include "Runtime/RuntimeSync.h"
@@ -23,11 +23,11 @@
 #include "Session/PlayOverlays.h"
 #include "Session/SavedComparison.h"
 #if defined(DEATH_DEBUG)
-#	include "Session/EditorDebugConsole.h"
+#include "Session/EditorDebugConsole.h"
 #endif
 #include "Shell/EditorShell.h"
 #if defined(DEATH_TARGET_EMSCRIPTEN)
-#	include "Files/WebFileBridge.h"
+#include "Files/WebFileBridge.h"
 #endif
 #include "Shell/LayerDialogs.h"
 #include "Shell/LevelDialogs.h"

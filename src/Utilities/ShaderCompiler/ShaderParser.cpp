@@ -21,56 +21,72 @@ namespace ShaderCompiler
 
 		// std::string-semantics position/substring helpers over StringView (Death's find returns a view,
 		// so these keep the index-based scanning logic byte-for-byte identical)
-		constexpr std::size_t Npos = ~std::size_t{0};
+		constexpr std::size_t Npos = ~std::size_t { 0 };
 
 		StringView Substr(StringView s, std::size_t pos, std::size_t count = Npos)
 		{
 			std::size_t size = s.size();
-			if (pos > size) pos = size;
+			if (pos > size)
+				pos = size;
 			std::size_t avail = size - pos;
-			if (count > avail) count = avail;
+			if (count > avail)
+				count = avail;
 			return s.slice(pos, pos + count);
 		}
 
 		std::size_t Find(StringView s, char c, std::size_t pos = 0)
 		{
-			for (std::size_t size = s.size(); pos < size; pos++) if (s[pos] == c) return pos;
+			for (std::size_t size = s.size(); pos < size; pos++)
+				if (s[pos] == c)
+					return pos;
 			return Npos;
 		}
 
 		std::size_t Find(StringView s, StringView needle, std::size_t pos = 0)
 		{
 			std::size_t size = s.size(), n = needle.size();
-			if (n == 0) return (pos <= size ? pos : Npos);
-			if (n > size) return Npos;
+			if (n == 0)
+				return (pos <= size ? pos : Npos);
+			if (n > size)
+				return Npos;
 			for (std::size_t last = size - n; pos <= last; pos++) {
-				if (std::memcmp(s.data() + pos, needle.data(), n) == 0) return pos;
-				if (pos == last) break;
+				if (std::memcmp(s.data() + pos, needle.data(), n) == 0)
+					return pos;
+				if (pos == last)
+					break;
 			}
 			return Npos;
 		}
 
 		std::size_t Rfind(StringView s, char c)
 		{
-			for (std::size_t i = s.size(); i > 0; i--) if (s[i - 1] == c) return i - 1;
+			for (std::size_t i = s.size(); i > 0; i--)
+				if (s[i - 1] == c)
+					return i - 1;
 			return Npos;
 		}
 
 		std::size_t FindFirstNotOf(StringView s, StringView set, std::size_t pos = 0)
 		{
-			for (std::size_t size = s.size(); pos < size; pos++) if (!set.contains(s[pos])) return pos;
+			for (std::size_t size = s.size(); pos < size; pos++)
+				if (!set.contains(s[pos]))
+					return pos;
 			return Npos;
 		}
 
 		std::size_t FindLastNotOf(StringView s, StringView set)
 		{
-			for (std::size_t i = s.size(); i > 0; i--) if (!set.contains(s[i - 1])) return i - 1;
+			for (std::size_t i = s.size(); i > 0; i--)
+				if (!set.contains(s[i - 1]))
+					return i - 1;
 			return Npos;
 		}
 
 		std::size_t FindLastOf(StringView s, StringView set)
 		{
-			for (std::size_t i = s.size(); i > 0; i--) if (set.contains(s[i - 1])) return i - 1;
+			for (std::size_t i = s.size(); i > 0; i--)
+				if (set.contains(s[i - 1]))
+					return i - 1;
 			return Npos;
 		}
 
@@ -282,7 +298,7 @@ namespace ShaderCompiler
 						t.Text = Substr(s, begin, i - begin);
 						String digits = t.Text;
 						while (!digits.empty() && !IsDigit(digits[digits.size() - 1])) {
-							digits = String{digits.prefix(digits.size() - 1)};
+							digits = String { digits.prefix(digits.size() - 1) };
 						}
 						if (!ParseDecimal(digits, t.Value)) {
 							return Fail(_diag, "invalid integer literal '"_s + t.Text + "' in #if expression"_s, _line);
@@ -308,10 +324,10 @@ namespace ShaderCompiler
 						char single = s[i];
 						if (single == '!' || single == '<' || single == '>' || single == '(' || single == ')' ||
 							single == '+' || single == '-' || single == '*' || single == '/' || single == '%') {
-							t.Text = String{&single, 1};
+							t.Text = String { &single, 1 };
 							i++;
 						} else {
-							return Fail(_diag, "unexpected character '"_s + String{&single, 1} + "' in #if expression"_s, _line);
+							return Fail(_diag, "unexpected character '"_s + String { &single, 1 } + "' in #if expression"_s, _line);
 						}
 					}
 					_tokens.push_back(t);
@@ -563,7 +579,7 @@ namespace ShaderCompiler
 			}
 			if (c == '\n') {
 				SourceLine l;
-				l.Text = String{current.data(), current.size()};
+				l.Text = String { current.data(), current.size() };
 				l.Line = lineNumber;
 				raw.push_back(Death::move(l));
 				arrayResize(current, 0);
@@ -574,7 +590,7 @@ namespace ShaderCompiler
 			i++;
 		}
 		SourceLine last;
-		last.Text = String{current.data(), current.size()};
+		last.Text = String { current.data(), current.size() };
 		last.Line = lineNumber;
 		raw.push_back(Death::move(last));
 
@@ -583,7 +599,7 @@ namespace ShaderCompiler
 		while (j < raw.size()) {
 			SourceLine merged = raw[j];
 			while (!merged.Text.empty() && merged.Text[merged.Text.size() - 1] == '\\' && j + 1 < raw.size()) {
-				merged.Text = String{merged.Text.prefix(merged.Text.size() - 1)};
+				merged.Text = String { merged.Text.prefix(merged.Text.size() - 1) };
 				j++;
 				merged.Text = merged.Text + raw[j].Text;
 			}
@@ -610,7 +626,7 @@ namespace ShaderCompiler
 						i++;
 					}
 				} else if (i + 1 < text.size() && text[i] == '/' && text[i + 1] == '/') {
-					text = String{text.prefix(i)};
+					text = String { text.prefix(i) };
 					break;
 				} else if (i + 1 < text.size() && text[i] == '/' && text[i + 1] == '*') {
 					text[i] = ' ';
@@ -677,7 +693,7 @@ namespace ShaderCompiler
 		/** @brief Parsed "varying" declaration */
 		struct VaryingDecl
 		{
-			String Declaration;	// Declaration without the "varying"/"flat" keywords, e.g. "highp float vExtra"
+			String Declaration; // Declaration without the "varying"/"flat" keywords, e.g. "highp float vExtra"
 			bool Flat = false;
 			std::int32_t Line = 0;
 			// Backend selector of a varying wrapped in a global-scope "#ifdef/#ifndef SOFTWARE_RENDERER" or
@@ -693,7 +709,7 @@ namespace ShaderCompiler
 		/** @brief Parsed "attribute" declaration (lowered to a vertex-stage-only "in" global) */
 		struct AttributeDecl
 		{
-			String Declaration;	// Declaration without the "attribute" keyword, e.g. "layout(location = 0) vec2 aPosition"
+			String Declaration; // Declaration without the "attribute" keyword, e.g. "layout(location = 0) vec2 aPosition"
 			std::int32_t Line = 0;
 		};
 
@@ -702,7 +718,7 @@ namespace ShaderCompiler
 		{
 			String ProgramName;
 			String BatchedName;
-			String FragmentPrecision = "mediump";	// "precision mediump|highp;" directive (GL ES float precision of the fragment stage)
+			String FragmentPrecision = "mediump"; // "precision mediump|highp;" directive (GL ES float precision of the fragment stage)
 			SmallVector<VariantDirective, 0> Variants;
 			SmallVector<TextureDirective, 0> Textures;
 			std::uint32_t RenderModes = 0;
@@ -713,7 +729,7 @@ namespace ShaderCompiler
 			SmallVector<SourceLine, 0> FragmentBody;
 			SmallVector<FixedFunctionBlock, 0> FixedFunctionBlocks;
 			std::int32_t BatchedLine = 0;
-			bool CanvasItem = false;		// "shader_type canvas_item;" seen ("custom" is the default)
+			bool CanvasItem = false; // "shader_type canvas_item;" seen ("custom" is the default)
 			bool HasVertexBody = false;
 			bool HasFragmentBody = false;
 			// Backend macro of the global-scope conditional the vertex() entry sits in, empty when every backend
@@ -736,7 +752,7 @@ namespace ShaderCompiler
 		// fallback is the 64 KB uniform block budget divided by those 112 bytes.
 
 		constexpr char CanvasSpriteVsHead[] =
-R"GLSL(uniform mat4 uProjectionMatrix;
+			R"GLSL(uniform mat4 uProjectionMatrix;
 uniform mat4 uViewMatrix;
 
 layout (std140) uniform InstanceBlock
@@ -754,7 +770,7 @@ out highp float vPaletteOffset;
 )GLSL";
 
 		constexpr char CanvasBatchedVsHead[] =
-R"GLSL(uniform mat4 uProjectionMatrix;
+			R"GLSL(uniform mat4 uProjectionMatrix;
 uniform mat4 uViewMatrix;
 
 struct Instance
@@ -780,7 +796,7 @@ out highp float vPaletteOffset;
 )GLSL";
 
 		constexpr char CanvasSpriteVsMain[] =
-R"GLSL(void main()
+			R"GLSL(void main()
 {
 	vec2 aPosition = vec2(1.0 - float(gl_VertexID >> 1), float(gl_VertexID % 2));
 	vec4 position = vec4(aPosition.x * spriteSize.x, aPosition.y * spriteSize.y, 0.0, 1.0);
@@ -793,7 +809,7 @@ R"GLSL(void main()
 )GLSL";
 
 		constexpr char CanvasBatchedVsMain[] =
-R"GLSL(void main()
+			R"GLSL(void main()
 {
 	vec2 aPosition = vec2(1.0 - float(((gl_VertexID + 2) / 3) % 2), 1.0 - float(((gl_VertexID + 1) / 3) % 2));
 	vec4 position = vec4(aPosition.x * i.spriteSize.x, aPosition.y * i.spriteSize.y, 0.0, 1.0);
@@ -921,7 +937,7 @@ R"GLSL(void main()
 				}
 				src.BatchedName = Death::move(name);
 				src.BatchedLine = lineNumber;
-			} else {	// "variant"
+			} else { // "variant"
 				// "variant <NAME>;", or "variant <A> + <B>;" - one more variant that defines all of the variants it
 				// names, "A_B" (variants are never combined otherwise)
 				SmallVector<String, 0> parts;
@@ -1074,13 +1090,14 @@ R"GLSL(void main()
 			bool seenShaderType = false;
 			bool seenPrecision = false;
 			std::int32_t globalDepth = 0;
-			std::int32_t capturing = 0;			// 0 = none, 1 = vertex(), 2 = fragment(), 3 = fixed_function(...)
+			std::int32_t capturing = 0; // 0 = none, 1 = vertex(), 2 = fragment(), 3 = fixed_function(...)
 			std::int32_t captureDepth = 0;
 			std::int32_t captureStartLine = 0;
 			bool awaitingBrace = false;
 			// Human-readable label of the entry being captured, for diagnostics only
 			auto captureLabel = [&capturing]() {
-				return (capturing == 1 ? "vertex()" : capturing == 2 ? "fragment()" : "fixed_function(...)");
+				return (capturing == 1 ? "vertex()" : capturing == 2 ? "fragment()"
+																	 : "fixed_function(...)");
 			};
 			// Global-scope "#ifdef/#ifndef SOFTWARE_RENDERER" (or LOW_POWER_GPU) conditional around varying
 			// declarations: the macro of the conditional being parsed (empty outside one), which side of it
@@ -1100,8 +1117,8 @@ R"GLSL(void main()
 
 				// Inside a vertex()/fragment()/fixed_function() body — capture verbatim until the matching brace
 				if (capturing != 0) {
-					SmallVectorImpl<SourceLine>& body = (capturing == 1 ? src.VertexBody :
-						capturing == 2 ? src.FragmentBody : src.FixedFunctionBlocks.back().Lines);
+					SmallVectorImpl<SourceLine>& body = (capturing == 1 ? src.VertexBody : capturing == 2 ? src.FragmentBody
+																										  : src.FixedFunctionBlocks.back().Lines);
 					std::size_t bodyBegin = 0;
 					if (awaitingBrace) {
 						std::size_t open = FindFirstNotOf(bare, " \t");
@@ -1214,7 +1231,7 @@ R"GLSL(void main()
 					}
 				}
 				if (!backendVaryingMacro.empty() && Trim(bare).empty()) {
-					continue;		// Comment-only or blank lines inside the conditional are dropped with it
+					continue; // Comment-only or blank lines inside the conditional are dropped with it
 				}
 
 				std::size_t cursor = 0;
@@ -1227,7 +1244,8 @@ R"GLSL(void main()
 						backendVaryingMacro == "LOW_POWER_GPU" && backendVaryingDefined && src.CanvasItem);
 					if (!lowPowerVertex) {
 						return Fail(diag, "a global-scope "_s + backendVaryingMacro + " conditional may only contain varying "
-							"declarations (and, on the LOW_POWER_GPU side of a canvas_item shader, the vertex() entry)"_s, line.Line);
+																					  "declarations (and, on the LOW_POWER_GPU side of a canvas_item shader, the vertex() entry)"_s,
+							line.Line);
 					}
 				}
 
@@ -1369,7 +1387,7 @@ R"GLSL(void main()
 							cursor++;
 						}
 						if (!afterComma && cursor < bare.size() && bare[cursor] == ')') {
-							break;		// Empty parentheses — the generic block
+							break; // Empty parentheses — the generic block
 						}
 						String target = WordAt(bare, cursor);
 						if (target.empty()) {
@@ -1420,15 +1438,12 @@ R"GLSL(void main()
 					// implementation, and which one won would depend on declaration order.
 					for (const FixedFunctionBlock& block : src.FixedFunctionBlocks) {
 						if (targets.empty() && block.Targets.empty()) {
-							return Fail(diag, "duplicate \"void fixed_function()\" block - the generic block is already declared on line "_s +
-								Death::format("{}", block.Line), line.Line);
+							return Fail(diag, "duplicate \"void fixed_function()\" block - the generic block is already declared on line "_s + Death::format("{}", block.Line), line.Line);
 						}
 						for (FixedFunctionTarget claimed : block.Targets) {
 							for (FixedFunctionTarget listed : targets) {
 								if (claimed == listed) {
-									return Fail(diag, "duplicate \"void fixed_function("_s + FixedFunctionTargetName(listed) +
-										")\" block - the "_s + FixedFunctionTargetName(listed) + " target is already claimed by the block on line "_s +
-										Death::format("{}", block.Line), line.Line);
+									return Fail(diag, "duplicate \"void fixed_function("_s + FixedFunctionTargetName(listed) + ")\" block - the "_s + FixedFunctionTargetName(listed) + " target is already claimed by the block on line "_s + Death::format("{}", block.Line), line.Line);
 								}
 							}
 						}
@@ -1729,7 +1744,7 @@ R"GLSL(void main()
 					previous = c;
 					i++;
 				}
-				line.Text = String{out.data(), out.size()};
+				line.Text = String { out.data(), out.size() };
 			}
 			return true;
 		}
@@ -1740,9 +1755,9 @@ R"GLSL(void main()
 		struct FunctionDef
 		{
 			String Name;
-			std::size_t StartLine = 0;		// Index of the line where the definition (return type) starts
+			std::size_t StartLine = 0; // Index of the line where the definition (return type) starts
 			std::size_t StartCol = 0;
-			std::size_t EndLine = 0;		// Index of the line holding the closing '}' of the body
+			std::size_t EndLine = 0; // Index of the line holding the closing '}' of the body
 			std::size_t EndCol = 0;
 		};
 
@@ -1756,7 +1771,13 @@ R"GLSL(void main()
 		bool ScanFunctionDefinitions(const SmallVectorImpl<SourceLine>& stripped, SmallVectorImpl<FunctionDef>& defs)
 		{
 			constexpr std::size_t NoLine = std::size_t(-1);
-			enum class Mode { TopLevel, Parens, AwaitBrace, Body };
+			enum class Mode
+			{
+				TopLevel,
+				Parens,
+				AwaitBrace,
+				Body
+			};
 
 			Mode mode = Mode::TopLevel;
 			std::int32_t depth = 0;
@@ -1957,7 +1978,7 @@ R"GLSL(void main()
 
 				SmallVector<FunctionDef, 0> defs;
 				if (!ScanFunctionDefinitions(stripped, defs)) {
-					return;		// Unbalanced/unscannable stream — leave the text untouched
+					return; // Unbalanced/unscannable stream — leave the text untouched
 				}
 
 				// Group definitions by name (overloads share fate)
@@ -2005,12 +2026,12 @@ R"GLSL(void main()
 						t = t.prefix(def->StartCol) + t.exceptPrefix(def->EndCol + 1);
 					} else {
 						if (!lastWhole) {
-							lines[def->EndLine].Text = String{lines[def->EndLine].Text.exceptPrefix(def->EndCol + 1)};
+							lines[def->EndLine].Text = String { lines[def->EndLine].Text.exceptPrefix(def->EndCol + 1) };
 							lines.erase(lines.begin() + def->StartLine + 1, lines.begin() + def->EndLine);
 						} else {
 							lines.erase(lines.begin() + def->StartLine + 1, lines.begin() + def->EndLine + 1);
 						}
-						lines[def->StartLine].Text = String{lines[def->StartLine].Text.prefix(def->StartCol)};
+						lines[def->StartLine].Text = String { lines[def->StartLine].Text.prefix(def->StartCol) };
 					}
 				}
 			}
@@ -2022,8 +2043,8 @@ R"GLSL(void main()
 		struct InterfaceDecl
 		{
 			std::size_t LineIndex = 0;
-			SmallVector<String, 0> Names;										// All names declared on the line ("out vec2 a, b;")
-			SmallVector<std::pair<std::size_t, std::size_t>, 0> QualifierSpans;	// Column ranges of the qualifiers stripped on demotion
+			SmallVector<String, 0> Names; // All names declared on the line ("out vec2 a, b;")
+			SmallVector<std::pair<std::size_t, std::size_t>, 0> QualifierSpans; // Column ranges of the qualifiers stripped on demotion
 		};
 
 		/**
@@ -2085,7 +2106,7 @@ R"GLSL(void main()
 				word = Substr(bare, begin, pos - begin);
 			}
 			if (!IsIdentifier(word)) {
-				return false;		// The type
+				return false; // The type
 			}
 			while (true) {
 				while (pos < bare.size() && IsSpace(bare[pos])) {
@@ -2110,7 +2131,7 @@ R"GLSL(void main()
 				if (pos < bare.size() && bare[pos] == ';') {
 					return (FindFirstNotOf(bare, " \t", pos + 1) == Npos);
 				}
-				return false;		// Arrays, initializers and other tails are not touched
+				return false; // Arrays, initializers and other tails are not touched
 			}
 		}
 
@@ -2137,7 +2158,7 @@ R"GLSL(void main()
 					if (ParseInterfaceDeclLine(text, direction, decl)) {
 						decl.LineIndex = i;
 						decls.push_back(Death::move(decl));
-						continue;	// A matched declaration line contains no braces
+						continue; // A matched declaration line contains no braces
 					}
 				}
 				for (char c : text) {
@@ -2252,7 +2273,7 @@ R"GLSL(void main()
 		*/
 		bool ScanPureExpression(const SmallVectorImpl<SourceLine>& stripped, std::size_t& li, std::size_t& pos, char terminator)
 		{
-			SmallVector<bool, 0> callArgs;		// One entry per open '('/'[' — true = whitelisted call argument list
+			SmallVector<bool, 0> callArgs; // One entry per open '('/'[' — true = whitelisted call argument list
 			while (true) {
 				if (!SkipStatementWhitespace(stripped, li, pos)) {
 					return false;
@@ -2263,7 +2284,7 @@ R"GLSL(void main()
 					return true;
 				}
 				if (c == '#' || c == '{' || c == '}' || c == ';') {
-					return false;		// ';' here means the ']' terminator was never reached
+					return false; // ';' here means the ']' terminator was never reached
 				}
 				if (IsIdentStart(c)) {
 					std::size_t begin = pos;
@@ -2298,31 +2319,31 @@ R"GLSL(void main()
 				}
 				if (c == ',') {
 					if (callArgs.empty() || !callArgs.back()) {
-						return false;	// Comma operator (or a comma outside whitelisted call arguments)
+						return false; // Comma operator (or a comma outside whitelisted call arguments)
 					}
 					pos++;
 					continue;
 				}
 				if (c == '+' || c == '-') {
 					if (pos + 1 < text.size() && (text[pos + 1] == c || text[pos + 1] == '=')) {
-						return false;	// Increment/decrement or compound assignment
+						return false; // Increment/decrement or compound assignment
 					}
 					pos++;
 					continue;
 				}
 				if (c == '*' || c == '/' || c == '%' || c == '^') {
 					if (pos + 1 < text.size() && text[pos + 1] == '=') {
-						return false;	// Compound assignment
+						return false; // Compound assignment
 					}
 					pos++;
 					continue;
 				}
 				if (c == '&' || c == '|') {
 					if (pos + 1 < text.size() && text[pos + 1] == '=') {
-						return false;	// Compound assignment
+						return false; // Compound assignment
 					}
 					if (pos + 1 < text.size() && text[pos + 1] == c) {
-						pos += 2;		// Logical && / ||
+						pos += 2; // Logical && / ||
 						continue;
 					}
 					pos++;
@@ -2331,13 +2352,13 @@ R"GLSL(void main()
 				if (c == '<' || c == '>') {
 					if (pos + 1 < text.size() && text[pos + 1] == c) {
 						if (pos + 2 < text.size() && text[pos + 2] == '=') {
-							return false;	// Shift-assignment
+							return false; // Shift-assignment
 						}
-						pos += 2;		// Shift
+						pos += 2; // Shift
 						continue;
 					}
 					if (pos + 1 < text.size() && text[pos + 1] == '=') {
-						pos += 2;		// Comparison
+						pos += 2; // Comparison
 						continue;
 					}
 					pos++;
@@ -2345,7 +2366,7 @@ R"GLSL(void main()
 				}
 				if (c == '!') {
 					if (pos + 1 < text.size() && text[pos + 1] == '=') {
-						pos += 2;		// Comparison
+						pos += 2; // Comparison
 						continue;
 					}
 					pos++;
@@ -2353,16 +2374,16 @@ R"GLSL(void main()
 				}
 				if (c == '=') {
 					if (pos + 1 < text.size() && text[pos + 1] == '=') {
-						pos += 2;		// Equality comparison
+						pos += 2; // Equality comparison
 						continue;
 					}
-					return false;		// Nested assignment
+					return false; // Nested assignment
 				}
 				if (c == '.' || c == '?' || c == ':' || c == '~' || IsDigit(c)) {
 					pos++;
 					continue;
 				}
-				return false;			// Anything unrecognized — conservative
+				return false; // Anything unrecognized — conservative
 			}
 		}
 
@@ -2383,13 +2404,13 @@ R"GLSL(void main()
 				}
 				if (pos > 0) {
 					if (line != li && IsPreprocessorLine(text)) {
-						return false;	// The previous significant token is a preprocessor directive
+						return false; // The previous significant token is a preprocessor directive
 					}
 					char c = text[pos - 1];
 					return (c == '{' || c == '}' || c == ';');
 				}
 				if (line == 0) {
-					return false;		// Start of the stream — not inside any function body
+					return false; // Start of the stream — not inside any function body
 				}
 				line--;
 				pos = stripped[line].Text.size();
@@ -2430,12 +2451,12 @@ R"GLSL(void main()
 					if (!ScanPureExpression(stripped, li, pos, ']')) {
 						return false;
 					}
-					pos++;		// Past the ']'
+					pos++; // Past the ']'
 					continue;
 				}
 				if (c == '=') {
 					if (pos + 1 < stripped[li].Text.size() && stripped[li].Text[pos + 1] == '=') {
-						return false;	// A comparison — the name is READ, not stored to
+						return false; // A comparison — the name is READ, not stored to
 					}
 					pos++;
 					if (!ScanPureExpression(stripped, li, pos, ';')) {
@@ -2445,7 +2466,7 @@ R"GLSL(void main()
 					endCol = pos;
 					return true;
 				}
-				return false;			// Compound assignment, a read or anything else
+				return false; // Compound assignment, a read or anything else
 			}
 		}
 
@@ -2489,7 +2510,7 @@ R"GLSL(void main()
 							continue;
 						}
 						if (i == declLine) {
-							continue;	// (a) its own declaration line
+							continue; // (a) its own declaration line
 						}
 						if (preprocessor || parenDepth != 0 || !IsStandaloneStatementStart(stripped, i, begin)) {
 							return false;
@@ -2666,12 +2687,12 @@ R"GLSL(void main()
 						t = t.prefix(extent.StartCol) + t.exceptPrefix(extent.EndCol + 1);
 					} else {
 						if (!lastWhole) {
-							lines[extent.EndLine].Text = String{lines[extent.EndLine].Text.exceptPrefix(extent.EndCol + 1)};
+							lines[extent.EndLine].Text = String { lines[extent.EndLine].Text.exceptPrefix(extent.EndCol + 1) };
 							lines.erase(lines.begin() + extent.StartLine + 1, lines.begin() + extent.EndLine);
 						} else {
 							lines.erase(lines.begin() + extent.StartLine + 1, lines.begin() + extent.EndLine + 1);
 						}
-						lines[extent.StartLine].Text = String{lines[extent.StartLine].Text.prefix(extent.StartCol)};
+						lines[extent.StartLine].Text = String { lines[extent.StartLine].Text.prefix(extent.StartCol) };
 					}
 				}
 			}
@@ -2682,19 +2703,19 @@ R"GLSL(void main()
 		/** @brief Kind of a removable global-scope declaration recognized by TrimUnusedUniforms */
 		enum class GlobalDeclKind : std::uint8_t
 		{
-			Define,			// "#define NAME ..." (object- or function-like) at unconditional global scope
-			DefineTrio,		// "#ifndef NAME" + "#define NAME ..." + "#endif" fallback block (removed as a unit)
-			LooseUniform,	// "uniform <type> <name>[, <name>...];" on a single line (samplers included)
-			Block,			// "layout (std140) uniform <BlockName> { ... } [instanceName];"
-			Struct			// "struct <Name> { ... };"
+			Define, // "#define NAME ..." (object- or function-like) at unconditional global scope
+			DefineTrio, // "#ifndef NAME" + "#define NAME ..." + "#endif" fallback block (removed as a unit)
+			LooseUniform, // "uniform <type> <name>[, <name>...];" on a single line (samplers included)
+			Block, // "layout (std140) uniform <BlockName> { ... } [instanceName];"
+			Struct // "struct <Name> { ... };"
 		};
 
 		/** @brief One global-scope declaration with its whole-line extent [StartLine..EndLine] in a stage line stream */
 		struct GlobalDecl
 		{
 			GlobalDeclKind Kind = GlobalDeclKind::Define;
-			SmallVector<String, 0> DeclaredNames;		// Reflection-rule keys (uniform names / the block name); empty = exempt (defines, structs)
-			SmallVector<String, 0> ReferenceNames;	// Names whose external references pin the declaration
+			SmallVector<String, 0> DeclaredNames; // Reflection-rule keys (uniform names / the block name); empty = exempt (defines, structs)
+			SmallVector<String, 0> ReferenceNames; // Names whose external references pin the declaration
 			std::size_t StartLine = 0;
 			std::size_t EndLine = 0;
 		};
@@ -2729,7 +2750,7 @@ R"GLSL(void main()
 		String ReadDeclWord(const SmallVectorImpl<SourceLine>& lines, std::size_t& li, std::size_t& pos)
 		{
 			if (!SkipDeclWhitespace(lines, li, pos)) {
-				return String{};
+				return String {};
 			}
 			const String& text = lines[li].Text;
 			std::size_t begin = pos;
@@ -2813,7 +2834,7 @@ R"GLSL(void main()
 						arrayAppend(cleaned, list[c]);
 					}
 				}
-				StringView cleanedView{cleaned.data(), cleaned.size()};
+				StringView cleanedView { cleaned.data(), cleaned.size() };
 				String name = LastIdentifier(cleanedView);
 				if (!IsIdentifier(name)) {
 					return false;
@@ -3021,7 +3042,7 @@ R"GLSL(void main()
 												arrayAppend(body, Substr(memberText, from, to - from));
 												arrayAppend(body, ' ');
 											}
-											StringView bodyView{body.data(), body.size()};
+											StringView bodyView { body.data(), body.size() };
 											GlobalDecl decl;
 											decl.Kind = GlobalDeclKind::Block;
 											decl.DeclaredNames.push_back(blockName);
@@ -3121,7 +3142,7 @@ R"GLSL(void main()
 					stripped[s].assign(*stageLines[s]);
 					ShaderParser::StripComments(stripped[s]);
 					if (!ScanGlobalDeclarations(stripped[s], decls[s])) {
-						return;		// Unbalanced/unscannable stream — leave both stages untouched
+						return; // Unbalanced/unscannable stream — leave both stages untouched
 					}
 				}
 
@@ -3187,7 +3208,9 @@ R"GLSL(void main()
 					}
 					anyRemoved = true;
 					// Remove in descending position order so earlier extents stay valid
-					std::sort(extents.begin(), extents.end(), [](const auto& a, const auto& b) { return a.first > b.first; });
+					std::sort(extents.begin(), extents.end(), [](const auto& a, const auto& b) {
+						return a.first > b.first;
+					});
 					SmallVectorImpl<SourceLine>& lines = *stageLines[s];
 					for (const auto& extent : extents) {
 						lines.erase(lines.begin() + extent.first, lines.begin() + extent.second + 1);
@@ -3267,7 +3290,9 @@ R"GLSL(void main()
 
 			// Removed in descending position order so earlier extents stay valid, collapsing the blank seam a
 			// removed declaration leaves behind exactly like TrimUnusedUniforms() does
-			std::sort(extents.begin(), extents.end(), [](const auto& a, const auto& b) { return a.first > b.first; });
+			std::sort(extents.begin(), extents.end(), [](const auto& a, const auto& b) {
+				return a.first > b.first;
+			});
 			for (const auto& extent : extents) {
 				lines.erase(lines.begin() + extent.first, lines.begin() + extent.second + 1);
 				while (extent.first < lines.size() && Trim(lines[extent.first].Text).empty() &&
@@ -3292,7 +3317,7 @@ R"GLSL(void main()
 			ShaderParser::StripComments(stripped);
 			SmallVector<FunctionDef, 0> defs;
 			if (!ScanFunctionDefinitions(stripped, defs)) {
-				return;		// Unbalanced/unscannable stream — leave the text untouched
+				return; // Unbalanced/unscannable stream — leave the text untouched
 			}
 			for (const FunctionDef& def : defs) {
 				SmallVector<FoldInputLine, 0> region;
@@ -3311,14 +3336,14 @@ R"GLSL(void main()
 					std::size_t length = it->End - it->Begin;
 					if (it->End > original.size() ||
 						Substr(original, it->Begin, length) != Substr(stripped[it->Index].Text, it->Begin, length)) {
-						continue;	// A comment overlaps the span
+						continue; // A comment overlaps the span
 					}
 					String replacement = it->Replacement;
 					if (replacement[0] == '-' && it->Begin > 0 &&
 						(original[it->Begin - 1] == '-' || original[it->Begin - 1] == '+')) {
-						replacement = " "_s + replacement;	// "x--2" would tokenize as a decrement
+						replacement = " "_s + replacement; // "x--2" would tokenize as a decrement
 					}
-					original = Substr(original, 0, it->Begin) + StringView{replacement} + Substr(original, it->Begin + length);
+					original = Substr(original, 0, it->Begin) + StringView { replacement } + Substr(original, it->Begin + length);
 				}
 			}
 		}
@@ -3388,14 +3413,14 @@ R"GLSL(void main()
 		/** @brief What folding the owned macros out of one "#if"/"#elif" expression left behind */
 		enum class FoldedCondition
 		{
-			Untouched,		// The expression names no owned macro - the conditional passes through verbatim
-			False,			// Determined: false whatever the macros this pass does not own turn out to be
-			True,			// Determined: true likewise
-			Rewritten		// Partially folded - the owned macros are gone, the rest of the expression survives
+			Untouched, // The expression names no owned macro - the conditional passes through verbatim
+			False, // Determined: false whatever the macros this pass does not own turn out to be
+			True, // Determined: true likewise
+			Rewritten // Partially folded - the owned macros are gone, the rest of the expression survives
 		};
 
 		/** Invokes @p callback with the [begin, end) offsets of every whole-identifier occurrence in @p s */
-		template<class Callback>
+		template <class Callback>
 		void ForEachIdentifier(StringView s, Callback&& callback)
 		{
 			std::size_t i = 0;
@@ -3526,7 +3551,7 @@ R"GLSL(void main()
 					previous = id[id.size() - 1];
 				}
 			}
-			return String{out.data(), out.size()};
+			return String { out.data(), out.size() };
 		}
 
 		/**
@@ -3757,9 +3782,14 @@ R"GLSL(void main()
 
 			String rewritten;
 			switch (FoldCondition(rest, macros, rewritten)) {
-				case FoldedCondition::True: value = true; return true;
-				case FoldedCondition::False: value = false; return true;
-				default: return false;
+				case FoldedCondition::True:
+					value = true;
+					return true;
+				case FoldedCondition::False:
+					value = false;
+					return true;
+				default:
+					return false;
 			}
 		}
 
@@ -3785,8 +3815,8 @@ R"GLSL(void main()
 			struct OpenChain
 			{
 				std::size_t Opener;
-				bool Settled;			// A branch was already taken (or an "#else" reached), so the rest is dead
-				bool Unresolvable;		// An undetermined condition was reached before that
+				bool Settled; // A branch was already taken (or an "#else" reached), so the rest is dead
+				bool Unresolvable; // An undetermined condition was reached before that
 			};
 
 			SmallVector<OpenChain, 0> open;
@@ -3849,9 +3879,9 @@ R"GLSL(void main()
 
 			struct Cond
 			{
-				bool Stage;			// true = resolved stage conditional (its directive lines are removed)
-				bool Keep;			// Stage conditionals only — the current branch is the active one
-				bool SeenTaken;		// Stage conditionals only — an earlier branch of the chain was the active one
+				bool Stage; // true = resolved stage conditional (its directive lines are removed)
+				bool Keep; // Stage conditionals only — the current branch is the active one
+				bool SeenTaken; // Stage conditionals only — an earlier branch of the chain was the active one
 				bool SeenElse;
 				std::int32_t Line;
 			};
@@ -3866,7 +3896,7 @@ R"GLSL(void main()
 			SmallVector<SourceLine, 0> output;
 			output.reserve(lines.size());
 			SmallVector<Cond, 0> stack;
-			bool removed = false;		// The previous input line was removed (a directive or a dropped block line)
+			bool removed = false; // The previous input line was removed (a directive or a dropped block line)
 
 			auto dropping = [&stack]() {
 				for (const Cond& c : stack) {
@@ -3879,7 +3909,7 @@ R"GLSL(void main()
 
 			for (std::size_t index = 0; index < lines.size(); index++) {
 				const std::int32_t lineNumber = lines[index].Line;
-				String replacement;			// The folded spelling of a directive line that has to survive
+				String replacement; // The folded spelling of a directive line that has to survive
 				bool replaced = false;
 				StringView name, rest;
 				std::size_t hashPos = 0;
@@ -3930,7 +3960,7 @@ R"GLSL(void main()
 						}
 						if (folded != FoldedCondition::Untouched) {
 							replacement = FoldedDirectiveLine(lines[index].Text, hashPos, name,
-								determined ? (folded == FoldedCondition::True ? "1"_s : "0"_s) : StringView{rewritten});
+								determined ? (folded == FoldedCondition::True ? "1"_s : "0"_s) : StringView { rewritten });
 							replaced = true;
 						}
 					} else if (name == "else") {
@@ -4010,9 +4040,9 @@ R"GLSL(void main()
 		{
 			struct Cond
 			{
-				bool Resolved;		// true = a resolved backend conditional (its directive lines are removed)
-				bool Keep;			// Resolved conditionals only - the current branch is the active one
-				bool SeenTaken;		// Resolved conditionals only - an earlier branch of the chain was the active one
+				bool Resolved; // true = a resolved backend conditional (its directive lines are removed)
+				bool Keep; // Resolved conditionals only - the current branch is the active one
+				bool SeenTaken; // Resolved conditionals only - an earlier branch of the chain was the active one
 				bool SeenElse;
 			};
 
@@ -4026,7 +4056,7 @@ R"GLSL(void main()
 			SmallVector<SourceLine, 0> output;
 			output.reserve(lines.size());
 			SmallVector<Cond, 0> stack;
-			bool removed = false;		// The previous input line was removed (a directive or a dropped block line)
+			bool removed = false; // The previous input line was removed (a directive or a dropped block line)
 
 			auto dropping = [&stack]() {
 				for (const Cond& c : stack) {
@@ -4038,7 +4068,7 @@ R"GLSL(void main()
 			};
 
 			for (std::size_t index = 0; index < lines.size(); index++) {
-				String replacement;			// The folded spelling of a directive line that has to survive
+				String replacement; // The folded spelling of a directive line that has to survive
 				bool replaced = false;
 				StringView name, rest;
 				std::size_t hashPos = 0;
@@ -4058,7 +4088,7 @@ R"GLSL(void main()
 						stack.push_back({ false, true, false, false });
 					} else if (name == "if" || name == "elif") {
 						if (name == "elif" && stack.empty()) {
-							return;		// Malformed - leave untouched
+							return; // Malformed - leave untouched
 						}
 						String rewritten;
 						const FoldedCondition folded = FoldCondition(rest, macros, rewritten);
@@ -4068,7 +4098,7 @@ R"GLSL(void main()
 							// ResolveStageConditionals for why an undetermined condition is false here
 							Cond& top = stack.back();
 							if (top.SeenElse) {
-								return;	// Malformed - leave untouched
+								return; // Malformed - leave untouched
 							}
 							top.Keep = (!top.SeenTaken && folded == FoldedCondition::True);
 							top.SeenTaken = (top.SeenTaken || top.Keep);
@@ -4086,17 +4116,17 @@ R"GLSL(void main()
 						}
 						if (folded != FoldedCondition::Untouched) {
 							replacement = FoldedDirectiveLine(lines[index].Text, hashPos, name,
-								determined ? (folded == FoldedCondition::True ? "1"_s : "0"_s) : StringView{rewritten});
+								determined ? (folded == FoldedCondition::True ? "1"_s : "0"_s) : StringView { rewritten });
 							replaced = true;
 						}
 					} else if (name == "else") {
 						if (stack.empty()) {
-							return;		// Malformed - leave untouched
+							return; // Malformed - leave untouched
 						}
 						Cond& top = stack.back();
 						if (top.Resolved) {
 							if (top.SeenElse) {
-								return;	// Malformed - leave untouched
+								return; // Malformed - leave untouched
 							}
 							top.Keep = !top.SeenTaken;
 							top.SeenTaken = true;
@@ -4106,7 +4136,7 @@ R"GLSL(void main()
 						}
 					} else if (name == "endif") {
 						if (stack.empty()) {
-							return;		// Malformed - leave untouched
+							return; // Malformed - leave untouched
 						}
 						bool wasBackend = stack.back().Resolved;
 						stack.pop_back();
@@ -4130,12 +4160,12 @@ R"GLSL(void main()
 				if (replaced) {
 					output.push_back({ Death::move(replacement), lines[index].Line });
 				} else {
-					output.push_back(lines[index]);	// A copy - a malformed stream must leave "lines" fully intact
+					output.push_back(lines[index]); // A copy - a malformed stream must leave "lines" fully intact
 				}
 			}
 
 			if (!stack.empty()) {
-				return;					// Unterminated conditional - leave untouched
+				return; // Unterminated conditional - leave untouched
 			}
 			lines = Death::move(output);
 		}
@@ -4312,7 +4342,7 @@ R"GLSL(void main()
 			}
 			loweredDirective = directive;
 			// Trimmed because the rebuilt line puts its own separator between directive and expression
-			loweredExpression = Trim(StringView{out.data(), out.size()});
+			loweredExpression = Trim(StringView { out.data(), out.size() });
 			return true;
 		}
 
@@ -4389,14 +4419,14 @@ R"GLSL(void main()
 			std::int32_t braceDepth = 0;
 			std::int32_t condDepth = 0;
 			bool returnSeen = false;
-			bool inAssignmentTail = false;		// Between the qualifying "COLOR =" and its terminating ';'
+			bool inAssignmentTail = false; // Between the qualifying "COLOR =" and its terminating ';'
 
 			for (const SourceLine& line : stripped) {
 				StringView text = line.Text;
 				std::size_t first = FindFirstNotOf(text, " \t"_s);
 				if (first != Npos && text[first] == '#') {
 					if (inAssignmentTail) {
-						return false;	// A conditional splits the statement - conservative
+						return false; // A conditional splits the statement - conservative
 					}
 					std::size_t p = first + 1;
 					while (p < text.size() && IsSpace(text[p])) {
@@ -4411,7 +4441,7 @@ R"GLSL(void main()
 						condDepth++;
 					} else if (name == "endif") {
 						if (condDepth == 0) {
-							return false;	// Unbalanced within the body - conservative
+							return false; // Unbalanced within the body - conservative
 						}
 						condDepth--;
 					}
@@ -4437,7 +4467,7 @@ R"GLSL(void main()
 						std::size_t length = i - begin;
 						if (length == 5 && Substr(text, begin, 5) == "COLOR"_s) {
 							if (inAssignmentTail) {
-								return false;	// The right-hand side reads the default back
+								return false; // The right-hand side reads the default back
 							}
 							if (returnSeen || braceDepth != 0 || condDepth != 0) {
 								return false;
@@ -4462,7 +4492,7 @@ R"GLSL(void main()
 						continue;
 					}
 					if (c == ';' && inAssignmentTail) {
-						return true;	// The statement completed without reading COLOR - the default is dead
+						return true; // The statement completed without reading COLOR - the default is dead
 					}
 					if (c == '{') {
 						braceDepth++;
@@ -4476,7 +4506,7 @@ R"GLSL(void main()
 					i++;
 				}
 			}
-			return false;		// No qualifying occurrence (or an unterminated statement) - keep the init
+			return false; // No qualifying occurrence (or an unterminated statement) - keep the init
 		}
 
 		/**
@@ -4823,8 +4853,9 @@ R"GLSL(void main()
 		{
 			std::int32_t foundLine;
 			if ((FindIdentifier(src.FragmentBody, "TEXTURE", foundLine) ||
-				FindIdentifier(src.VertexBody, "TEXTURE", foundLine) ||
-				FindIdentifier(src.Globals, "TEXTURE", foundLine)) && !DeclaresUniform(src.Globals, "uTexture")) {
+					FindIdentifier(src.VertexBody, "TEXTURE", foundLine) ||
+					FindIdentifier(src.Globals, "TEXTURE", foundLine)) &&
+				!DeclaresUniform(src.Globals, "uTexture")) {
 				implicitTexture = true;
 				TextureDirective directive;
 				directive.Name = "uTexture";
@@ -4867,7 +4898,7 @@ R"GLSL(void main()
 
 	void Preprocessor::DefineVariant(StringView define)
 	{
-		for (std::size_t begin = 0; begin < define.size(); ) {
+		for (std::size_t begin = 0; begin < define.size();) {
 			std::size_t end = begin;
 			while (end < define.size() && define[end] != ' ') {
 				end++;
@@ -4922,7 +4953,7 @@ R"GLSL(void main()
 					StringView id = Substr(current, begin, i - begin);
 					auto it = _macros.find(id);
 					if (it != _macros.end() && !it->second.FunctionLike) {
-						arrayAppend(next, StringView{it->second.Body});
+						arrayAppend(next, StringView { it->second.Body });
 						changed = true;
 						previous = ' ';
 					} else {
@@ -4935,7 +4966,7 @@ R"GLSL(void main()
 					i++;
 				}
 			}
-			current = String{next.data(), next.size()};
+			current = String { next.data(), next.size() };
 			if (!changed) {
 				break;
 			}
@@ -5156,7 +5187,7 @@ R"GLSL(void main()
 			lineStart = lineEnd + 1;
 		}
 
-		content = String{result.data(), result.size()};
+		content = String { result.data(), result.size() };
 		return true;
 	}
 
@@ -5265,7 +5296,7 @@ R"GLSL(void main()
 		}
 		ShaderParser::StripComments(stripped);
 		Array<char> out;
-		for (std::size_t begin = 0; begin < define.size(); ) {
+		for (std::size_t begin = 0; begin < define.size();) {
 			std::size_t end = begin;
 			while (end < define.size() && define[end] != ' ') {
 				end++;
@@ -5298,6 +5329,6 @@ R"GLSL(void main()
 				arrayAppend(out, '\n');
 			}
 		}
-		return String{out.data(), out.size()};
+		return String { out.data(), out.size() };
 	}
 }

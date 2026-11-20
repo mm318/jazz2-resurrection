@@ -41,7 +41,8 @@ namespace Jazz2::UI::Menu
 		void SetGameMode(Jazz2::Multiplayer::MpGameMode value);
 
 	private:
-		enum class Item {
+		enum class Item
+		{
 			Character,
 			GameMode,
 #if defined(DEATH_TARGET_PSP)
@@ -55,7 +56,8 @@ namespace Jazz2::UI::Menu
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
-		struct ItemData {
+		struct ItemData
+		{
 			String Name;
 			float TouchY;
 		};

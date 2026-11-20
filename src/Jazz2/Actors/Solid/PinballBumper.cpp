@@ -74,18 +74,26 @@ namespace Jazz2::Actors::Solid
 
 					// Reset speed if the force acts on the other side
 					if (force.X < 0.0f) {
-						if (player->_speed.X > 0.0f) player->_speed.X = 0.0f;
-						if (player->_externalForce.X > 0.0f) player->_externalForce.X = 0.0f;
+						if (player->_speed.X > 0.0f)
+							player->_speed.X = 0.0f;
+						if (player->_externalForce.X > 0.0f)
+							player->_externalForce.X = 0.0f;
 					} else if (force.X > 0.0f) {
-						if (player->_speed.X < 0.0f) player->_speed.X = 0.0f;
-						if (player->_externalForce.X < 0.0f) player->_externalForce.X = 0.0f;
+						if (player->_speed.X < 0.0f)
+							player->_speed.X = 0.0f;
+						if (player->_externalForce.X < 0.0f)
+							player->_externalForce.X = 0.0f;
 					}
 					if (force.Y < 0.0f) {
-						if (player->_speed.Y > 0.0f) player->_speed.Y = 0.0f;
-						if (player->_externalForce.Y > 0.0f) player->_externalForce.Y = 0.0f;
+						if (player->_speed.Y > 0.0f)
+							player->_speed.Y = 0.0f;
+						if (player->_externalForce.Y > 0.0f)
+							player->_externalForce.Y = 0.0f;
 					} else if (force.Y > 0.0f) {
-						if (player->_speed.Y < 0.0f) player->_speed.Y = 0.0f;
-						if (player->_externalForce.Y < 0.0f) player->_externalForce.Y = 0.0f;
+						if (player->_speed.Y < 0.0f)
+							player->_speed.Y = 0.0f;
+						if (player->_externalForce.Y < 0.0f)
+							player->_externalForce.Y = 0.0f;
 					}
 
 					player->_speed.X += force.X * 0.4f;

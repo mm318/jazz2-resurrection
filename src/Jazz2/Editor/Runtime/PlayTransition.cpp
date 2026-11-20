@@ -150,8 +150,14 @@ namespace Jazz2::Editor
 			Vector2f direction(std::cos(angle), std::sin(angle));
 			Vector2f inner = center + direction * innerRadius;
 			Vector2f outer = center + direction * outerRadius;
-			*v++ = inner.X; *v++ = inner.Y; *v++ = (byScreen ? inner.X / screenSize.X : innerU); *v++ = (byScreen ? inner.Y / screenSize.Y : 0.0f);
-			*v++ = outer.X; *v++ = outer.Y; *v++ = (byScreen ? outer.X / screenSize.X : outerU); *v++ = (byScreen ? outer.Y / screenSize.Y : 0.0f);
+			*v++ = inner.X;
+			*v++ = inner.Y;
+			*v++ = (byScreen ? inner.X / screenSize.X : innerU);
+			*v++ = (byScreen ? inner.Y / screenSize.Y : 0.0f);
+			*v++ = outer.X;
+			*v++ = outer.Y;
+			*v++ = (byScreen ? outer.X / screenSize.X : outerU);
+			*v++ = (byScreen ? outer.Y / screenSize.Y : 0.0f);
 		}
 
 		if (band.Command == nullptr) {

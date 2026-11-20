@@ -172,8 +172,7 @@ namespace Jazz2::Actors::Enemies
 		std::shared_ptr<Smoke> smoke = std::make_shared<Smoke>();
 		smoke->OnActivated(ActorActivationDetails(
 			_levelHandler,
-			Vector3i((std::int32_t)_pos.X - 26, (std::int32_t)_pos.Y - 18, _renderer.GetLayer() + 20)
-		));
+			Vector3i((std::int32_t)_pos.X - 26, (std::int32_t)_pos.Y - 18, _renderer.GetLayer() + 20)));
 		_levelHandler->AddActor(smoke);
 	}
 

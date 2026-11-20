@@ -30,7 +30,8 @@ namespace Jazz2::UI::Windows
 		explicit Dialog(StringView title, bool scrollContent = false);
 
 		/** @brief Returns the area for the content */
-		Stack* GetContent() const {
+		Stack* GetContent() const
+		{
 			return _content;
 		}
 		/**
@@ -133,8 +134,8 @@ namespace Jazz2::UI::Windows
 	/** @brief What a file dialog is for */
 	enum class FileDialogMode : std::uint8_t
 	{
-		Open,			/**< Opening an existing file */
-		Save			/**< Saving a file, a new name can be typed */
+		Open, /**< Opening an existing file */
+		Save /**< Saving a file, a new name can be typed */
 	};
 
 	/** @brief Place where files are looked for */

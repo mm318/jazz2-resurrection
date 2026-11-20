@@ -63,7 +63,7 @@ namespace Jazz2::Editor
 			if (!Read32(p, end, value)) {
 				return false;
 			}
-			tile = TileRef{ std::uint16_t(value & 0xFFFF), std::uint8_t((value >> 16) & 0xFF), std::uint8_t(value >> 24) };
+			tile = TileRef { std::uint16_t(value & 0xFFFF), std::uint8_t((value >> 16) & 0xFF), std::uint8_t(value >> 24) };
 			return true;
 		}
 
@@ -262,7 +262,7 @@ namespace Jazz2::Editor
 				for (TileRef* tile : { &owned.Written, &owned.Previous }) {
 					TileRef before = *tile;
 					if (!remap(*tile)) {
-						*tile = TileRef{};
+						*tile = TileRef {};
 					}
 					changed |= (*tile != before);
 				}

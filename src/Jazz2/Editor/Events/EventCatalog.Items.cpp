@@ -48,8 +48,7 @@ namespace Jazz2::Editor::EventCatalogParts
 			// TRANSLATORS: Parameter of an event in the event properties
 			BoolField(_x("editor", "Disappears"), 1, 0).WithDescription(_x("editor", "Disappears 8 seconds after it's knocked loose")),
 			// TRANSLATORS: Parameter of an event in the event properties
-			BoolField(_x("editor", "Flipped"), 1, 1).WithDescription(_x("editor", "Faces the other way"))
-				.MirroredX(MirrorMode::Toggle),
+			BoolField(_x("editor", "Flipped"), 1, 1).WithDescription(_x("editor", "Faces the other way")).MirroredX(MirrorMode::Toggle),
 			// TRANSLATORS: Parameter of an event in the event properties
 			BoolField(_x("editor", "Delayed"), 1, 2).WithDescription(_x("editor", "Can't be collected for the first 40 frames")),
 		};

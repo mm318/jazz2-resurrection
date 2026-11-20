@@ -8,21 +8,21 @@
 #include "../../nCine/Base/TimeStamp.h"
 
 #if defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DOXYGEN_GENERATING_OUTPUT)
-#	include <emscripten/fetch.h>
-#	include <emscripten/html5.h>
+#include <emscripten/fetch.h>
+#include <emscripten/html5.h>
 #elif defined(WITH_ONLINE_MULTIPLAYER) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	include "../../nCine/Threading/Thread.h"
+#include "../../nCine/Threading/Thread.h"
 // <mmeapi.h> included by "enet.h" still uses `far` macro
-#	define far
+#define far
 
-#	define ENET_FEATURE_ADDRESS_MAPPING
-#	if defined(DEATH_DEBUG)
-#		define ENET_DEBUG
-#	endif
-#	include <enet/enet.h>
+#define ENET_FEATURE_ADDRESS_MAPPING
+#if defined(DEATH_DEBUG)
+#define ENET_DEBUG
+#endif
+#include <enet/enet.h>
 
 // Undefine it again after include
-#	undef far
+#undef far
 #endif
 
 #include <atomic>
@@ -170,7 +170,7 @@ namespace Jazz2::Multiplayer
 		// Whether Stop() has run (it may be called before the destructor runs it again)
 		bool _stopped = false;
 		// Set by the discovery thread as its last act, read by HasFinished() on another one
-		std::atomic<bool> _finished{true};
+		std::atomic<bool> _finished { true };
 		std::weak_ptr<IServerStatusProvider> _statusProvider;
 		TimeStamp _lastOnlineRequestTime;
 		bool _onlineSuccess;
@@ -193,7 +193,7 @@ namespace Jazz2::Multiplayer
 		Thread _thread;
 		TimeStamp _lastLocalRequestTime;
 		ENetAddress _localMulticastAddress = {};
-#	if ENET_IPV6
+#if ENET_IPV6
 		// The IPv4 half of local discovery, which exists only where the transport itself is IPv6: an IPv4-only
 		// peer - every console, see ENET_IPV6=0 in the build - can neither join the multicast group above nor
 		// be reached through it, and a dual-stack socket cannot be relied on to send to a broadcast address.
@@ -205,7 +205,7 @@ namespace Jazz2::Multiplayer
 		TimeStamp _lastLocalRequestTimeV4;
 
 		static ENetSocket TryCreateLocalBroadcastSocket(ENetAddress& parsedAddress);
-#	endif
+#endif
 
 		static ENetSocket TryCreateLocalSocket(const char* multicastAddress, ENetAddress& parsedAddress);
 

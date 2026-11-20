@@ -211,9 +211,9 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::SPAZ_LEVEL_START, ConstantParamList(EventType::LevelStart, { 0x02 /*Spaz*/ }));
 		Add(JJ2Event::LORI_LEVEL_START, ConstantParamList(EventType::LevelStart, { 0x04 /*Lori*/ }));
 
-		Add(JJ2Event::MP_LEVEL_START, ParamIntToParamList(EventType::LevelStartMultiplayer, {{
-			{ JJ2ParamUInt, 2 }		// Team (JJ2+)
-		}}));
+		Add(JJ2Event::MP_LEVEL_START, ParamIntToParamList(EventType::LevelStartMultiplayer, { {
+																								{ JJ2ParamUInt, 2 } // Team (JJ2+)
+																							} }));
 
 		Add(JJ2Event::SAVE_POINT, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			// Green xmas-themed checkpoints for some levels
@@ -226,10 +226,11 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::SCENERY_DESTRUCT, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 10 },	// Empty
-				{ JJ2ParamUInt, 5 },	// Speed
-				{ JJ2ParamUInt, 4 }		// Weapon
-			}, eventParams);
+										   { JJ2ParamUInt, 10 }, // Empty
+										   { JJ2ParamUInt, 5 }, // Speed
+										   { JJ2ParamUInt, 4 } // Weapon
+									   },
+				eventParams);
 
 			if (eventParams[2] > 0) {
 				return { EventType::SceneryDestructSpeed, { (std::uint8_t)(eventParams[2] + 4) } };
@@ -255,9 +256,10 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::SCENERY_COLLAPSE, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 10},	// Wait Time
-				{ JJ2ParamUInt, 5 }		// FPS
-			}, eventParams);
+										   { JJ2ParamUInt, 10 }, // Wait Time
+										   { JJ2ParamUInt, 5 } // FPS
+									   },
+				eventParams);
 
 			std::uint16_t waitTime = ReadUint16(eventParams, 0) * 25;
 			return { EventType::SceneryCollapse, { (std::uint8_t)(waitTime & 0xff), (std::uint8_t)((waitTime >> 8) & 0xff), eventParams[1] } };
@@ -270,18 +272,24 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::MODIFIER_HURT, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamBool, 1 },	// Up (JJ2+)
-				{ JJ2ParamBool, 1 },	// Down (JJ2+)
-				{ JJ2ParamBool, 1 },	// Left (JJ2+)
-				{ JJ2ParamBool, 1 }		// Right (JJ2+)
-			}, eventParams);
+										   { JJ2ParamBool, 1 }, // Up (JJ2+)
+										   { JJ2ParamBool, 1 }, // Down (JJ2+)
+										   { JJ2ParamBool, 1 }, // Left (JJ2+)
+										   { JJ2ParamBool, 1 } // Right (JJ2+)
+									   },
+				eventParams);
 
 			Direction dir = Direction::None;
-			if (eventParams[0]) dir |= Direction::Up;
-			if (eventParams[1]) dir |= Direction::Down;
-			if (eventParams[2]) dir |= Direction::Left;
-			if (eventParams[3]) dir |= Direction::Right;
-			if (dir == Direction::None) dir |= Direction::Up;
+			if (eventParams[0])
+				dir |= Direction::Up;
+			if (eventParams[1])
+				dir |= Direction::Down;
+			if (eventParams[2])
+				dir |= Direction::Left;
+			if (eventParams[3])
+				dir |= Direction::Right;
+			if (dir == Direction::None)
+				dir |= Direction::Up;
 
 			return { EventType::ModifierHurt, { (std::uint8_t)dir } };
 		});
@@ -291,22 +299,21 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::MODIFIER_TUBE, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamInt, 7 },   // X Speed
-				{ JJ2ParamInt, 7 },   // Y Speed
-				{ JJ2ParamUInt, 1 },  // Trig Sample
-				{ JJ2ParamBool, 1 },  // BecomeNoclip (JJ2+)
-				{ JJ2ParamBool, 1 },  // Noclip Only (JJ2+)
-				{ JJ2ParamUInt, 3 }   // Wait Time (JJ2+)
-			}, eventParams);
+										   { JJ2ParamInt, 7 }, // X Speed
+										   { JJ2ParamInt, 7 }, // Y Speed
+										   { JJ2ParamUInt, 1 }, // Trig Sample
+										   { JJ2ParamBool, 1 }, // BecomeNoclip (JJ2+)
+										   { JJ2ParamBool, 1 }, // Noclip Only (JJ2+)
+										   { JJ2ParamUInt, 3 } // Wait Time (JJ2+)
+									   },
+				eventParams);
 
 			return { EventType::ModifierTube, { eventParams[0], eventParams[1], eventParams[5], eventParams[2], eventParams[3], eventParams[4] } };
 		});
 
 		Add(JJ2Event::MODIFIER_SLIDE, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
-			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 2 }
-			}, eventParams); // Strength
+			ConvertParamInt(jj2Params, { { JJ2ParamUInt, 2 } }, eventParams); // Strength
 
 			return { EventType::ModifierSlide, { eventParams[0] } };
 		});
@@ -386,10 +393,11 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::MODIFIER_SET_WATER, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 8 },	// Height (Tiles)
-				{ JJ2ParamBool, 1 },	// Instant [TODO]
-				{ JJ2ParamUInt, 2 }		// Lighting [TODO]
-			}, eventParams);
+										   { JJ2ParamUInt, 8 }, // Height (Tiles)
+										   { JJ2ParamBool, 1 }, // Instant [TODO]
+										   { JJ2ParamUInt, 2 } // Lighting [TODO]
+									   },
+				eventParams);
 
 			uint16_t waterLevel = eventParams[0] * 32;
 			return { EventType::ModifierSetWater, { (std::uint8_t)(waterLevel & 0xff), (std::uint8_t)((waterLevel >> 8) & 0xff), eventParams[1], eventParams[2] } };
@@ -398,9 +406,10 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::AREA_LIMIT_X_SCROLL, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 10 },	// Left (Tiles)
-				{ JJ2ParamUInt, 10 }	// Width (Tiles)
-			}, eventParams);
+										   { JJ2ParamUInt, 10 }, // Left (Tiles)
+										   { JJ2ParamUInt, 10 } // Width (Tiles)
+									   },
+				eventParams);
 
 			std::uint16_t left = ReadUint16(eventParams, 0);
 			std::uint16_t width = ReadUint16(eventParams, 2);
@@ -413,8 +422,9 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::AREA_ACTIVATE_BOSS, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 1 }		// Music
-			}, eventParams);
+										   { JJ2ParamUInt, 1 } // Music
+									   },
+				eventParams);
 
 			ConversionResult result = { EventType::AreaActivateBoss, { 'b', 'o', 's', 's', (std::uint8_t)('1' + eventParams[0]), '.', 'j', '2', 'b', '\0' } };
 			if (level != nullptr) {
@@ -426,11 +436,12 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::AREA_EOL, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamBool, 1 },	// Secret
-				{ JJ2ParamBool, 1 },	// Fast (JJ2+)
-				{ JJ2ParamUInt, 4 },	// TextID (JJ2+)
-				{ JJ2ParamUInt, 4 }		// Offset (JJ2+)
-			}, eventParams);
+										   { JJ2ParamBool, 1 }, // Secret
+										   { JJ2ParamBool, 1 }, // Fast (JJ2+)
+										   { JJ2ParamUInt, 4 }, // TextID (JJ2+)
+										   { JJ2ParamUInt, 4 } // Offset (JJ2+)
+									   },
+				eventParams);
 
 			if (eventParams[2] != 0) {
 				level->AddLevelTokenTextID(eventParams[2]);
@@ -441,11 +452,12 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::AREA_EOL_WARP, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamBool, 1 },	// Empty (JJ2+)
-				{ JJ2ParamBool, 1 },	// Fast (JJ2+)
-				{ JJ2ParamUInt, 4 },	// TextID (JJ2+)
-				{ JJ2ParamUInt, 4 }		// Offset (JJ2+)
-			}, eventParams);
+										   { JJ2ParamBool, 1 }, // Empty (JJ2+)
+										   { JJ2ParamBool, 1 }, // Fast (JJ2+)
+										   { JJ2ParamUInt, 4 }, // TextID (JJ2+)
+										   { JJ2ParamUInt, 4 } // Offset (JJ2+)
+									   },
+				eventParams);
 
 			if (eventParams[2] != 0) {
 				level->AddLevelTokenTextID(eventParams[2]);
@@ -456,10 +468,11 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::AREA_SECRET_WARP, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 10 },	// Coins
-				{ JJ2ParamUInt, 4 },	// TextID (JJ2+)
-				{ JJ2ParamUInt, 4 }		// Offset (JJ2+)
-			}, eventParams);
+										   { JJ2ParamUInt, 10 }, // Coins
+										   { JJ2ParamUInt, 4 }, // TextID (JJ2+)
+										   { JJ2ParamUInt, 4 } // Offset (JJ2+)
+									   },
+				eventParams);
 
 			// The coins take two bytes, the text is the third one
 			if (eventParams[2] != 0) {
@@ -473,8 +486,9 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::EOL_SIGN, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamBool, 1 }	// Secret
-			}, eventParams);
+										   { JJ2ParamBool, 1 } // Secret
+									   },
+				eventParams);
 
 			return { EventType::SignEOL, { (std::uint8_t)(eventParams[0] == 1 ? 4 : 1) } };
 		});
@@ -484,11 +498,12 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::AREA_TEXT, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 8 },	// Text
-				{ JJ2ParamBool, 1 },	// Vanish
-				{ JJ2ParamBool, 1 },	// AngelScript (JJ2+)
-				{ JJ2ParamUInt, 8 }		// Offset (JJ2+)
-			}, eventParams);
+										   { JJ2ParamUInt, 8 }, // Text
+										   { JJ2ParamBool, 1 }, // Vanish
+										   { JJ2ParamBool, 1 }, // AngelScript (JJ2+)
+										   { JJ2ParamUInt, 8 } // Offset (JJ2+)
+									   },
+				eventParams);
 
 			// JJ2+ minimap waypoint: a Text event with TextID >= 100 and AngelScript == 0 is an ordered
 			// track checkpoint (used for the minimap and race positioning), not a displayable text.
@@ -511,9 +526,10 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::AREA_NO_FIRE, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 2 },	// Set To (JJ2+)
-				{ JJ2ParamUInt, 2 }		// Var (JJ2+)
-			}, eventParams);
+										   { JJ2ParamUInt, 2 }, // Set To (JJ2+)
+										   { JJ2ParamUInt, 2 } // Var (JJ2+)
+									   },
+				eventParams);
 
 			// TODO: Gravity (1) and Invisibility (2) is not supported yet
 			if (eventParams[1] != 0) {
@@ -527,18 +543,19 @@ namespace Jazz2::Compatibility
 			return { EventType::AreaNoFire, { eventParams[0] } };
 		});
 
-		Add(JJ2Event::WATER_BLOCK, ParamIntToParamList(EventType::AreaWaterBlock, {{
-			{ JJ2ParamInt, 8 }	// Adjust Y
-		}}));
+		Add(JJ2Event::WATER_BLOCK, ParamIntToParamList(EventType::AreaWaterBlock, { {
+																					  { JJ2ParamInt, 8 } // Adjust Y
+																				  } }));
 
 		Add(JJ2Event::SNOW, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 2 },	// Intensity
-				{ JJ2ParamBool, 1 },	// Outdoors
-				{ JJ2ParamBool, 1 },	// Off
-				{ JJ2ParamUInt, 2 }		// Type
-			}, eventParams);
+										   { JJ2ParamUInt, 2 }, // Intensity
+										   { JJ2ParamBool, 1 }, // Outdoors
+										   { JJ2ParamBool, 1 }, // Off
+										   { JJ2ParamUInt, 2 } // Type
+									   },
+				eventParams);
 
 			WeatherType weatherType = (eventParams[2] == 0 ? (WeatherType)(eventParams[3] + 1) : WeatherType::None);
 			if (weatherType != WeatherType::None && eventParams[1] != 0) {
@@ -549,18 +566,19 @@ namespace Jazz2::Compatibility
 			return { EventType::AreaWeather, { (std::uint8_t)weatherType, weatherIntensity } };
 		});
 
-		Add(JJ2Event::AMBIENT_SOUND, ParamIntToParamList(EventType::AreaAmbientSound, {{
-			{ JJ2ParamUInt, 8 },		// Sample
-			{ JJ2ParamUInt, 8 },		// Amplify
-			{ JJ2ParamBool, 1 },		// Fade [TODO]
-			{ JJ2ParamBool, 1 }			// Sine [TODO]
-		}}));
+		Add(JJ2Event::AMBIENT_SOUND, ParamIntToParamList(EventType::AreaAmbientSound, { {
+																						  { JJ2ParamUInt, 8 }, // Sample
+																						  { JJ2ParamUInt, 8 }, // Amplify
+																						  { JJ2ParamBool, 1 }, // Fade [TODO]
+																						  { JJ2ParamBool, 1 } // Sine [TODO]
+																					  } }));
 
 		Add(JJ2Event::SCENERY_BUBBLER, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 4 }		// Speed
-			}, eventParams);
+										   { JJ2ParamUInt, 4 } // Speed
+									   },
+				eventParams);
 
 			return { EventType::AreaAmbientBubbles, { (std::uint8_t)((eventParams[0] + 1) * 5 / 3) } };
 		});
@@ -569,32 +587,34 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::TRIGGER_CRATE, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 5 },	// Trigger ID
-				{ JJ2ParamBool, 1 },	// Set to (0: on, 1: off)
-				{ JJ2ParamBool, 1 }		// Switch
-			}, eventParams);
+										   { JJ2ParamUInt, 5 }, // Trigger ID
+										   { JJ2ParamBool, 1 }, // Set to (0: on, 1: off)
+										   { JJ2ParamBool, 1 } // Switch
+									   },
+				eventParams);
 
 			return { EventType::TriggerCrate, { eventParams[0], (std::uint8_t)(eventParams[1] == 0 ? 1 : 0), eventParams[2] } };
 		});
-		Add(JJ2Event::TRIGGER_AREA, ParamIntToParamList(EventType::TriggerArea, {{
-			{ JJ2ParamUInt, 5 }  // Trigger ID
-		}}));
-		Add(JJ2Event::TRIGGER_ZONE, ParamIntToParamList(EventType::TriggerZone, {{
-			{ JJ2ParamUInt, 5 }, // Trigger ID
-			{ JJ2ParamBool, 1 }, // Set to (0: off, 1: on)
-			{ JJ2ParamBool, 1 }  // Switch
-		}}));
+		Add(JJ2Event::TRIGGER_AREA, ParamIntToParamList(EventType::TriggerArea, { {
+																					{ JJ2ParamUInt, 5 } // Trigger ID
+																				} }));
+		Add(JJ2Event::TRIGGER_ZONE, ParamIntToParamList(EventType::TriggerZone, { {
+																					{ JJ2ParamUInt, 5 }, // Trigger ID
+																					{ JJ2ParamBool, 1 }, // Set to (0: off, 1: on)
+																					{ JJ2ParamBool, 1 } // Switch
+																				} }));
 
 		// Warp events
 		Add(JJ2Event::WARP_ORIGIN, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 8 },	// Warp ID
-				{ JJ2ParamUInt, 8 },	// Coins
-				{ JJ2ParamBool, 1 },	// Set Lap
-				{ JJ2ParamBool, 1 },	// Show Anim
-				{ JJ2ParamBool, 1 }		// Fast (JJ2+)
-			}, eventParams);
+										   { JJ2ParamUInt, 8 }, // Warp ID
+										   { JJ2ParamUInt, 8 }, // Coins
+										   { JJ2ParamBool, 1 }, // Set Lap
+										   { JJ2ParamBool, 1 }, // Show Anim
+										   { JJ2ParamBool, 1 } // Fast (JJ2+)
+									   },
+				eventParams);
 
 			if (eventParams[1] > 0 || eventParams[3] != 0) {
 				return { EventType::WarpCoinBonus, { eventParams[0], eventParams[4], eventParams[2], eventParams[1], eventParams[3] } };
@@ -602,20 +622,21 @@ namespace Jazz2::Compatibility
 				return { EventType::WarpOrigin, { eventParams[0], eventParams[4], eventParams[2] } };
 			}
 		});
-		Add(JJ2Event::WARP_TARGET, ParamIntToParamList(EventType::WarpTarget, {{
-			{ JJ2ParamUInt, 8 } // Warp ID
-		}}));
+		Add(JJ2Event::WARP_TARGET, ParamIntToParamList(EventType::WarpTarget, { {
+																				  { JJ2ParamUInt, 8 } // Warp ID
+																			  } }));
 
 		// Lights events
 		Add(JJ2Event::LIGHT_SET, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 7 },	// Intensity
-				{ JJ2ParamUInt, 4 },	// Red
-				{ JJ2ParamUInt, 4 },	// Green
-				{ JJ2ParamUInt, 4 },	// Blue
-				{ JJ2ParamBool, 1 }		// Flicker
-			}, eventParams);
+										   { JJ2ParamUInt, 7 }, // Intensity
+										   { JJ2ParamUInt, 4 }, // Red
+										   { JJ2ParamUInt, 4 }, // Green
+										   { JJ2ParamUInt, 4 }, // Blue
+										   { JJ2ParamBool, 1 } // Flicker
+									   },
+				eventParams);
 
 			return { EventType::LightAmbient, { (std::uint8_t)std::min(eventParams[0] * 255 / 100, 255), eventParams[1], eventParams[2], eventParams[3], eventParams[4] } };
 		});
@@ -626,20 +647,41 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::LIGHT_STEADY, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 3 },	// Type
-				{ JJ2ParamUInt, 7 }		// Size
-			}, eventParams);
+										   { JJ2ParamUInt, 3 }, // Type
+										   { JJ2ParamUInt, 7 } // Size
+									   },
+				eventParams);
 
 			// The round light of JJ2+ (measured on objects of LIGHT::NORMAL, which the event is), smooth from the middle; above
 			// size 5 it's twice as strong as full light, which is the light of full strength from 0.794 of the way out
 			auto getRoundLight = [](std::uint8_t size, std::uint8_t& intensity, std::uint16_t& radiusNear, std::uint16_t& radiusFar) {
 				switch (size) {
-					case 0: intensity = 255; radiusNear = 60; radiusFar = 100; break;
-					case 1: intensity = 64; radiusNear = 3; radiusFar = 23; break;
+					case 0:
+						intensity = 255;
+						radiusNear = 60;
+						radiusFar = 100;
+						break;
+					case 1:
+						intensity = 64;
+						radiusNear = 3;
+						radiusFar = 23;
+						break;
 					case 2:
-					case 3: intensity = 204; radiusNear = 7; radiusFar = 39; break;
-					case 4: intensity = 217; radiusNear = 10; radiusFar = 41; break;
-					case 5: intensity = 230; radiusNear = 14; radiusFar = 44; break;
+					case 3:
+						intensity = 204;
+						radiusNear = 7;
+						radiusFar = 39;
+						break;
+					case 4:
+						intensity = 217;
+						radiusNear = 10;
+						radiusFar = 41;
+						break;
+					case 5:
+						intensity = 230;
+						radiusNear = 14;
+						radiusFar = 44;
+						break;
 					default: {
 						float radius = 4.2f * size + 1.0f;
 						intensity = 255;
@@ -653,7 +695,8 @@ namespace Jazz2::Compatibility
 			switch (eventParams[0]) {
 				default:
 				case 0: { // Normal
-					std::uint8_t intensity; std::uint16_t radiusNear, radiusFar;
+					std::uint8_t intensity;
+					std::uint16_t radiusNear, radiusFar;
 					getRoundLight(eventParams[1], intensity, radiusNear, radiusFar);
 					return { EventType::LightSteady, { intensity, 0, (std::uint8_t)(radiusNear & 0xff), (std::uint8_t)((radiusNear >> 8) & 0xff), (std::uint8_t)(radiusFar & 0xff), (std::uint8_t)((radiusFar >> 8) & 0xff) } };
 				}
@@ -665,13 +708,15 @@ namespace Jazz2::Compatibility
 					return { EventType::LightSteady, { 255, 200, 0, 0, 16, 0 } };
 
 				case 3: { // Flicker light
-					std::uint8_t intensity; std::uint16_t radiusNear, radiusFar;
+					std::uint8_t intensity;
+					std::uint16_t radiusNear, radiusFar;
 					getRoundLight(eventParams[1], intensity, radiusNear, radiusFar);
 					return { EventType::LightFlicker, { std::min((std::uint8_t)(110 + eventParams[1] * 2), (std::uint8_t)255), 40, (std::uint8_t)(radiusNear & 0xff), (std::uint8_t)((radiusNear >> 8) & 0xff), (std::uint8_t)(radiusFar & 0xff), (std::uint8_t)((radiusFar >> 8) & 0xff) } };
 				}
 
 				case 4: { // Bright normal light, the same as the normal one, but brighter than full light (LIGHT::BRIGHT)
-					std::uint8_t intensity; std::uint16_t radiusNear, radiusFar;
+					std::uint8_t intensity;
+					std::uint16_t radiusNear, radiusFar;
 					getRoundLight(eventParams[1], intensity, radiusNear, radiusFar);
 					return { EventType::LightSteady, { intensity, 64, (std::uint8_t)(radiusNear & 0xff), (std::uint8_t)((radiusNear >> 8) & 0xff), (std::uint8_t)(radiusFar & 0xff), (std::uint8_t)((radiusFar >> 8) & 0xff) } };
 				}
@@ -692,11 +737,12 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::LIGHT_PULSE, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 8 },	// Speed
-				{ JJ2ParamUInt, 4 },	// Sync
-				{ JJ2ParamUInt, 3 },	// Type
-				{ JJ2ParamUInt, 5 }		// Size
-			}, eventParams);
+										   { JJ2ParamUInt, 8 }, // Speed
+										   { JJ2ParamUInt, 4 }, // Sync
+										   { JJ2ParamUInt, 3 }, // Type
+										   { JJ2ParamUInt, 5 } // Size
+									   },
+				eventParams);
 
 			std::uint16_t radiusNear1 = (std::uint16_t)(eventParams[3] == 0 ? 20 : eventParams[3] * 4.8f);
 			std::uint16_t radiusNear2 = (std::uint16_t)(radiusNear1 * 2);
@@ -722,8 +768,9 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::LIGHT_FLICKER, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 8 }		// Sample (not used)
-			}, eventParams);
+										   { JJ2ParamUInt, 8 } // Sample (not used)
+									   },
+				eventParams);
 
 			return { EventType::LightFlicker, { 110, 40, 60, 0, 110, 0 } };
 		});
@@ -743,12 +790,13 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::BOLL_SPIKE_3D, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 2 },	// Sync
-				{ JJ2ParamInt, 6 },		// Speed
-				{ JJ2ParamUInt, 4 },	// Length
-				{ JJ2ParamBool, 1 },	// Swing
-				{ JJ2ParamBool, 1 }		// Shade
-			}, eventParams);
+										   { JJ2ParamUInt, 2 }, // Sync
+										   { JJ2ParamInt, 6 }, // Speed
+										   { JJ2ParamUInt, 4 }, // Length
+										   { JJ2ParamBool, 1 }, // Swing
+										   { JJ2ParamBool, 1 } // Shade
+									   },
+				eventParams);
 
 			return { EventType::SpikeBall, { eventParams[0], eventParams[1], eventParams[2], eventParams[3], eventParams[4] } };
 		});
@@ -764,10 +812,11 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::BRIDGE, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 4 },	// Width
-				{ JJ2ParamUInt, 3 },	// Type
-				{ JJ2ParamUInt, 4 }		// Toughness
-			}, eventParams);
+										   { JJ2ParamUInt, 4 }, // Width
+										   { JJ2ParamUInt, 3 }, // Type
+										   { JJ2ParamUInt, 4 } // Toughness
+									   },
+				eventParams);
 
 			std::uint16_t width = (eventParams[0] * 2);
 			return { EventType::Bridge, { (std::uint8_t)(width & 0xff), (std::uint8_t)((width >> 8) & 0xff), eventParams[1], eventParams[2] } };
@@ -779,15 +828,15 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::POLE_JUNGLE, GetPoleConverter(3));
 		Add(JJ2Event::POLE_PSYCH, GetPoleConverter(4));
 
-		Add(JJ2Event::ROTATING_ROCK, ParamIntToParamList(EventType::RollingRock, {{
-			{ JJ2ParamUInt, 8 },	// ID
-			{ JJ2ParamInt, 4 },		// X-Speed
-			{ JJ2ParamInt, 4 }		// Y-Speed
-		}}));
+		Add(JJ2Event::ROTATING_ROCK, ParamIntToParamList(EventType::RollingRock, { {
+																					 { JJ2ParamUInt, 8 }, // ID
+																					 { JJ2ParamInt, 4 }, // X-Speed
+																					 { JJ2ParamInt, 4 } // Y-Speed
+																				 } }));
 
-		Add(JJ2Event::TRIGGER_ROCK, ParamIntToParamList(EventType::RollingRockTrigger, {{
-			{ JJ2ParamUInt, 8 }	// ID
-		}}));
+		Add(JJ2Event::TRIGGER_ROCK, ParamIntToParamList(EventType::RollingRockTrigger, { {
+																						   { JJ2ParamUInt, 8 } // ID
+																					   } }));
 
 		Add(JJ2Event::SWINGING_VINE, NoParamList(EventType::SwingingVine));
 
@@ -799,18 +848,20 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::ENEMY_LIZARD_FLOAT, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 8 },	// Duration
-				{ JJ2ParamBool, 1 }		// Fly Away
-			}, eventParams);
+										   { JJ2ParamUInt, 8 }, // Duration
+										   { JJ2ParamBool, 1 } // Fly Away
+									   },
+				eventParams);
 
 			return { EventType::EnemyLizardFloat, { 0, eventParams[0], eventParams[1] } };
 		});
 		Add(JJ2Event::ENEMY_LIZARD_FLOAT_XMAS, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 8 },	// Duration
-				{ JJ2ParamBool, 1 }		// Fly Away
-			}, eventParams);
+										   { JJ2ParamUInt, 8 }, // Duration
+										   { JJ2ParamBool, 1 } // Fly Away
+									   },
+				eventParams);
 
 			return { EventType::EnemyLizardFloat, { 1, eventParams[0], eventParams[1] } };
 		});
@@ -859,9 +910,10 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::BOSS_DEVAN_ROBOT, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 4 },	// IntroText
-				{ JJ2ParamUInt, 4 }		// EndText
-			}, eventParams);
+										   { JJ2ParamUInt, 4 }, // IntroText
+										   { JJ2ParamUInt, 4 } // EndText
+									   },
+				eventParams);
 
 			return { EventType::BossDevanRemote, { 0, eventParams[0], eventParams[1] } };
 		});
@@ -884,10 +936,11 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::GEM_RING, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 5 },	// Length
-				{ JJ2ParamUInt, 5 },	// Speed
-				{ JJ2ParamBool, 8 }		// Event
-			}, eventParams);
+										   { JJ2ParamUInt, 5 }, // Length
+										   { JJ2ParamUInt, 5 }, // Speed
+										   { JJ2ParamBool, 8 } // Event
+									   },
+				eventParams);
 
 			return { EventType::GemRing, { eventParams[0], eventParams[1] } };
 		});
@@ -961,12 +1014,13 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::CRATE_AMMO_BOUNCER, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 3 }		// Weapon
-			}, eventParams);
+										   { JJ2ParamUInt, 3 } // Weapon
+									   },
+				eventParams);
 
 			std::uint8_t type = eventParams[0] + 1;
 			if (type < 1 || type > 8) {
-				type = 1;	// Fallback to Bouncer if out of range
+				type = 1; // Fallback to Bouncer if out of range
 			}
 
 			return { EventType::CrateAmmo, { type } };
@@ -975,17 +1029,18 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::CRATE_AMMO_SEEKER, GetAmmoCrateConverter(3));
 		Add(JJ2Event::CRATE_AMMO_RF, GetAmmoCrateConverter(4));
 		Add(JJ2Event::CRATE_AMMO_TOASTER, GetAmmoCrateConverter(5));
-		Add(JJ2Event::CRATE_CARROT, ConstantParamList(EventType::Crate, { (std::uint8_t)EventType::Carrot, (std::uint8_t)((std::int32_t)EventType::Carrot >> 8), 1/*Count*/ }));
-		Add(JJ2Event::CRATE_SPRING, ConstantParamList(EventType::Crate, { (std::uint8_t)EventType::Spring, (std::uint8_t)((std::int32_t)EventType::Spring >> 8), 1/*Count*/, 1/*Green*/, 0/*Up*/, 0x01 }));
-		Add(JJ2Event::CRATE_ONEUP, ConstantParamList(EventType::Crate, { (std::uint8_t)EventType::OneUp, (std::uint8_t)((std::int32_t)EventType::OneUp >> 8), 1/*Count*/ }));
+		Add(JJ2Event::CRATE_CARROT, ConstantParamList(EventType::Crate, { (std::uint8_t)EventType::Carrot, (std::uint8_t)((std::int32_t)EventType::Carrot >> 8), 1 /*Count*/ }));
+		Add(JJ2Event::CRATE_SPRING, ConstantParamList(EventType::Crate, { (std::uint8_t)EventType::Spring, (std::uint8_t)((std::int32_t)EventType::Spring >> 8), 1 /*Count*/, 1 /*Green*/, 0 /*Up*/, 0x01 }));
+		Add(JJ2Event::CRATE_ONEUP, ConstantParamList(EventType::Crate, { (std::uint8_t)EventType::OneUp, (std::uint8_t)((std::int32_t)EventType::OneUp >> 8), 1 /*Count*/ }));
 		Add(JJ2Event::CRATE_BOMB, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 8 },	// ExtraEvent
-				{ JJ2ParamUInt, 4 },	// NumEvent
-				{ JJ2ParamBool, 1 },	// RandomFly
-				{ JJ2ParamBool, 1 }		// NoBomb
-			}, eventParams);
+										   { JJ2ParamUInt, 8 }, // ExtraEvent
+										   { JJ2ParamUInt, 4 }, // NumEvent
+										   { JJ2ParamBool, 1 }, // RandomFly
+										   { JJ2ParamBool, 1 } // NoBomb
+									   },
+				eventParams);
 
 			// TODO: Implement RandomFly parameter
 
@@ -1002,18 +1057,18 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::BARREL_AMMO, NoParamList(EventType::BarrelAmmo));
 		Add(JJ2Event::BARREL_CARROT, ConstantParamList(EventType::Barrel, { (std::uint8_t)EventType::Carrot, (std::uint8_t)((std::int32_t)EventType::Carrot >> 8), 1 }));
 		Add(JJ2Event::BARREL_ONEUP, ConstantParamList(EventType::Barrel, { (std::uint8_t)EventType::OneUp, (std::uint8_t)((std::int32_t)EventType::OneUp >> 8), 1 }));
-		Add(JJ2Event::CRATE_GEM, ParamIntToParamList(EventType::CrateGem, {{
-			{ JJ2ParamUInt, 4 },		// Red
-			{ JJ2ParamUInt, 4 },		// Green
-			{ JJ2ParamUInt, 4 },		// Blue
-			{ JJ2ParamUInt, 4 }			// Purple
-		}}));
-		Add(JJ2Event::BARREL_GEM, ParamIntToParamList(EventType::BarrelGem, {{
-			{ JJ2ParamUInt, 4 },		// Red
-			{ JJ2ParamUInt, 4 },		// Green
-			{ JJ2ParamUInt, 4 },		// Blue
-			{ JJ2ParamUInt, 4 }			// Purple
-		}}));
+		Add(JJ2Event::CRATE_GEM, ParamIntToParamList(EventType::CrateGem, { {
+																			  { JJ2ParamUInt, 4 }, // Red
+																			  { JJ2ParamUInt, 4 }, // Green
+																			  { JJ2ParamUInt, 4 }, // Blue
+																			  { JJ2ParamUInt, 4 } // Purple
+																		  } }));
+		Add(JJ2Event::BARREL_GEM, ParamIntToParamList(EventType::BarrelGem, { {
+																				{ JJ2ParamUInt, 4 }, // Red
+																				{ JJ2ParamUInt, 4 }, // Green
+																				{ JJ2ParamUInt, 4 }, // Blue
+																				{ JJ2ParamUInt, 4 } // Purple
+																			} }));
 
 		Add(JJ2Event::POWERUP_SWAP, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			if (level->GetVersion() == JJ2Version::TSF || level->GetVersion() == JJ2Version::CC) {
@@ -1028,17 +1083,16 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::BIRDY, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamBool, 1 }		// Chuck (Yellow)
-			}, eventParams);
+										   { JJ2ParamBool, 1 } // Chuck (Yellow)
+									   },
+				eventParams);
 
 			return { EventType::BirdCage, { eventParams[0] } };
 		});
 
 		// Misc events
 		Add(JJ2Event::EVA, NoParamList(EventType::Eva));
-		Add(JJ2Event::MOTH, ParamIntToParamList(EventType::Moth, {{
-			{ JJ2ParamUInt, 3 }
-		}}));
+		Add(JJ2Event::MOTH, ParamIntToParamList(EventType::Moth, { { { JJ2ParamUInt, 3 } } }));
 		Add(JJ2Event::STEAM, NoParamList(EventType::SteamNote));
 		Add(JJ2Event::SCENERY_BOMB, NoParamList(EventType::Bomb));
 		Add(JJ2Event::PINBALL_BUMP_500, ConstantParamList(EventType::PinballBumper, { 0 }));
@@ -1049,8 +1103,9 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::AIRBOARD, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 5 }		// Delay (Secs.) - Default: 30
-			}, eventParams); 
+										   { JJ2ParamUInt, 5 } // Delay (Secs.) - Default: 30
+									   },
+				eventParams);
 
 			return { EventType::AirboardGenerator, { (std::uint8_t)(eventParams[0] == 0 ? 30 : eventParams[0]) } };
 		});
@@ -1058,17 +1113,18 @@ namespace Jazz2::Compatibility
 		Add(JJ2Event::COPTER, [](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 8 }		// Flight time (seconds)
-			}, eventParams);
+										   { JJ2ParamUInt, 8 } // Flight time (seconds)
+									   },
+				eventParams);
 
 			// The first parameter is taken, it tells a copter that already carries a player
 			return { EventType::Copter, { 0, eventParams[0] } };
 		});
 
-		Add(JJ2Event::CTF_BASE, ParamIntToParamList(EventType::CtfBase, {{
-			{ JJ2ParamUInt, 1 },		// Team
-			{ JJ2ParamUInt, 1 }			// Direction
-		}}));
+		Add(JJ2Event::CTF_BASE, ParamIntToParamList(EventType::CtfBase, { {
+																			{ JJ2ParamUInt, 1 }, // Team
+																			{ JJ2ParamUInt, 1 } // Direction
+																		} }));
 
 		Add(JJ2Event::SHIELD_FIRE, ConstantParamList(EventType::PowerUpShield, { 1 }));
 		Add(JJ2Event::SHIELD_WATER, ConstantParamList(EventType::PowerUpShield, { 2 }));
@@ -1082,21 +1138,26 @@ namespace Jazz2::Compatibility
 		return [type, horizontal, frozen](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamBool, 1 },	// Orientation (vertical only)
-				{ JJ2ParamBool, 1 },	// Keep X Speed (vertical only)
-				{ JJ2ParamBool, 1 },	// Keep Y Speed
-				{ JJ2ParamUInt, 4 },	// Delay
-				{ JJ2ParamBool, 1 }		// Reverse (horzontal only, JJ2+)
-			}, eventParams);
+										   { JJ2ParamBool, 1 }, // Orientation (vertical only)
+										   { JJ2ParamBool, 1 }, // Keep X Speed (vertical only)
+										   { JJ2ParamBool, 1 }, // Keep Y Speed
+										   { JJ2ParamUInt, 4 }, // Delay
+										   { JJ2ParamBool, 1 } // Reverse (horzontal only, JJ2+)
+									   },
+				eventParams);
 
 			std::uint8_t orientation = (std::uint8_t)(horizontal ? (eventParams[4] != 0 ? 5 : 4) : (eventParams[0] != 0 ? 2 : 0));
 			bool applyGravitation = (orientation == 0);
 
 			std::uint8_t flags = 0;
-			if (applyGravitation) flags |= 0x01;
-			if (frozen) flags |= 0x02;
-			if (eventParams[1] != 0) flags |= 0x04;
-			if (eventParams[2] != 0) flags |= 0x08;
+			if (applyGravitation)
+				flags |= 0x01;
+			if (frozen)
+				flags |= 0x02;
+			if (eventParams[1] != 0)
+				flags |= 0x04;
+			if (eventParams[2] != 0)
+				flags |= 0x08;
 
 			return { EventType::Spring, { type, orientation, flags, eventParams[3] } };
 		};
@@ -1107,14 +1168,15 @@ namespace Jazz2::Compatibility
 		return [type](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 2 },	// Sync
-				{ JJ2ParamInt, 6 },		// Speed
-				{ JJ2ParamUInt, 4 },	// Length
-				{ JJ2ParamBool, 1 }		// Swing
-			}, eventParams);
+										   { JJ2ParamUInt, 2 }, // Sync
+										   { JJ2ParamInt, 6 }, // Speed
+										   { JJ2ParamUInt, 4 }, // Length
+										   { JJ2ParamBool, 1 } // Swing
+									   },
+				eventParams);
 
 			return { EventType::MovingPlatform, { type, eventParams[0], eventParams[1], eventParams[2], eventParams[3] } };
-		};	
+		};
 	}
 
 	EventConverter::ConversionFunction EventConverter::GetPoleConverter(std::uint8_t theme)
@@ -1122,9 +1184,10 @@ namespace Jazz2::Compatibility
 		return [theme](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 5 },	// Adjust Y
-				{ JJ2ParamInt, 6 }		// Adjust X
-			}, eventParams);
+										   { JJ2ParamUInt, 5 }, // Adjust Y
+										   { JJ2ParamInt, 6 } // Adjust X
+									   },
+				eventParams);
 
 			constexpr std::int32_t AdjustX = 2;
 			constexpr std::int32_t AdjustY = 2;
@@ -1147,8 +1210,9 @@ namespace Jazz2::Compatibility
 		return [ev, customParam](JJ2Level* level, std::uint32_t jj2Params) -> ConversionResult {
 			std::uint8_t eventParams[16];
 			ConvertParamInt(jj2Params, {
-				{ JJ2ParamUInt, 4 }		// EndText
-			}, eventParams);
+										   { JJ2ParamUInt, 4 } // EndText
+									   },
+				eventParams);
 
 			return { ev, { customParam, eventParams[0] } };
 		};

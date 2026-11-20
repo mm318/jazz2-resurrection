@@ -86,7 +86,8 @@ namespace Jazz2::Editor
 	struct TileTarget
 	{
 		/** @brief Kind of the place */
-		enum class Kind : std::uint8_t {
+		enum class Kind : std::uint8_t
+		{
 			/** A tile set the level uses already, @ref Source */
 			TileSet,
 			/** A new tile set file of @ref Name in the user content, the level then uses it as an extra one */

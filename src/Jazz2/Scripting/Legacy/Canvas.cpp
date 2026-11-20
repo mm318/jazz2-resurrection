@@ -31,7 +31,8 @@ namespace Jazz2::Scripting
 	// as large, the medium one scaled here; with its spacing, and moved by `OffsetY` so the glyphs are where they are against the
 	// position the script gives there (it puts the small text on it, the larger ones mostly below it) - measured in JJ2+, and
 	// then drawn smaller by `ScriptTextScale`
-	struct ScriptTextStyle {
+	struct ScriptTextStyle
+	{
 		UI::Font* Font;
 		float Scale;
 		float CharSpacing;
@@ -49,19 +50,19 @@ namespace Jazz2::Scripting
 		UI::Font* mediumFont = resolver.GetFont(FontType::Medium);
 		ScriptTextStyle style;
 		switch (size) {
-			case 1:	// SMALL
+			case 1: // SMALL
 				style = { resolver.GetFont(FontType::Small), 1.0f, 1.12f, 1.0f, -13.0f };
 				break;
-			case 2:	// LARGE
+			case 2: // LARGE
 				style = (mediumFont != nullptr
-					? ScriptTextStyle { mediumFont, 1.9f, 1.0f, 1.23f, -13.0f }
-					: ScriptTextStyle { resolver.GetFont(FontType::Small), 2.9f, 1.0f, 1.0f, -13.0f });
+						? ScriptTextStyle { mediumFont, 1.9f, 1.0f, 1.23f, -13.0f }
+						: ScriptTextStyle { resolver.GetFont(FontType::Small), 2.9f, 1.0f, 1.0f, -13.0f });
 				break;
 			default:
-			case 0:	// MEDIUM
+			case 0: // MEDIUM
 				style = (mediumFont != nullptr
-					? ScriptTextStyle { mediumFont, 1.0f, 1.0f, 1.23f, -10.0f }
-					: ScriptTextStyle { resolver.GetFont(FontType::Small), 1.6f, 1.0f, 1.0f, -10.0f });
+						? ScriptTextStyle { mediumFont, 1.0f, 1.0f, 1.23f, -10.0f }
+						: ScriptTextStyle { resolver.GetFont(FontType::Small), 1.6f, 1.0f, 1.0f, -10.0f });
 				break;
 		}
 		if (size != 1) {
@@ -168,12 +169,20 @@ namespace Jazz2::Scripting
 			static UI::BlendMode SpriteModeToBlendMode(std::uint32_t mode, std::uint8_t param, Colorf& color)
 			{
 				switch (mode) {
-					case spriteType_BLENDLIGHTEN: return UI::BlendMode::Additive;
-					case spriteType_BLENDMULTIPLY: color.A = param / 255.0f; return UI::BlendMode::Multiply;
-					case spriteType_BLENDSCREEN: color.A = param / 255.0f; return UI::BlendMode::Screen;
+					case spriteType_BLENDLIGHTEN:
+						return UI::BlendMode::Additive;
+					case spriteType_BLENDMULTIPLY:
+						color.A = param / 255.0f;
+						return UI::BlendMode::Multiply;
+					case spriteType_BLENDSCREEN:
+						color.A = param / 255.0f;
+						return UI::BlendMode::Screen;
 					case spriteType_BLENDDIFFERENCE:
-					case spriteType_BLENDEXCLUSION: color.A = param / 255.0f; return UI::BlendMode::Difference;
-					default: return UI::BlendMode::Normal;
+					case spriteType_BLENDEXCLUSION:
+						color.A = param / 255.0f;
+						return UI::BlendMode::Difference;
+					default:
+						return UI::BlendMode::Normal;
 				}
 			}
 
@@ -258,9 +267,9 @@ namespace Jazz2::Scripting
 			// row of the shared palette texture of the sprite mode (see LevelScriptLoader::GetSpritePaletteOffset()).
 			// SPRITE::CHROMAKEY is keyed with @p keyed, it's drawn as usual without it.
 			static void DrawSpriteFrame(UI::Canvas* canvas, std::uint16_t z, GenericGraphicResource* base, std::int32_t frame,
-					float x, float y, std::int8_t direction, float scaleX, float scaleY, std::int32_t angle,
-					std::uint32_t mode, std::uint8_t param, std::int32_t spritePaletteOffset, bool translucentFrame = false,
-					std::int32_t firstRow = 0, std::int32_t rowCount = 0, const KeyedDraw* keyed = nullptr)
+				float x, float y, std::int8_t direction, float scaleX, float scaleY, std::int32_t angle,
+				std::uint32_t mode, std::uint8_t param, std::int32_t spritePaletteOffset, bool translucentFrame = false,
+				std::int32_t firstRow = 0, std::int32_t rowCount = 0, const KeyedDraw* keyed = nullptr)
 			{
 				if (base == nullptr || base->TextureDiffuse == nullptr || base->FrameCount <= 0 || base->FrameConfiguration.X <= 0 ||
 					mode == spriteType_INVISIBLE) {
@@ -276,8 +285,14 @@ namespace Jazz2::Scripting
 				std::uint8_t directionBits = std::uint8_t(direction);
 				bool flipX = ((directionBits & 0x80) != 0);
 				bool flipY = (((directionBits & 0x80) != 0) != ((directionBits & 0x40) != 0));
-				if (scaleX < 0.0f) { flipX = !flipX; scaleX = -scaleX; }
-				if (scaleY < 0.0f) { flipY = true; scaleY = -scaleY; }
+				if (scaleX < 0.0f) {
+					flipX = !flipX;
+					scaleX = -scaleX;
+				}
+				if (scaleY < 0.0f) {
+					flipY = true;
+					scaleY = -scaleY;
+				}
 
 				Recti spriteRect = base->GetFrameRect(frame);
 				if (rowCount > 0) {
@@ -303,8 +318,14 @@ namespace Jazz2::Scripting
 				float hFrac = (float)frameRect.H / texSize.Y;
 				Vector4f texCoords(wFrac, (float)frameRect.X / texSize.X,
 					hFrac, (float)frameRect.Y / texSize.Y);
-				if (flipX) { texCoords.X = -wFrac; texCoords.Y += wFrac; }
-				if (flipY) { texCoords.Z = -hFrac; texCoords.W += hFrac; }
+				if (flipX) {
+					texCoords.X = -wFrac;
+					texCoords.Y += wFrac;
+				}
+				if (flipY) {
+					texCoords.Z = -hFrac;
+					texCoords.W += hFrac;
+				}
 
 				// Indexed sprites recolor via the shared palette texture; pre-baked RGBA sprites use -1
 				bool indexed = ((base->Flags & GenericGraphicResourceFlags::Indexed) == GenericGraphicResourceFlags::Indexed);
@@ -478,7 +499,7 @@ namespace Jazz2::Scripting
 
 		void jjTEXTAPPEARANCE::constructor(void* self)
 		{
-			auto* appearance = new(self) jjTEXTAPPEARANCE{};
+			auto* appearance = new (self) jjTEXTAPPEARANCE {};
 			appearance->spacing = 1;
 		}
 		// As JJ2+ makes an appearance of STRING::Mode - BOUNCE moves the letters up and down, SPIN around, RIGHTALIGN aligns it,
@@ -494,7 +515,7 @@ namespace Jazz2::Scripting
 
 		void jjTEXTAPPEARANCE::constructorMode(std::uint32_t mode, void* self)
 		{
-			auto* appearance = new(self) jjTEXTAPPEARANCE{};
+			auto* appearance = new (self) jjTEXTAPPEARANCE {};
 			ApplyStringMode(*appearance, mode);
 		}
 
@@ -521,7 +542,8 @@ namespace Jazz2::Scripting
 			const KeyedDraw* keyed = nullptr;
 #if defined(TILEMAP_LAYER_EFFECTS)
 			constexpr std::uint16_t MaxKeyedSteps = 4;
-			struct KeyedEntry {
+			struct KeyedEntry
+			{
 				std::uint16_t Z;
 				std::uint16_t Step;
 				AABBf Bounds;
@@ -715,14 +737,16 @@ namespace Jazz2::Scripting
 			auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 			DrawTileQuad(Target, NextLayer(), owner->GetLevelHandler()->TileMap(), tile, tileQuadrant, xPixel + Offset.X, yPixel + Offset.Y);
 		}
-		
+
 		// The color of text drawn in a sprite mode, the font is drawn in its own colors only in the ordinary modes
 		// Whether text in a sprite mode is added to what's behind it on canvases, see DrawScriptText()
-		static bool IsAdditiveTextMode(std::uint32_t mode) {
+		static bool IsAdditiveTextMode(std::uint32_t mode)
+		{
 			return (mode == spriteType_BLENDLUMINANCE || mode == spriteType_NEONGLOW);
 		}
 
-		static Colorf GetTextColor(std::uint32_t mode, std::uint8_t param) {
+		static Colorf GetTextColor(std::uint32_t mode, std::uint8_t param)
+		{
 			// Gray as bright as the glyph through the colorizing shader of the font (1.5x the glyph times 1 + (c - 0.5) * 4)
 			constexpr float GlyphLevel = 0.5f - (1.0f - 1.0f / 1.5f) * 0.25f;
 			switch (mode) {
@@ -784,7 +808,8 @@ namespace Jazz2::Scripting
 		}
 
 		bool jjCANVAS::DrawMissingFontCharacter(std::int32_t xPixel, std::int32_t yPixel, std::int32_t setID, std::uint8_t animation, std::uint8_t frame,
-			std::uint32_t mode, std::uint8_t param) {
+			std::uint32_t mode, std::uint8_t param)
+		{
 			// A character of the font of the original without an image, such as ∞ (127) that only the font of JJ2+ has (see
 			// AnimationTables::ResolveSet()), is drawn in the font of the game, in the size of the animation (as STRING::Size)
 			auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
@@ -813,18 +838,21 @@ namespace Jazz2::Scripting
 			return true;
 		}
 
-		void jjCANVAS::DrawTextBasicSize(std::int32_t xPixel, int32_t yPixel, const String& text, std::uint32_t size, std::uint32_t mode, std::uint8_t param) {
+		void jjCANVAS::DrawTextBasicSize(std::int32_t xPixel, int32_t yPixel, const String& text, std::uint32_t size, std::uint32_t mode, std::uint8_t param)
+		{
 			// The mode is STRING::Mode here, PALSHIFT shifts the colors of the font by the parameter
 			DrawScriptText(xPixel, yPixel, text, size, mode, mode == 5 ? std::uint32_t(spriteType_PALSHIFT) : std::uint32_t(spriteType_NORMAL), param);
 		}
-		void jjCANVAS::DrawTextExtSize(std::int32_t xPixel, int32_t yPixel, const String& text, std::uint32_t size, const jjTEXTAPPEARANCE& appearance, std::uint8_t param1, std::uint32_t mode, std::uint8_t param) {
+		void jjCANVAS::DrawTextExtSize(std::int32_t xPixel, int32_t yPixel, const String& text, std::uint32_t size, const jjTEXTAPPEARANCE& appearance, std::uint8_t param1, std::uint32_t mode, std::uint8_t param)
+		{
 			// Only how the letters move and the alignment are taken of the appearance (see jjTEXTAPPEARANCE::constructorMode())
 			std::uint32_t stringMode = (appearance.xAmp != 0 && appearance.yAmp != 0 ? 4 : (appearance.yAmp != 0 ? 3 : 0));
 			DrawScriptText(xPixel, yPixel, text, size, stringMode, mode, param, appearance.newline == jjTEXTAPPEARANCE::ch_SPECIAL, appearance.spacing,
 				appearance.align);
 		}
 		void jjCANVAS::DrawScriptText(std::int32_t xPixel, std::int32_t yPixel, const String& text, std::uint32_t size, std::uint32_t stringMode,
-			std::uint32_t spriteMode, std::uint8_t param, bool newLines, std::int32_t spacing, jjTEXTAPPEARANCE::align_ align) {
+			std::uint32_t spriteMode, std::uint8_t param, bool newLines, std::int32_t spacing, jjTEXTAPPEARANCE::align_ align)
+		{
 			if (stringMode == 2) {
 				align = jjTEXTAPPEARANCE::align_RIGHT;
 			}
@@ -840,10 +868,15 @@ namespace Jazz2::Scripting
 					color = Colorf(0.54f, 0.44f, 0.34f, 0.5f);
 					break;
 				case 3: // BOUNCE
-					angleOffset = 0.7f; varianceY = 1.1f; speed = 0.4f;
+					angleOffset = 0.7f;
+					varianceY = 1.1f;
+					speed = 0.4f;
 					break;
 				case 4: // SPIN
-					angleOffset = 0.7f; varianceX = 1.1f; varianceY = 1.1f; speed = 0.4f;
+					angleOffset = 0.7f;
+					varianceX = 1.1f;
+					varianceY = 1.1f;
+					speed = 0.4f;
 					break;
 			}
 			auto recode = [stringMode, newLines](StringView part) {
@@ -861,7 +894,8 @@ namespace Jazz2::Scripting
 			std::int32_t fontSetID = AnimationTables::GetSetID(mFONT, owner->IsTSF());
 			// STRING::Size is the animation of the font itself, MEDIUM 0, SMALL 1, LARGE 2
 			std::uint32_t fontAnim = (size <= 2 ? size : 0);
-			struct Piece {
+			struct Piece
+			{
 				String Text;
 				std::int32_t Frame;
 				float Width;
@@ -886,12 +920,12 @@ namespace Jazz2::Scripting
 				if (i > start) {
 					String part = recode(text.slice(start, i));
 					float width = style.Font->MeasureString(part, style.Scale, style.CharSpacing, style.LineSpacing).X;
-					pieces.push_back(Piece{ Death::move(part), -1, width });
+					pieces.push_back(Piece { Death::move(part), -1, width });
 				}
 				if (frame >= 0) {
 					Recti frameRect, pixelBounds;
 					tables.GetFrameBounds(std::uint32_t(frame), frameRect, pixelBounds);
-					pieces.push_back(Piece{ {}, frame, float(frameRect.W) });
+					pieces.push_back(Piece { {}, frame, float(frameRect.W) });
 				}
 				start = i + 1;
 			}
@@ -940,22 +974,35 @@ namespace Jazz2::Scripting
 		{
 			// What a character of a string is in the font of an animation: drawn as its frame, a new line or left out - the
 			// characters of formatting are left out and `@` breaks the line as in the text of JJ2, unless the appearance shows them
-			enum class AnimTextChar { Draw, NewLine, Skip };
+			enum class AnimTextChar
+			{
+				Draw,
+				NewLine,
+				Skip
+			};
 
 			AnimTextChar ClassifyAnimTextChar(std::uint8_t ch, const jjTEXTAPPEARANCE* appearance)
 			{
-				auto shown = [appearance](jjTEXTAPPEARANCE::ch_ jjTEXTAPPEARANCE::* sign) {
+				auto shown = [appearance](jjTEXTAPPEARANCE::ch_ jjTEXTAPPEARANCE::*sign) {
 					return (appearance != nullptr && appearance->*sign == jjTEXTAPPEARANCE::ch_DISPLAY);
 				};
 				switch (ch) {
-					case '@': return (shown(&jjTEXTAPPEARANCE::at) ? AnimTextChar::Draw : AnimTextChar::NewLine);
-					case '\n': return AnimTextChar::NewLine;
-					case '|': return (shown(&jjTEXTAPPEARANCE::pipe) ? AnimTextChar::Draw : AnimTextChar::Skip);
-					case '#': return (shown(&jjTEXTAPPEARANCE::hash) ? AnimTextChar::Draw : AnimTextChar::Skip);
-					case '~': return (shown(&jjTEXTAPPEARANCE::tilde) ? AnimTextChar::Draw : AnimTextChar::Skip);
-					case '^': return (shown(&jjTEXTAPPEARANCE::caret) ? AnimTextChar::Draw : AnimTextChar::Skip);
-					case 0xA7: return (shown(&jjTEXTAPPEARANCE::section) ? AnimTextChar::Draw : AnimTextChar::Skip);
-					default: return (ch < 32 ? AnimTextChar::Skip : AnimTextChar::Draw);
+					case '@':
+						return (shown(&jjTEXTAPPEARANCE::at) ? AnimTextChar::Draw : AnimTextChar::NewLine);
+					case '\n':
+						return AnimTextChar::NewLine;
+					case '|':
+						return (shown(&jjTEXTAPPEARANCE::pipe) ? AnimTextChar::Draw : AnimTextChar::Skip);
+					case '#':
+						return (shown(&jjTEXTAPPEARANCE::hash) ? AnimTextChar::Draw : AnimTextChar::Skip);
+					case '~':
+						return (shown(&jjTEXTAPPEARANCE::tilde) ? AnimTextChar::Draw : AnimTextChar::Skip);
+					case '^':
+						return (shown(&jjTEXTAPPEARANCE::caret) ? AnimTextChar::Draw : AnimTextChar::Skip);
+					case 0xA7:
+						return (shown(&jjTEXTAPPEARANCE::section) ? AnimTextChar::Draw : AnimTextChar::Skip);
+					default:
+						return (ch < 32 ? AnimTextChar::Skip : AnimTextChar::Draw);
 				}
 			}
 
@@ -1005,7 +1052,8 @@ namespace Jazz2::Scripting
 		}
 
 		void jjCANVAS::DrawAnimationText(std::int32_t xPixel, std::int32_t yPixel, const String& text, const jjANIMATION& animation,
-			const jjTEXTAPPEARANCE* appearance, std::uint32_t mode, std::uint8_t param) {
+			const jjTEXTAPPEARANCE* appearance, std::uint32_t mode, std::uint8_t param)
+		{
 			auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 			auto& tables = owner->GetAnimationTables();
 			std::int32_t paletteOffset = owner->GetSpritePaletteOffset(mode, param);
@@ -1014,10 +1062,14 @@ namespace Jazz2::Scripting
 			auto lineX = [&](std::size_t from) {
 				float width = GetAnimTextLineWidth(tables, text, from, animation, appearance);
 				switch (appearance != nullptr ? appearance->align : jjTEXTAPPEARANCE::align_DEFAULT) {
-					case jjTEXTAPPEARANCE::align_CENTER: return xPixel + Offset.X - std::round(width * 0.5f);
-					case jjTEXTAPPEARANCE::align_RIGHT: return xPixel + Offset.X - width;
-					case jjTEXTAPPEARANCE::align_LEFT: return xPixel + Offset.X;
-					default: return GetTextX(xPixel, xPixel >= 0x4000 ? width : 0.0f);
+					case jjTEXTAPPEARANCE::align_CENTER:
+						return xPixel + Offset.X - std::round(width * 0.5f);
+					case jjTEXTAPPEARANCE::align_RIGHT:
+						return xPixel + Offset.X - width;
+					case jjTEXTAPPEARANCE::align_LEFT:
+						return xPixel + Offset.X;
+					default:
+						return GetTextX(xPixel, xPixel >= 0x4000 ? width : 0.0f);
 				}
 			};
 
@@ -1045,35 +1097,46 @@ namespace Jazz2::Scripting
 			}
 		}
 
-		void jjCANVAS::drawString(std::int32_t xPixel, std::int32_t yPixel, const String& text, const jjANIMATION& animation, std::uint32_t mode, std::uint8_t param) {
+		void jjCANVAS::drawString(std::int32_t xPixel, std::int32_t yPixel, const String& text, const jjANIMATION& animation, std::uint32_t mode, std::uint8_t param)
+		{
 			// The frames of the animation are the characters from the space on, each as wide as its frame. The mode is STRING::Mode,
 			// DARK is drawn translucent, the letters of BOUNCE and SPIN don't move.
-			jjTEXTAPPEARANCE appearance{};
+			jjTEXTAPPEARANCE appearance {};
 			appearance.spacing = 0;
 			appearance.align = (mode == 2 ? jjTEXTAPPEARANCE::align_RIGHT : jjTEXTAPPEARANCE::align_DEFAULT);
 			std::uint32_t spriteMode;
 			switch (mode) {
-				case 1: spriteMode = spriteType_TRANSLUCENT; break;
-				case 5: spriteMode = spriteType_PALSHIFT; break;
-				default: spriteMode = spriteType_NORMAL; break;
+				case 1:
+					spriteMode = spriteType_TRANSLUCENT;
+					break;
+				case 5:
+					spriteMode = spriteType_PALSHIFT;
+					break;
+				default:
+					spriteMode = spriteType_NORMAL;
+					break;
 			}
 			DrawAnimationText(xPixel, yPixel, text, animation, &appearance, spriteMode, param);
 		}
 
-		void jjCANVAS::drawStringEx(std::int32_t xPixel, std::int32_t yPixel, const String& text, const jjANIMATION& animation, const jjTEXTAPPEARANCE& appearance, std::uint8_t param1, std::uint32_t spriteMode, std::uint8_t param2) {
+		void jjCANVAS::drawStringEx(std::int32_t xPixel, std::int32_t yPixel, const String& text, const jjANIMATION& animation, const jjTEXTAPPEARANCE& appearance, std::uint8_t param1, std::uint32_t spriteMode, std::uint8_t param2)
+		{
 			// The spacing, alignment and the characters of formatting the appearance shows (the letters don't move)
 			DrawAnimationText(xPixel, yPixel, text, animation, &appearance, spriteMode, param2);
 		}
 
-		void jjCANVAS::jjDrawString(float xPixel, float yPixel, const String& text, const jjANIMATION& animation, std::uint32_t mode, std::uint8_t param, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID) {
+		void jjCANVAS::jjDrawString(float xPixel, float yPixel, const String& text, const jjANIMATION& animation, std::uint32_t mode, std::uint8_t param, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID)
+		{
 			noop();
 		}
 
-		void jjCANVAS::jjDrawStringEx(float xPixel, float yPixel, const String& text, const jjANIMATION& animation, const jjTEXTAPPEARANCE& appearance, std::uint8_t param1, std::uint32_t spriteMode, std::uint8_t param2, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID) {
+		void jjCANVAS::jjDrawStringEx(float xPixel, float yPixel, const String& text, const jjANIMATION& animation, const jjTEXTAPPEARANCE& appearance, std::uint8_t param1, std::uint32_t spriteMode, std::uint8_t param2, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID)
+		{
 			noop();
 		}
 
-		int jjCANVAS::jjGetStringWidth(const String& text, const jjANIMATION& animation, const jjTEXTAPPEARANCE& style) {
+		int jjCANVAS::jjGetStringWidth(const String& text, const jjANIMATION& animation, const jjTEXTAPPEARANCE& style)
+		{
 			// The widest of the lines, as drawString() lays them out
 			auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 			auto& tables = owner->GetAnimationTables();
@@ -1122,17 +1185,20 @@ namespace Jazz2::Scripting
 		owner->GetWorldCanvas().AddSolid(draw);
 	}
 
-	void LevelScriptLoader::jjDrawPixel(float xPixel, float yPixel, std::uint8_t color, spriteType mode, std::uint8_t param, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID) {
+	void LevelScriptLoader::jjDrawPixel(float xPixel, float yPixel, std::uint8_t color, spriteType mode, std::uint8_t param, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID)
+	{
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		DrawWorldSolid(owner, xPixel, yPixel, 1.0f, 1.0f, color, mode, param, layerZ);
 	}
 
-	void LevelScriptLoader::jjDrawRectangle(float xPixel, float yPixel, std::int32_t width, std::int32_t height, std::uint8_t color, spriteType mode, std::uint8_t param, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID) {
+	void LevelScriptLoader::jjDrawRectangle(float xPixel, float yPixel, std::int32_t width, std::int32_t height, std::uint8_t color, spriteType mode, std::uint8_t param, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID)
+	{
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		DrawWorldSolid(owner, xPixel, yPixel, float(width), float(height), color, mode, param, layerZ);
 	}
 
-	void LevelScriptLoader::jjDrawSprite(float xPixel, float yPixel, std::int32_t setID, std::uint8_t animation, std::uint8_t frame, std::int8_t direction, spriteType mode, std::uint8_t param, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID) {
+	void LevelScriptLoader::jjDrawSprite(float xPixel, float yPixel, std::int32_t setID, std::uint8_t animation, std::uint8_t frame, std::int8_t direction, spriteType mode, std::uint8_t param, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID)
+	{
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		std::int32_t cell = 0;
 		bool translucent;
@@ -1140,7 +1206,8 @@ namespace Jazz2::Scripting
 		DrawWorldSprite(owner, graphics, cell, xPixel, yPixel, direction, 1.0f, 1.0f, 0, mode, param, layerZ, translucent);
 	}
 
-	void LevelScriptLoader::jjDrawSpriteFromCurFrame(float xPixel, float yPixel, std::uint32_t sprite, std::int8_t direction, spriteType mode, std::uint8_t param, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID) {
+	void LevelScriptLoader::jjDrawSpriteFromCurFrame(float xPixel, float yPixel, std::uint32_t sprite, std::int8_t direction, spriteType mode, std::uint8_t param, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID)
+	{
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		std::int32_t cell = 0;
 		bool translucent;
@@ -1149,7 +1216,8 @@ namespace Jazz2::Scripting
 		DrawWorldSprite(owner, graphics, cell, xPixel, yPixel, direction, 1.0f, 1.0f, 0, mode, param, layerZ, translucent);
 	}
 
-	void LevelScriptLoader::jjDrawResizedSprite(float xPixel, float yPixel, std::int32_t setID, std::uint8_t animation, std::uint8_t frame, float xScale, float yScale, spriteType mode, std::uint8_t param, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID) {
+	void LevelScriptLoader::jjDrawResizedSprite(float xPixel, float yPixel, std::int32_t setID, std::uint8_t animation, std::uint8_t frame, float xScale, float yScale, spriteType mode, std::uint8_t param, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID)
+	{
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		std::int32_t cell = 0;
 		bool translucent;
@@ -1157,7 +1225,8 @@ namespace Jazz2::Scripting
 		DrawWorldSprite(owner, graphics, cell, xPixel, yPixel, 0, xScale, yScale, 0, mode, param, layerZ, translucent);
 	}
 
-	void LevelScriptLoader::jjDrawResizedSpriteFromCurFrame(float xPixel, float yPixel, std::uint32_t sprite, float xScale, float yScale, spriteType mode, std::uint8_t param, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID) {
+	void LevelScriptLoader::jjDrawResizedSpriteFromCurFrame(float xPixel, float yPixel, std::uint32_t sprite, float xScale, float yScale, spriteType mode, std::uint8_t param, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID)
+	{
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		std::int32_t cell = 0;
 		bool translucent;
@@ -1166,7 +1235,8 @@ namespace Jazz2::Scripting
 		DrawWorldSprite(owner, graphics, cell, xPixel, yPixel, 0, xScale, yScale, 0, mode, param, layerZ, translucent);
 	}
 
-	void LevelScriptLoader::jjDrawRotatedSprite(float xPixel, float yPixel, std::int32_t setID, std::uint8_t animation, std::uint8_t frame, std::int32_t angle, float xScale, float yScale, spriteType mode, std::uint8_t param, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID) {
+	void LevelScriptLoader::jjDrawRotatedSprite(float xPixel, float yPixel, std::int32_t setID, std::uint8_t animation, std::uint8_t frame, std::int32_t angle, float xScale, float yScale, spriteType mode, std::uint8_t param, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID)
+	{
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		std::int32_t cell = 0;
 		bool translucent;
@@ -1174,7 +1244,8 @@ namespace Jazz2::Scripting
 		DrawWorldSprite(owner, graphics, cell, xPixel, yPixel, 0, xScale, yScale, angle, mode, param, layerZ, translucent);
 	}
 
-	void LevelScriptLoader::jjDrawRotatedSpriteFromCurFrame(float xPixel, float yPixel, std::uint32_t sprite, std::int32_t angle, float xScale, float yScale, spriteType mode, std::uint8_t param, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID) {
+	void LevelScriptLoader::jjDrawRotatedSpriteFromCurFrame(float xPixel, float yPixel, std::uint32_t sprite, std::int32_t angle, float xScale, float yScale, spriteType mode, std::uint8_t param, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID)
+	{
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		std::int32_t cell = 0;
 		bool translucent;
@@ -1200,12 +1271,23 @@ namespace Jazz2::Scripting
 		std::uint16_t kind;
 		switch (mode) {
 			case Legacy::spriteType_PALSHIFT:
-			case Legacy::spriteType_TRANSLUCENTPALSHIFT: kind = 0; break;
+			case Legacy::spriteType_TRANSLUCENTPALSHIFT:
+				kind = 0;
+				break;
 			case Legacy::spriteType_SINGLEHUE:
-			case Legacy::spriteType_TRANSLUCENTSINGLEHUE: kind = 1; break;
-			case Legacy::spriteType_GEM: kind = 2; break;
-			case Legacy::spriteType_ALPHAMAP: kind = 3; break;
-			case Legacy::spriteType_NEONGLOW: kind = 4; param = std::min<std::uint8_t>(param, 6); break;
+			case Legacy::spriteType_TRANSLUCENTSINGLEHUE:
+				kind = 1;
+				break;
+			case Legacy::spriteType_GEM:
+				kind = 2;
+				break;
+			case Legacy::spriteType_ALPHAMAP:
+				kind = 3;
+				break;
+			case Legacy::spriteType_NEONGLOW:
+				kind = 4;
+				param = std::min<std::uint8_t>(param, 6);
+				break;
 			case Legacy::spriteType_PLAYER:
 			case Legacy::spriteType_TRANSLUCENTPLAYER: {
 				// In the colors of the fur of the player of the parameter
@@ -1219,7 +1301,8 @@ namespace Jazz2::Scripting
 			case Legacy::spriteType_MAPPING:
 			case Legacy::spriteType_TRANSLUCENTMAPPING:
 				return GetMappingPaletteOffset(param);
-			default: return 0;
+			default:
+				return 0;
 		}
 
 		std::uint16_t key = std::uint16_t((kind << 8) | param);
@@ -1228,11 +1311,21 @@ namespace Jazz2::Scripting
 			auto& resolver = ContentResolver::Get();
 			std::int32_t offset;
 			switch (kind) {
-				case 0: offset = resolver.AcquireShiftedPaletteOffset(param); break;
-				case 1: offset = resolver.AcquireSingleHuePaletteOffset(param); break;
-				case 2: offset = resolver.AcquireGemPaletteOffset(param); break;
-				case 3: offset = resolver.AcquireAlphaMapPaletteOffset(param); break;
-				default: offset = resolver.AcquireNeonGlowPaletteOffset(param); break;
+				case 0:
+					offset = resolver.AcquireShiftedPaletteOffset(param);
+					break;
+				case 1:
+					offset = resolver.AcquireSingleHuePaletteOffset(param);
+					break;
+				case 2:
+					offset = resolver.AcquireGemPaletteOffset(param);
+					break;
+				case 3:
+					offset = resolver.AcquireAlphaMapPaletteOffset(param);
+					break;
+				default:
+					offset = resolver.AcquireNeonGlowPaletteOffset(param);
+					break;
 			}
 			it = _spritePaletteOffsets.emplace(key, offset).first;
 		}
@@ -1341,7 +1434,8 @@ namespace Jazz2::Scripting
 		return std::uint16_t(last);
 	}
 
-	void LevelScriptLoader::jjDrawSwingingVineSpriteFromCurFrame(float xPixel, float yPixel, std::uint32_t sprite, std::int32_t length, std::int32_t curvature, spriteType mode, std::uint8_t param, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID) {
+	void LevelScriptLoader::jjDrawSwingingVineSpriteFromCurFrame(float xPixel, float yPixel, std::uint32_t sprite, std::int32_t length, std::int32_t curvature, spriteType mode, std::uint8_t param, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID)
+	{
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		if (length <= 0 || ContentResolver::Get().IsHeadless()) {
 			return;
@@ -1360,7 +1454,8 @@ namespace Jazz2::Scripting
 		owner->GetWorldCanvas().AddSprite(draw);
 	}
 
-	void LevelScriptLoader::jjDrawTile(float xPixel, float yPixel, std::uint16_t tile, std::uint32_t tileQuadrant, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID) {
+	void LevelScriptLoader::jjDrawTile(float xPixel, float yPixel, std::uint16_t tile, std::uint32_t tileQuadrant, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID)
+	{
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		if (ContentResolver::Get().IsHeadless()) {
 			return;
@@ -1370,13 +1465,15 @@ namespace Jazz2::Scripting
 		owner->GetWorldCanvas().AddTile(draw);
 	}
 
-	void LevelScriptLoader::jjDrawString(float xPixel, float yPixel, const String& text, std::uint32_t size, std::uint32_t mode, std::uint8_t param, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID) {
+	void LevelScriptLoader::jjDrawString(float xPixel, float yPixel, const String& text, std::uint32_t size, std::uint32_t mode, std::uint8_t param, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID)
+	{
 		// STRING::Mode, PALSHIFT shifts the colors of the font by the parameter (as on the HUD, see jjCANVAS::DrawTextBasicSize())
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		owner->AddWorldText(xPixel, yPixel, text, size, Legacy::GetTextColor(mode == 5 ? std::uint32_t(spriteType_PALSHIFT) : std::uint32_t(spriteType_NORMAL), param), layerZ);
 	}
 
-	void LevelScriptLoader::jjDrawStringEx(float xPixel, float yPixel, const String& text, std::uint32_t size, const jjTEXTAPPEARANCE& appearance, std::uint8_t param1, spriteType spriteMode, std::uint8_t param2, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID) {
+	void LevelScriptLoader::jjDrawStringEx(float xPixel, float yPixel, const String& text, std::uint32_t size, const jjTEXTAPPEARANCE& appearance, std::uint8_t param1, spriteType spriteMode, std::uint8_t param2, std::int8_t layerZ, std::uint8_t layerXY, std::int8_t playerID)
+	{
 		// How the letters move isn't drawn in the level
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		owner->AddWorldText(xPixel, yPixel, text, size, Legacy::GetTextColor(std::uint32_t(spriteMode), param2), layerZ);
@@ -1390,7 +1487,8 @@ namespace Jazz2::Scripting
 		GetWorldCanvas().AddText({ Compatibility::JJ2Strings::RecodeScriptString(text), xPixel, yPixel, size, color, GetLayerDrawZ(layerZ) });
 	}
 
-	std::int32_t LevelScriptLoader::jjGetStringWidth(const String& text, std::uint32_t size, const jjTEXTAPPEARANCE& style) {
+	std::int32_t LevelScriptLoader::jjGetStringWidth(const String& text, std::uint32_t size, const jjTEXTAPPEARANCE& style)
+	{
 		// The fonts live in ContentResolver (the HUD just borrows them), so this works even when called during script
 		// initialization / onLevelLoad, before the HUD has been created
 		ScriptTextStyle textStyle = GetScriptTextStyle(size);
@@ -1416,15 +1514,15 @@ namespace Jazz2::Scripting
 		engine->SetDefaultNamespace("STRING");
 		/** @brief How a special character of text is treated, see @ref jjTEXTAPPEARANCE */
 		engine->RegisterEnum("SignTreatment");
-		engine->RegisterEnumValue("SignTreatment", "HIDESIGN", jjTEXTAPPEARANCE::ch_HIDE);	///< The character is left out
-		engine->RegisterEnumValue("SignTreatment", "DISPLAYSIGN", jjTEXTAPPEARANCE::ch_DISPLAY);	///< The character is drawn like any other
-		engine->RegisterEnumValue("SignTreatment", "SPECIALSIGN", jjTEXTAPPEARANCE::ch_SPECIAL);	///< The character has its special meaning
+		engine->RegisterEnumValue("SignTreatment", "HIDESIGN", jjTEXTAPPEARANCE::ch_HIDE); ///< The character is left out
+		engine->RegisterEnumValue("SignTreatment", "DISPLAYSIGN", jjTEXTAPPEARANCE::ch_DISPLAY); ///< The character is drawn like any other
+		engine->RegisterEnumValue("SignTreatment", "SPECIALSIGN", jjTEXTAPPEARANCE::ch_SPECIAL); ///< The character has its special meaning
 		/** @brief Horizontal alignment of text, see @ref jjTEXTAPPEARANCE::align */
 		engine->RegisterEnum("Alignment");
-		engine->RegisterEnumValue("Alignment", "DEFAULT", jjTEXTAPPEARANCE::align_DEFAULT);	///< Alignment selected by the x coordinate
-		engine->RegisterEnumValue("Alignment", "LEFT", jjTEXTAPPEARANCE::align_LEFT);	///< Text starts at the x coordinate
-		engine->RegisterEnumValue("Alignment", "CENTER", jjTEXTAPPEARANCE::align_CENTER);	///< Text is centered on the x coordinate
-		engine->RegisterEnumValue("Alignment", "RIGHT", jjTEXTAPPEARANCE::align_RIGHT);	///< Text ends at the x coordinate
+		engine->RegisterEnumValue("Alignment", "DEFAULT", jjTEXTAPPEARANCE::align_DEFAULT); ///< Alignment selected by the x coordinate
+		engine->RegisterEnumValue("Alignment", "LEFT", jjTEXTAPPEARANCE::align_LEFT); ///< Text starts at the x coordinate
+		engine->RegisterEnumValue("Alignment", "CENTER", jjTEXTAPPEARANCE::align_CENTER); ///< Text is centered on the x coordinate
+		engine->RegisterEnumValue("Alignment", "RIGHT", jjTEXTAPPEARANCE::align_RIGHT); ///< Text ends at the x coordinate
 		engine->SetDefaultNamespace("");
 		engine->RegisterObjectProperty("jjTEXTAPPEARANCE", "STRING::SignTreatment at", asOFFSET(jjTEXTAPPEARANCE, at));
 		engine->RegisterObjectProperty("jjTEXTAPPEARANCE", "STRING::SignTreatment caret", asOFFSET(jjTEXTAPPEARANCE, caret));

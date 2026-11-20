@@ -37,16 +37,16 @@
 // it could be all put into a macro with _Pragma to wrap around the include, but because I do, there has to be one
 // wrapper header for each include.
 
-#if defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG) && __GNUC__*100 + __GNUC_MINOR__ < 409
+#if defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG) && __GNUC__ * 100 + __GNUC_MINOR__ < 409
 #pragma GCC push_options
 #pragma GCC target("sse2")
 #pragma push_macro("__SSE2__")
 #if !defined(__SSE2__)
-#	define __SSE2__
+#define __SSE2__
 #endif
 #endif
 #include <emmintrin.h>
-#if defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG) && __GNUC__*100 + __GNUC_MINOR__ < 409
+#if defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG) && __GNUC__ * 100 + __GNUC_MINOR__ < 409
 #pragma pop_macro("__SSE2__")
 #pragma GCC pop_options
 #endif

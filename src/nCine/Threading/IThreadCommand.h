@@ -11,7 +11,9 @@ namespace nCine
 	class IThreadCommand
 	{
 	public:
-		virtual ~IThreadCommand() {}
+		virtual ~IThreadCommand()
+		{
+		}
 
 		/** @brief Executes the command on a worker thread */
 		virtual void Execute() = 0;

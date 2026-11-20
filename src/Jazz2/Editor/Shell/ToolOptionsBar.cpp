@@ -235,20 +235,30 @@ namespace Jazz2::Editor
 						texts.push_back(choice->Label.empty() ? entry.Label : String(choice->Label + ": "_s + entry.Label));
 					}
 				}
-				auto* box = container->Add<OptionDropdown>([choice]() { return choice->GetDropdownText(); }, [choice](SmallVectorImpl<MenuEntry>& entries) {
-					for (std::int32_t i = 0; i < std::int32_t(choice->Entries.size()); i++) {
-						const Choice::Entry& source = choice->Entries[i];
-						MenuEntry& entry = entries.emplace_back();
-						entry.Label = source.Label;
-						entry.Icon = source.Icon;
-						if (source.Action != nullptr) {
-							entry.ShortcutText = source.Action->Key.ToString();
+				auto* box = container->Add<OptionDropdown>([choice]() {
+					return choice->GetDropdownText();
+				},
+					[choice](SmallVectorImpl<MenuEntry>& entries) {
+						for (std::int32_t i = 0; i < std::int32_t(choice->Entries.size()); i++) {
+							const Choice::Entry& source = choice->Entries[i];
+							MenuEntry& entry = entries.emplace_back();
+							entry.Label = source.Label;
+							entry.Icon = source.Icon;
+							if (source.Action != nullptr) {
+								entry.ShortcutText = source.Action->Key.ToString();
+							}
+							entry.Execute = [choice, i]() {
+								choice->Choose(i);
+							};
+							entry.IsEnabled = [choice, i]() {
+								return choice->IsEnabled(i);
+							};
+							entry.IsChecked = [choice, i]() {
+								return choice->IsChecked(i);
+							};
 						}
-						entry.Execute = [choice, i]() { choice->Choose(i); };
-						entry.IsEnabled = [choice, i]() { return choice->IsEnabled(i); };
-						entry.IsChecked = [choice, i]() { return choice->IsChecked(i); };
-					}
-				}, Death::move(texts));
+					},
+					Death::move(texts));
 				box->Tooltip = choice->Label;
 				element = box;
 			} else {
@@ -257,10 +267,18 @@ namespace Jazz2::Editor
 					const Choice::Entry& entry = choice->Entries[i];
 					// In the list with their text, the icons alone could be hard to tell apart there
 					StringView text = (list || entry.Icon == EditorIcon::None ? StringView(entry.Label) : StringView());
-					auto* button = group->Add<OptionButton>(text, entry.Icon, [choice, i]() { choice->Choose(i); });
-					button->IsCheckedFunc = [choice, i]() { return choice->IsChecked(i); };
-					button->IsEnabledFunc = [choice, i]() { return choice->IsEnabled(i); };
-					button->TooltipFunc = [choice, i]() { return choice->GetTooltip(i); };
+					auto* button = group->Add<OptionButton>(text, entry.Icon, [choice, i]() {
+						choice->Choose(i);
+					});
+					button->IsCheckedFunc = [choice, i]() {
+						return choice->IsChecked(i);
+					};
+					button->IsEnabledFunc = [choice, i]() {
+						return choice->IsEnabled(i);
+					};
+					button->TooltipFunc = [choice, i]() {
+						return choice->GetTooltip(i);
+					};
 				}
 				element = group;
 			}
@@ -271,21 +289,36 @@ namespace Jazz2::Editor
 		const char* GetToolActionId(EditorToolType type)
 		{
 			switch (type) {
-				case EditorToolType::Brush: return ActionIds::ToolBrush;
-				case EditorToolType::Eraser: return ActionIds::ToolEraser;
-				case EditorToolType::Rectangle: return ActionIds::ToolRectangle;
-				case EditorToolType::Fill: return ActionIds::ToolFill;
-				case EditorToolType::Eyedropper: return ActionIds::ToolEyedropper;
-				case EditorToolType::Select: return ActionIds::ToolSelect;
-				case EditorToolType::Wand: return ActionIds::ToolWand;
-				case EditorToolType::Hand: return ActionIds::ToolHand;
-				case EditorToolType::Event: return ActionIds::ToolEvent;
-				case EditorToolType::Measure: return ActionIds::ToolMeasure;
-				case EditorToolType::Path: return ActionIds::ToolPath;
-				case EditorToolType::Smart: return ActionIds::ToolSmart;
-				case EditorToolType::Ground: return ActionIds::ToolGround;
-				case EditorToolType::Shape: return ActionIds::ToolShape;
-				default: return nullptr;
+				case EditorToolType::Brush:
+					return ActionIds::ToolBrush;
+				case EditorToolType::Eraser:
+					return ActionIds::ToolEraser;
+				case EditorToolType::Rectangle:
+					return ActionIds::ToolRectangle;
+				case EditorToolType::Fill:
+					return ActionIds::ToolFill;
+				case EditorToolType::Eyedropper:
+					return ActionIds::ToolEyedropper;
+				case EditorToolType::Select:
+					return ActionIds::ToolSelect;
+				case EditorToolType::Wand:
+					return ActionIds::ToolWand;
+				case EditorToolType::Hand:
+					return ActionIds::ToolHand;
+				case EditorToolType::Event:
+					return ActionIds::ToolEvent;
+				case EditorToolType::Measure:
+					return ActionIds::ToolMeasure;
+				case EditorToolType::Path:
+					return ActionIds::ToolPath;
+				case EditorToolType::Smart:
+					return ActionIds::ToolSmart;
+				case EditorToolType::Ground:
+					return ActionIds::ToolGround;
+				case EditorToolType::Shape:
+					return ActionIds::ToolShape;
+				default:
+					return nullptr;
 			}
 		}
 	}
@@ -347,7 +380,8 @@ namespace Jazz2::Editor
 					button->TextAlign = Alignment::Left;
 				}
 				return button;
-			}, false);
+			},
+				false);
 		}
 
 		void AddChoice(StringView label, ArrayView<const ToolOptionItem> items, bool preferDropdown) override
@@ -358,7 +392,7 @@ namespace Jazz2::Editor
 			for (const ToolOptionItem& item : items) {
 				// Only the icon of the item, the actions of a choice often share one
 				if (EditorAction* action = FindAction(item.ActionId)) {
-					choice->Entries.push_back(Choice::Entry{ item.Label, item.Icon, item.Tooltip, action });
+					choice->Entries.push_back(Choice::Entry { item.Label, item.Icon, item.Tooltip, action });
 				}
 			}
 			PushChoice(Death::move(choice));
@@ -373,7 +407,7 @@ namespace Jazz2::Editor
 			choice->Getter = Death::move(getter);
 			choice->Setter = Death::move(setter);
 			for (const ToolOptionItem& item : items) {
-				choice->Entries.push_back(Choice::Entry{ item.Label, item.Icon, item.Tooltip, nullptr });
+				choice->Entries.push_back(Choice::Entry { item.Label, item.Icon, item.Tooltip, nullptr });
 			}
 			PushChoice(Death::move(choice));
 		}
@@ -385,7 +419,7 @@ namespace Jazz2::Editor
 			choice->Toggles = true;
 			for (const ToolOptionItem& item : items) {
 				if (EditorAction* action = FindAction(item.ActionId)) {
-					choice->Entries.push_back(Choice::Entry{ item.Label, item.Icon, item.Tooltip, action });
+					choice->Entries.push_back(Choice::Entry { item.Label, item.Icon, item.Tooltip, action });
 				}
 			}
 			PushChoice(Death::move(choice));
@@ -403,13 +437,16 @@ namespace Jazz2::Editor
 				auto* button = parent->Add<OptionButton>(list || icon == EditorIcon::None ? StringView(label) : StringView(), icon, [get, set]() {
 					(*set)(!(*get)());
 				});
-				button->IsCheckedFunc = [get]() { return (*get)(); };
+				button->IsCheckedFunc = [get]() {
+					return (*get)();
+				};
 				button->Tooltip = tooltip;
 				if (list) {
 					button->TextAlign = Alignment::Left;
 				}
 				return button;
-			}, false);
+			},
+				false);
 		}
 
 		void AddNumber(StringView label, StringView tooltip, float minValue, float maxValue, float step,
@@ -427,12 +464,18 @@ namespace Jazz2::Editor
 				} else if (!labelText.empty()) {
 					row->Add<Label>(labelText, Theme::TextDim)->Tooltip = tooltipText;
 				}
-				auto* box = row->Add<NumberBox>([get]() { return (*get)(); }, [set](float value, bool final) { (*set)(value, final); },
+				auto* box = row->Add<NumberBox>([get]() {
+					return (*get)();
+				},
+					[set](float value, bool final) {
+						(*set)(value, final);
+					},
 					minValue, maxValue, step, 0);
 				box->Width = NumberWidth;
 				box->Tooltip = tooltipText;
 				return row;
-			}, false);
+			},
+				false);
 		}
 
 		void AddSeparator() override
@@ -467,7 +510,8 @@ namespace Jazz2::Editor
 			Push([choice](Element* parent, Form form) -> Element* {
 				bool dropdown = (form == Form::Compact || choice->PreferDropdown);
 				return MakeChoice(parent, form == Form::List, dropdown, choice);
-			}, hasCompact);
+			},
+				hasCompact);
 		}
 
 		void Push(Function<Element*(Element*, Form)>&& make, bool hasCompact)
@@ -494,7 +538,7 @@ namespace Jazz2::Editor
 
 	ToolOptionsBar::ToolOptionsBar(IEditorContext& session)
 		: _session(session), _more(nullptr), _firstHidden(0), _built(false), _shownTool(EditorToolType::Count), _shownExpert(false),
-			_list(std::make_shared<Element*>(nullptr)), _listJustClosed(std::make_shared<bool>(false))
+		  _list(std::make_shared<Element*>(nullptr)), _listJustClosed(std::make_shared<bool>(false))
 	{
 	}
 

@@ -62,15 +62,18 @@ namespace Jazz2::Editor
 		void Build(StringView tileSet, const Formats::TileSetData& data, const TerrainRules* rules = nullptr,
 			const LevelDocument* document = nullptr, ArrayView<const LevelTiles> levelTiles = {});
 		/** @brief Returns the tile set analyzed */
-		StringView GetTileSet() const {
+		StringView GetTileSet() const
+		{
 			return _tileSet;
 		}
 		/** @brief Returns a number that changes whenever the shapes do */
-		std::uint32_t GetRevision() const {
+		std::uint32_t GetRevision() const
+		{
 			return _revision;
 		}
 		/** @brief Returns all tiles of ground with a straight surface */
-		const SmallVector<Surface, 0>& GetSurfaces() const {
+		const SmallVector<Surface, 0>& GetSurfaces() const
+		{
 			return _surfaces;
 		}
 		/**
@@ -78,7 +81,8 @@ namespace Jazz2::Editor
 		 *
 		 * Pieces of ground flipped upside down are among them too, a little worse than tiles made for it.
 		 */
-		const SmallVector<Surface, 0>& GetCeilings() const {
+		const SmallVector<Surface, 0>& GetCeilings() const
+		{
 			return _ceilings;
 		}
 

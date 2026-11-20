@@ -97,13 +97,13 @@ namespace nCine
 		bool Color::operator==(const Color& color) const
 		{
 			return (R == color.R && G == color.G &&
-					B == color.B && A == color.A);
+				B == color.B && A == color.A);
 		}
 
 		bool Color::operator!=(const Color& color) const
 		{
 			return (R != color.R || G != color.G ||
-					B != color.B || A != color.A);
+				B != color.B || A != color.A);
 		}
 
 		Color& Color::operator+=(const Color& color)

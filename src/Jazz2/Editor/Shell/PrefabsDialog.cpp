@@ -157,7 +157,9 @@ namespace Jazz2::Editor
 				// The rows are only used by their buttons
 				Selectable = false;
 				EmptyText = _x("editor", "The tile set has no prefabs yet");
-				CountFunc = [this]() { return std::int32_t(_state->Prefabs.size()); };
+				CountFunc = [this]() {
+					return std::int32_t(_state->Prefabs.size());
+				};
 				IEditorContext* s = &session;
 				std::shared_ptr<PrefabsState> rowState = _state;
 				CreateRow = [s, rowState]() -> std::unique_ptr<Element> {
@@ -225,7 +227,9 @@ namespace Jazz2::Editor
 			TilePrefab prefab = TilePrefab::FromStamp(s->GetDocument(), stamp, name);
 			bool droppedTiles = (prefab.DroppedTiles > 0);
 			// One of the same name is replaced
-			auto it = std::find_if(state->Prefabs.begin(), state->Prefabs.end(), [&name](const TilePrefab& p) { return p.Name == name; });
+			auto it = std::find_if(state->Prefabs.begin(), state->Prefabs.end(), [&name](const TilePrefab& p) {
+				return p.Name == name;
+			});
 			if (it != state->Prefabs.end()) {
 				*it = Death::move(prefab);
 			} else {
@@ -239,8 +243,8 @@ namespace Jazz2::Editor
 			nameBox->Text = String();
 			// Tiles of a tile set the level has in itself aren't in any other level, the prefab has empty cells there
 			s->ShowMessage(droppedTiles
-				? _fx("editor", "Prefab \"{}\" saved with the tile set, the tiles of this level itself were left out", name)
-				: _fx("editor", "Prefab \"{}\" saved with the tile set", name));
+					? _fx("editor", "Prefab \"{}\" saved with the tile set, the tiles of this level itself were left out", name)
+					: _fx("editor", "Prefab \"{}\" saved with the tile set", name));
 		});
 		save->Tooltip = _x("editor", "Save the brush as a prefab of the tile set, the rules of the tile set in the user content keep it");
 		// TRANSLATORS: Button in the Prefabs dialog, saves what the Copy All Layers action copied last as a new prefab
@@ -258,7 +262,9 @@ namespace Jazz2::Editor
 			// The layer being edited is the one the prefab is used on, the others go with it
 			TilePrefab prefab = TilePrefab::FromLayered(s->GetDocument(), copied, ToolActions::GetCurrentLayerFromSprite(*s), name);
 			bool droppedTiles = (prefab.DroppedTiles > 0);
-			auto it = std::find_if(state->Prefabs.begin(), state->Prefabs.end(), [&name](const TilePrefab& p) { return p.Name == name; });
+			auto it = std::find_if(state->Prefabs.begin(), state->Prefabs.end(), [&name](const TilePrefab& p) {
+				return p.Name == name;
+			});
 			if (it != state->Prefabs.end()) {
 				*it = Death::move(prefab);
 			} else {
@@ -272,8 +278,8 @@ namespace Jazz2::Editor
 			nameBox->Text = String();
 			// Tiles of a tile set the level has in itself aren't in any other level, the prefab has empty cells there
 			s->ShowMessage(droppedTiles
-				? _fx("editor", "Prefab \"{}\" saved with the tile set, the tiles of this level itself were left out", name)
-				: _fx("editor", "Prefab \"{}\" saved with the tile set", name));
+					? _fx("editor", "Prefab \"{}\" saved with the tile set, the tiles of this level itself were left out", name)
+					: _fx("editor", "Prefab \"{}\" saved with the tile set", name));
 		});
 		saveLayers->Tooltip = _x("editor", "Save what Copy All Layers copied last as a prefab, with its layers and events");
 

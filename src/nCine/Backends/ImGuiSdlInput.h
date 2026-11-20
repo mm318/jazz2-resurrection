@@ -49,7 +49,8 @@ namespace nCine::Backends
 		static bool ProcessEvent(const SDL_Event* event);
 
 		/** @brief Enables or disables input processing */
-		static inline void SetInputEnabled(bool inputEnabled) {
+		static inline void SetInputEnabled(bool inputEnabled)
+		{
 			_inputEnabled = inputEnabled;
 		}
 

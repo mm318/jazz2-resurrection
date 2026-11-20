@@ -23,7 +23,8 @@ namespace Jazz2::Actors::Solid
 
 	protected:
 		/** @brief Container content item */
-		struct ContainerContent {
+		struct ContainerContent
+		{
 			/** @brief Event type */
 			EventType Type;
 			/** @brief Object count */

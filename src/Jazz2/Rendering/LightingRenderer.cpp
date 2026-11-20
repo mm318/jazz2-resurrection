@@ -128,15 +128,21 @@ namespace Jazz2::Rendering
 		_vertices.resize_for_overwrite(base + FloatsPerQuad);
 		float* v = _vertices.data() + base;
 		auto put = [&](float px, float py, float cx, float cy) {
-			*v++ = px; *v++ = py; *v++ = radiusNear; *v++ = 0.0f;
-			*v++ = light.Intensity; *v++ = light.Brightness; *v++ = cx; *v++ = cy;
+			*v++ = px;
+			*v++ = py;
+			*v++ = radiusNear;
+			*v++ = 0.0f;
+			*v++ = light.Intensity;
+			*v++ = light.Brightness;
+			*v++ = cx;
+			*v++ = cy;
 		};
 		// Corner order of the shared quad index pattern (see RenderResources::GetQuadIndices()), which is also
 		// the order the tile and particle meshes use
 		put(x0, y0, -1.0f, -1.0f);
-		put(x1, y0,  1.0f, -1.0f);
-		put(x1, y1,  1.0f,  1.0f);
-		put(x0, y1, -1.0f,  1.0f);
+		put(x1, y0, 1.0f, -1.0f);
+		put(x1, y1, 1.0f, 1.0f);
+		put(x0, y1, -1.0f, 1.0f);
 	}
 
 	void LightingRenderer::AppendRingQuads(const LightEmitter& light, const Rectf& cullingRect)
@@ -195,8 +201,14 @@ namespace Jazz2::Rendering
 				_vertices.resize_for_overwrite(base + FloatsPerQuad);
 				float* v = _vertices.data() + base;
 				auto put = [&](float px, float py, float ox, float oy) {
-					*v++ = px; *v++ = py; *v++ = radiusNear; *v++ = ringRadius;
-					*v++ = light.Intensity; *v++ = light.Brightness; *v++ = ox; *v++ = oy;
+					*v++ = px;
+					*v++ = py;
+					*v++ = radiusNear;
+					*v++ = ringRadius;
+					*v++ = light.Intensity;
+					*v++ = light.Brightness;
+					*v++ = ox;
+					*v++ = oy;
 				};
 				// Any cyclic order of the four corners triangulates a convex quad correctly
 				put(ax, ay, dirX * innerNorm, dirY * innerNorm);

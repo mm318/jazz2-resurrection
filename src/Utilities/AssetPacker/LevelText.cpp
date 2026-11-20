@@ -27,13 +27,15 @@ namespace Jazz2::AssetPacker
 	{
 		constexpr std::int32_t FormatVersion = 1;
 
-		struct LayerData {
+		struct LayerData
+		{
 			LayerRecord Header;
 			SmallVector<TileRecord, 0> Tiles;
 		};
 
 		/** Everything a level file holds, as the records the reader returns */
-		struct LevelData {
+		struct LevelData
+		{
 			LevelHeader Header;
 			LevelProperties Properties;
 			bool HasLevelPalette = false;
@@ -161,17 +163,21 @@ namespace Jazz2::AssetPacker
 		class TextWriter
 		{
 		public:
-			void Raw(StringView text) {
+			void Raw(StringView text)
+			{
 				_data.append(text.begin(), text.end());
 			}
-			void Char(char c) {
+			void Char(char c)
+			{
 				_data.push_back(c);
 			}
-			void Line(StringView text) {
+			void Line(StringView text)
+			{
 				Raw(text);
 				Char('\n');
 			}
-			void Format(const char* format, ...) {
+			void Format(const char* format, ...)
+			{
 				char buffer[256];
 				va_list args;
 				va_start(args, format);
@@ -181,16 +187,29 @@ namespace Jazz2::AssetPacker
 					_data.append(buffer, buffer + std::min<std::int32_t>(length, std::int32_t(sizeof(buffer)) - 1));
 				}
 			}
-			void Quoted(StringView value) {
+			void Quoted(StringView value)
+			{
 				Char('"');
 				for (char c : value) {
 					switch (c) {
-						case '"': Raw("\\\""_s); break;
-						case '\\': Raw("\\\\"_s); break;
-						case '\n': Raw("\\n"_s); break;
-						case '\r': Raw("\\r"_s); break;
-						case '\t': Raw("\\t"_s); break;
-						case '\f': Raw("\\f"_s); break;
+						case '"':
+							Raw("\\\""_s);
+							break;
+						case '\\':
+							Raw("\\\\"_s);
+							break;
+						case '\n':
+							Raw("\\n"_s);
+							break;
+						case '\r':
+							Raw("\\r"_s);
+							break;
+						case '\t':
+							Raw("\\t"_s);
+							break;
+						case '\f':
+							Raw("\\f"_s);
+							break;
 						default:
 							if (std::uint8_t(c) < 0x20 || c == 0x7F) {
 								Format("\\x%02X", std::uint8_t(c));
@@ -202,7 +221,8 @@ namespace Jazz2::AssetPacker
 				}
 				Char('"');
 			}
-			void Float(float value) {
+			void Float(float value)
+			{
 				if (std::isfinite(value)) {
 					// Nine significant digits are enough for any float to be read back exactly
 					Format("%.9g", value);
@@ -212,21 +232,24 @@ namespace Jazz2::AssetPacker
 					Format("bits:%08X", bits);
 				}
 			}
-			void Tile(const TileRecord& tile) {
+			void Tile(const TileRecord& tile)
+			{
 				if (tile.Flags != 0) {
 					Format("%u:%X", std::uint32_t(tile.TileId), std::uint32_t(tile.Flags));
 				} else {
 					Format("%u", std::uint32_t(tile.TileId));
 				}
 			}
-			void HexBytes(const std::uint8_t* data, std::size_t size) {
+			void HexBytes(const std::uint8_t* data, std::size_t size)
+			{
 				static const char Digits[] = "0123456789ABCDEF";
 				for (std::size_t i = 0; i < size; i++) {
 					Char(Digits[data[i] >> 4]);
 					Char(Digits[data[i] & 0x0F]);
 				}
 			}
-			void Base64(ArrayView<const std::uint8_t> data) {
+			void Base64(ArrayView<const std::uint8_t> data)
+			{
 				static const char Alphabet[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 				// 57 bytes make a line of 76 characters
 				for (std::size_t lineStart = 0; lineStart < data.size(); lineStart += 57) {
@@ -234,8 +257,10 @@ namespace Jazz2::AssetPacker
 					for (std::size_t i = lineStart; i < lineEnd; i += 3) {
 						std::uint32_t chunk = std::uint32_t(data[i]) << 16;
 						std::size_t left = lineEnd - i;
-						if (left > 1) chunk |= std::uint32_t(data[i + 1]) << 8;
-						if (left > 2) chunk |= std::uint32_t(data[i + 2]);
+						if (left > 1)
+							chunk |= std::uint32_t(data[i + 1]) << 8;
+						if (left > 2)
+							chunk |= std::uint32_t(data[i + 2]);
 						Char(Alphabet[(chunk >> 18) & 0x3F]);
 						Char(Alphabet[(chunk >> 12) & 0x3F]);
 						Char(left > 1 ? Alphabet[(chunk >> 6) & 0x3F] : '=');
@@ -246,7 +271,8 @@ namespace Jazz2::AssetPacker
 				Line("end"_s);
 			}
 
-			ArrayView<const char> GetData() const {
+			ArrayView<const char> GetData() const
+			{
 				return _data;
 			}
 
@@ -261,13 +287,27 @@ namespace Jazz2::AssetPacker
 			w.Format("flags 0x%04X\n", std::uint32_t(level.Header.Flags));
 
 			const LevelProperties& p = level.Properties;
-			w.Raw("name "_s); w.Quoted(p.DisplayName); w.Char('\n');
-			w.Raw("author "_s); w.Quoted(p.Author); w.Char('\n');
-			w.Raw("next "_s); w.Quoted(p.NextLevel); w.Char('\n');
-			w.Raw("secret "_s); w.Quoted(p.SecretLevel); w.Char('\n');
-			w.Raw("bonus "_s); w.Quoted(p.BonusLevel); w.Char('\n');
-			w.Raw("tileset "_s); w.Quoted(p.DefaultTileSet); w.Char('\n');
-			w.Raw("music "_s); w.Quoted(p.Music); w.Char('\n');
+			w.Raw("name "_s);
+			w.Quoted(p.DisplayName);
+			w.Char('\n');
+			w.Raw("author "_s);
+			w.Quoted(p.Author);
+			w.Char('\n');
+			w.Raw("next "_s);
+			w.Quoted(p.NextLevel);
+			w.Char('\n');
+			w.Raw("secret "_s);
+			w.Quoted(p.SecretLevel);
+			w.Char('\n');
+			w.Raw("bonus "_s);
+			w.Quoted(p.BonusLevel);
+			w.Char('\n');
+			w.Raw("tileset "_s);
+			w.Quoted(p.DefaultTileSet);
+			w.Char('\n');
+			w.Raw("music "_s);
+			w.Quoted(p.Music);
+			w.Char('\n');
 			w.Format("ambient 0x%08X\n", p.AmbientColor);
 			w.Format("weather %u %u\n", std::uint32_t(p.Weather), std::uint32_t(p.WeatherIntensity));
 			w.Format("water %u\n", std::uint32_t(p.WaterLevel));
@@ -286,7 +326,9 @@ namespace Jazz2::AssetPacker
 				writePalette(level.LevelPalette);
 			}
 			for (const PaletteRecord& palette : level.AdditionalPalettes) {
-				w.Raw("extra-palette "_s); w.Quoted(palette.Name); w.Char('\n');
+				w.Raw("extra-palette "_s);
+				w.Quoted(palette.Name);
+				w.Char('\n');
 				writePalette(palette.Colors);
 			}
 
@@ -325,7 +367,9 @@ namespace Jazz2::AssetPacker
 			}
 
 			for (const String& text : level.Texts) {
-				w.Raw("text "_s); w.Quoted(text); w.Char('\n');
+				w.Raw("text "_s);
+				w.Quoted(text);
+				w.Char('\n');
 			}
 
 			w.Format("animated-offset %u\n", std::uint32_t(level.AnimatedTilesOffset));
@@ -399,14 +443,18 @@ namespace Jazz2::AssetPacker
 		{
 		public:
 			TextReader(StringView text, StringView path)
-				: _text(text), _path(path), _pos(0), _line(0), _failed(false) {}
+				: _text(text), _path(path), _pos(0), _line(0), _failed(false)
+			{
+			}
 
-			bool IsValid() const {
+			bool IsValid() const
+			{
 				return !_failed;
 			}
 
 			// Moves to the next line that isn't empty or a comment, returns false at the end of the text
-			bool NextLine() {
+			bool NextLine()
+			{
 				while (_pos < _text.size()) {
 					std::size_t end = _pos;
 					while (end < _text.size() && _text[end] != '\n') {
@@ -427,12 +475,14 @@ namespace Jazz2::AssetPacker
 				return false;
 			}
 
-			bool AtLineEnd() {
+			bool AtLineEnd()
+			{
 				SkipSpaces();
 				return (_cursor >= _current.size());
 			}
 
-			StringView Word() {
+			StringView Word()
+			{
 				SkipSpaces();
 				std::size_t start = _cursor;
 				while (_cursor < _current.size() && _current[_cursor] != ' ' && _current[_cursor] != '\t') {
@@ -441,7 +491,8 @@ namespace Jazz2::AssetPacker
 				return _current.slice(start, _cursor);
 			}
 
-			std::int64_t Integer() {
+			std::int64_t Integer()
+			{
 				StringView word = Word();
 				if (word.empty()) {
 					Fail("A number is missing");
@@ -456,8 +507,9 @@ namespace Jazz2::AssetPacker
 				return value;
 			}
 
-			template<typename T>
-			T Unsigned(std::int64_t max) {
+			template <typename T>
+			T Unsigned(std::int64_t max)
+			{
 				std::int64_t value = Integer();
 				if (value < 0 || value > max) {
 					Fail("A number is out of its range");
@@ -466,7 +518,8 @@ namespace Jazz2::AssetPacker
 				return T(value);
 			}
 
-			float Float() {
+			float Float()
+			{
 				StringView word = Word();
 				if (word.hasPrefix("bits:"_s)) {
 					String copy = word.exceptPrefix(5);
@@ -484,7 +537,8 @@ namespace Jazz2::AssetPacker
 				return value;
 			}
 
-			String Quoted() {
+			String Quoted()
+			{
 				SkipSpaces();
 				if (_cursor >= _current.size() || _current[_cursor] != '"') {
 					Fail("A quoted text is missing");
@@ -498,10 +552,18 @@ namespace Jazz2::AssetPacker
 					if (c == '\\' && _cursor < _current.size()) {
 						char e = _current[_cursor++];
 						switch (e) {
-							case 'n': buffer.push_back('\n'); break;
-							case 'r': buffer.push_back('\r'); break;
-							case 't': buffer.push_back('\t'); break;
-							case 'f': buffer.push_back('\f'); break;
+							case 'n':
+								buffer.push_back('\n');
+								break;
+							case 'r':
+								buffer.push_back('\r');
+								break;
+							case 't':
+								buffer.push_back('\t');
+								break;
+							case 'f':
+								buffer.push_back('\f');
+								break;
 							case 'x': {
 								if (_cursor + 2 > _current.size()) {
 									Fail("An escape is damaged");
@@ -512,7 +574,9 @@ namespace Jazz2::AssetPacker
 								_cursor += 2;
 								break;
 							}
-							default: buffer.push_back(e); break;
+							default:
+								buffer.push_back(e);
+								break;
 						}
 					} else {
 						buffer.push_back(c);
@@ -526,7 +590,8 @@ namespace Jazz2::AssetPacker
 				return String(buffer.data(), buffer.size());
 			}
 
-			TileRecord Tile(StringView word) {
+			TileRecord Tile(StringView word)
+			{
 				TileRecord tile;
 				tile.Flags = 0;
 				tile.TileId = 0;
@@ -554,7 +619,8 @@ namespace Jazz2::AssetPacker
 				return tile;
 			}
 
-			bool HexBytes(std::uint8_t* data, std::size_t size) {
+			bool HexBytes(std::uint8_t* data, std::size_t size)
+			{
 				StringView word = Word();
 				if (word.size() != size * 2) {
 					Fail("A line of bytes has a wrong length");
@@ -573,7 +639,8 @@ namespace Jazz2::AssetPacker
 			}
 
 			// Lines of Base64 up to "end"
-			bool Base64(SmallVectorImpl<std::uint8_t>& data) {
+			bool Base64(SmallVectorImpl<std::uint8_t>& data)
+			{
 				data.clear();
 				while (true) {
 					if (!NextLine()) {
@@ -605,7 +672,8 @@ namespace Jazz2::AssetPacker
 				}
 			}
 
-			void Fail(const char* message) {
+			void Fail(const char* message)
+			{
 				if (!_failed) {
 					LOGE("\"{}\", line {}: {}", _path, _line, message);
 				}
@@ -621,25 +689,36 @@ namespace Jazz2::AssetPacker
 			std::int32_t _line;
 			bool _failed;
 
-			void SkipSpaces() {
+			void SkipSpaces()
+			{
 				while (_cursor < _current.size() && (_current[_cursor] == ' ' || _current[_cursor] == '\t')) {
 					_cursor++;
 				}
 			}
 
-			static std::int32_t HexDigit(char c) {
-				if (c >= '0' && c <= '9') return c - '0';
-				if (c >= 'A' && c <= 'F') return c - 'A' + 10;
-				if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+			static std::int32_t HexDigit(char c)
+			{
+				if (c >= '0' && c <= '9')
+					return c - '0';
+				if (c >= 'A' && c <= 'F')
+					return c - 'A' + 10;
+				if (c >= 'a' && c <= 'f')
+					return c - 'a' + 10;
 				return -1;
 			}
 
-			static std::int32_t Base64Digit(char c) {
-				if (c >= 'A' && c <= 'Z') return c - 'A';
-				if (c >= 'a' && c <= 'z') return c - 'a' + 26;
-				if (c >= '0' && c <= '9') return c - '0' + 52;
-				if (c == '+') return 62;
-				if (c == '/') return 63;
+			static std::int32_t Base64Digit(char c)
+			{
+				if (c >= 'A' && c <= 'Z')
+					return c - 'A';
+				if (c >= 'a' && c <= 'z')
+					return c - 'a' + 26;
+				if (c >= '0' && c <= '9')
+					return c - '0' + 52;
+				if (c == '+')
+					return 62;
+				if (c == '/')
+					return 63;
 				return -1;
 			}
 		};
@@ -894,7 +973,8 @@ namespace Jazz2::AssetPacker
 		// Name of the first section where two levels differ, for the message when the text doesn't give the level back
 		const char* FindDifference(const LevelData& a, const LevelData& b)
 		{
-			if (a.Header.Flags != b.Header.Flags) return "flags";
+			if (a.Header.Flags != b.Header.Flags)
+				return "flags";
 			const LevelProperties& pa = a.Properties;
 			const LevelProperties& pb = b.Properties;
 			if (pa.DisplayName != pb.DisplayName || pa.Author != pb.Author || pa.NextLevel != pb.NextLevel || pa.SecretLevel != pb.SecretLevel ||
@@ -902,27 +982,38 @@ namespace Jazz2::AssetPacker
 				pa.Weather != pb.Weather || pa.WeatherIntensity != pb.WeatherIntensity || pa.WaterLevel != pb.WaterLevel || pa.CaptionTileId != pb.CaptionTileId) {
 				return "properties";
 			}
-			if (a.HasLevelPalette != b.HasLevelPalette || a.AdditionalPalettes.size() != b.AdditionalPalettes.size()) return "palettes";
-			if (a.ExtraTileSets.size() != b.ExtraTileSets.size()) return "extra tile sets";
+			if (a.HasLevelPalette != b.HasLevelPalette || a.AdditionalPalettes.size() != b.AdditionalPalettes.size())
+				return "palettes";
+			if (a.ExtraTileSets.size() != b.ExtraTileSets.size())
+				return "extra tile sets";
 			for (std::size_t i = 0; i < a.ExtraTileSets.size(); i++) {
 				const ExtraTileSetRecord& ta = a.ExtraTileSets[i];
 				const ExtraTileSetRecord& tb = b.ExtraTileSets[i];
-				if (ta.Flags != tb.Flags || ta.Name != tb.Name || ta.Offset != tb.Offset || ta.Count != tb.Count || ta.Data.size() != tb.Data.size()) return "extra tile sets";
+				if (ta.Flags != tb.Flags || ta.Name != tb.Name || ta.Offset != tb.Offset || ta.Count != tb.Count || ta.Data.size() != tb.Data.size())
+					return "extra tile sets";
 			}
-			if (a.DiffuseOverrides.size() != b.DiffuseOverrides.size() || a.MaskOverrides.size() != b.MaskOverrides.size()) return "tile overrides";
-			if (a.Texts.size() != b.Texts.size()) return "texts";
+			if (a.DiffuseOverrides.size() != b.DiffuseOverrides.size() || a.MaskOverrides.size() != b.MaskOverrides.size())
+				return "tile overrides";
+			if (a.Texts.size() != b.Texts.size())
+				return "texts";
 			for (std::size_t i = 0; i < a.Texts.size(); i++) {
-				if (a.Texts[i] != b.Texts[i]) return "texts";
+				if (a.Texts[i] != b.Texts[i])
+					return "texts";
 			}
-			if (a.AnimatedTilesOffset != b.AnimatedTilesOffset || a.AnimatedTiles.size() != b.AnimatedTiles.size()) return "animated tiles";
-			if (a.Layers.size() != b.Layers.size()) return "layers";
+			if (a.AnimatedTilesOffset != b.AnimatedTilesOffset || a.AnimatedTiles.size() != b.AnimatedTiles.size())
+				return "animated tiles";
+			if (a.Layers.size() != b.Layers.size())
+				return "layers";
 			for (std::size_t i = 0; i < a.Layers.size(); i++) {
-				if (a.Layers[i].Tiles.size() != b.Layers[i].Tiles.size() || std::memcmp(&a.Layers[i].Header, &b.Layers[i].Header, offsetof(LayerRecord, SpeedModels)) != 0) return "layers";
+				if (a.Layers[i].Tiles.size() != b.Layers[i].Tiles.size() || std::memcmp(&a.Layers[i].Header, &b.Layers[i].Header, offsetof(LayerRecord, SpeedModels)) != 0)
+					return "layers";
 				for (std::size_t j = 0; j < a.Layers[i].Tiles.size(); j++) {
-					if (a.Layers[i].Tiles[j].TileId != b.Layers[i].Tiles[j].TileId || a.Layers[i].Tiles[j].Flags != b.Layers[i].Tiles[j].Flags) return "tiles of layers";
+					if (a.Layers[i].Tiles[j].TileId != b.Layers[i].Tiles[j].TileId || a.Layers[i].Tiles[j].Flags != b.Layers[i].Tiles[j].Flags)
+						return "tiles of layers";
 				}
 			}
-			if (a.Events.size() != b.Events.size()) return "number of events";
+			if (a.Events.size() != b.Events.size())
+				return "number of events";
 			for (std::size_t i = 0; i < a.Events.size(); i++) {
 				const EventRecord& ea = a.Events[i];
 				const EventRecord& eb = b.Events[i];
@@ -931,8 +1022,10 @@ namespace Jazz2::AssetPacker
 					return "events";
 				}
 			}
-			if (a.OffGridEvents.size() != b.OffGridEvents.size()) return "off-grid events";
-			if (a.Chunks.size() != b.Chunks.size()) return "chunks";
+			if (a.OffGridEvents.size() != b.OffGridEvents.size())
+				return "off-grid events";
+			if (a.Chunks.size() != b.Chunks.size())
+				return "chunks";
 			return "the way it's written";
 		}
 

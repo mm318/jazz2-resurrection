@@ -64,18 +64,22 @@ namespace Jazz2::Editor
 		std::uint8_t Flags;
 
 		/** @brief Returns `true` if it's the empty tile */
-		constexpr bool IsEmpty() const {
+		constexpr bool IsEmpty() const
+		{
 			return (Source == DefaultTileSet && Index == 0);
 		}
 		/** @brief Returns `true` if it's an animated tile */
-		constexpr bool IsAnimated() const {
+		constexpr bool IsAnimated() const
+		{
 			return (Source == Animated);
 		}
 
-		constexpr bool operator==(const TileRef& other) const {
+		constexpr bool operator==(const TileRef& other) const
+		{
 			return (Index == other.Index && Source == other.Source && Flags == other.Flags);
 		}
-		constexpr bool operator!=(const TileRef& other) const {
+		constexpr bool operator!=(const TileRef& other) const
+		{
 			return !operator==(other);
 		}
 	};
@@ -138,27 +142,33 @@ namespace Jazz2::Editor
 		std::uint32_t Id = MakeLayerId();
 
 		/** @brief Returns `true` if it's the sprite layer */
-		bool IsSpriteLayer() const {
+		bool IsSpriteLayer() const
+		{
 			return (Record.Kind == Formats::LayerKind::Sprite);
 		}
 		/** @brief Returns the width in tiles */
-		std::int32_t GetWidth() const {
+		std::int32_t GetWidth() const
+		{
 			return Record.Width;
 		}
 		/** @brief Returns the height in tiles */
-		std::int32_t GetHeight() const {
+		std::int32_t GetHeight() const
+		{
 			return Record.Height;
 		}
 		/** @brief Returns `true` if a position is inside of the layer */
-		bool Contains(std::int32_t x, std::int32_t y) const {
+		bool Contains(std::int32_t x, std::int32_t y) const
+		{
 			return (x >= 0 && y >= 0 && x < Record.Width && y < Record.Height);
 		}
 		/** @brief Returns the tile at a position, which has to be inside of the layer */
-		const TileRef& GetTile(std::int32_t x, std::int32_t y) const {
+		const TileRef& GetTile(std::int32_t x, std::int32_t y) const
+		{
 			return Tiles[std::size_t(y) * std::size_t(Record.Width) + std::size_t(x)];
 		}
 		/** @copydoc GetTile() */
-		TileRef& GetTile(std::int32_t x, std::int32_t y) {
+		TileRef& GetTile(std::int32_t x, std::int32_t y)
+		{
 			return Tiles[std::size_t(y) * std::size_t(Record.Width) + std::size_t(x)];
 		}
 	};
@@ -177,15 +187,15 @@ namespace Jazz2::Editor
 	/** @brief Problem that would make a level unloadable, see @ref LevelDocument::Validate() */
 	enum class DocumentProblem : std::uint8_t
 	{
-		None,					/**< No problem */
-		LayerSize,				/**< A layer has a different number of tiles than its size */
-		SpriteLayerCount,		/**< The level doesn't have exactly one sprite layer */
-		TooManyLayers,			/**< The level has too many layers */
-		TooManyTexts,			/**< The level has too many texts */
-		TooManyExtraTileSets,	/**< The level has too many extra tile sets */
-		TooManyAnimations,		/**< The level has too many animated tiles */
-		TooManyFrames,			/**< An animated tile has too many frames */
-		UnaddressableTile		/**< The level uses tiles past the tile IDs it can address */
+		None, /**< No problem */
+		LayerSize, /**< A layer has a different number of tiles than its size */
+		SpriteLayerCount, /**< The level doesn't have exactly one sprite layer */
+		TooManyLayers, /**< The level has too many layers */
+		TooManyTexts, /**< The level has too many texts */
+		TooManyExtraTileSets, /**< The level has too many extra tile sets */
+		TooManyAnimations, /**< The level has too many animated tiles */
+		TooManyFrames, /**< An animated tile has too many frames */
+		UnaddressableTile /**< The level uses tiles past the tile IDs it can address */
 	};
 
 	/**
@@ -330,9 +340,9 @@ namespace Jazz2::Editor
 		/** @brief What the tiles of a layer that grows are, see @ref ResizeLayer() */
 		enum class ResizeFill : std::uint8_t
 		{
-			Empty,			/**< Empty tiles */
-			ExtendEdges,	/**< The tiles of the edges go on, the corners fill the corners */
-			Repeat			/**< The layer is repeated */
+			Empty, /**< Empty tiles */
+			ExtendEdges, /**< The tiles of the edges go on, the corners fill the corners */
+			Repeat /**< The layer is repeated */
 		};
 
 		/**

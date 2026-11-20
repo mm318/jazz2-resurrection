@@ -240,7 +240,7 @@ namespace Jazz2::Compatibility
 				m.Add("Platform"_s, "ball_chain"_s);
 				m.NextSet();
 				m.Add("Object"_s, "bonus_active"_s);
-				m.Add("Object"_s, "bonus_inactive"_s);	// Unused
+				m.Add("Object"_s, "bonus_inactive"_s); // Unused
 			}
 
 			m.NextSet();

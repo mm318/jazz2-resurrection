@@ -94,7 +94,8 @@ namespace Jazz2::Editor
 		/** @brief Returns the bookmarks and notes of a level */
 		const SmallVectorImpl<Annotation>& Get(const LevelDocument& document);
 		/** @brief Returns a number that changes each time they're read again, see @ref Get() */
-		std::uint32_t GetVersion() const {
+		std::uint32_t GetVersion() const
+		{
 			return _version;
 		}
 

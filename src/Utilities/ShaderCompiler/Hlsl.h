@@ -39,7 +39,7 @@
 	with a diagnostic rather than emit invalid HLSL.
 */
 
-#include "GlslReflect.h"		// StageReflection (texture units, block strides), Diagnostic, StringView
+#include "GlslReflect.h" // StageReflection (texture units, block strides), Diagnostic, StringView
 
 namespace ShaderCompiler
 {
@@ -65,7 +65,8 @@ namespace ShaderCompiler
 			  fixed-function-era Cg set - so a stage still referencing `gl_VertexID`/`gl_InstanceID` after
 			  @ref VertexIdRewrite has run is rejected with a diagnostic rather than mis-emitted
 		*/
-		enum class Dialect {
+		enum class Dialect
+		{
 			Hlsl,
 			Cg
 		};

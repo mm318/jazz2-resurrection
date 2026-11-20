@@ -70,7 +70,8 @@ namespace Jazz2::Scripting::Legacy
 		 *
 		 * The first custom sets fit in `uint8`, as in JJ2+ - scripts pass them to `jjOBJ::determineCurAnim()` so.
 		 */
-		std::uint32_t GetCustomFirstSetID() const {
+		std::uint32_t GetCustomFirstSetID() const
+		{
 			return _plusFirstSetID + _plusSetCount;
 		}
 

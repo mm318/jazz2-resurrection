@@ -2,14 +2,14 @@
 #include "../../Main.h"
 
 #include <chrono>
-#include <cmath>	// for ldexp()
+#include <cmath> // for ldexp()
 #include <cstring>
 #include <tuple>
 
 #if defined(DEATH_TARGET_WINDOWS)
-#	include <objbase.h>
+#include <objbase.h>
 #elif defined(DEATH_TARGET_N64)
-#	include <entropy.h>
+#include <entropy.h>
 #endif
 
 namespace nCine

@@ -23,11 +23,11 @@
 #ifndef DOXYGEN_GENERATING_OUTPUT
 // If coroutines are not supported, load resources synchronously
 #if defined(WITH_COROUTINES)
-#	define async_return co_return
-#	define async_await co_await
+#define async_return co_return
+#define async_await co_await
 #else
-#	define async_return return
-#	define async_await
+#define async_return return
+#define async_await
 #endif
 #endif
 
@@ -94,7 +94,9 @@ namespace Jazz2::Actors
 	class IActorUpdateOverride
 	{
 	public:
-		virtual ~IActorUpdateOverride() {}
+		virtual ~IActorUpdateOverride()
+		{
+		}
 
 		/** @brief Called instead of the per-frame update of the object */
 		virtual void OnUpdate(ActorBase* actor, float timeMult) = 0;
@@ -105,7 +107,8 @@ namespace Jazz2::Actors
 		 *
 		 * Returns `true` if handled, neither of them is told about it then.
 		 */
-		virtual bool OnCollision(ActorBase* actor, ActorBase* other) {
+		virtual bool OnCollision(ActorBase* actor, ActorBase* other)
+		{
 			return false;
 		}
 		/**
@@ -113,26 +116,32 @@ namespace Jazz2::Actors
 		 *
 		 * Returns `true` if @ref ActorBase::AABBInner is set already.
 		 */
-		virtual bool OnUpdateHitbox(ActorBase* actor) {
+		virtual bool OnUpdateHitbox(ActorBase* actor)
+		{
 			return false;
 		}
 		/** @brief Called after the object emitted its own lights, see @ref ActorBase::EmitLights() */
-		virtual void OnEmitLights(ActorBase* actor, SmallVectorImpl<LightEmitter>& lights) {
+		virtual void OnEmitLights(ActorBase* actor, SmallVectorImpl<LightEmitter>& lights)
+		{
 		}
 		/** @brief Called when the object runs out of health, returns `true` if it lives on */
-		virtual bool OnPerish(ActorBase* actor, ActorBase* collider) {
+		virtual bool OnPerish(ActorBase* actor, ActorBase* collider)
+		{
 			return false;
 		}
 		/** @brief Returns `true` if the override makes the debris instead of the object */
-		virtual bool OwnsDebris() const {
+		virtual bool OwnsDebris() const
+		{
 			return false;
 		}
 		/** @brief Returns `true` if the override emits all lights instead of the object, see @ref OnEmitLights() */
-		virtual bool OwnsLights() const {
+		virtual bool OwnsLights() const
+		{
 			return false;
 		}
 		/** @brief Called when the object is out of reach of the players, returns `false` if the override handles it */
-		virtual bool OnTileDeactivated(ActorBase* actor) {
+		virtual bool OnTileDeactivated(ActorBase* actor)
+		{
 			return true;
 		}
 	};
@@ -144,7 +153,8 @@ namespace Jazz2::Actors
 		Mixes instantiation hints, per-instance state and collision options. Supports a bitwise combination of its
 		member values.
 	*/
-	enum class ActorState {
+	enum class ActorState
+	{
 		None = 0x00,
 
 		/** @brief Actor is created from event map, this flag is used automatically by event system */
@@ -221,7 +231,8 @@ namespace Jazz2::Actors
 		
 		Passed to @ref ActorBase::OnActivated() and @ref ActorBase::OnActivatedAsync() when an actor is spawned.
 	*/
-	struct ActorActivationDetails {
+	struct ActorActivationDetails
+	{
 		/** @brief Current level handler */
 		ILevelHandler* LevelHandler;
 		/** @brief Position */
@@ -245,44 +256,56 @@ namespace Jazz2::Actors
 		Reads unaligned little-endian values from @ref ActorActivationDetails::Params. Prefer it over type-punning
 		the raw buffer.
 	*/
-	struct EventParamsReader {
+	struct EventParamsReader
+	{
 		explicit EventParamsReader(const ActorActivationDetails& details) noexcept
-			: _params(details.Params) {}
+			: _params(details.Params)
+		{
+		}
 		explicit EventParamsReader(const std::uint8_t* params) noexcept
-			: _params(params) {}
+			: _params(params)
+		{
+		}
 
 		/** @brief Reads a boolean at the given byte offset */
-		bool GetBool(std::int32_t offset) const noexcept {
+		bool GetBool(std::int32_t offset) const noexcept
+		{
 			return (_params[offset] != 0);
 		}
 		/** @brief Reads an unsigned 8-bit value at the given byte offset */
-		std::uint8_t GetUint8(std::int32_t offset) const noexcept {
+		std::uint8_t GetUint8(std::int32_t offset) const noexcept
+		{
 			return _params[offset];
 		}
 		/** @brief Reads a signed 8-bit value at the given byte offset */
-		std::int8_t GetInt8(std::int32_t offset) const noexcept {
+		std::int8_t GetInt8(std::int32_t offset) const noexcept
+		{
 			return (std::int8_t)_params[offset];
 		}
 		/** @brief Reads an unsigned 16-bit value at the given byte offset */
-		std::uint16_t GetUint16(std::int32_t offset) const noexcept {
+		std::uint16_t GetUint16(std::int32_t offset) const noexcept
+		{
 			std::uint16_t value;
 			std::memcpy(&value, &_params[offset], sizeof(value));
 			return Death::Memory::AsLE(value);
 		}
 		/** @brief Reads a signed 16-bit value at the given byte offset */
-		std::int16_t GetInt16(std::int32_t offset) const noexcept {
+		std::int16_t GetInt16(std::int32_t offset) const noexcept
+		{
 			std::int16_t value;
 			std::memcpy(&value, &_params[offset], sizeof(value));
 			return Death::Memory::AsLE(value);
 		}
 		/** @brief Reads an unsigned 32-bit value at the given byte offset */
-		std::uint32_t GetUint32(std::int32_t offset) const noexcept {
+		std::uint32_t GetUint32(std::int32_t offset) const noexcept
+		{
 			std::uint32_t value;
 			std::memcpy(&value, &_params[offset], sizeof(value));
 			return Death::Memory::AsLE(value);
 		}
 		/** @brief Reads a 32-bit floating-point value at the given byte offset */
-		float GetFloat(std::int32_t offset) const noexcept {
+		float GetFloat(std::int32_t offset) const noexcept
+		{
 			std::uint32_t value;
 			std::memcpy(&value, &_params[offset], sizeof(value));
 			value = Death::Memory::AsLE(value);
@@ -301,31 +324,39 @@ namespace Jazz2::Actors
 		Counterpart of @ref EventParamsReader for parameters built at runtime, in the packed little-endian
 		layout of the level file.
 	*/
-	struct EventParamsWriter {
+	struct EventParamsWriter
+	{
 		explicit EventParamsWriter(std::uint8_t* params) noexcept
-			: _params(params) {}
+			: _params(params)
+		{
+		}
 
 		/** @brief Writes an unsigned 8-bit value at the given byte offset */
-		void SetUint8(std::int32_t offset, std::uint8_t value) noexcept {
+		void SetUint8(std::int32_t offset, std::uint8_t value) noexcept
+		{
 			_params[offset] = value;
 		}
 		/** @brief Writes an unsigned 16-bit value at the given byte offset */
-		void SetUint16(std::int32_t offset, std::uint16_t value) noexcept {
+		void SetUint16(std::int32_t offset, std::uint16_t value) noexcept
+		{
 			value = Death::Memory::AsLE(value);
 			std::memcpy(&_params[offset], &value, sizeof(value));
 		}
 		/** @brief Writes a signed 16-bit value at the given byte offset */
-		void SetInt16(std::int32_t offset, std::int16_t value) noexcept {
+		void SetInt16(std::int32_t offset, std::int16_t value) noexcept
+		{
 			value = Death::Memory::AsLE(value);
 			std::memcpy(&_params[offset], &value, sizeof(value));
 		}
 		/** @brief Writes an unsigned 32-bit value at the given byte offset */
-		void SetUint32(std::int32_t offset, std::uint32_t value) noexcept {
+		void SetUint32(std::int32_t offset, std::uint32_t value) noexcept
+		{
 			value = Death::Memory::AsLE(value);
 			std::memcpy(&_params[offset], &value, sizeof(value));
 		}
 		/** @brief Writes a 32-bit floating-point value at the given byte offset */
-		void SetFloat(std::int32_t offset, float value) noexcept {
+		void SetFloat(std::int32_t offset, float value) noexcept
+		{
 			std::uint32_t raw;
 			std::memcpy(&raw, &value, sizeof(raw));
 			raw = Death::Memory::AsLE(raw);
@@ -342,10 +373,11 @@ namespace Jazz2::Actors
 		How @ref ActorBase::MoveInstantly() interprets the target position. Supports a bitwise combination of its
 		member values.
 	*/
-	enum class MoveType {
-		Absolute = 0x00,		/**< Move to absolute position */
-		Relative = 0x01,		/**< Move to relative position */
-		Force = 0x02			/**< Ignore all collision checks */
+	enum class MoveType
+	{
+		Absolute = 0x00, /**< Move to absolute position */
+		Relative = 0x01, /**< Move to relative position */
+		Force = 0x02 /**< Ignore all collision checks */
 	};
 
 	DEATH_ENUM_FLAGS(MoveType);
@@ -355,12 +387,13 @@ namespace Jazz2::Actors
 		
 		Visual mode of @ref ActorBase::ActorRenderer, e.g. an outline, a hit flash or the frozen effect.
 	*/
-	enum class ActorRendererType {
-		Default,				/**< Default rendering */
-		Outline,				/**< Draw outline around the sprite */
-		WhiteMask,				/**< Draw all non-transparent pixels as white */
-		PartialWhiteMask,		/**< Draw all non-transparent pixels as boosted shades of gray */
-		FrozenMask				/**< Apply frozen effect to the sprite */
+	enum class ActorRendererType
+	{
+		Default, /**< Default rendering */
+		Outline, /**< Draw outline around the sprite */
+		WhiteMask, /**< Draw all non-transparent pixels as white */
+		PartialWhiteMask, /**< Draw all non-transparent pixels as boosted shades of gray */
+		FrozenMask /**< Apply frozen effect to the sprite */
 	};
 
 	/**
@@ -368,14 +401,15 @@ namespace Jazz2::Actors
 		
 		Selects the debris an actor leaves behind when it perishes.
 	*/
-	enum class ParticleDebrisEffect {
-		Unknown,				/**< Unspecified */
-		Standard,				/**< Standard */
-		StandardInWater,		/**< Standard (in water) */
-		Dissolve,				/**< Dissolve (for ghosts) */
-		Frozen,					/**< Frozen (for breaking the ice) */
-		Fire,					/**< Fire (for toasting) */
-		Lightning				/**< Lightning (for electrocuting) */
+	enum class ParticleDebrisEffect
+	{
+		Unknown, /**< Unspecified */
+		Standard, /**< Standard */
+		StandardInWater, /**< Standard (in water) */
+		Dissolve, /**< Dissolve (for ghosts) */
+		Frozen, /**< Frozen (for breaking the ice) */
+		Fire, /**< Fire (for toasting) */
+		Lightning /**< Lightning (for electrocuting) */
 	};
 
 	/**
@@ -448,7 +482,8 @@ namespace Jazz2::Actors
 		/** @brief Moves the object */
 		bool MoveInstantly(Vector2f pos, MoveType type, Tiles::TileCollisionParams& params);
 		/** @overload */
-		bool MoveInstantly(Vector2f pos, MoveType type) {
+		bool MoveInstantly(Vector2f pos, MoveType type)
+		{
 			Tiles::TileCollisionParams params = { Tiles::TileDestructType::None, _speed.Y >= 0.0f };
 			return MoveInstantly(pos, type, params);
 		}
@@ -480,32 +515,38 @@ namespace Jazz2::Actors
 		virtual void UpdateRendererPosition();
 
 		/** @brief Returns current position */
-		Vector2f GetPos() {
+		Vector2f GetPos()
+		{
 			return _pos;
 		}
 
 		/** @brief Returns current speed */
-		Vector2f GetSpeed() {
+		Vector2f GetSpeed()
+		{
 			return _speed;
 		}
 
 		/** @brief Returns actor state */
-		constexpr ActorState GetState() const noexcept {
+		constexpr ActorState GetState() const noexcept
+		{
 			return _state;
 		}
 
 		/** @overload */
-		constexpr bool GetState(ActorState flag) const noexcept {
+		constexpr bool GetState(ActorState flag) const noexcept
+		{
 			return (_state & flag) == flag;
 		}
 
 		/** @brief Returns event type the object was spawned from, or @ref EventType::Empty if it wasn't created from an event */
-		EventType GetSpawnEventType() const noexcept {
+		EventType GetSpawnEventType() const noexcept
+		{
 			return _spawnEventType;
 		}
 
 		/** @brief Returns parameters of the event the object was spawned from, see @ref GetSpawnEventType() */
-		const std::uint8_t* GetSpawnEventParams() const noexcept {
+		const std::uint8_t* GetSpawnEventParams() const noexcept
+		{
 			return _spawnEventParams;
 		}
 
@@ -517,11 +558,13 @@ namespace Jazz2::Actors
 		 */
 		void SetUpdateOverride(std::unique_ptr<IActorUpdateOverride> value);
 		/** @brief Returns the update override, or `nullptr` */
-		IActorUpdateOverride* GetUpdateOverride() const {
+		IActorUpdateOverride* GetUpdateOverride() const
+		{
 			return _updateOverride.get();
 		}
 		/** @brief Lets the overrides of two colliding objects handle the collision, returns `true` if one did */
-		static bool HandleCollisionByOverride(ActorBase* a, ActorBase* b) {
+		static bool HandleCollisionByOverride(ActorBase* a, ActorBase* b)
+		{
 			return (a->_updateOverride != nullptr && a->_updateOverride->OnCollision(a, b)) ||
 				(b->_updateOverride != nullptr && b->_updateOverride->OnCollision(b, a));
 		}
@@ -777,13 +820,16 @@ namespace Jazz2::Actors
 		/** @brief Called when the object needs to be drawn */
 		virtual bool OnDraw(RenderQueue& renderQueue);
 		/** @brief Called when emitting lights */
-		virtual void OnEmitLights(SmallVectorImpl<LightEmitter>& lights) { }
+		virtual void OnEmitLights(SmallVectorImpl<LightEmitter>& lights)
+		{
+		}
 		/**
 		 * @brief Called when emitting lights that have to be replicated to remote peers
 		 *
 		 * Defaults to @ref OnEmitLights(). Override it to leave out lights that clients produce on their own.
 		 */
-		virtual void OnEmitRemotedLights(SmallVectorImpl<LightEmitter>& lights) {
+		virtual void OnEmitRemotedLights(SmallVectorImpl<LightEmitter>& lights)
+		{
 			OnEmitLights(lights);
 		}
 		/**
@@ -792,7 +838,8 @@ namespace Jazz2::Actors
 		 * Only for objects that turn the flag into lights. They leave those lights out of
 		 * @ref OnEmitRemotedLights() and every observer spawns its own.
 		 */
-		virtual bool IsIlluminatedStateRemoted() const {
+		virtual bool IsIlluminatedStateRemoted() const
+		{
 			return false;
 		}
 		/** @brief Returns how fast the object slides while frozen, see @ref ActorState::KeepsMomentumWhenFrozen */
@@ -804,15 +851,18 @@ namespace Jazz2::Actors
 		/** @brief Called when the object hits a wall */
 		virtual void OnHitWall(float timeMult);
 		/** @brief Returns the gravity applied this frame, may depend on direction (e.g., the player's jump arc) */
-		virtual float GetGravityModifier(float baseGravity, bool isRising) const {
+		virtual float GetGravityModifier(float baseGravity, bool isRising) const
+		{
 			return baseGravity;
 		}
 		/** @brief Sets how long the animation or transition just started lasts, in ticks of the original game (70 a second) */
-		void SetAnimationTicks(float ticks) {
+		void SetAnimationTicks(float ticks)
+		{
 			_renderer.AnimDuration = ticks / 70.0f;
 		}
 		/** @brief Like @ref SetAnimationTicks(), but keeps how far through the animation it is */
-		void ChangeAnimationTicks(float ticks) {
+		void ChangeAnimationTicks(float ticks)
+		{
 			float duration = ticks / 70.0f;
 			if (_renderer.AnimDuration != duration) {
 				if (_renderer.AnimDuration > 0.0f) {
@@ -822,7 +872,8 @@ namespace Jazz2::Actors
 			}
 		}
 		/** @brief Sets how far into the current animation it is, in ticks of the original game */
-		void SetAnimationTimeTicks(float ticks) {
+		void SetAnimationTimeTicks(float ticks)
+		{
 			_renderer.AnimTime = ticks / 70.0f;
 		}
 		/** @brief Returns @p baseGravity with the gravity of the level replaced by the given one, for an override of @ref GetGravityModifier() */
@@ -839,7 +890,8 @@ namespace Jazz2::Actors
 		 * Call it after assigning the position directly for a warp, respawn or re-sync, otherwise
 		 * @ref HasCrossedOver() hits everything on the way. @ref MoveInstantly() does it for absolute moves.
 		 */
-		void ResetPathTracking() {
+		void ResetPathTracking()
+		{
 			_frameStartPos = _pos;
 		}
 		/**
@@ -906,35 +958,42 @@ namespace Jazz2::Actors
 #if defined(WITH_COROUTINES)
 		auto RequestMetadataAsync(StringView path, bool forceIndexed = false)
 		{
-			struct awaitable {
+			struct awaitable
+			{
 				ActorBase* actor;
 				const StringView& path;
 				bool forceIndexed;
 
-				bool await_ready() {
+				bool await_ready()
+				{
 					return false;
 				}
-				void await_suspend(std::coroutine_handle<> handle) {
+				void await_suspend(std::coroutine_handle<> handle)
+				{
 					// TODO: implement async
 					auto metadata = ContentResolver::Get().RequestMetadata(path, forceIndexed);
 					actor->_metadata = metadata;
 					handle();
 				}
-				void await_resume() { }
+				void await_resume()
+				{
+				}
 			};
-			return awaitable{this, path, forceIndexed};
+			return awaitable { this, path, forceIndexed };
 		}
 #else
 		void RequestMetadataAsync(StringView path, bool forceIndexed = false);
 #endif
 
 		/** @brief Sets actor state */
-		constexpr void SetState(ActorState flags) noexcept {
+		constexpr void SetState(ActorState flags) noexcept
+		{
 			_state = flags;
 		}
 
 		/** @overload */
-		constexpr void SetState(ActorState flag, bool value) noexcept {
+		constexpr void SetState(ActorState flag, bool value) noexcept
+		{
 			if (value) {
 				_state = _state | flag;
 			} else {
@@ -947,7 +1006,8 @@ namespace Jazz2::Actors
 		ActorBase& operator=(const ActorBase&) = delete;
 
 		// What the sub-steps of a single frame ran into, so the callbacks fire at most once per frame
-		struct MovementResult {
+		struct MovementResult
+		{
 			bool HitWall;
 			bool HitCeiling;
 			bool HitFloor;

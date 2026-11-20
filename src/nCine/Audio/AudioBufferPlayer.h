@@ -39,7 +39,8 @@ namespace nCine
 		std::int32_t GetBufferSize() const override;
 
 		/** @brief Returns the audio buffer used for playback */
-		inline const AudioBuffer* GetAudioBuffer() const {
+		inline const AudioBuffer* GetAudioBuffer() const
+		{
 			return _audioBuffer;
 		}
 		/** @brief Sets the audio buffer used for playback */
@@ -54,7 +55,8 @@ namespace nCine
 		void UpdateState() override;
 
 		/** @brief Returns the static object type of this class */
-		inline static ObjectType sType() {
+		inline static ObjectType sType()
+		{
 			return ObjectType::AudioBufferPlayer;
 		}
 

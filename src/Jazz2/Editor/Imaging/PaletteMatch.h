@@ -21,12 +21,14 @@ namespace Jazz2::Editor
 		/** @brief Converts the color to an entry of a palette with a given alpha, colors outside of sRGB are clamped */
 		std::uint32_t ToPaletteEntry(std::uint8_t alpha = 255) const;
 		/** @brief Returns a color between two others, @p t from 0 to 1 */
-		static OkLab Lerp(const OkLab& a, const OkLab& b, float t) {
-			return OkLab{ a.L + (b.L - a.L) * t, a.A + (b.A - a.A) * t, a.B + (b.B - a.B) * t };
+		static OkLab Lerp(const OkLab& a, const OkLab& b, float t)
+		{
+			return OkLab { a.L + (b.L - a.L) * t, a.A + (b.A - a.A) * t, a.B + (b.B - a.B) * t };
 		}
 
 		/** @brief Returns the squared distance to another color */
-		float DistanceSquared(const OkLab& other) const {
+		float DistanceSquared(const OkLab& other) const
+		{
 			float dl = L - other.L, da = A - other.A, db = B - other.B;
 			return dl * dl + da * da + db * db;
 		}

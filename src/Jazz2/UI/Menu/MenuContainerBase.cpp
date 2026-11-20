@@ -16,9 +16,10 @@ namespace Jazz2::UI::Menu
 {
 	MenuContainerBase::MenuContainerBase()
 		: _contentBounds(), _activeCanvas(ActiveCanvas::Background), _metadata(nullptr), _smallFont(nullptr),
-			_mediumFont(nullptr), _pressedActions(0), _lastNavigationFlags(NavigationFlags::AllowAll)
+		  _mediumFont(nullptr), _pressedActions(0), _lastNavigationFlags(NavigationFlags::AllowAll)
 #if defined(NCINE_HAS_TOUCH_CONTROLS)
-			, _touchButtonsTimer(0.0f)
+		  ,
+		  _touchButtonsTimer(0.0f)
 #endif
 	{
 	}
@@ -107,9 +108,15 @@ namespace Jazz2::UI::Menu
 	{
 		auto drawOne = [layer](MenuSection* section, Canvas* c) {
 			switch (layer) {
-				case ActiveCanvas::Background: section->OnDraw(c); break;
-				case ActiveCanvas::Clipped: section->OnDrawClipped(c); break;
-				case ActiveCanvas::Overlay: section->OnDrawOverlay(c); break;
+				case ActiveCanvas::Background:
+					section->OnDraw(c);
+					break;
+				case ActiveCanvas::Clipped:
+					section->OnDrawClipped(c);
+					break;
+				case ActiveCanvas::Overlay:
+					section->OnDrawOverlay(c);
+					break;
 			}
 		};
 
@@ -261,8 +268,7 @@ namespace Jazz2::UI::Menu
 			float(frameRect.W) / float(texSize.X),
 			float(frameRect.X) / float(texSize.X),
 			float(frameRect.H) / float(texSize.Y),
-			float(frameRect.Y) / float(texSize.Y)
-		);
+			float(frameRect.Y) / float(texSize.Y));
 
 		std::int32_t paletteOffset = ((base->Flags & GenericGraphicResourceFlags::Indexed) == GenericGraphicResourceFlags::Indexed ? res->PaletteOffset : -1);
 		currentCanvas->DrawTexture(*base->TextureDiffuse.get(), adjustedPos, z, size, texCoords, color, additiveBlending ? BlendMode::Additive : BlendMode::Normal, 0.0f, paletteOffset);

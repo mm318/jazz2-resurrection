@@ -28,7 +28,8 @@ namespace Jazz2::Scripting
 		unsupported or were already included. It is reported per file and may be refined by `#pragma`
 		directives.
 	*/
-	enum class ScriptContextType {
+	enum class ScriptContextType
+	{
 		/** @brief Unknown/unsupported script part */
 		Unknown,
 		/** @brief Already included script part */
@@ -46,7 +47,8 @@ namespace Jazz2::Scripting
 		return codes for success and the various failure conditions such as an invalid engine
 		configuration, a failed build, a build already in progress or missing compiler support.
 	*/
-	enum class ScriptBuildResult {
+	enum class ScriptBuildResult
+	{
 		/** @brief The engine succeeded */
 		Success = asSUCCESS,
 		/** @brief The engine configuration is invalid */
@@ -72,8 +74,9 @@ namespace Jazz2::Scripting
 	{
 	public:
 		/** @brief Returns @ref ScriptLoader instance from active **AngelScript** context if exists */
-		template<typename T = ScriptLoader, class = typename std::enable_if<std::is_base_of<ScriptLoader, T>::value>::type>
-		static T* FromActiveContext() {
+		template <typename T = ScriptLoader, class = typename std::enable_if<std::is_base_of<ScriptLoader, T>::value>::type>
+		static T* FromActiveContext()
+		{
 			auto* ctx = asGetActiveContext();
 			DEATH_ASSERT(ctx != nullptr, "Active context is not set", nullptr);
 			// The user data of the engine is behind its lock, which every call of the script to the game would take
@@ -89,17 +92,20 @@ namespace Jazz2::Scripting
 		virtual ~ScriptLoader();
 
 		/** @brief Returns **AngelScript** engine */
-		asIScriptEngine* GetEngine() const {
+		asIScriptEngine* GetEngine() const
+		{
 			return _engine;
 		}
 
 		/** @brief Returns **AngelScript** main module */
-		asIScriptModule* GetMainModule() const {
+		asIScriptModule* GetMainModule() const
+		{
 			return _module;
 		}
 
 		/** @brief Returns context type */
-		ScriptContextType GetContextType() const {
+		ScriptContextType GetContextType() const
+		{
 			return _scriptContextType;
 		}
 
@@ -135,7 +141,8 @@ namespace Jazz2::Scripting
 		static String MakeRelativePath(StringView path, StringView relativeToFile);
 
 	private:
-		enum class MetadataType {
+		enum class MetadataType
+		{
 			Unknown,
 			Type,
 			Function,
@@ -146,10 +153,13 @@ namespace Jazz2::Scripting
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
-		struct RawMetadataDeclaration {
+		struct RawMetadataDeclaration
+		{
 			RawMetadataDeclaration(SmallVectorImpl<String>&& m, String n, String d, MetadataType t, String c, String ns)
 				: Metadata(Death::move(m)), Name(Death::move(n)), Declaration(Death::move(d)),
-					Type(t), ParentClass(Death::move(c)), Namespace(Death::move(ns)) {}
+				  Type(t), ParentClass(Death::move(c)), Namespace(Death::move(ns))
+			{
+			}
 
 			SmallVector<String, 0> Metadata;
 			String Name;
@@ -159,7 +169,8 @@ namespace Jazz2::Scripting
 			String Namespace;
 		};
 
-		struct ClassMetadata {
+		struct ClassMetadata
+		{
 			HashMap<std::int32_t, Array<String>> FuncMetadataMap;
 			HashMap<std::int32_t, Array<String>> VarMetadataMap;
 		};

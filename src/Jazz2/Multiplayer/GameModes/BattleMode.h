@@ -18,19 +18,24 @@ namespace Jazz2::Multiplayer::GameModes
 	class BattleMode : public GameModeBase
 	{
 	public:
-		MpGameMode GetMode() const override {
+		MpGameMode GetMode() const override
+		{
 			return MpGameMode::Battle;
 		}
-		bool IsTeamBased() const override {
+		bool IsTeamBased() const override
+		{
 			return false;
 		}
-		bool SkipsPreGameCountdown() const override {
+		bool SkipsPreGameCountdown() const override
+		{
 			return false;
 		}
-		bool HasUnlimitedHealth() const override {
+		bool HasUnlimitedHealth() const override
+		{
 			return false;
 		}
-		bool LowerScoreWins() const override {
+		bool LowerScoreWins() const override
+		{
 			return false;
 		}
 
@@ -46,7 +51,8 @@ namespace Jazz2::Multiplayer::GameModes
 		void AssignTeams(IGameModeContext& ctx) override;
 		std::uint32_t GetRoundScore(IGameModeContext& ctx, Actors::Player* player) override;
 		void OnDrawHUD(IGameModeContext& ctx, IGameModeHUD& hud, Actors::Player* player, const Rectf& view) override;
-		bool HasDamageAmplifierInOvertime() const override {
+		bool HasDamageAmplifierInOvertime() const override
+		{
 			return true;
 		}
 		GameEndResult OnTimeOut(IGameModeContext& ctx) override;

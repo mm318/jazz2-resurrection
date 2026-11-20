@@ -72,11 +72,13 @@ namespace Jazz2::Editor
 		bool EmptyIsTransparent = false;
 
 		/** @brief Returns `true` if there's nothing to paint */
-		bool IsEmpty() const {
+		bool IsEmpty() const
+		{
 			return (Width <= 0 || Height <= 0);
 		}
 		/** @brief Returns `true` if the stamp has events on its tiles, see @ref Events */
-		bool HasEvents() const {
+		bool HasEvents() const
+		{
 			return (!Events.empty() && Events.size() == Tiles.size());
 		}
 		/** @brief Makes a stamp of a single tile */
@@ -87,11 +89,13 @@ namespace Jazz2::Editor
 		static TileStamp FromTileSet(std::uint8_t source, std::int32_t columns, const Recti& area);
 
 		/** @brief Returns the tile at a position of the stamp */
-		const TileRef& GetTile(std::int32_t x, std::int32_t y) const {
+		const TileRef& GetTile(std::int32_t x, std::int32_t y) const
+		{
 			return Tiles[std::size_t(y) * Width + x];
 		}
 		/** @brief Returns `true` if the tile at a position of the stamp is painted */
-		bool IsPresent(std::int32_t x, std::int32_t y) const {
+		bool IsPresent(std::int32_t x, std::int32_t y) const
+		{
 			return Present[std::size_t(y) * Width + x];
 		}
 		/** @brief Returns the tile of a pattern of the stamp repeated from an origin, for a position of a layer */
@@ -119,15 +123,18 @@ namespace Jazz2::Editor
 	{
 	public:
 		/** @brief Returns `true` if nothing is selected */
-		bool IsEmpty() const {
+		bool IsEmpty() const
+		{
 			return (_bounds.W <= 0 || _bounds.H <= 0);
 		}
 		/** @brief Returns the layer of the selection, or -1 */
-		std::int32_t GetLayer() const {
+		std::int32_t GetLayer() const
+		{
 			return _layer;
 		}
 		/** @brief Returns the bounds of the selected tiles */
-		const Recti& GetBounds() const {
+		const Recti& GetBounds() const
+		{
 			return _bounds;
 		}
 		/** @brief Returns `true` if a tile is selected */
@@ -146,11 +153,13 @@ namespace Jazz2::Editor
 		/** @brief Adds the tiles around the selected ones, or with @p shrink takes away the selected tiles at its edge */
 		void Grow(bool shrink);
 		/** @brief Returns the selected tiles as one bit for each tile of the layer, row by row */
-		const BitArray& GetMask() const {
+		const BitArray& GetMask() const
+		{
 			return _mask;
 		}
 		/** @brief Returns the size of the layer of the selection */
-		Vector2i GetLayerSize() const {
+		Vector2i GetLayerSize() const
+		{
 			return _layerSize;
 		}
 		/**
@@ -159,7 +168,8 @@ namespace Jazz2::Editor
 		 * The numbers come from one counter for all selections, so two selections with the same number are the same,
 		 * what's drawn of a selection can be kept until its number changes.
 		 */
-		std::uint32_t GetRevision() const {
+		std::uint32_t GetRevision() const
+		{
 			return _revision;
 		}
 

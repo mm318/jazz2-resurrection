@@ -41,10 +41,10 @@ namespace Jazz2::Compatibility
 		// begins; stored as a 4-byte-long integer starting at byte 0x8)
 
 		// Header (208 bytes)
-		/*std::int32_t headerSize =*/ s->ReadValueAsLE<std::int32_t>();
+		/*std::int32_t headerSize =*/s->ReadValueAsLE<std::int32_t>();
 		Position = s->ReadValueAsLE<std::int32_t>();
-		/*std::uint32_t flags =*/ s->ReadValueAsLE<std::uint32_t>();	// 0x01 = Not Shareware
-		/*std::uint32_t unknown1 =*/ s->ReadValueAsLE<std::uint32_t>();
+		/*std::uint32_t flags =*/s->ReadValueAsLE<std::uint32_t>(); // 0x01 = Not Shareware
+		/*std::uint32_t unknown1 =*/s->ReadValueAsLE<std::uint32_t>();
 
 		char tmpBuffer[64];
 
@@ -85,13 +85,13 @@ namespace Jazz2::Compatibility
 
 		ImageWidth = s->ReadValueAsLE<std::int32_t>();
 		ImageHeight = s->ReadValueAsLE<std::int32_t>();
-		/*std::int32_t unknown2 =*/ s->ReadValueAsLE<std::int32_t>();
-		/*std::int32_t unknown3 =*/ s->ReadValueAsLE<std::int32_t>();
+		/*std::int32_t unknown2 =*/s->ReadValueAsLE<std::int32_t>();
+		/*std::int32_t unknown3 =*/s->ReadValueAsLE<std::int32_t>();
 
 		TitleWidth = s->ReadValueAsLE<std::int32_t>();
 		TitleHeight = s->ReadValueAsLE<std::int32_t>();
-		/*std::int32_t unknown4 =*/ s->ReadValueAsLE<std::int32_t>();
-		/*std::int32_t unknown5 =*/ s->ReadValueAsLE<std::int32_t>();
+		/*std::int32_t unknown4 =*/s->ReadValueAsLE<std::int32_t>();
+		/*std::int32_t unknown5 =*/s->ReadValueAsLE<std::int32_t>();
 
 		// Background image
 		{
@@ -162,7 +162,7 @@ namespace Jazz2::Compatibility
 			MutableStringView nextEpisode = NextEpisode;
 			if (JJ2Level::StringHasSuffixIgnoreCase(nextEpisode, ".j2e"_s)) {
 				nextEpisode = nextEpisode.exceptSuffix(4);
-			} else if(JJ2Level::StringHasSuffixIgnoreCase(nextEpisode, ".j2pe"_s)) {
+			} else if (JJ2Level::StringHasSuffixIgnoreCase(nextEpisode, ".j2pe"_s)) {
 				nextEpisode = nextEpisode.exceptSuffix(5);
 			}
 

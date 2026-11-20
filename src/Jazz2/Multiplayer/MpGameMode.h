@@ -13,27 +13,27 @@ namespace Jazz2::Multiplayer
 	*/
 	enum class MpGameMode
 	{
-		Unknown = 0,		/**< Unspecified */
+		Unknown = 0, /**< Unspecified */
 
-		Battle,				/**< Battle */
-		TeamBattle,			/**< Team Battle */
-		Race,				/**< Race */
-		TeamRace,			/**< Team Race */
-		TreasureHunt,		/**< Treasure Hunt */
-		TeamTreasureHunt,	/**< Team Treasure Hunt */
-		CaptureTheFlag,		/**< Capture The Flag */
-		Cooperation,		/**< Cooperation */
+		Battle, /**< Battle */
+		TeamBattle, /**< Team Battle */
+		Race, /**< Race */
+		TeamRace, /**< Team Race */
+		TreasureHunt, /**< Treasure Hunt */
+		TeamTreasureHunt, /**< Team Treasure Hunt */
+		CaptureTheFlag, /**< Capture The Flag */
+		Cooperation, /**< Cooperation */
 
-		RoastTag,						/**< Roast Tag */
-		LastRabbitStanding,				/**< Last Rabbit Standing */
-		ExtendedLastRabbitStanding,		/**< Extended Last Rabbit Standing */
-		Pestilence,						/**< Pestilence */
-		TeamLastRabbitStanding,			/**< Team Last Rabbit Standing */
-		Jailbreak,						/**< Jailbreak */
-		DeathCaptureTheFlag,			/**< Death Capture The Flag */
-		FlagRun,						/**< Flag Run */
-		Domination,						/**< Domination */
-		HeadHunters						/**< Head Hunters */
+		RoastTag, /**< Roast Tag */
+		LastRabbitStanding, /**< Last Rabbit Standing */
+		ExtendedLastRabbitStanding, /**< Extended Last Rabbit Standing */
+		Pestilence, /**< Pestilence */
+		TeamLastRabbitStanding, /**< Team Last Rabbit Standing */
+		Jailbreak, /**< Jailbreak */
+		DeathCaptureTheFlag, /**< Death Capture The Flag */
+		FlagRun, /**< Flag Run */
+		Domination, /**< Domination */
+		HeadHunters /**< Head Hunters */
 	};
 }
 

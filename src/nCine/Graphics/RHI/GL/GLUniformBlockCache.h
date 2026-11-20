@@ -30,7 +30,8 @@ namespace nCine::RHI::GL
 		explicit GLUniformBlockCache(GLUniformBlock* uniformBlock);
 
 		/** @brief Returns the uniform block described by this cache */
-		inline const GLUniformBlock* GetUniformBlock() const {
+		inline const GLUniformBlock* GetUniformBlock() const
+		{
 			return _uniformBlock;
 		}
 		/** @brief Wrapper around @ref GLUniformBlock::GetIndex() */
@@ -43,18 +44,21 @@ namespace nCine::RHI::GL
 		std::uint8_t GetAlignAmount() const;
 
 		/** @brief Returns the host-side data buffer mirroring the block */
-		inline GLubyte* GetDataPointer() {
+		inline GLubyte* GetDataPointer()
+		{
 			return _dataPointer;
 		}
 		/** @brief Returns the host-side data buffer mirroring the block */
-		inline const GLubyte* GetDataPointer() const {
+		inline const GLubyte* GetDataPointer() const
+		{
 			return _dataPointer;
 		}
 		/** @brief Sets the host-side data buffer and repoints each member uniform cache into it */
 		void SetDataPointer(GLubyte* dataPointer);
 
 		/** @brief Returns how many bytes of the cache are uploaded to the UBO */
-		inline GLint GetUsedSize() const {
+		inline GLint GetUsedSize() const
+		{
 			return _usedSize;
 		}
 		/** @brief Sets how many bytes of the cache are uploaded to the UBO */
@@ -63,7 +67,8 @@ namespace nCine::RHI::GL
 		/** @brief Copies a range of bytes into the data buffer and returns whether it succeeded */
 		bool CopyData(std::uint32_t destIndex, const GLubyte* src, std::uint32_t numBytes);
 		/** @brief Copies the whole used size from the source into the data buffer */
-		inline bool CopyData(const GLubyte* src) {
+		inline bool CopyData(const GLubyte* src)
+		{
 			return CopyData(0, src, _usedSize);
 		}
 

@@ -39,7 +39,8 @@ namespace Jazz2::AssetPacker
 	{
 	public:
 		/** @brief What a new GameCube disc image is made of, see @ref CreateGameCubeImage() */
-		struct GameCubeImageDescription {
+		struct GameCubeImageDescription
+		{
 			/** @brief The executable, a `.dol` */
 			StringView ExecutablePath;
 			/** @brief The apploader the boot ROM runs to load the executable, with the 32-byte header in front of its code */

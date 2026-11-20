@@ -34,7 +34,8 @@ namespace Jazz2::Actors::Collectibles
 	private:
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
-		struct ChainPiece {
+		struct ChainPiece
+		{
 			Vector2f Pos;
 			float Angle;
 			float Scale;

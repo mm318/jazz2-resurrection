@@ -43,14 +43,16 @@ EM_JS(void, __jazz2EditorPickFile, (const char* accept, int requestId), {
 	input.type = 'file';
 	input.accept = UTF8ToString(accept);
 	input.style.display = 'none';
-	input.onchange = function(e) {
+	input.onchange = function(e)
+	{
 		var file = (e.target.files.length > 0 ? e.target.files[0] : null);
 		document.body.removeChild(input);
 		if (!file) {
 			return;
 		}
 		var reader = new FileReader();
-		reader.onload = function() {
+		reader.onload = function()
+		{
 			var bytes = new Uint8Array(reader.result);
 			// A file larger than the memory of the game can take isn't picked at all
 			var data = _malloc(bytes.length > 0 ? bytes.length : 1);
@@ -77,7 +79,10 @@ EM_JS(void, __jazz2EditorPickFile, (const char* accept, int requestId), {
 // A link to the bytes as a blob, clicked, so the browser saves them
 EM_JS(void, __jazz2EditorDownload, (const char* name, const unsigned char* data, int size), {
 	var bytes = HEAPU8.slice(data, data + size);
-	var blob = new Blob([bytes], { type: 'application/octet-stream' });
+	var blob = new Blob([bytes], {
+		type:
+			'application/octet-stream'
+	});
 	var url = URL.createObjectURL(blob);
 	var link = document.createElement('a');
 	link.href = url;
@@ -153,7 +158,7 @@ namespace Jazz2::Editor
 
 	void WebFileBridge::Update()
 	{
-		for (std::size_t i = 0; i < _pending.size(); ) {
+		for (std::size_t i = 0; i < _pending.size();) {
 			if (!_pending[i].Picked) {
 				i++;
 				continue;

@@ -9,8 +9,8 @@
 #include "../../../nCine/I18n.h"
 
 #if defined(DEATH_TARGET_ANDROID)
-#	include "../../../nCine/Backends/Android/AndroidApplication.h"
-#	include "../../../nCine/Backends/Android/AndroidJniHelper.h"
+#include "../../../nCine/Backends/Android/AndroidApplication.h"
+#include "../../../nCine/Backends/Android/AndroidJniHelper.h"
 #endif
 
 #include <algorithm>
@@ -27,13 +27,14 @@ using namespace Jazz2::UI::Menu::Resources;
 namespace Jazz2::UI::Menu
 {
 	// Row height matching the original section (ItemHeight * 5 / 8)
-	static constexpr float RowHeight = 40 * 5 / 8;	// 25
+	static constexpr float RowHeight = 40 * 5 / 8; // 25
 
 	HighscoresSection::HighscoresSection()
 		: _selectedSeries(0), _notValidPos(-1), _notValidSeries(-1), _pendingFocus(0), _textCursor(0), _carretAnim(0.0f),
-			_animation(0.0f), _waitForInput(false), _list(nullptr)
+		  _animation(0.0f), _waitForInput(false), _list(nullptr)
 #if defined(DEATH_TARGET_ANDROID)
-			, _recalcVisibleBoundsTimeLeft(30.0f)
+		  ,
+		  _recalcVisibleBoundsTimeLeft(30.0f)
 #endif
 	{
 		DeserializeFromFile();
@@ -69,8 +70,10 @@ namespace Jazz2::UI::Menu
 			}
 
 			HighscoreFlags flags = HighscoreFlags::None;
-			if (isReforged) flags |= HighscoreFlags::IsReforged;
-			if (cheatsUsed) flags |= HighscoreFlags::CheatsUsed;
+			if (isReforged)
+				flags |= HighscoreFlags::IsReforged;
+			if (cheatsUsed)
+				flags |= HighscoreFlags::CheatsUsed;
 
 			// TODO: PlayerId is unused
 			AddItemAndFocus(HighscoreItem { Death::move(playerName), userId, flags, itemToAdd.Type, difficulty, itemToAdd.Lives, itemToAdd.Score,
@@ -144,7 +147,8 @@ namespace Jazz2::UI::Menu
 		std::int32_t row = GetSelectedRow();
 		if (navUp) {
 			if (!_series[_selectedSeries].Items.empty()) {
-				if (navSound) _root->PlaySfx("MenuSelect"_s, 0.5f);
+				if (navSound)
+					_root->PlaySfx("MenuSelect"_s, 0.5f);
 				_animation = 0.0f;
 				std::int32_t count = (std::int32_t)_series[_selectedSeries].Items.size();
 				std::int32_t newRow = (row > 0 ? row - 1 : count - 1);
@@ -152,7 +156,8 @@ namespace Jazz2::UI::Menu
 			}
 		} else if (navDown) {
 			if (!_series[_selectedSeries].Items.empty()) {
-				if (navSound) _root->PlaySfx("MenuSelect"_s, 0.5f);
+				if (navSound)
+					_root->PlaySfx("MenuSelect"_s, 0.5f);
 				_animation = 0.0f;
 				std::int32_t count = (std::int32_t)_series[_selectedSeries].Items.size();
 				std::int32_t newRow = (row < count - 1 ? row + 1 : 0);
@@ -184,9 +189,15 @@ namespace Jazz2::UI::Menu
 		} else {
 			const char* episodeName;
 			switch ((SeriesName)_selectedSeries) {
-				case SeriesName::SharewareDemo: episodeName = "Shareware Demo"; break;
-				case SeriesName::TheSecretFiles: episodeName = "The Secret Files"; break;
-				default: episodeName = "Unknown"; break;
+				case SeriesName::SharewareDemo:
+					episodeName = "Shareware Demo";
+					break;
+				case SeriesName::TheSecretFiles:
+					episodeName = "The Secret Files";
+					break;
+				default:
+					episodeName = "Unknown";
+					break;
 			}
 
 			// TRANSLATORS: Header text in Highscores section, {} is the name of the game edition (Shareware Demo or The Secret Files, not translated), keep the color tags \f[c:#d0705d] and \f[/c] as they are
@@ -309,9 +320,7 @@ namespace Jazz2::UI::Menu
 		}
 		auto& playerName = _series[_selectedSeries].Items[row].PlayerName;
 		if (playerName.size() + event.Length <= MaxPlayerNameLength) {
-			playerName = playerName.prefix(_textCursor)
-				+ StringView(event.Text, event.Length)
-				+ playerName.exceptPrefix(_textCursor);
+			playerName = playerName.prefix(_textCursor) + StringView(event.Text, event.Length) + playerName.exceptPrefix(_textCursor);
 			_textCursor += event.Length;
 			_carretAnim = 0.0f;
 		}
@@ -326,8 +335,7 @@ namespace Jazz2::UI::Menu
 	{
 		// The name is an identifier that reaches here from a file name, which a file system may report in a
 		// case of its own (see EpisodeSelectSection), so the series is matched without case
-		if (StringUtils::equalsIgnoreCase(episodeName, "monk"_s) || (playerDied && (StringUtils::equalsIgnoreCase(episodeName, "prince"_s) ||
-				StringUtils::equalsIgnoreCase(episodeName, "rescue"_s) || StringUtils::equalsIgnoreCase(episodeName, "flash"_s)))) {
+		if (StringUtils::equalsIgnoreCase(episodeName, "monk"_s) || (playerDied && (StringUtils::equalsIgnoreCase(episodeName, "prince"_s) || StringUtils::equalsIgnoreCase(episodeName, "rescue"_s) || StringUtils::equalsIgnoreCase(episodeName, "flash"_s)))) {
 			return (std::int32_t)SeriesName::BaseGame;
 		} else if (StringUtils::equalsIgnoreCase(episodeName, "share"_s)) {
 			return (std::int32_t)SeriesName::SharewareDemo;
@@ -640,7 +648,7 @@ namespace Jazz2::UI::Menu
 		auto configDir = PreferencesCache::GetDirectory();
 		auto s = fs::Open(fs::CombinePath(configDir, FileName), FileAccess::Write);
 		if (*s) {
-			s->WriteValueAsLE<std::uint64_t>(0x2095A59FF0BFBBEF);	// Signature
+			s->WriteValueAsLE<std::uint64_t>(0x2095A59FF0BFBBEF); // Signature
 			s->WriteValue<std::uint8_t>(ContentFileType::Highscores);
 			s->WriteValueAsLE<std::uint16_t>(FileVersion);
 

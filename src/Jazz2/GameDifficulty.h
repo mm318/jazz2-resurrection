@@ -13,10 +13,10 @@ namespace Jazz2
 	*/
 	enum class GameDifficulty : std::uint8_t
 	{
-		Default,		/**< Default/unspecified */
+		Default, /**< Default/unspecified */
 
-		Easy,			/**< Easy */
-		Normal,			/**< Normal */
-		Hard			/**< Hard */
+		Easy, /**< Easy */
+		Normal, /**< Normal */
+		Hard /**< Hard */
 	};
 }

@@ -31,12 +31,12 @@ namespace Jazz2::Compatibility
 		std::uint32_t signature = s->ReadValueAsLE<std::uint32_t>();
 		DEATH_ASSERT(magic == 0x42494C50 /*PLIB*/ && signature == 0xBEBAADDE, "Invalid signature", false);
 
-		/*std::uint32_t version =*/ s->ReadValueAsLE<std::uint32_t>();
+		/*std::uint32_t version =*/s->ReadValueAsLE<std::uint32_t>();
 
 		std::uint32_t recordedSize = s->ReadValueAsLE<std::uint32_t>();
 		DEATH_ASSERT(!strictParser || s->GetSize() == recordedSize, "Unexpected file size", false);
 
-		/*uint32_t recordedCRC =*/ s->ReadValueAsLE<std::uint32_t>();
+		/*uint32_t recordedCRC =*/s->ReadValueAsLE<std::uint32_t>();
 		std::int32_t headerBlockPackedSize = s->ReadValueAsLE<std::int32_t>();
 		std::int32_t headerBlockUnpackedSize = s->ReadValueAsLE<std::int32_t>();
 
@@ -49,7 +49,7 @@ namespace Jazz2::Compatibility
 
 			std::uint32_t type = headerBlock.ReadUInt32();
 			std::uint32_t offset = headerBlock.ReadUInt32();
-			/*std::uint32_t fileCRC =*/ headerBlock.ReadUInt32();
+			/*std::uint32_t fileCRC =*/headerBlock.ReadUInt32();
 			std::int32_t filePackedSize = headerBlock.ReadInt32();
 			std::int32_t fileUnpackedSize = headerBlock.ReadInt32();
 
@@ -106,7 +106,8 @@ namespace Jazz2::Compatibility
 
 	void JJ2Data::ConvertSfxList(const Item& item, AssetWriter& output, StringView targetPath, AnimSetMapping& animMapping)
 	{
-		struct SoundFXList {
+		struct SoundFXList
+		{
 			std::uint32_t Frame;
 			std::uint32_t Sample;
 			std::uint32_t Volume;
@@ -116,7 +117,7 @@ namespace Jazz2::Compatibility
 
 		MemoryStream so(16384);
 
-		so.WriteValueAsLE<std::uint64_t>(0x2095A59FF0BFBBEF);	// Signature
+		so.WriteValueAsLE<std::uint64_t>(0x2095A59FF0BFBBEF); // Signature
 		so.WriteValue<std::uint8_t>(ContentFileType::SfxList);
 		so.WriteValueAsLE<std::uint16_t>(1);
 
@@ -160,7 +161,7 @@ namespace Jazz2::Compatibility
 		for (std::int32_t i = 0; i < itemRealCount; i++) {
 			SoundFXList sfx;
 			std::memcpy(&sfx, &item.Blob[i * sizeof(SoundFXList)], sizeof(SoundFXList));
-					
+
 			so.WriteVariableUint32(sfx.Frame);
 
 			auto it = sampleToIndex.find(sfx.Sample);
@@ -171,7 +172,7 @@ namespace Jazz2::Compatibility
 			}
 
 			so.WriteValue<std::uint8_t>((std::uint8_t)std::min(sfx.Volume * 255 / 0x40, (std::uint32_t)UINT8_MAX));
-			so.WriteValue<std::int8_t>((std::int8_t)std::clamp(((std::int32_t)sfx.Panning - 0x20) * INT8_MAX / /*0x20*/0x40, -(std::int32_t)INT8_MAX, (std::int32_t)INT8_MAX));
+			so.WriteValue<std::int8_t>((std::int8_t)std::clamp(((std::int32_t)sfx.Panning - 0x20) * INT8_MAX / /*0x20*/ 0x40, -(std::int32_t)INT8_MAX, (std::int32_t)INT8_MAX));
 		}
 
 		so.Seek(0, SeekOrigin::Begin);
@@ -189,7 +190,7 @@ namespace Jazz2::Compatibility
 			std::uint8_t colorIdx = item.Blob[i];
 			const Color& src = MenuPalette[colorIdx];
 			std::uint8_t a = (colorIdx == 0 ? 0 : src.A);
-			
+
 			pixels[(i * 4)] = src.R;
 			pixels[(i * 4) + 1] = src.G;
 			pixels[(i * 4) + 2] = src.B;

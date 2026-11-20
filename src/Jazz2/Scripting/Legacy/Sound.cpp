@@ -20,7 +20,8 @@ using namespace Jazz2::Tiles;
 
 namespace Jazz2::Scripting
 {
-	bool LevelScriptLoader::jjMusicLoad(const String& filename, bool forceReload, bool temporary) {
+	bool LevelScriptLoader::jjMusicLoad(const String& filename, bool forceReload, bool temporary)
+	{
 
 #if defined(WITH_AUDIO)
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
@@ -31,7 +32,8 @@ namespace Jazz2::Scripting
 		return false;
 #endif
 	}
-	void LevelScriptLoader::jjMusicStop() {
+	void LevelScriptLoader::jjMusicStop()
+	{
 
 #if defined(WITH_AUDIO)
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
@@ -40,7 +42,8 @@ namespace Jazz2::Scripting
 		}
 #endif
 	}
-	void LevelScriptLoader::jjMusicPlay() {
+	void LevelScriptLoader::jjMusicPlay()
+	{
 
 #if defined(WITH_AUDIO)
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
@@ -49,7 +52,8 @@ namespace Jazz2::Scripting
 		}
 #endif
 	}
-	void LevelScriptLoader::jjMusicPause() {
+	void LevelScriptLoader::jjMusicPause()
+	{
 
 #if defined(WITH_AUDIO)
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
@@ -58,7 +62,8 @@ namespace Jazz2::Scripting
 		}
 #endif
 	}
-	void LevelScriptLoader::jjMusicResume() {
+	void LevelScriptLoader::jjMusicResume()
+	{
 
 #if defined(WITH_AUDIO)
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
@@ -139,7 +144,7 @@ namespace Jazz2::Scripting
 		player->SetLooping(true);
 		if (it == _loopedSamples.end()) {
 			channel = ++_lastLoopChannel;
-			it = _loopedSamples.emplace(channel, LoopedSample{}).first;
+			it = _loopedSamples.emplace(channel, LoopedSample {}).first;
 		}
 		it->second.Player = Death::move(player);
 		it->second.Tick = GetGameTick();
@@ -152,7 +157,7 @@ namespace Jazz2::Scripting
 	void LevelScriptLoader::StopUnusedLoopedSamples()
 	{
 		std::int32_t currentTick = GetGameTick();
-		for (auto it = _loopedSamples.begin(); it != _loopedSamples.end(); ) {
+		for (auto it = _loopedSamples.begin(); it != _loopedSamples.end();) {
 			if (currentTick - it->second.Tick > 1) {
 				if (it->second.Player != nullptr) {
 					it->second.Player->Stop();
@@ -190,29 +195,35 @@ namespace Jazz2::Scripting
 #endif
 	}
 
-	void playSample(float xPixel, float yPixel, std::int32_t sample, std::int32_t volume, std::int32_t frequency) {
+	void playSample(float xPixel, float yPixel, std::int32_t sample, std::int32_t volume, std::int32_t frequency)
+	{
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		owner->PlaySample(Vector2f(xPixel, yPixel), sample, volume, frequency, false);
 	}
-	int32_t playLoopedSample(float xPixel, float yPixel, std::int32_t sample, std::int32_t channel, std::int32_t volume, std::int32_t frequency) {
+	int32_t playLoopedSample(float xPixel, float yPixel, std::int32_t sample, std::int32_t channel, std::int32_t volume, std::int32_t frequency)
+	{
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		return owner->PlayLoopedSample(Vector2f(xPixel, yPixel), sample, channel, volume, frequency);
 	}
-	void playPrioritySample(std::int32_t sample) {
+	void playPrioritySample(std::int32_t sample)
+	{
 		// Priority samples play non-positionally (relative to the listener) at full volume
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		owner->PlaySample(Vector2f(0.0f, 0.0f), sample, 63, 0, true);
 	}
-	bool isSampleLoaded(std::int32_t sample) {
+	bool isSampleLoaded(std::int32_t sample)
+	{
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		return owner->IsSampleLoaded(sample);
 	}
-	bool loadSample(std::int32_t sample, const String& filename) {
+	bool loadSample(std::int32_t sample, const String& filename)
+	{
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		return owner->LoadSample(sample, filename);
 	}
 
-	static std::int32_t getSoundFXVolume() {
+	static std::int32_t getSoundFXVolume()
+	{
 #if defined(WITH_AUDIO)
 		if (ContentResolver::Get().IsHeadless()) {
 			return 0;
@@ -222,7 +233,8 @@ namespace Jazz2::Scripting
 		return 0;
 #endif
 	}
-	static std::int32_t getMusicVolume() {
+	static std::int32_t getMusicVolume()
+	{
 #if defined(WITH_AUDIO)
 		if (ContentResolver::Get().IsHeadless()) {
 			return 0;
@@ -232,17 +244,20 @@ namespace Jazz2::Scripting
 		return 0;
 #endif
 	}
-	static bool getSoundEnabled() {
+	static bool getSoundEnabled()
+	{
 #if defined(WITH_AUDIO)
 		return !ContentResolver::Get().IsHeadless();
 #else
 		return false;
 #endif
 	}
-	static bool getSoundFXActive() {
+	static bool getSoundFXActive()
+	{
 		return (getSoundFXVolume() > 0);
 	}
-	static bool getMusicActive() {
+	static bool getMusicActive()
+	{
 		return (getMusicVolume() > 0);
 	}
 
@@ -255,49 +270,59 @@ namespace Jazz2::Scripting
 #endif
 	}
 
-	static AudioStreamPlayer* GetActiveMusic() {
+	static AudioStreamPlayer* GetActiveMusic()
+	{
 		return ScriptLoader::FromActiveContext<LevelScriptLoader>()->GetMusicPlayer();
 	}
 
-	static bool GetModState(AudioModuleState& state) {
+	static bool GetModState(AudioModuleState& state)
+	{
 		AudioStreamPlayer* music = GetActiveMusic();
 		return (music != nullptr && music->GetModuleState(state));
 	}
 
-	void jjSetModPosition(std::int32_t order, std::int32_t row, bool reset) {
+	void jjSetModPosition(std::int32_t order, std::int32_t row, bool reset)
+	{
 #if defined(WITH_AUDIO)
 		if (AudioStreamPlayer* music = GetActiveMusic()) {
 			music->SetModulePosition(order, row);
 		}
 #endif
 	}
-	void jjSlideModChannelVolume(std::int32_t channel, float volume, std::int32_t milliseconds) {
+	void jjSlideModChannelVolume(std::int32_t channel, float volume, std::int32_t milliseconds)
+	{
 		if (AudioStreamPlayer* music = GetActiveMusic()) {
 			music->SlideModuleChannelVolume(channel, volume, milliseconds);
 		}
 	}
-	std::int32_t jjGetModOrder() {
+	std::int32_t jjGetModOrder()
+	{
 		AudioModuleState state;
 		return (GetModState(state) ? state.Order : -1);
 	}
-	std::int32_t jjGetModRow() {
+	std::int32_t jjGetModRow()
+	{
 		AudioModuleState state;
 		return (GetModState(state) ? state.Row : -1);
 	}
-	std::int32_t jjGetModTempo() {
+	std::int32_t jjGetModTempo()
+	{
 		AudioModuleState state;
 		return (GetModState(state) ? state.Tempo : -1);
 	}
-	void jjSetModTempo(std::uint8_t tempo) {
+	void jjSetModTempo(std::uint8_t tempo)
+	{
 		if (AudioStreamPlayer* music = GetActiveMusic()) {
 			music->SetModuleTempo(tempo);
 		}
 	}
-	std::int32_t jjGetModSpeed() {
+	std::int32_t jjGetModSpeed()
+	{
 		AudioModuleState state;
 		return (GetModState(state) ? state.Speed : -1);
 	}
-	void jjSetModSpeed(std::uint8_t speed) {
+	void jjSetModSpeed(std::uint8_t speed)
+	{
 		if (AudioStreamPlayer* music = GetActiveMusic()) {
 			music->SetModuleSpeed(speed);
 		}

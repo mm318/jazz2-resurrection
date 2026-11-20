@@ -5,7 +5,7 @@ namespace nCine
 {
 	RectAnimation::RectAnimation(float defaultFrameDuration, LoopMode loopMode)
 		: _defaultFrameDuration(defaultFrameDuration), _loopMode(loopMode), _rects(4), _frameDurations(4),
-			_currentFrame(0), _elapsedFrameTime(0.0f), _goingForward(true), _isPaused(true)
+		  _currentFrame(0), _elapsedFrameTime(0.0f), _goingForward(true), _isPaused(true)
 	{
 	}
 

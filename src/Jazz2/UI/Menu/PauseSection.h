@@ -22,7 +22,8 @@ namespace Jazz2::UI::Menu
 		void OnTouchEvent(const nCine::TouchEvent& event, Vector2i viewSize) override;
 
 	private:
-		enum class Item {
+		enum class Item
+		{
 			Resume,
 #if defined(WITH_MULTIPLAYER) || defined(DOXYGEN_GENERATING_OUTPUT)
 			Spectate,
@@ -40,13 +41,16 @@ namespace Jazz2::UI::Menu
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
-		struct ItemData {
+		struct ItemData
+		{
 			Item Type;
 			String Name;
 			float TouchY;
 
 			ItemData(Item type, StringView name)
-				: Type(type), Name(name), TouchY(0.0f) {}
+				: Type(type), Name(name), TouchY(0.0f)
+			{
+			}
 		};
 #endif
 

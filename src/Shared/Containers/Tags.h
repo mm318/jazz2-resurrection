@@ -21,7 +21,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-#pragma once 
+#pragma once
 
 /** @file
 	@brief Tag @ref Death::Containers::DefaultInit, @ref Death::Containers::ValueInit, @ref Death::Containers::NoInit, @ref Death::Containers::NoCreate, @ref Death::Containers::DirectInit, @ref Death::Containers::InPlaceInit
@@ -29,131 +29,165 @@
 
 #include "../CommonBase.h"
 
-namespace Death { namespace Containers {
-//###==##====#=====--==~--~=~- --- -- -  -  -   -
+namespace Death
+{
+	namespace Containers
+	{
+		//###==##====#=====--==~--~=~- --- -- -  -  -   -
 
-	/**
+		/**
 		@brief Default initialization tag type
 
 		Used to distinguish construction with default initialization. The actual
 		meaning of "default" may vary, see documentation of a particular API using
 		this tag for a detailed behavior description.
 	*/
-	struct DefaultInitT {
+		struct DefaultInitT
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		struct Init {};
-		constexpr explicit DefaultInitT(Init) {}
+			struct Init
+			{
+			};
+			constexpr explicit DefaultInitT(Init)
+			{
+			}
 #endif
-	};
+		};
 
-	/**
+		/**
 		@brief Value initialization tag type
 
 		Used to distinguish construction with value initialization (built-in types
 		are zeroed out, others are default-constructed).
 	*/
-	struct ValueInitT {
+		struct ValueInitT
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		struct Init {};
-		constexpr explicit ValueInitT(Init) {}
+			struct Init
+			{
+			};
+			constexpr explicit ValueInitT(Init)
+			{
+			}
 #endif
-	};
+		};
 
-	/**
+		/**
 		@brief No initialization tag type
 
 		Used to distinguish construction with no initialization at all, which
 		leaves the data with whatever random values the memory had before.
 	*/
-	struct NoInitT {
+		struct NoInitT
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		struct Init {};
-		constexpr explicit NoInitT(Init) {}
+			struct Init
+			{
+			};
+			constexpr explicit NoInitT(Init)
+			{
+			}
 #endif
-	};
+		};
 
-	/**
+		/**
 		@brief No creation tag type
 
 		Used to distinguish construction with initialization but not creation.
 		Contrary to @ref NoInitT this doesn't keep random values, but makes
 		the instance empty (usually equivalent to a moved-out state).
 	*/
-	struct NoCreateT {
+		struct NoCreateT
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		struct Init {};
-		constexpr explicit NoCreateT(Init) {}
+			struct Init
+			{
+			};
+			constexpr explicit NoCreateT(Init)
+			{
+			}
 #endif
-	};
+		};
 
-	/**
+		/**
 		@brief Direct initialization tag type
 
 		Used to distinguish construction with direct initialization.
 	*/
-	struct DirectInitT {
+		struct DirectInitT
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		struct Init {};
-		constexpr explicit DirectInitT(Init) {}
+			struct Init
+			{
+			};
+			constexpr explicit DirectInitT(Init)
+			{
+			}
 #endif
-	};
+		};
 
-	/**
+		/**
 		@brief In-place initialization tag type
 
 		Used to distinguish construction with in-place initialization.
 	*/
-	struct InPlaceInitT {
+		struct InPlaceInitT
+		{
 #ifndef DOXYGEN_GENERATING_OUTPUT
-		struct Init {};
-		constexpr explicit InPlaceInitT(Init) {}
+			struct Init
+			{
+			};
+			constexpr explicit InPlaceInitT(Init)
+			{
+			}
 #endif
-	};
+		};
 
-	/**
+		/**
 		@brief Default initialization tag
 
 		Use for construction with default initialization. The actual meaning
 		of "default" may vary, see documentation of a particular API using
 		this tag for a detailed behavior description.
 	*/
-	constexpr DefaultInitT DefaultInit{DefaultInitT::Init{}};
+		constexpr DefaultInitT DefaultInit { DefaultInitT::Init {} };
 
-	/**
+		/**
 		@brief Value initialization tag
 
 		Use for construction using value initialization (built-in types are
 		zeroed out, others are default-constructed).
 	*/
-	constexpr ValueInitT ValueInit{ValueInitT::Init{}};
+		constexpr ValueInitT ValueInit { ValueInitT::Init {} };
 
-	/**
+		/**
 		@brief No initialization tag
 
 		Use for construction with no initialization at all.
 	*/
-	constexpr NoInitT NoInit{NoInitT::Init{}};
+		constexpr NoInitT NoInit { NoInitT::Init {} };
 
-	/**
+		/**
 		@brief No creation tag
 
 		Use for construction with initialization, but keeping the instance empty
 		(usually equivalent to a moved-out state).
 	*/
-	constexpr NoCreateT NoCreate{NoCreateT::Init{}};
+		constexpr NoCreateT NoCreate { NoCreateT::Init {} };
 
-	/**
+		/**
 		@brief Direct initialization tag
 
 		Use for construction with direct initialization.
 	*/
-	constexpr DirectInitT DirectInit{DirectInitT::Init{}};
+		constexpr DirectInitT DirectInit { DirectInitT::Init {} };
 
-	/**
+		/**
 		@brief In-place initialization tag
 
 		Use for construction in-place.
 	*/
-	constexpr InPlaceInitT InPlaceInit{InPlaceInitT::Init{}};
+		constexpr InPlaceInitT InPlaceInit { InPlaceInitT::Init {} };
 
-}}
+	}
+}

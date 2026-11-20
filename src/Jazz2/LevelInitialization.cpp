@@ -7,13 +7,13 @@ namespace Jazz2
 {
 	LevelInitialization::LevelInitialization()
 		: IsLocalSession(true), LocalMultiplayerGameMode(0), Difficulty(GameDifficulty::Normal), IsReforged(true), CheatsUsed(false),
-			LastExitType(ExitType::None), ElapsedMilliseconds(0), PlayerCarryOvers{}
+		  LastExitType(ExitType::None), ElapsedMilliseconds(0), PlayerCarryOvers {}
 	{
 	}
 
 	LevelInitialization::LevelInitialization(StringView level, GameDifficulty difficulty, bool isReforged)
 		: LevelName(level), IsLocalSession(true), LocalMultiplayerGameMode(0), Difficulty(difficulty), IsReforged(isReforged),
-			CheatsUsed(false), LastExitType(ExitType::None), ElapsedMilliseconds(0), PlayerCarryOvers{}
+		  CheatsUsed(false), LastExitType(ExitType::None), ElapsedMilliseconds(0), PlayerCarryOvers {}
 	{
 		for (std::int32_t i = 0; i < MaxPlayerCount; i++) {
 			PlayerCarryOvers[i].Type = PlayerType::None;
@@ -22,7 +22,7 @@ namespace Jazz2
 
 	LevelInitialization::LevelInitialization(StringView level, GameDifficulty difficulty, bool isReforged, bool cheatsUsed, PlayerType playerType)
 		: LevelName(level), IsLocalSession(true), LocalMultiplayerGameMode(0), Difficulty(difficulty), IsReforged(isReforged),
-			CheatsUsed(cheatsUsed), LastExitType(ExitType::None), ElapsedMilliseconds(0), PlayerCarryOvers{}
+		  CheatsUsed(cheatsUsed), LastExitType(ExitType::None), ElapsedMilliseconds(0), PlayerCarryOvers {}
 	{
 		PlayerCarryOvers[0].Type = playerType;
 		PlayerCarryOvers[0].Lives = DefaultLives;
@@ -34,7 +34,7 @@ namespace Jazz2
 
 	LevelInitialization::LevelInitialization(StringView level, GameDifficulty difficulty, bool isReforged, bool cheatsUsed, ArrayView<const PlayerType> playerTypes)
 		: LevelName(level), IsLocalSession(true), LocalMultiplayerGameMode(0), Difficulty(difficulty), IsReforged(isReforged),
-			CheatsUsed(cheatsUsed), LastExitType(ExitType::None), ElapsedMilliseconds(0), PlayerCarryOvers{}
+		  CheatsUsed(cheatsUsed), LastExitType(ExitType::None), ElapsedMilliseconds(0), PlayerCarryOvers {}
 	{
 		std::int32_t playerCount = std::min((std::int32_t)playerTypes.size(), MaxPlayerCount);
 		for (std::int32_t i = 0; i < playerCount; i++) {

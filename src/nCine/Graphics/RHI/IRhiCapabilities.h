@@ -113,7 +113,9 @@ namespace nCine::RHI
 		virtual bool HasExtension(Extensions extensionName) const = 0;
 	};
 
-	inline IRhiCapabilities::~IRhiCapabilities() {}
+	inline IRhiCapabilities::~IRhiCapabilities()
+	{
+	}
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
 	/**
@@ -125,19 +127,24 @@ namespace nCine::RHI
 	class NullRhiCapabilities : public IRhiCapabilities
 	{
 	public:
-		inline std::int32_t GetApiVersion(ApiVersion version) const override {
+		inline std::int32_t GetApiVersion(ApiVersion version) const override
+		{
 			return 0;
 		}
-		inline const InfoStrings& GetInfoStrings() const override {
+		inline const InfoStrings& GetInfoStrings() const override
+		{
 			return _infoStrings;
 		}
-		inline std::int32_t GetValue(IntValues valueName) const override {
+		inline std::int32_t GetValue(IntValues valueName) const override
+		{
 			return 0;
 		}
-		inline std::int32_t GetArrayValue(ArrayIntValues arrayValueName, std::uint32_t index) const override {
+		inline std::int32_t GetArrayValue(ArrayIntValues arrayValueName, std::uint32_t index) const override
+		{
 			return 0;
 		}
-		inline bool HasExtension(Extensions extensionName) const override {
+		inline bool HasExtension(Extensions extensionName) const override
+		{
 			return false;
 		}
 

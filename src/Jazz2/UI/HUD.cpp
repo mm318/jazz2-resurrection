@@ -6,7 +6,7 @@
 #include "../Actors/Enemies/Bosses/BossBase.h"
 
 #if defined(WITH_ANGELSCRIPT)
-#	include "../Scripting/LevelScriptLoader.h"
+#include "../Scripting/LevelScriptLoader.h"
 #endif
 
 #include "../../nCine/Application.h"
@@ -14,7 +14,7 @@
 #include "../../nCine/Graphics/RenderQueue.h"
 
 #if defined(DEATH_TARGET_ANDROID)
-#	include "../../nCine/Backends/Android/AndroidApplication.h"
+#include "../../nCine/Backends/Android/AndroidApplication.h"
 #endif
 
 // Position of key in 22x6 grid
@@ -90,11 +90,12 @@ namespace Jazz2::UI
 
 	HUD::HUD(LevelHandler* levelHandler)
 		: _levelHandler(levelHandler), _metadata(nullptr), _metadataIndexed(nullptr), _levelTextTime(-1.0f), _coins(0), _gems(0), _coinsTime(-1.0f), _gemsTime(-1.0f),
-			_activeBossTime(0.0f), _rgbAmbientLight(0.0f), _rgbHealthLast(0.0f), _rgbLightsAnim(0.0f),
-			_rgbLightsTime(0.0f), _transitionState(TransitionState::WaitingForFadeIn), _transitionTime(1.0f)
+		  _activeBossTime(0.0f), _rgbAmbientLight(0.0f), _rgbHealthLast(0.0f), _rgbLightsAnim(0.0f),
+		  _rgbLightsTime(0.0f), _transitionState(TransitionState::WaitingForFadeIn), _transitionTime(1.0f)
 #if defined(NCINE_HAS_TOUCH_CONTROLS)
-			, _touchButtonsTimer(0.0f), _joystickActive(false), _joystickOrigin(0.0f, 0.0f), _joystickCurrent(0.0f, 0.0f),
-			_joystickPointerId(-1), _joystickMaxRadius(60.0f)
+		  ,
+		  _touchButtonsTimer(0.0f), _joystickActive(false), _joystickOrigin(0.0f, 0.0f), _joystickCurrent(0.0f, 0.0f),
+		  _joystickPointerId(-1), _joystickMaxRadius(60.0f)
 #endif
 	{
 		auto& resolver = ContentResolver::Get();
@@ -179,8 +180,8 @@ namespace Jazz2::UI
 		// Rebuilt only when there are new numbers, and here rather than while drawing: the table is rendered into
 		// a texture of its own, in a pass that has to be scheduled before the scene is visited. Not while it is
 		// hidden (see IsPerformanceOverlayHidden()) - the first update after that picks up the newest numbers.
-		if DEATH_UNLIKELY(PreferencesCache::PerformanceMetrics == PerformanceMetricsLevel::Detailed) {
-			if DEATH_LIKELY(!IsPerformanceOverlayHidden() && _performanceOverlay.Update()) {
+		if DEATH_UNLIKELY (PreferencesCache::PerformanceMetrics == PerformanceMetricsLevel::Detailed) {
+			if DEATH_LIKELY (!IsPerformanceOverlayHidden() && _performanceOverlay.Update()) {
 				OnAddPerformanceMetrics(_performanceOverlay);
 				Vector2i viewSize = _levelHandler->GetViewSize();
 				Rectf safeView = PreferencesCache::ApplySafeArea(Rectf(0.0f, 0.0f, (float)viewSize.X, (float)viewSize.Y), viewSize);
@@ -212,7 +213,7 @@ namespace Jazz2::UI
 		} else
 #endif
 #if defined(NCINE_HAS_TOUCH_CONTROLS)
-		if (_touchButtonsTimer > 0.0f) {
+			if (_touchButtonsTimer > 0.0f) {
 			const auto& dpadLayout = PreferencesCache::TouchButtons[(std::size_t)TouchButtonSlot::Dpad];
 			float leftMargin = dpadLayout.EdgeOffset.X + DpadSize * DefaultRef * dpadLayout.Scale + 8.0f;
 			float rightMargin = 0.0f;
@@ -262,8 +263,8 @@ namespace Jazz2::UI
 #endif
 
 				OnDrawOverview(scopedView, adjustedScopedView, player);
-				
-				if DEATH_UNLIKELY(player->_playerType == PlayerType::Spectate) {
+
+				if DEATH_UNLIKELY (player->_playerType == PlayerType::Spectate) {
 					OnDrawSpectate(scopedView, adjustedScopedView, player);
 				} else {
 					OnDrawHealth(scopedView, adjustedScopedView, player);
@@ -304,7 +305,7 @@ namespace Jazz2::UI
 #endif
 
 		// Performance Metrics
-		if DEATH_UNLIKELY(PreferencesCache::PerformanceMetrics != PerformanceMetricsLevel::Off) {
+		if DEATH_UNLIKELY (PreferencesCache::PerformanceMetrics != PerformanceMetricsLevel::Off) {
 			float metricsRight = view.X + view.W - 4.0f;
 			float metricsTop = view.Y + 1.0f;
 #if defined(DEATH_TARGET_ANDROID)
@@ -351,11 +352,7 @@ namespace Jazz2::UI
 	{
 		_touchButtonsTimer = 1200.0f;
 
-		constexpr std::uint32_t DpadMask = (1 << (std::int32_t)PlayerAction::Left)
-			| (1 << (std::int32_t)PlayerAction::Right)
-			| (1 << (std::int32_t)PlayerAction::Up)
-			| (1 << (std::int32_t)PlayerAction::Down)
-			| (1 << (std::int32_t)PlayerAction::Buttstomp);
+		constexpr std::uint32_t DpadMask = (1 << (std::int32_t)PlayerAction::Left) | (1 << (std::int32_t)PlayerAction::Right) | (1 << (std::int32_t)PlayerAction::Up) | (1 << (std::int32_t)PlayerAction::Down) | (1 << (std::int32_t)PlayerAction::Buttstomp);
 
 		if (event.Type == TouchEventType::Down || event.Type == TouchEventType::PointerDown) {
 			int32_t pointerIndex = event.FindPointerIndex(event.ActionIndex);
@@ -376,8 +373,8 @@ namespace Jazz2::UI
 				for (std::uint32_t i = 0; i < TouchButtonsCount; i++) {
 					auto& button = _touchButtons[i];
 					if (PreferencesCache::EnableTouchJoystick && i <= 4) {
-						continue;  // D-pad managed by joystick
-					} 
+						continue; // D-pad managed by joystick
+					}
 					if (button.Action != PlayerAction::None) {
 						if (button.CurrentPointerId == -1 && IsOnButton(button, x, y)) {
 							button.CurrentPointerId = event.ActionIndex;
@@ -385,11 +382,11 @@ namespace Jazz2::UI
 							if (button.Action == PlayerAction::Down) {
 								overrideActions |= (1 << (std::int32_t)PlayerAction::Buttstomp);
 							}
-#	if defined(NCINE_HAS_VIBRATIONS)
+#if defined(NCINE_HAS_VIBRATIONS)
 							if (PreferencesCache::EnableTouchVibration) {
 								theApplication().Vibrate(12);
 							}
-#	endif
+#endif
 						}
 					}
 				}
@@ -411,10 +408,13 @@ namespace Jazz2::UI
 					overrideMovement = movement;
 					overrideActions &= ~DpadMask;
 
-					if (movement.X < -0.2f) overrideActions |= (1 << (std::int32_t)PlayerAction::Left);
-					else if (movement.X > 0.2f) overrideActions |= (1 << (std::int32_t)PlayerAction::Right);
-					
-					if (movement.Y < -0.6f) overrideActions |= (1 << (std::int32_t)PlayerAction::Up);
+					if (movement.X < -0.2f)
+						overrideActions |= (1 << (std::int32_t)PlayerAction::Left);
+					else if (movement.X > 0.2f)
+						overrideActions |= (1 << (std::int32_t)PlayerAction::Right);
+
+					if (movement.Y < -0.6f)
+						overrideActions |= (1 << (std::int32_t)PlayerAction::Up);
 					else if (movement.Y > 0.6f) {
 						overrideActions |= (1 << (std::int32_t)PlayerAction::Down);
 						if (movement.Y > 0.75f) {
@@ -449,7 +449,8 @@ namespace Jazz2::UI
 					} else {
 						auto players = _levelHandler->GetPlayers();
 						bool canPlayerMoveVertically = (!players.empty() && players[0]->CanMoveVertically());
-						if ((button.Align & AllowRollover) != AllowRollover && !canPlayerMoveVertically) continue;
+						if ((button.Align & AllowRollover) != AllowRollover && !canPlayerMoveVertically)
+							continue;
 
 						for (std::uint32_t j = 0; j < event.Count; j++) {
 							float x = event.Pointers[j].X * (float)ViewSize.X;
@@ -615,15 +616,15 @@ namespace Jazz2::UI
 	{
 		std::int32_t charOffset = 0, charOffsetShadow = 0;
 
-		if DEATH_UNLIKELY(player->_playerType == PlayerType::Spectate) {
+		if DEATH_UNLIKELY (player->_playerType == PlayerType::Spectate) {
 			// TRANSLATORS: Shown in the HUD while spectating in multiplayer, may be followed by the name of the watched player
 			auto spectateText = _("Spectating");
 			if constexpr (Font::ShadowsEnabled) {
 				_smallFont->DrawString(this, spectateText, charOffsetShadow, view.X + 10.0f, view.Y + 6.0f + 2.0f, FontShadowLayer,
-								Alignment::TopLeft, Colorf(0.0f, 0.0f, 0.0f, 0.32f), 0.8f, 0.7f, 0.7f, 0.7f, 0.3f, 0.9f);
+					Alignment::TopLeft, Colorf(0.0f, 0.0f, 0.0f, 0.32f), 0.8f, 0.7f, 0.7f, 0.7f, 0.3f, 0.9f);
 			}
 			_smallFont->DrawString(this, spectateText, charOffset, view.X + 10.0f, view.Y + 6.0f, FontLayer,
-							Alignment::TopLeft, Colorf(0.45f, 0.45f, 0.45f), 0.8f, 0.7f, 0.7f, 0.7f, 0.3f, 0.9f);
+				Alignment::TopLeft, Colorf(0.45f, 0.45f, 0.45f), 0.8f, 0.7f, 0.7f, 0.7f, 0.3f, 0.9f);
 		}
 	}
 
@@ -639,20 +640,38 @@ namespace Jazz2::UI
 		AnimState playerIcon;
 		switch (player->_playerType) {
 			default:
-			case PlayerType::Jazz: playerIcon = CharacterJazz; break;
-			case PlayerType::Spaz: playerIcon = CharacterSpaz; break;
-			case PlayerType::Lori: playerIcon = CharacterLori; break;
-			case PlayerType::Frog: playerIcon = CharacterFrog; break;
-			case PlayerType::Bird: playerIcon = CharacterBird; break;
-			case PlayerType::Bird2: playerIcon = CharacterBird2; break;
+			case PlayerType::Jazz:
+				playerIcon = CharacterJazz;
+				break;
+			case PlayerType::Spaz:
+				playerIcon = CharacterSpaz;
+				break;
+			case PlayerType::Lori:
+				playerIcon = CharacterLori;
+				break;
+			case PlayerType::Frog:
+				playerIcon = CharacterFrog;
+				break;
+			case PlayerType::Bird:
+				playerIcon = CharacterBird;
+				break;
+			case PlayerType::Bird2:
+				playerIcon = CharacterBird2;
+				break;
 		}
 		// Either bird shows its own icon, or the one of the character it was if the content has none
 		if (player->IsBird() && _metadata->FindAnimation(playerIcon) == nullptr) {
 			switch (player->GetPlayerTypeBeforeMorph()) {
 				default:
-				case PlayerType::Jazz: playerIcon = CharacterJazz; break;
-				case PlayerType::Spaz: playerIcon = CharacterSpaz; break;
-				case PlayerType::Lori: playerIcon = CharacterLori; break;
+				case PlayerType::Jazz:
+					playerIcon = CharacterJazz;
+					break;
+				case PlayerType::Spaz:
+					playerIcon = CharacterSpaz;
+					break;
+				case PlayerType::Lori:
+					playerIcon = CharacterLori;
+					break;
 			}
 		}
 
@@ -1192,11 +1211,11 @@ namespace Jazz2::UI
 					texture = anim->Base->TextureDiffuse.get();
 				}
 			} else {
-#	if defined(NCINE_HAS_NATIVE_BACK_BUTTON)
+#if defined(NCINE_HAS_NATIVE_BACK_BUTTON)
 				if (button.Action == PlayerAction::Menu && PreferencesCache::UseNativeBackButton) {
 					continue;
 				}
-#	endif
+#endif
 				if (button.State != AnimState::Default) {
 					if (auto* anim = _metadata->FindAnimation(button.State)) {
 						texture = anim->Base->TextureDiffuse.get();
@@ -1257,12 +1276,12 @@ namespace Jazz2::UI
 		if (button.Action != PlayerAction::Menu || button.State == AnimState::Default) {
 			return false;
 		}
-#	if defined(NCINE_HAS_NATIVE_BACK_BUTTON)
+#if defined(NCINE_HAS_NATIVE_BACK_BUTTON)
 		if (PreferencesCache::UseNativeBackButton) {
 			// Handled by the platform's native back button, so nothing is drawn here
 			return false;
 		}
-#	endif
+#endif
 
 		// Resolve the on-screen center from the alignment, exactly as OnDrawTouchButtons() does
 		float x;
@@ -1466,8 +1485,7 @@ namespace Jazz2::UI
 			float(frameRect.W) / float(texSize.X),
 			float(frameRect.X) / float(texSize.X),
 			float(frameRect.H) / float(texSize.Y),
-			float(frameRect.Y) / float(texSize.Y)
-		);
+			float(frameRect.Y) / float(texSize.Y));
 
 		std::int32_t paletteOffset = ((base->Flags & GenericGraphicResourceFlags::Indexed) == GenericGraphicResourceFlags::Indexed ? res->PaletteOffset : -1);
 		Shader* shader = (singleColor ? ContentResolver::Get().GetShader(paletteOffset >= 0 ? PrecompiledShader::WhiteMaskPalette : PrecompiledShader::WhiteMask) : nullptr);
@@ -1517,8 +1535,7 @@ namespace Jazz2::UI
 			float(frameRect.W) / float(texSize.X),
 			float(frameRect.X) / float(texSize.X),
 			float(frameRect.H) / float(texSize.Y),
-			float(frameRect.Y) / float(texSize.Y)
-		);
+			float(frameRect.Y) / float(texSize.Y));
 
 		auto command = RentRenderCommand();
 		if (command->GetMaterial().SetShader(shader)) {
@@ -1589,8 +1606,7 @@ namespace Jazz2::UI
 			visibleW / float(texSize.X),
 			float(frameRect.X) / float(texSize.X),
 			visibleH / float(texSize.Y),
-			float(frameRect.Y) / float(texSize.Y)
-		);
+			float(frameRect.Y) / float(texSize.Y));
 
 		std::int32_t paletteOffset = ((base->Flags & GenericGraphicResourceFlags::Indexed) == GenericGraphicResourceFlags::Indexed ? res->PaletteOffset : -1);
 		DrawTexture(*base->TextureDiffuse.get(), adjustedPos, z, Vector2f(visibleW, visibleH), texCoords, color, BlendMode::Normal, 0.0f, paletteOffset);
@@ -1623,15 +1639,24 @@ namespace Jazz2::UI
 						return WeaponPowerUpBlasterJazz;
 					}
 
-				case WeaponType::Bouncer: return WeaponPowerUpBouncer;
-				case WeaponType::Freezer: return WeaponPowerUpFreezer;
-				case WeaponType::Seeker: return WeaponPowerUpSeeker;
-				case WeaponType::RF: return WeaponPowerUpRF;
-				case WeaponType::Toaster: return WeaponPowerUpToaster;
-				case WeaponType::TNT: return WeaponPowerUpTNT;
-				case WeaponType::Pepper: return WeaponPowerUpPepper;
-				case WeaponType::Electro: return WeaponPowerUpElectro;
-				case WeaponType::Thunderbolt: return WeaponPowerUpThunderbolt;
+				case WeaponType::Bouncer:
+					return WeaponPowerUpBouncer;
+				case WeaponType::Freezer:
+					return WeaponPowerUpFreezer;
+				case WeaponType::Seeker:
+					return WeaponPowerUpSeeker;
+				case WeaponType::RF:
+					return WeaponPowerUpRF;
+				case WeaponType::Toaster:
+					return WeaponPowerUpToaster;
+				case WeaponType::TNT:
+					return WeaponPowerUpTNT;
+				case WeaponType::Pepper:
+					return WeaponPowerUpPepper;
+				case WeaponType::Electro:
+					return WeaponPowerUpElectro;
+				case WeaponType::Thunderbolt:
+					return WeaponPowerUpThunderbolt;
 			}
 		} else {
 			switch (weapon) {
@@ -1645,15 +1670,24 @@ namespace Jazz2::UI
 						return WeaponBlasterJazz;
 					}
 
-				case WeaponType::Bouncer: return WeaponBouncer;
-				case WeaponType::Freezer: return WeaponFreezer;
-				case WeaponType::Seeker: return WeaponSeeker;
-				case WeaponType::RF: return WeaponRF;
-				case WeaponType::Toaster: return WeaponToaster;
-				case WeaponType::TNT: return WeaponTNT;
-				case WeaponType::Pepper: return WeaponPepper;
-				case WeaponType::Electro: return WeaponElectro;
-				case WeaponType::Thunderbolt: return WeaponThunderbolt;
+				case WeaponType::Bouncer:
+					return WeaponBouncer;
+				case WeaponType::Freezer:
+					return WeaponFreezer;
+				case WeaponType::Seeker:
+					return WeaponSeeker;
+				case WeaponType::RF:
+					return WeaponRF;
+				case WeaponType::Toaster:
+					return WeaponToaster;
+				case WeaponType::TNT:
+					return WeaponTNT;
+				case WeaponType::Pepper:
+					return WeaponPepper;
+				case WeaponType::Electro:
+					return WeaponElectro;
+				case WeaponType::Thunderbolt:
+					return WeaponThunderbolt;
 			}
 		}
 	}
@@ -1690,8 +1724,7 @@ namespace Jazz2::UI
 		const float reach = scale * (20.0f + 70.0f) * 1.4f + 8.0f;
 		const float maxOffsetX = std::max(view.W * 0.5f - reach, 0.0f);
 		const float maxOffsetY = std::max(view.H * 0.5f - reach, 0.0f);
-		Vector2f center = view.Center() + Vector2f(roundf(std::clamp(centerOffset.X, -maxOffsetX, maxOffsetX)),
-			roundf(std::clamp(centerOffset.Y, -maxOffsetY, maxOffsetY)));
+		Vector2f center = view.Center() + Vector2f(roundf(std::clamp(centerOffset.X, -maxOffsetX, maxOffsetX)), roundf(std::clamp(centerOffset.Y, -maxOffsetY, maxOffsetY)));
 		float angleStep = fTwoPi / state.WeaponCount;
 
 		float h = input.RequiredMovement.X;
@@ -1731,8 +1764,8 @@ namespace Jazz2::UI
 
 		float alpha = state.Anim / WeaponWheelAnimDuration;
 		float easing = Menu::Easing::OutCubic(alpha);
-		float distance = scale * (20.0f  + (70.0f * easing));
-		float distance2 = scale * (10.0f  + (50.0f * easing));
+		float distance = scale * (20.0f + (70.0f * easing));
+		float distance2 = scale * (10.0f + (50.0f * easing));
 		float distance3 = distance2 * 2.0f;
 
 		float alphaInner = std::min(Vector2f(h, v).Length() * easing * 1.5f - 0.6f, 1.0f);
@@ -1981,8 +2014,10 @@ namespace Jazz2::UI
 
 	void HUD::DrawWeaponWheelSegment(WeaponWheelState& state, float x, float y, float width, float height, std::uint16_t z, float minAngle, float maxAngle, const Texture& texture, const Colorf& color)
 	{
-		width *= 0.5f; x += width;
-		height *= 0.5f; y += height;
+		width *= 0.5f;
+		x += width;
+		height *= 0.5f;
+		y += height;
 
 		float angleRange = std::min(maxAngle - minAngle, fRadAngle360);
 		std::int32_t segmentNum = GetWeaponWheelSegmentCount(state, std::max(width, height), angleRange);
@@ -2057,8 +2092,10 @@ namespace Jazz2::UI
 
 	void HUD::DrawWeaponWheelSegmentFill(WeaponWheelState& state, float x, float y, float width, float height, std::uint16_t z, float minAngle, float maxAngle, const Texture& texture, const Colorf& color)
 	{
-		width *= 0.5f; x += width;
-		height *= 0.5f; y += height;
+		width *= 0.5f;
+		x += width;
+		height *= 0.5f;
+		y += height;
 
 		// Covers the area enclosed by the outline of DrawWeaponWheelSegment() with the same arguments - from its arc out to
 		// the ends of its sides - as a triangle strip. Its inner edge goes through the very points of the arc, so the arc has
@@ -2189,12 +2226,18 @@ namespace Jazz2::UI
 
 		auto toAlign = [](Jazz2::TouchButtonAnchor anchor) -> Alignment {
 			switch (anchor) {
-				case Jazz2::TouchButtonAnchor::BottomLeft:  return Alignment::BottomLeft;
-				case Jazz2::TouchButtonAnchor::BottomRight: return Alignment::BottomRight;
-				case Jazz2::TouchButtonAnchor::TopLeft:     return Alignment::TopLeft;
-				case Jazz2::TouchButtonAnchor::TopRight:    return Alignment::TopRight;
-				case Jazz2::TouchButtonAnchor::TopCenter:   return Alignment::Top;
-				default:                                    return Alignment::BottomLeft;
+				case Jazz2::TouchButtonAnchor::BottomLeft:
+					return Alignment::BottomLeft;
+				case Jazz2::TouchButtonAnchor::BottomRight:
+					return Alignment::BottomRight;
+				case Jazz2::TouchButtonAnchor::TopLeft:
+					return Alignment::TopLeft;
+				case Jazz2::TouchButtonAnchor::TopRight:
+					return Alignment::TopRight;
+				case Jazz2::TouchButtonAnchor::TopCenter:
+					return Alignment::Top;
+				default:
+					return Alignment::BottomLeft;
 			}
 		};
 
@@ -2231,7 +2274,7 @@ namespace Jazz2::UI
 		}
 
 		// Menu and Console (buttons 9-10)
-#	if defined(DEATH_TARGET_ANDROID)
+#if defined(DEATH_TARGET_ANDROID)
 		if (static_cast<AndroidApplication&>(theApplication()).IsScreenRound()) {
 			const auto& layout = PC::TouchButtons[(std::size_t)Slot::Menu];
 			float sz = roundFast(SmallButtonSize * DefaultRef * layout.Scale);
@@ -2239,7 +2282,7 @@ namespace Jazz2::UI
 				layout.EdgeOffset.X, layout.EdgeOffset.Y, sz, sz);
 			_touchButtons[10] = {};
 		} else
-#	endif
+#endif
 		{
 			{
 				const auto& layout = PC::TouchButtons[(std::size_t)Slot::Menu];
@@ -2287,19 +2330,28 @@ namespace Jazz2::UI
 	bool HUD::IsOnButton(const HUD::TouchButtonInfo& button, float x, float y)
 	{
 		float left = button.Left;
-		if ((button.Align & Alignment::Right) == Alignment::Right) { left = ViewSize.X - button.Width - left; }
-		else if ((button.Align & Alignment::Left) != Alignment::Left) { left = ViewSize.X / 2 - button.Width * 0.5f; }
-		if (x < left) return false;
+		if ((button.Align & Alignment::Right) == Alignment::Right) {
+			left = ViewSize.X - button.Width - left;
+		} else if ((button.Align & Alignment::Left) != Alignment::Left) {
+			left = ViewSize.X / 2 - button.Width * 0.5f;
+		}
+		if (x < left)
+			return false;
 
 		float top = button.Top;
-		if ((button.Align & Alignment::Bottom) == Alignment::Bottom) { top = ViewSize.Y - button.Height - top; }
-		if (y < top) return false;
+		if ((button.Align & Alignment::Bottom) == Alignment::Bottom) {
+			top = ViewSize.Y - button.Height - top;
+		}
+		if (y < top)
+			return false;
 
 		float right = left + button.Width;
-		if (x > right) return false;
+		if (x > right)
+			return false;
 
 		float bottom = top + button.Height;
-		if (y > bottom) return false;
+		if (y > bottom)
+			return false;
 
 		return true;
 	}
@@ -2423,124 +2475,225 @@ namespace Jazz2::UI
 	AuraLight HUD::KeyToAuraLight(Keys key)
 	{
 		switch (key) {
-			case Keys::Backspace: return AuraLight::Backspace;
-			case Keys::Tab: return AuraLight::Tab;
-			case Keys::Return: return AuraLight::Enter;
-			case Keys::Escape: return AuraLight::Esc;
-			case Keys::Space: return AuraLight::Space;
+			case Keys::Backspace:
+				return AuraLight::Backspace;
+			case Keys::Tab:
+				return AuraLight::Tab;
+			case Keys::Return:
+				return AuraLight::Enter;
+			case Keys::Escape:
+				return AuraLight::Esc;
+			case Keys::Space:
+				return AuraLight::Space;
 			//case Keys::Quote: return AuraLight::Quote;
 			//case Keys::Plus: return AuraLight::Plus;
-			case Keys::Comma: return AuraLight::Comma;
-			case Keys::Minus: return AuraLight::Minus;
-			case Keys::Period: return AuraLight::Period;
-			case Keys::Slash: return AuraLight::Slash;
-			case Keys::D0: return AuraLight::Zero;
-			case Keys::D1: return AuraLight::One;
-			case Keys::D2: return AuraLight::Two;
-			case Keys::D3: return AuraLight::Three;
-			case Keys::D4: return AuraLight::Four;
-			case Keys::D5: return AuraLight::Five;
-			case Keys::D6: return AuraLight::Six;
-			case Keys::D7: return AuraLight::Seven;
-			case Keys::D8: return AuraLight::Eight;
-			case Keys::D9: return AuraLight::Nine;
-			case Keys::Semicolon: return AuraLight::Semicolon;
-			case Keys::LeftBracket: return AuraLight::OpenBracket;
-			case Keys::Backslash: return AuraLight::Backslash;
-			case Keys::RightBracket: return AuraLight::CloseBracket;
-			case Keys::Backquote: return AuraLight::Tilde;
+			case Keys::Comma:
+				return AuraLight::Comma;
+			case Keys::Minus:
+				return AuraLight::Minus;
+			case Keys::Period:
+				return AuraLight::Period;
+			case Keys::Slash:
+				return AuraLight::Slash;
+			case Keys::D0:
+				return AuraLight::Zero;
+			case Keys::D1:
+				return AuraLight::One;
+			case Keys::D2:
+				return AuraLight::Two;
+			case Keys::D3:
+				return AuraLight::Three;
+			case Keys::D4:
+				return AuraLight::Four;
+			case Keys::D5:
+				return AuraLight::Five;
+			case Keys::D6:
+				return AuraLight::Six;
+			case Keys::D7:
+				return AuraLight::Seven;
+			case Keys::D8:
+				return AuraLight::Eight;
+			case Keys::D9:
+				return AuraLight::Nine;
+			case Keys::Semicolon:
+				return AuraLight::Semicolon;
+			case Keys::LeftBracket:
+				return AuraLight::OpenBracket;
+			case Keys::Backslash:
+				return AuraLight::Backslash;
+			case Keys::RightBracket:
+				return AuraLight::CloseBracket;
+			case Keys::Backquote:
+				return AuraLight::Tilde;
 
-			case Keys::A: return AuraLight::A;
-			case Keys::B: return AuraLight::B;
-			case Keys::C: return AuraLight::C;
-			case Keys::D: return AuraLight::D;
-			case Keys::E: return AuraLight::E;
-			case Keys::F: return AuraLight::F;
-			case Keys::G: return AuraLight::G;
-			case Keys::H: return AuraLight::H;
-			case Keys::I: return AuraLight::I;
-			case Keys::J: return AuraLight::J;
-			case Keys::K: return AuraLight::K;
-			case Keys::L: return AuraLight::L;
-			case Keys::M: return AuraLight::M;
-			case Keys::N: return AuraLight::N;
-			case Keys::O: return AuraLight::O;
-			case Keys::P: return AuraLight::P;
-			case Keys::Q: return AuraLight::Q;
-			case Keys::R: return AuraLight::R;
-			case Keys::S: return AuraLight::S;
-			case Keys::T: return AuraLight::T;
-			case Keys::U: return AuraLight::U;
-			case Keys::V: return AuraLight::V;
-			case Keys::W: return AuraLight::W;
-			case Keys::X: return AuraLight::X;
-			case Keys::Y: return AuraLight::Y;
-			case Keys::Z: return AuraLight::Z;
-			case Keys::Delete: return AuraLight::Delete;
+			case Keys::A:
+				return AuraLight::A;
+			case Keys::B:
+				return AuraLight::B;
+			case Keys::C:
+				return AuraLight::C;
+			case Keys::D:
+				return AuraLight::D;
+			case Keys::E:
+				return AuraLight::E;
+			case Keys::F:
+				return AuraLight::F;
+			case Keys::G:
+				return AuraLight::G;
+			case Keys::H:
+				return AuraLight::H;
+			case Keys::I:
+				return AuraLight::I;
+			case Keys::J:
+				return AuraLight::J;
+			case Keys::K:
+				return AuraLight::K;
+			case Keys::L:
+				return AuraLight::L;
+			case Keys::M:
+				return AuraLight::M;
+			case Keys::N:
+				return AuraLight::N;
+			case Keys::O:
+				return AuraLight::O;
+			case Keys::P:
+				return AuraLight::P;
+			case Keys::Q:
+				return AuraLight::Q;
+			case Keys::R:
+				return AuraLight::R;
+			case Keys::S:
+				return AuraLight::S;
+			case Keys::T:
+				return AuraLight::T;
+			case Keys::U:
+				return AuraLight::U;
+			case Keys::V:
+				return AuraLight::V;
+			case Keys::W:
+				return AuraLight::W;
+			case Keys::X:
+				return AuraLight::X;
+			case Keys::Y:
+				return AuraLight::Y;
+			case Keys::Z:
+				return AuraLight::Z;
+			case Keys::Delete:
+				return AuraLight::Delete;
 
-			case Keys::NumPad0: return AuraLight::NumZero;
-			case Keys::NumPad1: return AuraLight::NumOne;
-			case Keys::NumPad2: return AuraLight::NumTwo;
-			case Keys::NumPad3: return AuraLight::NumThree;
-			case Keys::NumPad4: return AuraLight::NumFour;
-			case Keys::NumPad5: return AuraLight::NumFive;
-			case Keys::NumPad6: return AuraLight::NumSix;
-			case Keys::NumPad7: return AuraLight::NumSeven;
-			case Keys::NumPad8: return AuraLight::NumEight;
-			case Keys::NumPad9: return AuraLight::NumNine;
-			case Keys::NumPadPeriod: return AuraLight::NumPeriod;
-			case Keys::NumPadDivide: return AuraLight::NumSlash;
-			case Keys::NumPadMultiply: return AuraLight::NumAsterisk;
-			case Keys::NumPadMinus: return AuraLight::NumMinus;
-			case Keys::NumPadPlus: return AuraLight::NumPlus;
-			case Keys::NumPadEnter: return AuraLight::NumEnter;
-			case Keys::NumPadEquals: return AuraLight::NumEnter;
+			case Keys::NumPad0:
+				return AuraLight::NumZero;
+			case Keys::NumPad1:
+				return AuraLight::NumOne;
+			case Keys::NumPad2:
+				return AuraLight::NumTwo;
+			case Keys::NumPad3:
+				return AuraLight::NumThree;
+			case Keys::NumPad4:
+				return AuraLight::NumFour;
+			case Keys::NumPad5:
+				return AuraLight::NumFive;
+			case Keys::NumPad6:
+				return AuraLight::NumSix;
+			case Keys::NumPad7:
+				return AuraLight::NumSeven;
+			case Keys::NumPad8:
+				return AuraLight::NumEight;
+			case Keys::NumPad9:
+				return AuraLight::NumNine;
+			case Keys::NumPadPeriod:
+				return AuraLight::NumPeriod;
+			case Keys::NumPadDivide:
+				return AuraLight::NumSlash;
+			case Keys::NumPadMultiply:
+				return AuraLight::NumAsterisk;
+			case Keys::NumPadMinus:
+				return AuraLight::NumMinus;
+			case Keys::NumPadPlus:
+				return AuraLight::NumPlus;
+			case Keys::NumPadEnter:
+				return AuraLight::NumEnter;
+			case Keys::NumPadEquals:
+				return AuraLight::NumEnter;
 
-			case Keys::Up: return AuraLight::ArrowUp;
-			case Keys::Down: return AuraLight::ArrowDown;
-			case Keys::Right: return AuraLight::ArrowRight;
-			case Keys::Left: return AuraLight::ArrowLeft;
-			case Keys::Insert: return AuraLight::Insert;
-			case Keys::Home: return AuraLight::Home;
-			case Keys::End: return AuraLight::End;
-			case Keys::PageUp: return AuraLight::PageUp;
-			case Keys::PageDown: return AuraLight::PageDown;
+			case Keys::Up:
+				return AuraLight::ArrowUp;
+			case Keys::Down:
+				return AuraLight::ArrowDown;
+			case Keys::Right:
+				return AuraLight::ArrowRight;
+			case Keys::Left:
+				return AuraLight::ArrowLeft;
+			case Keys::Insert:
+				return AuraLight::Insert;
+			case Keys::Home:
+				return AuraLight::Home;
+			case Keys::End:
+				return AuraLight::End;
+			case Keys::PageUp:
+				return AuraLight::PageUp;
+			case Keys::PageDown:
+				return AuraLight::PageDown;
 
-			case Keys::F1: return AuraLight::F1;
-			case Keys::F2: return AuraLight::F2;
-			case Keys::F3: return AuraLight::F3;
-			case Keys::F4: return AuraLight::F4;
-			case Keys::F5: return AuraLight::F5;
-			case Keys::F6: return AuraLight::F6;
-			case Keys::F7: return AuraLight::F7;
-			case Keys::F8: return AuraLight::F8;
-			case Keys::F9: return AuraLight::F9;
-			case Keys::F10: return AuraLight::F10;
-			case Keys::F11: return AuraLight::F11;
-			case Keys::F12: return AuraLight::F12;
+			case Keys::F1:
+				return AuraLight::F1;
+			case Keys::F2:
+				return AuraLight::F2;
+			case Keys::F3:
+				return AuraLight::F3;
+			case Keys::F4:
+				return AuraLight::F4;
+			case Keys::F5:
+				return AuraLight::F5;
+			case Keys::F6:
+				return AuraLight::F6;
+			case Keys::F7:
+				return AuraLight::F7;
+			case Keys::F8:
+				return AuraLight::F8;
+			case Keys::F9:
+				return AuraLight::F9;
+			case Keys::F10:
+				return AuraLight::F10;
+			case Keys::F11:
+				return AuraLight::F11;
+			case Keys::F12:
+				return AuraLight::F12;
 
-			case Keys::NumLock: return AuraLight::NumLock;
-			case Keys::CapsLock: return AuraLight::CapsLock;
-			case Keys::ScrollLock: return AuraLight::ScrollLock;
-			case Keys::RShift: return AuraLight::RightShift;
-			case Keys::LShift: return AuraLight::LeftShift;
-			case Keys::RCtrl: return AuraLight::RightCtrl;
-			case Keys::LCtrl: return AuraLight::LeftCtrl;
-			case Keys::RAlt: return AuraLight::RightAlt;
-			case Keys::LAlt: return AuraLight::LeftAlt;
-			case Keys::Pause: return AuraLight::PauseBreak;
-			case Keys::Menu: return AuraLight::Menu;
+			case Keys::NumLock:
+				return AuraLight::NumLock;
+			case Keys::CapsLock:
+				return AuraLight::CapsLock;
+			case Keys::ScrollLock:
+				return AuraLight::ScrollLock;
+			case Keys::RShift:
+				return AuraLight::RightShift;
+			case Keys::LShift:
+				return AuraLight::LeftShift;
+			case Keys::RCtrl:
+				return AuraLight::RightCtrl;
+			case Keys::LCtrl:
+				return AuraLight::LeftCtrl;
+			case Keys::RAlt:
+				return AuraLight::RightAlt;
+			case Keys::LAlt:
+				return AuraLight::LeftAlt;
+			case Keys::Pause:
+				return AuraLight::PauseBreak;
+			case Keys::Menu:
+				return AuraLight::Menu;
 
-			default: return AuraLight::Unknown;
+			default:
+				return AuraLight::Unknown;
 		}
 	}
 
 	HUD::WeaponWheelState::WeaponWheelState()
-		: Anim(0.0f), LastIndex(-1), SegmentSize{-1.0f, -1.0f}, SegmentSizePow{0.0f, 0.0f},
+		: Anim(0.0f), LastIndex(-1), SegmentSize { -1.0f, -1.0f }, SegmentSizePow { 0.0f, 0.0f },
 #if defined(WITH_RHI_RDP)
-			MergedVerticesCount(0), MergedLayer(0),
+		  MergedVerticesCount(0), MergedLayer(0),
 #endif
-			Shown(false)
+		  Shown(false)
 	{
 	}
 }

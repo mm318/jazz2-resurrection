@@ -146,10 +146,18 @@ namespace Jazz2::Editor
 		}
 		std::uint8_t modifier;
 		switch (Modifier) {
-			case TileModifierMode::Translucent: modifier = Formats::TileRecord::ModifierTranslucent; break;
-			case TileModifierMode::Invisible: modifier = Formats::TileRecord::ModifierInvisible; break;
-			case TileModifierMode::Heat: modifier = Formats::TileRecord::ModifierHeat; break;
-			default: modifier = 0; break;
+			case TileModifierMode::Translucent:
+				modifier = Formats::TileRecord::ModifierTranslucent;
+				break;
+			case TileModifierMode::Invisible:
+				modifier = Formats::TileRecord::ModifierInvisible;
+				break;
+			case TileModifierMode::Heat:
+				modifier = Formats::TileRecord::ModifierHeat;
+				break;
+			default:
+				modifier = 0;
+				break;
 		}
 		if (ModifierOnly) {
 			// The tile there stays, only how it's drawn changes
@@ -344,7 +352,7 @@ namespace Jazz2::Editor
 
 	StrokeTool::StrokeTool(IToolHost& host)
 		: EditorTool(host), _strokeLayer(-1), _strokePreview(true), _strokeOptions(true), _strokeOnlyEmpty(false), _strokeEmptyToo(false),
-			_lastStamp(nullptr)
+		  _lastStamp(nullptr)
 	{
 	}
 
@@ -574,7 +582,7 @@ namespace Jazz2::Editor
 
 	const TileStamp& BrushTool::GetBrushStamp() const
 	{
-		static const TileStamp EmptyStamp = TileStamp::FromTile(TileRef{});
+		static const TileStamp EmptyStamp = TileStamp::FromTile(TileRef {});
 		return (_erase ? EmptyStamp : _host.GetStamp());
 	}
 
@@ -760,7 +768,7 @@ namespace Jazz2::Editor
 		_dragging = false;
 		_end = pointer.Cell;
 
-		TileStamp eraseStamp = TileStamp::FromTile(TileRef{});
+		TileStamp eraseStamp = TileStamp::FromTile(TileRef {});
 		const TileStamp& stamp = (_erase ? eraseStamp : _host.GetStamp());
 		// TRANSLATORS: Names of undo steps in the history, after the rectangle tool erased or filled a rectangle of tiles
 		if (stamp.IsEmpty() || !BeginStroke(_erase ? _x("editor", "Erase rectangle") : _x("editor", "Fill rectangle"), false)) {
@@ -858,7 +866,7 @@ namespace Jazz2::Editor
 		}
 
 		bool erase = (pointer.Button == MouseButton::Right);
-		TileStamp eraseStamp = TileStamp::FromTile(TileRef{});
+		TileStamp eraseStamp = TileStamp::FromTile(TileRef {});
 		const TileStamp& stamp = (erase ? eraseStamp : _host.GetStamp());
 		// TRANSLATORS: Names of undo steps in the history, after the fill tool erased or filled an area of tiles, "Fill" in the same verb form as "Erase"
 		if (stamp.IsEmpty() || !BeginStroke(erase ? _x("editor", "Erase area") : _x("editor", "Fill"), false)) {
@@ -902,7 +910,7 @@ namespace Jazz2::Editor
 	{
 		if (hoverValid) {
 			LayerView view = _host.GetLayerView(_host.GetCurrentLayer());
-			DrawStampGhost(painter, view, TileStamp::FromTile(_host.GetStamp().IsEmpty() ? TileRef{} : _host.GetStamp().Tiles[0]), hover.Cell, Vector2i(), 0.5f);
+			DrawStampGhost(painter, view, TileStamp::FromTile(_host.GetStamp().IsEmpty() ? TileRef {} : _host.GetStamp().Tiles[0]), hover.Cell, Vector2i(), 0.5f);
 			DrawCellsOutline(painter, view, hover.Cell, hover.Cell, Theme::Cursor);
 		}
 	}
@@ -983,7 +991,7 @@ namespace Jazz2::Editor
 					stamp.Tiles.push_back(layer.GetTile(tile.X, tile.Y));
 					stamp.Present.push_back(true);
 				} else {
-					stamp.Tiles.push_back(TileRef{});
+					stamp.Tiles.push_back(TileRef {});
 					stamp.Present.push_back(false);
 				}
 			}
@@ -1079,7 +1087,10 @@ namespace Jazz2::Editor
 
 	std::int32_t WrapViewRect(const Recti& rect, Vector2i layerSize, const LayerView& view, Recti (&parts)[4])
 	{
-		struct Span { std::int32_t Start, Length; };
+		struct Span
+		{
+			std::int32_t Start, Length;
+		};
 		auto wrapSpan = [](std::int32_t start, std::int32_t length, std::int32_t size, bool repeats, Span* spans) {
 			if (!repeats || size <= 0) {
 				spans[0] = { start, length };
@@ -1167,7 +1178,7 @@ namespace Jazz2::Editor
 		for (std::int32_t y = bounds.Y; y < bounds.Y + bounds.H; y++) {
 			for (std::int32_t x = bounds.X; x < bounds.X + bounds.W; x++) {
 				if (selection.Contains(x, y) && !target[std::size_t(y) * std::size_t(width) + std::size_t(x)]) {
-					command->Set(x, y, TileRef{});
+					command->Set(x, y, TileRef {});
 				}
 			}
 		}
@@ -1182,8 +1193,13 @@ namespace Jazz2::Editor
 		host.Execute(Death::move(command));
 		// On the sprite layer, which never repeats, the events on the tiles go with them
 		if (layerIndex == document.GetSpriteLayerIndex()) {
-			CarrySelectedEvents(host, selection, name, [offset](Vector2i cell) { return cell + offset; },
-				[offset](Vector2i pixel) { return pixel + offset * 32; }, nullptr);
+			CarrySelectedEvents(host, selection, name, [offset](Vector2i cell) {
+				return cell + offset;
+			},
+				[offset](Vector2i pixel) {
+					return pixel + offset * 32;
+				},
+				nullptr);
 		}
 		host.EndChanges();
 		selection.Select(layerIndex, Vector2i(width, height), target, false);
@@ -1217,7 +1233,7 @@ namespace Jazz2::Editor
 			if (transform) {
 				transform(record);
 			}
-			moved.push_back(Moved{ pos, mapCell(pos), record });
+			moved.push_back(Moved { pos, mapCell(pos), record });
 		}
 		bool changed = false;
 		if (!moved.empty()) {

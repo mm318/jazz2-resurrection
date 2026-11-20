@@ -25,7 +25,8 @@ namespace nCine::RHI::GL
 		GLVertexArrayObject& operator=(const GLVertexArrayObject&) = delete;
 
 		/** @brief Returns the OpenGL handle of the vertex array object */
-		inline GLuint GetGLHandle() const {
+		inline GLuint GetGLHandle() const
+		{
 			return _glHandle;
 		}
 
@@ -46,7 +47,8 @@ namespace nCine::RHI::GL
 		void SetObjectLabel(StringView label);
 
 		/** @brief Drops the cached bound VAO so the next bind re-applies (external code changed it) */
-		static void InvalidateCachedBinding() {
+		static void InvalidateCachedBinding()
+		{
 			_boundVAO = ~0u;
 		}
 

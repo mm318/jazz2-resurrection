@@ -79,25 +79,29 @@ namespace nCine
 		Viewport& operator=(const Viewport&) = delete;
 
 		/** @brief Returns the viewport type */
-		inline Type GetType() const {
+		inline Type GetType() const
+		{
 			return _type;
 		}
 
 		/** @brief Returns the texture at the specified FBO color attachment index, or `nullptr` if none */
 		Texture* GetTexture(std::uint32_t index);
 		/** @brief Returns the texture at the first FBO color attachment index */
-		inline Texture* GetTexture() {
+		inline Texture* GetTexture()
+		{
 			return _textures[0];
 		}
 		/** @brief Adds or removes a texture at the specified FBO color attachment index */
 		bool SetTexture(std::uint32_t index, Texture* texture);
 		/** @brief Adds or removes a texture at the first FBO color attachment index */
-		inline bool SetTexture(Texture* texture) {
+		inline bool SetTexture(Texture* texture)
+		{
 			return SetTexture(0, texture);
 		}
 
 		/** @brief Returns the depth and stencil format of the FBO renderbuffer */
-		inline DepthStencilFormat GetDepthStencilFormat() const {
+		inline DepthStencilFormat GetDepthStencilFormat() const
+		{
 			return _depthStencilFormat;
 		}
 		/** @brief Sets the depth and stencil format of the FBO renderbuffer */
@@ -107,101 +111,123 @@ namespace nCine
 		bool RemoveAllTextures();
 
 		/** @brief Returns the FBO size, or a zero vector if no texture is present */
-		inline Vector2i GetSize() const {
+		inline Vector2i GetSize() const
+		{
 			return Vector2i(_width, _height);
 		}
 		/** @brief Returns the FBO width, or zero if no texture is present */
-		inline std::int32_t GetWidth() const {
+		inline std::int32_t GetWidth() const
+		{
 			return _width;
 		}
 		/** @brief Returns the FBO height, or zero if no texture is present */
-		inline std::int32_t GetHeight() const {
+		inline std::int32_t GetHeight() const
+		{
 			return _height;
 		}
 
 		/** @brief Returns the number of color attachments of the FBO */
-		inline std::uint32_t GetColorAttachmentCount() const {
+		inline std::uint32_t GetColorAttachmentCount() const
+		{
 			return _numColorAttachments;
 		}
 
 		/** @brief Returns the OpenGL viewport rectangle */
-		inline Recti GetViewportRect() const {
+		inline Recti GetViewportRect() const
+		{
 			return _viewportRect;
 		}
 		/** @brief Sets the OpenGL viewport rectangle */
-		inline void SetViewportRect(const Recti& viewportRect) {
+		inline void SetViewportRect(const Recti& viewportRect)
+		{
 			_viewportRect = viewportRect;
 		}
 
 		/** @brief Returns the OpenGL scissor test rectangle */
-		inline Recti GetScissorRect() const {
+		inline Recti GetScissorRect() const
+		{
 			return _scissorRect;
 		}
 		/** @brief Sets the OpenGL scissor test rectangle */
-		inline void SetScissorRect(const Recti& scissorRect) {
+		inline void SetScissorRect(const Recti& scissorRect)
+		{
 			_scissorRect = scissorRect;
 		}
 
 		/** @brief Returns the rectangle used for screen culling */
-		inline Rectf GetCullingRect() const {
+		inline Rectf GetCullingRect() const
+		{
 			return _cullingRect;
 		}
 
 		/** @brief Returns the last frame this viewport was cleared */
-		inline unsigned long int GetLastFrameCleared() const {
+		inline unsigned long int GetLastFrameCleared() const
+		{
 			return _lastFrameCleared;
 		}
 
 		/** @brief Returns the viewport clear mode */
-		inline ClearMode GetClearMode() const {
+		inline ClearMode GetClearMode() const
+		{
 			return _clearMode;
 		}
 		/** @brief Sets the viewport clear mode */
-		inline void SetClearMode(ClearMode clearMode) {
+		inline void SetClearMode(ClearMode clearMode)
+		{
 			_clearMode = clearMode;
 		}
 
 		/** @brief Returns the viewport clear color */
-		inline Colorf GetClearColor() const {
+		inline Colorf GetClearColor() const
+		{
 			return _clearColor;
 		}
 		/** @brief Sets the viewport clear color through four float components */
-		inline void SetClearColor(float red, float green, float blue, float alpha) {
+		inline void SetClearColor(float red, float green, float blue, float alpha)
+		{
 			_clearColor.Set(red, green, blue, alpha);
 		}
 		/** @brief Sets the viewport clear color through a `Colorf` object */
-		inline void SetClearColor(const Colorf& color) {
+		inline void SetClearColor(const Colorf& color)
+		{
 			_clearColor = color;
 		}
 
 		/** @brief Returns the scene root node as constant */
-		inline const SceneNode* GetRootNode() const {
+		inline const SceneNode* GetRootNode() const
+		{
 			return _rootNode;
 		}
 		/** @brief Returns the scene root node */
-		inline SceneNode* GetRootNode() {
+		inline SceneNode* GetRootNode()
+		{
 			return _rootNode;
 		}
 		/** @brief Sets the scene root node */
-		inline void SetRootNode(SceneNode* rootNode) {
+		inline void SetRootNode(SceneNode* rootNode)
+		{
 			_rootNode = rootNode;
 		}
 
 		/** @brief Returns the reverse-ordered array of viewports to be drawn before the screen */
-		static SmallVectorImpl<Viewport*>& GetChain() {
+		static SmallVectorImpl<Viewport*>& GetChain()
+		{
 			return _chain;
 		}
 
 		/** @brief Returns the camera used for rendering as constant */
-		inline const Camera* GetCamera() const {
+		inline const Camera* GetCamera() const
+		{
 			return _camera;
 		}
 		/** @brief Returns the camera used for rendering */
-		inline Camera* GetCamera() {
+		inline Camera* GetCamera()
+		{
 			return _camera;
 		}
 		/** @brief Sets the camera to be used for rendering */
-		inline void SetCamera(Camera* camera) {
+		inline void SetCamera(Camera* camera)
+		{
 			_camera = camera;
 		}
 
@@ -234,7 +260,8 @@ namespace nCine
 			it, nothing could sample it otherwise. A request lasts only for the frame.
 			Does nothing without split passes.
 		*/
-		void RequestSplit(std::uint16_t layer, std::uint32_t passes) {
+		void RequestSplit(std::uint16_t layer, std::uint32_t passes)
+		{
 			RequestSplitAtKey(std::uint32_t(layer) << 16, passes);
 		}
 		/**

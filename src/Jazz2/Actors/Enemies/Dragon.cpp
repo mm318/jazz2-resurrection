@@ -82,8 +82,7 @@ namespace Jazz2::Actors::Enemies
 				fire->OnActivated(ActorActivationDetails(
 					_levelHandler,
 					Vector3i((std::int32_t)_pos.X + (IsFacingLeft() ? -14 : 14), (std::int32_t)_pos.Y - 6, _renderer.GetLayer() + 2),
-					fireParams
-				));
+					fireParams));
 				_levelHandler->AddActor(fire);
 
 				_burstLeft--;
@@ -94,7 +93,7 @@ namespace Jazz2::Actors::Enemies
 
 		// Idle time runs even without a player, it attacks only in the second half of it and turns around when it runs out
 		_stateTime -= timeMult;
-		if (found && _stateTime <AttackReadyTicks / TicksPerFrame) {
+		if (found && _stateTime < AttackReadyTicks / TicksPerFrame) {
 			bool willFaceLeft = (_pos.X > targetPos.X);
 			if (IsFacingLeft() != willFaceLeft) {
 				Turn(willFaceLeft);

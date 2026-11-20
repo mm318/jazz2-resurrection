@@ -25,7 +25,7 @@ namespace nCine::RHI
 		/** @brief How the pass blends over what is already in the frame */
 		enum class BlendMode : std::uint8_t
 		{
-			Material,		/**< Whatever the material configured (the default) */
+			Material, /**< Whatever the material configured (the default) */
 			/**
 				Additive blending for glow and split-multiplier passes. The GX maps it to `ONE + ONE`;
 				the PVR deliberately maps it to `SRCALPHA + ONE` — the additive mechanism the
@@ -33,7 +33,7 @@ namespace nCine::RHI
 				scaled by the pass alpha, so the mapping stays bit-identical with the handwritten code.
 			*/
 			Additive,
-			Opaque,			/**< `ONE + ZERO` */
+			Opaque, /**< `ONE + ZERO` */
 			/**
 				Standard source-alpha over (`SRCALPHA + INVSRCALPHA`), independent of whatever the
 				material configured — the horizon tint of the TexturedBackground warp runs over a
@@ -45,10 +45,10 @@ namespace nCine::RHI
 		/** @brief GX texture-environment preset for this pass (the PVR always modulates) */
 		enum class TevPreset : std::uint8_t
 		{
-			Modulate,		/**< `texture * vertex colour` (the default) */
-			Silhouette,		/**< Vertex colour where the texture has alpha (flat masks, shadows, glows) */
-			ModulateX2,		/**< Modulate with the combiner's x2 output scale */
-			ModulateX4,		/**< Modulate with the combiner's x4 output scale */
+			Modulate, /**< `texture * vertex colour` (the default) */
+			Silhouette, /**< Vertex colour where the texture has alpha (flat masks, shadows, glows) */
+			ModulateX2, /**< Modulate with the combiner's x2 output scale */
+			ModulateX4, /**< Modulate with the combiner's x4 output scale */
 			/**
 				`mix(texel, colour, alpha)` with an opaque result - the texel lerped toward the pass
 				colour by the pass alpha. GX ONLY (one combiner stage `d + mix(a, b, c)`; the PVR has no
@@ -116,10 +116,10 @@ namespace nCine::RHI
 	*/
 	enum class FixedFunctionIntrinsic : std::uint8_t
 	{
-		None,						/**< Not an intrinsic - the entry carries a transpiled effect function instead */
-		TileMapMesh,				/**< A whole tile layer as one triangle-list mesh (8-float `TileMap::AppendTileQuad` contract) */
-		LightingCombine,			/**< The viewport compositor - the direct-tier CPU-lightmap lighting hook */
-		LineStripMesh				/**< Vertex-fed textured line strip (the weapon wheel) */
+		None, /**< Not an intrinsic - the entry carries a transpiled effect function instead */
+		TileMapMesh, /**< A whole tile layer as one triangle-list mesh (8-float `TileMap::AppendTileQuad` contract) */
+		LightingCombine, /**< The viewport compositor - the direct-tier CPU-lightmap lighting hook */
+		LineStripMesh /**< Vertex-fed textured line strip (the weapon wheel) */
 	};
 
 	/**
@@ -134,11 +134,11 @@ namespace nCine::RHI
 	*/
 	enum class FixedFunctionRequirements : std::uint8_t
 	{
-		None = 0,					/**< The portable minimum: instance colour + `submit_quad()` only */
-		NeedsTexelStep = 0x01,		/**< Calls `texel_size()` / `has_texel_size()` (the texel-step conversion) */
-		NeedsUniforms = 0x02,		/**< Calls `has_uniform()` / `uniform_vec2/vec4()` (resolved-uniform plumbing) */
-		NeedsStripBuilder = 0x04,	/**< Calls `strip_*()` / `submit_strip[_shaded]()` (the strip-builder scratch and its state) */
-		NeedsQuadAxes = 0x08,		/**< Calls `quad_origin()` / `quad_axis_x/y()` (pre-clip quad geometry) */
+		None = 0, /**< The portable minimum: instance colour + `submit_quad()` only */
+		NeedsTexelStep = 0x01, /**< Calls `texel_size()` / `has_texel_size()` (the texel-step conversion) */
+		NeedsUniforms = 0x02, /**< Calls `has_uniform()` / `uniform_vec2/vec4()` (resolved-uniform plumbing) */
+		NeedsStripBuilder = 0x04, /**< Calls `strip_*()` / `submit_strip[_shaded]()` (the strip-builder scratch and its state) */
+		NeedsQuadAxes = 0x08, /**< Calls `quad_origin()` / `quad_axis_x/y()` (pre-clip quad geometry) */
 		/**
 			Submits at least one primitive that SAMPLES the bound texture: `submit_quad()`,
 			`submit_strip()`, or `submit_strip_shaded()` in a block that can set `TevPreset::TintMix`

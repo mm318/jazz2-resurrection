@@ -30,7 +30,8 @@ namespace Jazz2::Actors::Enemies
 		void OnDeserializeState(Stream& src) override;
 
 	private:
-		enum class RavenState : std::uint8_t {
+		enum class RavenState : std::uint8_t
+		{
 			Perched,
 			Patrolling,
 			Gliding,

@@ -29,7 +29,8 @@ namespace Jazz2::UI::Menu
 		void OnTouchEvent(const nCine::TouchEvent& event, Vector2i viewSize) override;
 
 	private:
-		enum class Item {
+		enum class Item
+		{
 			Character,
 			Difficulty,
 			Start,
@@ -39,7 +40,8 @@ namespace Jazz2::UI::Menu
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
-		struct ItemData {
+		struct ItemData
+		{
 			String Name;
 			float TouchY;
 		};

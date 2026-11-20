@@ -159,18 +159,18 @@ namespace Jazz2::Editor
 			// TRANSLATORS: Title of the file dialog saving the texts of the level as a gettext template, or with their translation to the chosen language
 			FileDialog::Show(*surface, language.empty() ? _x("editor", "Export Texts for Translators") : _x("editor", "Export Translation"), FileDialogMode::Save,
 				Death::move(roots), language.empty() ? ".pot"_s : ".po"_s, {}, name, [s, languageCopy](StringView path) {
-				SmallVector<LocalizedLevelTexts, 0> languages;
-				ReadLanguages(s->GetDocument(), languages);
-				SmallVector<PoEntry, 0> entries;
-				MakeEntries(s->GetDocument(), languageCopy.empty() ? nullptr : FindExact(languages, languageCopy), entries);
-				String projectName = (s->GetDocument().Properties.DisplayName.empty() ? GetLevelFileStem(*s) : s->GetDocument().Properties.DisplayName);
-				String text = PoFile::Write(entries, languageCopy, projectName);
-				if (Utils::AtomicFile::Write(path, text.data(), std::int64_t(text.size()))) {
-					s->ShowMessage(_fnx("editor", "{} text was exported", "{} texts were exported", std::int32_t(entries.size()), std::int32_t(entries.size())));
-				} else {
-					s->ShowMessage(_x("editor", "The file couldn't be written"));
-				}
-			});
+					SmallVector<LocalizedLevelTexts, 0> languages;
+					ReadLanguages(s->GetDocument(), languages);
+					SmallVector<PoEntry, 0> entries;
+					MakeEntries(s->GetDocument(), languageCopy.empty() ? nullptr : FindExact(languages, languageCopy), entries);
+					String projectName = (s->GetDocument().Properties.DisplayName.empty() ? GetLevelFileStem(*s) : s->GetDocument().Properties.DisplayName);
+					String text = PoFile::Write(entries, languageCopy, projectName);
+					if (Utils::AtomicFile::Write(path, text.data(), std::int64_t(text.size()))) {
+						s->ShowMessage(_fnx("editor", "{} text was exported", "{} texts were exported", std::int32_t(entries.size()), std::int32_t(entries.size())));
+					} else {
+						s->ShowMessage(_x("editor", "The file couldn't be written"));
+					}
+				});
 		}
 
 		void ImportCatalog(IEditorContext& session, const std::shared_ptr<LevelTextLanguageState>& state)
@@ -190,7 +190,7 @@ namespace Jazz2::Editor
 					s->ShowMessage(_x("editor", "The file can't be read"));
 					return;
 				}
-				String text{NoInit, std::size_t(size)};
+				String text { NoInit, std::size_t(size) };
 				if (file->Read(text.data(), size) != size) {
 					s->ShowMessage(_x("editor", "The file can't be read"));
 					return;
@@ -314,56 +314,73 @@ namespace Jazz2::Editor
 		auto* dropdown = row->Add<Dropdown>([state]() {
 			// TRANSLATORS: In the choice of the language of translations in the Level Texts dialog, no language, only the texts are edited
 			return (state->Language.empty() ? String(_x("editor", "None")) : FormatLanguage(state->Language));
-		}, [s, state](SmallVectorImpl<MenuEntry>& entries) {
-			MenuEntry none;
-			none.Label = _x("editor", "None");
-			none.IsChecked = [state]() { return state->Language.empty(); };
-			none.Execute = [state]() { state->Language = {}; };
-			entries.push_back(Death::move(none));
-			for (const LocalizedLevelTexts& language : state->GetLanguages(*s)) {
-				String code = language.Language;
-				MenuEntry entry;
-				entry.Label = FormatLanguage(code);
-				entry.IsChecked = [state, code]() { return StringUtils::equalsIgnoreCase(state->Language, code); };
-				entry.Execute = [state, code]() { state->Language = code; };
-				entries.push_back(Death::move(entry));
-			}
-			MenuEntry add;
-			// TRANSLATORS: Last item of the choice of the language of translations in the Level Texts dialog
-			add.Label = _x("editor", "Add Language");
-			add.Icon = EditorIcon::Plus;
-			add.Execute = [s, state]() {
-				Surface* surface = s->GetSurface();
-				if (surface == nullptr) {
-					return;
+		},
+			[s, state](SmallVectorImpl<MenuEntry>& entries) {
+				MenuEntry none;
+				none.Label = _x("editor", "None");
+				none.IsChecked = [state]() {
+					return state->Language.empty();
+				};
+				none.Execute = [state]() {
+					state->Language = {};
+				};
+				entries.push_back(Death::move(none));
+				for (const LocalizedLevelTexts& language : state->GetLanguages(*s)) {
+					String code = language.Language;
+					MenuEntry entry;
+					entry.Label = FormatLanguage(code);
+					entry.IsChecked = [state, code]() {
+						return StringUtils::equalsIgnoreCase(state->Language, code);
+					};
+					entry.Execute = [state, code]() {
+						state->Language = code;
+					};
+					entries.push_back(Death::move(entry));
 				}
-				// TRANSLATORS: Title and description of the prompt for the code of a new language, keep the codes "cs" and "pt-br" as they are
-				ShowTextPrompt(*surface, _x("editor", "Add Language"), _x("editor", "Code of the language, as the game names its translations, e.g. \"cs\" or \"pt-br\""),
-					{}, 15, [s, state](StringView text) {
-					String language = text;
-					StringUtils::lowercaseInPlace(language);
-					if (!IsValidLanguage(language)) {
-						s->ShowMessage(_x("editor", "That isn't a code of a language"));
+				MenuEntry add;
+				// TRANSLATORS: Last item of the choice of the language of translations in the Level Texts dialog
+				add.Label = _x("editor", "Add Language");
+				add.Icon = EditorIcon::Plus;
+				add.Execute = [s, state]() {
+					Surface* surface = s->GetSurface();
+					if (surface == nullptr) {
 						return;
 					}
-					// The language is saved with its first translated text
-					state->Language = language;
-				});
-			};
-			entries.push_back(Death::move(add));
-		});
+					// TRANSLATORS: Title and description of the prompt for the code of a new language, keep the codes "cs" and "pt-br" as they are
+					ShowTextPrompt(*surface, _x("editor", "Add Language"), _x("editor", "Code of the language, as the game names its translations, e.g. \"cs\" or \"pt-br\""),
+						{}, 15, [s, state](StringView text) {
+							String language = text;
+							StringUtils::lowercaseInPlace(language);
+							if (!IsValidLanguage(language)) {
+								s->ShowMessage(_x("editor", "That isn't a code of a language"));
+								return;
+							}
+							// The language is saved with its first translated text
+							state->Language = language;
+						});
+				};
+				entries.push_back(Death::move(add));
+			});
 		dropdown->Width = 110.0f;
 		dropdown->Tooltip = _x("editor", "Language the texts are translated to, the game shows the translation in that language");
 
 		// TRANSLATORS: Button in the Level Texts dialog, .pot is the file extension of a gettext template, keep it
-		auto* exportTemplate = row->Add<Button>(_x("editor", "Export .pot"), EditorIcon::Export, [s]() { ExportCatalog(*s, {}); });
+		auto* exportTemplate = row->Add<Button>(_x("editor", "Export .pot"), EditorIcon::Export, [s]() {
+			ExportCatalog(*s, {});
+		});
 		exportTemplate->Tooltip = _x("editor", "Writes the texts for translators, as a gettext template");
 		// TRANSLATORS: Button in the Level Texts dialog, .po is the file extension of a gettext catalog, keep it
-		auto* exportTranslation = row->Add<Button>(_x("editor", "Export .po"), EditorIcon::Export, [s, state]() { ExportCatalog(*s, state->Language); });
+		auto* exportTranslation = row->Add<Button>(_x("editor", "Export .po"), EditorIcon::Export, [s, state]() {
+			ExportCatalog(*s, state->Language);
+		});
 		exportTranslation->Tooltip = _x("editor", "Writes the texts with their translation to the chosen language");
-		exportTranslation->IsEnabledFunc = [state]() { return !state->Language.empty(); };
+		exportTranslation->IsEnabledFunc = [state]() {
+			return !state->Language.empty();
+		};
 		// TRANSLATORS: Button in the Level Texts dialog, .po is the file extension of a gettext catalog, keep it
-		auto* importTranslation = row->Add<Button>(_x("editor", "Import .po"), EditorIcon::Import, [s, state]() { ImportCatalog(*s, state); });
+		auto* importTranslation = row->Add<Button>(_x("editor", "Import .po"), EditorIcon::Import, [s, state]() {
+			ImportCatalog(*s, state);
+		});
 		importTranslation->Tooltip = _x("editor", "Reads the translations of a gettext catalog into the level");
 	}
 
@@ -374,9 +391,13 @@ namespace Jazz2::Editor
 		box->Flex = 1.0f;
 		box->MaxLength = 4096;
 		box->Multiline = true;
-		box->IsVisibleFunc = [state]() { return !state->Language.empty(); };
+		box->IsVisibleFunc = [state]() {
+			return !state->Language.empty();
+		};
 		// TRANSLATORS: Placeholder of the empty box of the translation of a text in the Level Texts dialog
-		box->PlaceholderFunc = []() { return String(_x("editor", "Not translated")); };
+		box->PlaceholderFunc = []() {
+			return String(_x("editor", "Not translated"));
+		};
 		box->TextFunc = [s, state, index]() {
 			const LocalizedLevelTexts* language = Formats::LevelTextsChunk::Find(state->GetLanguages(*s), state->Language);
 			// Only its own translation, not the one of the language without its region that the game would fall back to

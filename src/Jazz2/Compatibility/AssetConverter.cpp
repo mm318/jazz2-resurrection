@@ -9,8 +9,8 @@
 
 #include "../../nCine/Base/Algorithms.h"
 #if defined(WITH_THREADS)
-#	include "../../nCine/Threading/Thread.h"
-#	include "../../nCine/Threading/ThreadSync.h"
+#include "../../nCine/Threading/Thread.h"
+#include "../../nCine/Threading/ThreadSync.h"
 #endif
 
 #include <atomic>
@@ -94,8 +94,12 @@ namespace Jazz2::Compatibility
 #else
 		struct ConversionMutex
 		{
-			void Lock() {}
-			void Unlock() {}
+			void Lock()
+			{
+			}
+			void Unlock()
+			{
+			}
 		};
 #endif
 
@@ -126,19 +130,19 @@ namespace Jazz2::Compatibility
 			The levels and the tile sets don't depend on each other, so they're converted at once. What they share has to be
 			locked by the caller.
 		*/
-		template<class Fn>
+		template <class Fn>
 		void ForEachParallel(std::int32_t count, Fn&& work)
 		{
 #if defined(WITH_THREADS)
-#	if defined(DEATH_TARGET_CONSTRAINED_MEMORY)
+#if defined(DEATH_TARGET_CONSTRAINED_MEMORY)
 			// Each of them has a whole level or tile set in memory
 			constexpr std::int32_t MaxThreads = 2;
-#	else
+#else
 			constexpr std::int32_t MaxThreads = 8;
-#	endif
+#endif
 			std::int32_t threadCount = std::min(std::min(std::int32_t(nCine::Thread::GetProcessorCount()), MaxThreads), count);
 			if (threadCount > 1) {
-				std::atomic<std::int32_t> next{0};
+				std::atomic<std::int32_t> next { 0 };
 				auto run = [&next, &work, count]() {
 					for (std::int32_t i = next.fetch_add(1); i < count; i = next.fetch_add(1)) {
 						work(i);
@@ -737,14 +741,13 @@ namespace Jazz2::Compatibility
 				String levelName = fs::GetFileNameWithoutExtension(item);
 				// The files of a pack are stored in lowercase
 				bool isMlleData = (pack != nullptr ? StringUtils::lowercase(levelName).find("-mlle-data-"_s) != nullptr
-					: levelName.find("-MLLE-Data-"_s) != nullptr);
+												   : levelName.find("-MLLE-Data-"_s) != nullptr);
 				if (!isMlleData) {
 					if (filtering) {
 						// Decided on the file name rather than the level's own recorded name, so a level that is
 						// filtered out never has to be opened at all
 						String token = NormalizeLevelToken(item);
-						const bool allowed = ((!options.OriginalsOnly && !options.SharewareOnly) || allowedLevels.contains(token))
-							&& (!options.SkipNonEpisodeLevels || levelEpisodes.contains(token));
+						const bool allowed = ((!options.OriginalsOnly && !options.SharewareOnly) || allowedLevels.contains(token)) && (!options.SkipNonEpisodeLevels || levelEpisodes.contains(token));
 						if (!allowed) {
 							if (options.SkippedLevels != nullptr) {
 								options.SkippedLevels->push_back(Death::move(token));
@@ -764,7 +767,7 @@ namespace Jazz2::Compatibility
 					pendingLevels.push_back(String(item));
 				}
 			}
-	#if defined(DEATH_DEBUG)
+#if defined(DEATH_DEBUG)
 			/*else if (extension == "j2s"_s && recreateAll) {
 				// Translations
 				Compatibility::JJ2Strings strings;
@@ -774,7 +777,7 @@ namespace Jazz2::Compatibility
 				fs::CreateDirectories(fs::GetDirectoryName(fullPath));
 				strings.Convert(fullPath, LevelTokenConversion);
 			}*/
-	#endif
+#endif
 		}
 
 		// What the levels share is locked, the caches and the lists of what they use
@@ -792,8 +795,12 @@ namespace Jazz2::Compatibility
 				String fullPath = fs::CombinePath({ episodesPath, episodeName, String(level.LevelName + ".j2l"_s) });
 
 				if (pack != nullptr) {
-					level.TileSetPathMapping = [pack](StringView name) { return pack->TileSetPath ? pack->TileSetPath(name) : String(name); };
-					level.MusicPathMapping = [pack](StringView name) { return pack->MusicPath ? pack->MusicPath(name) : String(name); };
+					level.TileSetPathMapping = [pack](StringView name) {
+						return pack->TileSetPath ? pack->TileSetPath(name) : String(name);
+					};
+					level.MusicPathMapping = [pack](StringView name) {
+						return pack->MusicPath ? pack->MusicPath(name) : String(name);
+					};
 				}
 
 				fs::CreateDirectories(fs::GetDirectoryName(fullPath));
@@ -804,7 +811,8 @@ namespace Jazz2::Compatibility
 						StringView originalName = name.partition('~')[0];
 						ConversionLock lock(sharedLock);
 						return previewTilesets.Get(originalName, tiles, tileCount);
-					}, lockedTextureLookup);
+					},
+						lockedTextureLookup);
 				} else {
 					level.Convert(fullPath, eventConverter, LevelTokenConversion, {}, lockedTextureLookup);
 				}
@@ -874,8 +882,8 @@ namespace Jazz2::Compatibility
 			// tree built only from what the levels ask for left the menu and both cinematics silent on every
 			// console.
 			static const StringView musicOutsideLevels[] = {
-				"menu.j2b"_s, "bonus2.j2b"_s, "bonus3.j2b"_s,	// See MainMenu::PlayMenuMusic()
-				"intro.j2b"_s, "ending.j2b"_s					// See Cinematics::Initialize()
+				"menu.j2b"_s, "bonus2.j2b"_s, "bonus3.j2b"_s, // See MainMenu::PlayMenuMusic()
+				"intro.j2b"_s, "ending.j2b"_s // See Cinematics::Initialize()
 			};
 			for (StringView music : musicOutsideLevels) {
 				// Only what this data set actually ships. Unlike the tracks a level names - where a missing

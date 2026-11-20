@@ -125,7 +125,8 @@ namespace Jazz2::UI
 		 * changes, which is what @ref ContentResolver decides from - reloading an indexed font would cost
 		 * a whole atlas and change nothing about how it draws.
 		 */
-		inline bool IsPaletteIndexed() const {
+		inline bool IsPaletteIndexed() const
+		{
 			return _paletteIndexed;
 		}
 

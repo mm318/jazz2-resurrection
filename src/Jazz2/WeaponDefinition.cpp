@@ -26,13 +26,28 @@ namespace Jazz2
 		options.Allowed = true;
 		options.AllowedPowerup = true;
 		switch (weaponType) {
-			case WeaponType::Freezer: options.Spread = WeaponSpread::NormalOrDirectionAndAim; break;
-			case WeaponType::Seeker: options.Style = WeaponStyle::Missile; break;
-			case WeaponType::RF: options.Style = WeaponStyle::Missile; options.Spread = WeaponSpread::DoubleOrTriple; break;
-			case WeaponType::Toaster: options.Style = WeaponStyle::Popcorn; options.Spread = WeaponSpread::Toaster; break;
-			case WeaponType::TNT: options.Style = WeaponStyle::Capped; break;
-			case WeaponType::Pepper: options.Spread = WeaponSpread::NormalOrPepper; break;
-			default: break;
+			case WeaponType::Freezer:
+				options.Spread = WeaponSpread::NormalOrDirectionAndAim;
+				break;
+			case WeaponType::Seeker:
+				options.Style = WeaponStyle::Missile;
+				break;
+			case WeaponType::RF:
+				options.Style = WeaponStyle::Missile;
+				options.Spread = WeaponSpread::DoubleOrTriple;
+				break;
+			case WeaponType::Toaster:
+				options.Style = WeaponStyle::Popcorn;
+				options.Spread = WeaponSpread::Toaster;
+				break;
+			case WeaponType::TNT:
+				options.Style = WeaponStyle::Capped;
+				break;
+			case WeaponType::Pepper:
+				options.Spread = WeaponSpread::NormalOrPepper;
+				break;
+			default:
+				break;
 		}
 		return options;
 	}

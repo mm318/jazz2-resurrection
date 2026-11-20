@@ -92,8 +92,7 @@ namespace Jazz2::Actors::Collectibles
 			_pos.X - 20.0f,
 			_pos.Y - 20.0f,
 			_pos.X + 20.0f,
-			_pos.Y + 20.0f
-		);
+			_pos.Y + 20.0f);
 	}
 
 	void GemRing::OnSerializeState(Stream& dest)

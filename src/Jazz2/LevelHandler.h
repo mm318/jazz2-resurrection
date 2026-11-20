@@ -15,13 +15,12 @@
 #include "Input/ControlScheme.h"
 #include "Rendering/UpscaleRenderPass.h"
 
-
 #include "../nCine/Graphics/Shader.h"
 #include "../nCine/Audio/AudioBufferPlayer.h"
 #include "../nCine/Audio/AudioStreamPlayer.h"
 
 #if defined(WITH_IMGUI)
-#	include <imgui.h>
+#include <imgui.h>
 #endif
 
 using namespace Jazz2::Input;
@@ -191,15 +190,18 @@ namespace Jazz2
 		WaterInteraction GetWaterInteraction() const override;
 
 		/** @brief Returns the internal name (path) of the current level */
-		StringView GetLevelName() const {
+		StringView GetLevelName() const
+		{
 			return _levelName;
 		}
 		/** @brief Returns the display (title) name of the current level */
-		StringView GetLevelDisplayName() const {
+		StringView GetLevelDisplayName() const
+		{
 			return _levelDisplayName;
 		}
 		/** @brief Overrides the display (title) name of the current level */
-		void SetLevelDisplayName(StringView value) {
+		void SetLevelDisplayName(StringView value)
+		{
 			_levelDisplayName = value;
 		}
 
@@ -252,7 +254,8 @@ namespace Jazz2
 		const WeaponDefinition& GetWeaponDefinition(WeaponType weaponType) const override;
 		/** @brief Returns what the level makes of a weapon, which a script may change, `nullptr` for no weapon */
 		WeaponDefinition* GetWritableWeaponDefinition(WeaponType weaponType);
-		const WeaponsDescription& GetWeapons() const override {
+		const WeaponsDescription& GetWeapons() const override
+		{
 			return _weapons;
 		}
 		void SetCheckpoint(Actors::Player* player, Vector2f pos) override;
@@ -307,7 +310,7 @@ namespace Jazz2
 #if defined(WITH_EDITOR) || defined(DOXYGEN_GENERATING_OUTPUT)
 		/** @brief Takes the level off the screen, until its viewports are initialized again */
 		void SuspendRendering();
-#	if defined(WITH_AUDIO)
+#if defined(WITH_AUDIO)
 		/**
 		 * @brief Hands the music over to another level handler of the same level, so it goes on playing
 		 *
@@ -326,13 +329,14 @@ namespace Jazz2
 		bool ContinueMusic(std::unique_ptr<AudioStreamPlayer>& music, StringView path, float lowPass);
 		/** @brief Muffles the music playing now by @p lowPass, 1 for not at all, as the editor fades it between its modes */
 		void SetMusicMuffling(float lowPass);
-#	endif
+#endif
 		/** @brief Returns `true` if the level is played from the level editor, it returns there when it's left */
 		virtual bool IsEditorPlayTest() const;
 		/** @brief Leaves the level editor the level is played from */
 		virtual void ExitEditor();
 		/** @brief Returns the debug tools of a level played from the level editor, or `nullptr` in a game */
-		Editor::PlayTestDebug* GetPlayTestDebug() const {
+		Editor::PlayTestDebug* GetPlayTestDebug() const
+		{
 			return _playTestDebug.get();
 		}
 #endif
@@ -341,13 +345,16 @@ namespace Jazz2
 		 *
 		 * Nothing of it is shown or heard, and its script writes no files.
 		 */
-		virtual bool IsSandbox() const {
+		virtual bool IsSandbox() const
+		{
 			return false;
 		}
 		/** @brief Returns the part of the level the view of a given player shows, from its top left corner, the whole view without one */
 		Rectf GetCameraView(Actors::Player* player) const;
 
-		void OnAdvanceDestructibleTileAnimation(std::int32_t tx, std::int32_t ty, std::int32_t amount) override {}
+		void OnAdvanceDestructibleTileAnimation(std::int32_t tx, std::int32_t ty, std::int32_t amount) override
+		{
+		}
 		void OnTileFrozen(std::int32_t x, std::int32_t y) override;
 #if defined(TILEMAP_LAYER_EFFECTS)
 		Tiles::LayerEffectsTarget* GetLayerEffectsTarget(const Viewport* view) override;
@@ -356,7 +363,8 @@ namespace Jazz2
 
 	protected:
 		/** @brief Describes current input state of a player */
-		struct PlayerInput {
+		struct PlayerInput
+		{
 			/** @brief Bitmask of actions pressed in the current frame */
 			std::uint64_t PressedActions;
 			/** @brief Bitmask of actions pressed in the previous frame */
@@ -414,7 +422,8 @@ namespace Jazz2
 		std::unique_ptr<Editor::PlayTestDebug> _playTestDebug;
 #endif
 		// The images and sounds of the weapons of the level, declared before the actors that draw and play them, so it outlives them
-		struct AcquiredWeaponAssets {
+		struct AcquiredWeaponAssets
+		{
 			SmallVector<String, 0> Images;
 			SmallVector<String, 0> Sounds;
 			~AcquiredWeaponAssets();
@@ -541,7 +550,8 @@ namespace Jazz2
 		void InvokeAsync(Function<void()>&& callback);
 
 		/** @brief How the viewports of the level are rendered, see @ref GetViewportSetup() */
-		struct ViewportSetup {
+		struct ViewportSetup
+		{
 			/** @brief Size of the view the scene is rendered at, in pixels */
 			Vector2i ViewSize;
 			/** @brief Factor the scene is supersampled by, 1 for none */

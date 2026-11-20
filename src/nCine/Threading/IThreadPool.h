@@ -21,14 +21,18 @@ namespace nCine
 		virtual void EnqueueCommand(std::unique_ptr<IThreadCommand>&& threadCommand) = 0;
 	};
 
-	inline IThreadPool::~IThreadPool() { }
+	inline IThreadPool::~IThreadPool()
+	{
+	}
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
 	/** @brief Null thread pool that silently discards every enqueued command */
 	class NullThreadPool : public IThreadPool
 	{
 	public:
-		void EnqueueCommand(std::unique_ptr<IThreadCommand>&& threadCommand) override { }
+		void EnqueueCommand(std::unique_ptr<IThreadCommand>&& threadCommand) override
+		{
+		}
 	};
 #endif
 }

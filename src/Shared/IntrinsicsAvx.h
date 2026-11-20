@@ -57,31 +57,31 @@
 // compilers have everything already included from the top-level <immintrin.h>.
 // Same then goes for F16C, FMA, LZCNT and BMI1, BMI2, which all also have such
 // weird interactions when pulled in together.
-// 
+//
 // I wonder what impact this has on optimization, but I don't care that much as
 // GCC 4.8 is mainly for backwards compatibility testing now, and not serious
 // performance use. In any case, one can always compile everything with
 // -march=native to get rid of such potential suboptimal optimization.
-#if defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG) && __GNUC__*100 + __GNUC_MINOR__ < 409
+#if defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG) && __GNUC__ * 100 + __GNUC_MINOR__ < 409
 #pragma GCC push_options
 #pragma GCC target("avx")
 #pragma push_macro("__AVX__")
 #if !defined(__AVX__)
-#	define __AVX__
+#define __AVX__
 #endif
 #endif
 #include <immintrin.h>
-#if defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG) && __GNUC__*100 + __GNUC_MINOR__ < 409
+#if defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG) && __GNUC__ * 100 + __GNUC_MINOR__ < 409
 #pragma pop_macro("__AVX__")
 #pragma GCC pop_options
 #endif
 
-#if defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG) && __GNUC__*100 + __GNUC_MINOR__ < 409
+#if defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG) && __GNUC__ * 100 + __GNUC_MINOR__ < 409
 #pragma GCC push_options
 #pragma GCC target("avx2")
 #pragma push_macro("__AVX2__")
 #if !defined(__AVX2__)
-#	define __AVX2__
+#define __AVX2__
 #endif
 #include <avx2intrin.h>
 #pragma pop_macro("__AVX2__")

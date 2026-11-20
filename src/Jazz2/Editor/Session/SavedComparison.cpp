@@ -274,7 +274,9 @@ namespace Jazz2::Editor
 
 		// Row by row, the events of a row of the area are next to each other in both lists
 		auto rowEvents = [](const SmallVectorImpl<DocumentEvent>& events, std::uint32_t first, std::uint32_t last) {
-			auto compare = [](const DocumentEvent& event, std::uint32_t cell) { return event.Cell < cell; };
+			auto compare = [](const DocumentEvent& event, std::uint32_t cell) {
+				return event.Cell < cell;
+			};
 			const DocumentEvent* begin = std::lower_bound(events.begin(), events.end(), first, compare);
 			const DocumentEvent* end = std::lower_bound(begin, events.end(), last, compare);
 			return ArrayView<const DocumentEvent>(begin, std::size_t(end - begin));

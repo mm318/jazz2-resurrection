@@ -5,7 +5,8 @@
 namespace Jazz2::UI::Menu
 {
 #ifndef DOXYGEN_GENERATING_OUTPUT
-	enum class HighscoreFlags {
+	enum class HighscoreFlags
+	{
 		None = 0,
 
 		IsDefault = 0x01,
@@ -15,7 +16,8 @@ namespace Jazz2::UI::Menu
 
 	DEATH_ENUM_FLAGS(HighscoreFlags);
 
-	struct HighscoreItem {
+	struct HighscoreItem
+	{
 		String PlayerName;
 		std::uint64_t PlayerId;
 		HighscoreFlags Flags;
@@ -28,7 +30,8 @@ namespace Jazz2::UI::Menu
 		std::uint64_t ElapsedMilliseconds;
 	};
 
-	struct HighscoreSeries {
+	struct HighscoreSeries
+	{
 		SmallVector<HighscoreItem, 0> Items;
 	};
 #endif
@@ -73,7 +76,8 @@ namespace Jazz2::UI::Menu
 		void OnBackPressed() override;
 
 	private:
-		enum class SeriesName {
+		enum class SeriesName
+		{
 			BaseGame,
 			SharewareDemo,
 			TheSecretFiles,

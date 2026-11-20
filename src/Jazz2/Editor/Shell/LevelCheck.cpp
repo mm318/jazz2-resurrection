@@ -59,7 +59,9 @@ namespace Jazz2::Editor
 
 		bool HasId(const SmallVectorImpl<IdUse>& uses, std::int32_t id)
 		{
-			return std::any_of(uses.begin(), uses.end(), [id](const IdUse& use) { return use.Id == id; });
+			return std::any_of(uses.begin(), uses.end(), [id](const IdUse& use) {
+				return use.Id == id;
+			});
 		}
 
 		// Problems of the same kind are told once, with how many there are and where the first one is, a level can have
@@ -83,7 +85,7 @@ namespace Jazz2::Editor
 					return group;
 				}
 			}
-			return groups.emplace_back(ProblemGroup{ key, 1, at.Cell, at.OffGrid, value, at.Record->Type, at.Record->Params });
+			return groups.emplace_back(ProblemGroup { key, 1, at.Cell, at.OffGrid, value, at.Record->Type, at.Record->Params });
 		}
 	}
 
@@ -104,11 +106,11 @@ namespace Jazz2::Editor
 		events.reserve(document.Events.size() + document.OffGridEvents.size());
 		std::uint32_t gridWidth = std::uint32_t(std::max<std::int32_t>(gridSize.X, 1));
 		for (const DocumentEvent& event : document.Events) {
-			events.push_back(CheckedEvent{ &event.Record, Vector2i(std::int32_t(event.Cell % gridWidth), std::int32_t(event.Cell / gridWidth)), -1 });
+			events.push_back(CheckedEvent { &event.Record, Vector2i(std::int32_t(event.Cell % gridWidth), std::int32_t(event.Cell / gridWidth)), -1 });
 		}
 		for (std::size_t i = 0; i < document.OffGridEvents.size(); i++) {
 			const Formats::OffGridEventRecord& event = document.OffGridEvents[i];
-			events.push_back(CheckedEvent{ &event.Event, Vector2i(std::int32_t(event.X / 32), std::int32_t(event.Y / 32)), std::int32_t(i) });
+			events.push_back(CheckedEvent { &event.Event, Vector2i(std::int32_t(event.X / 32), std::int32_t(event.Y / 32)), std::int32_t(i) });
 		}
 
 		SmallVector<IdUse, 0> warpOrigins, warpTargets, triggerSetters, triggerTiles, rocks, rockTriggers;
@@ -127,7 +129,7 @@ namespace Jazz2::Editor
 		std::int32_t starts[3] = {};
 		Vector2i firstStartCell[3] = { Vector2i(-1, -1), Vector2i(-1, -1), Vector2i(-1, -1) };
 		std::int32_t multiplayerOnlyEvents = 0;
-		CheckedEvent firstMultiplayerOnly{};
+		CheckedEvent firstMultiplayerOnly {};
 
 		for (const CheckedEvent& checked : events) {
 			const Formats::EventRecord& event = *checked.Record;
@@ -148,13 +150,13 @@ namespace Jazz2::Editor
 			}
 			switch (type) {
 				case EventType::LevelStartMultiplayer:
-					multiplayerStarts.push_back(IdUse{ event.Params[0], checked.Cell, checked.OffGrid });
+					multiplayerStarts.push_back(IdUse { event.Params[0], checked.Cell, checked.OffGrid });
 					break;
 				case EventType::CtfBase:
-					ctfBases.push_back(IdUse{ event.Params[0], checked.Cell, checked.OffGrid });
+					ctfBases.push_back(IdUse { event.Params[0], checked.Cell, checked.OffGrid });
 					break;
 				case EventType::RaceCheckpoint:
-					waypoints.push_back(Waypoint{ event.Params[1], event.Params[0], checked.Cell, checked.OffGrid });
+					waypoints.push_back(Waypoint { event.Params[1], event.Params[0], checked.Cell, checked.OffGrid });
 					break;
 				default:
 					break;
@@ -180,7 +182,7 @@ namespace Jazz2::Editor
 				}
 			}
 
-			IdUse use{ event.Params[0], checked.Cell, checked.OffGrid };
+			IdUse use { event.Params[0], checked.Cell, checked.OffGrid };
 			switch (type) {
 				case EventType::LevelStart:
 					for (std::int32_t i = 0; i < 3; i++) {
@@ -221,10 +223,11 @@ namespace Jazz2::Editor
 
 		for (const ProblemGroup& group : unknownEvents) {
 			add(LevelProblemSeverity::Info, group.Count > 1
-				// TRANSLATORS: In the Check Level dialog, the first {} is the number of the event type, the second how many times it's in the level
-				? _fnx("editor", "Unknown event {} - the game doesn't know it ({} time)", "Unknown event {} - the game doesn't know it ({} times)", group.Count, group.Type, group.Count)
-				// TRANSLATORS: In the Check Level dialog, {} is the number of the event type
-				: _fx("editor", "Unknown event {} - the game doesn't know it", group.Type), group.Cell, group.OffGrid);
+					// TRANSLATORS: In the Check Level dialog, the first {} is the number of the event type, the second how many times it's in the level
+					? _fnx("editor", "Unknown event {} - the game doesn't know it ({} time)", "Unknown event {} - the game doesn't know it ({} times)", group.Count, group.Type, group.Count)
+					// TRANSLATORS: In the Check Level dialog, {} is the number of the event type
+					: _fx("editor", "Unknown event {} - the game doesn't know it", group.Type),
+				group.Cell, group.OffGrid);
 		}
 		for (const ProblemGroup& group : outOfRange) {
 			const EventDescriptor* descriptor = EventCatalog::Find(EventType(group.Type), group.Params);
@@ -235,11 +238,11 @@ namespace Jazz2::Editor
 			const EventParamField& field = descriptor->Fields[fieldIndex];
 			String name = EventPreviews::GetEventName(group.Type);
 			add(LevelProblemSeverity::Warning, group.Count > 1
-				// TRANSLATORS: In the Check Level dialog, the name of the event, the name of its parameter, the lowest and the highest value it can have, and the number of events
-				? _fnx("editor", "{}: {} is out of its range from {} to {} in {} event", "{}: {} is out of its range from {} to {} in {} events", group.Count,
-					name, field.Name, field.Min, field.Max, group.Count)
-				// TRANSLATORS: In the Check Level dialog, the name of the event, the name of its parameter, its value, and the lowest and the highest value it can have
-				: _fx("editor", "{}: {} is {}, it can be from {} to {}", name, field.Name, group.Value, field.Min, field.Max), group.Cell, group.OffGrid);
+					// TRANSLATORS: In the Check Level dialog, the name of the event, the name of its parameter, the lowest and the highest value it can have, and the number of events
+					? _fnx("editor", "{}: {} is out of its range from {} to {} in {} event", "{}: {} is out of its range from {} to {} in {} events", group.Count, name, field.Name, field.Min, field.Max, group.Count)
+					// TRANSLATORS: In the Check Level dialog, the name of the event, the name of its parameter, its value, and the lowest and the highest value it can have
+					: _fx("editor", "{}: {} is {}, it can be from {} to {}", name, field.Name, group.Value, field.Min, field.Max),
+				group.Cell, group.OffGrid);
 		}
 		for (const ProblemGroup& group : missingTexts) {
 			bool exists = (group.Value >= 0 && group.Value < std::int32_t(document.Texts.size()));
@@ -247,8 +250,8 @@ namespace Jazz2::Editor
 			if (group.Count > 1) {
 				// TRANSLATORS: In the Check Level dialog, the number of a text of the level and the number of events that show it
 				text = (exists ? _fnx("editor", "Text {} is empty, {} event shows it", "Text {} is empty, {} events show it", group.Count, group.Value, group.Count)
-					// TRANSLATORS: In the Check Level dialog, the number of a text of the level and the number of events that show it
-					: _fnx("editor", "Text {} doesn't exist, {} event shows it", "Text {} doesn't exist, {} events show it", group.Count, group.Value, group.Count));
+							   // TRANSLATORS: In the Check Level dialog, the number of a text of the level and the number of events that show it
+							   : _fnx("editor", "Text {} doesn't exist, {} event shows it", "Text {} doesn't exist, {} events show it", group.Count, group.Value, group.Count));
 			} else {
 				String name = EventPreviews::GetEventName(group.Type);
 				// TRANSLATORS: In the Check Level dialog, the name of the event and the number of the text of the level it shows
@@ -290,13 +293,11 @@ namespace Jazz2::Editor
 			LevelProblem& problem = add(LevelProblemSeverity::Warning, _x("editor", "The level is for multiplayer, but has no multiplayer start"));
 			problem.Fix = LevelProblemFix::AddMultiplayerStart;
 		} else if (isMultiplayer && multiplayerStarts.size() < 4) {
-			add(LevelProblemSeverity::Warning, _fnx("editor", "Only {} multiplayer start, more players start on top of each other",
-				"Only {} multiplayer starts, more players start on top of each other", std::int32_t(multiplayerStarts.size()), std::int32_t(multiplayerStarts.size())),
+			add(LevelProblemSeverity::Warning, _fnx("editor", "Only {} multiplayer start, more players start on top of each other", "Only {} multiplayer starts, more players start on top of each other", std::int32_t(multiplayerStarts.size()), std::int32_t(multiplayerStarts.size())),
 				multiplayerStarts[0].Cell, multiplayerStarts[0].OffGrid);
 		}
 		if (!isMultiplayer && multiplayerOnlyEvents > 0) {
-			add(LevelProblemSeverity::Info, _fnx("editor", "{} event is only in multiplayer, but the level isn't for multiplayer",
-				"{} events are only in multiplayer, but the level isn't for multiplayer", multiplayerOnlyEvents, multiplayerOnlyEvents),
+			add(LevelProblemSeverity::Info, _fnx("editor", "{} event is only in multiplayer, but the level isn't for multiplayer", "{} events are only in multiplayer, but the level isn't for multiplayer", multiplayerOnlyEvents, multiplayerOnlyEvents),
 				firstMultiplayerOnly.Cell, firstMultiplayerOnly.OffGrid);
 		}
 
@@ -306,7 +307,9 @@ namespace Jazz2::Editor
 		// As the level is saved, the flag follows the events
 		if ((document.GetSavedFlags() & LevelFlags::HasCaptureTheFlag) == LevelFlags::HasCaptureTheFlag) {
 			for (std::int32_t team = 0; team < 4; team++) {
-				std::int32_t bases = std::int32_t(std::count_if(ctfBases.begin(), ctfBases.end(), [team](const IdUse& use) { return use.Id == team; }));
+				std::int32_t bases = std::int32_t(std::count_if(ctfBases.begin(), ctfBases.end(), [team](const IdUse& use) {
+					return use.Id == team;
+				}));
 				bool hasStart = HasId(multiplayerStarts, team);
 				if (bases == 0 && team < 2) {
 					// TRANSLATORS: In the Check Level dialog, {} is the name of the team (Blue, Red, Green or Yellow)
@@ -314,12 +317,16 @@ namespace Jazz2::Editor
 					problem.Fix = LevelProblemFix::AddCtfBase;
 					problem.FixValue = team;
 				} else if (bases > 1) {
-					auto it = std::find_if(ctfBases.begin(), ctfBases.end(), [team](const IdUse& use) { return use.Id == team; });
+					auto it = std::find_if(ctfBases.begin(), ctfBases.end(), [team](const IdUse& use) {
+						return use.Id == team;
+					});
 					// TRANSLATORS: In the Check Level dialog, the name of the team (Blue, Red, Green or Yellow) and the number of its bases
 					add(LevelProblemSeverity::Warning, _fx("editor", "The team {} has {} CTF bases, only the first one is used", TeamNames[team], bases), it->Cell, it->OffGrid);
 				}
 				if (bases > 0 && !hasStart) {
-					auto it = std::find_if(ctfBases.begin(), ctfBases.end(), [team](const IdUse& use) { return use.Id == team; });
+					auto it = std::find_if(ctfBases.begin(), ctfBases.end(), [team](const IdUse& use) {
+						return use.Id == team;
+					});
 					// TRANSLATORS: In the Check Level dialog, {} is the name of the team (Blue, Red, Green or Yellow)
 					LevelProblem& problem = add(LevelProblemSeverity::Warning, _fx("editor", "The team {} has a CTF base, but no multiplayer start of its own", TeamNames[team]),
 						it->Cell, it->OffGrid);
@@ -346,7 +353,7 @@ namespace Jazz2::Editor
 			std::stable_sort(waypoints.begin(), waypoints.end(), [](const Waypoint& a, const Waypoint& b) {
 				return (a.Group != b.Group ? a.Group < b.Group : a.Order < b.Order);
 			});
-			for (std::size_t i = 0; i < waypoints.size(); ) {
+			for (std::size_t i = 0; i < waypoints.size();) {
 				std::size_t j = i;
 				while (j < waypoints.size() && waypoints[j].Group == waypoints[i].Group && waypoints[j].Order == waypoints[i].Order) {
 					j++;
@@ -360,13 +367,11 @@ namespace Jazz2::Editor
 					maxY = std::max<std::int32_t>(maxY, waypoints[k].Cell.Y);
 				}
 				if (j - i > 1 && (maxX - minX > 4 || maxY - minY > 4)) {
-					add(LevelProblemSeverity::Info, _fx("editor", "{} race waypoints of group {} have order {}, they're merged into their center, which is far from them",
-						std::int32_t(j - i), waypoints[i].Group, waypoints[i].Order), waypoints[i].Cell, waypoints[i].OffGrid);
+					add(LevelProblemSeverity::Info, _fx("editor", "{} race waypoints of group {} have order {}, they're merged into their center, which is far from them", std::int32_t(j - i), waypoints[i].Group, waypoints[i].Order), waypoints[i].Cell, waypoints[i].OffGrid);
 				}
 				// A gap in the order of a group isn't wrong, but often a waypoint forgotten
 				if (j < waypoints.size() && waypoints[j].Group == waypoints[i].Group && waypoints[j].Order > waypoints[i].Order + 1) {
-					add(LevelProblemSeverity::Info, _fx("editor", "Race waypoints of group {} go from order {} to {}, those between are missing",
-						waypoints[i].Group, waypoints[i].Order, waypoints[j].Order), waypoints[j].Cell, waypoints[j].OffGrid);
+					add(LevelProblemSeverity::Info, _fx("editor", "Race waypoints of group {} go from order {} to {}, those between are missing", waypoints[i].Group, waypoints[i].Order, waypoints[j].Order), waypoints[j].Cell, waypoints[j].OffGrid);
 				}
 				i = j;
 			}
@@ -374,14 +379,16 @@ namespace Jazz2::Editor
 
 		// Uses of an identifier without a counterpart, told once for each identifier with how many there are, at the first
 		auto addUnmatched = [&add](const SmallVectorImpl<IdUse>& uses, const SmallVectorImpl<IdUse>& counterparts, LevelProblemSeverity severity,
-			Function<String(std::int32_t, std::int32_t)>&& makeText, LevelProblemFix fix = LevelProblemFix::None, LevelProblemFix alternativeFix = LevelProblemFix::None) {
+								Function<String(std::int32_t, std::int32_t)>&& makeText, LevelProblemFix fix = LevelProblemFix::None, LevelProblemFix alternativeFix = LevelProblemFix::None) {
 			SmallVector<std::int32_t, 8> reported;
 			for (const IdUse& use : uses) {
 				if (HasId(counterparts, use.Id) || std::find(reported.begin(), reported.end(), use.Id) != reported.end()) {
 					continue;
 				}
 				reported.push_back(use.Id);
-				std::int32_t count = std::int32_t(std::count_if(uses.begin(), uses.end(), [&use](const IdUse& other) { return other.Id == use.Id; }));
+				std::int32_t count = std::int32_t(std::count_if(uses.begin(), uses.end(), [&use](const IdUse& other) {
+					return other.Id == use.Id;
+				}));
 				LevelProblem& problem = add(severity, makeText(use.Id, count), use.Cell, use.OffGrid);
 				problem.Fix = fix;
 				problem.AlternativeFix = alternativeFix;
@@ -392,7 +399,8 @@ namespace Jazz2::Editor
 		// Warps lead to a target of their identifier, a warp of coins needs as many coins, a warp takes more tiles
 		addUnmatched(warpOrigins, warpTargets, LevelProblemSeverity::Error, [](std::int32_t id, std::int32_t count) {
 			return (count > 1 ? _fx("editor", "Warp {} has no target ({} tiles)", id, count) : _fx("editor", "Warp {} has no target", id));
-		}, LevelProblemFix::AddWarpTarget, LevelProblemFix::RemoveWarp);
+		},
+			LevelProblemFix::AddWarpTarget, LevelProblemFix::RemoveWarp);
 		std::int32_t coins = LevelStatistics::Compute(document, Formats::EventRecord::Normal).Coins;
 		SmallVector<ProblemGroup, 0> coinWarps;
 		for (const CheckedEvent& checked : events) {
@@ -411,7 +419,7 @@ namespace Jazz2::Editor
 		// Triggers change the tiles of their identifier
 		addUnmatched(triggerSetters, triggerTiles, LevelProblemSeverity::Warning, [](std::int32_t id, std::int32_t count) {
 			return (count > 1 ? _fnx("editor", "Trigger {} is set by {} event, but no tile changes with it", "Trigger {} is set by {} events, but no tile changes with it", count, id, count)
-				: _fx("editor", "Trigger {} is set, but no tile changes with it", id));
+							  : _fx("editor", "Trigger {} is set, but no tile changes with it", id));
 		});
 		addUnmatched(triggerTiles, triggerSetters, LevelProblemSeverity::Info, [](std::int32_t id, std::int32_t count) {
 			return _fnx("editor", "Trigger {} changes {} tile, but nothing sets it, only a script can", "Trigger {} changes {} tiles, but nothing sets it, only a script can", count, id, count);
@@ -421,7 +429,7 @@ namespace Jazz2::Editor
 		});
 		addUnmatched(rockTriggers, rocks, LevelProblemSeverity::Warning, [](std::int32_t id, std::int32_t count) {
 			return (count > 1 ? _fnx("editor", "Rolling rock trigger {} has no rock ({} tile)", "Rolling rock trigger {} has no rock ({} tiles)", count, id, count)
-				: _fx("editor", "Rolling rock trigger {} has no rock", id));
+							  : _fx("editor", "Rolling rock trigger {} has no rock", id));
 		});
 
 		// Layers
@@ -608,7 +616,8 @@ namespace Jazz2::Editor
 				if (!sourceKnown[tile.Source]) {
 					sourceKnown[tile.Source] = true;
 					const Formats::TileSetData* data = session.GetTileSetData(tile.Source == TileRef::DefaultTileSet
-						? StringView(document.Properties.DefaultTileSet) : StringView(document.ExtraTileSets[tile.Source - 1].Name));
+							? StringView(document.Properties.DefaultTileSet)
+							: StringView(document.ExtraTileSets[tile.Source - 1].Name));
 					sourceIndexed[tile.Source] = true;
 					if (data != nullptr) {
 						// An extra tile set is loaded only with the part of its file the level takes
@@ -688,7 +697,8 @@ namespace Jazz2::Editor
 			if (!sourceKnown[tile.Source]) {
 				sourceKnown[tile.Source] = true;
 				sources[tile.Source] = session.GetTileSetData(tile.Source == TileRef::DefaultTileSet
-					? StringView(document.Properties.DefaultTileSet) : StringView(document.ExtraTileSets[tile.Source - 1].Name));
+						? StringView(document.Properties.DefaultTileSet)
+						: StringView(document.ExtraTileSets[tile.Source - 1].Name));
 			}
 			const Formats::TileSetData* data = sources[tile.Source];
 			if (data != nullptr && index < data->TileCount && data->TrueColor[index] == 0) {
@@ -720,8 +730,7 @@ namespace Jazz2::Editor
 
 		// The list is the order the layers are drawn in, from the front, but the depth decides it in the game
 		if (aboutOthers && layerIndex > 0 && document.Layers[layerIndex - 1].Record.Depth > layer.Record.Depth) {
-			add(LevelProblemSeverity::Warning, _fx("editor", "Its depth {} is nearer than {} of the layer above it in the list, so it's drawn in front of it",
-				layer.Record.Depth, document.Layers[layerIndex - 1].Record.Depth));
+			add(LevelProblemSeverity::Warning, _fx("editor", "Its depth {} is nearer than {} of the layer above it in the list, so it's drawn in front of it", layer.Record.Depth, document.Layers[layerIndex - 1].Record.Depth));
 		}
 
 		// Hidden in the game, and so in the editor too (see RuntimeSync::IsLayerShown()), as an empty layer of the original
@@ -729,11 +738,11 @@ namespace Jazz2::Editor
 		// isn't seen at all), a converted level often has such layers
 		if ((layer.Record.Flags & Formats::LayerRecord::Visible) == 0) {
 			bool hasContent = (!layer.Texture.empty() || renderer == Tiles::LayerRendererType::Reflection ||
-				std::any_of(layer.Tiles.begin(), layer.Tiles.end(), [](const TileRef& tile) { return !tile.IsEmpty(); }));
+				std::any_of(layer.Tiles.begin(), layer.Tiles.end(), [](const TileRef& tile) {
+					return !tile.IsEmpty();
+				}));
 			if (hasContent) {
-				add(LevelProblemSeverity::Warning, layer.IsSpriteLayer()
-					? String(_x("editor", "Hidden in the game - Visible in game is off, it isn't drawn in the game nor here, but its tiles are still solid"))
-					: String(_x("editor", "Hidden in the game - Visible in game is off, so it isn't drawn in the game nor here")));
+				add(LevelProblemSeverity::Warning, layer.IsSpriteLayer() ? String(_x("editor", "Hidden in the game - Visible in game is off, it isn't drawn in the game nor here, but its tiles are still solid")) : String(_x("editor", "Hidden in the game - Visible in game is off, so it isn't drawn in the game nor here")));
 			} else if (aboutOthers) {
 				add(LevelProblemSeverity::Warning, _x("editor", "Hidden in the game - Visible in game is off, so it isn't drawn in the game nor here"));
 			}
@@ -776,9 +785,7 @@ namespace Jazz2::Editor
 			case Tiles::LayerRendererType::Default:
 				// Visible in the game, but not seen, as an empty layer is told about above
 				if (color[3] == 0) {
-					add(LevelProblemSeverity::Warning, layer.IsSpriteLayer()
-						? String(_x("editor", "Alpha is 0, it isn't drawn, but its tiles are still solid"))
-						: String(_x("editor", "Alpha is 0, it isn't drawn")));
+					add(LevelProblemSeverity::Warning, layer.IsSpriteLayer() ? String(_x("editor", "Alpha is 0, it isn't drawn, but its tiles are still solid")) : String(_x("editor", "Alpha is 0, it isn't drawn")));
 				} else if (std::max({ color[0], color[1], color[2] }) < 24) {
 					// Easily left from a sky, a tunnel or a cylinder, whose horizon the color was
 					add(LevelProblemSeverity::Warning, _x("editor", "Its color is nearly black, it multiplies the tiles, so they're drawn black"));
@@ -873,7 +880,9 @@ namespace Jazz2::Editor
 				if (!hasTiles && color[2] != 0) {
 					add(LevelProblemSeverity::Info, _x("editor", "No tiles at its top left to ripple what it mirrors, it's mirrored as it is"));
 				}
-				if (aboutOthers && hasLaterLayer([](Tiles::LayerRendererType type) { return type == Tiles::LayerRendererType::Reflection; })) {
+				if (aboutOthers && hasLaterLayer([](Tiles::LayerRendererType type) {
+						return type == Tiles::LayerRendererType::Reflection;
+					})) {
 					add(LevelProblemSeverity::Warning, _x("editor", "A later layer is a reflection too - only the last one is drawn, this one isn't"));
 				}
 				break;
@@ -909,7 +918,7 @@ namespace Jazz2::Editor
 				if (descriptor == nullptr || !isSolid(cell)) {
 					return;
 				}
-				CheckedEvent checked{ &event, cell, offGrid };
+				CheckedEvent checked { &event, cell, offGrid };
 				if (EventType(event.Type) == EventType::WarpTarget) {
 					FindGroup(embeddedTargets, 0, checked);
 				} else if ((descriptor->Traits & EventTraits::Object) == EventTraits::Object) {
@@ -924,13 +933,11 @@ namespace Jazz2::Editor
 				check(event.Event, Vector2i(event.X / 32, event.Y / 32), std::int32_t(i));
 			}
 			for (const ProblemGroup& group : embeddedTargets) {
-				add(LevelProblemSeverity::Warning, _fnx("editor", "{} warp target is inside a solid tile, the player gets stuck there", "{} warp targets are inside solid tiles, the player gets stuck there",
-					group.Count, group.Count), group.Cell, group.OffGrid);
+				add(LevelProblemSeverity::Warning, _fnx("editor", "{} warp target is inside a solid tile, the player gets stuck there", "{} warp targets are inside solid tiles, the player gets stuck there", group.Count, group.Count), group.Cell, group.OffGrid);
 			}
 			for (const ProblemGroup& group : embedded) {
 				// TRANSLATORS: In the Check Level dialog, the name of the event and how many of them are inside solid tiles
-				add(LevelProblemSeverity::Info, _fnx("editor", "{}: {} is inside a solid tile", "{}: {} are inside solid tiles", group.Count,
-					EventPreviews::GetEventName(group.Type), group.Count), group.Cell, group.OffGrid);
+				add(LevelProblemSeverity::Info, _fnx("editor", "{}: {} is inside a solid tile", "{}: {} are inside solid tiles", group.Count, EventPreviews::GetEventName(group.Type), group.Count), group.Cell, group.OffGrid);
 			}
 		}
 
@@ -947,7 +954,11 @@ namespace Jazz2::Editor
 			}
 			return false;
 		};
-		struct LevelLink { String Formats::LevelProperties::* Member; String Label; };
+		struct LevelLink
+		{
+			String Formats::LevelProperties::*Member;
+			String Label;
+		};
 		static const LevelLink Links[] = {
 			// TRANSLATORS: Links of the level to the levels that follow it, put before the name of a level that isn't found in the Check Level dialog
 			{ &Formats::LevelProperties::NextLevel, _x("editor", "Next level") },
@@ -996,8 +1007,7 @@ namespace Jazz2::Editor
 				scriptPath = ContentResolver::Get().FindContentFile(fs::CombinePath("Episodes"_s, String(fs::ToNativeSeparators(session.GetLevelName()) + ".j2as"_s)));
 			}
 			if (!scriptPath.empty() && fs::IsReadableFile(scriptPath)) {
-				add(LevelProblemSeverity::Warning, _fx("editor", "The level has a script, which can refer to the first {} tile IDs only, the level uses {}",
-					LevelDocument::ScriptTileIdLimit, usedTileIds));
+				add(LevelProblemSeverity::Warning, _fx("editor", "The level has a script, which can refer to the first {} tile IDs only, the level uses {}", LevelDocument::ScriptTileIdLimit, usedTileIds));
 			}
 		}
 
@@ -1021,7 +1031,7 @@ namespace Jazz2::Editor
 			}
 			const CustomWeaponOptions& custom = weapon.GetCustom();
 			for (const WeaponSprite* sprite : { &custom.Shot.Sprite, &custom.Shot.AltSprite, &custom.ShotPowered.Sprite, &custom.ShotPowered.AltSprite,
-				&custom.HudIcon, &custom.HudIconPowered, &custom.Pickup }) {
+					 &custom.HudIcon, &custom.HudIconPowered, &custom.Pickup }) {
 				if (!sprite->Metadata.empty() && ContentResolver::Get().RequestMetadata(sprite->Metadata) == nullptr) {
 					add(LevelProblemSeverity::Warning, _fx("editor", "Weapon {} uses the animation \"{}\", which isn't found", name, sprite->Metadata));
 					break;
@@ -1037,13 +1047,16 @@ namespace Jazz2::Editor
 	{
 		switch (fix) {
 			// TRANSLATORS: Button next to a problem in the Check Level dialog, removes the warp that has no target
-			case LevelProblemFix::RemoveWarp: return _x("editor", "Remove");
+			case LevelProblemFix::RemoveWarp:
+				return _x("editor", "Remove");
 			case LevelProblemFix::AddWarpTarget:
 			case LevelProblemFix::AddStart:
 			case LevelProblemFix::AddMultiplayerStart:
 			// TRANSLATORS: Button next to a problem in the Check Level dialog, places the missing event (a warp target, a start or a CTF base)
-			case LevelProblemFix::AddCtfBase: return _x("editor", "Add");
-			default: return {};
+			case LevelProblemFix::AddCtfBase:
+				return _x("editor", "Add");
+			default:
+				return {};
 		}
 	}
 
@@ -1109,11 +1122,28 @@ namespace Jazz2::Editor
 		String name;
 		switch (fix) {
 			// TRANSLATORS: Names of undo steps in the history, an event placed from the Check Level dialog
-			case LevelProblemFix::AddWarpTarget: type = EventType::WarpTarget; paramType = ParamType::WarpId; name = _x("editor", "Add Warp Target"); break;
-			case LevelProblemFix::AddStart: type = EventType::LevelStart; paramType = ParamType::Flags; name = _x("editor", "Add Start"); break;
-			case LevelProblemFix::AddMultiplayerStart: type = EventType::LevelStartMultiplayer; paramType = ParamType::Enum; name = _x("editor", "Add Multiplayer Start"); break;
-			case LevelProblemFix::AddCtfBase: type = EventType::CtfBase; paramType = ParamType::Enum; name = _x("editor", "Add CTF Base"); break;
-			default: return false;
+			case LevelProblemFix::AddWarpTarget:
+				type = EventType::WarpTarget;
+				paramType = ParamType::WarpId;
+				name = _x("editor", "Add Warp Target");
+				break;
+			case LevelProblemFix::AddStart:
+				type = EventType::LevelStart;
+				paramType = ParamType::Flags;
+				name = _x("editor", "Add Start");
+				break;
+			case LevelProblemFix::AddMultiplayerStart:
+				type = EventType::LevelStartMultiplayer;
+				paramType = ParamType::Enum;
+				name = _x("editor", "Add Multiplayer Start");
+				break;
+			case LevelProblemFix::AddCtfBase:
+				type = EventType::CtfBase;
+				paramType = ParamType::Enum;
+				name = _x("editor", "Add CTF Base");
+				break;
+			default:
+				return false;
 		}
 		Formats::EventRecord record = EventCatalog::MakeDefault(type);
 		if (const EventParamField* field = FindEventField(EventCatalog::Find(type), paramType)) {
@@ -1289,7 +1319,7 @@ namespace Jazz2::Editor
 				shown++;
 				auto* row = rows->Add<Stack>(Orientation::Horizontal, Theme::Spacing);
 				const Colorf& color = (problem.Severity == LevelProblemSeverity::Error ? Theme::TextDanger
-					: (problem.Severity == LevelProblemSeverity::Warning ? Theme::TextAccent : Theme::TextDim));
+																					   : (problem.Severity == LevelProblemSeverity::Warning ? Theme::TextAccent : Theme::TextDim));
 				auto* label = row->Add<Label>(problem.Text, color);
 				label->Width = 1.0f;
 				label->Flex = 1.0f;
@@ -1333,7 +1363,9 @@ namespace Jazz2::Editor
 				(*show)();
 			});
 			button->Style = ButtonStyle::Flat;
-			button->IsCheckedFunc = [s, i]() { return (s->GetSettings().CheckLevelFilter & (1 << i)) != 0; };
+			button->IsCheckedFunc = [s, i]() {
+				return (s->GetSettings().CheckLevelFilter & (1 << i)) != 0;
+			};
 			button->Tooltip = _x("editor", "Shows or hides these problems");
 			state->FilterButtons[i] = button;
 		}
@@ -1356,7 +1388,7 @@ namespace Jazz2::Editor
 				state->Dirty = true;
 				state->Wait = WaitFrames;
 				if (changes.HasAny(DocumentChangeKind::Tiles | DocumentChangeKind::Events | DocumentChangeKind::LayerStructure |
-					DocumentChangeKind::LevelProperties | DocumentChangeKind::TileOverrides | DocumentChangeKind::TileSets)) {
+						DocumentChangeKind::LevelProperties | DocumentChangeKind::TileOverrides | DocumentChangeKind::TileSets)) {
 					state->ReachabilityStale = true;
 				}
 			}
@@ -1375,7 +1407,9 @@ namespace Jazz2::Editor
 		// TRANSLATORS: Button in the Check Level dialog
 		dialog->AddButton(_x("editor", "Check Again"), checkAll);
 		// Closed by its cross or Escape, checking again isn't what they do
-		dialog->OnCancel = [dialogPtr]() { dialogPtr->Close(); };
+		dialog->OnCancel = [dialogPtr]() {
+			dialogPtr->Close();
+		};
 
 		// The level is seen behind it, a problem shown in the view stays to be fixed
 		OverlayOptions options;

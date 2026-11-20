@@ -62,13 +62,13 @@ namespace Jazz2::Scripting
 			 *
 			 * Gives null when the behavior holds a built-in behavior or a @ref jjBEHAVIORINTERFACE instance.
 			 */
-			operator asIScriptFunction* ();
+			operator asIScriptFunction*();
 			/**
 			 * @brief Casts to the held `jjBEHAVIORINTERFACE` instance
 			 *
 			 * Gives null when the behavior holds a built-in behavior or a script function.
 			 */
-			operator asIScriptObject* ();
+			operator asIScriptObject*();
 
 			// A behavior is one of: a built-in behavior id (BEHAVIOR::Behavior), a custom script behavior function
 			// (jjVOIDFUNCOBJ), or a script object implementing jjBEHAVIORINTERFACE. The function/object hold an
@@ -736,7 +736,8 @@ namespace Jazz2::Scripting
 			// The last tick a buttstomping player touched it in, the first touch of a buttstomp is the attack
 			std::int32_t _stompTouchTick = INT32_MIN;
 			// The properties as the object of the game had them last, the ones a script writes are told apart by them
-			struct SyncedState {
+			struct SyncedState
+			{
 				float XPos, YPos, XSpeed, YSpeed;
 				// The animation of the animation table the object shows by itself, 0 for none of the original
 				std::int32_t NativeAnim;
@@ -963,7 +964,8 @@ namespace Jazz2::Scripting
 			bool active;
 
 			/** @brief Type-specific particle data, interpreted according to particleType */
-			union {
+			union
+			{
 				jjPARTICLEPIXEL pixel;
 				jjPARTICLEFIRE fire;
 				jjPARTICLESMOKE smoke;

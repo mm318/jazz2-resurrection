@@ -111,7 +111,8 @@ namespace Jazz2::Editor
 			WriteImage(s, Title);
 			WriteImage(s, Background);
 			return true;
-		}, keepBackup);
+		},
+			keepBackup);
 	}
 
 	bool EpisodeLevelInfo::Read(StringView path, EpisodeLevelInfo& info)

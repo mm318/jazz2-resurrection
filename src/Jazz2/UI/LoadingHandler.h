@@ -65,7 +65,10 @@ namespace Jazz2::UI
 		class BackgroundCanvas : public Canvas
 		{
 		public:
-			BackgroundCanvas(LoadingHandler* owner) : _owner(owner) {}
+			BackgroundCanvas(LoadingHandler* owner)
+				: _owner(owner)
+			{
+			}
 
 			bool OnDraw(RenderQueue& renderQueue) override;
 

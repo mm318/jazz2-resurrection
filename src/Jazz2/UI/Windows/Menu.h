@@ -28,7 +28,8 @@ namespace Jazz2::UI::Windows
 		Function<void(SmallVectorImpl<MenuEntry>&)> Submenu;
 
 		/** @brief Returns `true` if it's a separator */
-		bool IsSeparator() const {
+		bool IsSeparator() const
+		{
 			return Label.empty();
 		}
 
@@ -193,7 +194,8 @@ namespace Jazz2::UI::Windows
 		/** @brief Opens the menu, @p fromKeyboard highlights its first item */
 		void Open(bool fromKeyboard = false);
 		/** @brief Returns the index of the letter of the label that opens the menu with <kbd>Alt</kbd>, or -1 */
-		std::int32_t GetMnemonicIndex() const {
+		std::int32_t GetMnemonicIndex() const
+		{
 			return _mnemonic;
 		}
 

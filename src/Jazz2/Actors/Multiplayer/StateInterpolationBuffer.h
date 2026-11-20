@@ -31,18 +31,21 @@ namespace Jazz2::Actors::Multiplayer
 		static constexpr float MaxInterpolatedDistance = 512.0f;
 
 		/** @brief Returns `true` if the jump from the most recently pushed position to @p pos is too long to interpolate */
-		bool IsTeleport(Vector2f pos) const {
+		bool IsTeleport(Vector2f pos) const
+		{
 			return ((pos - GetLatest()).SqrLength() > MaxInterpolatedDistance * MaxInterpolatedDistance);
 		}
 
 		/** @brief Returns the current timestamp of the interpolation clock, in milliseconds */
-		static std::int64_t Now() {
+		static std::int64_t Now()
+		{
 			Clock& c = nCine::clock();
 			return std::int64_t(c.Now() * 1000 / c.GetFrequency());
 		}
 
 		/** @brief Resets the whole buffer to a single position (spawn, warp, forced resync), disabling interpolation */
-		void Reset(Vector2f pos, std::int64_t now) {
+		void Reset(Vector2f pos, std::int64_t now)
+		{
 			for (std::int32_t i = 0; i < BufferSize; i++) {
 				_frames[i].Time = now;
 				_frames[i].Pos = pos;
@@ -50,7 +53,8 @@ namespace Jazz2::Actors::Multiplayer
 		}
 
 		/** @brief Returns the most recently pushed position */
-		Vector2f GetLatest() const {
+		Vector2f GetLatest() const
+		{
 			std::int32_t idx = _cursor - 1;
 			if (idx < 0) {
 				idx += BufferSize;
@@ -64,7 +68,8 @@ namespace Jazz2::Actors::Multiplayer
 		 * When @p wasVisible is `false`, the actor was hidden before this update, so the previous and current
 		 * frames are collapsed to the new position to disable interpolation across the gap.
 		 */
-		void Push(Vector2f pos, std::int64_t now, bool wasVisible) {
+		void Push(Vector2f pos, std::int64_t now, bool wasVisible)
+		{
 			if (wasVisible) {
 				// Actor is still visible, enable interpolation
 				_frames[_cursor].Time = now;
@@ -96,7 +101,8 @@ namespace Jazz2::Actors::Multiplayer
 		 * @return `true` and writes @p result when @p renderTime is covered by the buffer; `false` when it is
 		 * ahead of the newest received state, in which case @p result is left untouched.
 		 */
-		bool Sample(std::int64_t renderTime, Vector2f& result) const {
+		bool Sample(std::int64_t renderTime, Vector2f& result) const
+		{
 			std::int32_t nextIdx = _cursor - 1;
 			if (nextIdx < 0) {
 				nextIdx += BufferSize;
@@ -131,7 +137,8 @@ namespace Jazz2::Actors::Multiplayer
 		}
 
 	private:
-		struct StateFrame {
+		struct StateFrame
+		{
 			std::int64_t Time;
 			Vector2f Pos;
 		};

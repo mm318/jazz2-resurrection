@@ -38,27 +38,29 @@ namespace Jazz2::UI::Menu
 		void OnTouchEvent(const nCine::TouchEvent& event, Vector2i viewSize) override;
 
 		/** @brief Returns the selected multiplayer game mode */
-		Jazz2::Multiplayer::MpGameMode GetGameMode() const {
+		Jazz2::Multiplayer::MpGameMode GetGameMode() const
+		{
 			return _gameMode;
 		}
 		/** @brief Sets the selected multiplayer game mode */
-		void SetGameMode(Jazz2::Multiplayer::MpGameMode value) {
+		void SetGameMode(Jazz2::Multiplayer::MpGameMode value)
+		{
 			_gameMode = value;
 		}
 
 	private:
 		String _levelName;
 		String _previousEpisodeName;
-		String _resumeEpisodeName;	// Non-empty when resuming a saved episode (continue); selects the resume code path
+		String _resumeEpisodeName; // Non-empty when resuming a saved episode (continue); selects the resume code path
 		std::int32_t _availableCharacters;
 		std::int32_t _playerCount;
 		std::int32_t _playerTypes[ControlScheme::MaxSupportedPlayers];
-		std::int32_t _currentPlayer;	// Player whose character row is currently focused (drives the left portrait)
+		std::int32_t _currentPlayer; // Player whose character row is currently focused (drives the left portrait)
 		std::int32_t _difficulty;
 		Jazz2::Multiplayer::MpGameMode _gameMode;
-		Widget* _characterRows[ControlScheme::MaxSupportedPlayers];	// One focusable character row per player (shown/hidden by player count)
-		bool _shouldStart;			// Start was confirmed; the fade-out transition is running before the level loads
-		float _transitionTime;		// Remaining fade-out transition time
+		Widget* _characterRows[ControlScheme::MaxSupportedPlayers]; // One focusable character row per player (shown/hidden by player count)
+		bool _shouldStart; // Start was confirmed; the fade-out transition is running before the level loads
+		float _transitionTime; // Remaining fade-out transition time
 
 		void ChangePlayerCount(std::int32_t direction);
 		void StartGame();

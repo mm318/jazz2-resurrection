@@ -1,6 +1,6 @@
 ﻿#include "TileSet.h"
 #if defined(TILEMAP_LAYER_EFFECTS)
-#	include "../ContentResolver.h"
+#include "../ContentResolver.h"
 #endif
 
 #include <cstring>
@@ -9,7 +9,7 @@ namespace Jazz2::Tiles
 {
 	TileSet::TileSet(StringView path, std::uint16_t tileCount, SmallVector<std::unique_ptr<Texture>, 1>&& textureDiffuse, std::unique_ptr<uint8_t[]> mask, std::uint32_t maskSize, std::unique_ptr<Color[]> captionTile, const std::uint8_t* tileDiffuseOpaque)
 		: FilePath(path), TextureDiffuse(Death::move(textureDiffuse)), _mask(Death::move(mask)), _captionTile(Death::move(captionTile)),
-			_isMaskEmpty(), _isMaskFilled(), _isTileFilled(), _isTileOpaque(), _isColumnContiguous()
+		  _isMaskEmpty(), _isMaskFilled(), _isTileFilled(), _isTileOpaque(), _isColumnContiguous()
 	{
 		// TilesPerRow/TilesPerTexture are used only for rendering. Every chunk shares the layout of chunk 0
 		// (the last one may be shorter), so its size defines how many tiles each chunk covers.
@@ -159,10 +159,10 @@ namespace Jazz2::Tiles
 				std::uint32_t c = tileDiffuse[py * PaddedTileSize + px];
 				const std::uint32_t alpha = (c >> 24) & 0xFF;
 				const bool opaquePx = (channels == 1
-					? (alpha != 0 && (c & 0xFF) != 0)
-					: (channels == 2
-						? (alpha == 255 && (c & 0xFF) != 0)
-						: (alpha == 255)));
+						? (alpha != 0 && (c & 0xFF) != 0)
+						: (channels == 2
+								  ? (alpha == 255 && (c & 0xFF) != 0)
+								  : (alpha == 255)));
 				if (!opaquePx) {
 					filled = false;
 					break;

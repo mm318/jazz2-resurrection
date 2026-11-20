@@ -13,8 +13,8 @@
 #include "../../../nCine/Base/Algorithms.h"
 
 #if defined(WITH_MULTIPLAYER)
-#	include "../../Multiplayer/MpLevelHandler.h"
-#	include "../../Actors/Multiplayer/MpPlayer.h"
+#include "../../Multiplayer/MpLevelHandler.h"
+#include "../../Actors/Multiplayer/MpPlayer.h"
 #endif
 
 #include <algorithm>
@@ -28,17 +28,22 @@ using namespace Jazz2::Tiles;
 
 namespace Jazz2::Scripting
 {
-	std::int32_t LevelScriptLoader::GetDifficulty() {
+	std::int32_t LevelScriptLoader::GetDifficulty()
+	{
 
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		switch (_this->_levelHandler->_difficulty) {
-			case GameDifficulty::Easy: return 0;
+			case GameDifficulty::Easy:
+				return 0;
 			default:
-			case GameDifficulty::Normal: return 1;
-			case GameDifficulty::Hard: return 2;
+			case GameDifficulty::Normal:
+				return 1;
+			case GameDifficulty::Hard:
+				return 2;
 		}
 	}
-	std::int32_t LevelScriptLoader::SetDifficulty(std::int32_t value) {
+	std::int32_t LevelScriptLoader::SetDifficulty(std::int32_t value)
+	{
 
 		if (value >= 0 && value <= 2) {
 			// As GetDifficulty() gives it, the difficulties of the game start after the default one
@@ -48,52 +53,61 @@ namespace Jazz2::Scripting
 		}
 		return value;
 	}
-	GameDifficulty LevelScriptLoader::GetNextLevelDifficulty(GameDifficulty current) const {
+	GameDifficulty LevelScriptLoader::GetNextLevelDifficulty(GameDifficulty current) const
+	{
 		if (DifficultyForNextLevel >= 0 && DifficultyForNextLevel <= 2) {
 			return (GameDifficulty)(std::int32_t(GameDifficulty::Easy) + DifficultyForNextLevel);
 		}
 		return current;
 	}
-	std::uint32_t LevelScriptLoader::GetActiveGameTicks() {
+	std::uint32_t LevelScriptLoader::GetActiveGameTicks()
+	{
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		return std::uint32_t(std::max(_this->_onLevelUpdateLastFrame, 0));
 	}
 
-	String getLevelFileName() {
+	String getLevelFileName()
+	{
 		// The name of the file of the level as JJ2+ has it, which scripts take layers of (jjLayersFromLevel()), not the
 		// episode and the level the game knows it by
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		return String(fs::GetFileName(owner->GetLevelHandler()->GetLevelName())) + ".j2l"_s;
 	}
-	String getCurrLevelName() {
+	String getCurrLevelName()
+	{
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		return owner->GetLevelHandler()->GetLevelDisplayName();
 	}
-	void setCurrLevelName(const String& in) {
+	void setCurrLevelName(const String& in)
+	{
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		owner->GetLevelHandler()->SetLevelDisplayName(in);
 	}
-	String LevelScriptLoader::get_jjMusicFileName() {
+	String LevelScriptLoader::get_jjMusicFileName()
+	{
 
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		return _this->_levelHandler->_musicCurrentPath;
 	}
-	String get_jjTilesetFileName() {
+	String get_jjTilesetFileName()
+	{
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		auto tileMap = owner->GetLevelHandler()->TileMap();
 		if (tileMap == nullptr) {
 			return "";
 		}
 		auto paths = tileMap->GetUsedTileSetPaths();
-		return (paths.empty() ? String{} : String(paths[0]));
+		return (paths.empty() ? String {} : String(paths[0]));
 	}
 
-	String LevelScriptLoader::get_jjHelpStrings(std::uint32_t index) {
+	String LevelScriptLoader::get_jjHelpStrings(std::uint32_t index)
+	{
 
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		return _this->_levelHandler->GetScriptText(index);
 	}
-	void LevelScriptLoader::set_jjHelpStrings(std::uint32_t index, const String& text) {
+	void LevelScriptLoader::set_jjHelpStrings(std::uint32_t index, const String& text)
+	{
 
 		// Read back as it is, shown in the formatting of the original game as the texts of the level
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
@@ -101,8 +115,10 @@ namespace Jazz2::Scripting
 		_this->_levelHandler->OverrideLevelText(index, Compatibility::JJ2Strings::RecodeString(text));
 	}
 
-	std::int32_t get_gameState() {
-		noop(); return 0;
+	std::int32_t get_gameState()
+	{
+		noop();
+		return 0;
 	}
 
 	Legacy::jjCONTROLPOINT* LevelScriptLoader::GetControlPoint(std::int32_t index)
@@ -144,25 +160,69 @@ namespace Jazz2::Scripting
 		}
 		maxScore = (std::int32_t)mpHandler->GetServerConfiguration().TotalKills;
 		switch (mpHandler->GetGameMode()) {
-			case Multiplayer::MpGameMode::Battle: gameMode = GM_BATTLE; break;
-			case Multiplayer::MpGameMode::TeamBattle: gameMode = GM_CTF; customMode = 11; break;
+			case Multiplayer::MpGameMode::Battle:
+				gameMode = GM_BATTLE;
+				break;
+			case Multiplayer::MpGameMode::TeamBattle:
+				gameMode = GM_CTF;
+				customMode = 11;
+				break;
 			case Multiplayer::MpGameMode::Race:
-			case Multiplayer::MpGameMode::TeamRace: gameMode = GM_RACE; break;
+			case Multiplayer::MpGameMode::TeamRace:
+				gameMode = GM_RACE;
+				break;
 			case Multiplayer::MpGameMode::TreasureHunt:
-			case Multiplayer::MpGameMode::TeamTreasureHunt: gameMode = GM_TREASURE; break;
-			case Multiplayer::MpGameMode::CaptureTheFlag: gameMode = GM_CTF; break;
-			case Multiplayer::MpGameMode::Cooperation: gameMode = GM_COOP; break;
-			case Multiplayer::MpGameMode::RoastTag: gameMode = GM_BATTLE; customMode = 1; break;
-			case Multiplayer::MpGameMode::LastRabbitStanding: gameMode = GM_BATTLE; customMode = 2; break;
-			case Multiplayer::MpGameMode::ExtendedLastRabbitStanding: gameMode = GM_BATTLE; customMode = 3; break;
-			case Multiplayer::MpGameMode::Pestilence: gameMode = GM_BATTLE; customMode = 4; break;
-			case Multiplayer::MpGameMode::Jailbreak: gameMode = GM_CTF; customMode = 12; break;
-			case Multiplayer::MpGameMode::DeathCaptureTheFlag: gameMode = GM_CTF; customMode = 13; break;
-			case Multiplayer::MpGameMode::FlagRun: gameMode = GM_CTF; customMode = 14; break;
-			case Multiplayer::MpGameMode::TeamLastRabbitStanding: gameMode = GM_CTF; customMode = 15; break;
-			case Multiplayer::MpGameMode::Domination: gameMode = GM_CTF; customMode = 16; break;
-			case Multiplayer::MpGameMode::HeadHunters: gameMode = GM_CTF; customMode = 17; break;
-			default: break;
+			case Multiplayer::MpGameMode::TeamTreasureHunt:
+				gameMode = GM_TREASURE;
+				break;
+			case Multiplayer::MpGameMode::CaptureTheFlag:
+				gameMode = GM_CTF;
+				break;
+			case Multiplayer::MpGameMode::Cooperation:
+				gameMode = GM_COOP;
+				break;
+			case Multiplayer::MpGameMode::RoastTag:
+				gameMode = GM_BATTLE;
+				customMode = 1;
+				break;
+			case Multiplayer::MpGameMode::LastRabbitStanding:
+				gameMode = GM_BATTLE;
+				customMode = 2;
+				break;
+			case Multiplayer::MpGameMode::ExtendedLastRabbitStanding:
+				gameMode = GM_BATTLE;
+				customMode = 3;
+				break;
+			case Multiplayer::MpGameMode::Pestilence:
+				gameMode = GM_BATTLE;
+				customMode = 4;
+				break;
+			case Multiplayer::MpGameMode::Jailbreak:
+				gameMode = GM_CTF;
+				customMode = 12;
+				break;
+			case Multiplayer::MpGameMode::DeathCaptureTheFlag:
+				gameMode = GM_CTF;
+				customMode = 13;
+				break;
+			case Multiplayer::MpGameMode::FlagRun:
+				gameMode = GM_CTF;
+				customMode = 14;
+				break;
+			case Multiplayer::MpGameMode::TeamLastRabbitStanding:
+				gameMode = GM_CTF;
+				customMode = 15;
+				break;
+			case Multiplayer::MpGameMode::Domination:
+				gameMode = GM_CTF;
+				customMode = 16;
+				break;
+			case Multiplayer::MpGameMode::HeadHunters:
+				gameMode = GM_CTF;
+				customMode = 17;
+				break;
+			default:
+				break;
 		}
 #endif
 	}
@@ -175,20 +235,23 @@ namespace Jazz2::Scripting
 		// messages at the bottom of the screen as in JJ2+, the others are shown big
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		String recodedText = Compatibility::JJ2Strings::RecodeScriptString(text, true);
-		constexpr std::uint32_t SizeSmall = 1;	// STRING::SMALL
+		constexpr std::uint32_t SizeSmall = 1; // STRING::SMALL
 		if (size == SizeSmall) {
 			_this->_levelHandler->_console->WriteLine(UI::MessageLevel::Info, recodedText);
 		} else {
 			_this->ShowLevelText(recodedText, size);
 		}
 	}
-	void LevelScriptLoader::jjPrint(const String& text, bool timestamp) {
+	void LevelScriptLoader::jjPrint(const String& text, bool timestamp)
+	{
 		LOGW("{}", text);
 	}
-	void LevelScriptLoader::jjDebug(const String& text, bool timestamp) {
+	void LevelScriptLoader::jjDebug(const String& text, bool timestamp)
+	{
 		LOGD("{}", text);
 	}
-	void LevelScriptLoader::jjChat(const String& text, bool teamchat) {
+	void LevelScriptLoader::jjChat(const String& text, bool teamchat)
+	{
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		if (text.hasPrefix('/')) {
 			_this->ProcessChatCommand(text.exceptPrefix(1));
@@ -198,7 +261,8 @@ namespace Jazz2::Scripting
 		// There's nobody to send it to, it's shown as a message of the player
 		_this->_levelHandler->_console->WriteLine(UI::MessageLevel::Info, Compatibility::JJ2Strings::RecodeScriptString(text, true));
 	}
-	void LevelScriptLoader::ProcessChatCommand(StringView line) {
+	void LevelScriptLoader::ProcessChatCommand(StringView line)
+	{
 		auto parts = line.trimmed().partition(' ');
 		String command = StringUtils::lowercase(parts[0]);
 		String argument(parts[2].trimmed());
@@ -229,9 +293,12 @@ namespace Jazz2::Scripting
 			}
 		} else if (command == "difficulty"_s) {
 			std::int32_t value = -1;
-			if (argument == "easy"_s) value = 0;
-			else if (argument == "medium"_s || argument == "normal"_s) value = 1;
-			else if (argument == "hard"_s) value = 2;
+			if (argument == "easy"_s)
+				value = 0;
+			else if (argument == "medium"_s || argument == "normal"_s)
+				value = 1;
+			else if (argument == "hard"_s)
+				value = 2;
 			// Turbo isn't a difficulty of the game, it's ignored as `jjDifficulty = 3` is
 			if (value >= 0) {
 				_levelHandler->_difficulty = (GameDifficulty)(std::int32_t(GameDifficulty::Easy) + value);
@@ -242,7 +309,8 @@ namespace Jazz2::Scripting
 			LOGD("Command \"/{}\" of the script ignored", line);
 		}
 	}
-	void LevelScriptLoader::jjConsole(const String& text, bool sendToAll) {
+	void LevelScriptLoader::jjConsole(const String& text, bool sendToAll)
+	{
 		noop();
 		LOGW("{}", text);
 
@@ -250,22 +318,29 @@ namespace Jazz2::Scripting
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		_this->_levelHandler->_console->WriteLine(UI::MessageLevel::Important, Compatibility::JJ2Strings::RecodeScriptString(text, true));
 	}
-	void LevelScriptLoader::jjSpy(const String& text) {
+	void LevelScriptLoader::jjSpy(const String& text)
+	{
 		LOGD("{}", text);
 	}
 
 	// TODO
 
-	std::int32_t getBorderWidth() {
-		noop(); return 0;
+	std::int32_t getBorderWidth()
+	{
+		noop();
+		return 0;
 	}
-	std::int32_t getBorderHeight() {
-		noop(); return 0;
+	std::int32_t getBorderHeight()
+	{
+		noop();
+		return 0;
 	}
-	bool getSplitscreenType() {
+	bool getSplitscreenType()
+	{
 		return ScriptLoader::FromActiveContext<LevelScriptLoader>()->_verticalSplitscreen;
 	}
-	bool setSplitscreenType(bool value) {
+	bool setSplitscreenType(bool value)
+	{
 		// Kept for the scripts, the split screen is laid out as the player prefers it
 		ScriptLoader::FromActiveContext<LevelScriptLoader>()->_verticalSplitscreen = value;
 		return value;
@@ -273,7 +348,8 @@ namespace Jazz2::Scripting
 
 	// TODO
 
-	std::int32_t get_teamScore(std::int32_t color) {
+	std::int32_t get_teamScore(std::int32_t color)
+	{
 #if defined(WITH_MULTIPLAYER)
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		if (auto* mpHandler = runtime_cast<Multiplayer::MpLevelHandler>(owner->GetLevelHandler())) {
@@ -283,7 +359,8 @@ namespace Jazz2::Scripting
 		return 0;
 	}
 	// The player with the role in the multiplayer game mode, or nullptr
-	static jjPLAYER* GetPlayerWithModeRole(std::uint8_t flag) {
+	static jjPLAYER* GetPlayerWithModeRole(std::uint8_t flag)
+	{
 #if defined(WITH_MULTIPLAYER)
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		for (auto* player : owner->GetPlayers()) {
@@ -297,21 +374,24 @@ namespace Jazz2::Scripting
 #endif
 		return nullptr;
 	}
-	jjPLAYER* get_tokenOwner() {
+	jjPLAYER* get_tokenOwner()
+	{
 #if defined(WITH_MULTIPLAYER)
 		return GetPlayerWithModeRole((std::uint8_t)Multiplayer::GameModes::PlayerModeFlags::It);
 #else
 		return nullptr;
 #endif
 	}
-	jjPLAYER* get_bottomFeeder() {
+	jjPLAYER* get_bottomFeeder()
+	{
 #if defined(WITH_MULTIPLAYER)
 		return GetPlayerWithModeRole((std::uint8_t)Multiplayer::GameModes::PlayerModeFlags::BottomFeeder);
 #else
 		return nullptr;
 #endif
 	}
-	bool get_doZombiesAlreadyExist() {
+	bool get_doZombiesAlreadyExist()
+	{
 #if defined(WITH_MULTIPLAYER)
 		return (GetPlayerWithModeRole((std::uint8_t)Multiplayer::GameModes::PlayerModeFlags::Zombie) != nullptr);
 #else
@@ -319,25 +399,29 @@ namespace Jazz2::Scripting
 #endif
 	}
 
-	std::int32_t GetMaxHealth() {
+	std::int32_t GetMaxHealth()
+	{
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		auto players = owner->GetPlayers();
 		return (players.size() == 0 ? 5 : players[0]->GetMaxHealth());
 	}
-	std::int32_t GetStartHealth() {
+	std::int32_t GetStartHealth()
+	{
 		// Players spawn at full health, so the starting health matches the maximum health
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		auto players = owner->GetPlayers();
 		return (players.size() == 0 ? 5 : players[0]->GetMaxHealth());
 	}
 
-	bool getEnabledTeam(std::uint8_t team) {
+	bool getEnabledTeam(std::uint8_t team)
+	{
 		noop();
 		return false;
 	}
 
 	// The key of the game a virtual-key code of Windows is, as `jjKey` takes them, `Keys::Unknown` for none
-	static Keys VirtualKeyToKey(std::uint8_t key) {
+	static Keys VirtualKeyToKey(std::uint8_t key)
+	{
 		if (key >= 0x30 && key <= 0x39) {
 			return Keys(std::int32_t(Keys::D0) + (key - 0x30));
 		}
@@ -351,74 +435,130 @@ namespace Jazz2::Scripting
 			return Keys(std::int32_t(Keys::F1) + (key - 0x70));
 		}
 		switch (key) {
-			case 0x08: return Keys::Backspace;
-			case 0x09: return Keys::Tab;
-			case 0x0D: return Keys::Return;
-			case 0x13: return Keys::Pause;
-			case 0x14: return Keys::CapsLock;
-			case 0x1B: return Keys::Escape;
-			case 0x20: return Keys::Space;
-			case 0x21: return Keys::PageUp;
-			case 0x22: return Keys::PageDown;
-			case 0x23: return Keys::End;
-			case 0x24: return Keys::Home;
-			case 0x25: return Keys::Left;
-			case 0x26: return Keys::Up;
-			case 0x27: return Keys::Right;
-			case 0x28: return Keys::Down;
-			case 0x2C: return Keys::PrintScreen;
-			case 0x2D: return Keys::Insert;
-			case 0x2E: return Keys::Delete;
-			case 0x5B: return Keys::LSuper;
-			case 0x5C: return Keys::RSuper;
-			case 0x5D: return Keys::Menu;
-			case 0x6A: return Keys::NumPadMultiply;
-			case 0x6B: return Keys::NumPadPlus;
-			case 0x6D: return Keys::NumPadMinus;
-			case 0x6E: return Keys::NumPadPeriod;
-			case 0x6F: return Keys::NumPadDivide;
-			case 0x90: return Keys::NumLock;
-			case 0x91: return Keys::ScrollLock;
-			case 0xA0: return Keys::LShift;
-			case 0xA1: return Keys::RShift;
-			case 0xA2: return Keys::LCtrl;
-			case 0xA3: return Keys::RCtrl;
-			case 0xA4: return Keys::LAlt;
-			case 0xA5: return Keys::RAlt;
-			case 0xBA: return Keys::Semicolon;
-			case 0xBB: return Keys::Plus;
-			case 0xBC: return Keys::Comma;
-			case 0xBD: return Keys::Minus;
-			case 0xBE: return Keys::Period;
-			case 0xBF: return Keys::Slash;
-			case 0xC0: return Keys::Backquote;
-			case 0xDB: return Keys::LeftBracket;
-			case 0xDC: return Keys::Backslash;
-			case 0xDD: return Keys::RightBracket;
-			case 0xDE: return Keys::Quote;
-			default: return Keys::Unknown;
+			case 0x08:
+				return Keys::Backspace;
+			case 0x09:
+				return Keys::Tab;
+			case 0x0D:
+				return Keys::Return;
+			case 0x13:
+				return Keys::Pause;
+			case 0x14:
+				return Keys::CapsLock;
+			case 0x1B:
+				return Keys::Escape;
+			case 0x20:
+				return Keys::Space;
+			case 0x21:
+				return Keys::PageUp;
+			case 0x22:
+				return Keys::PageDown;
+			case 0x23:
+				return Keys::End;
+			case 0x24:
+				return Keys::Home;
+			case 0x25:
+				return Keys::Left;
+			case 0x26:
+				return Keys::Up;
+			case 0x27:
+				return Keys::Right;
+			case 0x28:
+				return Keys::Down;
+			case 0x2C:
+				return Keys::PrintScreen;
+			case 0x2D:
+				return Keys::Insert;
+			case 0x2E:
+				return Keys::Delete;
+			case 0x5B:
+				return Keys::LSuper;
+			case 0x5C:
+				return Keys::RSuper;
+			case 0x5D:
+				return Keys::Menu;
+			case 0x6A:
+				return Keys::NumPadMultiply;
+			case 0x6B:
+				return Keys::NumPadPlus;
+			case 0x6D:
+				return Keys::NumPadMinus;
+			case 0x6E:
+				return Keys::NumPadPeriod;
+			case 0x6F:
+				return Keys::NumPadDivide;
+			case 0x90:
+				return Keys::NumLock;
+			case 0x91:
+				return Keys::ScrollLock;
+			case 0xA0:
+				return Keys::LShift;
+			case 0xA1:
+				return Keys::RShift;
+			case 0xA2:
+				return Keys::LCtrl;
+			case 0xA3:
+				return Keys::RCtrl;
+			case 0xA4:
+				return Keys::LAlt;
+			case 0xA5:
+				return Keys::RAlt;
+			case 0xBA:
+				return Keys::Semicolon;
+			case 0xBB:
+				return Keys::Plus;
+			case 0xBC:
+				return Keys::Comma;
+			case 0xBD:
+				return Keys::Minus;
+			case 0xBE:
+				return Keys::Period;
+			case 0xBF:
+				return Keys::Slash;
+			case 0xC0:
+				return Keys::Backquote;
+			case 0xDB:
+				return Keys::LeftBracket;
+			case 0xDC:
+				return Keys::Backslash;
+			case 0xDD:
+				return Keys::RightBracket;
+			case 0xDE:
+				return Keys::Quote;
+			default:
+				return Keys::Unknown;
 		}
 	}
 
-	bool getKeyDown(std::uint8_t key) {
+	bool getKeyDown(std::uint8_t key)
+	{
 		// Virtual-key codes of Windows, as JJ2+ has them - mouse buttons, either of two sides of a modifier, or a key
 		auto& input = theApplication().GetInputManager();
 		switch (key) {
-			case 0x01: return input.GetMouseState().IsButtonDown(MouseButton::Left);
-			case 0x02: return input.GetMouseState().IsButtonDown(MouseButton::Right);
-			case 0x04: return input.GetMouseState().IsButtonDown(MouseButton::Middle);
-			case 0x05: return input.GetMouseState().IsButtonDown(MouseButton::Fourth);
-			case 0x06: return input.GetMouseState().IsButtonDown(MouseButton::Fifth);
-			case 0x10: return input.GetKeyboardState().IsKeyDown(Keys::LShift) || input.GetKeyboardState().IsKeyDown(Keys::RShift);
-			case 0x11: return input.GetKeyboardState().IsKeyDown(Keys::LCtrl) || input.GetKeyboardState().IsKeyDown(Keys::RCtrl);
-			case 0x12: return input.GetKeyboardState().IsKeyDown(Keys::LAlt) || input.GetKeyboardState().IsKeyDown(Keys::RAlt);
+			case 0x01:
+				return input.GetMouseState().IsButtonDown(MouseButton::Left);
+			case 0x02:
+				return input.GetMouseState().IsButtonDown(MouseButton::Right);
+			case 0x04:
+				return input.GetMouseState().IsButtonDown(MouseButton::Middle);
+			case 0x05:
+				return input.GetMouseState().IsButtonDown(MouseButton::Fourth);
+			case 0x06:
+				return input.GetMouseState().IsButtonDown(MouseButton::Fifth);
+			case 0x10:
+				return input.GetKeyboardState().IsKeyDown(Keys::LShift) || input.GetKeyboardState().IsKeyDown(Keys::RShift);
+			case 0x11:
+				return input.GetKeyboardState().IsKeyDown(Keys::LCtrl) || input.GetKeyboardState().IsKeyDown(Keys::RCtrl);
+			case 0x12:
+				return input.GetKeyboardState().IsKeyDown(Keys::LAlt) || input.GetKeyboardState().IsKeyDown(Keys::RAlt);
 		}
 		Keys mapped = VirtualKeyToKey(key);
 		return (mapped != Keys::Unknown && input.GetKeyboardState().IsKeyDown(mapped));
 	}
 
 	// The position of the mouse in the view of the game, which the window shows scaled
-	static Vector2i GetCursorInView() {
+	static Vector2i GetCursorInView()
+	{
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		auto& mouse = theApplication().GetInputManager().GetMouseState();
 		Vector2i windowSize = theApplication().GetResolution();
@@ -429,10 +569,12 @@ namespace Jazz2::Scripting
 		return Vector2i(mouse.X * viewSize.X / windowSize.X, mouse.Y * viewSize.Y / windowSize.Y);
 	}
 
-	std::int32_t getCursorX() {
+	std::int32_t getCursorX()
+	{
 		return GetCursorInView().X;
 	}
-	std::int32_t getCursorY() {
+	std::int32_t getCursorY()
+	{
 		return GetCursorInView().Y;
 	}
 
@@ -622,38 +764,38 @@ namespace Jazz2::Scripting
 		engine->SetDefaultNamespace("GAME");
 		/** @brief State of a multiplayer game */
 		engine->RegisterEnum("State");
-		engine->RegisterEnumValue("State", "STOPPED", gameSTOPPED);		///< Game is stopped
-		engine->RegisterEnumValue("State", "STARTED", gameSTARTED);		///< Game is running
-		engine->RegisterEnumValue("State", "PAUSED", gamePAUSED);		///< Game is paused, only possible with a time limit
-		engine->RegisterEnumValue("State", "PREGAME", gamePREGAME);		///< Waiting for the game to start
-		engine->RegisterEnumValue("State", "OVERTIME", gameOVERTIME);	///< Time limit ran out with no winner yet
+		engine->RegisterEnumValue("State", "STOPPED", gameSTOPPED); ///< Game is stopped
+		engine->RegisterEnumValue("State", "STARTED", gameSTARTED); ///< Game is running
+		engine->RegisterEnumValue("State", "PAUSED", gamePAUSED); ///< Game is paused, only possible with a time limit
+		engine->RegisterEnumValue("State", "PREGAME", gamePREGAME); ///< Waiting for the game to start
+		engine->RegisterEnumValue("State", "OVERTIME", gameOVERTIME); ///< Time limit ran out with no winner yet
 		/** @brief Base game mode, regardless of any custom mode built on top of it */
 		engine->RegisterEnum("Mode");
-		engine->RegisterEnumValue("Mode", "SP", GM_SP);					///< Single player
-		engine->RegisterEnumValue("Mode", "COOP", GM_COOP);				///< Cooperative
-		engine->RegisterEnumValue("Mode", "BATTLE", GM_BATTLE);			///< Battle
-		engine->RegisterEnumValue("Mode", "CTF", GM_CTF);				///< Capture the flag
-		engine->RegisterEnumValue("Mode", "TREASURE", GM_TREASURE);		///< Treasure hunt
-		engine->RegisterEnumValue("Mode", "RACE", GM_RACE);				///< Race
+		engine->RegisterEnumValue("Mode", "SP", GM_SP); ///< Single player
+		engine->RegisterEnumValue("Mode", "COOP", GM_COOP); ///< Cooperative
+		engine->RegisterEnumValue("Mode", "BATTLE", GM_BATTLE); ///< Battle
+		engine->RegisterEnumValue("Mode", "CTF", GM_CTF); ///< Capture the flag
+		engine->RegisterEnumValue("Mode", "TREASURE", GM_TREASURE); ///< Treasure hunt
+		engine->RegisterEnumValue("Mode", "RACE", GM_RACE); ///< Race
 		/** @brief Custom game mode built on top of a base mode */
 		engine->RegisterEnum("Custom");
-		engine->RegisterEnumValue("Custom", "NOCUSTOM", 0);				///< No custom mode, only the base mode applies
-		engine->RegisterEnumValue("Custom", "RT", 1);					///< Roast tag
-		engine->RegisterEnumValue("Custom", "LRS", 2);					///< Last rabbit standing
-		engine->RegisterEnumValue("Custom", "XLRS", 3);					///< Extended last rabbit standing
-		engine->RegisterEnumValue("Custom", "PEST", 4);					///< Pestilence
-		engine->RegisterEnumValue("Custom", "TB", 11);					///< Team battle
-		engine->RegisterEnumValue("Custom", "JB", 12);					///< Jailbreak
-		engine->RegisterEnumValue("Custom", "DCTF", 13);				///< Death capture the flag
-		engine->RegisterEnumValue("Custom", "FR", 14);					///< Flag run
-		engine->RegisterEnumValue("Custom", "TLRS", 15);				///< Team last rabbit standing
-		engine->RegisterEnumValue("Custom", "DOM", 16);					///< Domination
-		engine->RegisterEnumValue("Custom", "HEAD", 17);				///< Head hunters
+		engine->RegisterEnumValue("Custom", "NOCUSTOM", 0); ///< No custom mode, only the base mode applies
+		engine->RegisterEnumValue("Custom", "RT", 1); ///< Roast tag
+		engine->RegisterEnumValue("Custom", "LRS", 2); ///< Last rabbit standing
+		engine->RegisterEnumValue("Custom", "XLRS", 3); ///< Extended last rabbit standing
+		engine->RegisterEnumValue("Custom", "PEST", 4); ///< Pestilence
+		engine->RegisterEnumValue("Custom", "TB", 11); ///< Team battle
+		engine->RegisterEnumValue("Custom", "JB", 12); ///< Jailbreak
+		engine->RegisterEnumValue("Custom", "DCTF", 13); ///< Death capture the flag
+		engine->RegisterEnumValue("Custom", "FR", 14); ///< Flag run
+		engine->RegisterEnumValue("Custom", "TLRS", 15); ///< Team last rabbit standing
+		engine->RegisterEnumValue("Custom", "DOM", 16); ///< Domination
+		engine->RegisterEnumValue("Custom", "HEAD", 17); ///< Head hunters
 		/** @brief Who can join the game */
 		engine->RegisterEnum("Connection");
-		engine->RegisterEnumValue("Connection", "LOCAL", gameLOCAL);		///< Local game only
-		engine->RegisterEnumValue("Connection", "ONLINE", gameINTERNET);	///< Joinable over the internet
-		engine->RegisterEnumValue("Connection", "LAN", gameLAN_TCP);		///< Joinable over the local network
+		engine->RegisterEnumValue("Connection", "LOCAL", gameLOCAL); ///< Local game only
+		engine->RegisterEnumValue("Connection", "ONLINE", gameINTERNET); ///< Joinable over the internet
+		engine->RegisterEnumValue("Connection", "LAN", gameLAN_TCP); ///< Joinable over the local network
 		engine->SetDefaultNamespace("");
 		engine->RegisterGlobalFunction("GAME::State get_jjGameState()", asFUNCTION(get_gameState), asCALL_CDECL);
 		/**

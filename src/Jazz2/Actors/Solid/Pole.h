@@ -17,11 +17,12 @@ namespace Jazz2::Actors::Solid
 
 	public:
 		/** @brief Direction the pole is falling in */
-		enum class FallDirection {
-			None,		/**< Standing upright */
-			Right,		/**< Falling to the right */
-			Left,		/**< Falling to the left */
-			Fallen		/**< Finished falling */
+		enum class FallDirection
+		{
+			None, /**< Standing upright */
+			Right, /**< Falling to the right */
+			Left, /**< Falling to the left */
+			Fallen /**< Finished falling */
 		};
 
 		/** @brief Creates a new instance */
@@ -31,7 +32,8 @@ namespace Jazz2::Actors::Solid
 		bool CanCauseDamage(ActorBase* collider) override;
 
 		/** @brief Returns the direction the pole is falling in */
-		FallDirection GetFallDirection() const {
+		FallDirection GetFallDirection() const
+		{
 			return _fall;
 		}
 

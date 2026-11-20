@@ -27,9 +27,9 @@ namespace Jazz2::Editor
 		/** @brief What the rectangle between the corners does */
 		enum class Mode : std::uint8_t
 		{
-			Replace,		/**< It's the block */
-			Add,			/**< It's added to the selection of the layer, the selected tiles are the block */
-			Subtract		/**< It's taken out of the selection of the layer, the selected tiles left are the block */
+			Replace, /**< It's the block */
+			Add, /**< It's added to the selection of the layer, the selected tiles are the block */
+			Subtract /**< It's taken out of the selection of the layer, the selected tiles left are the block */
 		};
 
 		/** @brief Creates a new instance */

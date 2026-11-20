@@ -5,28 +5,28 @@
 #include <cstring>
 
 #if !defined(CHAR_BIT)
-#	warning "CHAR_BIT not defined, assuming 8 bits"
-#	define CHAR_BIT 8
+#warning "CHAR_BIT not defined, assuming 8 bits"
+#define CHAR_BIT 8
 #endif
 
 #if CHAR_BIT == 8
 // Array index for character containing bit
-#	define BIT_CHAR(bit)         ((bit) >> 3)
+#define BIT_CHAR(bit) ((bit) >> 3)
 // Position of bit within character
-#	define BIT_IN_CHAR(bit)      (1 << ((bit) & 0x07))
+#define BIT_IN_CHAR(bit) (1 << ((bit) & 0x07))
 // Number of characters required to contain number of bits
-#	define BITS_TO_CHARS(bits)   ((((bits) - 1) >> 3) + 1)
+#define BITS_TO_CHARS(bits) ((((bits) - 1) >> 3) + 1)
 // Most significant bit in a character
-#	define MS_BIT                (1 << (CHAR_BIT - 1))
+#define MS_BIT (1 << (CHAR_BIT - 1))
 #else
 // Array index for character containing bit
-#	define BIT_CHAR(bit)         ((bit) / CHAR_BIT)
+#define BIT_CHAR(bit) ((bit) / CHAR_BIT)
 // Position of bit within character
-#	define BIT_IN_CHAR(bit)      (1 << ((bit) % CHAR_BIT))
+#define BIT_IN_CHAR(bit) (1 << ((bit) % CHAR_BIT))
 // Number of characters required to contain number of bits
-#	define BITS_TO_CHARS(bits)   ((((bits) - 1) / CHAR_BIT) + 1)
+#define BITS_TO_CHARS(bits) ((((bits) - 1) / CHAR_BIT) + 1)
 // Most significant bit in a character
-#	define MS_BIT                (1 << (CHAR_BIT - 1))
+#define MS_BIT (1 << (CHAR_BIT - 1))
 #endif
 
 namespace nCine
@@ -39,7 +39,7 @@ namespace nCine
 	BitArray::BitArray(ValueInitT, std::size_t sizeInBits)
 	{
 		_size = sizeInBits;
-		_data = _size ? new char[BITS_TO_CHARS(sizeInBits)]{} : nullptr;
+		_data = _size ? new char[BITS_TO_CHARS(sizeInBits)] {} : nullptr;
 	}
 
 	BitArray::BitArray(NoInitT, std::size_t sizeInBits)
@@ -94,7 +94,7 @@ namespace nCine
 
 		_size = sizeInBits;
 		std::size_t sizeInBytes = BITS_TO_CHARS(sizeInBits);
-		_data = new char[sizeInBytes]{};
+		_data = new char[sizeInBytes] {};
 
 		if (prevData != nullptr) {
 			std::memcpy(_data, prevData, std::min(prevSizeInBytes, sizeInBytes));

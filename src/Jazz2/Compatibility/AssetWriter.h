@@ -10,13 +10,23 @@ namespace Jazz2::Compatibility
 	{
 	public:
 		explicit AssetWriter(Death::Containers::StringView directory)
-			: _directory(directory), _package(nullptr), _valid(Death::IO::FileSystem::CreateDirectories(directory)) {}
+			: _directory(directory), _package(nullptr), _valid(Death::IO::FileSystem::CreateDirectories(directory))
+		{
+		}
 
 		explicit AssetWriter(Death::IO::PakWriter& package)
-			: _package(&package), _valid(package.IsValid()) {}
+			: _package(&package), _valid(package.IsValid())
+		{
+		}
 
-		bool IsValid() const { return _valid; }
-		bool IsDirectory() const { return _package == nullptr; }
+		bool IsValid() const
+		{
+			return _valid;
+		}
+		bool IsDirectory() const
+		{
+			return _package == nullptr;
+		}
 
 		bool AddFile(Death::IO::Stream& source, Death::Containers::StringView path,
 			Death::IO::PakPreferredCompression compression = Death::IO::PakPreferredCompression::None)

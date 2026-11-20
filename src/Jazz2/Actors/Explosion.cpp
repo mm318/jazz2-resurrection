@@ -37,8 +37,7 @@ namespace Jazz2::Actors
 		explosion->OnActivated(ActorActivationDetails(
 			levelHandler,
 			pos,
-			explosionParams
-		));
+			explosionParams));
 		if (type == Type::IceShrapnel) {
 			explosion->_speed += speed;
 		}

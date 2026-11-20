@@ -15,20 +15,23 @@ using namespace Jazz2::Tiles;
 
 namespace Jazz2::Scripting
 {
-	bool LevelScriptLoader::get_jjTriggers(std::uint8_t id) {
+	bool LevelScriptLoader::get_jjTriggers(std::uint8_t id)
+	{
 		//noop();
 
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		return _this->_levelHandler->GetTrigger(id);
 	}
-	bool LevelScriptLoader::set_jjTriggers(std::uint8_t id, bool value) {
+	bool LevelScriptLoader::set_jjTriggers(std::uint8_t id, bool value)
+	{
 		//noop();
 
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		_this->_levelHandler->SetTrigger(id, value);
 		return value;
 	}
-	bool LevelScriptLoader::jjSwitchTrigger(std::uint8_t id) {
+	bool LevelScriptLoader::jjSwitchTrigger(std::uint8_t id)
+	{
 		//noop();
 
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
@@ -36,36 +39,42 @@ namespace Jazz2::Scripting
 		return _this->_levelHandler->GetTrigger(id);
 	}
 
-	bool LevelScriptLoader::isNumberedASFunctionEnabled(std::uint8_t id) {
+	bool LevelScriptLoader::isNumberedASFunctionEnabled(std::uint8_t id)
+	{
 		//noop();
 
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		return _this->_enabledCallbacks[id];
 	}
-	bool LevelScriptLoader::setNumberedASFunctionEnabled(std::uint8_t id, bool value) {
+	bool LevelScriptLoader::setNumberedASFunctionEnabled(std::uint8_t id, bool value)
+	{
 		//noop();
 
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		_this->_enabledCallbacks.set(id, value);
 		return value;
 	}
-	void LevelScriptLoader::reenableAllNumberedASFunctions() {
+	void LevelScriptLoader::reenableAllNumberedASFunctions()
+	{
 		//noop();
 
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		_this->_enabledCallbacks.setAll();
 	}
 
-	float LevelScriptLoader::getWaterLevel() {
+	float LevelScriptLoader::getWaterLevel()
+	{
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		return _this->_levelHandler->_waterLevel;
 	}
-	float LevelScriptLoader::getWaterLevel2() {
+	float LevelScriptLoader::getWaterLevel2()
+	{
 		// Where the water goes, see UpdateWaterLevel()
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		return (_this->_waterTarget >= 0.0f ? _this->_waterTarget : _this->_levelHandler->_waterLevel);
 	}
-	float LevelScriptLoader::setWaterLevel(float value, bool instant) {
+	float LevelScriptLoader::setWaterLevel(float value, bool instant)
+	{
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		if (instant) {
 			_this->_levelHandler->_waterLevel = value;
@@ -75,11 +84,13 @@ namespace Jazz2::Scripting
 		}
 		return value;
 	}
-	float LevelScriptLoader::get_waterChangeSpeed() {
+	float LevelScriptLoader::get_waterChangeSpeed()
+	{
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		return _this->_waterChangeSpeed;
 	}
-	float LevelScriptLoader::set_waterChangeSpeed(float value) {
+	float LevelScriptLoader::set_waterChangeSpeed(float value)
+	{
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		_this->_waterChangeSpeed = value;
 		return value;
@@ -103,11 +114,13 @@ namespace Jazz2::Scripting
 			waterLevel += (_waterTarget > waterLevel ? step : -step);
 		}
 	}
-	std::int32_t LevelScriptLoader::get_waterLayer() {
+	std::int32_t LevelScriptLoader::get_waterLayer()
+	{
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		return _this->_waterLayer;
 	}
-	std::int32_t LevelScriptLoader::set_waterLayer(std::int32_t value) {
+	std::int32_t LevelScriptLoader::set_waterLayer(std::int32_t value)
+	{
 		// A number of no layer hides the water as in JJ2+, the actors are still in it then; 0 is in front of all (measured)
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		_this->_waterLayer = value;
@@ -119,33 +132,39 @@ namespace Jazz2::Scripting
 		_this->_levelHandler->SetWaterLayer(index >= 0 ? index : Formats::LevelSettingsChunk::WaterHidden);
 		return value;
 	}
-	void LevelScriptLoader::setWaterGradient(std::uint8_t red1, std::uint8_t green1, std::uint8_t blue1, std::uint8_t red2, std::uint8_t green2, std::uint8_t blue2) {
+	void LevelScriptLoader::setWaterGradient(std::uint8_t red1, std::uint8_t green1, std::uint8_t blue1, std::uint8_t red2, std::uint8_t green2, std::uint8_t blue2)
+	{
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		_this->SetWaterColors(Vector3f(red1, green1, blue1) / 255.0f, Vector3f(red2, green2, blue2) / 255.0f);
 	}
-	void LevelScriptLoader::setWaterGradientFromColors(jjPALCOLOR color1, jjPALCOLOR color2) {
+	void LevelScriptLoader::setWaterGradientFromColors(jjPALCOLOR color1, jjPALCOLOR color2)
+	{
 		setWaterGradient(color1.red, color1.green, color1.blue, color2.red, color2.green, color2.blue);
 	}
-	void LevelScriptLoader::setWaterGradientToTBG() {
+	void LevelScriptLoader::setWaterGradientToTBG()
+	{
 		// The colors of the palette the textured background of JJ2 fades through
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		const jjPALCOLOR& top = _this->jjPalette.getColor(176);
 		const jjPALCOLOR& bottom = _this->jjPalette.getColor(207);
 		setWaterGradient(top.red, top.green, top.blue, bottom.red, bottom.green, bottom.blue);
 	}
-	void LevelScriptLoader::resetWaterGradient() {
+	void LevelScriptLoader::resetWaterGradient()
+	{
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		_this->SetWaterColors(LevelHandler::DefaultWaterColor, LevelHandler::DefaultWaterColor);
 	}
 
-	void LevelScriptLoader::triggerRock(std::uint8_t id) {
+	void LevelScriptLoader::triggerRock(std::uint8_t id)
+	{
 
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		std::uint8_t eventParams[] = { id };
 		_this->_levelHandler->BroadcastTriggeredEvent(nullptr, EventType::RollingRockTrigger, eventParams);
 	}
 
-	void LevelScriptLoader::cycleTo(const String& filename, bool warp, bool fast) {
+	void LevelScriptLoader::cycleTo(const String& filename, bool warp, bool fast)
+	{
 		ExitType exitType = (warp ? ExitType::Warp : ExitType::Normal);
 		if (fast) {
 			exitType |= ExitType::FastTransition;
@@ -175,7 +194,8 @@ namespace Jazz2::Scripting
 
 	// Returns the bits of an event word a parameter of JJ2+ means, by its offset from the first bit of the parameters and
 	// its length, negative for a signed one, as JCS.ini writes them; `false` if they aren't in the word
-	static bool GetEventParamBits(std::int32_t offset, std::int32_t length, std::int32_t& shift, std::uint32_t& mask) {
+	static bool GetEventParamBits(std::int32_t offset, std::int32_t length, std::int32_t& shift, std::uint32_t& mask)
+	{
 		std::int32_t bits = (length < 0 ? -length : length);
 		shift = Legacy::EventTranslator::ParamsShift + offset;
 		if (bits <= 0 || shift < 0 || shift + bits > 32) {
@@ -185,12 +205,15 @@ namespace Jazz2::Scripting
 		return true;
 	}
 
-	std::int32_t GetEvent(std::uint16_t tx, std::uint16_t ty) {
+	std::int32_t GetEvent(std::uint16_t tx, std::uint16_t ty)
+	{
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		return std::int32_t(owner->GetOriginalEvent(tx, ty) & 0xFF);
 	}
-	std::int32_t GetEventParamWrapper(std::uint16_t tx, std::uint16_t ty, std::int32_t offset, std::int32_t length) {
-		std::int32_t shift; std::uint32_t mask;
+	std::int32_t GetEventParamWrapper(std::uint16_t tx, std::uint16_t ty, std::int32_t offset, std::int32_t length)
+	{
+		std::int32_t shift;
+		std::uint32_t mask;
 		if (!GetEventParamBits(offset, length, shift, mask)) {
 			return 0;
 		}
@@ -203,14 +226,17 @@ namespace Jazz2::Scripting
 		}
 		return std::int32_t(value);
 	}
-	void SetEventByte(std::uint16_t tx, std::uint16_t ty, std::uint8_t newEventId) {
+	void SetEventByte(std::uint16_t tx, std::uint16_t ty, std::uint8_t newEventId)
+	{
 		// Only the event changes, the parameters stay as they are
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		std::uint32_t word = owner->GetOriginalEvent(tx, ty);
 		owner->SetOriginalEvent(tx, ty, (word & ~0xFFu) | newEventId);
 	}
-	void SetEventParam(std::uint16_t tx, std::uint16_t ty, std::int8_t offset, std::int8_t length, std::int32_t newValue) {
-		std::int32_t shift; std::uint32_t mask;
+	void SetEventParam(std::uint16_t tx, std::uint16_t ty, std::int8_t offset, std::int8_t length, std::int32_t newValue)
+	{
+		std::int32_t shift;
+		std::uint32_t mask;
 		if (!GetEventParamBits(offset, length, shift, mask)) {
 			return;
 		}
@@ -220,10 +246,12 @@ namespace Jazz2::Scripting
 		word = (word & ~(mask << shift)) | ((std::uint32_t(newValue) & mask) << shift);
 		owner->SetOriginalEvent(tx, ty, word);
 	}
-	std::int8_t GetTileType(std::uint16_t tile) {
+	std::int8_t GetTileType(std::uint16_t tile)
+	{
 		return std::int8_t(ScriptLoader::FromActiveContext<LevelScriptLoader>()->GetOriginalTileType(tile));
 	}
-	std::int8_t SetTileType(std::uint16_t tile, std::uint16_t value) {
+	std::int8_t SetTileType(std::uint16_t tile, std::uint16_t value)
+	{
 		ScriptLoader::FromActiveContext<LevelScriptLoader>()->SetOriginalTileType(tile, std::uint8_t(value));
 		return std::int8_t(value);
 	}
@@ -248,7 +276,7 @@ namespace Jazz2::Scripting
 					seen[id] = 1;
 					const LayerTile& tile = layer.Layout[i];
 					_tileTypes[id] = std::uint8_t((tile.Flags & LayerTileFlags::Heat) == LayerTileFlags::Heat ? 5
-						: (tile.Alpha == 0 ? 3 : (tile.Alpha == Tiles::TileMap::TranslucentTileAlpha ? 1 : 0)));
+																											  : (tile.Alpha == 0 ? 3 : (tile.Alpha == Tiles::TileMap::TranslucentTileAlpha ? 1 : 0)));
 				}
 			}
 		} else if (std::size_t(tileId) >= _tileTypes.size()) {
@@ -268,7 +296,8 @@ namespace Jazz2::Scripting
 		// The types the game draws, the others (as the caption) are drawn as ordinary tiles
 		tileMap->SetTileModifier(tileId, type == 3 ? 0 : (type == 1 ? Tiles::TileMap::TranslucentTileAlpha : 255), type == 5);
 	}
-	bool GetTileIs32Bit(std::uint16_t tile) {
+	bool GetTileIs32Bit(std::uint16_t tile)
+	{
 		auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 		return owner->IsTileTrueColor(tile);
 	}
@@ -278,10 +307,10 @@ namespace Jazz2::Scripting
 		engine->SetDefaultNamespace("SNOWING");
 		/** @brief Kind of weather effect */
 		engine->RegisterEnum("Type");
-		engine->RegisterEnumValue("Type", "SNOW", 0);		///< Snowflakes
-		engine->RegisterEnumValue("Type", "FLOWER", 1);		///< Flower petals
-		engine->RegisterEnumValue("Type", "RAIN", 2);		///< Raindrops
-		engine->RegisterEnumValue("Type", "LEAF", 3);		///< Falling leaves
+		engine->RegisterEnumValue("Type", "SNOW", 0); ///< Snowflakes
+		engine->RegisterEnumValue("Type", "FLOWER", 1); ///< Flower petals
+		engine->RegisterEnumValue("Type", "RAIN", 2); ///< Raindrops
+		engine->RegisterEnumValue("Type", "LEAF", 3); ///< Falling leaves
 		engine->SetDefaultNamespace("");
 		/**
 		 * @brief Whether a weather effect is active
@@ -338,15 +367,15 @@ namespace Jazz2::Scripting
 		engine->SetDefaultNamespace("WATERLIGHT");
 		/** @brief How ambient lighting behaves when the level has water */
 		engine->RegisterEnum("wl");
-		engine->RegisterEnumValue("wl", "NONE", LegacyWaterLightingNone);			///< Full brightness everywhere while water is active, ignoring ambient lighting
-		engine->RegisterEnumValue("wl", "GLOBAL", LegacyWaterLightingGlobal);		///< Ambient lighting applies equally above and below the water surface
-		engine->RegisterEnumValue("wl", "LAGUNICUS", LegacyWaterLightingLagunicus);	///< Full brightness above water, darker the deeper below the surface the player is
+		engine->RegisterEnumValue("wl", "NONE", LegacyWaterLightingNone); ///< Full brightness everywhere while water is active, ignoring ambient lighting
+		engine->RegisterEnumValue("wl", "GLOBAL", LegacyWaterLightingGlobal); ///< Ambient lighting applies equally above and below the water surface
+		engine->RegisterEnumValue("wl", "LAGUNICUS", LegacyWaterLightingLagunicus); ///< Full brightness above water, darker the deeper below the surface the player is
 		engine->SetDefaultNamespace("WATERINTERACTION");
 		/** @brief How local players move underwater */
 		engine->RegisterEnum("WaterInteraction");
-		engine->RegisterEnumValue("WaterInteraction", "POSITIONBASED", waterInteraction_POSITIONBASED);	///< Swimming or low gravity, chosen by how deep the water level is
-		engine->RegisterEnumValue("WaterInteraction", "SWIM", waterInteraction_SWIM);						///< Players swim
-		engine->RegisterEnumValue("WaterInteraction", "LOWGRAVITY", waterInteraction_LOWGRAVITY);			///< Players move normally but fall more slowly
+		engine->RegisterEnumValue("WaterInteraction", "POSITIONBASED", waterInteraction_POSITIONBASED); ///< Swimming or low gravity, chosen by how deep the water level is
+		engine->RegisterEnumValue("WaterInteraction", "SWIM", waterInteraction_SWIM); ///< Players swim
+		engine->RegisterEnumValue("WaterInteraction", "LOWGRAVITY", waterInteraction_LOWGRAVITY); ///< Players move normally but fall more slowly
 		engine->SetDefaultNamespace("");
 		/**
 		 * @brief How ambient lighting behaves when the level has water

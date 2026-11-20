@@ -108,7 +108,10 @@ namespace Jazz2::Rendering
 				*v++ = m[0][1] * lx + m[1][1] * ly + m[3][1];
 				*v++ = cx * texScaleX + texBiasX;
 				*v++ = cy * texScaleY + texBiasY;
-				*v++ = paletteOffset; *v++ = 0.0f; *v++ = 0.0f; *v++ = alpha;
+				*v++ = paletteOffset;
+				*v++ = 0.0f;
+				*v++ = 0.0f;
+				*v++ = alpha;
 			};
 			// The four corners in the order of the shared quad index pattern (see RenderResources::GetQuadIndices())
 			put(0.0f, 0.0f);

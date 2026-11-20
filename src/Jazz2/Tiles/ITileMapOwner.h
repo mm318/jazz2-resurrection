@@ -29,11 +29,14 @@ namespace Jazz2::Tiles
 			Returns `nullptr` for a viewport that doesn't render the level with them, the special layers are then
 			drawn as they are on the backends that can't show the effects.
 		*/
-		virtual LayerEffectsTarget* GetLayerEffectsTarget(const Viewport* view) {
+		virtual LayerEffectsTarget* GetLayerEffectsTarget(const Viewport* view)
+		{
 			return nullptr;
 		}
 		/** @brief Called when the renderer type of a layer changes at runtime, which can need other render passes */
-		virtual void OnLayerEffectsChanged() {}
+		virtual void OnLayerEffectsChanged()
+		{
+		}
 #endif
 	};
 }

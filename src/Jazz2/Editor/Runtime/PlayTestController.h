@@ -42,46 +42,56 @@ namespace Jazz2::Editor
 		PlayTestController& operator=(const PlayTestController&) = delete;
 
 		/** @brief Returns the state */
-		PlayTestMode GetMode() const {
+		PlayTestMode GetMode() const
+		{
 			return _mode;
 		}
 		/** @brief Returns `true` while the level is edited, also while the ring back into the editor grows */
-		bool IsEditing() const {
+		bool IsEditing() const
+		{
 			return (_mode == PlayTestMode::Edit || _mode == PlayTestMode::Returning);
 		}
 		/** @brief Returns `true` while the view flies into the level */
-		bool IsEntering() const {
+		bool IsEntering() const
+		{
 			return (_mode == PlayTestMode::Entering);
 		}
 		/** @brief Returns `true` while the level is played */
-		bool IsInGame() const {
+		bool IsInGame() const
+		{
 			return (_mode == PlayTestMode::Play);
 		}
 		/** @brief Returns `true` if the panels of the editor are shown, while it's used and while the ring into the game grows over them */
-		bool ArePanelsShown() const {
+		bool ArePanelsShown() const
+		{
 			return (_mode != PlayTestMode::Play || (_transition.IsActive() && _transition.HasInside()));
 		}
 
 		/** @brief Returns the play-test played or kept, or `nullptr` */
-		IPlayTest* GetPlayTest() const {
+		IPlayTest* GetPlayTest() const
+		{
 			return _playHandler.get();
 		}
 		/** @brief Returns the play-test left, while the ring back into the editor shows its last image, or `nullptr` */
-		IPlayTest* GetClosingPlayTest() const {
+		IPlayTest* GetClosingPlayTest() const
+		{
 			return _closingPlayHandler.get();
 		}
 		/** @brief Returns the level handler of the game while the level is played, or `nullptr` */
 		LevelHandler* GetGameHandler() const;
 		/** @brief Returns the ring into the level and back */
-		PlayTransition& GetTransition() {
+		PlayTransition& GetTransition()
+		{
 			return _transition;
 		}
 		/** @brief Returns the path the player took in the last play-test */
-		const PlayPath& GetLastPlayPath() const {
+		const PlayPath& GetLastPlayPath() const
+		{
 			return _lastPlayPath;
 		}
 		/** @brief Returns the paths of the last play-tests, kept in the level */
-		const PlayPathHistory& GetPathHistory() const {
+		const PlayPathHistory& GetPathHistory() const
+		{
 			return _pathHistory;
 		}
 		/** @brief Reads the paths of the last play-tests from the level, the last one becomes the path shown */
@@ -89,11 +99,13 @@ namespace Jazz2::Editor
 		/** @brief Forgets the paths of the play-tests */
 		void ClearPathHistory();
 		/** @brief Returns where the camera of the editor was when the level started to be played */
-		Vector2f GetEditCameraCenter() const {
+		Vector2f GetEditCameraCenter() const
+		{
 			return _editCameraCenter;
 		}
 		/** @brief Returns the scale of the camera of the editor when the level started to be played */
-		float GetEditCameraScale() const {
+		float GetEditCameraScale() const
+		{
 			return _editCameraScale;
 		}
 
@@ -128,7 +140,8 @@ namespace Jazz2::Editor
 		void MarkPlayTestOutdated();
 
 		/** @brief Returns the debug toggles of play-tests */
-		const PlayTestDebugOptions& GetDebugOptions() const {
+		const PlayTestDebugOptions& GetDebugOptions() const
+		{
 			return _debugOptions;
 		}
 		/** @brief Sets the debug toggles of play-tests, applied to the one played now and to every one played later */

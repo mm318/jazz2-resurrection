@@ -47,7 +47,7 @@ namespace Jazz2
 	the grouping, so it stays off there.
 */
 #if defined(TILEMAP_USE_SINGLE_DRAW) && defined(WITH_RHI_RDP)
-#	define TILEMAP_GROUP_MESH_BY_TILE
+#define TILEMAP_GROUP_MESH_BY_TILE
 #endif
 
 /*
@@ -57,7 +57,7 @@ namespace Jazz2
 	(see RHI::RDP::QuadRecord and TileMap::AppendDebrisRecord()).
 */
 #if defined(TILEMAP_USE_SINGLE_DRAW) && defined(WITH_RHI_RDP)
-#	define TILEMAP_DEBRIS_RECORDS
+#define TILEMAP_DEBRIS_RECORDS
 #endif
 
 /*
@@ -70,7 +70,7 @@ namespace Jazz2
 	own, written by the grouped emission above.
 */
 #if defined(TILEMAP_USE_SINGLE_DRAW) && defined(WITH_RHI_PVR)
-#	define TILEMAP_PACKED_TILE_RECORDS
+#define TILEMAP_PACKED_TILE_RECORDS
 #endif
 
 /*
@@ -80,7 +80,7 @@ namespace Jazz2
 	PowerVR, which has no hidden-surface removal in the translucent list everything is drawn in.
 */
 #if defined(DEATH_TARGET_N64) || defined(WITH_RHI_PVR)
-#	define TILEMAP_OPAQUE_COVERAGE
+#define TILEMAP_OPAQUE_COVERAGE
 #endif
 
 /*
@@ -90,7 +90,7 @@ namespace Jazz2
 	palette while the level runs, and not yet on the Nintendo 64 (see the note in TileMap::DrawLayer()).
 */
 #if defined(TILEMAP_OPAQUE_COVERAGE) && !defined(DEATH_TARGET_N64) && !defined(WITH_ANGELSCRIPT)
-#	define TILEMAP_PER_TILE_OPACITY
+#define TILEMAP_PER_TILE_OPACITY
 #endif
 
 /*
@@ -110,10 +110,10 @@ namespace Jazz2
 	0.5 ms a frame with one player, and the CPU time of a four-player frame from 14.7 to 6.3 ms; a rewritten
 	buffer the GPU still reads is renamed (see `Gx2BufferObject::PrepareCpuWrite()`).
 */
-#if defined(TILEMAP_USE_SINGLE_DRAW) && !defined(TILEMAP_GROUP_MESH_BY_TILE) && \
+#if defined(TILEMAP_USE_SINGLE_DRAW) && !defined(TILEMAP_GROUP_MESH_BY_TILE) &&                                \
 	(defined(WITH_RHI_GL) || defined(WITH_RHI_D3D11) || defined(WITH_RHI_VULKAN) || defined(WITH_RHI_METAL) || \
-	 defined(WITH_RHI_GX2) || defined(WITH_RHI_GX) || defined(WITH_RHI_PICA) || defined(WITH_RHI_GS) || defined(WITH_RHI_GU))
-#	define TILEMAP_CACHE_LAYER_WINDOW
+		defined(WITH_RHI_GX2) || defined(WITH_RHI_GX) || defined(WITH_RHI_PICA) || defined(WITH_RHI_GS) || defined(WITH_RHI_GU))
+#define TILEMAP_CACHE_LAYER_WINDOW
 #endif
 
 /*
@@ -124,7 +124,7 @@ namespace Jazz2
 	ordinary tiles.
 */
 #if defined(TILEMAP_USE_SINGLE_DRAW) && !defined(TILEMAP_GROUP_MESH_BY_TILE) && !defined(TILEMAP_PACKED_TILE_RECORDS)
-#	define TILEMAP_HEAT_TILES
+#define TILEMAP_HEAT_TILES
 #endif
 
 namespace Jazz2::Tiles
@@ -136,11 +136,12 @@ namespace Jazz2::Tiles
 		state of a tile already queued in the active collapsing list. Supports a bitwise combination of its member
 		values.
 	*/
-	enum class LayerTileFlags : std::uint8_t {
-		None = 0x00,			/**< None */
+	enum class LayerTileFlags : std::uint8_t
+	{
+		None = 0x00, /**< None */
 
-		FlipX = 0x01,			/**< Flipped horizontally */
-		FlipY = 0x02,			/**< Flipped vertically */
+		FlipX = 0x01, /**< Flipped horizontally */
+		FlipY = 0x02, /**< Flipped vertically */
 		/**
 			Heat effect, as the tile type of JJ2+ --- every row of pixels of the tile is drawn moved left or right by up to
 			2 pixels, into the tiles next to it, by a fixed table of the 32 rows of a tile that scrolls up a row every 4 game
@@ -149,9 +150,9 @@ namespace Jazz2::Tiles
 		*/
 		Heat = 0x04,
 
-		OneWay = 0x10,			/**< One-way collision */
+		OneWay = 0x10, /**< One-way collision */
 
-		Collapsing = 0x80		/**< Runtime-only: tile is already queued in the active collapsing list */
+		Collapsing = 0x80 /**< Runtime-only: tile is already queued in the active collapsing list */
 	};
 
 	DEATH_ENUM_FLAGS(LayerTileFlags);
@@ -163,7 +164,8 @@ namespace Jazz2::Tiles
 		its packed parameters, flags, transparency and the suspend and destruct behavior; for destructible tiles it
 		also tracks the associated animation and the currently active frame (reused as collapse delay or trigger ID).
 	*/
-	struct LayerTile {
+	struct LayerTile
+	{
 		// The struct is a dense per-tile grid (layoutWidth * layoutHeight entries per layer), so it is packed
 		// to 12 bytes: every field is 16-bit or smaller. The three enums carry explicit 8-bit bases, the two
 		// destruct fields are 16-bit (an animated-tile ID fits comfortably, -1 stays the "none" sentinel; the
@@ -216,7 +218,8 @@ namespace Jazz2::Tiles
 		scripts refer to them), up to 330000 tiles of them in a level. Only a layer whose every writer goes
 		through @ref Set() can be sparse, the shared block must never be written through @ref operator[]().
 	*/
-	class LayerLayout {
+	class LayerLayout
+	{
 	public:
 		/** @brief Base-2 logarithm of @ref BlockTiles */
 		static constexpr std::size_t BlockShift = 12;
@@ -228,7 +231,7 @@ namespace Jazz2::Tiles
 			to spare keep the plain array semantics.
 		*/
 #if defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_DREAMCAST) || \
-		defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PS2)
+	defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PS2)
 		static constexpr bool CompactDrawOnlyLayers = true;
 #else
 		static constexpr bool CompactDrawOnlyLayers = false;
@@ -252,11 +255,20 @@ namespace Jazz2::Tiles
 		 */
 		bool Allocate(std::size_t count, bool compact, bool sparse = false);
 		/** @brief Returns the number of tiles */
-		std::size_t size() const { return _count; }
+		std::size_t size() const
+		{
+			return _count;
+		}
 		/** @brief Returns `true` if no tiles are allocated */
-		bool empty() const { return _count == 0; }
+		bool empty() const
+		{
+			return _count == 0;
+		}
 		/** @brief Returns `true` if the tiles are stored in the four-byte form */
-		bool IsCompact() const { return _compact; }
+		bool IsCompact() const
+		{
+			return _compact;
+		}
 		/** @brief Returns `true` if any tile has an ID other than 0, which is quick for the blocks of a sparse layout never written */
 		bool HasAnyTile() const;
 		/**
@@ -266,7 +278,10 @@ namespace Jazz2::Tiles
 			changed. The full form can still be written through the references @ref operator[]() hands out, which
 			the stamp cannot see.
 		*/
-		std::uint32_t GetVersion() const { return _version; }
+		std::uint32_t GetVersion() const
+		{
+			return _version;
+		}
 
 		/**
 			@brief Returns the tile at @p i
@@ -275,7 +290,8 @@ namespace Jazz2::Tiles
 			through the returned reference reaches the layer only in the full form, so every writer goes
 			through @ref Set() instead.
 		*/
-		LayerTile& operator[](std::size_t i) const {
+		LayerTile& operator[](std::size_t i) const
+		{
 			if (!_compact) {
 				return _full[i >> BlockShift][i & (BlockTiles - 1)];
 			}
@@ -289,14 +305,16 @@ namespace Jazz2::Tiles
 			The same value as `operator[](i).TileID`, without decoding the rest of a compact tile into a scratch
 			one first - for a reader that compares only the IDs of a whole window of tiles every frame.
 		*/
-		std::uint16_t TileIDAt(std::size_t i) const {
+		std::uint16_t TileIDAt(std::size_t i) const
+		{
 			if (!_compact) {
 				return _full[i >> BlockShift][i & (BlockTiles - 1)].TileID;
 			}
 			return std::uint16_t(_packed[i >> BlockShift][i & (BlockTiles - 1)]);
 		}
 		/** @brief Replaces the tile at @p i, in either form */
-		void Set(std::size_t i, const LayerTile& tile) {
+		void Set(std::size_t i, const LayerTile& tile)
+		{
 			_version++;
 			if (!_compact) {
 				LayerTile* block = _full[i >> BlockShift];
@@ -327,10 +345,12 @@ namespace Jazz2::Tiles
 		std::uint32_t* OwnPackedBlock(std::size_t blockIndex, std::uint32_t packed);
 		void Free();
 
-		static std::uint32_t Encode(const LayerTile& tile) {
+		static std::uint32_t Encode(const LayerTile& tile)
+		{
 			return std::uint32_t(tile.TileID) | (std::uint32_t(std::uint8_t(tile.Flags)) << 16) | (std::uint32_t(tile.Alpha) << 24);
 		}
-		static void Decode(std::uint32_t packed, LayerTile& tile) {
+		static void Decode(std::uint32_t packed, LayerTile& tile)
+		{
 			tile = LayerTile {};
 			tile.TileID = std::uint16_t(packed);
 			tile.Flags = (LayerTileFlags)std::uint8_t(packed >> 16);
@@ -355,7 +375,8 @@ namespace Jazz2::Tiles
 		visibility flag. A @ref TileMap owns an ordered list of these layers, of which one is the main sprite layer
 		used for collision while the rest provide foreground and parallax background detail.
 	*/
-	struct TileMapLayer {
+	struct TileMapLayer
+	{
 		/** @brief Layer layout */
 		LayerLayout Layout;
 		/** @brief Layer layout size */
@@ -395,7 +416,8 @@ namespace Jazz2::Tiles
 		One entry in the frame sequence of an @ref AnimatedTile, referencing the static tile in the tile set that is
 		displayed while this frame is active.
 	*/
-	struct AnimatedTileFrame {
+	struct AnimatedTileFrame
+	{
 		/** @brief Tile ID */
 		std::uint16_t TileID;
 		/** @brief Only @ref LayerTileFlags::Heat of the frame, the other flags of frames aren't applied */
@@ -409,7 +431,8 @@ namespace Jazz2::Tiles
 		list it stores the playback timing (frame duration, optional fixed and random extra delays) and the current
 		playback state, and supports forward-only as well as ping-pong (forward then backward) animation.
 	*/
-	struct AnimatedTile {
+	struct AnimatedTile
+	{
 		/** @brief Individual tiles (frames) */
 		SmallVector<AnimatedTileFrame, 0> Tiles;
 		/** @brief Fixed number of extra animation frames that will show the last frame */
@@ -537,17 +560,19 @@ namespace Jazz2::Tiles
 		/** @} */
 
 		/** @brief Flags that modify behaviour of @ref DestructibleDebris, supports a bitwise combination of its member values */
-		enum class DebrisFlags {
-			None = 0x00,				/**< None */
-			Disappear = 0x01,			/**< Debris disappears over time */
-			Bounce = 0x02,				/**< Debris bounces off solid tiles */
-			AdditiveBlending = 0x04		/**< Debris is rendered with additive blending */
+		enum class DebrisFlags
+		{
+			None = 0x00, /**< None */
+			Disappear = 0x01, /**< Debris disappears over time */
+			Bounce = 0x02, /**< Debris bounces off solid tiles */
+			AdditiveBlending = 0x04 /**< Debris is rendered with additive blending */
 		};
 
 		DEATH_PRIVATE_ENUM_FLAGS(DebrisFlags);
 
 		/** @brief Describes a visual debris (particle effect) */
-		struct DestructibleDebris {
+		struct DestructibleDebris
+		{
 			/** @brief Position */
 			Vector2f Pos;
 			/** @brief Depth (layer) */
@@ -726,7 +751,10 @@ namespace Jazz2::Tiles
 		/** @brief Replaces a layer added by @ref AddLayer() with one of no tiles, which isn't drawn */
 		bool ResetLayer(std::int32_t layerIndex, Vector2i size, const LayerDescription& description);
 		/** @brief Whether reading the layers ran out of memory (the level cannot be played) */
-		bool HasLoadFailed() const { return _loadFailed; }
+		bool HasLoadFailed() const
+		{
+			return _loadFailed;
+		}
 		/**
 		 * @brief Sets the animated tiles of the level
 		 *
@@ -737,7 +765,8 @@ namespace Jazz2::Tiles
 		/** @brief Draws the textured background of the level again, after its tiles changed */
 		void InvalidateTexturedBackground();
 		/** @brief Returns the number of animated tiles */
-		std::int32_t GetAnimatedTileCount() const {
+		std::int32_t GetAnimatedTileCount() const
+		{
 			return std::int32_t(_animatedTiles.size());
 		}
 		/** @brief Changes the timing and the frames of an animated tile, it goes on playing from where it is */
@@ -762,7 +791,8 @@ namespace Jazz2::Tiles
 		bool OverrideTileMask(std::int32_t tileId, StaticArrayView<TileSet::DefaultTileSize * TileSet::DefaultTileSize, const std::uint8_t> tileMask);
 
 		/** @brief Returns a caption tile */
-		StaticArrayView<TileSet::DefaultTileSize * TileSet::DefaultTileSize, Color> GetCaptionTile() const {
+		StaticArrayView<TileSet::DefaultTileSize * TileSet::DefaultTileSize, Color> GetCaptionTile() const
+		{
 			// The tileset can be gone after a failed repack (see PruneTilesetAtlas()); the caller
 			// already handles the empty view a caption-less tileset returns, so it covers this too
 			if (_tileSets.empty() || _tileSets[0].Data == nullptr) {
@@ -788,7 +818,7 @@ namespace Jazz2::Tiles
 			so the effect stays unbounded there.
 		*/
 #if defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || \
-		defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_AMIGAOS)
+	defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_AMIGAOS)
 		static constexpr std::int32_t MaxDebrisCount = 448;
 #elif defined(DEATH_TARGET_N64)
 		// Half the other consoles' budget, because 8 MB of RDRAM is half the heap the smallest of them has
@@ -804,7 +834,7 @@ namespace Jazz2::Tiles
 			leave nothing for a death burst, which is the effect that actually matters.
 		*/
 #if defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || \
-		defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_AMIGAOS)
+	defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_AMIGAOS)
 		static constexpr std::int32_t MaxWeatherDebrisCount = 128;
 #elif defined(DEATH_TARGET_N64)
 		// Half again, see MaxDebrisCount
@@ -820,7 +850,7 @@ namespace Jazz2::Tiles
 			(see @ref MaxWeatherDebrisCount), the weather is a few draws.
 		*/
 #if defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || \
-		defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_AMIGAOS)
+	defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_AMIGAOS)
 		static constexpr std::int32_t WeatherDepthStep = 40;
 #else
 		static constexpr std::int32_t WeatherDepthStep = 1;
@@ -845,7 +875,7 @@ namespace Jazz2::Tiles
 			get proportionally fewer and bigger (see @ref GetParticleDebrisStep()).
 		*/
 #if defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || \
-		defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_AMIGAOS)
+	defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_AMIGAOS)
 		static constexpr std::int32_t MaxParticleDebrisPerBurst = 256;
 #elif defined(DEATH_TARGET_N64)
 		// Half again, see MaxDebrisCount
@@ -855,7 +885,8 @@ namespace Jazz2::Tiles
 #endif
 
 		/** @brief Returns number of live debris particles */
-		std::int32_t GetDebrisCount() const {
+		std::int32_t GetDebrisCount() const
+		{
 			return (std::int32_t)_debrisList.size();
 		}
 		/**
@@ -900,15 +931,18 @@ namespace Jazz2::Tiles
 		std::uint16_t GetTriggeredTile(std::uint16_t tileValue, bool triggerOn) const;
 
 		/** @brief Returns number of layers */
-		std::int32_t GetLayerCount() const {
+		std::int32_t GetLayerCount() const
+		{
 			return (std::int32_t)_layers.size();
 		}
 		/** @brief Returns the options of how the tile map is shown */
-		const TileMapViewOptions& GetViewOptions() const {
+		const TileMapViewOptions& GetViewOptions() const
+		{
 			return _viewOptions;
 		}
 		/** @brief Sets the options of how the tile map is shown, the defaults show it as the game does */
-		void SetViewOptions(const TileMapViewOptions& options) {
+		void SetViewOptions(const TileMapViewOptions& options)
+		{
 			_viewOptions = options;
 		}
 		/** @brief Returns size of a given layer in tiles, or an empty vector if the layer doesn't exist */
@@ -978,7 +1012,8 @@ namespace Jazz2::Tiles
 		 */
 		bool SetLayerTexture(std::int32_t layerIndex, ArrayView<const std::uint8_t> pixels);
 		/** @brief Returns the texture of its own of a layer (see @ref SetLayerTexture()), empty if it has none or the layer doesn't exist */
-		ArrayView<const std::uint8_t> GetLayerTexture(std::int32_t layerIndex) const {
+		ArrayView<const std::uint8_t> GetLayerTexture(std::int32_t layerIndex) const
+		{
 			return (layerIndex >= 0 && layerIndex < (std::int32_t)_layers.size() ? ArrayView<const std::uint8_t>(_layers[layerIndex].TexturePixels) : nullptr);
 		}
 		/**
@@ -1045,7 +1080,8 @@ namespace Jazz2::Tiles
 		/** @brief Returns the number of tiles taken from a tile set */
 		std::int32_t GetTileSetTileCount(std::int32_t index) const;
 		/** @brief Returns the number of tiles of all tile sets, which is the first tile ID of the animated tiles */
-		std::int32_t GetStaticTileCount() const {
+		std::int32_t GetStaticTileCount() const
+		{
 			return std::int32_t(_animatedTilesOffset);
 		}
 		/** @brief Returns the number of tiles the tile sets give, the IDs from it up to @ref GetStaticTileCount() are empty tiles */
@@ -1103,7 +1139,8 @@ namespace Jazz2::Tiles
 	private:
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
-		struct TileSetPart {
+		struct TileSetPart
+		{
 			std::unique_ptr<TileSet> Data;
 			std::int32_t Offset;
 			std::int32_t Count;
@@ -1121,7 +1158,8 @@ namespace Jazz2::Tiles
 		// is destructible (shot, collapsing or trigger-controlled) or if a script overwrites it via SetTile().
 		// The list is kept sorted by index, both to dedupe (only the first saved value of a tile is the
 		// checkpoint value) and so that SerializeResumableToStream() can merge-walk it against the live layer.
-		struct RollbackTile {
+		struct RollbackTile
+		{
 			std::uint32_t TileIndex;
 			LayerTile Tile;
 		};
@@ -1137,7 +1175,7 @@ namespace Jazz2::Tiles
 			// With `withAlpha`, the texture keeps where the tiles are transparent, as a tile menu needs it
 			TexturedBackgroundPass(TileMap* owner, std::int32_t layerIndex, bool drawsIndices, const Recti& source = {}, bool withAlpha = false)
 				: _owner(owner), _layerIndex(layerIndex), _source(source), _imageRevision(0), _drawsIndices(drawsIndices), _withAlpha(withAlpha),
-					_alreadyRendered(false)
+				  _alreadyRendered(false)
 			{
 			}
 			~TexturedBackgroundPass() override;
@@ -1253,7 +1291,8 @@ namespace Jazz2::Tiles
 			TileSet* Set;
 			std::int32_t Chunk;
 
-			Texture* GetTexture() const {
+			Texture* GetTexture() const
+			{
 				return Set->TextureDiffuse[Chunk].get();
 			}
 		};
@@ -1279,7 +1318,7 @@ namespace Jazz2::Tiles
 
 		SmallVector<DebrisMeshGroup, 4> _debrisMeshGroups;
 
-#	if defined(TILEMAP_DEBRIS_RECORDS)
+#if defined(TILEMAP_DEBRIS_RECORDS)
 		/// Records of the particles that share a draw (see @ref DebrisMeshGroup), rebuilt by every
 		/// @ref UpdateDebris(). An empty group keeps its buffer for reuse.
 		struct DebrisRecordGroup
@@ -1293,9 +1332,9 @@ namespace Jazz2::Tiles
 		};
 
 		SmallVector<DebrisRecordGroup, 0> _debrisRecordGroups;
-#	endif
+#endif
 
-#	if defined(TILEMAP_GROUP_MESH_BY_TILE)
+#if defined(TILEMAP_GROUP_MESH_BY_TILE)
 		/// One visible tile of the layer currently being built, held back so the layer can be emitted grouped by
 		/// the atlas slot its tiles sample instead of in screen order (see @ref DrawLayer()). Everything the
 		/// RDP's packed tile record takes (see `RHI::RDP::TileRecord`) plus the grouping key, so nothing has to
@@ -1303,14 +1342,14 @@ namespace Jazz2::Tiles
 		struct MeshTileEntry
 		{
 			float X, Y;
-			std::uint16_t TexX, TexY;	//< Top-left texel of the tile in its atlas chunk
-			std::uint8_t Alpha;			//< The tile's own alpha (LayerTile::Alpha)
-			std::uint8_t Flags;			//< `RHI::RDP::TileRecord::FlipX` / `FlipY`
-			std::uint16_t Slot;			//< Packed atlas slot the tile samples, the grouping key
-			std::uint16_t Chunk;		//< Atlas chunk (texture) that slot lives in
-			std::uint16_t Xo, Yo;		//< Cell of the layer's window the tile sits in (see LayerMeshCache)
-			std::int32_t LayoutIndex;	//< Index of the tile in the layer's layout
-			bool Animated;				//< An animated tile: never cached, resolved every frame
+			std::uint16_t TexX, TexY; //< Top-left texel of the tile in its atlas chunk
+			std::uint8_t Alpha; //< The tile's own alpha (LayerTile::Alpha)
+			std::uint8_t Flags; //< `RHI::RDP::TileRecord::FlipX` / `FlipY`
+			std::uint16_t Slot; //< Packed atlas slot the tile samples, the grouping key
+			std::uint16_t Chunk; //< Atlas chunk (texture) that slot lives in
+			std::uint16_t Xo, Yo; //< Cell of the layer's window the tile sits in (see LayerMeshCache)
+			std::int32_t LayoutIndex; //< Index of the tile in the layer's layout
+			bool Animated; //< An animated tile: never cached, resolved every frame
 		};
 
 		/// Ceiling on the tiles one layer's mesh is grouped over, set by the width of @ref _meshTileOrder. A
@@ -1326,12 +1365,13 @@ namespace Jazz2::Tiles
 
 		void EmitTileRuns(RenderQueue& renderQueue, const Texture& texture, bool indexed, const Vector4f& color,
 			std::uint16_t depth, std::uint32_t firstEntry, std::uint32_t entryCount);
-#	endif
+#endif
 #endif
 
 		// The texture a textured layer or a reflection layer is drawn with, or one of the two parts of the sprite layer a tile menu
 		// takes (see LayerRendererType::TileMenu), made only for the layers that need one (see UpdateTexturedLayers())
-		struct LayerPass {
+		struct LayerPass
+		{
 			std::int32_t LayerIndex;
 			Recti Source;
 			bool DrawsIndices;
@@ -1359,12 +1399,13 @@ namespace Jazz2::Tiles
 			the note in DrawLayer). One bit per cell, a cell being one sprite-layer tile on screen - a
 			640x480 view walks 23x18 of them.
 		*/
-		struct OpaqueCoverage {
+		struct OpaqueCoverage
+		{
 			static constexpr std::int32_t MaxCols = 32;
 			static constexpr std::int32_t MaxRows = 24;
-			std::int32_t OriginX, OriginY;		//< Screen position of cell (0, 0)
+			std::int32_t OriginX, OriginY; //< Screen position of cell (0, 0)
 			std::int32_t Cols, Rows;
-			std::uint16_t Depth;				//< Depth of the covering layer; only layers behind it are culled
+			std::uint16_t Depth; //< Depth of the covering layer; only layers behind it are culled
 			bool Valid;
 			std::uint32_t RowBits[MaxRows];
 		};
@@ -1388,14 +1429,17 @@ namespace Jazz2::Tiles
 			are excluded (recorded as cells and re-resolved every frame through the streaming path), and a
 			copy of the window's tile IDs detects destroyed or triggered tiles.
 		*/
-		struct LayerMeshCache {
-			struct AnimatedCell {
+		struct LayerMeshCache
+		{
+			struct AnimatedCell
+			{
 				std::uint16_t Xo, Yo;
 				std::int32_t LayoutIndex;
 			};
-			struct Chunk {
+			struct Chunk
+			{
 				std::unique_ptr<RenderCommand> Command;
-				std::uint32_t VboFloats = 0;			//< Capacity of the command's own VBO (written through a mapping)
+				std::uint32_t VboFloats = 0; //< Capacity of the command's own VBO (written through a mapping)
 				std::int32_t QuadCount = 0;
 			};
 			bool Valid = false;
@@ -1403,7 +1447,7 @@ namespace Jazz2::Tiles
 			std::int32_t TileAbsX = 0, TileAbsY = 0, Cols = 0, Rows = 0;
 			std::int32_t CullShiftX = 0, CullShiftY = 0;
 			std::uint32_t CoverageStamp = 0;
-			std::uint32_t LayoutVersion = 0;		//< The layout's stamp (LayerLayout::GetVersion()) WindowIds were last checked against
+			std::uint32_t LayoutVersion = 0; //< The layout's stamp (LayerLayout::GetVersion()) WindowIds were last checked against
 			SmallVector<std::uint16_t, 0> WindowIds;
 			SmallVector<AnimatedCell, 0> Animated;
 			SmallVector<Chunk, 1> Chunks;
@@ -1428,20 +1472,24 @@ namespace Jazz2::Tiles
 			translation. A copy of the window's tiles (ID, flags and alpha) detects destroyed, triggered or
 			script-placed tiles, and animated tiles are recorded as cells re-resolved every frame.
 		*/
-		struct LayerWindowCache {
-			struct AnimatedCell {
+		struct LayerWindowCache
+		{
+			struct AnimatedCell
+			{
 				std::uint16_t Xo, Yo;
 				std::int32_t LayoutIndex;
 			};
 			// A part of a chunk no longer than one draw, with a VBO of its own, a window seen from far away has more
 			// quads of a chunk than one draw takes
-			struct Piece {
+			struct Piece
+			{
 				std::unique_ptr<RenderCommand> Command;
 				std::uint32_t CapacityQuads = 0;
 				std::uint32_t QuadCount = 0;
 			};
 			// The quads of one mesh slot, see TileMap::MeshSlot
-			struct Chunk {
+			struct Chunk
+			{
 				SmallVector<Piece, 1> Pieces;
 				// Host copy the VBOs of the pieces are uploaded from, one after another. Kept as long as the VBOs
 				// themselves, because without buffer mapping a whole VBO is uploaded from it (see Geometry::CommitVertices())
@@ -1478,7 +1526,8 @@ namespace Jazz2::Tiles
 			float originX, float originY, SmallVectorImpl<std::int32_t>& chunkVertices);
 
 		/** @brief Packs the parts of a layer tile its appearance depends on, for @ref LayerWindowCache::Window */
-		static std::uint32_t PackWindowTile(const LayerTile& tile) {
+		static std::uint32_t PackWindowTile(const LayerTile& tile)
+		{
 			return std::uint32_t(tile.TileID) | (std::uint32_t(std::uint8_t(tile.Flags)) << 16) | (std::uint32_t(tile.Alpha) << 24);
 		}
 #endif
@@ -1516,10 +1565,10 @@ namespace Jazz2::Tiles
 		// Appends one particle's two triangles in the same layout, with its rotation, scale and frame offset already
 		// folded into the four corners - the quad the sprite shader would have synthesized from its model matrix
 		static void AppendDebrisQuad(SmallVector<float, 0>& vertices, const DestructibleDebris& debris);
-#	if defined(TILEMAP_DEBRIS_RECORDS)
+#if defined(TILEMAP_DEBRIS_RECORDS)
 		// Appends the packed record of one particle to the group it draws with
 		void AppendDebrisRecord(const DestructibleDebris& debris);
-#	endif
+#endif
 		// Rents a mesh vertex buffer from the per-frame pool and returns its index (the pool can reallocate, so
 		// callers hold indices rather than pointers)
 		std::int32_t RentMeshVertices();
@@ -1531,7 +1580,8 @@ namespace Jazz2::Tiles
 #endif
 #if defined(TILEMAP_HEAT_TILES)
 		/** @brief Tiles of the heat effect of the layer being drawn, accumulated into one mesh per texture */
-		struct HeatMeshGroup {
+		struct HeatMeshGroup
+		{
 			const Texture* DiffuseTexture;
 			bool Indexed;
 			std::int32_t VerticesIndex;
@@ -1553,15 +1603,17 @@ namespace Jazz2::Tiles
 #endif
 #if defined(TILEMAP_LAYER_EFFECTS)
 		/** @brief What a group of the tiles of a special layer is drawn as */
-		enum class EffectMeshKind : std::uint8_t {
-			Unmasked,		//< The current frame of x-ray tiles outside the mask, as an ordinary layer mesh - with no mask in this frame
-			XRay,			//< That frame and the mask frame of x-ray tiles, chosen per pixel by the mask (12-float vertices)
-			Blur,			//< Tiles of a blur-behind layer, the amount of blur behind them
-			ChromaKey		//< Tiles of a chroma key layer, drawn where the scene behind them has the key color
+		enum class EffectMeshKind : std::uint8_t
+		{
+			Unmasked, //< The current frame of x-ray tiles outside the mask, as an ordinary layer mesh - with no mask in this frame
+			XRay, //< That frame and the mask frame of x-ray tiles, chosen per pixel by the mask (12-float vertices)
+			Blur, //< Tiles of a blur-behind layer, the amount of blur behind them
+			ChromaKey //< Tiles of a chroma key layer, drawn where the scene behind them has the key color
 		};
 
 		/** @brief Tiles of a special layer accumulated into one mesh, one per texture and kind */
-		struct EffectMeshGroup {
+		struct EffectMeshGroup
+		{
 			const Texture* DiffuseTexture;
 			bool Indexed;
 			EffectMeshKind Kind;
@@ -1569,15 +1621,17 @@ namespace Jazz2::Tiles
 		};
 
 		/** @brief Which special layer @ref DrawLayer() is drawing */
-		enum class EffectLayerType : std::uint8_t {
-			None,			//< An ordinary one
-			XRay,			//< A layer of @ref LayerRendererType::XRay
-			BlurBehind,		//< A layer of @ref LayerRendererType::BlurBehind
-			ChromaKey		//< A layer of tiles of @ref LayerBlend::ChromaKey
+		enum class EffectLayerType : std::uint8_t
+		{
+			None, //< An ordinary one
+			XRay, //< A layer of @ref LayerRendererType::XRay
+			BlurBehind, //< A layer of @ref LayerRendererType::BlurBehind
+			ChromaKey //< A layer of tiles of @ref LayerBlend::ChromaKey
 		};
 
 		/** @brief The special layer @ref DrawLayer() is drawing */
-		struct EffectLayerState {
+		struct EffectLayerState
+		{
 			EffectLayerType Type = EffectLayerType::None;
 			LayerEffectsTarget* Target = nullptr;
 			std::uint16_t Depth = 0;
@@ -1590,7 +1644,8 @@ namespace Jazz2::Tiles
 		};
 
 		/** @brief A column of the window of the blur layer being walked: the last row it had a reflective tile in, and that tile's mirror line */
-		struct ReflectionColumn {
+		struct ReflectionColumn
+		{
 			std::int32_t Row;
 			float AxisY;
 		};

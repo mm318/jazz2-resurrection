@@ -26,17 +26,17 @@ namespace nCine::RHI::GL
 		/** @brief Compilation status of the shader */
 		enum class Status
 		{
-			NotCompiled,			/**< The shader has not been compiled yet */
-			CompilationFailed,		/**< Compilation failed */
-			Compiled,				/**< Compiled successfully */
-			CompiledWithDeferredChecks	/**< Compiled, but the success status has not been checked yet */
+			NotCompiled, /**< The shader has not been compiled yet */
+			CompilationFailed, /**< Compilation failed */
+			Compiled, /**< Compiled successfully */
+			CompiledWithDeferredChecks /**< Compiled, but the success status has not been checked yet */
 		};
 
 		/** @brief When the compilation status is checked */
 		enum class ErrorChecking
 		{
-			Immediate,	/**< The compilation status is checked right after compiling */
-			Deferred	/**< The compilation status check is postponed */
+			Immediate, /**< The compilation status is checked right after compiling */
+			Deferred /**< The compilation status check is postponed */
 		};
 
 		explicit GLShader(GLenum type);
@@ -47,11 +47,13 @@ namespace nCine::RHI::GL
 		GLShader& operator=(const GLShader&) = delete;
 
 		/** @brief Returns the OpenGL handle of the shader object */
-		inline GLuint GetGLHandle() const {
+		inline GLuint GetGLHandle() const
+		{
 			return _glHandle;
 		}
 		/** @brief Returns the current compilation status */
-		inline Status GetStatus() const {
+		inline Status GetStatus() const
+		{
 			return _status;
 		}
 

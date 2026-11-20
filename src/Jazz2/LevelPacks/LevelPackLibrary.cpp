@@ -183,8 +183,14 @@ namespace Jazz2::LevelPacks
 		class BusyScope
 		{
 		public:
-			explicit BusyScope(std::atomic<bool>& busy) : _busy(busy) {}
-			~BusyScope() { _busy.store(false); }
+			explicit BusyScope(std::atomic<bool>& busy)
+				: _busy(busy)
+			{
+			}
+			~BusyScope()
+			{
+				_busy.store(false);
+			}
 
 		private:
 			std::atomic<bool>& _busy;
@@ -696,8 +702,8 @@ namespace Jazz2::LevelPacks
 				bool complete = true;
 				for (const LevelPackFile& file : pack.Files) {
 					String sourceFile = (file.Key.empty()
-						? fs::FindPathCaseInsensitive(fs::CombinePath(sourcePath, file.Name))
-						: fs::CombinePath(filesPath, file.Key));
+							? fs::FindPathCaseInsensitive(fs::CombinePath(sourcePath, file.Name))
+							: fs::CombinePath(filesPath, file.Key));
 					if (!fs::Copy(sourceFile, fs::CombinePath(stagingPath, file.Name), true)) {
 						LOGW("File \"{}\" of level pack \"{}\" is gone", file.Name, pack.Id);
 						complete = complete && (file.Kind != LevelPackFileKind::Level);
@@ -874,17 +880,28 @@ namespace Jazz2::LevelPacks
 	StringView LevelPackLibrary::GetResultDescription(LevelPackResult result)
 	{
 		switch (result) {
-			case LevelPackResult::Success: return "Success"_s;
-			case LevelPackResult::Unavailable: return "Level packs cannot be stored on this device"_s;
-			case LevelPackResult::Busy: return "Another level pack is being installed or removed"_s;
-			case LevelPackResult::Cancelled: return "Cancelled"_s;
-			case LevelPackResult::InvalidArchive: return "The archive cannot be read"_s;
-			case LevelPackResult::NoLevels: return "The archive contains no levels"_s;
-			case LevelPackResult::NameConflict: return "The archive contains different files of the same name"_s;
-			case LevelPackResult::TooLarge: return "The archive is too large"_s;
-			case LevelPackResult::CannotWrite: return "Files cannot be written"_s;
-			case LevelPackResult::NotFound: return "The level pack is not installed"_s;
-			default: return "Unknown error"_s;
+			case LevelPackResult::Success:
+				return "Success"_s;
+			case LevelPackResult::Unavailable:
+				return "Level packs cannot be stored on this device"_s;
+			case LevelPackResult::Busy:
+				return "Another level pack is being installed or removed"_s;
+			case LevelPackResult::Cancelled:
+				return "Cancelled"_s;
+			case LevelPackResult::InvalidArchive:
+				return "The archive cannot be read"_s;
+			case LevelPackResult::NoLevels:
+				return "The archive contains no levels"_s;
+			case LevelPackResult::NameConflict:
+				return "The archive contains different files of the same name"_s;
+			case LevelPackResult::TooLarge:
+				return "The archive is too large"_s;
+			case LevelPackResult::CannotWrite:
+				return "Files cannot be written"_s;
+			case LevelPackResult::NotFound:
+				return "The level pack is not installed"_s;
+			default:
+				return "Unknown error"_s;
 		}
 	}
 }

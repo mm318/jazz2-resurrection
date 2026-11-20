@@ -6,10 +6,13 @@
 
 #include "../Common.h"
 
-namespace Death { namespace Cryptography {
-//###==##====#=====--==~--~=~- --- -- -  -  -   -
+namespace Death
+{
+	namespace Cryptography
+	{
+		//###==##====#=====--==~--~=~- --- -- -  -  -   -
 
-	/**
+		/**
 		@brief Computes 64-bit digest of given data using the **xxHash3** algorithm
 		@param data     Pointer to the beginning of the input buffer
 		@param length   Length of the input buffer in bytes
@@ -20,9 +23,9 @@ namespace Death { namespace Cryptography {
 		the byte contents of the buffer, so hashing the same bytes always yields the same value. Passing
 		@cpp nullptr @ce with zero @p length is valid and returns the hash of an empty input.
 	*/
-	std::uint64_t xxHash3(const void* data, std::size_t length);
+		std::uint64_t xxHash3(const void* data, std::size_t length);
 
-	/**
+		/**
 		@brief Computes 64-bit digest of given data using the **xxHash3** algorithm with a custom seed
 		@param data     Pointer to the beginning of the input buffer
 		@param length   Length of the input buffer in bytes
@@ -32,6 +35,7 @@ namespace Death { namespace Cryptography {
 		different seeds produce independent hashes of the same input --- useful for seeded hash tables or to
 		reduce the chance of collisions being exploited.
 	*/
-	std::uint64_t xxHash3(const void* data, std::size_t length, std::uint64_t seed);
+		std::uint64_t xxHash3(const void* data, std::size_t length, std::uint64_t seed);
 
-}}
+	}
+}

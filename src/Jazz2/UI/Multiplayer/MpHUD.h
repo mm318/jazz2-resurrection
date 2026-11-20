@@ -54,14 +54,14 @@ namespace Jazz2::UI::Multiplayer
 		Font* _mediumFont;
 		String _countdownText;
 		float _countdownTimeLeft;
-		float _hudScale;	// 1.0 normally, < 1.0 in splitscreen so the multiplayer HUD elements take less space
+		float _hudScale; // 1.0 normally, < 1.0 in splitscreen so the multiplayer HUD elements take less space
 
 		// Cached smoothed minimap track centerline (in tile coordinates), rebuilt only when the checkpoints change.
 		// The actual thick-line mesh is rebuilt each frame from this (cheap) because it depends on the view.
 		SmallVector<Vector2f, 0> _minimapPoints;
-		SmallVector<std::int32_t, 0> _minimapRunOffsets;	// Start index of each run; the last entry is the total count
+		SmallVector<std::int32_t, 0> _minimapRunOffsets; // Start index of each run; the last entry is the total count
 		std::uint32_t _minimapCacheKey;
-		Rendering::PolylineRenderer _minimapLine;			// Draws the line mesh, its vertices and commands are rebuilt every frame
+		Rendering::PolylineRenderer _minimapLine; // Draws the line mesh, its vertices and commands are rebuilt every frame
 		// Direct rendering tier only: the whole track rasterized once into textures the size of the minimap box
 		// (the line, and its thicker shadow), drawn as two sprites a frame - see RefreshMinimapTrackTextures()
 		std::unique_ptr<Texture> _minimapTrackTexture;
@@ -70,7 +70,8 @@ namespace Jazz2::UI::Multiplayer
 		Vector2i _minimapTrackTextureSize;
 
 		// Client: smoothed minimap positions of remote players, far ones are updated only a few times per second
-		struct MinimapDot {
+		struct MinimapDot
+		{
 			Vector2f Pos;
 			Vector2f Velocity;
 			Vector2f Target;

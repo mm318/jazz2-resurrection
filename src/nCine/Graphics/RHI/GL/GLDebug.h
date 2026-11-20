@@ -16,15 +16,17 @@
  * Compiles to a no-op unless both `DEATH_TRACE` and `DEATH_TRACE_VERBOSE_GL` are defined.
  */
 #if defined(DEATH_TRACE) && defined(DEATH_TRACE_VERBOSE_GL)
-#	define GL_LOG_ERRORS()										\
-		do {													\
-			GLenum __err = glGetError();						\
-			if (__err != GL_NO_ERROR) {							\
-				LOGW("OpenGL returned error: {}", __err);		\
-			}													\
-		} while (false)
+#define GL_LOG_ERRORS()                               \
+	do {                                              \
+		GLenum __err = glGetError();                  \
+		if (__err != GL_NO_ERROR) {                   \
+			LOGW("OpenGL returned error: {}", __err); \
+		}                                             \
+	} while (false)
 #else
-#	define GL_LOG_ERRORS() do {} while (false)
+#define GL_LOG_ERRORS() \
+	do {                \
+	} while (false)
 #endif
 
 using namespace Death::Containers;
@@ -41,27 +43,27 @@ namespace nCine::RHI
 // pulling <GLES3/gl32.h> into the header, which would define GL_ES_VERSION_3_2 mid-translation-unit and flip
 // GL_ES_VERSION_3_2-gated declarations, e.g. GLBufferObject::TexBuffer.)
 #if defined(RHI_GL_PROFILE_ES) && GL_ES_VERSION_3_0
-#	ifndef GL_BUFFER_KHR
-#		define GL_BUFFER_KHR 0x82E0
-#	endif
-#	ifndef GL_SHADER_KHR
-#		define GL_SHADER_KHR 0x82E1
-#	endif
-#	ifndef GL_PROGRAM_KHR
-#		define GL_PROGRAM_KHR 0x82E2
-#	endif
-#	ifndef GL_VERTEX_ARRAY_KHR
-#		define GL_VERTEX_ARRAY_KHR 0x8074
-#	endif
-#	ifndef GL_QUERY_KHR
-#		define GL_QUERY_KHR 0x82E3
-#	endif
-#	ifndef GL_PROGRAM_PIPELINE_KHR
-#		define GL_PROGRAM_PIPELINE_KHR 0x82E4
-#	endif
-#	ifndef GL_SAMPLER_KHR
-#		define GL_SAMPLER_KHR 0x82E6
-#	endif
+#ifndef GL_BUFFER_KHR
+#define GL_BUFFER_KHR 0x82E0
+#endif
+#ifndef GL_SHADER_KHR
+#define GL_SHADER_KHR 0x82E1
+#endif
+#ifndef GL_PROGRAM_KHR
+#define GL_PROGRAM_KHR 0x82E2
+#endif
+#ifndef GL_VERTEX_ARRAY_KHR
+#define GL_VERTEX_ARRAY_KHR 0x8074
+#endif
+#ifndef GL_QUERY_KHR
+#define GL_QUERY_KHR 0x82E3
+#endif
+#ifndef GL_PROGRAM_PIPELINE_KHR
+#define GL_PROGRAM_PIPELINE_KHR 0x82E4
+#endif
+#ifndef GL_SAMPLER_KHR
+#define GL_SAMPLER_KHR 0x82E6
+#endif
 #endif
 
 namespace nCine::RHI::GL
@@ -83,10 +85,10 @@ namespace nCine::RHI::GL
 		 */
 		enum class LabelTypes
 		{
-			// Apple's OpenGL headers don't expose the KHR_debug object-type enums, and PS Vita's vitaGL has no
-			// KHR_debug at all (object labelling is compiled out entirely in GLDebug.cpp - GL_DEBUG_SUPPORTED is
-			// never defined there for Vita). On both, these values are never passed to the driver, so use plain
-			// sequential enumerators instead of the GL_* object-identifier tokens.
+		// Apple's OpenGL headers don't expose the KHR_debug object-type enums, and PS Vita's vitaGL has no
+		// KHR_debug at all (object labelling is compiled out entirely in GLDebug.cpp - GL_DEBUG_SUPPORTED is
+		// never defined there for Vita). On both, these values are never passed to the driver, so use plain
+		// sequential enumerators instead of the GL_* object-identifier tokens.
 #if defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_VITA)
 			Buffer,
 			Shader,
@@ -104,7 +106,7 @@ namespace nCine::RHI::GL
 			Texture = GL_TEXTURE,
 			RenderBuffer = GL_RENDERBUFFER,
 			FrameBuffer = GL_FRAMEBUFFER,
-#	if ((defined(DEATH_TARGET_ANDROID) && __ANDROID_API__ >= 21) || (!defined(DEATH_TARGET_ANDROID) && defined(RHI_GL_PROFILE_ES))) && (GL_ES_VERSION_3_0 || (defined(RHI_GL_PROFILE_ES2) && !defined(DEATH_TARGET_VITA)))
+#if ((defined(DEATH_TARGET_ANDROID) && __ANDROID_API__ >= 21) || (!defined(DEATH_TARGET_ANDROID) && defined(RHI_GL_PROFILE_ES))) && (GL_ES_VERSION_3_0 || (defined(RHI_GL_PROFILE_ES2) && !defined(DEATH_TARGET_VITA)))
 			Buffer = GL_BUFFER_KHR,
 			Shader = GL_SHADER_KHR,
 			Program = GL_PROGRAM_KHR,
@@ -112,7 +114,7 @@ namespace nCine::RHI::GL
 			Query = GL_QUERY_KHR,
 			ProgramPipeline = GL_PROGRAM_PIPELINE_KHR,
 			Sampler = GL_SAMPLER_KHR
-#	else
+#else
 			Buffer = GL_BUFFER,
 			Shader = GL_SHADER,
 			Program = GL_PROGRAM,
@@ -120,7 +122,7 @@ namespace nCine::RHI::GL
 			Query = GL_QUERY,
 			ProgramPipeline = GL_PROGRAM_PIPELINE,
 			Sampler = GL_SAMPLER
-#	endif
+#endif
 #endif
 		};
 
@@ -133,10 +135,12 @@ namespace nCine::RHI::GL
 		{
 		public:
 			/** @brief Pushes a debug group with the given message */
-			explicit ScopedGroup(StringView message) {
+			explicit ScopedGroup(StringView message)
+			{
 				PushGroup(message);
 			}
-			~ScopedGroup() {
+			~ScopedGroup()
+			{
 				PopGroup();
 			}
 		};
@@ -148,12 +152,14 @@ namespace nCine::RHI::GL
 		 */
 		static void Init(const IRhiCapabilities& caps);
 		/** @brief Resets the running debug group id counter */
-		static inline void Reset() {
+		static inline void Reset()
+		{
 			_debugGroupId = 0;
 		}
 
 		/** @brief Returns whether OpenGL debug output is available */
-		static inline bool IsAvailable() {
+		static inline bool IsAvailable()
+		{
 			return _debugAvailable;
 		}
 
@@ -184,7 +190,8 @@ namespace nCine::RHI::GL
 		static void GetObjectLabel(LabelTypes identifier, GLuint name, GLsizei bufSize, GLsizei* length, char* label);
 
 		/** @brief Returns the maximum supported object label length */
-		static inline std::int32_t GetMaxLabelLength() {
+		static inline std::int32_t GetMaxLabelLength()
+		{
 			return _maxLabelLength;
 		}
 

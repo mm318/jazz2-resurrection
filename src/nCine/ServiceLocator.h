@@ -16,7 +16,8 @@ namespace nCine
 	{
 	public:
 		/** @brief Returns reference to the current audio device instance */
-		IAudioDevice& GetAudioDevice() {
+		IAudioDevice& GetAudioDevice()
+		{
 			return *_audioDevice;
 		}
 		/** @brief Registers an audio device provider */
@@ -25,7 +26,8 @@ namespace nCine
 		void UnregisterAudioDevice();
 
 		/** @brief Returns reference to the current thread pool instance */
-		IThreadPool& GetThreadPool() {
+		IThreadPool& GetThreadPool()
+		{
 			return *_threadPool;
 		}
 		/** @brief Registers a thread pool provider */
@@ -34,7 +36,8 @@ namespace nCine
 		void UnregisterThreadPool();
 
 		/** @brief Returns reference to the current RHI capabilities instance */
-		const RHI::IRhiCapabilities& GetRhiCapabilities() {
+		const RHI::IRhiCapabilities& GetRhiCapabilities()
+		{
 			return *_rhiCapabilities;
 		}
 		/** @brief Registers an RHI capabilities provider */

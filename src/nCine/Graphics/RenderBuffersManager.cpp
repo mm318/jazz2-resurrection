@@ -13,7 +13,7 @@ using namespace Death::Containers::Literals;
 // availability is checked at runtime so the required context version doesn't change. Emscripten has to be
 // excluded explicitly, its GL headers declare `glBufferStorage()` even though WebGL cannot provide it.
 #if defined(RHI_GL_PROFILE_CORE) && !defined(DEATH_TARGET_EMSCRIPTEN) && !(defined(DEATH_TARGET_APPLE) && defined(DEATH_TARGET_ARM)) && defined(GL_MAP_PERSISTENT_BIT)
-#	define NCINE_HAS_PERSISTENT_MAPPING
+#define NCINE_HAS_PERSISTENT_MAPPING
 #endif
 
 // The RSX's buffer objects already are a persistent mapping: they live in GPU-visible main memory the PPE
@@ -29,17 +29,17 @@ using namespace Death::Containers::Literals;
 // a section still has to be flushed (GX2Invalidate) before the frame's draws, which FlushUnmap() does when
 // NCINE_PERSISTENT_MAPPING_NEEDS_FLUSH is defined. Its fences are real, see Gx2Device::InsertFence().
 #if defined(WITH_RHI_RSX) || defined(WITH_RHI_GX2)
-#	define NCINE_HAS_PERSISTENT_MAPPING
-#	define NCINE_ALWAYS_PERSISTENT_MAPPING
+#define NCINE_HAS_PERSISTENT_MAPPING
+#define NCINE_ALWAYS_PERSISTENT_MAPPING
 #endif
 #if defined(WITH_RHI_GX2)
-#	define NCINE_PERSISTENT_MAPPING_NEEDS_FLUSH
+#define NCINE_PERSISTENT_MAPPING_NEEDS_FLUSH
 #endif
 
 namespace nCine
 {
 	RenderBuffersManager::RenderBuffersManager(bool useBufferMapping, bool useBufferStorage, std::uint32_t vboMaxSize, std::uint32_t iboMaxSize)
-		: _usePersistentMapping(false), _currentSection(0), _sectionFences{}
+		: _usePersistentMapping(false), _currentSection(0), _sectionFences {}
 	{
 		_buffers.reserve(4);
 
@@ -121,10 +121,14 @@ namespace nCine
 		const char* bufferTypeToString(RenderBuffersManager::BufferTypes type)
 		{
 			switch (type) {
-				case RenderBuffersManager::BufferTypes::Array: return "Array";
-				case RenderBuffersManager::BufferTypes::ElementArray: return "Element Array";
-				case RenderBuffersManager::BufferTypes::Uniform: return "Uniform";
-				default: return "";
+				case RenderBuffersManager::BufferTypes::Array:
+					return "Array";
+				case RenderBuffersManager::BufferTypes::ElementArray:
+					return "Element Array";
+				case RenderBuffersManager::BufferTypes::Uniform:
+					return "Uniform";
+				default:
+					return "";
 			}
 		}
 	}
@@ -132,7 +136,7 @@ namespace nCine
 	RenderBuffersManager::Parameters RenderBuffersManager::AcquireMemory(BufferTypes type, std::uint32_t bytes, std::uint32_t alignment)
 	{
 		FATAL_ASSERT_MSG(bytes <= _specs[std::int32_t(type)].maxSize, "Trying to acquire {} bytes when the maximum for buffer type \"{}\" is {}",
-						   bytes, bufferTypeToString(type), _specs[std::int32_t(type)].maxSize);
+			bytes, bufferTypeToString(type), _specs[std::int32_t(type)].maxSize);
 
 		// Accepting a custom alignment only if it is a multiple of the specification one
 		if (alignment % _specs[std::int32_t(type)].alignment != 0) {
@@ -142,7 +146,7 @@ namespace nCine
 #if defined(NCINE_HAS_PERSISTENT_MAPPING)
 		// Application::Step() has usually waited for the section right after the swap already,
 		// this only catches memory acquired between Remap() and that point
-		if DEATH_UNLIKELY(_sectionFences[_currentSection] != nullptr) {
+		if DEATH_UNLIKELY (_sectionFences[_currentSection] != nullptr) {
 			WaitForCurrentSection();
 		}
 #endif

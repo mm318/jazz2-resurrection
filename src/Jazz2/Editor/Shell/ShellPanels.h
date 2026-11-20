@@ -114,7 +114,8 @@ namespace Jazz2::Editor
 		explicit TileGrid(IEditorContext& session);
 
 		/** @brief Returns the source of the tiles, see @ref TileRef::Source */
-		std::uint8_t GetSource() const {
+		std::uint8_t GetSource() const
+		{
 			return _source;
 		}
 		/** @brief Sets the source of the tiles */

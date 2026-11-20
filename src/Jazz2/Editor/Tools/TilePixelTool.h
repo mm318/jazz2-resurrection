@@ -46,7 +46,8 @@ namespace Jazz2::Editor
 		/** @brief Sets the tile, by its ID as the level file stores it, and what paints it, `nullptr` to stop */
 		void SetTarget(std::int32_t tileId, PaintFunction&& paint);
 		/** @brief Returns the tile painted, or -1 */
-		std::int32_t GetTargetTile() const {
+		std::int32_t GetTargetTile() const
+		{
 			return _tileId;
 		}
 

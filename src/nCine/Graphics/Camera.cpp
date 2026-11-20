@@ -14,8 +14,8 @@ namespace nCine
 		_projectionValues.Bottom = res.Y;
 
 		_projection = Matrix4x4f::Ortho(_projectionValues.Left, _projectionValues.Right,
-										_projectionValues.Bottom, _projectionValues.Top,
-										_projectionValues.NearClip, _projectionValues.FarClip);
+			_projectionValues.Bottom, _projectionValues.Top,
+			_projectionValues.NearClip, _projectionValues.FarClip);
 	}
 
 	void Camera::SetOrthoProjection(float left, float right, float top, float bottom)
@@ -26,8 +26,8 @@ namespace nCine
 		_projectionValues.Bottom = bottom;
 
 		_projection = Matrix4x4f::Ortho(_projectionValues.Left, _projectionValues.Right,
-										_projectionValues.Bottom, _projectionValues.Top,
-										_projectionValues.NearClip, _projectionValues.FarClip);
+			_projectionValues.Bottom, _projectionValues.Top,
+			_projectionValues.NearClip, _projectionValues.FarClip);
 		_updateFrameProjectionMatrix = theApplication().GetFrameCount();
 	}
 

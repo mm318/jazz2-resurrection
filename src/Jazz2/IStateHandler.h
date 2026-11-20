@@ -22,62 +22,99 @@ namespace Jazz2
 
 	public:
 		/** @brief How the mouse cursor is shown while a state handler is active */
-		enum class CursorPolicy {
-			Default,		/**< Shown in a window, hidden in fullscreen */
-			Visible,		/**< Always shown */
-			Hidden			/**< Always hidden */
+		enum class CursorPolicy
+		{
+			Default, /**< Shown in a window, hidden in fullscreen */
+			Visible, /**< Always shown */
+			Hidden /**< Always hidden */
 		};
 
 		/** @brief Creates a new instance */
-		IStateHandler() {}
-		virtual ~IStateHandler() {}
+		IStateHandler()
+		{
+		}
+		virtual ~IStateHandler()
+		{
+		}
 
 		IStateHandler(const IStateHandler&) = delete;
 		IStateHandler& operator=(const IStateHandler&) = delete;
 
 		/** @brief Returns viewport size of the handler */
-		virtual nCine::Vector2i GetViewSize() const { return {}; }
+		virtual nCine::Vector2i GetViewSize() const
+		{
+			return {};
+		}
 
 		/** @brief Called at the beginning of each frame */
-		virtual void OnBeginFrame() {}
+		virtual void OnBeginFrame()
+		{
+		}
 		/** @brief Called at the end of each frame */
-		virtual void OnEndFrame() {}
+		virtual void OnEndFrame()
+		{
+		}
 		/** @brief Called when the viewport needs to be initialized (e.g., when the resolution is changed) */
-		virtual void OnInitializeViewport(std::int32_t width, std::int32_t height) {}
+		virtual void OnInitializeViewport(std::int32_t width, std::int32_t height)
+		{
+		}
 
 		/** @brief Called when a key is pressed */
-		virtual void OnKeyPressed(const nCine::KeyboardEvent& event) {}
+		virtual void OnKeyPressed(const nCine::KeyboardEvent& event)
+		{
+		}
 		/** @brief Called when a key is released */
-		virtual void OnKeyReleased(const nCine::KeyboardEvent& event) {}
+		virtual void OnKeyReleased(const nCine::KeyboardEvent& event)
+		{
+		}
 		/** @brief Called when a text input is detected */
-		virtual void OnTextInput(const nCine::TextInputEvent& event) {}
+		virtual void OnTextInput(const nCine::TextInputEvent& event)
+		{
+		}
 		/** @brief Called when a touch event is triggered */
-		virtual void OnTouchEvent(const nCine::TouchEvent& event) {}
+		virtual void OnTouchEvent(const nCine::TouchEvent& event)
+		{
+		}
 		/**
 		 * @brief Called when a mouse button is pressed
 		 *
 		 * The position is in window coordinates, which may differ from the pixels of the drawable on a high-DPI
 		 * display. The game itself doesn't use the mouse, only the level editor does.
 		 */
-		virtual void OnMouseDown(const nCine::MouseEvent& event) {}
+		virtual void OnMouseDown(const nCine::MouseEvent& event)
+		{
+		}
 		/** @brief Called when a mouse button is released */
-		virtual void OnMouseUp(const nCine::MouseEvent& event) {}
+		virtual void OnMouseUp(const nCine::MouseEvent& event)
+		{
+		}
 		/** @brief Called when the mouse is moved */
-		virtual void OnMouseMove(const nCine::MouseState& state) {}
+		virtual void OnMouseMove(const nCine::MouseState& state)
+		{
+		}
 		/** @brief Called when the mouse wheel is scrolled, or a touchpad is scrolled with two fingers */
-		virtual void OnMouseWheel(const nCine::ScrollEvent& event) {}
+		virtual void OnMouseWheel(const nCine::ScrollEvent& event)
+		{
+		}
 
 		/** @brief Called when the application is about to be suspended, before the resumable state is saved */
-		virtual void OnSuspend() {}
+		virtual void OnSuspend()
+		{
+		}
 		/**
 		 * @brief Called when another handler is about to be made in its place, before it loads what it needs
 		 *
 		 * The handler can still be alive while the next one loads, and the resources are shared, so what it changed of
 		 * them goes back now. It isn't updated or drawn any more afterwards.
 		 */
-		virtual void OnReplacing() {}
+		virtual void OnReplacing()
+		{
+		}
 
 		/** @brief Returns how the mouse cursor should be shown while the handler is active */
-		virtual CursorPolicy GetCursorPolicy() const { return CursorPolicy::Default; }
+		virtual CursorPolicy GetCursorPolicy() const
+		{
+			return CursorPolicy::Default;
+		}
 	};
 }

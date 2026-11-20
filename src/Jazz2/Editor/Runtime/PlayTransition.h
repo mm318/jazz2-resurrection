@@ -57,11 +57,13 @@ namespace Jazz2::Editor
 		/** @brief Ends the transition at once */
 		void Stop();
 		/** @brief Returns `true` while the transition is shown */
-		bool IsActive() const {
+		bool IsActive() const
+		{
 			return (_outside != nullptr);
 		}
 		/** @brief Returns `true` if the transition has an image of the inside, see @ref DrawRing() */
-		bool HasInside() const {
+		bool HasInside() const
+		{
 			return (_inside != nullptr);
 		}
 

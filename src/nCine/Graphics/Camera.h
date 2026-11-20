@@ -28,10 +28,14 @@ namespace nCine
 			float FarClip;
 
 			ProjectionValues()
-				: Left(0.0f), Right(0.0f), Top(0.0f), Bottom(0.0f), NearClip(-1.0f), FarClip(1.0f) {}
+				: Left(0.0f), Right(0.0f), Top(0.0f), Bottom(0.0f), NearClip(-1.0f), FarClip(1.0f)
+			{
+			}
 
 			ProjectionValues(float ll, float rr, float tt, float bb)
-				: Left(ll), Right(rr), Top(tt), Bottom(bb), NearClip(-1.0f), FarClip(1.0f) {}
+				: Left(ll), Right(rr), Top(tt), Bottom(bb), NearClip(-1.0f), FarClip(1.0f)
+			{
+			}
 		};
 
 		/**
@@ -44,26 +48,34 @@ namespace nCine
 			float Scale;
 
 			ViewValues()
-				: Position(0.0f, 0.0f), Rotation(0.0f), Scale(1.0f) {}
+				: Position(0.0f, 0.0f), Rotation(0.0f), Scale(1.0f)
+			{
+			}
 
 			ViewValues(float xx, float yy, float rr, float ss)
-				: Position(xx, yy), Rotation(rr), Scale(ss) {}
+				: Position(xx, yy), Rotation(rr), Scale(ss)
+			{
+			}
 		};
 
 		/** @brief Creates a camera with default (identity-like) matrices */
 		Camera();
 
-		inline const ProjectionValues& GetProjectionValues() const {
+		inline const ProjectionValues& GetProjectionValues() const
+		{
 			return _projectionValues;
 		}
-		inline const ViewValues& GetViewValues() const {
+		inline const ViewValues& GetViewValues() const
+		{
 			return _viewValues;
 		}
 
-		inline const Matrix4x4f& GetProjection() const {
+		inline const Matrix4x4f& GetProjection() const
+		{
 			return _projection;
 		}
-		inline const Matrix4x4f& GetView() const {
+		inline const Matrix4x4f& GetView() const
+		{
 			return _view;
 		}
 
@@ -74,10 +86,12 @@ namespace nCine
 		void SetView(float x, float y, float rotation, float scale);
 		void SetView(const ViewValues& values);
 
-		inline std::uint32_t UpdateFrameProjectionMatrix() const {
+		inline std::uint32_t UpdateFrameProjectionMatrix() const
+		{
 			return _updateFrameProjectionMatrix;
 		}
-		inline std::uint32_t UpdateFrameViewMatrix() const {
+		inline std::uint32_t UpdateFrameViewMatrix() const
+		{
 			return _updateFrameViewMatrix;
 		}
 

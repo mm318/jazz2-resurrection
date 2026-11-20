@@ -33,15 +33,18 @@ namespace Jazz2::UI::Menu
 
 	protected:
 		/** @brief Sets the section title drawn above the top divider line */
-		void SetTitle(StringView title) {
+		void SetTitle(StringView title)
+		{
 			_title = title;
 		}
 		/** @brief Sets the root widget that fills the clipped content area */
-		void SetContent(std::unique_ptr<Widget> content) {
+		void SetContent(std::unique_ptr<Widget> content)
+		{
 			_content = Death::move(content);
 		}
 		/** @brief Returns the root widget, or `nullptr` */
-		Widget* GetContent() const {
+		Widget* GetContent() const
+		{
 			return _content.get();
 		}
 		/** @brief Called when the back button is pressed; leaves the section by default */

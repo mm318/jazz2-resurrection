@@ -24,10 +24,11 @@ namespace Jazz2::Compatibility
 	{
 	public:
 		/** @brief Outcome of converting the source assets */
-		enum class Result {
-			Success,				/**< Everything was converted */
-			CannotWriteTarget,		/**< The converted assets could not be written */
-			UnsupportedVersion		/**< The provided Jazz Jackrabbit 2 version is not supported */
+		enum class Result
+		{
+			Success, /**< Everything was converted */
+			CannotWriteTarget, /**< The converted assets could not be written */
+			UnsupportedVersion /**< The provided Jazz Jackrabbit 2 version is not supported */
 		};
 
 		/**

@@ -53,8 +53,8 @@ namespace Jazz2::UI::Multiplayer
 		bool _teamMode;
 		bool _allowTeamSelection;
 		std::uint8_t _teamCount;
-		std::int32_t _selectedTeam;	// 0.._teamCount-1 selects a team, _teamCount means "Auto"
-		std::int32_t _focusRow;		// 0 = character, 1 = team
+		std::int32_t _selectedTeam; // 0.._teamCount-1 selects a team, _teamCount means "Auto"
+		std::int32_t _focusRow; // 0 = character, 1 = team
 		bool _isVisible;
 
 		bool ActionPressed(PlayerAction action);

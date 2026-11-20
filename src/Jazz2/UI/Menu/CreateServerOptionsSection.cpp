@@ -21,10 +21,11 @@ namespace Jazz2::UI::Menu
 {
 	CreateServerOptionsSection::CreateServerOptionsSection(StringView levelName, StringView previousEpisodeName, bool privateServer)
 		: _levelName(levelName), _previousEpisodeName(previousEpisodeName), _selectedIndex((int32_t)Item::Start),
-			_availableCharacters(3), _selectedPlayerType(0), _selectedDifficulty(1), _lastPlayerType(0), _lastDifficulty(0),
-			_imageTransition(1.0f), _animation(0.0f), _transitionTime(0.0f), _privateServer(privateServer), _shouldStart(false)
+		  _availableCharacters(3), _selectedPlayerType(0), _selectedDifficulty(1), _lastPlayerType(0), _lastDifficulty(0),
+		  _imageTransition(1.0f), _animation(0.0f), _transitionTime(0.0f), _privateServer(privateServer), _shouldStart(false)
 #if defined(DEATH_TARGET_PSP)
-			, _adhocMode(false)
+		  ,
+		  _adhocMode(false)
 #endif
 	{
 		if (levelName.hasPrefix("unknown/"_s)) {
@@ -167,9 +168,15 @@ namespace Jazz2::UI::Menu
 		AnimState selectedDifficultyImage;
 		switch (_selectedPlayerType) {
 			default:
-			case 0: selectedDifficultyImage = MenuDifficultyJazz; break;
-			case 1: selectedDifficultyImage = MenuDifficultySpaz; break;
-			case 2: selectedDifficultyImage = MenuDifficultyLori; break;
+			case 0:
+				selectedDifficultyImage = MenuDifficultyJazz;
+				break;
+			case 1:
+				selectedDifficultyImage = MenuDifficultySpaz;
+				break;
+			case 2:
+				selectedDifficultyImage = MenuDifficultyLori;
+				break;
 		}
 
 		_root->DrawElement(MenuDim, 0, center.X * 0.36f, artCenterY, IMenuContainer::ShadowLayer - 2, Alignment::Center, Colorf::White, 24.0f, 36.0f);
@@ -180,9 +187,15 @@ namespace Jazz2::UI::Menu
 			AnimState lastDifficultyImage;
 			switch (_lastPlayerType) {
 				default:
-				case 0: lastDifficultyImage = MenuDifficultyJazz; break;
-				case 1: lastDifficultyImage = MenuDifficultySpaz; break;
-				case 2: lastDifficultyImage = MenuDifficultyLori; break;
+				case 0:
+					lastDifficultyImage = MenuDifficultyJazz;
+					break;
+				case 1:
+					lastDifficultyImage = MenuDifficultySpaz;
+					break;
+				case 2:
+					lastDifficultyImage = MenuDifficultyLori;
+					break;
 			}
 			_root->DrawElement(lastDifficultyImage, _lastDifficulty, center.X * 0.36f, artCenterY, IMenuContainer::MainLayer, Alignment::Center, Colorf(1.0f, 1.0f, 1.0f, 1.0f - _imageTransition), 0.88f, 0.88f);
 		}
@@ -191,93 +204,130 @@ namespace Jazz2::UI::Menu
 
 		std::int32_t charOffset = 0;
 		for (std::int32_t i = 0; i < (std::int32_t)Item::Count; i++) {
-		    if (_selectedIndex == i) {
-		        float size = 0.5f + Easing::OutElastic(_animation) * 0.6f;
+			if (_selectedIndex == i) {
+				float size = 0.5f + Easing::OutElastic(_animation) * 0.6f;
 
-		        _root->DrawStringGlow(_items[i].Name, charOffset, center.X, center.Y, IMenuContainer::FontLayer + 10,
-		            Alignment::Center, Font::RandomColor, size, 0.7f, 1.1f, 1.1f, 0.4f, 0.9f);
-		    } else {
-		        _root->DrawStringShadow(_items[i].Name, charOffset, center.X, center.Y, IMenuContainer::FontLayer,
+				_root->DrawStringGlow(_items[i].Name, charOffset, center.X, center.Y, IMenuContainer::FontLayer + 10,
+					Alignment::Center, Font::RandomColor, size, 0.7f, 1.1f, 1.1f, 0.4f, 0.9f);
+			} else {
+				_root->DrawStringShadow(_items[i].Name, charOffset, center.X, center.Y, IMenuContainer::FontLayer,
 					Alignment::Center, Font::DefaultColor, 0.9f);
-		    }
+			}
 
-		    if (i == 0) {
-		        constexpr const StringView playerTypes[] = { "Jazz"_s, "Spaz"_s, "Lori"_s };
-		        constexpr Colorf playerColors[] = {
-		            Colorf(0.2f, 0.45f, 0.2f, 0.5f),
-		            Colorf(0.45f, 0.27f, 0.22f, 0.5f),
-		            Colorf(0.5f, 0.45f, 0.22f, 0.5f)
-		        };
+			if (i == 0) {
+				constexpr const StringView playerTypes[] = { "Jazz"_s, "Spaz"_s, "Lori"_s };
+				constexpr Colorf playerColors[] = {
+					Colorf(0.2f, 0.45f, 0.2f, 0.5f),
+					Colorf(0.45f, 0.27f, 0.22f, 0.5f),
+					Colorf(0.5f, 0.45f, 0.22f, 0.5f)
+				};
 
-		        float offset, spacing;
-		        if (_availableCharacters == 1) {
-		            offset = 0.0f;
-		            spacing = 0.0f;
-		        } else if (_availableCharacters == 2) {
-		            offset = 50.0f;
-		            spacing = 100.0f;
-		        } else {
-		            offset = 100.0f;
-		            spacing = 300.0f / _availableCharacters;
-		        }
+				float offset, spacing;
+				if (_availableCharacters == 1) {
+					offset = 0.0f;
+					spacing = 0.0f;
+				} else if (_availableCharacters == 2) {
+					offset = 50.0f;
+					spacing = 100.0f;
+				} else {
+					offset = 100.0f;
+					spacing = 300.0f / _availableCharacters;
+				}
 
-		        for (std::int32_t j = 0; j < _availableCharacters; j++) {
-		            float x = center.X - offset + j * spacing;
-		            if (_selectedPlayerType == j) {
-		                _root->DrawStringGlow(playerTypes[j], charOffset, x, center.Y + 28.0f, IMenuContainer::FontLayer,
+				for (std::int32_t j = 0; j < _availableCharacters; j++) {
+					float x = center.X - offset + j * spacing;
+					if (_selectedPlayerType == j) {
+						_root->DrawStringGlow(playerTypes[j], charOffset, x, center.Y + 28.0f, IMenuContainer::FontLayer,
 							Alignment::Center, playerColors[j], 1.0f, 0.4f, 0.9f, 0.9f, 0.8f, 0.9f);
-		            } else {
-		                _root->DrawStringShadow(playerTypes[j], charOffset, x, center.Y + 28.0f, IMenuContainer::FontLayer,
+					} else {
+						_root->DrawStringShadow(playerTypes[j], charOffset, x, center.Y + 28.0f, IMenuContainer::FontLayer,
 							Alignment::Center, Font::DefaultColor, 0.8f, 0.0f, 4.0f, 4.0f, 0.4f, 0.9f);
-		            }
-		        }
+					}
+				}
 
-		        _root->DrawStringShadow("<"_s, charOffset, center.X - (100.0f + 40.0f), center.Y + 28.0f, IMenuContainer::FontLayer,
+				_root->DrawStringShadow("<"_s, charOffset, center.X - (100.0f + 40.0f), center.Y + 28.0f, IMenuContainer::FontLayer,
 					Alignment::Center, Font::DefaultColor, 0.7f);
-		        _root->DrawStringShadow(">"_s, charOffset, center.X + (100.0f + 40.0f), center.Y + 28.0f, IMenuContainer::FontLayer,
+				_root->DrawStringShadow(">"_s, charOffset, center.X + (100.0f + 40.0f), center.Y + 28.0f, IMenuContainer::FontLayer,
 					Alignment::Center, Font::DefaultColor, 0.7f);
 
 				_items[i].TouchY = center.Y + 28.0f;
-		    } else if (i == 1) {
+			} else if (i == 1) {
 				StringView gameModeString;
 				switch (_gameMode) {
 					// TRANSLATORS: Option for Game Mode item in Create Server section
-					case MpGameMode::Battle: gameModeString = _("Battle"); break;
+					case MpGameMode::Battle:
+						gameModeString = _("Battle");
+						break;
 					// TRANSLATORS: Option for Game Mode item in Create Server section
-					case MpGameMode::TeamBattle: gameModeString = _("Team Battle"); break;
+					case MpGameMode::TeamBattle:
+						gameModeString = _("Team Battle");
+						break;
 					// TRANSLATORS: Option for Game Mode item in Create Server section
-					case MpGameMode::Race: gameModeString = _("Race"); break;
+					case MpGameMode::Race:
+						gameModeString = _("Race");
+						break;
 					// TRANSLATORS: Option for Game Mode item in Create Server section
-					case MpGameMode::TeamRace: gameModeString = _("Team Race"); break;
+					case MpGameMode::TeamRace:
+						gameModeString = _("Team Race");
+						break;
 					// TRANSLATORS: Option for Game Mode item in Create Server section
-					case MpGameMode::TreasureHunt: gameModeString = _("Treasure Hunt"); break;
+					case MpGameMode::TreasureHunt:
+						gameModeString = _("Treasure Hunt");
+						break;
 					// TRANSLATORS: Option for Game Mode item in Create Server section
-					case MpGameMode::TeamTreasureHunt: gameModeString = _("Team Treasure Hunt"); break;
+					case MpGameMode::TeamTreasureHunt:
+						gameModeString = _("Team Treasure Hunt");
+						break;
 					// TRANSLATORS: Option for Game Mode item in Create Server section
-					case MpGameMode::CaptureTheFlag: gameModeString = _("Capture The Flag"); break;
+					case MpGameMode::CaptureTheFlag:
+						gameModeString = _("Capture The Flag");
+						break;
 					// TRANSLATORS: Option for Game Mode item in Create Server section
-					case MpGameMode::Cooperation: gameModeString = _("Cooperation"); break;
+					case MpGameMode::Cooperation:
+						gameModeString = _("Cooperation");
+						break;
 					// TRANSLATORS: Option for Game Mode item in Create Server section
-					case MpGameMode::RoastTag: gameModeString = _("Roast Tag"); break;
+					case MpGameMode::RoastTag:
+						gameModeString = _("Roast Tag");
+						break;
 					// TRANSLATORS: Option for Game Mode item in Create Server section
-					case MpGameMode::LastRabbitStanding: gameModeString = _("Last Rabbit Standing"); break;
+					case MpGameMode::LastRabbitStanding:
+						gameModeString = _("Last Rabbit Standing");
+						break;
 					// TRANSLATORS: Option for Game Mode item in Create Server section
-					case MpGameMode::ExtendedLastRabbitStanding: gameModeString = _("Extended Last Rabbit Standing"); break;
+					case MpGameMode::ExtendedLastRabbitStanding:
+						gameModeString = _("Extended Last Rabbit Standing");
+						break;
 					// TRANSLATORS: Option for Game Mode item in Create Server section
-					case MpGameMode::Pestilence: gameModeString = _("Pestilence"); break;
+					case MpGameMode::Pestilence:
+						gameModeString = _("Pestilence");
+						break;
 					// TRANSLATORS: Option for Game Mode item in Create Server section
-					case MpGameMode::TeamLastRabbitStanding: gameModeString = _("Team Last Rabbit Standing"); break;
+					case MpGameMode::TeamLastRabbitStanding:
+						gameModeString = _("Team Last Rabbit Standing");
+						break;
 					// TRANSLATORS: Option for Game Mode item in Create Server section
-					case MpGameMode::Jailbreak: gameModeString = _("Jailbreak"); break;
+					case MpGameMode::Jailbreak:
+						gameModeString = _("Jailbreak");
+						break;
 					// TRANSLATORS: Option for Game Mode item in Create Server section
-					case MpGameMode::DeathCaptureTheFlag: gameModeString = _("Death Capture The Flag"); break;
+					case MpGameMode::DeathCaptureTheFlag:
+						gameModeString = _("Death Capture The Flag");
+						break;
 					// TRANSLATORS: Option for Game Mode item in Create Server section
-					case MpGameMode::FlagRun: gameModeString = _("Flag Run"); break;
+					case MpGameMode::FlagRun:
+						gameModeString = _("Flag Run");
+						break;
 					// TRANSLATORS: Option for Game Mode item in Create Server section
-					case MpGameMode::Domination: gameModeString = _("Domination"); break;
+					case MpGameMode::Domination:
+						gameModeString = _("Domination");
+						break;
 					// TRANSLATORS: Option for Game Mode item in Create Server section
-					case MpGameMode::HeadHunters: gameModeString = _("Head Hunters"); break;
-					default: break;
+					case MpGameMode::HeadHunters:
+						gameModeString = _("Head Hunters");
+						break;
+					default:
+						break;
 				}
 
 				_root->DrawStringShadow(gameModeString, charOffset, center.X, center.Y + 28.0f, IMenuContainer::FontLayer,

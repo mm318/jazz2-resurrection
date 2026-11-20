@@ -14,7 +14,7 @@ using namespace nCine;
 namespace Jazz2::Rendering
 {
 	class PlayerViewport;
-	
+
 	/**
 		@brief Applies blur to a scene
 		
@@ -53,7 +53,8 @@ namespace Jazz2::Rendering
 		 */
 		void InitializeCopy(Texture* source, std::int32_t width, std::int32_t height);
 		/** @brief Limits the pass to a rectangle of its target in pixels from the top left corner, the rest keeps what it had */
-		void SetScissor(Recti rect) {
+		void SetScissor(Recti rect)
+		{
 			_renderCommand.SetScissor(rect);
 		}
 		/** @brief Registers the render pass into the viewport chain */
@@ -64,12 +65,14 @@ namespace Jazz2::Rendering
 		bool OnDraw(RenderQueue& renderQueue) override;
 
 		/** @brief Returns the resulting target texture */
-		Texture* GetTarget() const {
+		Texture* GetTarget() const
+		{
 			return _target.get();
 		}
 
 		/** @brief Returns the viewport the pass renders through, or `nullptr` if it isn't initialized */
-		Viewport* GetView() const {
+		Viewport* GetView() const
+		{
 			return _view.get();
 		}
 

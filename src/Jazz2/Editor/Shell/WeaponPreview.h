@@ -33,10 +33,10 @@ namespace Jazz2::Editor
 	/** @brief How a shot of the firing range ended, see @ref SimulateWeapon() */
 	enum class SimulatedShotEnd : std::uint8_t
 	{
-		Lifetime,			/**< Its time ran out */
-		Wall,				/**< It hit a wall, the floor or the ceiling */
-		Target,				/**< It hit the target */
-		Triggered			/**< It went off by its trigger */
+		Lifetime, /**< Its time ran out */
+		Wall, /**< It hit a wall, the floor or the ceiling */
+		Target, /**< It hit the target */
+		Triggered /**< It went off by its trigger */
 	};
 
 	/** @brief A shot of the firing range, frame by frame */
@@ -87,11 +87,13 @@ namespace Jazz2::Editor
 		bool FacingLeft = false;
 
 		/** @brief Returns the target */
-		Rectf GetTarget() const {
+		Rectf GetTarget() const
+		{
 			return Rectf(Target.X - 12.0f, Target.Y - 32.0f, 24.0f, 32.0f);
 		}
 
-		bool operator==(const FiringRange& other) const {
+		bool operator==(const FiringRange& other) const
+		{
 			return (Muzzle == other.Muzzle && Target == other.Target && FacingLeft == other.FacingLeft);
 		}
 	};
@@ -150,7 +152,12 @@ namespace Jazz2::Editor
 		StringView GetTooltip(Vector2f pos) const override;
 
 	private:
-		enum class DragTarget : std::uint8_t { None, Player, Target };
+		enum class DragTarget : std::uint8_t
+		{
+			None,
+			Player,
+			Target
+		};
 
 		IEditorContext& _session;
 		Function<const WeaponsDescription*()> _getWeapons;

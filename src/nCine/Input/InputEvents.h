@@ -78,11 +78,11 @@ namespace nCine
 	/** @brief Type of a touch event */
 	enum class TouchEventType
 	{
-		Down,			/**< The first pointer touched the screen */
-		Up,				/**< The last pointer was released */
-		Move,			/**< A pointer moved */
-		PointerDown,	/**< An additional pointer touched the screen */
-		PointerUp		/**< An additional pointer was released */
+		Down, /**< The first pointer touched the screen */
+		Up, /**< The last pointer was released */
+		Move, /**< A pointer moved */
+		PointerDown, /**< An additional pointer touched the screen */
+		PointerUp /**< An additional pointer was released */
 	};
 
 	/**
@@ -108,7 +108,9 @@ namespace nCine
 		};
 
 		TouchEvent()
-			: Count(0), ActionIndex(-1) {}
+			: Count(0), ActionIndex(-1)
+		{
+		}
 
 		/** @brief Type of the event */
 		TouchEventType Type;
@@ -138,7 +140,9 @@ namespace nCine
 	{
 	public:
 		AccelerometerEvent()
-			: X(0.0f), Y(0.0f), Z(0.0f) {}
+			: X(0.0f), Y(0.0f), Z(0.0f)
+		{
+		}
 
 		/** @brief Acceleration on each axis */
 		float X, Y, Z;
@@ -223,7 +227,9 @@ namespace nCine
 		std::int32_t Mod;
 
 		KeyboardEvent()
-			: Scancode(0), Sym(Keys::Unknown), Mod(0) {}
+			: Scancode(0), Sym(Keys::Unknown), Mod(0)
+		{
+		}
 	};
 
 	/** @brief Text input event */
@@ -246,7 +252,9 @@ namespace nCine
 	class JoystickState
 	{
 	public:
-		virtual ~JoystickState() { }
+		virtual ~JoystickState()
+		{
+		}
 
 		/** @brief Returns `true` if the specified button is pressed */
 		virtual bool IsButtonPressed(int buttonId) const = 0;

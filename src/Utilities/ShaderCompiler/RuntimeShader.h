@@ -63,7 +63,8 @@ namespace ShaderCompiler
 		const RuntimeVariant* FindVariant(StringView name) const;
 
 		/** @brief Returns the artifact-struct view of the program (valid as long as this object lives) */
-		const Program& GetView() const {
+		const Program& GetView() const
+		{
 			return view_;
 		}
 

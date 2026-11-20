@@ -138,7 +138,7 @@ Declare Sub openmpt_free_string(ByVal Str As Const ZString Ptr)
   \param key Key to query.
         Possible keys are:
          -  "library_version": verbose library version string
-         -  "library_version_is_release": "1" if the version is an officially released version                              
+         -  "library_version_is_release": "1" if the version is an officially released version
          -  "library_features": verbose library features string
          -  "core_version": verbose OpenMPT core version string
          -  "source_url": original source code URL
@@ -490,7 +490,7 @@ Const OPENMPT_PROBE_FILE_HEADER_RESULT_ERROR = -255
   \param erruser Error function user context. Used to pass any user-defined data associated with this module to the logging function.
   \param error Pointer to an integer where an error may get stored. May be NULL.
   \param error_message Pointer to a string pointer where an error message may get stored. May be NULL.
-  \remarks It is recommended to provide openmpt_probe_file_header_get_recommended_size() bytes of data for data and size. If the file is smaller, only provide the filesize amount and set size and filesize to the file's size. 
+  \remarks It is recommended to provide openmpt_probe_file_header_get_recommended_size() bytes of data for data and size. If the file is smaller, only provide the filesize amount and set size and filesize to the file's size.
   \remarks openmpt_could_open_probability2() provides a more elaborate interface that might be required for special use cases. It is recommended to use openmpt_probe_file_header() though, if possible.
   \retval OPENMPT_PROBE_FILE_HEADER_RESULT_SUCCESS The file will most likely be supported by libopenmpt.
   \retval OPENMPT_PROBE_FILE_HEADER_RESULT_FAILURE The file is not supported by libopenmpt.
@@ -516,7 +516,7 @@ Declare Function openmpt_probe_file_header(ByVal flags As ULongInt, ByVal Data A
   \param error Pointer to an integer where an error may get stored. May be NULL.
   \param error_message Pointer to a string pointer where an error message may get stored. May be NULL.
   \remarks It is recommended to use openmpt_probe_file_header() and provide the acutal file's size as a parameter if at all possible. libopenmpt can provide more accurate answers if the filesize is known.
-  \remarks It is recommended to provide openmpt_probe_file_header_get_recommended_size() bytes of data for data and size. If the file is smaller, only provide the filesize amount and set size to the file's size. 
+  \remarks It is recommended to provide openmpt_probe_file_header_get_recommended_size() bytes of data for data and size. If the file is smaller, only provide the filesize amount and set size to the file's size.
   \remarks openmpt_could_open_probability2() provides a more elaborate interface that might be required for special use cases. It is recommended to use openmpt_probe_file_header() though, if possible.
   \retval OPENMPT_PROBE_FILE_HEADER_RESULT_SUCCESS The file will most likely be supported by libopenmpt.
   \retval OPENMPT_PROBE_FILE_HEADER_RESULT_FAILURE The file is not supported by libopenmpt.
@@ -542,7 +542,7 @@ Declare Function openmpt_probe_file_header_without_filesize(ByVal flags As ULong
   \param error Pointer to an integer where an error may get stored. May be NULL.
   \param error_message Pointer to a string pointer where an error message may get stored. May be NULL.
   \remarks The stream is left in an unspecified state when this function returns.
-  \remarks It is recommended to provide openmpt_probe_file_header_get_recommended_size() bytes of data for data and size. If the file is smaller, only provide the filesize amount and set size and filesize to the file's size. 
+  \remarks It is recommended to provide openmpt_probe_file_header_get_recommended_size() bytes of data for data and size. If the file is smaller, only provide the filesize amount and set size and filesize to the file's size.
   \remarks openmpt_could_open_probability2() provides a more elaborate interface that might be required for special use cases. It is recommended to use openmpt_probe_file_header() though, if possible.
   \retval OPENMPT_PROBE_FILE_HEADER_RESULT_SUCCESS The file will most likely be supported by libopenmpt.
   \retval OPENMPT_PROBE_FILE_HEADER_RESULT_FAILURE The file is not supported by libopenmpt.
@@ -700,7 +700,7 @@ Declare Sub openmpt_module_error_clear(ByVal module As openmpt_module Ptr)
 
 /'*
   \defgroup openmpt_module_render_param Render param indices
- 
+
   \brief Parameter index to use with openmpt_module_get_render_param() and openmpt_module_set_render_param()
   @{
 '/

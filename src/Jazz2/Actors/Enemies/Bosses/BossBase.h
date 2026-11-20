@@ -31,9 +31,13 @@ namespace Jazz2::Actors::Bosses
 	protected:
 		// A restored boss has to come back fresh and dormant, its sub-actors and multi-phase fight can't be resumed,
 		// so it's spawned again by the event map instead
-		bool IsSerializable() const override { return false; }
+		bool IsSerializable() const override
+		{
+			return false;
+		}
 		bool OnTileDeactivated() override;
-		float GetTurnLookAhead() const override {
+		float GetTurnLookAhead() const override
+		{
 			return 0.0f;
 		}
 		void SetHealthByDifficulty(std::int32_t health) override;

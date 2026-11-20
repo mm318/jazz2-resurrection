@@ -27,12 +27,23 @@ void DEATH_TRACE(TraceLevel level, const char* functionName, const char* message
 	switch (level) {
 		case TraceLevel::Debug:
 		case TraceLevel::Deferred:
-		case TraceLevel::Info:		return;
-		case TraceLevel::Warning:	prefix = "[WARN] "; break;
-		case TraceLevel::Error:		prefix = "[ERROR] "; break;
-		case TraceLevel::Assert:	prefix = "[ASSERT] "; break;
-		case TraceLevel::Fatal:		prefix = "[FATAL] "; break;
-		default:					prefix = ""; break;
+		case TraceLevel::Info:
+			return;
+		case TraceLevel::Warning:
+			prefix = "[WARN] ";
+			break;
+		case TraceLevel::Error:
+			prefix = "[ERROR] ";
+			break;
+		case TraceLevel::Assert:
+			prefix = "[ASSERT] ";
+			break;
+		case TraceLevel::Fatal:
+			prefix = "[FATAL] ";
+			break;
+		default:
+			prefix = "";
+			break;
 	}
 
 	std::fputs(prefix, stderr);

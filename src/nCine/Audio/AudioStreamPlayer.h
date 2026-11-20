@@ -29,38 +29,47 @@ namespace nCine
 		/** @brief Loads the stream from the specified file */
 		bool LoadFromFile(const char* filename);
 
-		inline std::uint32_t GetBufferId() const override {
+		inline std::uint32_t GetBufferId() const override
+		{
 			return _audioStream.GetBufferId();
 		}
 
-		inline std::int32_t GetBytesPerSample() const override {
+		inline std::int32_t GetBytesPerSample() const override
+		{
 			return _audioStream.GetBytesPerSample();
 		}
-		inline std::int32_t GetChannelCount() const override {
+		inline std::int32_t GetChannelCount() const override
+		{
 			return _audioStream.GetChannelCount();
 		}
-		inline std::int32_t GetFrequency() const override {
+		inline std::int32_t GetFrequency() const override
+		{
 			return _audioStream.GetFrequency();
 		}
 
-		inline std::int32_t GetSampleCount() const override {
+		inline std::int32_t GetSampleCount() const override
+		{
 			return _audioStream.GetSampleCount();
 		}
-		inline float GetDuration() const override {
+		inline float GetDuration() const override
+		{
 			return _audioStream.GetDuration();
 		}
 
-		inline std::int32_t GetBufferSize() const override {
+		inline std::int32_t GetBufferSize() const override
+		{
 			return _audioStream.GetBufferSize();
 		}
 
 #if !defined(NCINE_HAS_NATIVE_AUDIO) || defined(DOXYGEN_GENERATING_OUTPUT)
 		/** @brief Returns the number of samples held by a single streaming buffer */
-		inline std::int32_t GetStreamSampleCount() const {
+		inline std::int32_t GetStreamSampleCount() const
+		{
 			return _audioStream.GetStreamSampleCount();
 		}
 		/** @brief Returns the size of a single streaming buffer in bytes */
-		inline std::int32_t GetStreamBufferSize() const {
+		inline std::int32_t GetStreamBufferSize() const
+		{
 			return _audioStream.GetStreamBufferSize();
 		}
 #endif
@@ -77,7 +86,8 @@ namespace nCine
 		 *
 		 * @partialsupport Not every decoder supports it, always returns `false` where `NCINE_HAS_NATIVE_AUDIO` is defined.
 		 */
-		inline bool GetModuleState(AudioModuleState& state) const {
+		inline bool GetModuleState(AudioModuleState& state) const
+		{
 			return _audioStream.GetModuleState(state);
 		}
 		/**
@@ -93,7 +103,8 @@ namespace nCine
 		 *
 		 * @partialsupport Not every decoder supports it, has no effect where `NCINE_HAS_NATIVE_AUDIO` is defined.
 		 */
-		inline bool SetModuleSpeed(std::int32_t speed) {
+		inline bool SetModuleSpeed(std::int32_t speed)
+		{
 			return _audioStream.SetModuleSpeed(speed);
 		}
 		/**
@@ -101,7 +112,8 @@ namespace nCine
 		 *
 		 * @partialsupport Not every decoder supports it, has no effect where `NCINE_HAS_NATIVE_AUDIO` is defined.
 		 */
-		inline bool SetModuleTempo(std::int32_t tempo) {
+		inline bool SetModuleTempo(std::int32_t tempo)
+		{
 			return _audioStream.SetModuleTempo(tempo);
 		}
 		/**
@@ -109,12 +121,14 @@ namespace nCine
 		 *
 		 * @partialsupport Not every decoder supports it, has no effect where `NCINE_HAS_NATIVE_AUDIO` is defined.
 		 */
-		inline bool SlideModuleChannelVolume(std::int32_t channel, float volume, std::int32_t milliseconds) {
+		inline bool SlideModuleChannelVolume(std::int32_t channel, float volume, std::int32_t milliseconds)
+		{
 			return _audioStream.SlideModuleChannelVolume(channel, volume, milliseconds);
 		}
 
 		/** @brief Returns the static object type of this class */
-		inline static ObjectType sType() {
+		inline static ObjectType sType()
+		{
 			return ObjectType::AudioStreamPlayer;
 		}
 

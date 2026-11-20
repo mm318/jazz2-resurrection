@@ -295,7 +295,7 @@ namespace Jazz2::Editor
 			for (const RuleTile& tile : terrain.ByPattern[pattern]) {
 				if (tile.TileSet.empty()) {
 					// A tile past the end of the tile set would be saved as another tile, it's kept but not used
-					TileRef ref{ tile.Index, TileRef::DefaultTileSet, tile.Flags };
+					TileRef ref { tile.Index, TileRef::DefaultTileSet, tile.Flags };
 					if (_document == nullptr || StampClipboard::HasTile(*_document, ref)) {
 						terrain.Resolved[pattern].push_back(ref);
 					}
@@ -309,7 +309,7 @@ namespace Jazz2::Editor
 					const Formats::ExtraTileSetRecord& record = _document->ExtraTileSets[slot];
 					if ((record.Flags & Formats::ExtraTileSetRecord::Embedded) == 0 && StringUtils::lowercase(record.Name) == StringUtils::lowercase(tile.TileSet) &&
 						tile.Index >= record.Offset && tile.Index < record.Offset + record.Count) {
-						terrain.Resolved[pattern].push_back(TileRef{ std::uint16_t(tile.Index - record.Offset), std::uint8_t(slot + 1), tile.Flags });
+						terrain.Resolved[pattern].push_back(TileRef { std::uint16_t(tile.Index - record.Offset), std::uint8_t(slot + 1), tile.Flags });
 						break;
 					}
 				}
@@ -374,11 +374,11 @@ namespace Jazz2::Editor
 		for (const TileRef& tile : tiles) {
 			if (tile.Source == TileRef::DefaultTileSet) {
 				if (!tile.IsEmpty() && (tile.Flags & Formats::TileRecord::ModifierMask) == 0) {
-					list.push_back(RuleTile{ String(), tile.Index, std::uint8_t(tile.Flags & 0x03) });
+					list.push_back(RuleTile { String(), tile.Index, std::uint8_t(tile.Flags & 0x03) });
 				}
 			} else if (_document != nullptr && IsRuleTile(*_document, tile)) {
 				const Formats::ExtraTileSetRecord& record = _document->ExtraTileSets[tile.Source - 1];
-				list.push_back(RuleTile{ record.Name, std::uint16_t(tile.Index + record.Offset), std::uint8_t(tile.Flags & 0x03) });
+				list.push_back(RuleTile { record.Name, std::uint16_t(tile.Index + record.Offset), std::uint8_t(tile.Flags & 0x03) });
 			}
 		}
 		ResolveTerrain(terrain);
@@ -411,13 +411,17 @@ namespace Jazz2::Editor
 
 	const TerrainRules::SlopeTag* TerrainRules::FindSlope(std::uint16_t index) const
 	{
-		auto it = std::lower_bound(_slopes.begin(), _slopes.end(), index, [](const auto& item, std::uint16_t value) { return item.first < value; });
+		auto it = std::lower_bound(_slopes.begin(), _slopes.end(), index, [](const auto& item, std::uint16_t value) {
+			return item.first < value;
+		});
 		return (it != _slopes.end() && it->first == index ? &it->second : nullptr);
 	}
 
 	void TerrainRules::SetSlope(std::uint16_t index, const SlopeTag* tag)
 	{
-		auto it = std::lower_bound(_slopes.begin(), _slopes.end(), index, [](const auto& item, std::uint16_t value) { return item.first < value; });
+		auto it = std::lower_bound(_slopes.begin(), _slopes.end(), index, [](const auto& item, std::uint16_t value) {
+			return item.first < value;
+		});
 		bool exists = (it != _slopes.end() && it->first == index);
 		if (tag == nullptr) {
 			if (exists) {

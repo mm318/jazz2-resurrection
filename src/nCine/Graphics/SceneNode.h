@@ -58,26 +58,31 @@ namespace nCine
 		SceneNode& operator=(SceneNode&& other) noexcept;
 
 		/** @brief Returns a copy of this object */
-		inline SceneNode Clone() const {
+		inline SceneNode Clone() const
+		{
 			return SceneNode(*this);
 		}
 
-		inline static ObjectType sType() {
+		inline static ObjectType sType()
+		{
 			return ObjectType::SceneNode;
 		}
 
 		/** @brief Returns the parent node as constant, or `nullptr` if there is none */
-		inline const SceneNode* GetParent() const {
+		inline const SceneNode* GetParent() const
+		{
 			return _parent;
 		}
 		/** @brief Returns the parent node, or `nullptr` if there is none */
-		inline SceneNode* GetParent() {
+		inline SceneNode* GetParent()
+		{
 			return _parent;
 		}
 		/** @brief Sets the parent node */
 		bool SetParent(SceneNode* parentNode);
 		/** @brief Returns the array of child nodes */
-		inline const SmallVectorImpl<SceneNode*>& GetChildren() {
+		inline const SmallVectorImpl<SceneNode*>& GetChildren()
+		{
 			return _children;
 		}
 		/** @brief Returns the array of child nodes as constant */
@@ -103,15 +108,18 @@ namespace nCine
 		bool SwapNodeBack();
 
 		/** @brief Returns the node visit order state */
-		inline enum VisitOrderState GetVisitOrderState() const {
+		inline enum VisitOrderState GetVisitOrderState() const
+		{
 			return _visitOrderState;
 		}
 		/** @brief Sets the node visit order state */
-		inline void SetVisitOrderState(enum VisitOrderState visitOrderState) {
+		inline void SetVisitOrderState(enum VisitOrderState visitOrderState)
+		{
 			_visitOrderState = visitOrderState;
 		}
 		/** @brief Returns the visit drawing order index of the node */
-		inline std::uint16_t GetVisitOrderIndex() const {
+		inline std::uint16_t GetVisitOrderIndex() const
+		{
 			return _visitOrderIndex;
 		}
 
@@ -120,39 +128,47 @@ namespace nCine
 		/** @brief Updates the absolute transform, draws the node and visits its children */
 		virtual void OnVisit(RenderQueue& renderQueue, std::uint32_t& visitOrderIndex);
 		/** @brief Called when the node needs to be drawn, returning `true` if a command was added */
-		virtual bool OnDraw(RenderQueue& renderQueue) {
+		virtual bool OnDraw(RenderQueue& renderQueue)
+		{
 			return false;
 		}
 
 		/** @brief Returns `true` if node updating is enabled */
-		inline bool IsUpdateEnabled() const {
+		inline bool IsUpdateEnabled() const
+		{
 			return _updateEnabled;
 		}
 		/** @brief Enables or disables node updating */
-		inline void SetUpdateEnabled(bool updateEnabled) {
+		inline void SetUpdateEnabled(bool updateEnabled)
+		{
 			_updateEnabled = updateEnabled;
 		}
 		/** @brief Returns `true` if node drawing is enabled */
-		inline bool IsDrawEnabled() const {
+		inline bool IsDrawEnabled() const
+		{
 			return _drawEnabled;
 		}
 		/** @brief Enables or disables node drawing */
-		inline void SetDrawEnabled(bool drawEnabled) {
+		inline void SetDrawEnabled(bool drawEnabled)
+		{
 			_drawEnabled = drawEnabled;
 		}
 		/** @brief Returns `true` if the node is both updating and drawing */
-		inline bool IsEnabled() const {
+		inline bool IsEnabled() const
+		{
 			return (_updateEnabled == true && _drawEnabled == true);
 		}
 		/** @brief Enables or disables both node updating and drawing */
 		void SetEnabled(bool isEnabled);
 
 		/** @brief Returns the node position relative to its parent */
-		inline Vector2f GetPosition() const {
+		inline Vector2f GetPosition() const
+		{
 			return _position;
 		}
 		/** @brief Returns the absolute node position */
-		inline Vector2f GetAbsPosition() const {
+		inline Vector2f GetAbsPosition() const
+		{
 			return _absPosition;
 		}
 		/** @brief Sets the node position through two coordinates */
@@ -173,7 +189,8 @@ namespace nCine
 		void MoveY(float y);
 
 		/** @brief Returns the transformation anchor point in pixels */
-		inline Vector2f GetAbsAnchorPoint() const {
+		inline Vector2f GetAbsAnchorPoint() const
+		{
 			return _anchorPoint;
 		}
 		/** @brief Sets the transformation anchor point in pixels through two coordinates */
@@ -182,11 +199,13 @@ namespace nCine
 		void SetAbsAnchorPoint(Vector2f point);
 
 		/** @brief Returns the node scale factors */
-		inline const Vector2f& GetScale() const {
+		inline const Vector2f& GetScale() const
+		{
 			return _scaleFactor;
 		}
 		/** @brief Returns the absolute node scale factors */
-		inline const Vector2f& GetAbsScale() const {
+		inline const Vector2f& GetAbsScale() const
+		{
 			return _absScaleFactor;
 		}
 		/** @brief Sets a uniform scale factor for both axes */
@@ -197,22 +216,26 @@ namespace nCine
 		void SetScale(Vector2f scaleFactor);
 
 		/** @brief Returns the node rotation in radians */
-		inline float GetRotation() const {
+		inline float GetRotation() const
+		{
 			return _rotation;
 		}
 		/** @brief Returns the absolute node rotation in radians */
-		inline float GetAbsRotation() const {
+		inline float GetAbsRotation() const
+		{
 			return _absRotation;
 		}
 		/** @brief Sets the node rotation in radians */
 		void SetRotation(float rotation);
 
 		/** @brief Returns the node color */
-		inline Colorf GetColor() const {
+		inline Colorf GetColor() const
+		{
 			return _color;
 		}
 		/** @brief Returns the absolute node color */
-		inline Colorf GetAbsColor() const {
+		inline Colorf GetAbsColor() const
+		{
 			return _absColor;
 		}
 		/** @brief Sets the node color through a `Color` object */
@@ -220,11 +243,13 @@ namespace nCine
 		/** @brief Sets the node color through a `Colorf` object */
 		void SetColor(const Colorf& color);
 		/** @brief Returns the node alpha */
-		inline float GetAlpha() const {
+		inline float GetAlpha() const
+		{
 			return _color.A;
 		}
 		/** @brief Returns the absolute node alpha */
-		inline float GetAbsAlpha() const {
+		inline float GetAbsAlpha() const
+		{
 			return _absColor.A;
 		}
 		/** @brief Sets the node alpha through an unsigned char component */
@@ -233,7 +258,8 @@ namespace nCine
 		void SetAlphaF(float alpha);
 
 		/** @brief Returns the node rendering layer */
-		inline std::uint16_t GetLayer() const {
+		inline std::uint16_t GetLayer() const
+		{
 			return _layer;
 		}
 		/**
@@ -241,7 +267,8 @@ namespace nCine
 		 *
 		 * @note The final layer value is inherited from the parent when the node layer is 0.
 		 */
-		inline std::uint16_t GetAbsLayer() const {
+		inline std::uint16_t GetAbsLayer() const
+		{
 			return _absLayer;
 		}
 		/**
@@ -250,19 +277,22 @@ namespace nCine
 		 * @note The lowest value (bottom) is 0 and the highest one (top) is 65535. When the value
 		 * is 0, the final layer value is inherited from the parent.
 		 */
-		void SetLayer(std::uint16_t layer) {
+		void SetLayer(std::uint16_t layer)
+		{
 			_layer = layer;
 		}
 
 		/** @brief Returns the node world matrix */
-		inline const Matrix4x4f& GetWorldMatrix() const {
+		inline const Matrix4x4f& GetWorldMatrix() const
+		{
 			return _worldMatrix;
 		}
 		/** @brief Sets the node world matrix (only useful when called inside `OnPostUpdate()`) */
 		void SetWorldMatrix(const Matrix4x4f& worldMatrix);
 
 		/** @brief Returns the node local matrix */
-		inline const Matrix4x4f& GetLocalMatrix() const {
+		inline const Matrix4x4f& GetLocalMatrix() const
+		{
 			return _localMatrix;
 		}
 		/** @brief Sets the node local matrix */
@@ -273,16 +303,19 @@ namespace nCine
 		 *
 		 * When the flag is `true` the children are deleted upon node destruction.
 		 */
-		inline bool DeleteChildrenOnDestruction() const {
+		inline bool DeleteChildrenOnDestruction() const
+		{
 			return _shouldDeleteChildrenOnDestruction;
 		}
 		/** @brief Sets the delete children on destruction flag */
-		inline void SetDeleteChildrenOnDestruction(bool shouldDeleteChildrenOnDestruction) {
+		inline void SetDeleteChildrenOnDestruction(bool shouldDeleteChildrenOnDestruction)
+		{
 			_shouldDeleteChildrenOnDestruction = shouldDeleteChildrenOnDestruction;
 		}
 
 		/** @brief Returns the last frame in which any viewport updated this node */
-		inline std::uint32_t GetLastFrameUpdated() const {
+		inline std::uint32_t GetLastFrameUpdated() const
+		{
 			return _lastFrameUpdated;
 		}
 

@@ -39,7 +39,8 @@ namespace Jazz2::Multiplayer
 		every game mode and in race modes also by progress-based position ranking. Either authored in the level
 		(JJ2+ Text waypoints) or auto-generated from level geometry.
 	*/
-	struct RaceCheckpoint {
+	struct RaceCheckpoint
+	{
 		/** @brief Tile coordinates (multiply by @ref Tiles::TileSet::DefaultTileSize for world pixels) */
 		Vector2i Tile;
 		/** @brief Ordering index along the track (raw JJ2+ TextID, or 0, 1, 2, ... when auto-generated) */
@@ -51,14 +52,17 @@ namespace Jazz2::Multiplayer
 	/**
 		@brief Spawn point in a multiplayer level
 	*/
-	struct MultiplayerSpawnPoint {
+	struct MultiplayerSpawnPoint
+	{
 		/** @brief Position */
 		Vector2f Pos;
 		/** @brief Team ID the spawn point belongs to */
 		std::uint8_t Team;
 
 		MultiplayerSpawnPoint(Vector2f pos, std::uint8_t team)
-			: Pos(pos), Team(team) {}
+			: Pos(pos), Team(team)
+		{
+		}
 	};
 
 	/**
@@ -90,26 +94,28 @@ namespace Jazz2::Multiplayer
 
 	public:
 		/** @brief Level state */
-		enum class LevelState {
-			Unknown,				/**< Unknown */
-			InitialUpdatePending,	/**< Level was just created and initial update needs to be sent */
-			PreGame,				/**< Pre-game is active */
-			WaitingForMinPlayers,	/**< Pre-game ended, but not enough players connected yet */
-			Countdown3,				/**< Countdown started (3) */
-			Countdown2,				/**< Countdown continues (2) */
-			Countdown1,				/**< Countdown continues (1) */
-			Running,				/**< Round started */
-			Ending,					/**< Round is ending */
-			Ended					/**< Round ended */
+		enum class LevelState
+		{
+			Unknown, /**< Unknown */
+			InitialUpdatePending, /**< Level was just created and initial update needs to be sent */
+			PreGame, /**< Pre-game is active */
+			WaitingForMinPlayers, /**< Pre-game ended, but not enough players connected yet */
+			Countdown3, /**< Countdown started (3) */
+			Countdown2, /**< Countdown continues (2) */
+			Countdown1, /**< Countdown continues (1) */
+			Running, /**< Round started */
+			Ending, /**< Round is ending */
+			Ended /**< Round ended */
 		};
 
 		/** @brief Asset type */
-		enum class AssetType {
-			Unknown,	/**< Unknown */
-			Level,		/**< Level */
-			TileSet,	/**< Tile set */
-			Music,		/**< Music */
-			Script		/**< Script */
+		enum class AssetType
+		{
+			Unknown, /**< Unknown */
+			Level, /**< Level */
+			TileSet, /**< Tile set */
+			Music, /**< Music */
+			Script /**< Script */
 		};
 
 		/**
@@ -247,10 +253,12 @@ namespace Jazz2::Multiplayer
 		void SetPlayerOut(Actors::Player* player, bool out) override;
 
 		/** @brief Returns the score of the team as the HUD shows it, on clients as last synchronized */
-		std::uint32_t GetSyncedTeamScore(std::uint8_t team) const {
+		std::uint32_t GetSyncedTeamScore(std::uint8_t team) const
+		{
 			return (team < _teamScores.size() ? _teamScores[team] : 0);
 		}
-		bool GetSyncedTeamExtra(std::uint8_t team, std::uint32_t& value) const override {
+		bool GetSyncedTeamExtra(std::uint8_t team, std::uint32_t& value) const override
+		{
 			if (team >= _teamExtras.size() || _teamExtras[team] < 0) {
 				return false;
 			}
@@ -270,7 +278,8 @@ namespace Jazz2::Multiplayer
 		/** @brief Returns the number of laps required to finish a race (Race/TeamRace) */
 		std::uint32_t GetTotalLaps() const;
 		/** @brief Returns the current round state (synced to clients) */
-		LevelState GetLevelState() const {
+		LevelState GetLevelState() const
+		{
 			return _levelState;
 		}
 		/** @brief Sets current game mode */
@@ -282,37 +291,41 @@ namespace Jazz2::Multiplayer
 		void RequestChangeTeam(std::uint8_t team);
 
 		/** @brief Single row of the multiplayer scoreboard */
-		struct PlayerScore {
+		struct PlayerScore
+		{
 			String Name;
 			std::uint8_t Team;
 			std::uint32_t Kills;
 			std::uint32_t Deaths;
 			std::uint32_t Points;
-			std::uint32_t Extra;	// Laps (Race), treasure (Treasure Hunt) or captures (CTF), 0 otherwise
-			std::int32_t PingMs;	// Round-trip time in ms, -1 if unknown (e.g., the local/host player)
+			std::uint32_t Extra; // Laps (Race), treasure (Treasure Hunt) or captures (CTF), 0 otherwise
+			std::int32_t PingMs; // Round-trip time in ms, -1 if unknown (e.g., the local/host player)
 			bool IsLocal;
 		};
 
 		/** @brief Returns the current scoreboard rows (built on the server and synced to clients) */
-		const SmallVector<PlayerScore, 0>& GetScoreboard() const {
+		const SmallVector<PlayerScore, 0>& GetScoreboard() const
+		{
 			return _scoreboard;
 		}
 
 		/** @brief Single row of the final round standings */
-		struct RoundResult {
+		struct RoundResult
+		{
 			String Name;
-			std::uint32_t ActorID;		// Player index, used to highlight the local player on clients
-			std::uint32_t Position;		// 1-based final position
-			std::uint32_t Score;		// Kills, laps or treasure, depending on the game mode
-			std::uint32_t Extra;		// Deaths, 0 in race modes
-			float TimeSecs;				// Total race time of a player that finished a race, 0 otherwise
-			bool Finished;				// Race modes: whether all required laps were completed before the round ended
+			std::uint32_t ActorID; // Player index, used to highlight the local player on clients
+			std::uint32_t Position; // 1-based final position
+			std::uint32_t Score; // Kills, laps or treasure, depending on the game mode
+			std::uint32_t Extra; // Deaths, 0 in race modes
+			float TimeSecs; // Total race time of a player that finished a race, 0 otherwise
+			bool Finished; // Race modes: whether all required laps were completed before the round ended
 			bool IsLocal;
 			std::uint8_t Team;
 		};
 
 		/** @brief Returns the final round standings shown while the round is ending (empty in Cooperation) */
-		const SmallVector<RoundResult, 0>& GetRoundResults() const {
+		const SmallVector<RoundResult, 0>& GetRoundResults() const
+		{
 			return _roundResults;
 		}
 
@@ -351,7 +364,8 @@ namespace Jazz2::Multiplayer
 		static constexpr std::uint32_t SpectateFreeCamera = UINT32_MAX;
 
 		/** @brief Returns the actor ID of the player the local spectator follows, or @ref SpectateFreeCamera */
-		std::uint32_t GetSpectateFollowActorId() const {
+		std::uint32_t GetSpectateFollowActorId() const
+		{
 			return _spectateFollowActorId;
 		}
 		/** @brief Returns the name of the player the local spectator follows, or an empty view when free-flying */
@@ -396,7 +410,8 @@ namespace Jazz2::Multiplayer
 		std::shared_ptr<Actors::Player> CreateResumablePlayer(std::int32_t index) override;
 		void PrepareNextLevelInitialization(LevelInitialization& levelInit) override;
 		// Multiplayer sessions keep their own rollback, actors of remote peers cannot be resurrected locally
-		bool CanUseLevelStateSnapshots() const override {
+		bool CanUseLevelStateSnapshots() const override
+		{
 			return false;
 		}
 		bool IsCheatingAllowed(Actors::Player* player) override;
@@ -485,16 +500,18 @@ namespace Jazz2::Multiplayer
 	private:
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
-		struct RemotingActorInfo {
+		struct RemotingActorInfo
+		{
 			std::uint32_t ActorID;
-			bool IsMirrored;			// Whether clients recreate the actor from the event map instead (see ActorShouldBeMirrored())
+			bool IsMirrored; // Whether clients recreate the actor from the event map instead (see ActorShouldBeMirrored())
 		};
 
 		// Server: what a peer knows about a remoted actor or a player, see SendActorUpdates()
-		struct ReplicatedActorState {
-			bool IsKnown = true;		// Creation of an actor far from the peer is deferred until it gets close
-			bool IsRelevant = true;		// Otherwise the peer's copy is hidden and parked out of the level
-			bool HasState = false;		// Whether the values below were sent, otherwise everything is
+		struct ReplicatedActorState
+		{
+			bool IsKnown = true; // Creation of an actor far from the peer is deferred until it gets close
+			bool IsRelevant = true; // Otherwise the peer's copy is hidden and parked out of the level
+			bool HasState = false; // Whether the values below were sent, otherwise everything is
 			std::uint8_t LastFlags = 0;
 			std::int32_t LastPosX = 0;
 			std::int32_t LastPosY = 0;
@@ -506,67 +523,76 @@ namespace Jazz2::Multiplayer
 			SmallVector<std::uint8_t, 0> LastLights;
 		};
 
-		struct PeerReplication {
+		struct PeerReplication
+		{
 			HashMap<std::uint32_t, ReplicatedActorState> Actors;
-			std::uint32_t LastUpdated = 0;	// Value of _lastUpdated the peer was last sent, a peer that's gone is dropped
+			std::uint32_t LastUpdated = 0; // Value of _lastUpdated the peer was last sent, a peer that's gone is dropped
 		};
 
-		struct ReplicationPeer {
+		struct ReplicationPeer
+		{
 			Peer RemotePeer;
-			Actors::Multiplayer::MpPlayer* Player;	// Its position is the center of what's relevant to the peer
+			Actors::Multiplayer::MpPlayer* Player; // Its position is the center of what's relevant to the peer
 			bool IsSpectating;
 		};
 
-		struct PlayerName {
+		struct PlayerName
+		{
 			String Name;
 			std::uint32_t FurColor;
 			std::uint8_t Flags;
 			std::uint8_t Team;
-			bool IsSpectating;		// Synced separately (PlayerPropertyType::Spectate), spectators are not drawn or followed
-			std::uint8_t ModeFlags;	// Synced separately (PlayerPropertyType::ModeState), see GameModes::PlayerModeFlags
+			bool IsSpectating; // Synced separately (PlayerPropertyType::Spectate), spectators are not drawn or followed
+			std::uint8_t ModeFlags; // Synced separately (PlayerPropertyType::ModeState), see GameModes::PlayerModeFlags
 		};
 
 		// Server + Client: local actor showing a GameModeObject, see UpdateGameModeObjectVisuals()
-		struct GameModeObjectVisual {
+		struct GameModeObjectVisual
+		{
 			std::uint32_t Id;
 			GameModes::GameModeObjectType Type;
 			std::shared_ptr<Actors::ActorBase> Actor;
 		};
 
-		struct PlayerPositionInRound {
+		struct PlayerPositionInRound
+		{
 			std::uint32_t ActorID;
 			std::uint32_t PositionInRound;
 			std::uint32_t PointsInRound;
 		};
 
-		enum class CtfFlagState : std::uint8_t {
-			AtBase,		// Resting on its home base
-			Carried,	// Being carried by an enemy player (CarrierPlayerIndex)
-			Dropped		// Lying at DropPos after the carrier was killed/left
+		enum class CtfFlagState : std::uint8_t
+		{
+			AtBase, // Resting on its home base
+			Carried, // Being carried by an enemy player (CarrierPlayerIndex)
+			Dropped // Lying at DropPos after the carrier was killed/left
 		};
 
-		struct CtfFlag {
+		struct CtfFlag
+		{
 			std::uint8_t Team;
 			Vector2f BasePos;
 			Vector2f DropPos;
 			CtfFlagState State;
 			std::uint32_t CarrierPlayerIndex;
-			std::shared_ptr<Actors::ActorBase> Actor;		// Server: local visual flag actor (host view; not remoted)
-			std::shared_ptr<Actors::ActorBase> BaseActor;	// Server: local visual base structure (host view; not remoted)
+			std::shared_ptr<Actors::ActorBase> Actor; // Server: local visual flag actor (host view; not remoted)
+			std::shared_ptr<Actors::ActorBase> BaseActor; // Server: local visual base structure (host view; not remoted)
 		};
 
 		// Client: per-team flag info mirrored from the server. The flag/base are rendered as client-local actors
 		// (not remoted) driven by this state, so they don't depend on actor remoting/id reuse.
-		struct CtfClientFlag {
+		struct CtfClientFlag
+		{
 			std::uint8_t State;
 			Vector2f BasePos;
 			Vector2f DropPos;
-			std::uint32_t CarrierActorId;	// Valid when State == Carried (player index = remote actor id)
-			std::shared_ptr<Actors::ActorBase> FlagActor;	// Client-local visual flag
-			std::shared_ptr<Actors::ActorBase> BaseActor;	// Client-local visual base
+			std::uint32_t CarrierActorId; // Valid when State == Carried (player index = remote actor id)
+			std::shared_ptr<Actors::ActorBase> FlagActor; // Client-local visual flag
+			std::shared_ptr<Actors::ActorBase> BaseActor; // Client-local visual base
 		};
 
-		struct PendingSfx {
+		struct PendingSfx
+		{
 			Actors::ActorBase* Actor;
 			String Identifier;
 			std::uint16_t Gain;
@@ -574,21 +600,25 @@ namespace Jazz2::Multiplayer
 			SfxFlags Flags;
 
 			PendingSfx(Actors::ActorBase* actor, String identifier, std::uint16_t gain, std::uint16_t pitch, SfxFlags flags)
-				: Actor(actor), Identifier(Death::move(identifier)), Gain(gain), Pitch(pitch), Flags(flags) {}
+				: Actor(actor), Identifier(Death::move(identifier)), Gain(gain), Pitch(pitch), Flags(flags)
+			{
+			}
 		};
 
 #if defined(WITH_AUDIO)
 		// Client: a sound the server played with SfxFlags::Exclusive, at most one per actor and identifier. Kept so
 		// the next one can replace it and the server can stop it, and moved with its actor while it plays. Held
 		// here rather than by the actor, because the owner's own player receives some of these too (weapons).
-		struct TrackedSfx {
+		struct TrackedSfx
+		{
 			std::uint32_t ActorId;
 			String Identifier;
 			std::shared_ptr<AudioBufferPlayer> Player;
 		};
 #endif
 
-		struct RequiredAsset {
+		struct RequiredAsset
+		{
 			AssetType Type;
 			std::uint32_t Crc32;
 			String Path;
@@ -596,10 +626,13 @@ namespace Jazz2::Multiplayer
 			std::int64_t Size;
 
 			RequiredAsset(AssetType type, StringView path, StringView fullPath, std::int64_t size, std::uint32_t crc32)
-				: Type(type), Crc32(crc32), FullPath(fullPath), Path(path), Size(size) {}
+				: Type(type), Crc32(crc32), FullPath(fullPath), Path(path), Size(size)
+			{
+			}
 		};
 
-		enum class VoteType : std::uint8_t {
+		enum class VoteType : std::uint8_t
+		{
 			None,
 			Restart,
 			ResetPoints,
@@ -619,7 +652,7 @@ namespace Jazz2::Multiplayer
 		// are recalculated several times per second (the projection itself is cheap)
 		static constexpr float RecalcPositionInRoundInterval = FrameTimer::FramesPerSecond / 4.0f;
 		static constexpr float TeamSwitchCooldownFrames = 5.0f * FrameTimer::FramesPerSecond;
-		static constexpr float CtfTouchRadius = 40.0f;	// Pixel radius for picking up / returning / capturing flags
+		static constexpr float CtfTouchRadius = 40.0f; // Pixel radius for picking up / returning / capturing flags
 		// A connected peer that doesn't authenticate in this time is kicked - a genuine client does it right away
 		static constexpr std::int32_t AuthTimeoutSecs = 20;
 		// Set in the flags of PlayerPropertyType::OverrideCameraView when they carry the modes of the axes and whether it's
@@ -629,16 +662,16 @@ namespace Jazz2::Multiplayer
 		// Anti-cheat escalation, see AntiCheatState - a violation adds 0.5-4 points to the suspicion, which decays by
 		// AntiCheatDecayPerSec, so an honest player's occasional desync never comes close to the thresholds
 		static constexpr float AntiCheatDecayPerSec = 0.1f;
-		static constexpr float AntiCheatNotifyThreshold = 5.0f;		// Server console and admins are notified
-		static constexpr float AntiCheatKickThreshold = 12.0f;		// The player is kicked, if the evidence is also sustained:
-		static constexpr std::uint32_t AntiCheatKickMinViolations = 5;	// - at least this many violations in the incident
-		static constexpr std::uint64_t AntiCheatKickMinIncidentMs = 10000;	// - spread over at least this time
+		static constexpr float AntiCheatNotifyThreshold = 5.0f; // Server console and admins are notified
+		static constexpr float AntiCheatKickThreshold = 12.0f; // The player is kicked, if the evidence is also sustained:
+		static constexpr std::uint32_t AntiCheatKickMinViolations = 5; // - at least this many violations in the incident
+		static constexpr std::uint64_t AntiCheatKickMinIncidentMs = 10000; // - spread over at least this time
 		static constexpr std::uint64_t AntiCheatNotifyIntervalMs = 30000;
-		static constexpr float AntiCheatBurstSecs = 1.5f;			// How much unused movement budget can be accumulated
-		static constexpr float AntiCheatMaxUncorrectedExcess = 128.0f;	// An excess up to this is tolerated without a snap back
-		static constexpr float AntiCheatWarpTargetDistance = 96.0f;	// How far from a warp target a client may already be
+		static constexpr float AntiCheatBurstSecs = 1.5f; // How much unused movement budget can be accumulated
+		static constexpr float AntiCheatMaxUncorrectedExcess = 128.0f; // An excess up to this is tolerated without a snap back
+		static constexpr float AntiCheatWarpTargetDistance = 96.0f; // How far from a warp target a client may already be
 		static constexpr std::uint64_t AntiCheatClockWindowMs = 10000;
-		static constexpr std::int64_t AntiCheatClockDriftToleranceMs = 1000;	// Per window, i.e. a client clock 10% faster
+		static constexpr std::int64_t AntiCheatClockDriftToleranceMs = 1000; // Per window, i.e. a client clock 10% faster
 
 		// Half extents of the box around a peer's player that is relevant to it, well over the largest view (720x405)
 		// to cover latency and the camera look-ahead, and left only through the larger one, so nothing flickers on the edge
@@ -657,54 +690,54 @@ namespace Jazz2::Multiplayer
 		float _gameTimeLeft;
 		LevelState _levelState;
 		bool _isServer;
-		bool _isLocalSession;	// Local splitscreen session - there are no peers, so no packets are ever built
+		bool _isLocalSession; // Local splitscreen session - there are no peers, so no packets are ever built
 		bool _forceResyncPending;
 		bool _enableSpawning;
 		bool _enqueuedPlaylistChange; // Server: apply the next playlist entry once the end-of-level transition finishes
 		HashMap<std::uint32_t, std::shared_ptr<Actors::ActorBase>> _remoteActors; // Client: Actor ID -> Remote Actor created by server
 		HashMap<Actors::ActorBase*, RemotingActorInfo> _remotingActors; // Server: Local Actor created by server -> Info
-		HashMap<Peer, PeerReplication> _peerReplication;	// Server: per-peer relevance and the state last sent (main thread only)
-		SmallVector<Peer, 0> _forceResyncPeers;			// Server: peers that requested a full update (guarded by _lock)
+		HashMap<Peer, PeerReplication> _peerReplication; // Server: per-peer relevance and the state last sent (main thread only)
+		SmallVector<Peer, 0> _forceResyncPeers; // Server: peers that requested a full update (guarded by _lock)
 		HashMap<std::uint32_t, PlayerName> _playerNames; // Client: Actor ID -> Player name (and flags)
 		SmallVector<PlayerPositionInRound, 0> _positionsInRound; // Client: Actor ID -> Position In Round
-		SmallVector<std::uint32_t, 0> _teamScores;	// Server: computed each check; Client: mirrored for the HUD (index = team id)
-		SmallVector<std::int32_t, 0> _teamExtras;	// Server + Client: second number of each team the HUD shows, -1 for none
-		SmallVector<CtfFlag, 0> _ctfFlags;			// Server: one flag per team in Capture The Flag
-		std::uint32_t _ctfCaptures[MaxTeamCount];	// Server: per-team capture count (used as the team score in CTF)
-		std::uint32_t _teamKills[MaxTeamCount];		// Server: per-team kill count credited at kill time (team score in TeamBattle; independent of current membership so switching teams can't transfer a score)
+		SmallVector<std::uint32_t, 0> _teamScores; // Server: computed each check; Client: mirrored for the HUD (index = team id)
+		SmallVector<std::int32_t, 0> _teamExtras; // Server + Client: second number of each team the HUD shows, -1 for none
+		SmallVector<CtfFlag, 0> _ctfFlags; // Server: one flag per team in Capture The Flag
+		std::uint32_t _ctfCaptures[MaxTeamCount]; // Server: per-team capture count (used as the team score in CTF)
+		std::uint32_t _teamKills[MaxTeamCount]; // Server: per-team kill count credited at kill time (team score in TeamBattle; independent of current membership so switching teams can't transfer a score)
 		SmallVector<CtfClientFlag, 0> _ctfFlagStates; // Server + Client: per-team flag info for the HUD and carried-flag attachment
-		SmallVector<GameModes::GameModeObject, 0> _gameModeObjects;		// Server: owned by the game mode; Client: mirrored
-		SmallVector<GameModeObjectVisual, 0> _gameModeObjectVisuals;	// Server + Client: local actors showing _gameModeObjects
+		SmallVector<GameModes::GameModeObject, 0> _gameModeObjects; // Server: owned by the game mode; Client: mirrored
+		SmallVector<GameModeObjectVisual, 0> _gameModeObjectVisuals; // Server + Client: local actors showing _gameModeObjects
 		// Server: trigger zones of the bottom row of the level with special meaning, see ResolveSpecialTriggers()
 		SmallVector<std::uint8_t, 0> _clientOffTriggers;
 		std::uint32_t _lastGameModeObjectId;
-		std::uint32_t _overtimeScoreCap;			// Server + Client: score that wins the overtime, 0 if not capped
-		std::int16_t _teamTriggerId;				// -1 if none
-		std::int16_t _serverTriggerId;				// -1 if none
+		std::uint32_t _overtimeScoreCap; // Server + Client: score that wins the overtime, 0 if not capped
+		std::int16_t _teamTriggerId; // -1 if none
+		std::int16_t _serverTriggerId; // -1 if none
 		bool _teamTriggerOnForBlue;
 		bool _specialTriggersResolved;
-		bool _killingPlayer;						// Server: KillPlayer() is running, it's not a hazard
-		bool _silentKill;							// Server: the death isn't counted (a team change)
-		bool _modeOvertime;							// Server + Client: the round of a custom mode is in overtime
-		SmallVector<PlayerScore, 0> _scoreboard;	// Server: built periodically; Client: mirrored for the scoreboard
-		float _scoreboardSyncTime;					// Server: countdown until the next scoreboard broadcast
-		SmallVector<RoundResult, 0> _roundResults;	// Server: built when the round ends; Client: mirrored for the HUD
-		std::int32_t _activeBossHealth;				// Server: last broadcasted boss health (-1 forces a rebroadcast); Client: health synced from the server
-		std::int32_t _activeBossMaxHealth;			// Server: last broadcasted boss max health; Client: max health synced from the server (0 = no active boss)
+		bool _killingPlayer; // Server: KillPlayer() is running, it's not a hazard
+		bool _silentKill; // Server: the death isn't counted (a team change)
+		bool _modeOvertime; // Server + Client: the round of a custom mode is in overtime
+		SmallVector<PlayerScore, 0> _scoreboard; // Server: built periodically; Client: mirrored for the scoreboard
+		float _scoreboardSyncTime; // Server: countdown until the next scoreboard broadcast
+		SmallVector<RoundResult, 0> _roundResults; // Server: built when the round ends; Client: mirrored for the HUD
+		std::int32_t _activeBossHealth; // Server: last broadcasted boss health (-1 forces a rebroadcast); Client: health synced from the server
+		std::int32_t _activeBossMaxHealth; // Server: last broadcasted boss max health; Client: max health synced from the server (0 = no active boss)
 		SmallVector<MultiplayerSpawnPoint, 0> _multiplayerSpawnPoints;
-		SmallVector<Vector2i, 0> _raceCheckpoints;					// Unordered, used for race position ranking
-		SmallVector<RaceCheckpoint, 0> _orderedRaceCheckpoints;		// Ordered polyline for the minimap, and for the race ranking (server-built, synced to clients)
-		SmallVector<Vector2i, 0> _raceStartMarkers;					// Warp "Set Lap" tiles shown as start/finish on the minimap (synced to clients)
-		Vector2i _minimapBoundsMin;									// Minimap extent in tiles (covers the whole area players can reach; synced to clients)
+		SmallVector<Vector2i, 0> _raceCheckpoints; // Unordered, used for race position ranking
+		SmallVector<RaceCheckpoint, 0> _orderedRaceCheckpoints; // Ordered polyline for the minimap, and for the race ranking (server-built, synced to clients)
+		SmallVector<Vector2i, 0> _raceStartMarkers; // Warp "Set Lap" tiles shown as start/finish on the minimap (synced to clients)
+		Vector2i _minimapBoundsMin; // Minimap extent in tiles (covers the whole area players can reach; synced to clients)
 		Vector2i _minimapBoundsMax;
-		bool _raceCheckpointsOrdered;								// Whether _orderedRaceCheckpoints come from authored waypoints (trusted for progress-based ranking)
+		bool _raceCheckpointsOrdered; // Whether _orderedRaceCheckpoints come from authored waypoints (trusted for progress-based ranking)
 		SmallVector<PendingSfx, 0> _pendingSfx;
 #if defined(WITH_AUDIO)
 		SmallVector<TrackedSfx, 0> _trackedSfx;
 #endif
-		std::uint32_t _lastSpawnedActorId;	// Server: last assigned actor/player ID, Client: ID assigned by server
-		std::uint32_t _spectateFollowActorId;	// Local only: actor ID the local spectator follows, or SpectateFreeCamera
-		std::int32_t _waitingForPlayerCount;	// Client: number of players needed to start the game
+		std::uint32_t _lastSpawnedActorId; // Server: last assigned actor/player ID, Client: ID assigned by server
+		std::uint32_t _spectateFollowActorId; // Local only: actor ID the local spectator follows, or SpectateFreeCamera
+		std::int32_t _waitingForPlayerCount; // Client: number of players needed to start the game
 		std::uint32_t _lastUpdated; // Server/Client: last update from the server
 		std::uint64_t _seqNumWarped; // Client: set to _seqNum from HandlePlayerWarped() when warped
 		std::uint64_t _lastSentPressedActions; // Client: input state last sent in PlayerKeyPress
@@ -718,8 +751,8 @@ namespace Jazz2::Multiplayer
 		float _recalcPositionInRoundTime;
 		float _overtimeTimeLeft;
 		bool _overtimeStarted;
-		std::uint32_t _raceFinishedCount;	// Server: number of players that completed all laps in the current round
-		float _roundStartedFrames;			// Server: _elapsedFrames when the round switched to LevelState::Running
+		std::uint32_t _raceFinishedCount; // Server: number of players that completed all laps in the current round
+		float _roundStartedFrames; // Server: _elapsedFrames when the round switched to LevelState::Running
 		std::int32_t _limitCameraLeft;
 		std::int32_t _limitCameraWidth;
 		Vector2f _lastCheckpointPos;
@@ -881,7 +914,8 @@ namespace Jazz2::Multiplayer
 		void EndActivePoll();
 
 		/** @brief Kind of anti-cheat violation */
-		enum class CheatViolation : std::uint8_t {
+		enum class CheatViolation : std::uint8_t
+		{
 			ImplausibleSpeed,
 			ImplausibleMovement,
 			ClockSpeedup,
@@ -987,7 +1021,7 @@ namespace Jazz2::Multiplayer
 
 #if defined(DEATH_DEBUG) && defined(WITH_IMGUI)
 		static constexpr std::int32_t PlotValueCount = 512;
-		
+
 		std::int32_t _plotIndex;
 		float _actorsMaxCount;
 		float _actorsCount[PlotValueCount];

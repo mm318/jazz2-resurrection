@@ -415,8 +415,8 @@ namespace Jazz2::UI::Menu
 
 	ScrollView::ScrollView()
 		: _scrollY(0.0f), _contentHeight(0.0f), _availableHeight(0.0f), _bandTop(0.0f), _touchStart(Vector2f::Zero),
-			_touchLast(Vector2f::Zero), _touchTime(0.0f), _touchSpeed(0.0f), _touchDirection(0), _scrollable(false),
-			_ensureVisibleRequested(false)
+		  _touchLast(Vector2f::Zero), _touchTime(0.0f), _touchSpeed(0.0f), _touchDirection(0), _scrollable(false),
+		  _ensureVisibleRequested(false)
 	{
 	}
 
@@ -735,14 +735,14 @@ namespace Jazz2::UI::Menu
 
 		root->DrawMenuListItem(charOffset, Label, centerX, y, Selected, Animation.Raw(), ReadOnly);
 
-		String displayText = (_active ? String(_buffer.GetText()) : (Value ? Value() : String{}));
+		String displayText = (_active ? String(_buffer.GetText()) : (Value ? Value() : String {}));
 		bool showIcon = (ShowIcon && ShowIcon());
 
 		Vector2f textSize = root->MeasureString(displayText, 0.8f);
 
 		Colorf valueColor = (Selected && _active
-			? Colorf(0.62f, 0.44f, 0.34f, 0.5f)
-			: (Selected ? Colorf(0.46f, 0.46f, 0.46f, ReadOnly ? 0.36f : 0.5f) : (ReadOnly ? Font::TransparentDefaultColor : Font::DefaultColor)));
+				? Colorf(0.62f, 0.44f, 0.34f, 0.5f)
+				: (Selected ? Colorf(0.46f, 0.46f, 0.46f, ReadOnly ? 0.36f : 0.5f) : (ReadOnly ? Font::TransparentDefaultColor : Font::DefaultColor)));
 		root->DrawStringShadow(displayText, charOffset, centerX + (showIcon ? 12.0f : 0.0f), y + 22.0f, IMenuContainer::FontLayer - 10,
 			Alignment::Center, valueColor, 0.8f);
 
@@ -767,7 +767,7 @@ namespace Jazz2::UI::Menu
 		if (CanEdit && !CanEdit()) {
 			return;
 		}
-		String initial = (Value ? Value() : String{});
+		String initial = (Value ? Value() : String {});
 		_buffer.Activate(initial);
 		_active = true;
 		if (OnEditStateChanged) {

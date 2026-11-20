@@ -29,11 +29,13 @@ namespace Jazz2::Actors::Weapons
 		bool OnHandleCollision(ActorBase* other) override;
 
 		/** @brief Returns strength (damage) */
-		inline std::int32_t GetStrength() {
+		inline std::int32_t GetStrength()
+		{
 			return _strength;
 		}
 		/** @brief Sets strength (damage) */
-		void SetStrength(std::int32_t value) {
+		void SetStrength(std::int32_t value)
+		{
 			_strength = static_cast<std::uint16_t>(std::clamp<std::int32_t>(value, 0, UINT16_MAX));
 		}
 
@@ -44,17 +46,20 @@ namespace Jazz2::Actors::Weapons
 		/** @brief Returns the weapon of the level that fired the shot, the same as @ref GetWeaponType() unless the level made its own */
 		virtual WeaponType GetSourceWeapon();
 		/** @brief Returns `true` if the shot is of the powered-up weapon */
-		bool IsUpgraded() const {
+		bool IsUpgraded() const
+		{
 			return ((_upgrades & 0x01) != 0);
 		}
 		/** @brief Triggers shot ricochet */
 		void TriggerRicochet(ActorBase* other);
 		/** @brief Returns how long the shot freezes what it hits, 0 if it doesn't */
-		float GetFrozenDuration() const {
+		float GetFrozenDuration() const
+		{
 			return _frozenDuration;
 		}
 		/** @brief Sets how long the shot freezes what it hits, 0 if it doesn't */
-		void SetFrozenDuration(float value) {
+		void SetFrozenDuration(float value)
+		{
 			_frozenDuration = value;
 		}
 		/** @brief Returns `true` if the shot thaws what's frozen */

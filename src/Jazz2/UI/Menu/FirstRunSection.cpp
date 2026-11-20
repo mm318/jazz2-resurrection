@@ -80,7 +80,7 @@ namespace Jazz2::UI::Menu
 	}
 
 	FirstRunSection::FirstRunSection()
-		: _presetItems{}
+		: _presetItems {}
 	{
 	}
 
@@ -103,7 +103,8 @@ namespace Jazz2::UI::Menu
 
 		auto list = std::make_unique<ScrollView>();
 
-		struct Preset {
+		struct Preset
+		{
 			bool Reforged;
 			StringView Name;
 			StringView Description;

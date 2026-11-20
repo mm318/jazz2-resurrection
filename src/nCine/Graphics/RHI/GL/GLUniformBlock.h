@@ -46,28 +46,34 @@ namespace nCine::RHI::GL
 		GLUniformBlock(GLuint program, const char* name, GLuint blockIndex, GLint dataSize);
 
 		/** @brief Returns the active uniform block index within the program */
-		inline GLuint GetIndex() const {
+		inline GLuint GetIndex() const
+		{
 			return _index;
 		}
 		/** @brief Returns the current binding index of the block, or -1 if not bound */
-		inline GLint GetBindingIndex() const {
+		inline GLint GetBindingIndex() const
+		{
 			return _bindingIndex;
 		}
 		/** @brief Returns the block size in bytes, padded to the uniform buffer offset alignment */
-		inline GLint GetSize() const {
+		inline GLint GetSize() const
+		{
 			return _size;
 		}
 		/** @brief Returns the number of padding bytes added to the original size for offset alignment */
-		inline std::uint8_t GetAlignAmount() const {
+		inline std::uint8_t GetAlignAmount() const
+		{
 			return _alignAmount;
 		}
 		/** @brief Returns the uniform block name */
-		inline const char* GetName() const {
+		inline const char* GetName() const
+		{
 			return _name;
 		}
 
 		/** @brief Returns the member uniform with the specified name, or `nullptr` if not found */
-		inline GLUniform* GetUniform(const char* name) {
+		inline GLUniform* GetUniform(const char* name)
+		{
 			return _blockUniforms.find(String::nullTerminatedView(name));
 		}
 		/** @brief Sets the binding index of the block, skipping the GL call if it is unchanged */

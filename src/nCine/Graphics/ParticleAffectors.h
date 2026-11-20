@@ -31,16 +31,20 @@ namespace nCine
 		 */
 		enum class Type
 		{
-			Color,		/**< Affects the particle color */
-			Size,		/**< Affects the particle scale */
-			Rotation,	/**< Affects the particle rotation */
-			Position,	/**< Affects the particle position */
-			Velocity	/**< Affects the particle velocity */
+			Color, /**< Affects the particle color */
+			Size, /**< Affects the particle scale */
+			Rotation, /**< Affects the particle rotation */
+			Position, /**< Affects the particle position */
+			Velocity /**< Affects the particle velocity */
 		};
 
 		ParticleAffector(Type type)
-			: _type(type) {}
-		virtual ~ParticleAffector() {}
+			: _type(type)
+		{
+		}
+		virtual ~ParticleAffector()
+		{
+		}
 
 		/**
 		 * @brief Affects a property of the specified particle
@@ -57,7 +61,8 @@ namespace nCine
 		virtual void Affect(Particle* particle, float normalizedAge) = 0;
 
 		/** @brief Returns the affector type */
-		inline Type GetType() const {
+		inline Type GetType() const
+		{
 			return _type;
 		}
 
@@ -86,13 +91,19 @@ namespace nCine
 			Colorf Color;
 
 			ColorStep()
-				: Age(0.0f) {}
+				: Age(0.0f)
+			{
+			}
 			ColorStep(float newAge, const Colorf& newColor)
-				: Age(newAge), Color(newColor) {}
+				: Age(newAge), Color(newColor)
+			{
+			}
 		};
 
 		ColorAffector()
-			: ParticleAffector(Type::Color), _colorSteps(StepsInitialSize) {}
+			: ParticleAffector(Type::Color), _colorSteps(StepsInitialSize)
+		{
+		}
 
 		/** @brief Default move constructor */
 		ColorAffector(ColorAffector&&) = default;
@@ -100,7 +111,8 @@ namespace nCine
 		ColorAffector& operator=(ColorAffector&&) = default;
 
 		/** @brief Returns a copy of this object */
-		inline ColorAffector Clone() const {
+		inline ColorAffector Clone() const
+		{
 			return ColorAffector(*this);
 		}
 
@@ -113,11 +125,13 @@ namespace nCine
 		void AddColorStep(float age, const Colorf& color);
 
 		/** @brief Returns the array of color steps */
-		inline SmallVectorImpl<ColorStep>& GetSteps() {
+		inline SmallVectorImpl<ColorStep>& GetSteps()
+		{
 			return _colorSteps;
 		}
 		/** @brief Returns the array of color steps (read-only) */
-		inline const SmallVectorImpl<ColorStep>& GetSteps() const {
+		inline const SmallVectorImpl<ColorStep>& GetSteps() const
+		{
 			return _colorSteps;
 		}
 
@@ -147,27 +161,43 @@ namespace nCine
 			Vector2f Scale;
 
 			SizeStep()
-				: Age(0.0f), Scale(1.0f, 1.0f) {}
+				: Age(0.0f), Scale(1.0f, 1.0f)
+			{
+			}
 			SizeStep(float newAge, float newScale)
-				: Age(newAge), Scale(newScale, newScale) {}
+				: Age(newAge), Scale(newScale, newScale)
+			{
+			}
 			SizeStep(float newAge, float newScaleX, float newScaleY)
-				: Age(newAge), Scale(newScaleX, newScaleY) {}
+				: Age(newAge), Scale(newScaleX, newScaleY)
+			{
+			}
 			SizeStep(float newAge, Vector2f newScale)
-				: Age(newAge), Scale(newScale) {}
+				: Age(newAge), Scale(newScale)
+			{
+			}
 		};
 
 		/** @brief Constructs a size affector with a unit base scale factor */
 		SizeAffector()
-			: SizeAffector(1.0f, 1.0f) {}
+			: SizeAffector(1.0f, 1.0f)
+		{
+		}
 		/** @brief Constructs a size affector with a uniform base scale factor */
 		explicit SizeAffector(float baseScale)
-			: SizeAffector(baseScale, baseScale) {}
+			: SizeAffector(baseScale, baseScale)
+		{
+		}
 		/** @brief Constructs a size affector with a horizontal and a vertical base scale factor */
 		SizeAffector(float baseScaleX, float baseScaleY)
-			: ParticleAffector(Type::Size), _sizeSteps(StepsInitialSize), _baseScale(baseScaleX, baseScaleY) {}
+			: ParticleAffector(Type::Size), _sizeSteps(StepsInitialSize), _baseScale(baseScaleX, baseScaleY)
+		{
+		}
 		/** @brief Constructs a size affector with a vector base scale factor */
 		explicit SizeAffector(Vector2f baseScale)
-			: SizeAffector(baseScale.X, baseScale.Y) {}
+			: SizeAffector(baseScale.X, baseScale.Y)
+		{
+		}
 
 		/** @brief Default move constructor */
 		SizeAffector(SizeAffector&&) = default;
@@ -175,13 +205,15 @@ namespace nCine
 		SizeAffector& operator=(SizeAffector&&) = default;
 
 		/** @brief Returns a copy of this object */
-		inline SizeAffector Clone() const {
+		inline SizeAffector Clone() const
+		{
 			return SizeAffector(*this);
 		}
 
 		void Affect(Particle* particle, float normalizedAge) override;
 		/** @brief Appends a uniform scale step at the specified age */
-		inline void AddSizeStep(float age, float scale) {
+		inline void AddSizeStep(float age, float scale)
+		{
 			AddSizeStep(age, scale, scale);
 		}
 		/**
@@ -191,46 +223,56 @@ namespace nCine
 		 */
 		void AddSizeStep(float age, float scaleX, float scaleY);
 		/** @brief Appends a vector scale step at the specified age */
-		inline void AddSizeStep(float age, Vector2f scale) {
+		inline void AddSizeStep(float age, Vector2f scale)
+		{
 			AddSizeStep(age, scale.X, scale.Y);
 		}
 
 		/** @brief Returns the array of size steps */
-		inline SmallVectorImpl<SizeStep>& GetSteps() {
+		inline SmallVectorImpl<SizeStep>& GetSteps()
+		{
 			return _sizeSteps;
 		}
 		/** @brief Returns the array of size steps (read-only) */
-		inline const SmallVectorImpl<SizeStep>& GetSteps() const {
+		inline const SmallVectorImpl<SizeStep>& GetSteps() const
+		{
 			return _sizeSteps;
 		}
 
 		/** @brief Returns the horizontal base scale factor */
-		inline float GetBaseScaleX() const {
+		inline float GetBaseScaleX() const
+		{
 			return _baseScale.X;
 		}
 		/** @brief Sets the horizontal base scale factor */
-		inline void SetBaseScaleX(float baseScaleX) {
+		inline void SetBaseScaleX(float baseScaleX)
+		{
 			_baseScale.X = baseScaleX;
 		}
 		/** @brief Returns the vertical base scale factor */
-		inline float GetBaseScaleY() const {
+		inline float GetBaseScaleY() const
+		{
 			return _baseScale.Y;
 		}
 		/** @brief Sets the vertical base scale factor */
-		inline void SetBaseScaleY(float baseScaleY) {
+		inline void SetBaseScaleY(float baseScaleY)
+		{
 			_baseScale.Y = baseScaleY;
 		}
 
 		/** @brief Returns the base scale factor */
-		inline Vector2f GetBaseScale() const {
+		inline Vector2f GetBaseScale() const
+		{
 			return _baseScale;
 		}
 		/** @brief Sets a uniform base scale factor */
-		inline void SetBaseScale(float baseScale) {
+		inline void SetBaseScale(float baseScale)
+		{
 			_baseScale.Set(baseScale, baseScale);
 		}
 		/** @brief Sets a vector base scale factor */
-		inline void SetBaseScale(Vector2f baseScale) {
+		inline void SetBaseScale(Vector2f baseScale)
+		{
 			_baseScale = baseScale;
 		}
 
@@ -261,13 +303,19 @@ namespace nCine
 			float Angle;
 
 			RotationStep()
-				: Age(0.0f), Angle(0.0f) {}
+				: Age(0.0f), Angle(0.0f)
+			{
+			}
 			RotationStep(float newAge, float newAngle)
-				: Age(newAge), Angle(newAngle) {}
+				: Age(newAge), Angle(newAngle)
+			{
+			}
 		};
 
 		RotationAffector()
-			: ParticleAffector(Type::Rotation), _rotationSteps(StepsInitialSize) {}
+			: ParticleAffector(Type::Rotation), _rotationSteps(StepsInitialSize)
+		{
+		}
 
 		/** @brief Default move constructor */
 		RotationAffector(RotationAffector&&) = default;
@@ -275,7 +323,8 @@ namespace nCine
 		RotationAffector& operator=(RotationAffector&&) = default;
 
 		/** @brief Returns a copy of this object */
-		inline RotationAffector Clone() const {
+		inline RotationAffector Clone() const
+		{
 			return RotationAffector(*this);
 		}
 
@@ -288,11 +337,13 @@ namespace nCine
 		void AddRotationStep(float age, float angle);
 
 		/** @brief Returns the array of rotation steps */
-		inline SmallVectorImpl<RotationStep>& GetSteps() {
+		inline SmallVectorImpl<RotationStep>& GetSteps()
+		{
 			return _rotationSteps;
 		}
 		/** @brief Returns the array of rotation steps (read-only) */
-		inline const SmallVectorImpl<RotationStep>& GetSteps() const {
+		inline const SmallVectorImpl<RotationStep>& GetSteps() const
+		{
 			return _rotationSteps;
 		}
 
@@ -322,13 +373,19 @@ namespace nCine
 			Vector2f Position;
 
 			PositionStep()
-				: Age(0.0f), Position(0.0f, 0.0f) {}
+				: Age(0.0f), Position(0.0f, 0.0f)
+			{
+			}
 			PositionStep(float newAge, float newPositionX, float newPositionY)
-				: Age(newAge), Position(newPositionX, newPositionY) {}
+				: Age(newAge), Position(newPositionX, newPositionY)
+			{
+			}
 		};
 
 		PositionAffector()
-			: ParticleAffector(Type::Position), _positionSteps(StepsInitialSize) {}
+			: ParticleAffector(Type::Position), _positionSteps(StepsInitialSize)
+		{
+		}
 
 		/** @brief Default move constructor */
 		PositionAffector(PositionAffector&&) = default;
@@ -336,7 +393,8 @@ namespace nCine
 		PositionAffector& operator=(PositionAffector&&) = default;
 
 		/** @brief Returns a copy of this object */
-		inline PositionAffector Clone() const {
+		inline PositionAffector Clone() const
+		{
 			return PositionAffector(*this);
 		}
 
@@ -348,16 +406,19 @@ namespace nCine
 		 */
 		void AddPositionStep(float age, float posX, float posY);
 		/** @brief Appends a vector position step at the specified age */
-		inline void AddPositionStep(float age, Vector2f position) {
+		inline void AddPositionStep(float age, Vector2f position)
+		{
 			AddPositionStep(age, position.X, position.Y);
 		}
 
 		/** @brief Returns the array of position steps */
-		inline SmallVectorImpl<PositionStep>& GetSteps() {
+		inline SmallVectorImpl<PositionStep>& GetSteps()
+		{
 			return _positionSteps;
 		}
 		/** @brief Returns the array of position steps (read-only) */
-		inline const SmallVectorImpl<PositionStep>& GetSteps() const {
+		inline const SmallVectorImpl<PositionStep>& GetSteps() const
+		{
 			return _positionSteps;
 		}
 
@@ -387,13 +448,19 @@ namespace nCine
 			Vector2f Velocity;
 
 			VelocityStep()
-				: Age(0.0f), Velocity(0.0f, 0.0f) {}
+				: Age(0.0f), Velocity(0.0f, 0.0f)
+			{
+			}
 			VelocityStep(float newAge, float newVelocityX, float newVelocityY)
-				: Age(newAge), Velocity(newVelocityX, newVelocityY) {}
+				: Age(newAge), Velocity(newVelocityX, newVelocityY)
+			{
+			}
 		};
 
 		VelocityAffector()
-			: ParticleAffector(Type::Velocity), _velocitySteps(StepsInitialSize) {}
+			: ParticleAffector(Type::Velocity), _velocitySteps(StepsInitialSize)
+		{
+		}
 
 		/** @brief Default move constructor */
 		VelocityAffector(VelocityAffector&&) = default;
@@ -401,7 +468,8 @@ namespace nCine
 		VelocityAffector& operator=(VelocityAffector&&) = default;
 
 		/** @brief Returns a copy of this object */
-		inline VelocityAffector Clone() const {
+		inline VelocityAffector Clone() const
+		{
 			return VelocityAffector(*this);
 		}
 
@@ -413,16 +481,19 @@ namespace nCine
 		 */
 		void AddVelocityStep(float age, float velX, float velY);
 		/** @brief Appends a vector velocity step at the specified age */
-		inline void AddVelocityStep(float age, Vector2f velocity) {
+		inline void AddVelocityStep(float age, Vector2f velocity)
+		{
 			AddVelocityStep(age, velocity.X, velocity.Y);
 		}
 
 		/** @brief Returns the array of velocity steps */
-		inline SmallVectorImpl<VelocityStep>& GetSteps() {
+		inline SmallVectorImpl<VelocityStep>& GetSteps()
+		{
 			return _velocitySteps;
 		}
 		/** @brief Returns the array of velocity steps (read-only) */
-		inline const SmallVectorImpl<VelocityStep>& GetSteps() const {
+		inline const SmallVectorImpl<VelocityStep>& GetSteps() const
+		{
 			return _velocitySteps;
 		}
 

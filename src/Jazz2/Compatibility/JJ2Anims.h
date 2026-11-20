@@ -111,9 +111,10 @@ namespace Jazz2::Compatibility
 			on the Nintendo 64, measured) and takes less than half the space. Only the asset packer changes this, for those
 			targets; a build without LZ4 support refuses such a file rather than misreading it.
 		*/
-		enum class ImageCompression {
-			Default,		/**< The game's own format, see @ref WriteImageContent */
-			Lz4				/**< LZ4 blocks of the raw pixels, see @ref WriteImageContentLz4 */
+		enum class ImageCompression
+		{
+			Default, /**< The game's own format, see @ref WriteImageContent */
+			Lz4 /**< LZ4 blocks of the raw pixels, see @ref WriteImageContentLz4 */
 		};
 
 		/** @brief Image compression that sprite sheets and tilesets are converted with, see @ref ImageCompression */
@@ -190,7 +191,8 @@ namespace Jazz2::Compatibility
 		static bool PackRectangles(SmallVectorImpl<PackedFrame>& rects, std::int32_t spacing, std::int32_t& sheetWidth, std::int32_t& sheetHeight);
 
 		/** @brief Returns `true` if a rectangle lies across a multiple of @ref SheetPageSize, where a split texture is cut */
-		static constexpr bool LiesAcrossPageLine(const PackedFrame& rect) {
+		static constexpr bool LiesAcrossPageLine(const PackedFrame& rect)
+		{
 			return (rect.W > 0 && rect.X / SheetPageSize != (rect.X + rect.W - 1) / SheetPageSize) ||
 				(rect.H > 0 && rect.Y / SheetPageSize != (rect.Y + rect.H - 1) / SheetPageSize);
 		}
@@ -201,7 +203,8 @@ namespace Jazz2::Compatibility
 			The spots are where the point lies in the frame, negated - the top left corner of the frame is at
 			@ref HotspotX, @ref HotspotY from the hotspot.
 		*/
-		struct AnimFrameSection {
+		struct AnimFrameSection
+		{
 			/** @brief Size of the frame in pixels */
 			std::int16_t SizeX, SizeY;
 			/** @brief Coldspot, the point the frame rests on the ground by */
@@ -224,7 +227,8 @@ namespace Jazz2::Compatibility
 		};
 
 		/** @brief Animation as an animation file stores it */
-		struct AnimSection {
+		struct AnimSection
+		{
 			/** @brief Number of frames */
 			std::uint16_t FrameCount;
 			/** @brief Playback speed in frames per second */
@@ -263,7 +267,8 @@ namespace Jazz2::Compatibility
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
-		struct SampleSection {
+		struct SampleSection
+		{
 			std::int32_t Set;
 			std::uint16_t IdInSet;
 			std::uint32_t SampleRate;

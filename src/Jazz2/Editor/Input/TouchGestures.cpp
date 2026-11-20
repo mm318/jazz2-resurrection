@@ -44,7 +44,7 @@ namespace Jazz2::Editor
 						break;
 					}
 				}
-				next.push_back(Finger{ pointer.Id, start, position });
+				next.push_back(Finger { pointer.Id, start, position });
 			}
 		}
 		Vector2f lastPosition = (!_fingers.empty() ? _fingers[0].Position : Vector2f());

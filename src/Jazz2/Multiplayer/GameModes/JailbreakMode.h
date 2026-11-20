@@ -25,10 +25,12 @@ namespace Jazz2::Multiplayer::GameModes
 	public:
 		JailbreakMode();
 
-		MpGameMode GetMode() const override {
+		MpGameMode GetMode() const override
+		{
 			return MpGameMode::Jailbreak;
 		}
-		bool IsTeamBased() const override {
+		bool IsTeamBased() const override
+		{
 			return true;
 		}
 
@@ -58,7 +60,8 @@ namespace Jazz2::Multiplayer::GameModes
 		// Levels without jail areas get a jail of this size around the base of the team
 		static constexpr float FallbackJailRadius = 48.0f;
 
-		struct Jail {
+		struct Jail
+		{
 			// The middle is where prisoners are put
 			Rectf Area;
 			bool HasArea;

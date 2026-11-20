@@ -8,25 +8,25 @@
 // resolved once through eglGetProcAddress() - the ES profiles always create their context through EGL. The
 // extension is required by this engine's render loop, which binds all vertex state through VAOs. PS Vita's
 // vitaGL is the exception: it exports the unsuffixed entry points directly, so nothing is remapped there.
-#	include <EGL/egl.h>
+#include <EGL/egl.h>
 
 namespace nCine::RHI::GL
 {
 	namespace
 	{
-		void (GL_APIENTRY* _glGenVertexArrays)(GLsizei, GLuint*) = nullptr;
-		void (GL_APIENTRY* _glDeleteVertexArrays)(GLsizei, const GLuint*) = nullptr;
-		void (GL_APIENTRY* _glBindVertexArray)(GLuint) = nullptr;
+		void(GL_APIENTRY* _glGenVertexArrays)(GLsizei, GLuint*) = nullptr;
+		void(GL_APIENTRY* _glDeleteVertexArrays)(GLsizei, const GLuint*) = nullptr;
+		void(GL_APIENTRY* _glBindVertexArray)(GLuint) = nullptr;
 
 		void ResolveVertexArrayEntryPoints()
 		{
-			if DEATH_LIKELY(_glGenVertexArrays != nullptr) {
+			if DEATH_LIKELY (_glGenVertexArrays != nullptr) {
 				return;
 			}
 
-			_glGenVertexArrays = reinterpret_cast<void (GL_APIENTRY*)(GLsizei, GLuint*)>(eglGetProcAddress("glGenVertexArraysOES"));
-			_glDeleteVertexArrays = reinterpret_cast<void (GL_APIENTRY*)(GLsizei, const GLuint*)>(eglGetProcAddress("glDeleteVertexArraysOES"));
-			_glBindVertexArray = reinterpret_cast<void (GL_APIENTRY*)(GLuint)>(eglGetProcAddress("glBindVertexArrayOES"));
+			_glGenVertexArrays = reinterpret_cast<void(GL_APIENTRY*)(GLsizei, GLuint*)>(eglGetProcAddress("glGenVertexArraysOES"));
+			_glDeleteVertexArrays = reinterpret_cast<void(GL_APIENTRY*)(GLsizei, const GLuint*)>(eglGetProcAddress("glDeleteVertexArraysOES"));
+			_glBindVertexArray = reinterpret_cast<void(GL_APIENTRY*)(GLuint)>(eglGetProcAddress("glBindVertexArrayOES"));
 
 			FATAL_ASSERT_MSG(_glGenVertexArrays != nullptr && _glDeleteVertexArrays != nullptr && _glBindVertexArray != nullptr,
 				"GL_OES_vertex_array_object is required by the OpenGL|ES 2.0 profile but not provided by this context");
@@ -34,9 +34,9 @@ namespace nCine::RHI::GL
 	}
 }
 
-#	define glGenVertexArrays _glGenVertexArrays
-#	define glDeleteVertexArrays _glDeleteVertexArrays
-#	define glBindVertexArray _glBindVertexArray
+#define glGenVertexArrays _glGenVertexArrays
+#define glDeleteVertexArrays _glDeleteVertexArrays
+#define glBindVertexArray _glBindVertexArray
 #endif
 
 namespace nCine::RHI::GL

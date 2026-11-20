@@ -209,7 +209,8 @@ namespace Jazz2::Actors::Enemies
 
 		dest.WriteValueAsLE<float>(_attackTime);
 		std::uint8_t flags = 0;
-		if (_stuck) flags |= 0x01;
+		if (_stuck)
+			flags |= 0x01;
 		dest.WriteValue<std::uint8_t>(flags);
 	}
 

@@ -48,7 +48,8 @@ namespace Jazz2::Editor
 		/** @brief Runs a debug command, returns `false` if it's unknown or it failed */
 		bool Execute(StringView line);
 		/** @brief Returns whether the images of the layers from far away are forced on (1) or off (0) by `/lod`, -1 by the zoom as usual */
-		std::int32_t GetLodMode() const {
+		std::int32_t GetLodMode() const
+		{
 			return _lodMode;
 		}
 

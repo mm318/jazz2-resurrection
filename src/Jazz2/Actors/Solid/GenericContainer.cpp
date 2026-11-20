@@ -90,7 +90,7 @@ namespace Jazz2::Actors::Solid
 			}
 		}
 
-		bool canThrowFar = ((maxCount > 1 || _content.size() > 1) &&_levelHandler->IsPositionEmpty(this, aabbExtended, params));
+		bool canThrowFar = ((maxCount > 1 || _content.size() > 1) && _levelHandler->IsPositionEmpty(this, aabbExtended, params));
 
 		for (auto& item : _content) {
 			for (std::int32_t j = 0; j < item.Count; j++) {

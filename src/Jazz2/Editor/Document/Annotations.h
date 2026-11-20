@@ -68,7 +68,8 @@ namespace Jazz2::Editor
 		SmallVector<Reply, 0> Replies;
 
 		/** @brief Returns `true` if it's a bookmark */
-		bool IsBookmark() const {
+		bool IsBookmark() const
+		{
 			return (Slot != 0);
 		}
 

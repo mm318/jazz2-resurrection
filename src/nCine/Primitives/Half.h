@@ -50,13 +50,22 @@ namespace nCine
 		{
 		public:
 			/** @brief Default constructor */
-			constexpr /*implicit*/ Half() noexcept : _data{} {}
+			constexpr /*implicit*/ Half() noexcept
+				: _data {}
+			{
+			}
 
 			/** @brief Construct a half value from underlying 16-bit representation */
-			constexpr explicit Half(std::uint16_t data) noexcept : _data{data} {}
+			constexpr explicit Half(std::uint16_t data) noexcept
+				: _data { data }
+			{
+			}
 
 			/** @brief Construct a half value from a 32-bit float representation */
-			explicit Half(float value) noexcept : _data{PackHalf(value)} {}
+			explicit Half(float value) noexcept
+				: _data { PackHalf(value) }
+			{
+			}
 
 			/**
 			 * @brief Construct a half value from a 64-bit float representation
@@ -64,10 +73,15 @@ namespace nCine
 			 * Present only to aid generic code, so e.g. @cpp T(1.0) @ce works
 			 * without being ambigous.
 			 */
-			explicit Half(double value) noexcept : _data{PackHalf(float(value))} {}
+			explicit Half(double value) noexcept
+				: _data { PackHalf(float(value)) }
+			{
+			}
 
 			/** @brief Construct without initializing the contents */
-			explicit Half(NoInitT) noexcept {}
+			explicit Half(NoInitT) noexcept
+			{
+			}
 
 			/**
 			 * @brief Equality comparison
@@ -77,10 +91,12 @@ namespace nCine
 			 * floating-point math types, due to the limited precision of half
 			 * floats it's *not* a fuzzy compare.
 			 */
-			constexpr bool operator==(Half other) const {
+			constexpr bool operator==(Half other) const
+			{
 				return (((_data & 0x7c00) == 0x7c00 && (_data & 0x03ff)) ||
-						((other._data & 0x7c00) == 0x7c00 && (other._data & 0x03ff))) ?
-					false : (_data == other._data);
+						   ((other._data & 0x7c00) == 0x7c00 && (other._data & 0x03ff)))
+					? false
+					: (_data == other._data);
 			}
 
 			/**
@@ -88,7 +104,8 @@ namespace nCine
 			 *
 			 * Simply negates the result of @ref operator==().
 			 */
-			constexpr bool operator!=(Half other) const {
+			constexpr bool operator!=(Half other) const
+			{
 				return !operator==(other);
 			}
 
@@ -97,27 +114,32 @@ namespace nCine
 			 *
 			 * Returns the value as-is.
 			 */
-			constexpr Half operator+() const {
+			constexpr Half operator+() const
+			{
 				return *this;
 			}
 
 			/** @brief Negation */
-			constexpr Half operator-() const {
-				return Half{std::uint16_t(_data ^ (1 << 15))};
+			constexpr Half operator-() const
+			{
+				return Half { std::uint16_t(_data ^ (1 << 15)) };
 			}
 
 			/** @brief Conversion to underlying representation */
-			constexpr explicit operator std::uint16_t() const {
+			constexpr explicit operator std::uint16_t() const
+			{
 				return _data;
 			}
 
 			/** @brief Conversion to 32-bit float representation */
-			explicit operator float() const {
+			explicit operator float() const
+			{
 				return UnpackHalf(_data);
 			}
 
 			/** @brief Underlying representation */
-			constexpr std::uint16_t data() const {
+			constexpr std::uint16_t data() const
+			{
 				return _data;
 			}
 
@@ -152,15 +174,15 @@ namespace nCine
 
 		inline namespace Literals
 		{
-			// According to https://wg21.link/CWG2521, space between "" and literal name is deprecated because _Uppercase
-			// or _double names could be treated as reserved depending on whether the space was present or not,
-			// and whitespace is not load-bearing in any other contexts. Clang 17+ adds an off-by-default warning for this;
-			// GCC 4.8 however *requires* the space there, so until GCC 4.8 support is dropped, we suppress this warning
-			// instead of removing the space. GCC 15 now has the same warning but it's enabled by default on -std=c++23.
-			#if defined(DEATH_TARGET_CLANG) && __clang_major__ >= 17
-			#	pragma clang diagnostic push
-			#	pragma clang diagnostic ignored "-Wdeprecated-literal-operator"
-			#endif
+// According to https://wg21.link/CWG2521, space between "" and literal name is deprecated because _Uppercase
+// or _double names could be treated as reserved depending on whether the space was present or not,
+// and whitespace is not load-bearing in any other contexts. Clang 17+ adds an off-by-default warning for this;
+// GCC 4.8 however *requires* the space there, so until GCC 4.8 support is dropped, we suppress this warning
+// instead of removing the space. GCC 15 now has the same warning but it's enabled by default on -std=c++23.
+#if defined(DEATH_TARGET_CLANG) && __clang_major__ >= 17
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-literal-operator"
+#endif
 
 			/** @relatesalso nCine::Primitives::Half
 				@brief Half-float literal
@@ -172,13 +194,14 @@ namespace nCine
 
 				See @ref Half for more information.
 			*/
-			inline Half operator"" _h(long double value) {
+			inline Half operator"" _h(long double value)
+			{
 				return Half(float(value));
 			}
 
-			#if defined(DEATH_TARGET_CLANG) && __clang_major__ >= 17
-			#	pragma clang diagnostic pop
-			#endif
+#if defined(DEATH_TARGET_CLANG) && __clang_major__ >= 17
+#pragma clang diagnostic pop
+#endif
 		}
 	}
 }

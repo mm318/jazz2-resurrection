@@ -28,7 +28,7 @@ namespace Jazz2::Editor
 		}
 
 		/** @brief Calls a function for every cell on a line between two cells, both included, so a fast drag doesn't leave gaps */
-		template<class TFunc>
+		template <class TFunc>
 		void WalkLine(Vector2i from, Vector2i to, TFunc&& func)
 		{
 			// Bresenham

@@ -38,7 +38,10 @@ namespace nCine::RHI::GL
 
 	void GLDepthTest::Reapply()
 	{
-		if (_state.enabled) glEnable(GL_DEPTH_TEST); else glDisable(GL_DEPTH_TEST);
+		if (_state.enabled)
+			glEnable(GL_DEPTH_TEST);
+		else
+			glDisable(GL_DEPTH_TEST);
 		glDepthMask(_state.depthMaskEnabled ? GL_TRUE : GL_FALSE);
 	}
 

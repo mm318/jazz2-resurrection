@@ -29,7 +29,9 @@ namespace Jazz2::AssetPacker
 	class ISectorReader
 	{
 	public:
-		virtual ~ISectorReader() {}
+		virtual ~ISectorReader()
+		{
+		}
 
 		/** @brief Reads one logical sector into a buffer of @ref IsoSectorSize bytes */
 		virtual bool ReadSector(std::uint32_t lba, std::uint8_t* destination) = 0;
@@ -39,7 +41,9 @@ namespace Jazz2::AssetPacker
 	class ISectorSink
 	{
 	public:
-		virtual ~ISectorSink() {}
+		virtual ~ISectorSink()
+		{
+		}
 
 		/** @brief Writes one logical sector from a buffer of @ref IsoSectorSize bytes */
 		virtual bool WriteSector(const std::uint8_t* data) = 0;
@@ -56,7 +60,8 @@ namespace Jazz2::AssetPacker
 	{
 	public:
 		/** @brief One entry of a directory */
-		struct Entry {
+		struct Entry
+		{
 			/** @brief Name as it is stored, with the `;1` version suffix already removed */
 			String Name;
 			/** @brief Absolute address of the first sector of the entry */
@@ -68,7 +73,10 @@ namespace Jazz2::AssetPacker
 			std::uint8_t Recorded[7] {};
 		};
 
-		Iso9660Reader() : _reader(nullptr), _rootLba(0), _rootSize(0), _volumeSpaceSize(0) {}
+		Iso9660Reader()
+			: _reader(nullptr), _rootLba(0), _rootSize(0), _volumeSpaceSize(0)
+		{
+		}
 
 		/**
 			@brief Reads the volume descriptors of the file system in the specified track
@@ -82,27 +90,32 @@ namespace Jazz2::AssetPacker
 		bool ReadDirectory(std::uint32_t lba, std::uint32_t size, SmallVectorImpl<Entry>& entries);
 
 		/** @brief The primary volume descriptor, exactly as it is stored */
-		ArrayView<const std::uint8_t> GetPrimaryDescriptor() const {
+		ArrayView<const std::uint8_t> GetPrimaryDescriptor() const
+		{
 			return _primaryDescriptor;
 		}
 
 		/** @brief The Joliet supplementary volume descriptor, or an empty view if the volume has none */
-		ArrayView<const std::uint8_t> GetSupplementaryDescriptor() const {
+		ArrayView<const std::uint8_t> GetSupplementaryDescriptor() const
+		{
 			return _supplementaryDescriptor;
 		}
 
 		/** @brief Absolute address of the root directory, of the Joliet hierarchy if the volume has one */
-		std::uint32_t GetRootLba() const {
+		std::uint32_t GetRootLba() const
+		{
 			return _rootLba;
 		}
 
 		/** @brief Size of the extent holding the root directory */
-		std::uint32_t GetRootSize() const {
+		std::uint32_t GetRootSize() const
+		{
 			return _rootSize;
 		}
 
 		/** @brief Number of logical sectors the volume declares, which is not always the whole track */
-		std::uint32_t GetVolumeSpaceSize() const {
+		std::uint32_t GetVolumeSpaceSize() const
+		{
 			return _volumeSpaceSize;
 		}
 
@@ -146,7 +159,8 @@ namespace Jazz2::AssetPacker
 		void SetDescriptorTemplates(ArrayView<const std::uint8_t> primary, ArrayView<const std::uint8_t> supplementary);
 
 		/** @brief Sets the absolute address the track carrying the volume begins at */
-		void SetTrackStartLba(std::uint32_t lba) {
+		void SetTrackStartLba(std::uint32_t lba)
+		{
 			_trackStartLba = lba;
 		}
 
@@ -162,7 +176,7 @@ namespace Jazz2::AssetPacker
 			Called with the name of the entry, whether it's a directory and whether it's right in the directory
 			that was added, not deeper. A directory left out is left out with everything in it.
 		*/
-		using LeaveOutFunc = bool(*)(StringView name, bool isDirectory, bool isTopLevel);
+		using LeaveOutFunc = bool (*)(StringView name, bool isDirectory, bool isTopLevel);
 
 		/**
 			@brief Adds a directory and everything below it from the file system
@@ -200,7 +214,8 @@ namespace Jazz2::AssetPacker
 
 	private:
 		/** @brief One file or directory of the hierarchy being built */
-		struct Node {
+		struct Node
+		{
 			/** @brief Name as it was given */
 			String Name;
 			/** @brief Identifier in the plain hierarchy --- upper case, sanitized and, for a file, versioned */
@@ -230,7 +245,8 @@ namespace Jazz2::AssetPacker
 		};
 
 		/** @brief Where everything ended up, once the volume has been laid out */
-		struct Layout {
+		struct Layout
+		{
 			/** @brief Addresses relative to the start of the volume, unlike the ones the records store */
 			std::uint32_t PathTableLba = 0, JolietPathTableLba = 0;
 			std::uint32_t PathTableSectors = 0, JolietPathTableSectors = 0;

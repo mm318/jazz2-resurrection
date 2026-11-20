@@ -18,42 +18,65 @@ namespace Jazz2::Multiplayer::GameModes
 	class RaceMode : public GameModeBase
 	{
 	public:
-		MpGameMode GetMode() const override {
+		MpGameMode GetMode() const override
+		{
 			return MpGameMode::Race;
 		}
-		bool IsTeamBased() const override {
+		bool IsTeamBased() const override
+		{
 			return false;
 		}
-		bool SkipsPreGameCountdown() const override {
+		bool SkipsPreGameCountdown() const override
+		{
 			return false;
 		}
-		bool HasUnlimitedHealth() const override {
+		bool HasUnlimitedHealth() const override
+		{
 			return false;
 		}
-		bool LowerScoreWins() const override {
+		bool LowerScoreWins() const override
+		{
 			return true;
 		}
-		bool OwnsRoundLogic() const override {
+		bool OwnsRoundLogic() const override
+		{
 			return false;
 		}
 
 		// The win condition (CheckGameEnds) and per-tick race logic stay host-driven while OwnsRoundLogic() == false;
 		// the respawn, level-exit, score and HUD hooks below are owned by this mode (invoked regardless of that flag).
-		void OnRoundStarted(IGameModeContext&) override { }
-		void OnUpdate(IGameModeContext&, float) override { }
-		void OnPlayerSpawned(IGameModeContext&, Actors::Player*) override { }
-		void OnPlayerKilled(IGameModeContext&, Actors::Player*, Actors::Player*) override { }
+		void OnRoundStarted(IGameModeContext&) override
+		{
+		}
+		void OnUpdate(IGameModeContext&, float) override
+		{
+		}
+		void OnPlayerSpawned(IGameModeContext&, Actors::Player*) override
+		{
+		}
+		void OnPlayerKilled(IGameModeContext&, Actors::Player*, Actors::Player*) override
+		{
+		}
 		RespawnDecision DecideRespawn(IGameModeContext& ctx, Actors::Player* player) override;
-		void OnCoinsCollected(IGameModeContext&, Actors::Player*, std::int32_t, std::int32_t) override { }
-		void OnGemsCollected(IGameModeContext&, Actors::Player*, std::uint8_t, std::int32_t, std::int32_t) override { }
-		LevelExitAction OnLevelExitReached(IGameModeContext&, Actors::Player*) override {
+		void OnCoinsCollected(IGameModeContext&, Actors::Player*, std::int32_t, std::int32_t) override
+		{
+		}
+		void OnGemsCollected(IGameModeContext&, Actors::Player*, std::uint8_t, std::int32_t, std::int32_t) override
+		{
+		}
+		LevelExitAction OnLevelExitReached(IGameModeContext&, Actors::Player*) override
+		{
 			return LevelExitAction::WarpToStartIncrementLap;
 		}
-		GameEndResult CheckGameEnds(IGameModeContext&) override {
+		GameEndResult CheckGameEnds(IGameModeContext&) override
+		{
 			return GameEndResult::None();
 		}
-		void AssignTeams(IGameModeContext&) override { }
-		std::uint32_t GetRoundScore(IGameModeContext& ctx, Actors::Player* player) override {
+		void AssignTeams(IGameModeContext&) override
+		{
+		}
+		std::uint32_t GetRoundScore(IGameModeContext& ctx, Actors::Player* player) override
+		{
 			return ctx.GetPlayerState(player).Laps;
 		}
 

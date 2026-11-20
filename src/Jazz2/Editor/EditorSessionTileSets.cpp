@@ -16,7 +16,7 @@ namespace Jazz2::Editor
 			return TileSetDataCache::HashBytes(data, size, hash);
 		}
 
-		template<class T>
+		template <class T>
 		const T* FindByTileId(const SmallVectorImpl<T>& tiles, std::uint16_t tileId)
 		{
 			auto it = std::lower_bound(tiles.begin(), tiles.end(), tileId, [](const T& tile, std::uint16_t id) {
@@ -25,7 +25,7 @@ namespace Jazz2::Editor
 			return (it != tiles.end() && it->TileId == tileId ? &*it : nullptr);
 		}
 
-		template<class T>
+		template <class T>
 		void SortByTileId(SmallVectorImpl<T>& tiles)
 		{
 			std::sort(tiles.begin(), tiles.end(), [](const T& a, const T& b) {
@@ -105,12 +105,12 @@ namespace Jazz2::Editor
 	{
 		diffuse.clear();
 		for (const Formats::TileDiffuseOverride& tile : _document.DiffuseOverrides) {
-			diffuse.push_back(AppliedTile{ tile.TileId, HashBytes(tile.Indices, sizeof(tile.Indices)) });
+			diffuse.push_back(AppliedTile { tile.TileId, HashBytes(tile.Indices, sizeof(tile.Indices)) });
 		}
 		SortByTileId(diffuse);
 		masks.clear();
 		for (const Formats::TileMaskOverride& tile : _document.MaskOverrides) {
-			masks.push_back(AppliedTile{ tile.TileId, HashBytes(tile.Mask, sizeof(tile.Mask)) });
+			masks.push_back(AppliedTile { tile.TileId, HashBytes(tile.Mask, sizeof(tile.Mask)) });
 		}
 		SortByTileId(masks);
 	}
@@ -131,10 +131,12 @@ namespace Jazz2::Editor
 			}
 			// The 8-bit tiles of a remapped tile set are shown in the colors of the level, as the game loads them
 			const std::uint8_t* remapping = ((record.Flags & (Formats::ExtraTileSetRecord::Remapped | Formats::ExtraTileSetRecord::TrueColor)) ==
-				Formats::ExtraTileSetRecord::Remapped ? record.Remapping : nullptr);
+						Formats::ExtraTileSetRecord::Remapped
+					? record.Remapping
+					: nullptr);
 			for (std::int32_t i = 0; i < record.Count && record.Offset + i < data->TileCount; i++) {
 				std::int32_t index = record.Offset + i;
-				std::int32_t tileId = _document.ToTileId(TileRef{ std::uint16_t(i), std::uint8_t(slot + 1), 0 });
+				std::int32_t tileId = _document.ToTileId(TileRef { std::uint16_t(i), std::uint8_t(slot + 1), 0 });
 				if (tileId < 0 || tileId > UINT16_MAX) {
 					return false;
 				}
@@ -151,7 +153,7 @@ namespace Jazz2::Editor
 				std::uint64_t hash = HashBytes(image, trueColor ? std::size_t(PixelCount * 4) : std::size_t(PixelCount));
 				hash = HashBytes(bits, Formats::TileSetData::MaskBytesPerTile, hash);
 				hash = HashBytes(&trueColor, sizeof(trueColor), hash);
-				tiles.push_back(AppliedTile{ std::uint16_t(tileId), hash });
+				tiles.push_back(AppliedTile { std::uint16_t(tileId), hash });
 				if (tileMap == nullptr) {
 					continue;
 				}
@@ -233,7 +235,7 @@ namespace Jazz2::Editor
 				const Formats::ExtraTileSetRecord& record = _document.ExtraTileSets[i];
 				if ((record.Flags & Formats::ExtraTileSetRecord::Embedded) != 0) {
 					if (const Formats::TileSetData* embedded = GetTileSetData(record.Name)) {
-						levelTiles.push_back(TileShapes::LevelTiles{ std::uint8_t(i + 1), embedded });
+						levelTiles.push_back(TileShapes::LevelTiles { std::uint8_t(i + 1), embedded });
 					}
 				}
 			}

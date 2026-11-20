@@ -54,17 +54,20 @@ namespace Jazz2::Compatibility
 		StringView ReadString(std::int32_t length, bool trimToNull);
 
 		/** @brief Returns whether the end of the block has been reached */
-		bool ReachedEndOfStream() {
+		bool ReachedEndOfStream()
+		{
 			return (_offset == INT32_MAX);
 		}
 
 		/** @brief Returns the total length of the block in bytes */
-		std::int32_t GetLength() {
+		std::int32_t GetLength()
+		{
 			return _length;
 		}
 
 		/** @brief Returns the number of bytes left to read */
-		std::int32_t GetRemainingLength() const {
+		std::int32_t GetRemainingLength() const
+		{
 			return (_offset < _length ? _length - _offset : 0);
 		}
 

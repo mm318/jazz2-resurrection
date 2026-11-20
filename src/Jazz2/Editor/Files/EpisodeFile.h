@@ -30,7 +30,8 @@ namespace Jazz2::Editor
 		SmallVector<std::uint8_t, 0> Pixels;
 
 		/** @brief Returns `true` if there's no image */
-		bool IsEmpty() const {
+		bool IsEmpty() const
+		{
 			return (Width <= 0 || Height <= 0);
 		}
 	};

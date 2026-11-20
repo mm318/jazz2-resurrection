@@ -41,13 +41,15 @@ namespace Jazz2::UI::Menu
 	private:
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
-		enum class ItemType {
+		enum class ItemType
+		{
 			Episode,
 			Level,
 			Remove
 		};
 
-		struct ItemData {
+		struct ItemData
+		{
 			ItemType Type;
 			String LevelName;
 			String DisplayName;

@@ -19,7 +19,7 @@ using namespace nCine;
 	Needs a backend that reads the uniform memory of a command in place, the others copy it on every commit.
 */
 #if defined(WITH_RHI_RDP) || defined(DOXYGEN_GENERATING_OUTPUT)
-#	define CANVAS_RETAINED_DRAWS
+#define CANVAS_RETAINED_DRAWS
 #endif
 
 namespace Jazz2::UI
@@ -115,7 +115,7 @@ namespace Jazz2::UI
 		void DrawTextureWithPalette(const Texture& texture, const Texture& palette, Vector2f pos, std::uint16_t z, Vector2f size, const Vector4f& texCoords, const Colorf& color, float paletteOffset = 0.0f);
 		/** @brief Draws a solid rectangle, turned by `angle` in radians about its center */
 		void DrawSolid(Vector2f pos, std::uint16_t z, Vector2f size, const Colorf& color, BlendMode blending = BlendMode::Normal, float angle = 0.0f);
-		
+
 		/** @brief Applies alignment settings to a given position vector */
 		static Vector2f ApplyAlignment(Alignment align, Vector2f vec, Vector2f size);
 
@@ -130,7 +130,8 @@ namespace Jazz2::UI
 		 * The position and size are in screen-space, after the layer transform. Texture coordinates in the layout
 		 * the sprite shaders take (horizontal scale and offset, then vertical) are cut down along with the rectangle.
 		 */
-		bool ClipQuad(Vector2f& pos, Vector2f& size, Vector4f* texCoords) const {
+		bool ClipQuad(Vector2f& pos, Vector2f& size, Vector4f* texCoords) const
+		{
 			// Nothing is clipped by default, only that is inline, as it's checked for every glyph of every text
 			if (ClipRect.W <= 0.0f || ClipRect.H <= 0.0f) {
 				return true;
@@ -350,7 +351,8 @@ namespace Jazz2::UI
 		/** @brief Begins the next batch of the run of a record, returns `false` if it can't be batched */
 		bool BeginQuadBatch(QuadBatch& record);
 		/** @brief Ends the run of rectangles open on a layer, something else is drawn there */
-		void EndQuadRun(std::uint16_t layer) {
+		void EndQuadRun(std::uint16_t layer)
+		{
 			if (_openQuadRuns > 0) {
 				EndQuadRunOnLayer(layer);
 			}

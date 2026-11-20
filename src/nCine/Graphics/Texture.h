@@ -122,47 +122,57 @@ namespace nCine
 		bool SaveToMemory(std::uint8_t* bufferPtr, std::int32_t level);
 
 		/** @brief Returns the texture width */
-		inline std::int32_t GetWidth() const {
+		inline std::int32_t GetWidth() const
+		{
 			return _width;
 		}
 		/** @brief Returns the texture height */
-		inline std::int32_t GetHeight() const {
+		inline std::int32_t GetHeight() const
+		{
 			return _height;
 		}
 		/** @brief Returns the number of texture MIP map levels */
-		inline std::int32_t GetMipMapLevels() const {
+		inline std::int32_t GetMipMapLevels() const
+		{
 			return _mipMapLevels;
 		}
 		/** @brief Returns the texture size */
-		inline Vector2i GetSize() const {
+		inline Vector2i GetSize() const
+		{
 			return Vector2i(_width, _height);
 		}
 		/** @brief Returns the texture rectangle */
-		inline Recti GetRect() const {
+		inline Recti GetRect() const
+		{
 			return Recti(0, 0, _width, _height);
 		}
 
 		/** @brief Returns `true` if the texture holds compressed data */
-		inline bool IsCompressed() const {
+		inline bool IsCompressed() const
+		{
 			return _isCompressed;
 		}
 		/** @brief Returns the number of color channels */
 		std::uint32_t GetChannelCount() const;
 		/** @brief Returns the amount of video memory needed to load the texture */
-		inline std::uint32_t GetDataSize() const {
+		inline std::uint32_t GetDataSize() const
+		{
 			return _dataSize;
 		}
 
 		/** @brief Returns the texture filtering for minification */
-		inline SamplerFilter GetMinFiltering() const {
+		inline SamplerFilter GetMinFiltering() const
+		{
 			return _minFiltering;
 		}
 		/** @brief Returns the texture filtering for magnification */
-		inline SamplerFilter GetMagFiltering() const {
+		inline SamplerFilter GetMagFiltering() const
+		{
 			return _magFiltering;
 		}
 		/** @brief Returns the texture wrapping for both `s` and `t` coordinates */
-		inline SamplerWrapping GetWrap() const {
+		inline SamplerWrapping GetWrap() const
+		{
 			return _wrapMode;
 		}
 		/** @brief Sets the texture filtering for minification */
@@ -215,7 +225,8 @@ namespace nCine
 		/** @brief Returns the opaque user data pointer used as ImGui's `ImTextureID` */
 		void* GetGuiTexId() const;
 
-		inline static ObjectType sType() {
+		inline static ObjectType sType()
+		{
 			return ObjectType::Texture;
 		}
 

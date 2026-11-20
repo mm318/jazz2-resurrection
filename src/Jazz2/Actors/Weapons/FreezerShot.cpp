@@ -120,14 +120,14 @@ namespace Jazz2::Actors::Weapons
 
 				constexpr float currentSize = 1.0f;
 
-				Tiles::TileMap::DestructibleDebris debris = { };
+				Tiles::TileMap::DestructibleDebris debris = {};
 				debris.Pos = Vector2f(_pos.X + dx, _pos.Y + dy);
 				debris.Depth = _renderer.GetLayer();
 				debris.Size = Vector2f(currentSize, currentSize);
 				debris.Acceleration = Vector2f(0.0f, _levelHandler->GetGravity());
 
 				debris.Scale = 1.2f,
-					debris.Alpha = 1.0f;
+				debris.Alpha = 1.0f;
 
 				debris.Time = 300.0f;
 
@@ -154,8 +154,7 @@ namespace Jazz2::Actors::Weapons
 			_pos.X - 4,
 			_pos.Y - 2,
 			_pos.X + 4,
-			_pos.Y + 6
-		);
+			_pos.Y + 6);
 	}
 
 	void FreezerShot::OnEmitLights(SmallVectorImpl<LightEmitter>& lights)

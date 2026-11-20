@@ -55,12 +55,14 @@ namespace Jazz2::Editor
 			// Bumped when an image was replaced or removed, the previews follow
 			std::uint32_t ImageGeneration = 0;
 
-			void ReadLevels() {
+			void ReadLevels()
+			{
 				EpisodeLevelInfo::ReadDirectory(Directory, Levels);
 				Generation++;
 			}
 
-			std::int32_t FindLevel(StringView name) const {
+			std::int32_t FindLevel(StringView name) const
+			{
 				for (std::size_t i = 0; i < Levels.size(); i++) {
 					if (Levels[i].Name == name) {
 						return std::int32_t(i);
@@ -70,12 +72,13 @@ namespace Jazz2::Editor
 			}
 		};
 
-		enum class LinkState {
-			None,		// Nothing is linked
-			Inside,		// A level of this episode that exists
-			Outside,	// A level of another episode that exists
-			End,		// The end of the episode, ":end" or alike
-			Broken		// A level that doesn't exist
+		enum class LinkState
+		{
+			None, // Nothing is linked
+			Inside, // A level of this episode that exists
+			Outside, // A level of another episode that exists
+			End, // The end of the episode, ":end" or alike
+			Broken // A level that doesn't exist
 		};
 
 		// Whether a level is in any of the places the game looks for levels in
@@ -197,7 +200,7 @@ namespace Jazz2::Editor
 		// Changes the links of a level file by @p fix, which returns whether it changed the link it got; with @p stage, the
 		// file is written only into its temporary file (see Utils::AtomicFile::Stage()), otherwise it's replaced and the previous
 		// one is kept as ".bak", in both cases only if any link was changed
-		template<class F>
+		template <class F>
 		bool RewriteLinks(StringView path, F&& fix, bool& changed, bool stage = false)
 		{
 			changed = false;
@@ -225,7 +228,7 @@ namespace Jazz2::Editor
 
 		// Changes the links of the level being edited by @p fix as a step of its history, as they're saved with it, returns
 		// whether any was changed
-		template<class F>
+		template <class F>
 		bool RewriteOwnLinks(IEditorContext& session, F&& fix, StringView name)
 		{
 			LevelDocument& document = session.GetDocument();
@@ -244,7 +247,7 @@ namespace Jazz2::Editor
 
 		// Calls @p callback with the path and the episode of each level in the places levels can be saved to, but those
 		// in @p skipDirectory, which are known already
-		template<class F>
+		template <class F>
 		void ForEachWritableLevel(IEditorContext& session, StringView skipDirectory, F&& callback)
 		{
 			SmallVector<FileRoot, 4> roots;
@@ -341,8 +344,7 @@ namespace Jazz2::Editor
 			// The levels that link to it, of this episode, and of the other episodes where they can be changed
 			auto changes = std::make_shared<SmallVector<LinkChange, 0>>();
 			for (const EpisodeLevelInfo& other : state->Levels) {
-				if (other.Name != level.Name && (RefersTo(other.NextLevel, state->Name, state->Name, level.Name) ||
-					RefersTo(other.SecretLevel, state->Name, state->Name, level.Name) || RefersTo(other.BonusLevel, state->Name, state->Name, level.Name))) {
+				if (other.Name != level.Name && (RefersTo(other.NextLevel, state->Name, state->Name, level.Name) || RefersTo(other.SecretLevel, state->Name, state->Name, level.Name) || RefersTo(other.BonusLevel, state->Name, state->Name, level.Name))) {
 					LinkChange& change = changes->emplace_back();
 					change.Path = other.Path;
 					change.Episode = state->Name;
@@ -351,8 +353,7 @@ namespace Jazz2::Editor
 			}
 			ForEachWritableLevel(session, state->Directory, [&](StringView path, const String& episode) {
 				String next, secret, bonus;
-				if (ReadLevelLinks(path, next, secret, bonus) && (RefersTo(next, episode, state->Name, level.Name) ||
-					RefersTo(secret, episode, state->Name, level.Name) || RefersTo(bonus, episode, state->Name, level.Name))) {
+				if (ReadLevelLinks(path, next, secret, bonus) && (RefersTo(next, episode, state->Name, level.Name) || RefersTo(secret, episode, state->Name, level.Name) || RefersTo(bonus, episode, state->Name, level.Name))) {
 					LinkChange& change = changes->emplace_back();
 					change.Path = path;
 					change.Episode = episode;
@@ -376,10 +377,10 @@ namespace Jazz2::Editor
 			// TRANSLATORS: Title and buttons of the message confirming that a level of the episode is renamed
 			MessageDialog::Show(*surface, _x("editor", "Rename Level"), message, { _x("editor", "Rename"), _x("editor", "Cancel") },
 				[s, state, level, newName, newLower, newPath, changes, isOpen](std::int32_t button) {
-				if (button == 0) {
-					PerformRename(*s, state, level, newName, newLower, newPath, *changes, isOpen);
-				}
-			});
+					if (button == 0) {
+						PerformRename(*s, state, level, newName, newLower, newPath, *changes, isOpen);
+					}
+				});
 		}
 
 		void PerformRename(IEditorContext& session, const std::shared_ptr<EpisodeState>& state, const EpisodeLevelInfo& level, StringView newName,
@@ -412,7 +413,10 @@ namespace Jazz2::Editor
 					ownLinked = true;
 				}
 				bool changed;
-				if (!RewriteLinks(change.Path, [&](String& link) { return fix(link, change.Episode); }, changed, true)) {
+				if (!RewriteLinks(change.Path, [&](String& link) {
+						return fix(link, change.Episode);
+					},
+						changed, true)) {
 					failedNames.push_back(change.Name);
 				} else if (changed) {
 					staged.push_back(change.Path);
@@ -509,7 +513,11 @@ namespace Jazz2::Editor
 				StringView ownDirectory = fs::GetDirectoryName(ownPath);
 				String ownEpisode = (IsSameFile(ownDirectory, state->Directory) ? state->Name : StringUtils::lowercase(fs::GetFileName(ownDirectory)));
 				// TRANSLATORS: Name of an undo step in the history, the links of the level changed after another level was renamed
-				if (RewriteOwnLinks(session, [&](String& link) { return fix(link, ownEpisode); }, _x("editor", "Links to a renamed level")) && ownLinked && !wasDirty) {
+				if (RewriteOwnLinks(session, [&](String& link) {
+						return fix(link, ownEpisode);
+					},
+						_x("editor", "Links to a renamed level")) &&
+					ownLinked && !wasDirty) {
 					session.GetHistory().MarkSaved();
 				}
 			}
@@ -574,14 +582,16 @@ namespace Jazz2::Editor
 			// TRANSLATORS: Title of the file dialog saving the title image or the background image of the episode as a PNG file
 			FileDialog::Show(*surface, title ? _x("editor", "Export Title Image") : _x("editor", "Export Background Image"), FileDialogMode::Save, Death::move(roots), ".png"_s,
 				{}, name, [s, state, title](StringView path) {
-				const EpisodeImage& image = (title ? state->Episode.Title : state->Episode.Background);
-				PngImage png;
-				png.Create(image.Width, image.Height, false);
-				std::memcpy(png.Pixels.data(), image.Pixels.data(), std::min<std::size_t>(png.Pixels.size(), image.Pixels.size()));
-				if (!Utils::AtomicFile::Write(path, [&png](Stream& stream) { return PngCodec::Encode(stream, png); })) {
-					s->ShowMessage(_x("editor", "The file couldn't be written"));
-				}
-			});
+					const EpisodeImage& image = (title ? state->Episode.Title : state->Episode.Background);
+					PngImage png;
+					png.Create(image.Width, image.Height, false);
+					std::memcpy(png.Pixels.data(), image.Pixels.data(), std::min<std::size_t>(png.Pixels.size(), image.Pixels.size()));
+					if (!Utils::AtomicFile::Write(path, [&png](Stream& stream) {
+							return PngCodec::Encode(stream, png);
+						})) {
+						s->ShowMessage(_x("editor", "The file couldn't be written"));
+					}
+				});
 		}
 
 		String FormatImage(const EpisodeImage& image)
@@ -686,13 +696,22 @@ namespace Jazz2::Editor
 			// TRANSLATORS: Labels of the rows of the title image and the background image of the episode in the Episode dialog
 			auto* row = form->AddRow(title ? _x("editor", "Title image") : _x("editor", "Background"));
 			auto* size = row->Add<Label>();
-			size->TextFunc = [state, title]() { return FormatImage(title ? state->Episode.Title : state->Episode.Background); };
+			size->TextFunc = [state, title]() {
+				return FormatImage(title ? state->Episode.Title : state->Episode.Background);
+			};
 			size->Width = 90.0f;
 			// TRANSLATORS: Button in the Episode dialog that replaces the title or background image of the episode by a PNG file, and its tooltip
-			row->Add<Button>(_x("editor", "Import"), EditorIcon::Import, [s, state, title]() { ImportImage(*s, state, title); })->Tooltip = _x("editor", "Replace it by a PNG image");
-			auto* exportButton = row->Add<Button>(StringView(), EditorIcon::Export, [s, state, title]() { ExportImage(*s, state, title); });
+			row->Add<Button>(_x("editor", "Import"), EditorIcon::Import, [s, state, title]() {
+				   ImportImage(*s, state, title);
+			   })
+				->Tooltip = _x("editor", "Replace it by a PNG image");
+			auto* exportButton = row->Add<Button>(StringView(), EditorIcon::Export, [s, state, title]() {
+				ExportImage(*s, state, title);
+			});
 			exportButton->Tooltip = _x("editor", "Save it as a PNG image");
-			exportButton->IsEnabledFunc = [state, title]() { return !(title ? state->Episode.Title : state->Episode.Background).IsEmpty(); };
+			exportButton->IsEnabledFunc = [state, title]() {
+				return !(title ? state->Episode.Title : state->Episode.Background).IsEmpty();
+			};
 			auto* removeButton = row->Add<Button>(StringView(), EditorIcon::Delete, [state, title]() {
 				EpisodeImage& image = (title ? state->Episode.Title : state->Episode.Background);
 				image = EpisodeImage();
@@ -701,7 +720,9 @@ namespace Jazz2::Editor
 			});
 			// TRANSLATORS: Tooltip of the button in the Episode dialog that removes the title or background image of the episode
 			removeButton->Tooltip = _x("editor", "Remove it");
-			removeButton->IsEnabledFunc = [state, title]() { return !(title ? state->Episode.Title : state->Episode.Background).IsEmpty(); };
+			removeButton->IsEnabledFunc = [state, title]() {
+				return !(title ? state->Episode.Title : state->Episode.Background).IsEmpty();
+			};
 			// Larger below the buttons
 			auto* preview = form->AddRow(StringView())->Add<EpisodeImagePreview>(state, title);
 			preview->Width = 240.0f;
@@ -735,7 +756,7 @@ namespace Jazz2::Editor
 		public:
 			EpisodeLevelList(IEditorContext& session, std::shared_ptr<EpisodeState> state, Dialog* dialog)
 				: Stack(Orientation::Vertical, 0.0f, Thickness(0.0f, 0.0f, 3.0f, 0.0f)), _session(session), _state(Death::move(state)),
-					_dialog(dialog), _shownGeneration(UINT32_MAX)
+				  _dialog(dialog), _shownGeneration(UINT32_MAX)
 			{
 			}
 
@@ -853,13 +874,17 @@ namespace Jazz2::Editor
 					// TRANSLATORS: Title of the prompt for a new name of a level in the Episode dialog, with its description
 					ShowTextPrompt(*surface, _x("editor", "Rename Level"), _x("editor", "The links to it in the other levels of the episode are changed too"),
 						state->Levels[index].Name, 64, [s, state, index](StringView name) {
-						RenameLevel(*s, state, index, name);
-					});
+							RenameLevel(*s, state, index, name);
+						});
 				});
 				rename->Style = ButtonStyle::Flat;
 
 				// Where its links lead
-				struct LinkField { String Label; const String* Value; };
+				struct LinkField
+				{
+					String Label;
+					const String* Value;
+				};
 				static const LinkField fields[] = {
 					// TRANSLATORS: Kinds of links of a level to another level (next, secret and bonus level), shown before the name of the level linked
 					{ _x("editor", "Next"), &level.NextLevel },
@@ -941,7 +966,9 @@ namespace Jazz2::Editor
 				auto* box = row->Add<TextBox>();
 				box->Width = 190.0f;
 				box->MaxLength = 255;
-				box->TextFunc = [state]() { return state->Episode.DisplayName; };
+				box->TextFunc = [state]() {
+					return state->Episode.DisplayName;
+				};
 				box->OnCommit = [state](StringView text) {
 					if (state->Episode.DisplayName != text) {
 						state->Episode.DisplayName = text.trimmed();
@@ -955,19 +982,22 @@ namespace Jazz2::Editor
 				auto* dropdown = row->Add<Dropdown>([state]() {
 					// TRANSLATORS: In the Episode dialog when the episode has no first level set
 					return (state->Episode.FirstLevel.empty() ? String(_x("editor", "None")) : state->Episode.FirstLevel);
-				}, [state](SmallVectorImpl<MenuEntry>& entries) {
-					for (const EpisodeLevelInfo& level : state->Levels) {
-						String name = level.Name;
-						MenuEntry entry;
-						entry.Label = (level.DisplayName.empty() ? name : String(name + " - "_s + level.DisplayName));
-						entry.IsChecked = [state, name]() { return StringUtils::lowercase(state->Episode.FirstLevel) == name; };
-						entry.Execute = [state, name]() {
-							state->Episode.FirstLevel = name;
-							state->Changed = true;
-						};
-						entries.push_back(Death::move(entry));
-					}
-				});
+				},
+					[state](SmallVectorImpl<MenuEntry>& entries) {
+						for (const EpisodeLevelInfo& level : state->Levels) {
+							String name = level.Name;
+							MenuEntry entry;
+							entry.Label = (level.DisplayName.empty() ? name : String(name + " - "_s + level.DisplayName));
+							entry.IsChecked = [state, name]() {
+								return StringUtils::lowercase(state->Episode.FirstLevel) == name;
+							};
+							entry.Execute = [state, name]() {
+								state->Episode.FirstLevel = name;
+								state->Changed = true;
+							};
+							entries.push_back(Death::move(entry));
+						}
+					});
 				dropdown->Width = 190.0f;
 				dropdown->Tooltip = _x("editor", "Level the episode starts with");
 			}
@@ -979,7 +1009,9 @@ namespace Jazz2::Editor
 				box->MaxLength = 255;
 				// TRANSLATORS: Placeholder of the empty box of the previous or next episode in the Episode dialog
 				box->Placeholder = _x("editor", "none");
-				box->TextFunc = [state, previous]() { return (previous ? state->Episode.PreviousEpisode : state->Episode.NextEpisode); };
+				box->TextFunc = [state, previous]() {
+					return (previous ? state->Episode.PreviousEpisode : state->Episode.NextEpisode);
+				};
 				box->OnCommit = [state, previous](StringView text) {
 					String& value = (previous ? state->Episode.PreviousEpisode : state->Episode.NextEpisode);
 					String trimmed = text.trimmed();
@@ -989,18 +1021,22 @@ namespace Jazz2::Editor
 					}
 				};
 				box->Tooltip = (previous ? _x("editor", "Name of the episode before this one, its file name without the extension")
-					: _x("editor", "Name of the episode played after this one, its file name without the extension"));
+										 : _x("editor", "Name of the episode played after this one, its file name without the extension"));
 			}
 			{
 				// TRANSLATORS: Label of the order of the episode in the list of episodes in the Episode dialog
 				auto* row = form->AddRow(_x("editor", "Position"));
-				auto* number = row->Add<NumberBox>([state]() { return float(state->Episode.Position); }, [state](float value, bool) {
-					std::uint16_t position = std::uint16_t(std::clamp<std::int32_t>(std::int32_t(value), 0, 65535));
-					if (position != state->Episode.Position) {
-						state->Episode.Position = position;
-						state->Changed = true;
-					}
-				}, 0.0f, 65535.0f, 1.0f, 0);
+				auto* number = row->Add<NumberBox>([state]() {
+					return float(state->Episode.Position);
+				},
+					[state](float value, bool) {
+						std::uint16_t position = std::uint16_t(std::clamp<std::int32_t>(std::int32_t(value), 0, 65535));
+						if (position != state->Episode.Position) {
+							state->Episode.Position = position;
+							state->Changed = true;
+						}
+					},
+					0.0f, 65535.0f, 1.0f, 0);
 				number->Width = 60.0f;
 				number->Tooltip = _x("editor", "The list of episodes is sorted by it, the episodes of the original game are below 100");
 			}
@@ -1020,7 +1056,8 @@ namespace Jazz2::Editor
 				} else {
 					s->ShowMessage(_x("editor", "The episode couldn't be saved"));
 				}
-			}, true);
+			},
+				true);
 			// Closed by its cross or Escape, a changed episode asks to be saved first
 			dialog->OnCancel = [dialogPtr, s, state]() {
 				if (!state->Changed) {
@@ -1035,17 +1072,17 @@ namespace Jazz2::Editor
 				// TRANSLATORS: Title and buttons of the message asking to save the changed episode when the Episode dialog is closed
 				MessageDialog::Show(*surface, _x("editor", "Episode"), _x("editor", "The episode was changed, do you want to save it?"), { _("Save"), _x("editor", "Don't Save"), _x("editor", "Cancel") },
 					[dialogPtr, s, state](std::int32_t button) {
-					if (button == 0) {
-						if (!state->Episode.Write(state->FilePath, state->Exists)) {
-							s->ShowMessage(_x("editor", "The episode couldn't be saved"));
-							return;
+						if (button == 0) {
+							if (!state->Episode.Write(state->FilePath, state->Exists)) {
+								s->ShowMessage(_x("editor", "The episode couldn't be saved"));
+								return;
+							}
+							s->ShowMessage(_x("editor", "The episode was saved"));
+							dialogPtr->Close();
+						} else if (button == 1) {
+							dialogPtr->Close();
 						}
-						s->ShowMessage(_x("editor", "The episode was saved"));
-						dialogPtr->Close();
-					} else if (button == 1) {
-						dialogPtr->Close();
-					}
-				});
+					});
 			};
 
 			ShowModal(*surface, Death::move(dialog));
@@ -1287,7 +1324,10 @@ namespace Jazz2::Editor
 				LevelLookup levels(session);
 				for (const LinkChange& change : plan.Changes) {
 					bool changed;
-					if (!RewriteLinks(change.Path, [&](String& link) { return MoveLink(link, change.Episode, plan.LevelName, plan.Target.Name, levels); }, changed)) {
+					if (!RewriteLinks(change.Path, [&](String& link) {
+							return MoveLink(link, change.Episode, plan.LevelName, plan.Target.Name, levels);
+						},
+							changed)) {
 						failed++;
 					} else if (changed) {
 						rewritten++;
@@ -1349,7 +1389,11 @@ namespace Jazz2::Editor
 			// Its own links to levels of "unknown" by just their names
 			String ownChanges;
 			plan->Properties = session.GetDocument().Properties;
-			struct LinkField { String Label; String Formats::LevelProperties::*Value; };
+			struct LinkField
+			{
+				String Label;
+				String Formats::LevelProperties::*Value;
+			};
 			static const LinkField fields[] = {
 				// TRANSLATORS: Kinds of links of a level to another level (next, secret and bonus level), shown before the name of the level linked
 				{ _x("editor", "Next"), &Formats::LevelProperties::NextLevel },
@@ -1374,9 +1418,7 @@ namespace Jazz2::Editor
 						return;
 					}
 					String next, secret, bonus;
-					if (ReadLevelLinks(path, next, secret, bonus) && (LeadsToNoEpisodeLevel(next, episode, plan->LevelName, plan->Target.Name, levels) ||
-						LeadsToNoEpisodeLevel(secret, episode, plan->LevelName, plan->Target.Name, levels) ||
-						LeadsToNoEpisodeLevel(bonus, episode, plan->LevelName, plan->Target.Name, levels))) {
+					if (ReadLevelLinks(path, next, secret, bonus) && (LeadsToNoEpisodeLevel(next, episode, plan->LevelName, plan->Target.Name, levels) || LeadsToNoEpisodeLevel(secret, episode, plan->LevelName, plan->Target.Name, levels) || LeadsToNoEpisodeLevel(bonus, episode, plan->LevelName, plan->Target.Name, levels))) {
 						LinkChange& change = plan->Changes.emplace_back();
 						change.Path = path;
 						change.Episode = episode;
@@ -1390,12 +1432,12 @@ namespace Jazz2::Editor
 			String message;
 			if (plan->IsCopy) {
 				message = (isNew ? _fx("editor", "Make episode \"{}\" and copy level \"{}\" into it?", plan->Target.Name, plan->LevelName)
-					: _fx("editor", "Copy level \"{}\" into episode \"{}\"?", plan->LevelName, plan->Target.Name));
+								 : _fx("editor", "Copy level \"{}\" into episode \"{}\"?", plan->LevelName, plan->Target.Name));
 				// TRANSLATORS: {} is the new name of the level as "episode/level", "unknown" is the name of a folder, keep it as it is
 				message = String(message + "\n"_s + _fx("editor", "It's saved as \"{}\".", newName) + "\n"_s + _x("editor", "The level in \"unknown\" can't be changed, so it stays as it is."));
 			} else {
 				message = (isNew ? _fx("editor", "Make episode \"{}\" and move level \"{}\" into it?", plan->Target.Name, plan->LevelName)
-					: _fx("editor", "Move level \"{}\" into episode \"{}\"?", plan->LevelName, plan->Target.Name));
+								 : _fx("editor", "Move level \"{}\" into episode \"{}\"?", plan->LevelName, plan->Target.Name));
 				// TRANSLATORS: {} is the new name of the level as "episode/level", "unknown" is the name of a folder, keep it as it is
 				message = String(message + "\n"_s + _fx("editor", "It's saved as \"{}\", its file in \"unknown\" is removed.", newName));
 			}
@@ -1420,10 +1462,10 @@ namespace Jazz2::Editor
 				// TRANSLATORS: Buttons of the message confirming that the level is moved or copied into a new or an existing episode
 				{ isNew ? _x("editor", "Create") : (plan->IsCopy ? _x("editor", "Copy") : _x("editor", "Move")), _x("editor", "Cancel") },
 				[s, plan](std::int32_t button) {
-				if (button == 0) {
-					PerformMove(*s, *plan);
-				}
-			});
+					if (button == 0) {
+						PerformMove(*s, *plan);
+					}
+				});
 		}
 
 		void ShowNewEpisodeDialog(IEditorContext& session)
@@ -1482,7 +1524,9 @@ namespace Jazz2::Editor
 				auto* box = row->Add<TextBox>();
 				box->Width = 220.0f;
 				box->MaxLength = std::int32_t(MaxEpisodeNameLength);
-				box->TextFunc = [settings]() { return settings->Name; };
+				box->TextFunc = [settings]() {
+					return settings->Name;
+				};
 				box->OnChanged = [settings](StringView text) {
 					settings->Name = StringUtils::lowercase(text.trimmed());
 					settings->NameTyped = true;
@@ -1491,7 +1535,9 @@ namespace Jazz2::Editor
 			}
 			auto* result = content->Add<Label>(StringView(), Theme::TextDim);
 			// TRANSLATORS: In the New Episode dialog, the new name of the level, {}/{} are the folder of the episode and the name of the level
-			result->TextFunc = [settings, levelName]() { return _fx("editor", "The level becomes \"{}/{}\"", settings->Name, levelName); };
+			result->TextFunc = [settings, levelName]() {
+				return _fx("editor", "The level becomes \"{}/{}\"", settings->Name, levelName);
+			};
 
 			IEditorContext* s = &session;
 			// TRANSLATORS: Button in the New Episode dialog
@@ -1519,8 +1565,11 @@ namespace Jazz2::Editor
 				target.DisplayName = (displayName.empty() ? settings->Name : displayName);
 				dialogPtr->Close();
 				ConfirmMove(*s, Death::move(target), true);
-			}, true);
-			dialog->AddButton(_x("editor", "Cancel"), [dialogPtr]() { dialogPtr->Close(); });
+			},
+				true);
+			dialog->AddButton(_x("editor", "Cancel"), [dialogPtr]() {
+				dialogPtr->Close();
+			});
 
 			ShowModal(*surface, Death::move(dialog));
 			// Typed right away
@@ -1541,10 +1590,10 @@ namespace Jazz2::Editor
 				// TRANSLATORS: Title and buttons of the message when there is no episode the level could be moved into
 				MessageDialog::Show(*surface, _x("editor", "Move to Episode"), _x("editor", "There is no episode the level could be moved into yet."), { _x("editor", "New Episode"), _x("editor", "Cancel") },
 					[s](std::int32_t button) {
-					if (button == 0) {
-						ShowNewEpisodeDialog(*s);
-					}
-				});
+						if (button == 0) {
+							ShowNewEpisodeDialog(*s);
+						}
+					});
 				return;
 			}
 
@@ -1576,7 +1625,9 @@ namespace Jazz2::Editor
 					dialogPtr->Close();
 					ConfirmMove(*s, Death::move(chosen), false);
 				});
-				move->IsEnabledFunc = [taken]() { return !taken; };
+				move->IsEnabledFunc = [taken]() {
+					return !taken;
+				};
 
 				// TRANSLATORS: Below an episode in the Move to Episode dialog, {} is the number of levels in it
 				String details = String(target.Name + "/ - "_s + _fnx("editor", "{} level", "{} levels", target.LevelCount, target.LevelCount));
@@ -1606,15 +1657,15 @@ namespace Jazz2::Editor
 			MessageDialog::Show(*surface, _x("editor", "Episode"), _x("editor", "The level is in \"unknown\", where the levels of no episode are.\nDo you want to make a new episode for it, or move it into an existing one?"),
 				// TRANSLATORS: Buttons of the message for a level that isn't in any episode, the third one shows the levels that aren't in any episode
 				{ _x("editor", "New Episode"), _x("editor", "Move to Episode"), _x("editor", "Levels of No Episode"), _x("editor", "Cancel") }, [s, state](std::int32_t button) {
-				if (button == 0) {
-					ShowNewEpisodeDialog(*s);
-				} else if (button == 1) {
-					ShowMoveToEpisodeDialog(*s);
-				} else if (button == 2) {
-					// The levels of "unknown", to open or rename them
-					ShowEpisodeWindow(*s, state);
-				}
-			});
+					if (button == 0) {
+						ShowNewEpisodeDialog(*s);
+					} else if (button == 1) {
+						ShowMoveToEpisodeDialog(*s);
+					} else if (button == 2) {
+						// The levels of "unknown", to open or rename them
+						ShowEpisodeWindow(*s, state);
+					}
+				});
 		}
 	}
 
@@ -1632,10 +1683,12 @@ namespace Jazz2::Editor
 			MessageDialog::Show(*surface, _x("editor", "Episode"), _x("editor", "The level wasn't saved yet, its episode is the folder it's saved into.\nDo you want to save it now?"),
 				// TRANSLATORS: Buttons of the message for a level that wasn't saved yet, the first one opens the Save As dialog
 				{ _x("editor", "Save As"), _x("editor", "Cancel") }, [s](std::int32_t button) {
-				if (button == 0) {
-					s->ShowSaveAsDialog(false, [s]() { ShowEpisodeDialog(*s); });
-				}
-			});
+					if (button == 0) {
+						s->ShowSaveAsDialog(false, [s]() {
+							ShowEpisodeDialog(*s);
+						});
+					}
+				});
 			return;
 		}
 

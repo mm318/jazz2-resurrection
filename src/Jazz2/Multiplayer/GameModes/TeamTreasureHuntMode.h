@@ -15,10 +15,12 @@ namespace Jazz2::Multiplayer::GameModes
 	class TeamTreasureHuntMode : public TreasureHuntMode
 	{
 	public:
-		MpGameMode GetMode() const override {
+		MpGameMode GetMode() const override
+		{
 			return MpGameMode::TeamTreasureHunt;
 		}
-		bool IsTeamBased() const override {
+		bool IsTeamBased() const override
+		{
 			return true;
 		}
 	};

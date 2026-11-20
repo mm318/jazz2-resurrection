@@ -13,9 +13,9 @@ namespace Jazz2
 	*/
 	enum class SuspendType : std::uint8_t
 	{
-		None,				/**< None */
-		Vine,				/**< Vine */
-		Hook,				/**< Hook */
-		SwingingVine		/**< Swinging vine */
+		None, /**< None */
+		Vine, /**< Vine */
+		Hook, /**< Hook */
+		SwingingVine /**< Swinging vine */
 	};
 }

@@ -35,7 +35,7 @@
 	safety net - makes Transform() return false with a diagnostic naming the offending line.
 */
 
-#include "ShaderParser.h"	// Diagnostic, SourceLine, ShaderParser::StripComments
+#include "ShaderParser.h" // Diagnostic, SourceLine, ShaderParser::StripComments
 
 namespace ShaderCompiler
 {

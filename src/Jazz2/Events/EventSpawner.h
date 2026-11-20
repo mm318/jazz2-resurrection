@@ -47,7 +47,8 @@ namespace Jazz2::Events
 	private:
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
-		struct SpawnableEvent {
+		struct SpawnableEvent
+		{
 			CreateDelegate CreateFunction;
 			PreloadDelegate PreloadFunction;
 		};
@@ -58,7 +59,7 @@ namespace Jazz2::Events
 
 		void RegisterKnownSpawnables();
 
-		template<typename T>
+		template <typename T>
 		void RegisterSpawnable(EventType type);
 	};
 }

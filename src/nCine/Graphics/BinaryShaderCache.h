@@ -8,9 +8,9 @@
 using namespace Death::Containers;
 
 #if defined(DEATH_TARGET_WINDOWS) && defined(DEATH_TARGET_X86) && defined(DEATH_TARGET_32BIT)
-#	define __GLAPIENTRY __stdcall
+#define __GLAPIENTRY __stdcall
 #else
-#	define __GLAPIENTRY
+#define __GLAPIENTRY
 #endif
 
 namespace nCine
@@ -31,12 +31,14 @@ namespace nCine
 		BinaryShaderCache& operator=(const BinaryShaderCache&) = delete;
 
 		/** @brief Returns whether binary shaders are supported and the cache can be used */
-		inline bool IsAvailable() const {
+		inline bool IsAvailable() const
+		{
 			return _isAvailable;
 		}
 
 		/** @brief Returns the hash value that identifies the current OpenGL platform */
-		inline std::uint64_t GetPlatformHash() const {
+		inline std::uint64_t GetPlatformHash() const
+		{
 			return _platformHash;
 		}
 
@@ -54,7 +56,8 @@ namespace nCine
 		bool Clear();
 
 		/** @brief Returns the current cache directory for binary shaders */
-		inline const StringView Path() {
+		inline const StringView Path()
+		{
 			return _path;
 		}
 		/** @brief Sets a new directory as the cache for binary shaders */

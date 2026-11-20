@@ -72,7 +72,7 @@ namespace Jazz2
 		/** @brief Secret level name */
 		String SecretLevel;
 		/** @brief Bonus level name */
-		String BonusLevel;	// TODO: Unused
+		String BonusLevel; // TODO: Unused
 		/** @brief Tile map */
 		std::unique_ptr<Tiles::TileMap> TileMap;
 		/** @brief Event map */

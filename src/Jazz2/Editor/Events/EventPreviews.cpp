@@ -171,7 +171,7 @@ namespace Jazz2::Editor
 				resource = nullptr;
 			}
 		}
-		entries.push_back(SpriteEntry{ String(spec.Metadata), spec.Animation, resource });
+		entries.push_back(SpriteEntry { String(spec.Metadata), spec.Animation, resource });
 		return resource;
 	}
 
@@ -480,13 +480,18 @@ namespace Jazz2::Editor
 				EventCatalog::IsLevelExtension(EventCatalog::Find(EventType(event.Type), event.Params)));
 			EditorIcon icon = (passthrough ? EditorIcon::Passthrough : EditorIcon::Event);
 			switch (EventType(event.Type)) {
-				case EventType::RaceCheckpoint: icon = EditorIcon::RaceFlag; break;
+				case EventType::RaceCheckpoint:
+					icon = EditorIcon::RaceFlag;
+					break;
 				case EventType::LightAmbient:
 				case EventType::LightSteady:
 				case EventType::LightPulse:
 				case EventType::LightFlicker:
-				case EventType::LightIlluminate: icon = EditorIcon::LightBulb; break;
-				default: break;
+				case EventType::LightIlluminate:
+					icon = EditorIcon::LightBulb;
+					break;
+				default:
+					break;
 			}
 			painter.Icon(icon, rect, Colorf(1.0f, 1.0f, 1.0f, 0.7f * alpha), PaintLayer::Overlay);
 			return;
@@ -624,19 +629,32 @@ namespace Jazz2::Editor
 	Colorf EventPreviews::GetCategoryColor(EventCategory category)
 	{
 		switch (category) {
-			case EventCategory::Basic: return Colorf(0.30f, 0.80f, 0.35f, 1.0f);
-			case EventCategory::Scenery: return Colorf(0.72f, 0.50f, 0.26f, 1.0f);
-			case EventCategory::Modifier: return Colorf(0.25f, 0.70f, 0.88f, 1.0f);
-			case EventCategory::Area: return Colorf(0.62f, 0.42f, 0.92f, 1.0f);
-			case EventCategory::Trigger: return Colorf(0.96f, 0.55f, 0.20f, 1.0f);
-			case EventCategory::Warp: return Colorf(0.32f, 0.50f, 1.00f, 1.0f);
-			case EventCategory::Light: return Colorf(1.00f, 0.90f, 0.40f, 1.0f);
-			case EventCategory::Environment: return Colorf(0.30f, 0.80f, 0.70f, 1.0f);
-			case EventCategory::Enemy: return Colorf(0.92f, 0.30f, 0.30f, 1.0f);
-			case EventCategory::Boss: return Colorf(0.78f, 0.15f, 0.35f, 1.0f);
-			case EventCategory::Collectible: return Colorf(0.96f, 0.76f, 0.25f, 1.0f);
-			case EventCategory::Container: return Colorf(0.76f, 0.60f, 0.40f, 1.0f);
-			default: return Colorf(0.60f, 0.60f, 0.66f, 1.0f);
+			case EventCategory::Basic:
+				return Colorf(0.30f, 0.80f, 0.35f, 1.0f);
+			case EventCategory::Scenery:
+				return Colorf(0.72f, 0.50f, 0.26f, 1.0f);
+			case EventCategory::Modifier:
+				return Colorf(0.25f, 0.70f, 0.88f, 1.0f);
+			case EventCategory::Area:
+				return Colorf(0.62f, 0.42f, 0.92f, 1.0f);
+			case EventCategory::Trigger:
+				return Colorf(0.96f, 0.55f, 0.20f, 1.0f);
+			case EventCategory::Warp:
+				return Colorf(0.32f, 0.50f, 1.00f, 1.0f);
+			case EventCategory::Light:
+				return Colorf(1.00f, 0.90f, 0.40f, 1.0f);
+			case EventCategory::Environment:
+				return Colorf(0.30f, 0.80f, 0.70f, 1.0f);
+			case EventCategory::Enemy:
+				return Colorf(0.92f, 0.30f, 0.30f, 1.0f);
+			case EventCategory::Boss:
+				return Colorf(0.78f, 0.15f, 0.35f, 1.0f);
+			case EventCategory::Collectible:
+				return Colorf(0.96f, 0.76f, 0.25f, 1.0f);
+			case EventCategory::Container:
+				return Colorf(0.76f, 0.60f, 0.40f, 1.0f);
+			default:
+				return Colorf(0.60f, 0.60f, 0.66f, 1.0f);
 		}
 	}
 
@@ -878,7 +896,7 @@ namespace Jazz2::Editor
 				};
 				std::int32_t count = 0;
 				bool wordStart = true;
-				for (std::size_t i = 0; i < name.size() && count < 3; ) {
+				for (std::size_t i = 0; i < name.size() && count < 3;) {
 					std::size_t length = charLength(i);
 					if (name[i] == ' ') {
 						wordStart = true;

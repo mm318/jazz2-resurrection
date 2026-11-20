@@ -4,7 +4,7 @@
 
 #include "Iterator.h"
 #if !defined(NCINE_PREFER_STD_SORT)
-#	include "pdqsort/pdqsort.h"
+#include "pdqsort/pdqsort.h"
 #endif
 
 #include <algorithm>
@@ -23,32 +23,32 @@ namespace nCine
 {
 #ifndef DOXYGEN_GENERATING_OUTPUT
 	// Traits
-	template<class T>
+	template <class T>
 	struct isIntegral
 	{
 		static constexpr bool value = false;
 	};
-	template<>
+	template <>
 	struct isIntegral<bool>
 	{
 		static constexpr bool value = true;
 	};
-	template<>
+	template <>
 	struct isIntegral<char>
 	{
 		static constexpr bool value = true;
 	};
-	template<>
+	template <>
 	struct isIntegral<unsigned char>
 	{
 		static constexpr bool value = true;
 	};
-	template<>
+	template <>
 	struct isIntegral<short int>
 	{
 		static constexpr bool value = true;
 	};
-	template<>
+	template <>
 	struct isIntegral<unsigned short int>
 	{
 		static constexpr bool value = true;
@@ -58,46 +58,46 @@ namespace nCine
 	{
 		static constexpr bool value = true;
 	};
-	template<>
+	template <>
 	struct isIntegral<unsigned int>
 	{
 		static constexpr bool value = true;
 	};
-	template<>
+	template <>
 	struct isIntegral<long>
 	{
 		static constexpr bool value = true;
 	};
-	template<>
+	template <>
 	struct isIntegral<unsigned long>
 	{
 		static constexpr bool value = true;
 	};
-	template<>
+	template <>
 	struct isIntegral<long long>
 	{
 		static constexpr bool value = true;
 	};
-	template<>
+	template <>
 	struct isIntegral<unsigned long long>
 	{
 		static constexpr bool value = true;
 	};
 
-	template<class T>
-	inline bool IsLess(const T &a, const T &b)
+	template <class T>
+	inline bool IsLess(const T& a, const T& b)
 	{
 		return a < b;
 	}
-	
-	template<class T>
-	inline bool IsNotLess(const T &a, const T &b)
+
+	template <class T>
+	inline bool IsNotLess(const T& a, const T& b)
 	{
 		return !(a < b);
 	}
 
 	/// Returns true if the range is sorted into ascending order
-	template<class Iterator>
+	template <class Iterator>
 	inline bool isSorted(Iterator first, const Iterator last)
 	{
 		if (first == last)
@@ -114,7 +114,7 @@ namespace nCine
 	}
 
 	/// Returns true if the range is sorted, using a custom comparison
-	template<class Iterator, class Compare>
+	template <class Iterator, class Compare>
 	inline bool isSorted(Iterator first, const Iterator last, Compare comp)
 	{
 		if (first == last)
@@ -131,7 +131,7 @@ namespace nCine
 	}
 
 	/// Returns an iterator to the first element in the range which does not follow an ascending order, or last if sorted
-	template<class Iterator>
+	template <class Iterator>
 	inline const Iterator isSortedUntil(Iterator first, const Iterator last)
 	{
 		if (first == last)
@@ -148,7 +148,7 @@ namespace nCine
 	}
 
 	/// Returns an iterator to the first element in the range which does not follow the custom comparison, or last if sorted
-	template<class Iterator, class Compare>
+	template <class Iterator, class Compare>
 	inline const Iterator isSortedUntil(Iterator first, const Iterator last, Compare comp)
 	{
 		if (first == last)
@@ -166,33 +166,35 @@ namespace nCine
 
 	namespace Implementation
 	{
-		template<class T>
+		template <class T>
 		struct typeIdentity
 		{
 			using type = T;
 		};
 
-		template<class T>
-		auto tryAddRValueReference(int)->typeIdentity<T&&>;
-		template<class T>
-		auto tryAddRValueReference(...)->typeIdentity<T>;
+		template <class T>
+		auto tryAddRValueReference(int) -> typeIdentity<T&&>;
+		template <class T>
+		auto tryAddRValueReference(...) -> typeIdentity<T>;
 
-		template<class T>
-		struct addRValueReference : decltype(tryAddRValueReference<T>(0)) {};
-		template<class T>
+		template <class T>
+		struct addRValueReference : decltype(tryAddRValueReference<T>(0))
+		{
+		};
+		template <class T>
 		typename addRValueReference<T>::type declVal();
 
 		/// A container for functions to destruct objects and arrays of objects
-		template<bool value>
+		template <bool value>
 		struct destructHelpers
 		{
-			template<class T>
+			template <class T>
 			inline static void destructObject(T* ptr)
 			{
 				ptr->~T();
 			}
 
-			template<class T>
+			template <class T>
 			inline static void destructArray(T* ptr, std::uint32_t numElements)
 			{
 				for (std::uint32_t i = 0; i < numElements; i++) {
@@ -201,15 +203,15 @@ namespace nCine
 			}
 		};
 
-		template<>
+		template <>
 		struct destructHelpers<true>
 		{
-			template<class T>
+			template <class T>
 			inline static void destructObject(T* ptr)
 			{
 			}
 
-			template<class T>
+			template <class T>
 			inline static void destructArray(T* ptr, unsigned int numElements)
 			{
 			}
@@ -217,13 +219,13 @@ namespace nCine
 	}
 
 	/// Specialization for trivially destructible types
-	template<class T, typename = void>
+	template <class T, typename = void>
 	struct isDestructible
 	{
 		static constexpr bool value = false;
 	};
 
-	template<class T>
+	template <class T>
 	struct isDestructible<T, decltype(Implementation::declVal<T&>().~T())>
 	{
 		static constexpr bool value = (true && !__is_union(T));
@@ -231,39 +233,39 @@ namespace nCine
 
 	// Use `__has_trivial_destructor()` only on GCC
 #if defined(__GNUC__) && !defined(__clang__) && !defined(__INTEL_COMPILER)
-	template<class T>
+	template <class T>
 	struct hasTrivialDestructor
 	{
 		static constexpr bool value = __has_trivial_destructor(T);
 	};
 
-	template<class T>
+	template <class T>
 	struct isTriviallyDestructible
 	{
 		static constexpr bool value = isDestructible<T>::value && hasTrivialDestructor<T>::value;
 	};
 #else
-	template<class T>
+	template <class T>
 	struct isTriviallyDestructible
 	{
 		static constexpr bool value = __is_trivially_destructible(T);
 	};
 #endif
 
-	template<class T>
+	template <class T>
 	void destructObject(T* ptr)
 	{
 		Implementation::destructHelpers<isTriviallyDestructible<T>::value>::destructObject(ptr);
 	}
 
-	template<class T>
+	template <class T>
 	void destructArray(T* ptr, std::uint32_t numElements)
 	{
 		Implementation::destructHelpers<isTriviallyDestructible<T>::value>::destructArray(ptr, numElements);
 	}
 #endif
 
-#if defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_DREAMCAST) || \
+#if defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_DREAMCAST) ||                                                           \
 	defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PS2) || \
 	defined(DEATH_TARGET_PS3) || defined(DEATH_TARGET_AMIGAOS)
 	/**
@@ -273,7 +275,7 @@ namespace nCine
 	 * share the same newlib libm and have no hardware sine (or, on the Dreamcast, have one that libm does
 	 * not use). Move a platform out of the list if it ever measures otherwise.
 	 */
-#	define NCINE_APPROX_TRIG
+#define NCINE_APPROX_TRIG
 #endif
 
 	namespace Implementation
@@ -304,14 +306,14 @@ namespace nCine
 		 */
 		inline float FoldHalfTurn(float x)
 		{
-#	if (defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_PS3) || defined(DEATH_TARGET_AMIGAOS)) && !defined(__FAST_MATH__)
-			constexpr float RoundingBias = 12582912.0f;	// 1.5 * 2^23, the ulp is exactly 1 for |turns| < 2^22
+#if (defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_PS3) || defined(DEATH_TARGET_AMIGAOS)) && !defined(__FAST_MATH__)
+			constexpr float RoundingBias = 12582912.0f; // 1.5 * 2^23, the ulp is exactly 1 for |turns| < 2^22
 			const float whole = (x * (0.5f / fPi) + RoundingBias) - RoundingBias;
-#	else
+#else
 			// The bias comes back off in float, after the cast: the integer is exact either way, and this keeps
 			// the value in the FPU instead of a move to a general register and back for one `addiu`
 			const float whole = (float)(std::int32_t)(x * (0.5f / fPi) + 1024.5f) - 1024.0f;
-#	endif
+#endif
 			return x - fTwoPi * whole;
 		}
 
@@ -548,11 +550,11 @@ namespace nCine
 	inline float floorFast(float x)
 	{
 #if defined(NCINE_APPROX_TRIG)
-#	if (defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_PS3) || defined(DEATH_TARGET_AMIGAOS)) && !defined(__FAST_MATH__)
+#if (defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_PS3) || defined(DEATH_TARGET_AMIGAOS)) && !defined(__FAST_MATH__)
 		const float r = (x + 12582912.0f) - 12582912.0f;
-#	else
+#else
 		const float r = (float)(std::int32_t)x;
-#	endif
+#endif
 		return (r > x ? r - 1.0f : r);
 #else
 		return std::floor(x);
@@ -563,11 +565,11 @@ namespace nCine
 	inline float ceilFast(float x)
 	{
 #if defined(NCINE_APPROX_TRIG)
-#	if (defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_PS3) || defined(DEATH_TARGET_AMIGAOS)) && !defined(__FAST_MATH__)
+#if (defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_PS3) || defined(DEATH_TARGET_AMIGAOS)) && !defined(__FAST_MATH__)
 		const float r = (x + 12582912.0f) - 12582912.0f;
-#	else
+#else
 		const float r = (float)(std::int32_t)x;
-#	endif
+#endif
 		return (r < x ? r + 1.0f : r);
 #else
 		return std::ceil(x);
@@ -648,14 +650,16 @@ namespace nCine
 	std::int32_t copyStringFirst(char* dest, std::int32_t destSize, const char* source, std::int32_t count = -1);
 
 	/** @brief Copies the beginning of a string into a fixed-size array, deducing its size */
-	template<std::size_t size>
-	inline std::int32_t copyStringFirst(char(&dest)[size], const char* source, std::int32_t count = -1) {
+	template <std::size_t size>
+	inline std::int32_t copyStringFirst(char (&dest)[size], const char* source, std::int32_t count = -1)
+	{
 		return copyStringFirst(dest, size, source, count);
 	}
 
 	/** @brief Copies the beginning of a string view into a fixed-size array, deducing its size */
-	template<std::size_t size>
-	inline std::int32_t copyStringFirst(char(&dest)[size], Containers::StringView source) {
+	template <std::size_t size>
+	inline std::int32_t copyStringFirst(char (&dest)[size], Containers::StringView source)
+	{
 		return copyStringFirst(dest, size, source.data(), (std::int32_t)source.size());
 	}
 
@@ -667,8 +671,9 @@ namespace nCine
 	std::int32_t formatString(char* buffer, std::size_t maxLen, const char* format, ...);
 
 	/** @brief Writes a `printf`-style formatted string into a fixed-size array, deducing its size */
-	template<std::size_t size, class ...TArg>
-	inline std::int32_t formatString(char(&dest)[size], const char* format, const TArg& ...args) {
+	template <std::size_t size, class... TArg>
+	inline std::int32_t formatString(char (&dest)[size], const char* format, const TArg&... args)
+	{
 		return formatString(dest, size, format, args...);
 	}
 
@@ -720,7 +725,7 @@ namespace nCine
 	}
 
 	/** @brief Sorts the range in place using the given comparator */
-	template<class Iter, class Compare>
+	template <class Iter, class Compare>
 	inline void sort(Iter begin, Iter end, Compare comp)
 	{
 #if defined(NCINE_PREFER_STD_SORT)
@@ -731,7 +736,7 @@ namespace nCine
 	}
 
 	/** @brief Sorts the range in place into ascending order */
-	template<class Iter>
+	template <class Iter>
 	inline void sort(Iter begin, Iter end)
 	{
 #if defined(NCINE_PREFER_STD_SORT)
@@ -779,16 +784,16 @@ namespace nCine
 		std::uint64_t major = stou32(&version[0], dotIndices[0]);
 		std::uint64_t minor = (foundCount >= 1 ? stou32(&version[dotIndices[0] + 1], dotIndices[1] - dotIndices[0] - 1) : 0);
 		std::uint64_t patch = (foundCount >= 2
-			? (version[dotIndices[1] + 1] != 'r'
-				? stou32(&version[dotIndices[1] + 1], dotIndices[2] - dotIndices[1] - 1)
-				: 0x0FFFFFFFULL) // GIT Revision - use special value, so it's always the latest (without upper 4 bits)
-			: 0);
+				? (version[dotIndices[1] + 1] != 'r'
+						  ? stou32(&version[dotIndices[1] + 1], dotIndices[2] - dotIndices[1] - 1)
+						  : 0x0FFFFFFFULL) // GIT Revision - use special value, so it's always the latest (without upper 4 bits)
+				: 0);
 
 		return (patch & 0xFFFFFFFFULL) | ((minor & 0xFFFFULL) << 32) | ((major & 0xFFFFULL) << 48);
 	}
 
 	/** @brief Encodes the byte range into a URL-safe Base64 string (without padding) */
-	template<class Iterator>
+	template <class Iterator>
 	static std::string toBase64Url(const Iterator begin, const Iterator end)
 	{
 		static const Containers::StaticArray<64, char> chars {

@@ -35,33 +35,40 @@ namespace nCine::RHI::GL
 		GLUniform(GLuint program, const char* name, GLenum type, GLint arraySize);
 
 		/** @brief Returns the active uniform index within the program */
-		inline GLuint GetIndex() const {
+		inline GLuint GetIndex() const
+		{
 			return _index;
 		}
 		/** @brief Returns the index of the owning uniform block, or -1 if the uniform is not in a block */
-		inline GLint GetBlockIndex() const {
+		inline GLint GetBlockIndex() const
+		{
 			return _blockIndex;
 		}
 		/** @brief Returns the uniform location, or -1 if it has no location (e.g., block members) */
-		inline GLint GetLocation() const {
+		inline GLint GetLocation() const
+		{
 			return _location;
 		}
 		/** @brief Returns the number of array elements (1 for non-array uniforms) */
-		inline GLint GetSize() const {
+		inline GLint GetSize() const
+		{
 			return _size;
 		}
 		/** @brief Returns the native GL type enum of the uniform (e.g., `GL_FLOAT_VEC4`) */
-		inline GLenum GetGLType() const {
+		inline GLenum GetGLType() const
+		{
 			return _type;
 		}
 		/** @brief Returns the reflected (backend-neutral) type of the uniform, converted from the native GL type enum */
 		ShaderCompiler::UniformType GetType() const;
 		/** @brief Returns the byte offset of the uniform within its uniform block */
-		inline GLint GetOffset() const {
+		inline GLint GetOffset() const
+		{
 			return _offset;
 		}
 		/** @brief Returns the uniform name */
-		inline const char* GetName() const {
+		inline const char* GetName() const
+		{
 			return _name;
 		}
 		/** @brief Returns the basic component type (`GL_FLOAT`, `GL_INT` or `GL_BOOL`) derived from the GL type */
@@ -69,7 +76,8 @@ namespace nCine::RHI::GL
 		/** @brief Returns the number of components of the uniform type (e.g., 4 for a `vec4`, 16 for a `mat4`) */
 		std::uint32_t GetComponentCount() const;
 		/** @brief Returns the size in bytes occupied by the uniform value */
-		inline std::uint32_t GetMemorySize() const {
+		inline std::uint32_t GetMemorySize() const
+		{
 			return GetSize() * GetComponentCount() * sizeof(GetBasicType());
 		}
 

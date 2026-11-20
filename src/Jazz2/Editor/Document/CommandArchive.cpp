@@ -27,7 +27,8 @@ namespace Jazz2::Editor
 		// Nothing the editor keeps in a single buffer is larger, all layers of a level of the most tiles included
 		constexpr std::uint64_t MaxBufferSize = std::uint64_t(1) << 30;
 
-		enum class CommandType : std::uint8_t {
+		enum class CommandType : std::uint8_t
+		{
 			SetTiles = 1,
 			SetEvents,
 			Snapshot,
@@ -85,40 +86,50 @@ namespace Jazz2::Editor
 	class CommandArchive::Writer
 	{
 	public:
-		explicit Writer(SmallVectorImpl<std::uint8_t>& data) : _data(data) {}
+		explicit Writer(SmallVectorImpl<std::uint8_t>& data)
+			: _data(data)
+		{
+		}
 
-		void Bytes(const void* source, std::size_t size) {
+		void Bytes(const void* source, std::size_t size)
+		{
 			const std::uint8_t* bytes = static_cast<const std::uint8_t*>(source);
 			_data.append(bytes, bytes + size);
 		}
-		template<typename T>
-		void Value(const T& value) {
+		template <typename T>
+		void Value(const T& value)
+		{
 			static_assert(std::is_trivially_copyable<T>::value, "The value has to be trivially copyable");
 			Bytes(&value, sizeof(T));
 		}
-		void VarUint(std::uint64_t value) {
+		void VarUint(std::uint64_t value)
+		{
 			do {
 				std::uint8_t byte = std::uint8_t(value & 0x7F);
 				value >>= 7;
 				_data.push_back(value != 0 ? std::uint8_t(byte | 0x80) : byte);
 			} while (value != 0);
 		}
-		void Text(StringView value) {
+		void Text(StringView value)
+		{
 			VarUint(value.size());
 			Bytes(value.data(), value.size());
 		}
-		void Blob(ArrayView<const std::uint8_t> value) {
+		void Blob(ArrayView<const std::uint8_t> value)
+		{
 			VarUint(value.size());
 			Bytes(value.data(), value.size());
 		}
-		template<typename T>
-		void Array(ArrayView<const T> values) {
+		template <typename T>
+		void Array(ArrayView<const T> values)
+		{
 			static_assert(std::is_trivially_copyable<T>::value, "The values have to be trivially copyable");
 			VarUint(values.size());
 			Bytes(values.data(), values.size() * sizeof(T));
 		}
 
-		std::size_t GetSize() const {
+		std::size_t GetSize() const
+		{
 			return _data.size();
 		}
 
@@ -130,25 +141,32 @@ namespace Jazz2::Editor
 	{
 	public:
 		explicit Reader(ArrayView<const std::uint8_t> data, LayerIdRemap* idRemap = nullptr)
-			: IdRemap(idRemap), _pos(data.data()), _end(data.data() + data.size()), _failed(false) {}
+			: IdRemap(idRemap), _pos(data.data()), _end(data.data() + data.size()), _failed(false)
+		{
+		}
 
 		// New identities of the layers the history keeps, they're of another run of the editor
 		LayerIdRemap* IdRemap;
 
-		bool IsValid() const {
+		bool IsValid() const
+		{
 			return !_failed;
 		}
-		std::size_t GetRemaining() const {
+		std::size_t GetRemaining() const
+		{
 			return std::size_t(_end - _pos);
 		}
-		const std::uint8_t* GetPosition() const {
+		const std::uint8_t* GetPosition() const
+		{
 			return _pos;
 		}
-		void SetPosition(const std::uint8_t* pos) {
+		void SetPosition(const std::uint8_t* pos)
+		{
 			_pos = pos;
 		}
 
-		bool Bytes(void* destination, std::size_t size) {
+		bool Bytes(void* destination, std::size_t size)
+		{
 			if (_failed || GetRemaining() < size) {
 				_failed = true;
 				return false;
@@ -157,8 +175,9 @@ namespace Jazz2::Editor
 			_pos += size;
 			return true;
 		}
-		template<typename T>
-		T Value() {
+		template <typename T>
+		T Value()
+		{
 			static_assert(std::is_trivially_copyable<T>::value, "The value has to be trivially copyable");
 			T value;
 			if (!Bytes(&value, sizeof(T))) {
@@ -166,7 +185,8 @@ namespace Jazz2::Editor
 			}
 			return value;
 		}
-		std::uint64_t VarUint() {
+		std::uint64_t VarUint()
+		{
 			std::uint64_t value = 0;
 			for (std::int32_t shift = 0; shift < 64; shift += 7) {
 				if (_failed || _pos >= _end) {
@@ -182,7 +202,8 @@ namespace Jazz2::Editor
 			_failed = true;
 			return 0;
 		}
-		String Text() {
+		String Text()
+		{
 			std::uint64_t size = VarUint();
 			if (_failed || size > GetRemaining()) {
 				_failed = true;
@@ -192,7 +213,8 @@ namespace Jazz2::Editor
 			_pos += size;
 			return value;
 		}
-		void Blob(SmallVectorImpl<std::uint8_t>& value) {
+		void Blob(SmallVectorImpl<std::uint8_t>& value)
+		{
 			std::uint64_t size = VarUint();
 			if (_failed || size > GetRemaining()) {
 				_failed = true;
@@ -202,8 +224,9 @@ namespace Jazz2::Editor
 			value.assign(_pos, _pos + size);
 			_pos += size;
 		}
-		template<typename T>
-		void Array(SmallVectorImpl<T>& values) {
+		template <typename T>
+		void Array(SmallVectorImpl<T>& values)
+		{
 			static_assert(std::is_trivially_copyable<T>::value, "The values have to be trivially copyable");
 			std::uint64_t count = VarUint();
 			if (_failed || count > GetRemaining() / sizeof(T)) {
@@ -318,7 +341,10 @@ namespace Jazz2::Editor
 			w.Text(c->_name);
 			w.Value(c->_layer);
 			w.Value(c->_width);
-			w.Value(c->_minX); w.Value(c->_minY); w.Value(c->_maxX); w.Value(c->_maxY);
+			w.Value(c->_minX);
+			w.Value(c->_minY);
+			w.Value(c->_maxX);
+			w.Value(c->_maxY);
 			// The changes as the command keeps them, many of them compressed
 			if (!c->_compressed.IsEmpty()) {
 				w.Value<std::uint8_t>(1);
@@ -334,7 +360,10 @@ namespace Jazz2::Editor
 			w.Text(c->_name);
 			w.Value(c->_width);
 			w.Value(c->_height);
-			w.Value(c->_minX); w.Value(c->_minY); w.Value(c->_maxX); w.Value(c->_maxY);
+			w.Value(c->_minX);
+			w.Value(c->_minY);
+			w.Value(c->_maxX);
+			w.Value(c->_maxY);
 			w.Array<SetEventsCommand::Change>(c->_changes);
 			return true;
 		}
@@ -526,8 +555,10 @@ namespace Jazz2::Editor
 				std::int32_t layer = r.Value<std::int32_t>();
 				auto command = std::make_unique<SetTilesCommand>(document, layer, Death::move(name));
 				command->_width = r.Value<std::int32_t>();
-				command->_minX = r.Value<std::int32_t>(); command->_minY = r.Value<std::int32_t>();
-				command->_maxX = r.Value<std::int32_t>(); command->_maxY = r.Value<std::int32_t>();
+				command->_minX = r.Value<std::int32_t>();
+				command->_minY = r.Value<std::int32_t>();
+				command->_maxX = r.Value<std::int32_t>();
+				command->_maxY = r.Value<std::int32_t>();
 				bool compressed = (r.Value<std::uint8_t>() != 0);
 				if (compressed) {
 					// Decompressed only when it's done or undone, a size of no whole number of changes is damaged
@@ -544,8 +575,10 @@ namespace Jazz2::Editor
 				auto command = std::make_unique<SetEventsCommand>(document, Death::move(name));
 				command->_width = r.Value<std::int32_t>();
 				command->_height = r.Value<std::int32_t>();
-				command->_minX = r.Value<std::int32_t>(); command->_minY = r.Value<std::int32_t>();
-				command->_maxX = r.Value<std::int32_t>(); command->_maxY = r.Value<std::int32_t>();
+				command->_minX = r.Value<std::int32_t>();
+				command->_minY = r.Value<std::int32_t>();
+				command->_maxX = r.Value<std::int32_t>();
+				command->_maxY = r.Value<std::int32_t>();
 				r.Array(command->_changes);
 				command->_sealed = true;
 				return (r.IsValid() ? Death::move(command) : nullptr);

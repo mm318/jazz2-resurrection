@@ -13,7 +13,7 @@
 #include "../../Main.h"
 
 #if defined(WITH_QT5)
-#	include "Qt5GfxDevice.h"
+#include "Qt5GfxDevice.h"
 #endif
 
 namespace nCine
@@ -22,9 +22,9 @@ namespace nCine
 
 	Viewport::Viewport(const char* name, Texture* texture, DepthStencilFormat depthStencilFormat)
 		: _type(Type::NoTexture), _width(0), _height(0), _viewportRect(0, 0, 0, 0), _scissorRect(0, 0, 0, 0),
-			_depthStencilFormat(DepthStencilFormat::None), _lastFrameCleared(0), _clearMode(ClearMode::EveryFrame),
-			_clearColor(Colorf::Black), _fbo(nullptr), _rootNode(nullptr),
-			_camera(nullptr), _stateBits(0), _numColorAttachments(0)
+		  _depthStencilFormat(DepthStencilFormat::None), _lastFrameCleared(0), _clearMode(ClearMode::EveryFrame),
+		  _clearColor(Colorf::Black), _fbo(nullptr), _rootNode(nullptr),
+		  _camera(nullptr), _stateBits(0), _numColorAttachments(0)
 	{
 		for (std::uint32_t i = 0; i < MaxNumTextures; i++) {
 			_textures[i] = nullptr;
@@ -100,7 +100,8 @@ namespace nCine
 	std::uint32_t Viewport::AddSplitPass(Viewport* pass)
 	{
 		DEATH_ASSERT(pass != nullptr && pass != this && pass->_type == Type::WithTexture && pass->_splitOwner == nullptr &&
-			_splitPasses.size() < MaxSplitPasses, "Invalid split pass", 0);
+				_splitPasses.size() < MaxSplitPasses,
+			"Invalid split pass", 0);
 		pass->_splitOwner = this;
 		_splitPasses.push_back(pass);
 		return (1u << (_splitPasses.size() - 1));
@@ -286,7 +287,8 @@ namespace nCine
 
 		const Camera* vieportCamera = (_camera != nullptr ? _camera : RenderResources::GetCurrentCamera());
 		Camera::ProjectionValues projValues = vieportCamera->GetProjectionValues();
-		if (projValues.Top > projValues.Bottom) std::swap(projValues.Top, projValues.Bottom);
+		if (projValues.Top > projValues.Bottom)
+			std::swap(projValues.Top, projValues.Bottom);
 
 		const float projWidth = projValues.Right - projValues.Left;
 		const float projHeight = projValues.Bottom - projValues.Top;
@@ -454,7 +456,7 @@ namespace nCine
 		if (_type == Type::Screen || _type == Type::WithTexture) {
 			const unsigned long int numFrames = theApplication().GetFrameCount();
 			if ((_lastFrameCleared < numFrames && (_clearMode == ClearMode::EveryFrame || _clearMode == ClearMode::ThisFrameOnly)) ||
-				 _clearMode == ClearMode::EveryDraw) {
+				_clearMode == ClearMode::EveryDraw) {
 				const Colorf previousClearColor = RHI::Device::GetClearColor();
 				RHI::Device::SetClearColor(_clearColor);
 
@@ -555,10 +557,10 @@ namespace nCine
 #if defined(WITH_QT5)
 			Qt5GfxDevice& gfxDevice = static_cast<Qt5GfxDevice&>(theApplication().gfxDevice());
 			gfxDevice.bindDefaultDrawFramebufferObject();
-#	if defined(RHI_RENDER_TARGETS_BOTTOM_UP)
+#if defined(RHI_RENDER_TARGETS_BOTTOM_UP)
 			// What UnbindDraw() would have told the device
 			RHI::Device::SetRenderTargetBound(false);
-#	endif
+#endif
 #else
 			RHI::RenderTarget::UnbindDraw();
 #endif

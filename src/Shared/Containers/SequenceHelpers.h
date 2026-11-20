@@ -27,22 +27,45 @@
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
 
-namespace Death { namespace Containers { namespace Implementation {
-//###==##====#=====--==~--~=~- --- -- -  -  -   -
+namespace Death
+{
+	namespace Containers
+	{
+		namespace Implementation
+		{
+			//###==##====#=====--==~--~=~- --- -- -  -  -   -
 
-	template<std::size_t ...> struct Sequence {};
+			template <std::size_t...>
+			struct Sequence
+			{
+			};
 
-	template<class A, class B> struct SequenceConcat;
-	template<std::size_t ...first, std::size_t ...second> struct SequenceConcat<Sequence<first...>, Sequence<second...>> {
-		typedef Sequence<first..., (sizeof...(first) + second)...> Type;
-	};
+			template <class A, class B>
+			struct SequenceConcat;
+			template <std::size_t... first, std::size_t... second>
+			struct SequenceConcat<Sequence<first...>, Sequence<second...>>
+			{
+				typedef Sequence<first..., (sizeof...(first) + second)...> Type;
+			};
 
-	template<std::size_t N> struct GenerateSequence :
-		SequenceConcat<typename GenerateSequence<N/2>::Type,
-					   typename GenerateSequence<N - N/2>::Type> {};
-	template<> struct GenerateSequence<1> { typedef Sequence<0> Type; };
-	template<> struct GenerateSequence<0> { typedef Sequence<> Type; };
+			template <std::size_t N>
+			struct GenerateSequence : SequenceConcat<typename GenerateSequence<N / 2>::Type,
+										  typename GenerateSequence<N - N / 2>::Type>
+			{
+			};
+			template <>
+			struct GenerateSequence<1>
+			{
+				typedef Sequence<0> Type;
+			};
+			template <>
+			struct GenerateSequence<0>
+			{
+				typedef Sequence<> Type;
+			};
 
-}}}
+		}
+	}
+}
 
 #endif

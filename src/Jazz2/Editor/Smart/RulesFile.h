@@ -29,7 +29,8 @@ namespace Jazz2::Editor
 	{
 	public:
 		/** @brief What reading the rules of a tile set found */
-		enum class ReadResult : std::uint8_t {
+		enum class ReadResult : std::uint8_t
+		{
 			/** The tile set has no rules, an empty object */
 			Missing,
 			/** The rules were read */

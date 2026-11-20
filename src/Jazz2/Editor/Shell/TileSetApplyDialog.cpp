@@ -232,7 +232,10 @@ namespace Jazz2::Editor
 			}
 			// Written next to it first, so a tile set that can't be saved whole isn't lost, the one written over is kept
 			// as a backup, undo doesn't change the file back
-			if (!Utils::AtomicFile::Write(path, [&tileSet](Stream& s) { return Formats::TileSetFile::Write(s, tileSet); }, intoItself)) {
+			if (!Utils::AtomicFile::Write(path, [&tileSet](Stream& s) {
+					return Formats::TileSetFile::Write(s, tileSet);
+				},
+					intoItself)) {
 				session.ShowMessage(_x("editor", "The tile set couldn't be saved"));
 				return false;
 			}
@@ -272,9 +275,15 @@ namespace Jazz2::Editor
 				return std::binary_search(applied.begin(), applied.end(), tileId);
 			};
 			auto& diffuse = document.DiffuseOverrides;
-			diffuse.erase(std::remove_if(diffuse.begin(), diffuse.end(), [&](const Formats::TileDiffuseOverride& tile) { return isApplied(tile.TileId); }), diffuse.end());
+			diffuse.erase(std::remove_if(diffuse.begin(), diffuse.end(), [&](const Formats::TileDiffuseOverride& tile) {
+				return isApplied(tile.TileId);
+			}),
+				diffuse.end());
 			auto& masks = document.MaskOverrides;
-			masks.erase(std::remove_if(masks.begin(), masks.end(), [&](const Formats::TileMaskOverride& tile) { return isApplied(tile.TileId); }), masks.end());
+			masks.erase(std::remove_if(masks.begin(), masks.end(), [&](const Formats::TileMaskOverride& tile) {
+				return isApplied(tile.TileId);
+			}),
+				masks.end());
 			return true;
 		});
 
@@ -344,25 +353,28 @@ namespace Jazz2::Editor
 			auto* row = content->AddRow(_x("editor", "Tiles of"));
 			auto* dropdown = row->Add<Dropdown>([state, sourceName]() {
 				return sourceName(state->Source);
-			}, [s, state, sourceName, sourceCount, nameHolder](SmallVectorImpl<MenuEntry>& entries) {
-				for (std::int32_t i = 0; i < sourceCount; i++) {
-					std::int32_t changed = CountChangedTiles(*s, std::uint8_t(i));
-					if (changed <= 0 && !(i == TileRef::DefaultTileSet && HasLevelPalette(*s))) {
-						continue;
-					}
-					MenuEntry entry;
-					// TRANSLATORS: Number of the tiles the level changes in a tile set, shown after the name of the tile set
-					entry.Label = sourceName(i) + " ("_s + _fnx("editor", "{} changed tile", "{} changed tiles", changed, changed) + ")"_s;
-					entry.IsChecked = [state, i]() { return (state->Source == i); };
-					entry.Execute = [s, state, i, nameHolder]() {
-						if (state->Source != i && *nameHolder != nullptr) {
-							(*nameHolder)->Text = MakeNewName(s->GetDocument(), std::uint8_t(i));
+			},
+				[s, state, sourceName, sourceCount, nameHolder](SmallVectorImpl<MenuEntry>& entries) {
+					for (std::int32_t i = 0; i < sourceCount; i++) {
+						std::int32_t changed = CountChangedTiles(*s, std::uint8_t(i));
+						if (changed <= 0 && !(i == TileRef::DefaultTileSet && HasLevelPalette(*s))) {
+							continue;
 						}
-						state->Source = i;
-					};
-					entries.push_back(Death::move(entry));
-				}
-			});
+						MenuEntry entry;
+						// TRANSLATORS: Number of the tiles the level changes in a tile set, shown after the name of the tile set
+						entry.Label = sourceName(i) + " ("_s + _fnx("editor", "{} changed tile", "{} changed tiles", changed, changed) + ")"_s;
+						entry.IsChecked = [state, i]() {
+							return (state->Source == i);
+						};
+						entry.Execute = [s, state, i, nameHolder]() {
+							if (state->Source != i && *nameHolder != nullptr) {
+								(*nameHolder)->Text = MakeNewName(s->GetDocument(), std::uint8_t(i));
+							}
+							state->Source = i;
+						};
+						entries.push_back(Death::move(entry));
+					}
+				});
 			dropdown->Width = 160.0f;
 			auto* count = row->Add<Label>(StringView(), Theme::TextDim);
 			// Counted again only when the level or the tile set chosen changes, not every frame
@@ -386,15 +398,25 @@ namespace Jazz2::Editor
 		}
 		{
 			// TRANSLATORS: Checkbox in the Save Tile Changes into Tile Set dialog, the palette of the level is saved into the tile set too
-			auto* withPalette = content->Add<CheckBox>(_x("editor", "With the palette of the level"), [state]() { return state->WithPalette; },
-				[state](bool value) { state->WithPalette = value; });
+			auto* withPalette = content->Add<CheckBox>(_x("editor", "With the palette of the level"), [state]() {
+				return state->WithPalette;
+			},
+				[state](bool value) {
+					state->WithPalette = value;
+				});
 			withPalette->Tooltip = _x("editor", "It becomes the palette of the tile set, the level then doesn't have its own");
-			withPalette->IsVisibleFunc = [s, state]() { return (state->Source == TileRef::DefaultTileSet && HasLevelPalette(*s)); };
+			withPalette->IsVisibleFunc = [s, state]() {
+				return (state->Source == TileRef::DefaultTileSet && HasLevelPalette(*s));
+			};
 		}
 		TextBox* nameBox;
 		{
-			content->Add<CheckBox>(_x("editor", "Into a new tile set, this level then uses it instead"), [state]() { return !state->IntoItself; },
-				[state](bool value) { state->IntoItself = !value; });
+			content->Add<CheckBox>(_x("editor", "Into a new tile set, this level then uses it instead"), [state]() {
+				return !state->IntoItself;
+			},
+				[state](bool value) {
+					state->IntoItself = !value;
+				});
 			// TRANSLATORS: Label of the name of the new tile set in the Save Tile Changes into Tile Set dialog
 			auto* row = content->AddRow(_x("editor", "Name"));
 			nameBox = row->Add<TextBox>(MakeNewName(document, std::uint8_t(state->Source)));
@@ -402,13 +424,16 @@ namespace Jazz2::Editor
 			nameBox->Width = 160.0f;
 			nameBox->MaxLength = 32;
 			nameBox->Tooltip = _x("editor", "The tile set is saved in the user content, Tilesets/<name>.j2t");
-			nameBox->IsEnabledFunc = [state]() { return !state->IntoItself; };
+			nameBox->IsEnabledFunc = [state]() {
+				return !state->IntoItself;
+			};
 		}
 		{
 			auto* warning = content->Add<Label>(StringView(), Theme::TextAccent);
 			warning->TextFunc = [s, state]() {
 				return (state->IntoItself && !IsLevelTileSet(s->GetDocument(), std::uint8_t(state->Source))
-					? String(_x("editor", "Every level that uses the tile set shows the changes")) : String());
+						? String(_x("editor", "Every level that uses the tile set shows the changes"))
+						: String());
 			};
 			// Its own copy in the user content is written over, any other one is covered by a copy there
 			auto* copy = content->Add<Label>(StringView(), Theme::TextAccent);
@@ -427,8 +452,11 @@ namespace Jazz2::Editor
 			if (ApplyTileChanges(*s, std::uint8_t(state->Source), newName, state->WithPalette)) {
 				dialogPtr->Close();
 			}
-		}, true);
-		dialog->AddButton(_x("editor", "Cancel"), [dialogPtr]() { dialogPtr->Close(); });
+		},
+			true);
+		dialog->AddButton(_x("editor", "Cancel"), [dialogPtr]() {
+			dialogPtr->Close();
+		});
 
 		ShowModal(*surface, Death::move(dialog));
 	}

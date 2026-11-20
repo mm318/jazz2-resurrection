@@ -35,7 +35,8 @@ namespace Jazz2::AssetPacker
 		static bool VerifyDirectory(StringView path, bool sweepTruncated = false);
 
 		/** @brief Limits and reproducibility of @ref FuzzDirectory() */
-		struct FuzzOptions {
+		struct FuzzOptions
+		{
 			/** @brief Number of mutated inputs to try */
 			std::int32_t Iterations = 10000;
 			/** @brief Seed of the mutations, the same seed tries the same inputs again */

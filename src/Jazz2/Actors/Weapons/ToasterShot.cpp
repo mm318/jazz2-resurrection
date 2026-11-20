@@ -88,10 +88,18 @@ namespace Jazz2::Actors::Weapons
 			float damping = Damping * TickAccelScale * timeMult;
 			float maxSpeed = MaxSpeed * TickSpeedScale;
 			auto fade = [damping, maxSpeed](float value) {
-				if (value > maxSpeed) { return maxSpeed; }
-				if (value < -maxSpeed) { return -maxSpeed; }
-				if (value > damping) { return value - damping; }
-				if (value < -damping) { return value + damping; }
+				if (value > maxSpeed) {
+					return maxSpeed;
+				}
+				if (value < -maxSpeed) {
+					return -maxSpeed;
+				}
+				if (value > damping) {
+					return value - damping;
+				}
+				if (value < -damping) {
+					return value + damping;
+				}
 				return 0.0f;
 			};
 			if (_vertical) {

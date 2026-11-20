@@ -11,7 +11,7 @@
 	an x-ray layer to a plain layer showing its animated tiles without their mask frames, a blur layer to a hidden one.
 */
 #if defined(RHI_CAP_POSTPROCESSING) && defined(TILEMAP_USE_SINGLE_DRAW)
-#	define TILEMAP_LAYER_EFFECTS
+#define TILEMAP_LAYER_EFFECTS
 #endif
 
 namespace nCine

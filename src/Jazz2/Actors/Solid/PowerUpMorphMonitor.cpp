@@ -17,13 +17,19 @@ namespace Jazz2::Actors::Solid
 	{
 		MorphType morphType = (MorphType)details.Params[0];
 		switch (morphType) {
-			case MorphType::Swap2: PreloadMetadataAsync("Object/PowerUp/Swap2"_s); break;
-			case MorphType::Swap3: PreloadMetadataAsync("Object/PowerUp/Swap3"_s); break;
+			case MorphType::Swap2:
+				PreloadMetadataAsync("Object/PowerUp/Swap2"_s);
+				break;
+			case MorphType::Swap3:
+				PreloadMetadataAsync("Object/PowerUp/Swap3"_s);
+				break;
 			case MorphType::ToBird:
 				PreloadMetadataAsync("Object/PowerUp/Bird"_s);
 				PreloadMetadataAsync(Player::GetCharacterTraits(PlayerType::Bird2).Metadata);
 				break;
-			default: PreloadMetadataAsync("Object/PowerUp/Empty"_s); break;
+			default:
+				PreloadMetadataAsync("Object/PowerUp/Empty"_s);
+				break;
 		}
 	}
 
@@ -35,10 +41,18 @@ namespace Jazz2::Actors::Solid
 		Movable = true;
 
 		switch (_morphType) {
-			case MorphType::Swap2: async_await RequestMetadataAsync("Object/PowerUp/Swap2"_s); break;
-			case MorphType::Swap3: async_await RequestMetadataAsync("Object/PowerUp/Swap3"_s); break;
-			case MorphType::ToBird: async_await RequestMetadataAsync("Object/PowerUp/Bird"_s); break;
-			default: async_await RequestMetadataAsync("Object/PowerUp/Empty"_s); break;
+			case MorphType::Swap2:
+				async_await RequestMetadataAsync("Object/PowerUp/Swap2"_s);
+				break;
+			case MorphType::Swap3:
+				async_await RequestMetadataAsync("Object/PowerUp/Swap3"_s);
+				break;
+			case MorphType::ToBird:
+				async_await RequestMetadataAsync("Object/PowerUp/Bird"_s);
+				break;
+			default:
+				async_await RequestMetadataAsync("Object/PowerUp/Empty"_s);
+				break;
 		}
 
 		SetAnimation(AnimState::Default);

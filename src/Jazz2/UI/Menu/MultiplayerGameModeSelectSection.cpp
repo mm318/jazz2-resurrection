@@ -147,42 +147,61 @@ namespace Jazz2::UI::Menu
 	{
 		switch (mode) {
 			// TRANSLATORS: Description of Battle game mode in Select Game Mode section
-			case MpGameMode::Battle: return _("Roast the other players. Each roast is a point.");
+			case MpGameMode::Battle:
+				return _("Roast the other players. Each roast is a point.");
 			// TRANSLATORS: Description of Team Battle game mode in Select Game Mode section
-			case MpGameMode::TeamBattle: return _("Battle in teams. The roasts of all team members add up.");
+			case MpGameMode::TeamBattle:
+				return _("Battle in teams. The roasts of all team members add up.");
 			// TRANSLATORS: Description of Race game mode in Select Game Mode section
-			case MpGameMode::Race: return _("Be the first to finish all the laps.");
+			case MpGameMode::Race:
+				return _("Be the first to finish all the laps.");
 			// TRANSLATORS: Description of Team Race game mode in Select Game Mode section
-			case MpGameMode::TeamRace: return _("Race in teams. A team wins when all its players have finished.");
+			case MpGameMode::TeamRace:
+				return _("Race in teams. A team wins when all its players have finished.");
 			// TRANSLATORS: Description of Treasure Hunt game mode in Select Game Mode section
-			case MpGameMode::TreasureHunt: return _("Collect gems, then reach the exit with enough treasure. Getting hurt costs some of it.");
+			case MpGameMode::TreasureHunt:
+				return _("Collect gems, then reach the exit with enough treasure. Getting hurt costs some of it.");
 			// TRANSLATORS: Description of Team Treasure Hunt game mode in Select Game Mode section
-			case MpGameMode::TeamTreasureHunt: return _("Treasure Hunt in teams. The treasure of all team members adds up.");
+			case MpGameMode::TeamTreasureHunt:
+				return _("Treasure Hunt in teams. The treasure of all team members adds up.");
 			// TRANSLATORS: Description of Capture The Flag game mode in Select Game Mode section
-			case MpGameMode::CaptureTheFlag: return _("Steal the enemy flag and bring it to your own base.");
+			case MpGameMode::CaptureTheFlag:
+				return _("Steal the enemy flag and bring it to your own base.");
 			// TRANSLATORS: Description of Cooperation game mode in Select Game Mode section
-			case MpGameMode::Cooperation: return _("Play the story levels together. Reaching the exit takes everyone to the next level.");
+			case MpGameMode::Cooperation:
+				return _("Play the story levels together. Reaching the exit takes everyone to the next level.");
 			// TRANSLATORS: Description of Roast Tag game mode in Select Game Mode section
-			case MpGameMode::RoastTag: return _("The first roast wins the ring. Then only the ring holder and the player with the fewest points can roast or be roasted.");
+			case MpGameMode::RoastTag:
+				return _("The first roast wins the ring. Then only the ring holder and the player with the fewest points can roast or be roasted.");
 			// TRANSLATORS: Description of Last Rabbit Standing game mode in Select Game Mode section
-			case MpGameMode::LastRabbitStanding: return _("Everyone has a few lives. Lose them all and you're out. The last player left wins.");
+			case MpGameMode::LastRabbitStanding:
+				return _("Everyone has a few lives. Lose them all and you're out. The last player left wins.");
 			// TRANSLATORS: Description of Extended Last Rabbit Standing game mode in Select Game Mode section
-			case MpGameMode::ExtendedLastRabbitStanding: return _("Last Rabbit Standing where every roast is a point. The last three players left get bonus points.");
+			case MpGameMode::ExtendedLastRabbitStanding:
+				return _("Last Rabbit Standing where every roast is a point. The last three players left get bonus points.");
 			// TRANSLATORS: Description of Pestilence game mode in Select Game Mode section
-			case MpGameMode::Pestilence: return _("Whoever dies becomes a zombie. Zombies and humans can only hurt each other. The last human gets bonus points.");
+			case MpGameMode::Pestilence:
+				return _("Whoever dies becomes a zombie. Zombies and humans can only hurt each other. The last human gets bonus points.");
 			// TRANSLATORS: Description of Team Last Rabbit Standing game mode in Select Game Mode section
-			case MpGameMode::TeamLastRabbitStanding: return _("Every team shares a pool of lives. The last team with lives left wins.");
+			case MpGameMode::TeamLastRabbitStanding:
+				return _("Every team shares a pool of lives. The last team with lives left wins.");
 			// TRANSLATORS: Description of Jailbreak game mode in Select Game Mode section
-			case MpGameMode::Jailbreak: return _("Roasted players go to jail and teammates free them. Put the whole enemy team in jail to score.");
+			case MpGameMode::Jailbreak:
+				return _("Roasted players go to jail and teammates free them. Put the whole enemy team in jail to score.");
 			// TRANSLATORS: Description of Death Capture The Flag game mode in Select Game Mode section
-			case MpGameMode::DeathCaptureTheFlag: return _("Capture The Flag where every roast scores too. After a capture, everybody starts over.");
+			case MpGameMode::DeathCaptureTheFlag:
+				return _("Capture The Flag where every roast scores too. After a capture, everybody starts over.");
 			// TRANSLATORS: Description of Flag Run game mode in Select Game Mode section
-			case MpGameMode::FlagRun: return _("Pick up the flag at a capture point and carry it into an enemy base before the time runs out.");
+			case MpGameMode::FlagRun:
+				return _("Pick up the flag at a capture point and carry it into an enemy base before the time runs out.");
 			// TRANSLATORS: Description of Domination game mode in Select Game Mode section
-			case MpGameMode::Domination: return _("Touch control points to capture them. Every point your team holds keeps scoring.");
+			case MpGameMode::Domination:
+				return _("Touch control points to capture them. Every point your team holds keeps scoring.");
 			// TRANSLATORS: Description of Head Hunters game mode in Select Game Mode section
-			case MpGameMode::HeadHunters: return _("Roasted players drop their gems. Bring at least 2 gems to your base, more at once score much more.");
-			default: return {};
+			case MpGameMode::HeadHunters:
+				return _("Roasted players drop their gems. Bring at least 2 gems to your base, more at once score much more.");
+			default:
+				return {};
 		}
 	}
 

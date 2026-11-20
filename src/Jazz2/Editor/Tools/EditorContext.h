@@ -49,16 +49,16 @@ namespace Jazz2::Editor
 	/** @brief What the editor was used with last */
 	enum class InputModality : std::uint8_t
 	{
-		KeyboardMouse,		/**< Keyboard and mouse */
-		Gamepad,			/**< Gamepad, with a cursor of its own */
-		Touch				/**< Fingers on a touch screen, see @ref TouchGestures */
+		KeyboardMouse, /**< Keyboard and mouse */
+		Gamepad, /**< Gamepad, with a cursor of its own */
+		Touch /**< Fingers on a touch screen, see @ref TouchGestures */
 	};
 
 	/** @brief What the panel with the tiles and the events shows */
 	enum class PickerPanel : std::uint8_t
 	{
-		Tiles,			/**< Tiles to paint with */
-		Events			/**< Events to place */
+		Tiles, /**< Tiles to paint with */
+		Events /**< Events to place */
 	};
 
 	/**

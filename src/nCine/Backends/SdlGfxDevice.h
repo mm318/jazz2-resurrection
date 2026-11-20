@@ -7,22 +7,22 @@
 #include "../Graphics/DisplayMode.h"
 
 #if !defined(ZIG_BUILD) && defined(__has_include)
-#	if defined(WITH_SDL3) && __has_include("SDL3/SDL.h")
-#		define __HAS_LOCAL_SDL3
-#	elif __has_include("SDL2/SDL.h")
-#		define __HAS_LOCAL_SDL
-#	endif
+#if defined(WITH_SDL3) && __has_include("SDL3/SDL.h")
+#define __HAS_LOCAL_SDL3
+#elif __has_include("SDL2/SDL.h")
+#define __HAS_LOCAL_SDL
+#endif
 #endif
 #if defined(WITH_SDL3)
-#	if defined(__HAS_LOCAL_SDL3)
-#		include "SDL3/SDL.h"
-#	else
-#		include <SDL3/SDL.h>
-#	endif
-#elif defined(__HAS_LOCAL_SDL)
-#	include "SDL2/SDL.h"
+#if defined(__HAS_LOCAL_SDL3)
+#include "SDL3/SDL.h"
 #else
-#	include <SDL.h>
+#include <SDL3/SDL.h>
+#endif
+#elif defined(__HAS_LOCAL_SDL)
+#include "SDL2/SDL.h"
+#else
+#include <SDL.h>
 #endif
 
 namespace nCine::Backends
@@ -65,18 +65,21 @@ namespace nCine::Backends
 		 *
 		 * @param windowId	SDL2 window identifier to compare against the main window
 		 */
-		static inline bool IsMainWindow(std::uint32_t windowId) {
+		static inline bool IsMainWindow(std::uint32_t windowId)
+		{
 			SDL_Window* windowHandle = SDL_GetWindowFromID(windowId);
 			return (windowHandle == _windowHandle);
 		}
 
 		/** @brief Returns the SDL2 handle of the main window */
-		static inline SDL_Window* GetWindowHandle() {
+		static inline SDL_Window* GetWindowHandle()
+		{
 			return _windowHandle;
 		}
 
 		/** @brief Returns the SDL2 OpenGL context handle */
-		static inline SDL_GLContext GetGlContextHandle() {
+		static inline SDL_GLContext GetGlContextHandle()
+		{
 			return _glContextHandle;
 		}
 
@@ -107,15 +110,18 @@ namespace nCine::Backends
 		 */
 		static Vector2i ToMainWindowPosition(std::uint32_t windowId, Vector2i position);
 #else
-		static bool IsAuxiliaryWindow(std::uint32_t windowId) {
+		static bool IsAuxiliaryWindow(std::uint32_t windowId)
+		{
 			return false;
 		}
-		static Vector2i ToMainWindowPosition(std::uint32_t windowId, Vector2i position) {
+		static Vector2i ToMainWindowPosition(std::uint32_t windowId, Vector2i position)
+		{
 			return position;
 		}
 #endif
 		/** @brief Returns `true` if the SDL window ID is the main window or an auxiliary window of the application */
-		static bool IsOwnWindow(std::uint32_t windowId) {
+		static bool IsOwnWindow(std::uint32_t windowId)
+		{
 			return (IsMainWindow(windowId) || IsAuxiliaryWindow(windowId));
 		}
 

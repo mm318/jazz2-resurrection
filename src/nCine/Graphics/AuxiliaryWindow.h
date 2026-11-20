@@ -5,10 +5,11 @@
 // Windows besides the main one exist only on desktop systems, with a backend that can make them, a build may leave them
 // out with NCINE_NO_AUXILIARY_WINDOWS
 #if ((defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)) || (defined(DEATH_TARGET_APPLE) && !defined(DEATH_TARGET_IOS)) || \
-	(defined(DEATH_TARGET_UNIX) && !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) && \
-	 !defined(DEATH_TARGET_VITA) && !defined(DEATH_TARGET_MORPHOS))) && (defined(WITH_SDL2) || defined(WITH_SDL3) || defined(WITH_GLFW)) && \
+	(defined(DEATH_TARGET_UNIX) && !defined(DEATH_TARGET_ANDROID) && !defined(DEATH_TARGET_EMSCRIPTEN) && !defined(DEATH_TARGET_SWITCH) &&  \
+		!defined(DEATH_TARGET_VITA) && !defined(DEATH_TARGET_MORPHOS))) &&                                                                  \
+	(defined(WITH_SDL2) || defined(WITH_SDL3) || defined(WITH_GLFW)) &&                                                                     \
 	!defined(DEDICATED_SERVER) && !defined(NCINE_NO_AUXILIARY_WINDOWS)
-#	define NCINE_HAS_AUXILIARY_WINDOWS
+#define NCINE_HAS_AUXILIARY_WINDOWS
 #endif
 
 #if defined(NCINE_HAS_AUXILIARY_WINDOWS) || defined(DOXYGEN_GENERATING_OUTPUT)
@@ -67,7 +68,8 @@ namespace nCine
 		AuxiliaryWindow& operator=(const AuxiliaryWindow&) = delete;
 
 		/** @brief Returns its identifier in input events, never 0 */
-		std::uint32_t GetId() const {
+		std::uint32_t GetId() const
+		{
 			return _id;
 		}
 
@@ -97,15 +99,18 @@ namespace nCine
 		 * Positions of the pointer over it are made relative to the main window with it, what it shows may be drawn at
 		 * another scale than the main window, on a display with another scale.
 		 */
-		void SetInputScale(float scale) {
+		void SetInputScale(float scale)
+		{
 			_inputScale = scale;
 		}
 		/** @brief Returns how many units of the main window a unit of this window takes, see @ref SetInputScale() */
-		float GetInputScale() const {
+		float GetInputScale() const
+		{
 			return _inputScale;
 		}
 		/** @brief Returns `true` if the system rounds its corners, what is drawn into it should have the same corners */
-		bool HasRoundedCorners() const {
+		bool HasRoundedCorners() const
+		{
 			return _roundedCorners;
 		}
 
@@ -119,7 +124,8 @@ namespace nCine
 		/** @brief Hides it */
 		void Hide();
 		/** @brief Returns `true` if it's shown or will be once its contents are, see @ref Show() */
-		bool IsShown() const {
+		bool IsShown() const
+		{
 			return _shown;
 		}
 
@@ -129,11 +135,13 @@ namespace nCine
 		 * The texture has to stay until the next call or until the window is destroyed, and should be as large as the
 		 * window in pixels, a larger one is cut and a smaller one leaves the rest black. Nothing is shown with `nullptr`.
 		 */
-		void SetContents(Texture* texture) {
+		void SetContents(Texture* texture)
+		{
 			_contents = texture;
 		}
 		/** @brief Returns the texture with what it shows */
-		Texture* GetContents() const {
+		Texture* GetContents() const
+		{
 			return _contents;
 		}
 

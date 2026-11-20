@@ -1,5 +1,5 @@
 #include "RhiCapabilitiesBase.h"
-#include "RhiFwd.h"		// for the RHI_CAP_* flags of the selected backend
+#include "RhiFwd.h" // for the RHI_CAP_* flags of the selected backend
 
 namespace nCine::RHI
 {
@@ -31,10 +31,14 @@ namespace nCine::RHI
 	std::int32_t RhiCapabilitiesBase::GetApiVersion(IRhiCapabilities::ApiVersion version) const
 	{
 		switch (version) {
-			case ApiVersion::Major: return _majorVersion;
-			case ApiVersion::Minor: return _minorVersion;
-			case ApiVersion::Release: return _releaseVersion;
-			default: return 0;
+			case ApiVersion::Major:
+				return _majorVersion;
+			case ApiVersion::Minor:
+				return _minorVersion;
+			case ApiVersion::Release:
+				return _releaseVersion;
+			default:
+				return 0;
 		}
 	}
 
@@ -122,30 +126,30 @@ namespace nCine::RHI
 		}
 
 		// The tier the pipeline runs on this backend, which is what most of the guarded rendering code keys on
-#	if defined(RHI_CAP_POSTPROCESSING)
+#if defined(RHI_CAP_POSTPROCESSING)
 		const char* tier = "post-processing (shaders, render targets)";
-#	elif defined(RHI_CAP_SHADERS)
+#elif defined(RHI_CAP_SHADERS)
 		const char* tier = "direct (shaders, no render targets)";
-#	elif defined(RHI_CAP_FRAMEBUFFERS)
+#elif defined(RHI_CAP_FRAMEBUFFERS)
 		const char* tier = "direct (render targets, no shaders)";
-#	else
+#else
 		const char* tier = "direct (no shaders, no render targets)";
-#	endif
-#	if defined(RHI_CAP_PALETTED_TEXTURES)
+#endif
+#if defined(RHI_CAP_PALETTED_TEXTURES)
 		const char* palettedTextures = ", paletted textures";
-#	else
+#else
 		const char* palettedTextures = "";
-#	endif
-#	if defined(RHI_CAP_STREAMING_TEXTURES)
+#endif
+#if defined(RHI_CAP_STREAMING_TEXTURES)
 		const char* streamingTextures = ", streaming textures";
-#	else
+#else
 		const char* streamingTextures = "";
-#	endif
-#	if defined(RHI_USE_FB16)
+#endif
+#if defined(RHI_USE_FB16)
 		const char* framebufferFormat = ", 16-bit framebuffer";
-#	else
+#else
 		const char* framebufferFormat = "";
-#	endif
+#endif
 		LOGI("Rendering tier: {}{}{}{}", tier, palettedTextures, streamingTextures, framebufferFormat);
 
 		LOGI("--- Rendering device capabilities ---");

@@ -173,7 +173,7 @@ namespace nCine
 #if defined(RHI_CAP_POSTPROCESSING)
 				|| (prevCommand->GetLayerSortKey() != command->GetLayerSortKey() && isSplitBetween(prevCommand->GetLayerSortKey(), command->GetLayerSortKey()))
 #endif
-				);
+			);
 
 			// Also collect the very last command if it can be batched with the previous one
 			std::uint32_t endSplit = (i == srcQueue.size() - 1 && !shouldSplit ? i + 1 : i);
@@ -197,7 +197,7 @@ namespace nCine
 						} else if (batchSize < minBatchSize) {
 							break;
 						}
-						
+
 						SmallVectorImpl<RenderCommand*>::const_iterator start = srcQueue.begin() + lastSplit;
 						SmallVectorImpl<RenderCommand*>::const_iterator end = srcQueue.begin() + nextSplit;
 
@@ -406,7 +406,7 @@ namespace nCine
 			if (instancesBlockSize + singleInstanceBlockSize > instancesBlock->GetSize() || currentSize + singleInstanceBlockSize > UboMaxSize) {
 				break;
 			}
-			
+
 			instancesBlockSize += singleInstanceBlockSize;
 			++it;
 		}

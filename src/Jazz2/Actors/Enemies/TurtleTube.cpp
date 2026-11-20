@@ -57,7 +57,7 @@ namespace Jazz2::Actors::Enemies
 				// travelled straight through everything in the column (see ResetPathTracking())
 				ResetPathTracking();
 			} else if (adjustedWaterLevel > _pos.Y) {
-				// Water is below the enemy, apply gravitation and pause the animation 
+				// Water is below the enemy, apply gravitation and pause the animation
 				_speed.X = 0.0f;
 				SetState(ActorState::ApplyGravitation, true);
 				_onWater = false;

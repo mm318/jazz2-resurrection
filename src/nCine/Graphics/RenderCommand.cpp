@@ -8,11 +8,12 @@
 namespace nCine
 {
 	RenderCommand::RenderCommand(Type type)
-		: _materialSortKey(0), _modelMatrixUniform(nullptr), _instanceBlock(nullptr), _instancesBlock(nullptr), _instanceUniforms{}, _idSortKey(0), _cachedShaderChangeCounter(std::uint32_t(-1)),
-			_layer(0), _visitOrder(0), _numInstances(0), _batchSize(0), _transformationCommitted(false), _modelMatrixUniformInBlock(false),
-			_modelMatrix(Matrix4x4f::Identity)
+		: _materialSortKey(0), _modelMatrixUniform(nullptr), _instanceBlock(nullptr), _instancesBlock(nullptr), _instanceUniforms {}, _idSortKey(0), _cachedShaderChangeCounter(std::uint32_t(-1)),
+		  _layer(0), _visitOrder(0), _numInstances(0), _batchSize(0), _transformationCommitted(false), _modelMatrixUniformInBlock(false),
+		  _modelMatrix(Matrix4x4f::Identity)
 #if defined(NCINE_PROFILING)
-			, _type(type)
+		  ,
+		  _type(type)
 #endif
 	{
 	}
@@ -81,8 +82,8 @@ namespace nCine
 		_instanceBlock = _material.UniformBlock(Material::InstanceBlockName);
 		_instancesBlock = (_instanceBlock == nullptr ? _material.UniformBlock(Material::InstancesBlockName) : nullptr);
 		_modelMatrixUniform = (_instanceBlock != nullptr
-			? _instanceBlock->GetUniform(Material::ModelMatrixUniformName)
-			: _material.Uniform(Material::ModelMatrixUniformName));
+				? _instanceBlock->GetUniform(Material::ModelMatrixUniformName)
+				: _material.Uniform(Material::ModelMatrixUniformName));
 		_modelMatrixUniformInBlock = (_instanceBlock != nullptr);
 		// The per-quad members of the same block. Resolving them here costs four extra lookups per shader
 		// change and saves one per quad drawn (the text path) and per dirty sprite (BaseSprite)

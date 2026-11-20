@@ -338,7 +338,7 @@ namespace Jazz2::Formats
 	String LevelReader::ReadString8()
 	{
 		std::uint8_t length = ReadUint8();
-		String value{NoInit, length};
+		String value { NoInit, length };
 		ReadBytes(value.data(), length);
 		return value;
 	}
@@ -346,7 +346,7 @@ namespace Jazz2::Formats
 	String LevelReader::ReadString16()
 	{
 		std::uint16_t length = ReadUint16();
-		String value{NoInit, length};
+		String value { NoInit, length };
 		ReadBytes(value.data(), length);
 		return value;
 	}
@@ -685,7 +685,7 @@ namespace Jazz2::Formats
 		}
 
 		// The frames of the animated tiles are skipped too, 3 bytes each after the timing
-		/*std::uint16_t animatedTilesOffset =*/ ReadUint16();
+		/*std::uint16_t animatedTilesOffset =*/ReadUint16();
 		std::uint16_t animatedTileCount = ReadUint16();
 		for (std::int32_t i = 0; i < animatedTileCount && !_failed; i++) {
 			std::uint8_t frameCount = ReadUint8();
@@ -1407,7 +1407,9 @@ namespace Jazz2::Formats
 	void ScriptDataChunk::WriteTexts(ArrayView<const StringView> texts, SmallVectorImpl<std::uint8_t>& data)
 	{
 		data.clear();
-		if (std::none_of(texts.begin(), texts.end(), [](StringView text) { return !text.empty(); })) {
+		if (std::none_of(texts.begin(), texts.end(), [](StringView text) {
+				return !text.empty();
+			})) {
 			return;
 		}
 		for (StringView text : texts) {

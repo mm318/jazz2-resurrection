@@ -112,7 +112,7 @@ namespace Jazz2::Compatibility
 		// Get the CRC; would check here if it matches if we knew what variant it is AND what it applies to
 		// Test file across all CRC32 variants + Adler had no matches to the value obtained from the file
 		// so either the variant is something else or the CRC is not applied to the whole file but on a part
-		/*int recordedCRC =*/ headerBlock.ReadInt32();
+		/*int recordedCRC =*/headerBlock.ReadInt32();
 
 		// Read the lengths, the blocks are uncompressed by the caller
 		sizes.InfoPacked = headerBlock.ReadInt32();
@@ -196,7 +196,9 @@ namespace Jazz2::Compatibility
 			// Vine/chain with empty mask
 			for (std::int32_t tileIdx = 826; tileIdx <= 829; tileIdx++) {
 				std::uint8_t* tileMask = mask(tileIdx);
-				if (std::all_of(tileMask, tileMask + MaskBytes, [](std::uint8_t p) { return p == 0; })) {
+				if (std::all_of(tileMask, tileMask + MaskBytes, [](std::uint8_t p) {
+						return p == 0;
+					})) {
 					for (std::int32_t y = 6; y < 6 + 3; y++) {
 						for (std::int32_t x = 0; x < BlockSize / 8; x++) {
 							tileMask[y * (BlockSize / 8) + x] = 0xFF;

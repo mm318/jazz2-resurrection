@@ -16,7 +16,7 @@ namespace ShaderCompiler
 {
 	namespace
 	{
-		constexpr std::size_t Npos = ~std::size_t{0};
+		constexpr std::size_t Npos = ~std::size_t { 0 };
 
 		/** Substring [pos, pos + count), clamping count to the available length (never throws for pos <= size) */
 		StringView Substr(StringView s, std::size_t pos, std::size_t count = Npos)
@@ -83,8 +83,8 @@ namespace ShaderCompiler
 		{
 			enum class Kind : std::uint8_t
 			{
-				Invalid,	// Parse failure at this position (no tokens consumed by the primary)
-				Opaque,		// Well-formed but not a literal-only subexpression
+				Invalid, // Parse failure at this position (no tokens consumed by the primary)
+				Opaque, // Well-formed but not a literal-only subexpression
 				Int,
 				Float,
 				Bool
@@ -94,8 +94,8 @@ namespace ShaderCompiler
 			std::int64_t I = 0;
 			double F = 0.0;
 			bool B = false;
-			std::size_t First = 0;		// Index of the first token of the subexpression
-			std::size_t Last = 0;		// Index of the last token of the subexpression (inclusive)
+			std::size_t First = 0; // Index of the first token of the subexpression
+			std::size_t Last = 0; // Index of the last token of the subexpression (inclusive)
 		};
 
 		Value MakeOpaque(std::size_t first, std::size_t last)
@@ -115,17 +115,28 @@ namespace ShaderCompiler
 				return 1;
 			}
 			// 2 is the ternary ?: (handled separately)
-			if (text == "||") return 3;
-			if (text == "^^") return 4;
-			if (text == "&&") return 5;
-			if (text == "|") return 6;
-			if (text == "^") return 7;
-			if (text == "&") return 8;
-			if (text == "==" || text == "!=") return 9;
-			if (text == "<" || text == ">" || text == "<=" || text == ">=") return 10;
-			if (text == "<<" || text == ">>") return 11;
-			if (text == "+" || text == "-") return 12;
-			if (text == "*" || text == "/" || text == "%") return 13;
+			if (text == "||")
+				return 3;
+			if (text == "^^")
+				return 4;
+			if (text == "&&")
+				return 5;
+			if (text == "|")
+				return 6;
+			if (text == "^")
+				return 7;
+			if (text == "&")
+				return 8;
+			if (text == "==" || text == "!=")
+				return 9;
+			if (text == "<" || text == ">" || text == "<=" || text == ">=")
+				return 10;
+			if (text == "<<" || text == ">>")
+				return 11;
+			if (text == "+" || text == "-")
+				return 12;
+			if (text == "*" || text == "/" || text == "%")
+				return 13;
 			return -1;
 		}
 
@@ -158,7 +169,7 @@ namespace ShaderCompiler
 					Value v = ParseExpression(0);
 					Finalize(v);
 					if (_pos == before) {
-						_pos++;		// Resync on tokens no expression can start with (';', '}', ',', ')', ...)
+						_pos++; // Resync on tokens no expression can start with (';', '}', ',', ')', ...)
 					}
 				}
 			}
@@ -194,15 +205,15 @@ namespace ShaderCompiler
 			void Finalize(const Value& v)
 			{
 				if (v.K == Value::Kind::Invalid || v.K == Value::Kind::Opaque || v.Last <= v.First) {
-					return;		// Not folded, or a single literal token (nothing collapses)
+					return; // Not folded, or a single literal token (nothing collapses)
 				}
 				const GlslToken& first = _tokens[v.First];
 				const GlslToken& last = _tokens[v.Last];
 				if (first.Index != last.Index) {
-					return;		// The span crosses lines — not rewritable in place
+					return; // The span crosses lines — not rewritable in place
 				}
 				if (!_allowed[v.First]) {
-					return;		// Suppressed after a mid-statement preprocessor barrier
+					return; // Suppressed after a mid-statement preprocessor barrier
 				}
 				String replacement = Render(v);
 				if (replacement.empty()) {
@@ -214,7 +225,7 @@ namespace ShaderCompiler
 				}
 				String original = Substr(*lineText, first.Begin, last.End - first.Begin);
 				if (replacement.size() > original.size() || replacement == original) {
-					return;		// No gain, or nothing changes
+					return; // No gain, or nothing changes
 				}
 				FoldEdit edit;
 				edit.Index = first.Index;
@@ -270,7 +281,7 @@ namespace ShaderCompiler
 						if (PeekOp(":")) {
 							_pos++;
 						}
-						Value rhs = ParseExpression(2);		// Right-associative
+						Value rhs = ParseExpression(2); // Right-associative
 						Finalize(lhs);
 						Finalize(mid);
 						Finalize(rhs);
@@ -398,7 +409,7 @@ namespace ShaderCompiler
 					Value argument = ParseExpression(0);
 					Finalize(argument);
 					if (_pos == before) {
-						_pos++;		// Resync
+						_pos++; // Resync
 					}
 				}
 			}
@@ -412,7 +423,7 @@ namespace ShaderCompiler
 						if (!t.Suffixed) {
 							const char* text = t.Text.data();
 							char* end = nullptr;
-							long long parsed = ::strtoll(text, &end, 0);	// Base 0 handles decimal, hex and octal
+							long long parsed = ::strtoll(text, &end, 0); // Base 0 handles decimal, hex and octal
 							if (end != nullptr && *end == '\0' && parsed >= 0 && parsed <= Int32Max) {
 								v.K = Value::Kind::Int;
 								v.I = parsed;
@@ -468,9 +479,9 @@ namespace ShaderCompiler
 							Finalize(inner);
 							return MakeOpaque(open, (_pos > 0 ? _pos - 1 : 0));
 						}
-						return Value();		// Invalid
+						return Value(); // Invalid
 					default:
-						return Value();		// Invalid
+						return Value(); // Invalid
 				}
 			}
 
@@ -491,19 +502,22 @@ namespace ShaderCompiler
 						} else if (op == "*") {
 							r = a.I * b.I;
 						} else if (op == "/" && b.I != 0) {
-							r = a.I / b.I;		// Truncates toward zero, matching GLSL
+							r = a.I / b.I; // Truncates toward zero, matching GLSL
 						} else if (op == "%" && b.I != 0) {
 							r = a.I % b.I;
 						} else if (op == "==" || op == "!=" || op == "<" || op == ">" || op == "<=" || op == ">=") {
 							Value v;
 							v.K = Value::Kind::Bool;
-							v.B = (op == "==" ? a.I == b.I : op == "!=" ? a.I != b.I : op == "<" ? a.I < b.I :
-								op == ">" ? a.I > b.I : op == "<=" ? a.I <= b.I : a.I >= b.I);
+							v.B = (op == "==" ? a.I == b.I : op == "!=" ? a.I != b.I
+									: op == "<"                         ? a.I < b.I
+									: op == ">"                         ? a.I > b.I
+									: op == "<="                        ? a.I <= b.I
+																		: a.I >= b.I);
 							v.First = first;
 							v.Last = last;
 							return v;
 						} else {
-							folded = false;		// Shifts, bitwise ops, division by zero — never folded
+							folded = false; // Shifts, bitwise ops, division by zero — never folded
 						}
 						if (folded && r >= Int32Min && r <= Int32Max) {
 							Value v;
@@ -515,7 +529,9 @@ namespace ShaderCompiler
 						}
 					} else if (a.K == Value::Kind::Float) {
 						if (op == "+" || op == "-" || op == "*" || op == "/") {
-							double r = (op == "+" ? a.F + b.F : op == "-" ? a.F - b.F : op == "*" ? a.F * b.F : a.F / b.F);
+							double r = (op == "+" ? a.F + b.F : op == "-" ? a.F - b.F
+									: op == "*"                           ? a.F * b.F
+																		  : a.F / b.F);
 							if (std::isfinite(r)) {
 								Value v;
 								v.K = Value::Kind::Float;
@@ -526,12 +542,13 @@ namespace ShaderCompiler
 							}
 						}
 						// Float comparisons and '%' never fold
-					} else {	// Bool
+					} else { // Bool
 						if (op == "&&" || op == "||" || op == "==" || op == "!=" || op == "^^") {
 							Value v;
 							v.K = Value::Kind::Bool;
-							v.B = (op == "&&" ? (a.B && b.B) : op == "||" ? (a.B || b.B) :
-								op == "==" ? (a.B == b.B) : (a.B != b.B));
+							v.B = (op == "&&" ? (a.B && b.B) : op == "||" ? (a.B || b.B)
+									: op == "=="                          ? (a.B == b.B)
+																		  : (a.B != b.B));
 							v.First = first;
 							v.Last = last;
 							return v;
@@ -607,7 +624,7 @@ namespace ShaderCompiler
 					if ((text[i] == 'u' || text[i] == 'U') && !isFloat && !t.Suffixed) {
 						isUnsigned = true;
 					} else {
-						t.Suffixed = true;		// f/F/lf/LF or anything else — opaque literal
+						t.Suffixed = true; // f/F/lf/LF or anything else — opaque literal
 					}
 					i++;
 				}
@@ -641,7 +658,7 @@ namespace ShaderCompiler
 		// Barrier scan: a preprocessor conditional that starts mid-statement suppresses folding
 		// until the next statement boundary (';', '{' or '}') in every branch it affects, so
 		// tokens from one #ifdef branch can never lend the other branch a bogus parse context
-		bool atBoundary = true;			// The last significant token ended a statement
+		bool atBoundary = true; // The last significant token ended a statement
 		bool suppressed = false;
 		SmallVector<bool, 0> conditionalStack;
 

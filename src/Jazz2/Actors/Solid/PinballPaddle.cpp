@@ -165,8 +165,7 @@ namespace Jazz2::Actors::Solid
 				_pos.X - _currentAnimation->Base->FrameDimensions.X * (IsFacingLeft() ? LengthAway : LengthTowards),
 				_pos.Y - _currentAnimation->Base->FrameDimensions.Y * 0.1f,
 				_pos.X + _currentAnimation->Base->FrameDimensions.X * (IsFacingLeft() ? LengthTowards : LengthAway),
-				_pos.Y + _currentAnimation->Base->FrameDimensions.Y * 0.3f
-			);
+				_pos.Y + _currentAnimation->Base->FrameDimensions.Y * 0.3f);
 		}
 	}
 }

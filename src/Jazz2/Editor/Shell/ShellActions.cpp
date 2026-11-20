@@ -95,12 +95,16 @@ namespace Jazz2::Editor
 
 		{
 			// TRANSLATORS: Menu item in the Layer menu, also the name of an undo step in the history, copies the current layer (verb)
-			auto& duplicate = actions.Add(ActionIds::LayerDuplicate,_x("editor", "Duplicate Layer"), EditorIcon::Copy, [s]() { DuplicateCurrentLayer(*s); });
+			auto& duplicate = actions.Add(ActionIds::LayerDuplicate, _x("editor", "Duplicate Layer"), EditorIcon::Copy, [s]() {
+				DuplicateCurrentLayer(*s);
+			});
 			duplicate.IsEnabled = [s]() {
 				std::int32_t layer = s->GetCurrentLayer();
 				return (layer >= 0 && layer < std::int32_t(s->GetDocument().Layers.size()) && s->GetDocument().Layers.size() < UINT8_MAX);
 			};
-			auto& solo = actions.Add(ActionIds::LayerSolo,_x("editor", "Show Only This Layer"), EditorIcon::Eye, [s]() { SoloLayer(*s, s->GetCurrentLayer()); });
+			auto& solo = actions.Add(ActionIds::LayerSolo, _x("editor", "Show Only This Layer"), EditorIcon::Eye, [s]() {
+				SoloLayer(*s, s->GetCurrentLayer());
+			});
 			solo.IsEnabled = [s]() {
 				std::int32_t layer = s->GetCurrentLayer();
 				return (layer >= 0 && layer < std::int32_t(s->GetDocument().Layers.size()));
@@ -109,12 +113,18 @@ namespace Jazz2::Editor
 
 		// The frame of what the game shows around the pointer, in a few sizes
 		{
-			auto& frame = actions.Add(ActionIds::ViewScreenFrame,_x("editor", "Show Game Screen Frame"), EditorIcon::ScreenFrame, [settings]() {
+			auto& frame = actions.Add(ActionIds::ViewScreenFrame, _x("editor", "Show Game Screen Frame"), EditorIcon::ScreenFrame, [settings]() {
 				settings->ShowScreenFrame = !settings->ShowScreenFrame;
 				settings->Save();
 			});
-			frame.IsChecked = [settings]() { return settings->ShowScreenFrame; };
-			struct FrameKind { const char* Id; String Label; };
+			frame.IsChecked = [settings]() {
+				return settings->ShowScreenFrame;
+			};
+			struct FrameKind
+			{
+				const char* Id;
+				String Label;
+			};
 			static const FrameKind Kinds[] = {
 				// TRANSLATORS: Choices in the Game Screen Frame submenu of the View menu of the size of the frame around the pointer that shows what the game screen would show,
 				// {} is the size - Game View, Split Screen (for two players), or an aspect ratio (4:3 or 16:9) that isn't translated
@@ -129,12 +139,17 @@ namespace Jazz2::Editor
 					settings->ShowScreenFrame = true;
 					settings->Save();
 				});
-				kind.IsChecked = [settings, i]() { return (settings->ScreenFrameKind == i); };
+				kind.IsChecked = [settings, i]() {
+					return (settings->ScreenFrameKind == i);
+				};
 			}
 		}
 
 		// All events in a list
-		actions.Add(ActionIds::EventsList,_x("editor", "Event List"), EditorIcon::Event, [s]() { ShowEventOutline(*s); }).Key = { Keys::F3, 0 };
+		actions.Add(ActionIds::EventsList, _x("editor", "Event List"), EditorIcon::Event, [s]() {
+				   ShowEventOutline(*s);
+			   })
+			.Key = { Keys::F3, 0 };
 	}
 }
 

@@ -16,7 +16,7 @@ using namespace Jazz2::UI::Menu::Resources;
 namespace Jazz2::UI::Menu
 {
 	// Row height matching the original section (ItemHeight = 40)
-	static constexpr float RowHeight = 40 * 5 / 8;	// 25
+	static constexpr float RowHeight = 40 * 5 / 8; // 25
 
 	// Scale of an action name, from its width at the default scale of 0.8 - long names are drawn smaller
 	static float GetNameScale(float width)
@@ -25,8 +25,8 @@ namespace Jazz2::UI::Menu
 	}
 
 	RemapControlsSection::RemapControlsSection(std::int32_t playerIndex)
-		: _layout{}, _widestName(0.0f), _selectedColumn(0), _playerIndex(playerIndex), _timeout(0.0f), _hintAnimation(0.0f),
-			_animation(0.0f), _isDirty(false), _waitForInput(false), _waitForInputPrev(false), _list(nullptr)
+		: _layout {}, _widestName(0.0f), _selectedColumn(0), _playerIndex(playerIndex), _timeout(0.0f), _hintAnimation(0.0f),
+		  _animation(0.0f), _isDirty(false), _waitForInput(false), _waitForInputPrev(false), _list(nullptr)
 	{
 	}
 
@@ -46,7 +46,11 @@ namespace Jazz2::UI::Menu
 			return;
 		}
 
-		struct ActionDef { PlayerAction Type; String Name; };
+		struct ActionDef
+		{
+			PlayerAction Type;
+			String Name;
+		};
 		SmallVector<ActionDef, 0> defs;
 		// TRANSLATORS: Menu item in Options > Controls > Remap Controls section
 		defs.push_back({ PlayerAction::Left, _("Left") });

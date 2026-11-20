@@ -56,29 +56,29 @@ namespace Jazz2::Editor
 	/** @brief Modifier of tiles the tile tools paint, see @ref Formats::TileRecord::ModifierMask */
 	enum class TileModifierMode : std::uint8_t
 	{
-		Keep,			/**< As the tiles of the stamp have it */
-		Normal,			/**< Neither translucent, invisible nor heat */
-		Translucent,	/**< Translucent */
-		Invisible,		/**< Invisible, solid but not drawn */
-		Heat			/**< Rows of pixels drawn wavily, as if seen through heat (see @ref Formats::TileRecord::ModifierHeat) */
+		Keep, /**< As the tiles of the stamp have it */
+		Normal, /**< Neither translucent, invisible nor heat */
+		Translucent, /**< Translucent */
+		Invisible, /**< Invisible, solid but not drawn */
+		Heat /**< Rows of pixels drawn wavily, as if seen through heat (see @ref Formats::TileRecord::ModifierHeat) */
 	};
 
 	/** @brief Shape the shape tool draws */
 	enum class ToolShape : std::uint8_t
 	{
-		Line,			/**< A straight line */
-		Rectangle,		/**< The outline of a rectangle */
-		Ellipse,		/**< The outline of an ellipse */
-		FilledEllipse	/**< A filled ellipse */
+		Line, /**< A straight line */
+		Rectangle, /**< The outline of a rectangle */
+		Ellipse, /**< The outline of an ellipse */
+		FilledEllipse /**< A filled ellipse */
 	};
 
 	/** @brief How the event tool places the event of the stamp, or that it only selects events */
 	enum class EventPlaceMode : std::uint8_t
 	{
-		Paint,			/**< Where it's clicked or dragged */
-		Rectangle,		/**< On every empty tile of a rectangle */
-		Fill,			/**< On the empty tiles of an area joined to the tile clicked, of the same kind of tiles, solid or not */
-		Select			/**< Nowhere, a drag selects the events in a rectangle as the select tool selects tiles */
+		Paint, /**< Where it's clicked or dragged */
+		Rectangle, /**< On every empty tile of a rectangle */
+		Fill, /**< On the empty tiles of an area joined to the tile clicked, of the same kind of tiles, solid or not */
+		Select /**< Nowhere, a drag selects the events in a rectangle as the select tool selects tiles */
 	};
 
 	/**
@@ -127,14 +127,16 @@ namespace Jazz2::Editor
 		Function<void()> OnChanged;
 
 		/** @brief Tells that the options were changed */
-		void NotifyChanged() {
+		void NotifyChanged()
+		{
 			if (OnChanged) {
 				OnChanged();
 			}
 		}
 
 		/** @brief Makes the event tool place events again if it only selects them, as an event to place was picked */
-		void PlaceEventsAgain() {
+		void PlaceEventsAgain()
+		{
 			if (EventMode == EventPlaceMode::Select) {
 				EventMode = EventPlaceMode::Paint;
 				NotifyChanged();
@@ -248,7 +250,8 @@ namespace Jazz2::Editor
 		virtual void BuildOptions(ToolOptionsBuilder& builder);
 
 		/** @brief Gives the tool the options shared by the tools, see @ref ToolManager::GetSettings() */
-		void SetSettings(ToolSettings* settings) {
+		void SetSettings(ToolSettings* settings)
+		{
 			_settings = settings;
 		}
 
@@ -294,11 +297,13 @@ namespace Jazz2::Editor
 		/** @brief Returns the tool in use */
 		EditorTool* GetActive() const;
 		/** @brief Returns the type of the tool in use */
-		EditorToolType GetActiveType() const {
+		EditorToolType GetActiveType() const
+		{
 			return _active;
 		}
 		/** @brief Returns the type of the tool chosen, not just for a while */
-		EditorToolType GetChosenType() const {
+		EditorToolType GetChosenType() const
+		{
 			return _chosen;
 		}
 		/** @brief Chooses a tool */
@@ -310,7 +315,8 @@ namespace Jazz2::Editor
 		/** @brief Returns a tool */
 		EditorTool* Get(EditorToolType type) const;
 		/** @brief Returns the options shared by the tools */
-		ToolSettings& GetSettings() {
+		ToolSettings& GetSettings()
+		{
 			return _settings;
 		}
 

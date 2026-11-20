@@ -101,12 +101,12 @@ namespace nCine
 		}
 	}
 
-
 	///////////////////////////////////////////////////////////
 	// ReadWriteLock CLASS
 	///////////////////////////////////////////////////////////
 
-	ReadWriteLock::ReadWriteLock() : _rwlock(SRWLOCK_INIT)
+	ReadWriteLock::ReadWriteLock()
+		: _rwlock(SRWLOCK_INIT)
 	{
 	}
 

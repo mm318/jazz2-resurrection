@@ -11,21 +11,21 @@
 
 // Third-party code, only its rasterizer is used here
 #if defined(DEATH_TARGET_MSVC)
-#	pragma warning(push)
-#	pragma warning(disable: 4100 4127 4189 4244 4245 4456 4457 4701 4702)
+#pragma warning(push)
+#pragma warning(disable : 4100 4127 4189 4244 4245 4456 4457 4701 4702)
 #elif defined(DEATH_TARGET_GCC)
-#	pragma GCC diagnostic push
-#	pragma GCC diagnostic ignored "-Wunused-function"
-#	pragma GCC diagnostic ignored "-Wsign-compare"
-#	pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wconversion"
 #endif
 #define STB_TRUETYPE_IMPLEMENTATION
 #define STBTT_STATIC
 #include <stb/stb_truetype.h>
 #if defined(DEATH_TARGET_MSVC)
-#	pragma warning(pop)
+#pragma warning(pop)
 #elif defined(DEATH_TARGET_GCC)
-#	pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
 #endif
 
 using namespace Death::Containers::Literals;
@@ -144,8 +144,10 @@ namespace Jazz2::UI::Windows
 				case LineJoin::Round: {
 					float start = AngleOf(na);
 					float sweep = AngleOf(nb) - start;
-					while (sweep > Pi) sweep -= 2.0f * Pi;
-					while (sweep < -Pi) sweep += 2.0f * Pi;
+					while (sweep > Pi)
+						sweep -= 2.0f * Pi;
+					while (sweep < -Pi)
+						sweep += 2.0f * Pi;
 					AddArc(out, p, halfWidth, start, sweep, true);
 					break;
 				}
@@ -452,8 +454,7 @@ namespace Jazz2::UI::Windows
 				SkipSpaces();
 				const char* start = _pos;
 				// A dash only inside of a keyword, as "round-cap", "M-2" is a command and a number
-				while (_pos < _end && ((*_pos >= 'a' && *_pos <= 'z') || (*_pos >= 'A' && *_pos <= 'Z') ||
-					(*_pos == '-' && _pos != start && _pos + 1 < _end && ((_pos[1] >= 'a' && _pos[1] <= 'z') || (_pos[1] >= 'A' && _pos[1] <= 'Z'))))) {
+				while (_pos < _end && ((*_pos >= 'a' && *_pos <= 'z') || (*_pos >= 'A' && *_pos <= 'Z') || (*_pos == '-' && _pos != start && _pos + 1 < _end && ((_pos[1] >= 'a' && _pos[1] <= 'z') || (_pos[1] >= 'A' && _pos[1] <= 'Z'))))) {
 					_pos++;
 				}
 				return StringView(start, std::size_t(_pos - start));
@@ -513,8 +514,10 @@ namespace Jazz2::UI::Windows
 
 			static std::uint32_t HexValue(char c)
 			{
-				if (c >= '0' && c <= '9') return std::uint32_t(c - '0');
-				if (c >= 'a' && c <= 'f') return std::uint32_t(c - 'a' + 10);
+				if (c >= '0' && c <= '9')
+					return std::uint32_t(c - '0');
+				if (c >= 'a' && c <= 'f')
+					return std::uint32_t(c - 'a' + 10);
 				return std::uint32_t(c - 'A' + 10);
 			}
 		};
@@ -969,7 +972,8 @@ namespace Jazz2::UI::Windows
 					bool relative = (command >= 'a' && command <= 'z');
 					Vector2f origin = (relative ? current : Vector2f::Zero);
 					switch (command) {
-						case 'M': case 'm': {
+						case 'M':
+						case 'm': {
 							Vector2f p;
 							if (!ReadPoint(reader, p)) {
 								return Fail(reader.GetPos());
@@ -979,7 +983,8 @@ namespace Jazz2::UI::Windows
 							lastControl = current;
 							break;
 						}
-						case 'L': case 'l': {
+						case 'L':
+						case 'l': {
 							Vector2f p;
 							if (!ReadPoint(reader, p)) {
 								return Fail(reader.GetPos());
@@ -990,7 +995,8 @@ namespace Jazz2::UI::Windows
 							lastControl = current;
 							break;
 						}
-						case 'H': case 'h': {
+						case 'H':
+						case 'h': {
 							float x;
 							if (!reader.Number(x)) {
 								return Fail(reader.GetPos());
@@ -1001,7 +1007,8 @@ namespace Jazz2::UI::Windows
 							lastControl = current;
 							break;
 						}
-						case 'V': case 'v': {
+						case 'V':
+						case 'v': {
 							float y;
 							if (!reader.Number(y)) {
 								return Fail(reader.GetPos());
@@ -1012,7 +1019,8 @@ namespace Jazz2::UI::Windows
 							lastControl = current;
 							break;
 						}
-						case 'C': case 'c': {
+						case 'C':
+						case 'c': {
 							Vector2f c1, c2, p;
 							if (!ReadPoint(reader, c1) || !ReadPoint(reader, c2) || !ReadPoint(reader, p)) {
 								return Fail(reader.GetPos());
@@ -1023,7 +1031,8 @@ namespace Jazz2::UI::Windows
 							current = origin + p;
 							break;
 						}
-						case 'S': case 's': {
+						case 'S':
+						case 's': {
 							Vector2f c2, p;
 							if (!ReadPoint(reader, c2) || !ReadPoint(reader, p)) {
 								return Fail(reader.GetPos());
@@ -1036,7 +1045,8 @@ namespace Jazz2::UI::Windows
 							current = origin + p;
 							break;
 						}
-						case 'Q': case 'q': {
+						case 'Q':
+						case 'q': {
 							Vector2f c, p;
 							if (!ReadPoint(reader, c) || !ReadPoint(reader, p)) {
 								return Fail(reader.GetPos());
@@ -1047,7 +1057,8 @@ namespace Jazz2::UI::Windows
 							current = origin + p;
 							break;
 						}
-						case 'T': case 't': {
+						case 'T':
+						case 't': {
 							Vector2f p;
 							if (!ReadPoint(reader, p)) {
 								return Fail(reader.GetPos());
@@ -1060,7 +1071,8 @@ namespace Jazz2::UI::Windows
 							current = origin + p;
 							break;
 						}
-						case 'A': case 'a': {
+						case 'A':
+						case 'a': {
 							float rx, ry, rotation;
 							bool largeArc, sweep;
 							Vector2f p;
@@ -1074,7 +1086,8 @@ namespace Jazz2::UI::Windows
 							lastControl = current;
 							break;
 						}
-						case 'Z': case 'z': {
+						case 'Z':
+						case 'z': {
 							if (path != nullptr) {
 								path->Closed = true;
 								path = nullptr;

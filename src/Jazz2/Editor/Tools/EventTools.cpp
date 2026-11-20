@@ -100,7 +100,7 @@ namespace Jazz2::Editor
 					channel = std::int32_t(channels.size());
 					channels.push_back(field.LinkChannel);
 				}
-				ends.push_back(LinkEnd{ std::uint32_t(channel), field.LinkRole, EventCatalog::ReadField(e, field), field.Min, field.Max });
+				ends.push_back(LinkEnd { std::uint32_t(channel), field.LinkRole, EventCatalog::ReadField(e, field), field.Min, field.Max });
 				return false;
 			});
 		}
@@ -200,7 +200,7 @@ namespace Jazz2::Editor
 				continue;
 			}
 			markKey(used, makeKey(end.Channel, newId));
-			remaps.push_back(Remap{ end.Channel, end.Id, newId });
+			remaps.push_back(Remap { end.Channel, end.Id, newId });
 		}
 		if (remaps.empty()) {
 			return 0;
@@ -652,13 +652,17 @@ namespace Jazz2::Editor
 			case Mode::Paint:
 				// A stamp of more events is placed only where it was clicked, it would cover itself otherwise
 				if (_host.GetEventBrush().IsSingle() && cell != _current) {
-					WalkLine(_current, cell, [this](Vector2i c) { PaintAt(c); });
+					WalkLine(_current, cell, [this](Vector2i c) {
+						PaintAt(c);
+					});
 				}
 				_current = cell;
 				break;
 			case Mode::Erase:
 				if (cell != _current) {
-					WalkLine(_current, cell, [this](Vector2i c) { EraseAt(c); });
+					WalkLine(_current, cell, [this](Vector2i c) {
+						EraseAt(c);
+					});
 				}
 				_current = cell;
 				break;
@@ -1187,7 +1191,7 @@ namespace Jazz2::Editor
 			}
 			const Formats::EventRecord& event = document.GetEvent(from.X, from.Y);
 			if (!LevelDocument::IsEmptyEvent(event)) {
-				moved.push_back(Moved{ from, to, event });
+				moved.push_back(Moved { from, to, event });
 			}
 		}
 		// The events off the grid by pixels, all of them stay inside of the level or none moves
@@ -1487,10 +1491,14 @@ namespace Jazz2::Editor
 			return _x("editor", "Shift: to the middle of the tile - hold X or Y: snap only that axis, with Shift to half tiles");
 		}
 		switch (GetSettings().EventMode) {
-			case EventPlaceMode::Rectangle: return _x("editor", "Drag over empty tiles: place the event on all of them - Shift: over events too - click an event: select it");
-			case EventPlaceMode::Fill: return _x("editor", "Click an empty tile: place the event on the area of such tiles joined to it - click an event: select it");
-			case EventPlaceMode::Select: return _x("editor", "Click or drag: select - Shift: add - Ctrl: toggle or take away - Drag selected events: move them - Right: erase - Alt: pick");
-			default: break;
+			case EventPlaceMode::Rectangle:
+				return _x("editor", "Drag over empty tiles: place the event on all of them - Shift: over events too - click an event: select it");
+			case EventPlaceMode::Fill:
+				return _x("editor", "Click an empty tile: place the event on the area of such tiles joined to it - click an event: select it");
+			case EventPlaceMode::Select:
+				return _x("editor", "Click or drag: select - Shift: add - Ctrl: toggle or take away - Drag selected events: move them - Right: erase - Alt: pick");
+			default:
+				break;
 		}
 		return _x("editor", "Click: place or select - Drag: move - Right: erase - Alt: pick - Ctrl: select more - Ctrl+Shift: place off the grid");
 	}

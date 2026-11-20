@@ -31,17 +31,17 @@ namespace nCine::RHI::GL
 	bool GLVertexFormat::Attribute::operator==(const Attribute& other) const
 	{
 		return ((other._enabled == false && _enabled == false) ||
-				((other._enabled == true && _enabled == true) &&
-					// By the identity of the buffer object, the pool keeps formats of objects that may be gone by now, and
-					// a new one can get the address or the handle of one that was destroyed
-					(other._vboId != 0 && other._vboId == _vboId) &&
-					other._index == _index &&
-					other._size == _size &&
-					other._type == _type &&
-					other._normalized == _normalized &&
-					other._stride == _stride &&
-					other._pointer == _pointer &&
-					other._baseOffset == _baseOffset));
+			((other._enabled == true && _enabled == true) &&
+				// By the identity of the buffer object, the pool keeps formats of objects that may be gone by now, and
+				// a new one can get the address or the handle of one that was destroyed
+				(other._vboId != 0 && other._vboId == _vboId) &&
+				other._index == _index &&
+				other._size == _size &&
+				other._type == _type &&
+				other._normalized == _normalized &&
+				other._stride == _stride &&
+				other._pointer == _pointer &&
+				other._baseOffset == _baseOffset));
 	}
 
 	bool GLVertexFormat::Attribute::operator!=(const Attribute& other) const

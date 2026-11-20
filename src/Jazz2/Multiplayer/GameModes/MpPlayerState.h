@@ -74,10 +74,10 @@ namespace Jazz2::Multiplayer
 
 		MpPlayerState()
 			: Team(0), PreferredTeam(0xFF), TeamLocked(false), TeamSwitchCooldown(0.0f),
-				PointsInRound(0), PositionInRound(0), Deaths(0), Kills(0), Laps(0), TreasureCollected(0),
-				RaceFinishOrder(0), DeathElapsedFrames(FLT_MAX), LapsElapsedFrames(0.0f), RaceFinishFrames(0.0f),
-				RaceProgress(0.0f), ModePoints(0), ModeCarried(0), ModeLives(0), ModeTimer(0.0f), SpawnedFrames(0.0f),
-				ModeFlags(0), ModeCarryOverFlags(0)
+			  PointsInRound(0), PositionInRound(0), Deaths(0), Kills(0), Laps(0), TreasureCollected(0),
+			  RaceFinishOrder(0), DeathElapsedFrames(FLT_MAX), LapsElapsedFrames(0.0f), RaceFinishFrames(0.0f),
+			  RaceProgress(0.0f), ModePoints(0), ModeCarried(0), ModeLives(0), ModeTimer(0.0f), SpawnedFrames(0.0f),
+			  ModeFlags(0), ModeCarryOverFlags(0)
 		{
 		}
 	};

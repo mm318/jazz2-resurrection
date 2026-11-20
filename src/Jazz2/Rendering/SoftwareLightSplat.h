@@ -23,14 +23,14 @@ namespace Jazz2::Rendering::SoftwareLighting
 #if defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_GAMECUBE) || defined(JAZZ2_SPLAT_TEST_RSQRTE)
 	inline float RsqrtEstimate(float x)
 	{
-#	if defined(JAZZ2_SPLAT_TEST_RSQRTE)
+#if defined(JAZZ2_SPLAT_TEST_RSQRTE)
 		// Host harness only: an estimate deliberately as poor as the architecture allows (±1/32)
 		return (1.0f / std::sqrt(x)) * (1.0f + 0.03125f * std::sin(x * 1000.0f));
-#	else
+#else
 		double estimate;
 		asm("frsqrte %0, %1" : "=f"(estimate) : "f"((double)x));
 		return (float)estimate;
-#	endif
+#endif
 	}
 #endif
 
@@ -123,7 +123,7 @@ namespace Jazz2::Rendering::SoftwareLighting
 #endif
 
 	/** @brief The row loop of @ref SplatLight(), for a light with a flat core or (if @p Coreless) without one */
-	template<bool Coreless>
+	template <bool Coreless>
 	inline void SplatLightRows(float* lightmap, std::int32_t lmW, std::int32_t lmH, float cx, float cy, float rLm,
 		float radiusNearNorm, float intensity, float brightness);
 
@@ -268,7 +268,7 @@ namespace Jazz2::Rendering::SoftwareLighting
 			float* row = &lightmap[((std::size_t)y * lmW + xs) * 2];
 			float fx = (float)xs;
 			std::int32_t x = xs;
-			for (std::int32_t end = hs; ; end = xe + 1) {
+			for (std::int32_t end = hs;; end = xe + 1) {
 #pragma GCC unroll 4
 				for (; x < end; x++, row += 2, fx += 1.0f) {
 					const float dx = (fx - cx) * invRLm;
@@ -292,7 +292,7 @@ namespace Jazz2::Rendering::SoftwareLighting
 		}
 	}
 
-	template<bool Coreless>
+	template <bool Coreless>
 	inline void SplatLightRows(float* lightmap, std::int32_t lmW, std::int32_t lmH, float cx, float cy, float rLm,
 		float radiusNearNorm, float intensity, float brightness)
 	{

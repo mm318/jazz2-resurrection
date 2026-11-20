@@ -85,7 +85,9 @@ namespace Jazz2::Editor
 			tx = tx * tx * (3.0 - 2.0 * tx);
 			ty = ty * ty * (3.0 - 2.0 * ty);
 			std::int32_t p = std::max<std::int32_t>(1, period / cell);
-			auto h = [p, seed](std::int32_t a, std::int32_t b) { return Hash(PositiveModulo(a, p), PositiveModulo(b, p), seed); };
+			auto h = [p, seed](std::int32_t a, std::int32_t b) {
+				return Hash(PositiveModulo(a, p), PositiveModulo(b, p), seed);
+			};
 			return Mix(Mix(h(ix, iy), h(ix + 1, iy), tx), Mix(h(ix, iy + 1), h(ix + 1, iy + 1), tx), ty);
 		}
 
@@ -159,14 +161,22 @@ namespace Jazz2::Editor
 		{
 			switch (kind) {
 				// TRANSLATORS: Names of the kinds of effect tiles in the Generate Effect Tiles dialog
-				case FxTileKind::ClearGlass: return _x("editor", "Clear Glass");
-				case FxTileKind::GlassBlocks: return _x("editor", "Glass Blocks");
-				case FxTileKind::FrostedGlass: return _x("editor", "Frosted Glass");
-				case FxTileKind::Water: return _x("editor", "Water");
-				case FxTileKind::HeatHaze: return _x("editor", "Heat Haze");
-				case FxTileKind::Magnifier: return _x("editor", "Magnifier");
-				case FxTileKind::Puddle: return _x("editor", "Puddle");
-				default: return String();
+				case FxTileKind::ClearGlass:
+					return _x("editor", "Clear Glass");
+				case FxTileKind::GlassBlocks:
+					return _x("editor", "Glass Blocks");
+				case FxTileKind::FrostedGlass:
+					return _x("editor", "Frosted Glass");
+				case FxTileKind::Water:
+					return _x("editor", "Water");
+				case FxTileKind::HeatHaze:
+					return _x("editor", "Heat Haze");
+				case FxTileKind::Magnifier:
+					return _x("editor", "Magnifier");
+				case FxTileKind::Puddle:
+					return _x("editor", "Puddle");
+				default:
+					return String();
 			}
 		}
 
@@ -230,34 +240,57 @@ namespace Jazz2::Editor
 		{
 			// TRANSLATORS: Label of the choice of the kind of effect in the Generate Effect Tiles dialog
 			auto* row = addRow(_x("editor", "Effect"));
-			row->Add<Dropdown>([state]() { return GetKindName(state->Kind); }, [state](SmallVectorImpl<MenuEntry>& entries) {
-				for (std::int32_t i = 0; i < std::int32_t(FxTileKind::Count); i++) {
-					FxTileKind kind = FxTileKind(i);
-					MenuEntry entry;
-					entry.Label = GetKindName(kind);
-					entry.IsChecked = [state, kind]() { return state->Kind == kind; };
-					entry.Execute = [state, kind]() { state->Kind = kind; };
-					entries.push_back(Death::move(entry));
-				}
-			})->Flex = 1.0f;
+			row->Add<Dropdown>([state]() {
+				   return GetKindName(state->Kind);
+			   },
+				   [state](SmallVectorImpl<MenuEntry>& entries) {
+					   for (std::int32_t i = 0; i < std::int32_t(FxTileKind::Count); i++) {
+						   FxTileKind kind = FxTileKind(i);
+						   MenuEntry entry;
+						   entry.Label = GetKindName(kind);
+						   entry.IsChecked = [state, kind]() {
+							   return state->Kind == kind;
+						   };
+						   entry.Execute = [state, kind]() {
+							   state->Kind = kind;
+						   };
+						   entries.push_back(Death::move(entry));
+					   }
+				   })
+				->Flex = 1.0f;
 		}
 		{
 			// TRANSLATORS: Label of the width and height of the generated effect in tiles in the Generate Effect Tiles dialog
 			auto* row = addRow(_x("editor", "Size (tiles)"));
-			row->Add<NumberBox>([state]() { return float(state->Width); }, [state](float value, bool final) {
-				state->Width = std::clamp<std::int32_t>(std::int32_t(std::round(value)), 1, 16);
-			}, 1.0f, 16.0f, 1.0f, 0)->Width = 48.0f;
+			row->Add<NumberBox>([state]() {
+				   return float(state->Width);
+			   },
+				   [state](float value, bool final) {
+					   state->Width = std::clamp<std::int32_t>(std::int32_t(std::round(value)), 1, 16);
+				   },
+				   1.0f, 16.0f, 1.0f, 0)
+				->Width = 48.0f;
 			row->Add<Label>("x"_s, Theme::TextDim);
-			row->Add<NumberBox>([state]() { return float(state->Height); }, [state](float value, bool final) {
-				state->Height = std::clamp<std::int32_t>(std::int32_t(std::round(value)), 1, 16);
-			}, 1.0f, 16.0f, 1.0f, 0)->Width = 48.0f;
+			row->Add<NumberBox>([state]() {
+				   return float(state->Height);
+			   },
+				   [state](float value, bool final) {
+					   state->Height = std::clamp<std::int32_t>(std::int32_t(std::round(value)), 1, 16);
+				   },
+				   1.0f, 16.0f, 1.0f, 0)
+				->Width = 48.0f;
 		}
 		{
 			// TRANSLATORS: Label of the strength of the generated effect in percent in the Generate Effect Tiles dialog
 			auto* row = addRow(_x("editor", "Strength (%)"));
-			row->Add<NumberBox>([state]() { return state->Strength; }, [state](float value, bool final) {
-				state->Strength = std::clamp(value, 0.0f, 200.0f);
-			}, 0.0f, 200.0f, 5.0f, 0)->Width = 60.0f;
+			row->Add<NumberBox>([state]() {
+				   return state->Strength;
+			   },
+				   [state](float value, bool final) {
+					   state->Strength = std::clamp(value, 0.0f, 200.0f);
+				   },
+				   0.0f, 200.0f, 5.0f, 0)
+				->Width = 60.0f;
 		}
 		// They're made for this level, so the level keeps them by default
 		auto target = std::make_shared<TileTarget>();
@@ -280,14 +313,17 @@ namespace Jazz2::Editor
 			stamp.Width = state->Width;
 			stamp.Height = state->Height;
 			for (std::int32_t i = 0; i < state->Width * state->Height; i++) {
-				stamp.Tiles.push_back(TileRef{ std::uint16_t(first.Index + i), first.Source, 0 });
+				stamp.Tiles.push_back(TileRef { std::uint16_t(first.Index + i), first.Source, 0 });
 				stamp.Present.push_back(true);
 			}
 			s->SetStamp(Death::move(stamp));
 			s->ShowMessage(_x("editor", "The tiles are the brush now, paint them on a layer drawn as Blur Behind"));
 			dialogPtr->Close();
-		}, true);
-		dialog->AddButton(_x("editor", "Cancel"), [dialogPtr]() { dialogPtr->Close(); });
+		},
+			true);
+		dialog->AddButton(_x("editor", "Cancel"), [dialogPtr]() {
+			dialogPtr->Close();
+		});
 
 		ShowModal(*surface, Death::move(dialog));
 	}

@@ -76,10 +76,21 @@ namespace Jazz2::UI::Windows
 	{
 		float Left = 0.0f, Top = 0.0f, Right = 0.0f, Bottom = 0.0f;
 
-		constexpr Thickness() {}
-		constexpr Thickness(float all) : Left(all), Top(all), Right(all), Bottom(all) {}
-		constexpr Thickness(float horizontal, float vertical) : Left(horizontal), Top(vertical), Right(horizontal), Bottom(vertical) {}
-		constexpr Thickness(float left, float top, float right, float bottom) : Left(left), Top(top), Right(right), Bottom(bottom) {}
+		constexpr Thickness()
+		{
+		}
+		constexpr Thickness(float all)
+			: Left(all), Top(all), Right(all), Bottom(all)
+		{
+		}
+		constexpr Thickness(float horizontal, float vertical)
+			: Left(horizontal), Top(vertical), Right(horizontal), Bottom(vertical)
+		{
+		}
+		constexpr Thickness(float left, float top, float right, float bottom)
+			: Left(left), Top(top), Right(right), Bottom(bottom)
+		{
+		}
 	};
 
 	/**
@@ -125,22 +136,26 @@ namespace Jazz2::UI::Windows
 		Function<bool()> IsEnabledFunc;
 
 		/** @brief Returns the parent, or `nullptr` */
-		Element* GetParent() const {
+		Element* GetParent() const
+		{
 			return _parent;
 		}
 		/** @brief Returns the number of children */
-		std::int32_t GetChildCount() const {
+		std::int32_t GetChildCount() const
+		{
 			return std::int32_t(_children.size());
 		}
 		/** @brief Returns a child */
-		Element* GetChild(std::int32_t index) const {
+		Element* GetChild(std::int32_t index) const
+		{
 			return _children[index].get();
 		}
 		/** @brief Adds a child */
 		Element* AddChild(std::unique_ptr<Element> child);
 		/** @brief Creates and adds a child */
-		template<class T, class... Args>
-		T* Add(Args&&... args) {
+		template <class T, class... Args>
+		T* Add(Args&&... args)
+		{
 			return static_cast<T*>(AddChild(std::make_unique<T>(std::forward<Args>(args)...)));
 		}
 		/** @brief Adds a child before the child at @p index, at the end if it's past the last one */
@@ -161,19 +176,23 @@ namespace Jazz2::UI::Windows
 		/** @brief Returns `true` if the element and all its parents can be used */
 		bool IsUsable();
 		/** @brief Returns `true` if the pointer is over the element */
-		bool IsHovered() const {
+		bool IsHovered() const
+		{
 			return _hovered;
 		}
 		/** @brief Returns `true` if the element is being pressed */
-		bool IsPressed() const {
+		bool IsPressed() const
+		{
 			return _pressed;
 		}
 		/** @brief Returns `true` if the element has the keyboard focus */
-		bool IsFocused() const {
+		bool IsFocused() const
+		{
 			return _focused;
 		}
 		/** @brief Returns how much the element is highlighted by the pointer over it, from 0 to 1, animated */
-		float GetHoverAmount() const {
+		float GetHoverAmount() const
+		{
 			return _hoverAmount;
 		}
 
@@ -266,7 +285,8 @@ namespace Jazz2::UI::Windows
 		 *
 		 * Its parent doesn't draw it then and pointing at it doesn't reach it there, the surface does both in its window.
 		 */
-		bool IsDetached() const {
+		bool IsDetached() const
+		{
 			return _detached;
 		}
 
@@ -275,7 +295,8 @@ namespace Jazz2::UI::Windows
 		/** @brief Ends a frame of layout */
 		static void EndLayout();
 		/** @brief Returns a number of the current frame of layout, 0 outside of it */
-		static std::uint32_t GetLayoutFrame() {
+		static std::uint32_t GetLayoutFrame()
+		{
 			return _layoutActive ? _layoutFrame : 0;
 		}
 
@@ -340,12 +361,12 @@ namespace Jazz2::UI::Windows
 	/** @brief How a panel is drawn */
 	enum class PanelStyle : std::uint8_t
 	{
-		None,			/**< Not at all, only the children */
-		Panel,			/**< As a panel with a border */
-		Floating,		/**< As a panel with a border and a shadow */
-		Header,			/**< As the header of a panel */
-		Inset,			/**< As a sunken area, such as a list */
-		Docked			/**< As a panel with a border and square corners, docked at an edge of the screen */
+		None, /**< Not at all, only the children */
+		Panel, /**< As a panel with a border */
+		Floating, /**< As a panel with a border and a shadow */
+		Header, /**< As the header of a panel */
+		Inset, /**< As a sunken area, such as a list */
+		Docked /**< As a panel with a border and square corners, docked at an edge of the screen */
 	};
 
 	/**

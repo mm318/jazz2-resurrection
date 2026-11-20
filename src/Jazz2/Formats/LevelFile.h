@@ -146,7 +146,7 @@ namespace Jazz2::Formats
 		 * @ref LevelPreview, written by the level editor whenever it saves a level, and by the converter of the
 		 * original levels for those of no episode, the ones the list shows.
 		 */
-		static constexpr std::uint32_t PreviewChunk = 0x57565250;			// "PRVW"
+		static constexpr std::uint32_t PreviewChunk = 0x57565250; // "PRVW"
 
 		/**
 		 * @brief Reads the uncompressed header of a level
@@ -157,13 +157,15 @@ namespace Jazz2::Formats
 		static bool ReadHeader(Stream& s, LevelHeader& header);
 
 		/** @brief Makes a chunk tag from its four characters */
-		static constexpr std::uint32_t MakeChunkTag(char a, char b, char c, char d) {
+		static constexpr std::uint32_t MakeChunkTag(char a, char b, char c, char d)
+		{
 			return std::uint32_t(std::uint8_t(a)) | (std::uint32_t(std::uint8_t(b)) << 8) |
 				(std::uint32_t(std::uint8_t(c)) << 16) | (std::uint32_t(std::uint8_t(d)) << 24);
 		}
 
 		/** @brief Returns `true` if a chunk tag marks editor-only data, which is dropped when a level is exported */
-		static constexpr bool IsEditorOnlyChunk(std::uint32_t tag) {
+		static constexpr bool IsEditorOnlyChunk(std::uint32_t tag)
+		{
 			return ((tag & 0xFF) >= 'a' && (tag & 0xFF) <= 'z');
 		}
 
@@ -173,7 +175,8 @@ namespace Jazz2::Formats
 		 * The first letter uppercase and the second lowercase, such as `Gscr`. A reader that doesn't know such
 		 * a chunk refuses the level. Editor-only chunks and the preview (`PRVW`) are never critical.
 		 */
-		static constexpr bool IsCriticalChunk(std::uint32_t tag) {
+		static constexpr bool IsCriticalChunk(std::uint32_t tag)
+		{
 			return ((tag & 0xFF) >= 'A' && (tag & 0xFF) <= 'Z' && ((tag >> 8) & 0xFF) >= 'a' && ((tag >> 8) & 0xFF) <= 'z');
 		}
 
@@ -337,9 +340,9 @@ namespace Jazz2::Formats
 	*/
 	enum class LayerKind : std::uint8_t
 	{
-		Other,			/**< Any other layer */
-		Sky,			/**< Sky layer of an original level (informational only) */
-		Sprite			/**< The sprite (main) layer, where objects live and events are placed */
+		Other, /**< Any other layer */
+		Sky, /**< Sky layer of an original level (informational only) */
+		Sprite /**< The sprite (main) layer, where objects live and events are placed */
 	};
 
 	/**
@@ -439,12 +442,14 @@ namespace Jazz2::Formats
 		std::uint8_t Mapping = 0;
 
 		/** @brief Returns `true` if all the parameters are the defaults */
-		bool IsDefault() const {
+		bool IsDefault() const
+		{
 			return (FadeX == 0.5f && FadeY == 0.5f && Fade == DefaultFade && Flags == 0 && HasDefaultInnerSpeeds() && Mapping == 0);
 		}
 
 		/** @brief Returns `true` if all the inner speeds are zero */
-		bool HasDefaultInnerSpeeds() const {
+		bool HasDefaultInnerSpeeds() const
+		{
 			return (InnerSpeedX == 0.0f && InnerSpeedY == 0.0f && InnerAutoSpeedX == 0.0f && InnerAutoSpeedY == 0.0f);
 		}
 	};
@@ -662,13 +667,14 @@ namespace Jazz2::Formats
 		static constexpr std::uint8_t OriginalLayerCount = 8;
 
 		/** @brief Kind of a field of an entry */
-		enum class Field : std::uint8_t {
-			Name = 1,				/**< Name of the layer */
-			OriginalNumber,			/**< Number of the layer in the original game */
-			SpriteLook,				/**< Renderer type and color of the sprite layer */
-			Textured,				/**< Parameters of a textured layer, see @ref TexturedLayerParams */
-			Texture,				/**< Texture of its own of a textured layer */
-			Blend					/**< How the layer is blended over what is behind it */
+		enum class Field : std::uint8_t
+		{
+			Name = 1, /**< Name of the layer */
+			OriginalNumber, /**< Number of the layer in the original game */
+			SpriteLook, /**< Renderer type and color of the sprite layer */
+			Textured, /**< Parameters of a textured layer, see @ref TexturedLayerParams */
+			Texture, /**< Texture of its own of a textured layer */
+			Blend /**< How the layer is blended over what is behind it */
 		};
 
 		/** @brief Properties of one layer */
@@ -747,9 +753,10 @@ namespace Jazz2::Formats
 		static constexpr std::size_t RecolorRecordSize = 1 + 256;
 
 		/** @brief Kind of a section */
-		enum class Section : std::uint8_t {
-			Texts = 1,			/**< Texts of the level as the original game had them */
-			Recolors			/**< Recolored sprites */
+		enum class Section : std::uint8_t
+		{
+			Texts = 1, /**< Texts of the level as the original game had them */
+			Recolors /**< Recolored sprites */
 		};
 
 		ScriptDataChunk() = delete;
@@ -792,34 +799,38 @@ namespace Jazz2::Formats
 		static constexpr std::int32_t WaterHidden = -2;
 
 		/** @brief Kind of a field */
-		enum class Field : std::uint8_t {
-			WaterColors = 1,		/**< Colors of the water */
-			WaterMovement,			/**< How players move under water */
-			WaterLighting,			/**< How the ambient lighting goes with the water */
-			WaterLayer,				/**< Layer the water is drawn in front of */
-			WaterChangeSpeed,		/**< Speed the water moves to a new level at */
-			Rules					/**< Rules of the game */
+		enum class Field : std::uint8_t
+		{
+			WaterColors = 1, /**< Colors of the water */
+			WaterMovement, /**< How players move under water */
+			WaterLighting, /**< How the ambient lighting goes with the water */
+			WaterLayer, /**< Layer the water is drawn in front of */
+			WaterChangeSpeed, /**< Speed the water moves to a new level at */
+			Rules /**< Rules of the game */
 		};
 
 		/** @brief How players move under water */
-		enum class WaterMovement : std::uint8_t {
-			Default,		/**< Swimming or a lower gravity, chosen by how deep the water is */
-			Swim,			/**< Swimming */
-			LowGravity		/**< Walking and jumping with a lower gravity, no swimming */
+		enum class WaterMovement : std::uint8_t
+		{
+			Default, /**< Swimming or a lower gravity, chosen by how deep the water is */
+			Swim, /**< Swimming */
+			LowGravity /**< Walking and jumping with a lower gravity, no swimming */
 		};
 
 		/** @brief How the ambient lighting goes with the water */
-		enum class WaterLighting : std::uint8_t {
-			None,			/**< Full light while the water is in view, the ambient lighting is ignored, as in the original game */
-			Global,			/**< The ambient lighting of the level above and below the water */
-			Depth			/**< Full light above the water, darker the deeper under it the player is */
+		enum class WaterLighting : std::uint8_t
+		{
+			None, /**< Full light while the water is in view, the ambient lighting is ignored, as in the original game */
+			Global, /**< The ambient lighting of the level above and below the water */
+			Depth /**< Full light above the water, darker the deeper under it the player is */
 		};
 
 		/** @brief Bits of @ref Field::Rules */
-		enum class Rules : std::uint8_t {
+		enum class Rules : std::uint8_t
+		{
 			None = 0,
-			NoWarpsTransmuteCoins = 0x01,			/**< @ref Settings::WarpsTransmuteCoins is `false` */
-			DelayGeneratedCrateOrigins = 0x02		/**< @ref Settings::DelayGeneratedCrateOrigins is `true` */
+			NoWarpsTransmuteCoins = 0x01, /**< @ref Settings::WarpsTransmuteCoins is `false` */
+			DelayGeneratedCrateOrigins = 0x02 /**< @ref Settings::DelayGeneratedCrateOrigins is `true` */
 		};
 
 		/** @brief Settings of a level */
@@ -870,7 +881,8 @@ namespace Jazz2::Formats
 		LevelReader& operator=(const LevelReader&) = delete;
 
 		/** @brief Returns `false` if the body is truncated or corrupted */
-		bool IsValid() const {
+		bool IsValid() const
+		{
 			return !_failed;
 		}
 
@@ -878,7 +890,8 @@ namespace Jazz2::Formats
 		StringView GetError() const;
 
 		/** @brief Returns the header the body belongs to */
-		const LevelHeader& GetHeader() const {
+		const LevelHeader& GetHeader() const
+		{
 			return _header;
 		}
 

@@ -20,11 +20,13 @@ namespace nCine
 		/** @brief Stops the timer and adds the elapsed interval to the accumulated time */
 		void Stop();
 		/** @brief Resets the accumulated time to zero */
-		inline void Reset() {
+		inline void Reset()
+		{
 			_accumulatedTime = 0ULL;
 		}
 		/** @brief Returns `true` if the timer is currently running */
-		inline bool IsRunning() const {
+		inline bool IsRunning() const
+		{
 			return _isRunning;
 		}
 

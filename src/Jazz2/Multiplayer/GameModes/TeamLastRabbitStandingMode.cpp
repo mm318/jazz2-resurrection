@@ -14,7 +14,7 @@
 namespace Jazz2::Multiplayer::GameModes
 {
 	TeamLastRabbitStandingMode::TeamLastRabbitStandingMode()
-		: _reserve{}, _teamPlaying{}, _outCounter(0)
+		: _reserve {}, _teamPlaying {}, _outCounter(0)
 	{
 	}
 

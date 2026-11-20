@@ -28,9 +28,14 @@ namespace Jazz2::Actors::Enemies
 	{
 		std::int32_t difficultyLevel = 1;
 		switch (_levelHandler->GetDifficulty()) {
-			case GameDifficulty::Easy: difficultyLevel = 0; break;
-			case GameDifficulty::Hard: difficultyLevel = 2; break;
-			default: break;
+			case GameDifficulty::Easy:
+				difficultyLevel = 0;
+				break;
+			case GameDifficulty::Hard:
+				difficultyLevel = 2;
+				break;
+			default:
+				break;
 		}
 		return (3 - difficultyLevel) * ThrowWaitTicks / TicksPerFrame;
 	}
@@ -157,8 +162,10 @@ namespace Jazz2::Actors::Enemies
 		EnemyBase::OnSerializeState(dest);
 
 		std::uint8_t flags = 0;
-		if (_stuck) flags |= 0x01;
-		if (_currentTransition != nullptr) flags |= 0x02;
+		if (_stuck)
+			flags |= 0x01;
+		if (_currentTransition != nullptr)
+			flags |= 0x02;
 		dest.WriteValue<std::uint8_t>(flags);
 	}
 
@@ -231,7 +238,6 @@ namespace Jazz2::Actors::Enemies
 								ThrowBanana(distance, 8);
 
 								SetTransition((AnimState)1073741827, false, [this]() {
-
 									SetTransition((AnimState)1073741824, false, [this]() {
 										// Measured in JJ2+: it keeps throwing while a player is in range
 										if (!TryThrow()) {
@@ -267,8 +273,7 @@ namespace Jazz2::Actors::Enemies
 		banana->OnActivated(ActorActivationDetails(
 			_levelHandler,
 			Vector3i((std::int32_t)_pos.X + (IsFacingLeft() ? -offsetX : offsetX), (std::int32_t)_pos.Y - 8, _renderer.GetLayer() + 2),
-			bananaParams
-		));
+			bananaParams));
 		_levelHandler->AddActor(banana);
 	}
 

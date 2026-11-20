@@ -6,21 +6,20 @@
 #include "../Graphics/AuxiliaryWindowPresenter.h"
 
 #if defined(WITH_SDL2) && defined(DEATH_TARGET_WINDOWS)
-#	if defined(__HAS_LOCAL_SDL)
-#		include "SDL2/SDL_syswm.h"
-#	else
-#		include <SDL_syswm.h>
-#	endif
+#if defined(__HAS_LOCAL_SDL)
+#include "SDL2/SDL_syswm.h"
+#else
+#include <SDL_syswm.h>
+#endif
 #endif
 
 #include <algorithm>
 #include <cstring>
 
-
 #if defined(WITH_SDL3)
-#	define NCINE_SDL_HIGHDPI SDL_WINDOW_HIGH_PIXEL_DENSITY
+#define NCINE_SDL_HIGHDPI SDL_WINDOW_HIGH_PIXEL_DENSITY
 #else
-#	define NCINE_SDL_HIGHDPI SDL_WINDOW_ALLOW_HIGHDPI
+#define NCINE_SDL_HIGHDPI SDL_WINDOW_ALLOW_HIGHDPI
 #endif
 
 namespace nCine::Backends
@@ -39,13 +38,13 @@ namespace nCine::Backends
 #if defined(DEATH_TARGET_WINDOWS)
 		void* GetNativeWindow(SDL_Window* window)
 		{
-#	if defined(WITH_SDL3)
+#if defined(WITH_SDL3)
 			return SDL_GetPointerProperty(SDL_GetWindowProperties(window), SDL_PROP_WINDOW_WIN32_HWND_POINTER, nullptr);
-#	else
+#else
 			SDL_SysWMinfo wmInfo;
 			SDL_VERSION(&wmInfo.version);
 			return (SDL_GetWindowWMInfo(window, &wmInfo) == SDL_TRUE ? reinterpret_cast<void*>(wmInfo.info.win.window) : nullptr);
-#	endif
+#endif
 		}
 #endif
 	}
@@ -79,11 +78,11 @@ namespace nCine::Backends
 #if !defined(DEATH_TARGET_WINDOWS)
 		// On Windows the window is given its place by SetupAuxiliaryWindowWin32(), elsewhere a popup stays off the taskbar this way
 		if (desc.Popup) {
-#	if defined(WITH_SDL3)
+#if defined(WITH_SDL3)
 			flags |= SDL_WINDOW_UTILITY;
-#	else
+#else
 			flags |= SDL_WINDOW_SKIP_TASKBAR;
-#	endif
+#endif
 		}
 #endif
 #if defined(WITH_RHI_GL)
@@ -137,11 +136,11 @@ namespace nCine::Backends
 		SDL_Window* window = _window;
 		SDL_GLContext context = _glContext;
 		native.MakeCurrent = [window, context]() {
-#	if defined(WITH_SDL3)
+#if defined(WITH_SDL3)
 			return SDL_GL_MakeCurrent(window, context);
-#	else
+#else
 			return (SDL_GL_MakeCurrent(window, context) == 0);
-#	endif
+#endif
 		};
 		native.SwapBuffers = [window]() {
 			SDL_GL_SwapWindow(window);
@@ -164,11 +163,11 @@ namespace nCine::Backends
 		_presenter = nullptr;
 #if defined(WITH_RHI_GL)
 		if (_glContext != nullptr) {
-#	if defined(WITH_SDL3)
+#if defined(WITH_SDL3)
 			SDL_GL_DestroyContext(_glContext);
-#	else
+#else
 			SDL_GL_DeleteContext(_glContext);
-#	endif
+#endif
 			SDL_GL_MakeCurrent(SdlGfxDevice::GetWindowHandle(), SdlGfxDevice::GetGlContextHandle());
 		}
 #endif

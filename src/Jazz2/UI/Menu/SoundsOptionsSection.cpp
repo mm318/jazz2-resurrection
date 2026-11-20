@@ -3,8 +3,8 @@
 
 #include "../../../nCine/I18n.h"
 #if defined(WITH_PSPAUDIO) || defined(WITH_PS2AUDIO) || defined(WITH_NDSP) || defined(WITH_AHIAUDIO)
-#	include "../../../nCine/ServiceLocator.h"
-#	include "../../../nCine/Audio/IAudioDevice.h"
+#include "../../../nCine/ServiceLocator.h"
+#include "../../../nCine/Audio/IAudioDevice.h"
 #endif
 
 #include <algorithm>
@@ -49,24 +49,27 @@ namespace Jazz2::UI::Menu
 		list->ContentPadding = 12.0f;
 
 		// TRANSLATORS: Menu item in Options > Sounds section
-		list->Add<Slider>(_("Master Volume"),
-			[]() -> float { return PreferencesCache::MasterVolume; },
+		list->Add<Slider>(_("Master Volume"), []() -> float {
+			return PreferencesCache::MasterVolume;
+		},
 			[this](float delta) {
 				PreferencesCache::MasterVolume = std::clamp(PreferencesCache::MasterVolume + delta, 0.0f, 1.0f);
 				_root->ApplyPreferencesChanges(ChangedPreferencesType::Audio);
 				_isDirty = true;
 			});
 		// TRANSLATORS: Menu item in Options > Sounds section
-		list->Add<Slider>(_("SFX Volume"),
-			[]() -> float { return PreferencesCache::SfxVolume; },
+		list->Add<Slider>(_("SFX Volume"), []() -> float {
+			return PreferencesCache::SfxVolume;
+		},
 			[this](float delta) {
 				PreferencesCache::SfxVolume = std::clamp(PreferencesCache::SfxVolume + delta, 0.0f, 1.0f);
 				_root->ApplyPreferencesChanges(ChangedPreferencesType::Audio);
 				_isDirty = true;
 			});
 		// TRANSLATORS: Menu item in Options > Sounds section
-		list->Add<Slider>(_("Music Volume"),
-			[]() -> float { return PreferencesCache::MusicVolume; },
+		list->Add<Slider>(_("Music Volume"), []() -> float {
+			return PreferencesCache::MusicVolume;
+		},
 			[this](float delta) {
 				PreferencesCache::MusicVolume = std::clamp(PreferencesCache::MusicVolume + delta, 0.0f, 1.0f);
 				_root->ApplyPreferencesChanges(ChangedPreferencesType::Audio);
@@ -82,34 +85,33 @@ namespace Jazz2::UI::Menu
 		// change applies to the effects at once; the music is reopened at the new rate when the section is
 		// left (see the destructor).
 		// TRANSLATORS: Menu item in Options > Sounds section
-		auto* sampleRateItem = list->Add<ChoiceItem>(_("Sample Rate"),
-			[this]() -> StringView {
-				// `0` means the platform's default, which is whatever the device chose for itself
-				std::int32_t rate = (PreferencesCache::AudioSampleRate > 0
+		auto* sampleRateItem = list->Add<ChoiceItem>(_("Sample Rate"), [this]() -> StringView {
+			// `0` means the platform's default, which is whatever the device chose for itself
+			std::int32_t rate = (PreferencesCache::AudioSampleRate > 0
 					? PreferencesCache::AudioSampleRate
 					: theServiceLocator().GetAudioDevice().GetNativeFrequency());
-				_sampleRateValue = format("{} Hz", rate);
-				return _sampleRateValue;
-			},
+			_sampleRateValue = format("{} Hz", rate);
+			return _sampleRateValue;
+		},
 			[this](std::int32_t direction) {
-				// Ascending presets so Right increases and Left decreases; clamped at the ends (no wraparound)
-#	if defined(WITH_NDSP)
+		// Ascending presets so Right increases and Left decreases; clamped at the ends (no wraparound)
+#if defined(WITH_NDSP)
 				// The DSP outputs at 32728 Hz, so that is the most a mix can be heard at; mixing at 44100 Hz would
 				// spend CPU on samples the hardware resamples straight back down
 				static const std::int32_t presets[] = { 11025, 22050, 32728 };
-#	elif defined(WITH_PSPAUDIO)
+#elif defined(WITH_PSPAUDIO)
 				// The hardware's own 44100 Hz, the default, and half of it to give the CPU back in a pinch - a quarter
 				// would make the music audibly dull for a saving the game does not need (see PspAudioDevice)
 				static const std::int32_t presets[] = { 22050, 44100 };
-#	else
+#else
 				// The full set. The PlayStation 2's SPU2 runs at 48000 Hz and audsrv pitches the stream up to it, so
 				// any of these plays back correctly, and the EE has the headroom for 44100 (see Ps2AudioDevice)
 				static const std::int32_t presets[] = { 11025, 22050, 44100 };
-#	endif
+#endif
 				constexpr std::int32_t count = (std::int32_t)(sizeof(presets) / sizeof(presets[0]));
 				std::int32_t current = (PreferencesCache::AudioSampleRate > 0
-					? PreferencesCache::AudioSampleRate
-					: theServiceLocator().GetAudioDevice().GetNativeFrequency());
+						? PreferencesCache::AudioSampleRate
+						: theServiceLocator().GetAudioDevice().GetNativeFrequency());
 				std::int32_t index = count - 1;
 				for (std::int32_t i = 0; i < count; i++) {
 					if (current <= presets[i]) {

@@ -25,31 +25,31 @@ namespace nCine
 		 */
 		enum class ShaderProgramType
 		{
-			Sprite = 0,								/**< Shader program for `Sprite` classes */
+			Sprite = 0, /**< Shader program for `Sprite` classes */
 			// Shader program for Sprite classes with grayscale font texture
 			//SpriteGray,
-			SpriteNoTexture,						/**< Shader program for `Sprite` classes with a solid color and no texture */
-			MeshSprite,								/**< Shader program for `MeshSprite` classes */
+			SpriteNoTexture, /**< Shader program for `Sprite` classes with a solid color and no texture */
+			MeshSprite, /**< Shader program for `MeshSprite` classes */
 			// Shader program for MeshSprite classes with grayscale font texture
 			//MeshSpriteGray,
-			MeshSpriteNoTexture,					/**< Shader program for `MeshSprite` classes with a solid color and no texture */
+			MeshSpriteNoTexture, /**< Shader program for `MeshSprite` classes with a solid color and no texture */
 			// Shader program for TextNode classes with glyph data in alpha channel
 			//TextNodeAlpha,
 			// Shader program for TextNode classes with glyph data in red channel
 			//TextNodeRed,
-			BatchedSprites,							/**< Shader program for a batch of `Sprite` classes */
+			BatchedSprites, /**< Shader program for a batch of `Sprite` classes */
 			// Shader program for a batch of Sprite classes with grayscale font texture
 			//BatchedSpritesGray,
-			BatchedSpritesNoTexture,				/**< Shader program for a batch of `Sprite` classes with solid colors and no texture */
-			BatchedMeshSprites,						/**< Shader program for a batch of `MeshSprite` classes */
+			BatchedSpritesNoTexture, /**< Shader program for a batch of `Sprite` classes with solid colors and no texture */
+			BatchedMeshSprites, /**< Shader program for a batch of `MeshSprite` classes */
 			// Shader program for a batch of MeshSprite classes with grayscale font texture
 			//BatchedMeshSpritesGray,
-			BatchedMeshSpritesNoTexture,			/**< Shader program for a batch of `MeshSprite` classes with solid colors and no texture */
+			BatchedMeshSpritesNoTexture, /**< Shader program for a batch of `MeshSprite` classes with solid colors and no texture */
 			// Shader program for a batch of TextNode classes with color font texture
 			//BatchedTextNodesAlpha,
 			// Shader program for a batch of TextNode classes with grayscale font texture
 			//BatchedTextNodesRed,
-			Custom									/**< A custom shader program */
+			Custom /**< A custom shader program */
 		};
 
 		/** @{ @name Constants */
@@ -85,23 +85,29 @@ namespace nCine
 		Material();
 		Material(RHI::ShaderProgram* program, RHI::Texture* texture);
 
-		inline bool IsBlendingEnabled() const {
+		inline bool IsBlendingEnabled() const
+		{
 			return _isBlendingEnabled;
 		}
-		inline void SetBlendingEnabled(bool blendingEnabled) {
+		inline void SetBlendingEnabled(bool blendingEnabled)
+		{
 			_isBlendingEnabled = blendingEnabled;
 		}
 
-		inline BlendingFactor GetSrcBlendingFactor() const {
+		inline BlendingFactor GetSrcBlendingFactor() const
+		{
 			return _srcBlendingFactor;
 		}
-		inline BlendingFactor GetDestBlendingFactor() const {
+		inline BlendingFactor GetDestBlendingFactor() const
+		{
 			return _destBlendingFactor;
 		}
-		inline BlendingFactor GetSrcAlphaBlendingFactor() const {
+		inline BlendingFactor GetSrcAlphaBlendingFactor() const
+		{
 			return _srcAlphaBlendingFactor;
 		}
-		inline BlendingFactor GetDestAlphaBlendingFactor() const {
+		inline BlendingFactor GetDestAlphaBlendingFactor() const
+		{
 			return _destAlphaBlendingFactor;
 		}
 		/** @brief Sets the blending factors for both color and alpha */
@@ -110,7 +116,8 @@ namespace nCine
 		void SetBlendingFactors(BlendingFactor srcRgbBlendingFactor, BlendingFactor destRgbBlendingFactor, BlendingFactor srcAlphaBlendingFactor, BlendingFactor destAlphaBlendingFactor);
 
 		/** @brief Returns `true` when the drawn content was hinted fully opaque (see @ref SetOpaqueContentHint()) */
-		inline bool GetOpaqueContentHint() const {
+		inline bool GetOpaqueContentHint() const
+		{
 			return _hasOpaqueContentHint;
 		}
 		/**
@@ -123,18 +130,21 @@ namespace nCine
 		 * off, which is pixel-for-pixel identical for opaque content under src-over. The hint is part of
 		 * the material sort key, so hinted and unhinted draws never share a batch.
 		 */
-		inline void SetOpaqueContentHint(bool hasOpaqueContent) {
+		inline void SetOpaqueContentHint(bool hasOpaqueContent)
+		{
 			if (_hasOpaqueContentHint != hasOpaqueContent) {
 				_hasOpaqueContentHint = hasOpaqueContent;
 				_sortKeyDirty = true;
 			}
 		}
 
-		inline ShaderProgramType GetShaderProgramType() const {
+		inline ShaderProgramType GetShaderProgramType() const
+		{
 			return _shaderProgramType;
 		}
 		bool SetShaderProgramType(ShaderProgramType shaderProgramType);
-		inline const RHI::ShaderProgram* GetShaderProgram() const {
+		inline const RHI::ShaderProgram* GetShaderProgram() const
+		{
 			return _shaderProgram;
 		}
 		void SetShaderProgram(RHI::ShaderProgram* program);
@@ -145,29 +155,35 @@ namespace nCine
 		void SetUniformsDataPointer(std::uint8_t* dataPointer);
 
 		/** @brief Wrapper around `RHI::ShaderUniforms::HasUniform()` */
-		inline bool HasUniform(const char* name) const {
+		inline bool HasUniform(const char* name) const
+		{
 			return _shaderUniforms.HasUniform(name);
 		}
 		/** @brief Wrapper around `RHI::ShaderUniformBlocks::HasUniformBlock()` */
-		inline bool HasUniformBlock(const char* name) const {
+		inline bool HasUniformBlock(const char* name) const
+		{
 			return _shaderUniformBlocks.HasUniformBlock(name);
 		}
 
 		/** @brief Wrapper around `RHI::ShaderUniforms::GetUniform()` */
-		inline RHI::UniformCache* Uniform(const char* name) {
+		inline RHI::UniformCache* Uniform(const char* name)
+		{
 			return _shaderUniforms.GetUniform(name);
 		}
 		/** @brief Wrapper around `RHI::ShaderUniformBlocks::GetUniformBlock()` */
-		inline RHI::UniformBlockCache* UniformBlock(const char* name) {
+		inline RHI::UniformBlockCache* UniformBlock(const char* name)
+		{
 			return _shaderUniformBlocks.GetUniformBlock(name);
 		}
 
 		/** @brief Wrapper around `RHI::ShaderUniforms::GetAllUniforms()` */
-		inline const RHI::ShaderUniforms::UniformHashMapType& GetAllUniforms() const {
+		inline const RHI::ShaderUniforms::UniformHashMapType& GetAllUniforms() const
+		{
 			return _shaderUniforms.GetAllUniforms();
 		}
 		/** @brief Wrapper around `RHI::ShaderUniformBlocks::GetAllUniformBlocks()` */
-		inline const RHI::ShaderUniformBlocks::UniformHashMapType& GetAllUniformBlocks() const {
+		inline const RHI::ShaderUniformBlocks::UniformHashMapType& GetAllUniformBlocks() const
+		{
 			return _shaderUniformBlocks.GetAllUniformBlocks();
 		}
 
@@ -176,13 +192,16 @@ namespace nCine
 		bool SetTexture(std::uint32_t unit, const Texture& texture);
 		bool SetTexture(std::uint32_t unit, std::nullptr_t);
 
-		inline const RHI::Texture* GetTexture() const {
+		inline const RHI::Texture* GetTexture() const
+		{
 			return GetTexture(0);
 		}
-		inline bool SetTexture(const RHI::Texture* texture) {
+		inline bool SetTexture(const RHI::Texture* texture)
+		{
 			return SetTexture(0, texture);
 		}
-		inline bool SetTexture(const Texture& texture) {
+		inline bool SetTexture(const Texture& texture)
+		{
 			return SetTexture(0, texture);
 		}
 
@@ -218,11 +237,13 @@ namespace nCine
 		// Maintains the used texture unit count after a texture change on the specified unit
 		void UpdateUsedTextureUnits(std::uint32_t unit, bool textureSet);
 		/** @brief Wrapper around `RHI::ShaderUniforms::CommitUniforms()` */
-		inline void CommitUniforms() {
+		inline void CommitUniforms()
+		{
 			_shaderUniforms.CommitUniforms();
 		}
 		/** @brief Wrapper around `RHI::ShaderUniformBlocks::CommitUniformBlocks()` */
-		inline void CommitUniformBlocks() {
+		inline void CommitUniformBlocks()
+		{
 			_shaderUniformBlocks.CommitUniformBlocks();
 		}
 		/** @brief Wrapper around `RHI::ShaderProgram::DefineVertexFormat()` */
@@ -231,4 +252,3 @@ namespace nCine
 	};
 
 }
-

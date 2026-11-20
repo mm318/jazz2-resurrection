@@ -7,212 +7,212 @@
 // Rendering backend (RHI) currently compiled in. The non-OpenGL backends take precedence; the OpenGL family
 // backend reports which of its profiles was built (see `NCINE_RHI_GL_PROFILE`).
 #if defined(WITH_RHI_SOFTWARE)
-#	define _i1a "\nSoftware renderer"
+#define _i1a "\nSoftware renderer"
 #elif defined(WITH_RHI_D3D11)
-#	define _i1a "\nDirect3D 11"
+#define _i1a "\nDirect3D 11"
 #elif defined(WITH_RHI_VULKAN)
-#	define _i1a "\nVulkan"
+#define _i1a "\nVulkan"
 #elif defined(WITH_RHI_METAL)
-#	define _i1a "\nMetal"
+#define _i1a "\nMetal"
 #elif defined(WITH_RHI_GXM)
-#	define _i1a "\nGXM"
+#define _i1a "\nGXM"
 #elif defined(WITH_RHI_GS)
-#	define _i1a "\nGS (fixed-function)"
+#define _i1a "\nGS (fixed-function)"
 #elif defined(WITH_RHI_GX)
-#	define _i1a "\nGX (fixed-function)"
+#define _i1a "\nGX (fixed-function)"
 #elif defined(WITH_RHI_PVR)
-#	define _i1a "\nPowerVR (fixed-function)"
+#define _i1a "\nPowerVR (fixed-function)"
 #elif defined(WITH_RHI_GU)
-#	define _i1a "\nGU (fixed-function)"
+#define _i1a "\nGU (fixed-function)"
 #elif defined(WITH_RHI_PICA)
-#	define _i1a "\nPICA200 (fixed-function)"
+#define _i1a "\nPICA200 (fixed-function)"
 #elif defined(WITH_RHI_RDP)
-#	define _i1a "\nRDP (fixed-function)"
+#define _i1a "\nRDP (fixed-function)"
 #elif defined(WITH_RHI_LEGACYGL)
-#	define _i1a "\nOpenGL 1.x (fixed-function)"
+#define _i1a "\nOpenGL 1.x (fixed-function)"
 #elif defined(WITH_RHI_RSX)
-#	define _i1a "\nRSX"
+#define _i1a "\nRSX"
 #elif defined(WITH_RHI_GX2)
-#	define _i1a "\nGX2"
+#define _i1a "\nGX2"
 #elif defined(RHI_GL_PROFILE_ES2)
-#	define _i1a "\nOpenGL│ES 2.0"
+#define _i1a "\nOpenGL│ES 2.0"
 #elif defined(RHI_GL_PROFILE_ES3)
-#	if defined(DEATH_TARGET_EMSCRIPTEN)
-#		define _i1a "\nWebGL 2.0"
-#	else
-#		define _i1a "\nOpenGL│ES 3.0"
-#	endif
+#if defined(DEATH_TARGET_EMSCRIPTEN)
+#define _i1a "\nWebGL 2.0"
 #else
-#	define _i1a "\nOpenGL 3.3"
+#define _i1a "\nOpenGL│ES 3.0"
+#endif
+#else
+#define _i1a "\nOpenGL 3.3"
 #endif
 
 // Both backends that own their presented surface's pixel format additionally report the optional
 // 16-bit (RGB565) framebuffer mode (`NCINE_RHI_USE_FB16`)
 #if defined(RHI_USE_FB16)
-#	define _i1 _i1a " (16-bit)"
+#define _i1 _i1a " (16-bit)"
 #else
-#	define _i1 _i1a
+#define _i1 _i1a
 #endif
 
 #if defined(DEATH_TARGET_WINDOWS_RT)
-#	define _i2 " (UWP)"
+#define _i2 " (UWP)"
 #else
-#	define _i2 ""
+#define _i2 ""
 #endif
 
 #if defined(DEATH_CPU_USE_RUNTIME_DISPATCH)
-#	if defined(DEATH_CPU_USE_IFUNC)
-#		define _i3 " · GNU IF\f[h:82]UNC\f[/h]"
-#	else
-#		define _i3 " · \f[h:86]CPU Runtime Dispatch\f[/h]"
-#	endif
+#if defined(DEATH_CPU_USE_IFUNC)
+#define _i3 " · GNU IF\f[h:82]UNC\f[/h]"
 #else
-#	define _i3 ""
+#define _i3 " · \f[h:86]CPU Runtime Dispatch\f[/h]"
+#endif
+#else
+#define _i3 ""
 #endif
 
 // OpenGL implementation attribution - only meaningful when the OpenGL family backend is active
 #if defined(WITH_RHI_GL) && defined(WITH_ANGLE)
-#	define _i4 "\nANGLE \f[c:#707070]· \f[h:80]https://github.com/google/angle\f[/h]\f[/c]"
+#define _i4 "\nANGLE \f[c:#707070]· \f[h:80]https://github.com/google/angle\f[/h]\f[/c]"
 #elif defined(WITH_RHI_GL) && defined(DEATH_TARGET_WINDOWS_RT)
-#	define _i4 "\nMesa \f[c:#707070]· \f[h:80]https://gitlab.freedesktop.org/mesa/mesa\f[/h]\f[/c]"
+#define _i4 "\nMesa \f[c:#707070]· \f[h:80]https://gitlab.freedesktop.org/mesa/mesa\f[/h]\f[/c]"
 #else
-#	define _i4 ""
+#define _i4 ""
 #endif
 
 #if defined(WITH_GLFW)
-#	if defined(EMSCRIPTEN_USE_PORT_CONTRIB_GLFW3)
-#		define _i5 "\nGLFW/contrib \f[c:#707070]· \f[h:80]https://github.com/pongasoft/emscripten-glfw\f[/h]\f[/c]"
-#	else
-#		define _i5 "\nGLFW \f[c:#707070]· \f[h:80]https://www.glfw.org/\f[/h]\f[/c]"
-#	endif
+#if defined(EMSCRIPTEN_USE_PORT_CONTRIB_GLFW3)
+#define _i5 "\nGLFW/contrib \f[c:#707070]· \f[h:80]https://github.com/pongasoft/emscripten-glfw\f[/h]\f[/c]"
+#else
+#define _i5 "\nGLFW \f[c:#707070]· \f[h:80]https://www.glfw.org/\f[/h]\f[/c]"
+#endif
 #elif defined(WITH_QT5)
-#	define _i5 "\nQt5 \f[c:#707070]· \f[h:80]https://www.qt.io/\f[/h]\f[/c]"
+#define _i5 "\nQt5 \f[c:#707070]· \f[h:80]https://www.qt.io/\f[/h]\f[/c]"
 #elif defined(WITH_SDL3)
-#	define _i5 "\nSDL3 \f[c:#707070]· \f[h:80]https://www.libsdl.org/\f[/h]\f[/c]"
+#define _i5 "\nSDL3 \f[c:#707070]· \f[h:80]https://www.libsdl.org/\f[/h]\f[/c]"
 #elif defined(WITH_SDL2)
-#	define _i5 "\nSDL2 \f[c:#707070]· \f[h:80]https://www.libsdl.org/\f[/h]\f[/c]"
+#define _i5 "\nSDL2 \f[c:#707070]· \f[h:80]https://www.libsdl.org/\f[/h]\f[/c]"
 // The consoles have no windowing library: their window, input and audio backends sit directly on the SDK, which
 // is what is credited here (the rendering backend above sits on it as well)
 #elif defined(WITH_N64)
-#	define _i5 "\nlibdragon \f[c:#707070]· \f[h:80]https://github.com/DragonMinded/libdragon\f[/h]\f[/c]"
+#define _i5 "\nlibdragon \f[c:#707070]· \f[h:80]https://github.com/DragonMinded/libdragon\f[/h]\f[/c]"
 #elif defined(WITH_DC)
-#	define _i5 "\nKallistiOS \f[c:#707070]· \f[h:80]https://github.com/KallistiOS/KallistiOS\f[/h]\f[/c]"
+#define _i5 "\nKallistiOS \f[c:#707070]· \f[h:80]https://github.com/KallistiOS/KallistiOS\f[/h]\f[/c]"
 #elif defined(WITH_OGC)
-#	define _i5 "\nlibogc \f[c:#707070]· \f[h:80]https://github.com/devkitPro/libogc\f[/h]\f[/c]"
+#define _i5 "\nlibogc \f[c:#707070]· \f[h:80]https://github.com/devkitPro/libogc\f[/h]\f[/c]"
 #elif defined(WITH_CTR)
-#	define _i5 "\nlibctru \f[c:#707070]· \f[h:80]https://github.com/devkitPro/libctru\f[/h]\f[/c]\ncitro3d \f[c:#707070]· \f[h:80]https://github.com/devkitPro/citro3d\f[/h]\f[/c]"
+#define _i5 "\nlibctru \f[c:#707070]· \f[h:80]https://github.com/devkitPro/libctru\f[/h]\f[/c]\ncitro3d \f[c:#707070]· \f[h:80]https://github.com/devkitPro/citro3d\f[/h]\f[/c]"
 #elif defined(WITH_PS2)
-#	define _i5 "\nps2sdk \f[c:#707070]· \f[h:80]https://github.com/ps2dev/ps2sdk\f[/h]\f[/c]"
+#define _i5 "\nps2sdk \f[c:#707070]· \f[h:80]https://github.com/ps2dev/ps2sdk\f[/h]\f[/c]"
 #elif defined(WITH_PS3)
-#	define _i5 "\nPSL1GHT \f[c:#707070]· \f[h:80]https://github.com/ps3dev/PSL1GHT\f[/h]\f[/c]"
+#define _i5 "\nPSL1GHT \f[c:#707070]· \f[h:80]https://github.com/ps3dev/PSL1GHT\f[/h]\f[/c]"
 #elif defined(WITH_PSP)
-#	define _i5 "\npspsdk \f[c:#707070]· \f[h:80]https://github.com/pspdev/pspsdk\f[/h]\f[/c]"
+#define _i5 "\npspsdk \f[c:#707070]· \f[h:80]https://github.com/pspdev/pspsdk\f[/h]\f[/c]"
 #else
-#	define _i5 ""
+#define _i5 ""
 #endif
 
 // GLEW is an OpenGL extension loader - irrelevant to the non-OpenGL backends
 #if defined(WITH_GLEW) && defined(WITH_RHI_GL)
-#	define _i6 "\nGLEW \f[c:#707070]· \f[h:80]https://glew.sourceforge.net/\f[/h]\f[/c]"
+#define _i6 "\nGLEW \f[c:#707070]· \f[h:80]https://glew.sourceforge.net/\f[/h]\f[/c]"
 #else
-#	define _i6 ""
+#define _i6 ""
 #endif
 
 // Audio backend: OpenAL where the platform has one, otherwise the engine's own software mixer over the SDK's
 // output path (credited above), named after the hardware/service it feeds
 #if defined(WITH_ASND)
-#	define _i7 "\nASND audio (software mixer)"
+#define _i7 "\nASND audio (software mixer)"
 #elif defined(WITH_AICA)
-#	define _i7 "\nAICA audio (software mixer)"
+#define _i7 "\nAICA audio (software mixer)"
 #elif defined(WITH_NDSP)
-#	define _i7 "\nNDSP audio (software mixer)"
+#define _i7 "\nNDSP audio (software mixer)"
 #elif defined(WITH_N64AUDIO)
-#	define _i7 "\nAI audio (software mixer)"
+#define _i7 "\nAI audio (software mixer)"
 #elif defined(WITH_PS3AUDIO)
-#	define _i7 "\nPS3 audio (software mixer)"
+#define _i7 "\nPS3 audio (software mixer)"
 #elif defined(WITH_PSPAUDIO)
-#	define _i7 "\nsceAudio (software mixer)"
+#define _i7 "\nsceAudio (software mixer)"
 #elif defined(WITH_PS2AUDIO)
-#	define _i7 "\naudsrv (software mixer)"
+#define _i7 "\naudsrv (software mixer)"
 #elif defined(WITH_AHIAUDIO)
-#	define _i7 "\nAHI audio (software mixer)"
+#define _i7 "\nAHI audio (software mixer)"
 #elif defined(WITH_SDLAUDIO)
-#	define _i7 "\nSDL audio (software mixer)"
+#define _i7 "\nSDL audio (software mixer)"
 #elif defined(WITH_AUDIO)
-#	define _i7 "\nOpenAL \f[c:#707070]· \f[h:80]https://github.com/kcat/openal-soft\f[/h]\f[/c]"
+#define _i7 "\nOpenAL \f[c:#707070]· \f[h:80]https://github.com/kcat/openal-soft\f[/h]\f[/c]"
 #else
-#	define _i7 ""
+#define _i7 ""
 #endif
 
 #if defined(WITH_VORBIS)
-#	define _i8 "\nVorbis \f[c:#707070]· \f[h:80]https://github.com/xiph/vorbis\f[/h]\f[/c]"
+#define _i8 "\nVorbis \f[c:#707070]· \f[h:80]https://github.com/xiph/vorbis\f[/h]\f[/c]"
 #else
-#	define _i8 ""
+#define _i8 ""
 #endif
 
 // The two module decoders are alternatives, never both - whichever one was built plays the music
 #if defined(WITH_OPENMPT)
-#	define _i9 "\nlibopenmpt \f[c:#707070]· \f[h:80]https://lib.openmpt.org/libopenmpt/\f[/h]\f[/c]"
+#define _i9 "\nlibopenmpt \f[c:#707070]· \f[h:80]https://lib.openmpt.org/libopenmpt/\f[/h]\f[/c]"
 #elif defined(WITH_XMP)
-#	define _i9 "\nlibxmp \f[c:#707070]· \f[h:80]https://libxmp.sourceforge.net/\f[/h]\f[/c]"
+#define _i9 "\nlibxmp \f[c:#707070]· \f[h:80]https://libxmp.sourceforge.net/\f[/h]\f[/c]"
 #else
-#	define _i9 ""
+#define _i9 ""
 #endif
 
 #if defined(WITH_WEBP)
-#	define _i10 "\nlibwebp \f[c:#707070]· \f[h:80]https://github.com/webmproject/libwebp\f[/h]\f[/c]"
+#define _i10 "\nlibwebp \f[c:#707070]· \f[h:80]https://github.com/webmproject/libwebp\f[/h]\f[/c]"
 #else
-#	define _i10 ""
+#define _i10 ""
 #endif
 
 #if defined(WITH_CURL)
-#	define _i11 "\nlibcurl \f[c:#707070]· \f[h:80]https://curl.se/libcurl/\f[/h]\f[/c]"
+#define _i11 "\nlibcurl \f[c:#707070]· \f[h:80]https://curl.se/libcurl/\f[/h]\f[/c]"
 #else
-#	define _i11 ""
+#define _i11 ""
 #endif
 
 #if defined(WITH_ZLIB)
-#	define _i12 "\nzlib \f[c:#707070]· \f[h:80]https://www.zlib.net/\f[/h]\f[/c]"
+#define _i12 "\nzlib \f[c:#707070]· \f[h:80]https://www.zlib.net/\f[/h]\f[/c]"
 #else
-#	define _i12 ""
+#define _i12 ""
 #endif
 
 #if defined(WITH_IMGUI)
-#	define _i13 "\nImGui \f[c:#707070]· \f[h:80]https://github.com/ocornut/imgui\f[/h]\f[/c]"
+#define _i13 "\nImGui \f[c:#707070]· \f[h:80]https://github.com/ocornut/imgui\f[/h]\f[/c]"
 #else
-#	define _i13 ""
+#define _i13 ""
 #endif
 
 #if defined(WITH_ANGELSCRIPT)
-#	define _i14 "\nAngelScript \f[c:#707070]· \f[h:80]https://www.angelcode.com/angelscript/\f[/h]\f[/c]"
+#define _i14 "\nAngelScript \f[c:#707070]· \f[h:80]https://www.angelcode.com/angelscript/\f[/h]\f[/c]"
 #else
-#	define _i14 ""
+#define _i14 ""
 #endif
 
 #if defined(WITH_BACKWARD)
-#	define _i15 "\nBackward \f[c:#707070]· \f[h:80]https://github.com/bombela/backward-cpp\f[/h]\f[/c]"
+#define _i15 "\nBackward \f[c:#707070]· \f[h:80]https://github.com/bombela/backward-cpp\f[/h]\f[/c]"
 #else
-#	define _i15 ""
+#define _i15 ""
 #endif
 
 #if defined(WITH_ONLINE_MULTIPLAYER)
-#	define _i16 "\nENet \f[c:#707070]· \f[h:80]https://github.com/lsalzman/enet\f[/h]\f[/c]"
+#define _i16 "\nENet \f[c:#707070]· \f[h:80]https://github.com/lsalzman/enet\f[/h]\f[/c]"
 #else
-#	define _i16 ""
+#define _i16 ""
 #endif
 
 #if defined(WITH_ONLINE_MULTIPLAYER) && defined(WITH_WEBSOCKET) && !defined(DEATH_TARGET_EMSCRIPTEN)
-#	define _i17 "\nIXWebSocket \f[c:#707070]· \f[h:80]https://github.com/machinezone/IXWebSocket\f[/h]\f[/c]"
+#define _i17 "\nIXWebSocket \f[c:#707070]· \f[h:80]https://github.com/machinezone/IXWebSocket\f[/h]\f[/c]"
 #else
-#	define _i17 ""
+#define _i17 ""
 #endif
 
 #define _i18 "\njsoncpp \f[c:#707070]· \f[h:80]https://github.com/open-source-parsers/jsoncpp\f[/h]\f[/c]\nParallel Hashmap \f[c:#707070]· \f[h:80]https://github.com/greg7mdp/parallel-hashmap\f[/h]\f[/c]\n\f[h:80]Parts of \f[/h]Corrade \f[c:#707070]· \f[h:80]https://github.com/mosra/corrade\f[/h]\f[/c]\nPattern-defeating quicksort \f[c:#707070]· \f[h:80]https://github.com/orlp/pdqsort\f[/h]\f[/c]"
 
 #if defined(WITH_TRACY)
-#	define _i19 "\n\n\f[h:86]Tracy integration is enabled.\f[/h]"
+#define _i19 "\n\n\f[h:86]Tracy integration is enabled.\f[/h]"
 #else
-#	define _i19 ""
+#define _i19 ""
 #endif
 
 #define ADDITIONAL_INFO _i1 _i2 _i3 _i4 _i5 _i6 _i7 _i8 _i9 _i10 _i11 _i12 _i13 _i14 _i15 _i16 _i17 _i18 _i19
@@ -223,7 +223,7 @@ namespace Jazz2::UI::Menu
 {
 	AboutSection::AboutSection()
 		: _maxScrollOffset(0.0f), _touchTime(0.0f), _touchSpeed(0.0f), _scrollOffset(0.0f), _scrollRate(0.0f),
-			_touchDirection(0), _autoScroll(true), _rewind(false)
+		  _touchDirection(0), _autoScroll(true), _rewind(false)
 	{
 		auto& resolver = ContentResolver::Get();
 
@@ -265,8 +265,6 @@ namespace Jazz2::UI::Menu
 			AddTranslator(item, textPtr, textSize);
 		}
 
-
-
 		length = formatInto({ textPtr, textSize }, "\n\n{}{}", footerText, ADDITIONAL_INFO);
 		textPtr += length;
 		textSize -= length;
@@ -276,7 +274,7 @@ namespace Jazz2::UI::Menu
 		_textBlock.SetMultiline(true);
 		_textBlock.SetWrapping(true);
 		_textBlock.SetFont(resolver.GetFont(FontType::Small));
-		_textBlock.SetText(StringView{text, std::size_t(textPtr - text)});
+		_textBlock.SetText(StringView { text, std::size_t(textPtr - text) });
 
 		_textBlockHeaderOnly.SetAlignment(Alignment::Center);
 		_textBlockHeaderOnly.SetScale(0.8f);

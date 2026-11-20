@@ -18,7 +18,8 @@ namespace nCine
 		
 		Identifies how the bytes of a @ref JoystickGuid are laid out so they can be parsed accordingly.
 	*/
-	enum class JoystickGuidType {
+	enum class JoystickGuidType
+	{
 		Unknown,
 		Standard,
 		Default,
@@ -35,10 +36,12 @@ namespace nCine
 	{
 	public:
 		JoystickGuid();
-		inline JoystickGuid(JoystickGuidType type) {
+		inline JoystickGuid(JoystickGuidType type)
+		{
 			FromType(type);
 		}
-		inline JoystickGuid(StringView string) {
+		inline JoystickGuid(StringView string)
+		{
 			FromString(string);
 		}
 		/** @brief Fills the GUID for a well-known layout type */
@@ -82,9 +85,9 @@ namespace nCine
 		/** @brief Mouse cursor mode */
 		enum class Cursor
 		{
-			Arrow,			/**< Cursor is shown and behaves normally */
-			Hidden,			/**< Cursor is hidden but behaves normally */
-			HiddenLocked	/**< Cursor is hidden and locked to the window; movement is relative if supported (no acceleration or scaling) */
+			Arrow, /**< Cursor is shown and behaves normally */
+			Hidden, /**< Cursor is hidden but behaves normally */
+			HiddenLocked /**< Cursor is hidden and locked to the window; movement is relative if supported (no acceleration or scaling) */
 		};
 
 		/** @{ @name Constants */
@@ -108,10 +111,15 @@ namespace nCine
 
 		/** @} */
 
-		IInputManager() {}
-		virtual ~IInputManager() {}
+		IInputManager()
+		{
+		}
+		virtual ~IInputManager()
+		{
+		}
 		/** @brief Returns the current input event handler */
-		static inline IInputEventHandler* GetHandler() {
+		static inline IInputEventHandler* GetHandler()
+		{
 			return _inputEventHandler;
 		}
 		/** @brief Sets the input event handler */
@@ -174,7 +182,8 @@ namespace nCine
 		bool HasMappingByName(const char* name) const;
 
 		/** @brief Returns the current mouse cursor mode */
-		inline Cursor GetCursor() const {
+		inline Cursor GetCursor() const
+		{
 			return _cursor;
 		}
 		/** @brief Sets the mouse cursor mode */
@@ -194,46 +203,105 @@ namespace nCine
 	class NullInputManager : public IInputManager
 	{
 	public:
-		NullInputManager() : _mouseState{}, _keyState{}, _joyState{} {}
+		NullInputManager()
+			: _mouseState {}, _keyState {}, _joyState {}
+		{
+		}
 
-		virtual const MouseState& GetMouseState() const override { return _mouseState; }
-		virtual const KeyboardState& GetKeyboardState() const override { return _keyState; }
+		virtual const MouseState& GetMouseState() const override
+		{
+			return _mouseState;
+		}
+		virtual const KeyboardState& GetKeyboardState() const override
+		{
+			return _keyState;
+		}
 
-		String GetClipboardText() const override { return {}; }
-		StringView GetKeyName(Keys key) const override { return {}; }
+		String GetClipboardText() const override
+		{
+			return {};
+		}
+		StringView GetKeyName(Keys key) const override
+		{
+			return {};
+		}
 
-		bool IsJoyPresent(int joyId) const override { return false; }
-		const char* GetJoyName(int joyId) const override { return nullptr; }
-		const JoystickGuid GetJoyGuid(int joyId) const override { return {}; }
-		int GetJoyButtonCount(int joyId) const override { return 0; }
-		int GetJoyHatCount(int joyId) const override { return 0; }
-		int GetJoyAxisCount(int joyId) const override { return 0; }
+		bool IsJoyPresent(int joyId) const override
+		{
+			return false;
+		}
+		const char* GetJoyName(int joyId) const override
+		{
+			return nullptr;
+		}
+		const JoystickGuid GetJoyGuid(int joyId) const override
+		{
+			return {};
+		}
+		int GetJoyButtonCount(int joyId) const override
+		{
+			return 0;
+		}
+		int GetJoyHatCount(int joyId) const override
+		{
+			return 0;
+		}
+		int GetJoyAxisCount(int joyId) const override
+		{
+			return 0;
+		}
 
-		const JoystickState& GetJoystickState(int joyId) const override { return _joyState; }
-		bool JoystickRumble(int joyId, float lowFreqIntensity, float highFreqIntensity, uint32_t durationMs) override { return false; }
-		bool JoystickRumbleTriggers(int joyId, float left, float right, uint32_t durationMs) override { return false; }
+		const JoystickState& GetJoystickState(int joyId) const override
+		{
+			return _joyState;
+		}
+		bool JoystickRumble(int joyId, float lowFreqIntensity, float highFreqIntensity, uint32_t durationMs) override
+		{
+			return false;
+		}
+		bool JoystickRumbleTriggers(int joyId, float left, float right, uint32_t durationMs) override
+		{
+			return false;
+		}
 
-		void SetCursor(Cursor cursor) override {}
+		void SetCursor(Cursor cursor) override
+		{
+		}
 
 	public:
 		class NullMouseState : public MouseState
 		{
 		public:
-			bool IsButtonDown(MouseButton button) const override { return false; }
+			bool IsButtonDown(MouseButton button) const override
+			{
+				return false;
+			}
 		};
 
 		class NullKeyboardState : public KeyboardState
 		{
 		public:
-			bool IsKeyDown(Keys key) const override { return false; }
+			bool IsKeyDown(Keys key) const override
+			{
+				return false;
+			}
 		};
 
 		class NullJoystickState : public JoystickState
 		{
 		public:
-			bool IsButtonPressed(int buttonId) const override { return false; }
-			unsigned char GetHatState(int hatId) const override { return 0; }
-			float GetAxisValue(int axisId) const override { return 0.0f; }
+			bool IsButtonPressed(int buttonId) const override
+			{
+				return false;
+			}
+			unsigned char GetHatState(int hatId) const override
+			{
+				return 0;
+			}
+			float GetAxisValue(int axisId) const override
+			{
+				return 0.0f;
+			}
 		};
 
 	private:

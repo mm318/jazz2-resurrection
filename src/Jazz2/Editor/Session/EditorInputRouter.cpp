@@ -232,11 +232,20 @@ namespace Jazz2::Editor
 			EditorCamera& camera = editHandler->GetCamera();
 			Rectf view = _host.GetViewRect();
 			switch (event.Sym) {
-				case Keys::Left: camera.PanBy(Vector2f(-view.W * KeyboardPanFraction, 0.0f)); return;
-				case Keys::Right: camera.PanBy(Vector2f(view.W * KeyboardPanFraction, 0.0f)); return;
-				case Keys::Up: camera.PanBy(Vector2f(0.0f, -view.H * KeyboardPanFraction)); return;
-				case Keys::Down: camera.PanBy(Vector2f(0.0f, view.H * KeyboardPanFraction)); return;
-				default: break;
+				case Keys::Left:
+					camera.PanBy(Vector2f(-view.W * KeyboardPanFraction, 0.0f));
+					return;
+				case Keys::Right:
+					camera.PanBy(Vector2f(view.W * KeyboardPanFraction, 0.0f));
+					return;
+				case Keys::Up:
+					camera.PanBy(Vector2f(0.0f, -view.H * KeyboardPanFraction));
+					return;
+				case Keys::Down:
+					camera.PanBy(Vector2f(0.0f, view.H * KeyboardPanFraction));
+					return;
+				default:
+					break;
 			}
 		}
 
@@ -245,7 +254,7 @@ namespace Jazz2::Editor
 		bool handled = actions.HandleKey(event, ActionScope::Edit, repeat, &ran);
 		_handlingShortcut = false;
 		if (ran != nullptr && ran->Release && event.Sym < Keys::Count) {
-			_heldActions.push_back(HeldAction{ event.Sym, ran });
+			_heldActions.push_back(HeldAction { event.Sym, ran });
 		}
 
 		// The number keys choose a layer by their actions, with Shift they hide it, unless an action was given the key
@@ -459,12 +468,14 @@ namespace Jazz2::Editor
 		ActionRegistry& actions = _context.GetActions();
 		SmallVector<MenuEntry, 0> entries;
 		for (const char* id : { ActionIds::ToolBrush, ActionIds::ToolEraser, ActionIds::ToolRectangle, ActionIds::ToolFill, ActionIds::ToolSmart, ActionIds::ToolEyedropper,
-			ActionIds::ToolSelect, ActionIds::ToolEvent, ActionIds::ToolHand, ActionIds::EditUndo, ActionIds::EditRedo }) {
+				 ActionIds::ToolSelect, ActionIds::ToolEvent, ActionIds::ToolHand, ActionIds::EditUndo, ActionIds::EditRedo }) {
 			if (EditorAction* action = actions.Find(id)) {
 				entries.push_back(MakeMenuEntry(*action));
 			}
 		}
-		_radialMenu = RadialMenu::Show(*surface, pos, Death::move(entries), [this]() { _radialMenu = nullptr; });
+		_radialMenu = RadialMenu::Show(*surface, pos, Death::move(entries), [this]() {
+			_radialMenu = nullptr;
+		});
 	}
 
 	void EditorInputRouter::OnMouseDown(const MouseEvent& event)
@@ -491,10 +502,14 @@ namespace Jazz2::Editor
 	std::uint32_t EditorInputRouter::GetButtonBit(MouseButton button)
 	{
 		switch (button) {
-			case MouseButton::Left: return 0x01;
-			case MouseButton::Right: return 0x02;
-			case MouseButton::Middle: return 0x04;
-			default: return 0;
+			case MouseButton::Left:
+				return 0x01;
+			case MouseButton::Right:
+				return 0x02;
+			case MouseButton::Middle:
+				return 0x04;
+			default:
+				return 0;
 		}
 	}
 
@@ -542,9 +557,15 @@ namespace Jazz2::Editor
 		std::uint32_t pressed = (buttons & ~_gamepadButtons);
 		std::uint32_t released = (_gamepadButtons & ~buttons);
 		_gamepadButtons = buttons;
-		auto wasPressed = [pressed](ButtonName name) { return (pressed & (1u << std::int32_t(name))) != 0; };
-		auto wasReleased = [released](ButtonName name) { return (released & (1u << std::int32_t(name))) != 0; };
-		auto isHeld = [buttons](ButtonName name) { return (buttons & (1u << std::int32_t(name))) != 0; };
+		auto wasPressed = [pressed](ButtonName name) {
+			return (pressed & (1u << std::int32_t(name))) != 0;
+		};
+		auto wasReleased = [released](ButtonName name) {
+			return (released & (1u << std::int32_t(name))) != 0;
+		};
+		auto isHeld = [buttons](ButtonName name) {
+			return (buttons & (1u << std::int32_t(name))) != 0;
+		};
 
 		Vector2f leftStick(state->GetAxisValue(AxisName::LeftX), state->GetAxisValue(AxisName::LeftY));
 		Vector2f rightStick(state->GetAxisValue(AxisName::RightX), state->GetAxisValue(AxisName::RightY));

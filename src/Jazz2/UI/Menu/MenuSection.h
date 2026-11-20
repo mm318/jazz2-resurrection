@@ -41,22 +41,34 @@ namespace Jazz2::UI::Menu
 		 * what a section decided when it was built. Reached for every section in the stack, the hidden ones
 		 * included (whose own root is unset while hidden, hence the parameter), and the stack itself is kept.
 		 */
-		virtual void OnLayoutChanged(IMenuContainer* root) {}
+		virtual void OnLayoutChanged(IMenuContainer* root)
+		{
+		}
 
 		/** @brief Called when the section should be updated */
 		virtual void OnUpdate(float timeMult) = 0;
 		/** @brief Called when the section should be drawn --- the bottom background layer */
 		virtual void OnDraw(Canvas* canvas) = 0;
 		/** @brief Called when the section should be drawn --- the middle clipped layer */
-		virtual void OnDrawClipped(Canvas* canvas) {}
+		virtual void OnDrawClipped(Canvas* canvas)
+		{
+		}
 		/** @brief Called when the section should be drawn --- the top overlay layer */
-		virtual void OnDrawOverlay(Canvas* canvas) {}
+		virtual void OnDrawOverlay(Canvas* canvas)
+		{
+		}
 		/** @brief Called when a key is pressed */
-		virtual void OnKeyPressed(const nCine::KeyboardEvent& event) {}
+		virtual void OnKeyPressed(const nCine::KeyboardEvent& event)
+		{
+		}
 		/** @brief Called when a key is released */
-		virtual void OnKeyReleased(const nCine::KeyboardEvent& event) {}
+		virtual void OnKeyReleased(const nCine::KeyboardEvent& event)
+		{
+		}
 		/** @brief Called when a text input is detected */
-		virtual void OnTextInput(const nCine::TextInputEvent& event) {}
+		virtual void OnTextInput(const nCine::TextInputEvent& event)
+		{
+		}
 		/** @brief Called when a touch event is triggered */
 		virtual void OnTouchEvent(const nCine::TouchEvent& event, Vector2i viewSize) = 0;
 
@@ -85,7 +97,7 @@ namespace Jazz2::UI::Menu
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		IMenuContainer* _root;
-		float _navRepeat = 0.0f;	// Frames until the next auto-repeat fire while Up/Down is held
+		float _navRepeat = 0.0f; // Frames until the next auto-repeat fire while Up/Down is held
 #endif
 	};
 }

@@ -68,7 +68,8 @@ namespace Jazz2::UI
 		DiscordRpcClient(const DiscordRpcClient&) = delete;
 		DiscordRpcClient& operator=(const DiscordRpcClient&) = delete;
 
-		enum class Opcodes : std::uint32_t {
+		enum class Opcodes : std::uint32_t
+		{
 			Handshake,
 			Frame,
 			Close,
@@ -76,14 +77,14 @@ namespace Jazz2::UI
 			Pong
 		};
 
-#	if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 		std::atomic<HANDLE> _hPipe;
 		HANDLE _hEventRead;
 		HANDLE _hEventWrite;
 		String _pendingFrame;
-#	else
+#else
 		std::atomic_int32_t _sockFd;
-#	endif
+#endif
 		Thread _thread;
 		std::int32_t _nonce;
 		String _clientId;

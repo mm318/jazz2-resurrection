@@ -12,7 +12,7 @@ namespace Jazz2::Actors::Bosses
 {
 	Uterus::Uterus()
 		: _state(StateWaiting), _endText(0), _shieldCount(0), _phase(0.0f), _angle(0.0f), _crabTicks(0.0f), _hasShield(false),
-			_touchable(false)
+		  _touchable(false)
 	{
 	}
 
@@ -71,8 +71,7 @@ namespace Jazz2::Actors::Bosses
 			_shields[i]->Phase = (fTwoPi * i / _shieldCount);
 			_shields[i]->OnActivated(ActorActivationDetails(
 				_levelHandler,
-				Vector3i(std::int32_t(_pos.X), std::int32_t(_pos.Y), _renderer.GetLayer() + 2)
-			));
+				Vector3i(std::int32_t(_pos.X), std::int32_t(_pos.Y), _renderer.GetLayer() + 2)));
 			_levelHandler->AddActor(_shields[i]);
 		}
 		return true;
@@ -207,8 +206,7 @@ namespace Jazz2::Actors::Bosses
 		std::shared_ptr<Enemies::Crab> crab = std::make_shared<Enemies::Crab>();
 		crab->OnActivated(ActorActivationDetails(
 			_levelHandler,
-			Vector3i((std::int32_t)_pos.X, (std::int32_t)_pos.Y + 32, _renderer.GetLayer() - 4)
-		));
+			Vector3i((std::int32_t)_pos.X, (std::int32_t)_pos.Y + 32, _renderer.GetLayer() - 4)));
 		_levelHandler->AddActor(crab);
 	}
 

@@ -9,8 +9,8 @@
 #include "../../nCine/Primitives/Rect.h"
 
 #if !defined(RHI_CAP_SHADERS) || !defined(RHI_CAP_FRAMEBUFFERS)
-#	include "../LightEmitter.h"
-#	include <vector>
+#include "../LightEmitter.h"
+#include <vector>
 #endif
 
 using namespace nCine;

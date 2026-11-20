@@ -77,10 +77,16 @@ namespace Jazz2::Actors::Multiplayer
 		std::uint8_t team = (_team < Jazz2::Multiplayer::MaxTeamCount ? _team : 0xFF);
 		switch (_visual) {
 			default:
-			case Visual::ControlPoint: state = (team == 0xFF ? 4 : team); break;
-			case Visual::Jail: state = 8 + (team == 0xFF ? 0 : team); break;
+			case Visual::ControlPoint:
+				state = (team == 0xFF ? 4 : team);
+				break;
+			case Visual::Jail:
+				state = 8 + (team == 0xFF ? 0 : team);
+				break;
 			// Only blue and red flag sprites exist, other teams reuse them by parity
-			case Visual::Flag: state = 16 + (team == 0xFF ? 0 : team % 2); break;
+			case Visual::Flag:
+				state = 16 + (team == 0xFF ? 0 : team % 2);
+				break;
 		}
 		SetAnimation((AnimState)state);
 	}

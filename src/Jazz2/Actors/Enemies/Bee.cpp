@@ -81,8 +81,7 @@ namespace Jazz2::Actors::Enemies
 			case BeeState::Idle: {
 				// A small circle around its home, plus a bob all bees share
 				_counter++;
-				Vector2f pos = _originPos + Vector2f(CircleRadius * Sin1024(8 * _counter),
-					CircleRadius * Sin1024(8 * _counter + 256) + BobHeight * Sin1024(8 * GetElapsedTicks()));
+				Vector2f pos = _originPos + Vector2f(CircleRadius * Sin1024(8 * _counter), CircleRadius * Sin1024(8 * _counter + 256) + BobHeight * Sin1024(8 * GetElapsedTicks()));
 				MoveInstantly(ClampAboveWater(pos), MoveType::Absolute | MoveType::Force);
 				SetFacingLeft((_counter & 127) < 63);
 

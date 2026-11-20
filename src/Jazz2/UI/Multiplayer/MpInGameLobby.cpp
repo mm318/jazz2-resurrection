@@ -20,8 +20,8 @@ namespace Jazz2::UI::Multiplayer
 {
 	MpInGameLobby::MpInGameLobby(MpLevelHandler* levelHandler)
 		: _levelHandler(levelHandler), _pressedActions(0), _animation(0.0f), _selectedPlayerType(0),
-			_allowedPlayerTypes(0), _teamMode(false), _allowTeamSelection(false), _teamCount(2),
-			_selectedTeam(0), _focusRow(0), _isVisible(false)
+		  _allowedPlayerTypes(0), _teamMode(false), _allowTeamSelection(false), _teamCount(2),
+		  _selectedTeam(0), _focusRow(0), _isVisible(false)
 	{
 		auto& resolver = ContentResolver::Get();
 
@@ -409,8 +409,7 @@ namespace Jazz2::UI::Multiplayer
 			float(frameRect.W) / float(texSize.X),
 			float(frameRect.X) / float(texSize.X),
 			float(frameRect.H) / float(texSize.Y),
-			float(frameRect.Y) / float(texSize.Y)
-		);
+			float(frameRect.Y) / float(texSize.Y));
 
 		std::int32_t paletteOffset = ((base->Flags & GenericGraphicResourceFlags::Indexed) == GenericGraphicResourceFlags::Indexed ? res->PaletteOffset : -1);
 		DrawTexture(*base->TextureDiffuse.get(), adjustedPos, z, size, texCoords, color, additiveBlending ? BlendMode::Additive : BlendMode::Normal, 0.0f, paletteOffset);

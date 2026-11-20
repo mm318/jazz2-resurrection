@@ -13,20 +13,20 @@ namespace Jazz2::UI
 	*/
 	enum class Alignment
 	{
-		Center = 0x00,								/**< Center */
+		Center = 0x00, /**< Center */
 
-		Left = 0x01,								/**< Left */
-		Right = 0x02,								/**< Right */
-		Top = 0x04,									/**< Top */
-		Bottom = 0x08,								/**< Bottom */
+		Left = 0x01, /**< Left */
+		Right = 0x02, /**< Right */
+		Top = 0x04, /**< Top */
+		Bottom = 0x08, /**< Bottom */
 
-		TopLeft = Top | Left,						/**< Top-left */
-		TopRight = Top | Right,						/**< TopRight */
-		BottomLeft = Bottom | Left,					/**< Bottom-left */
-		BottomRight = Bottom | Right,				/**< Bottom-right */
+		TopLeft = Top | Left, /**< Top-left */
+		TopRight = Top | Right, /**< TopRight */
+		BottomLeft = Bottom | Left, /**< Bottom-left */
+		BottomRight = Bottom | Right, /**< Bottom-right */
 
-		HorizontalMask = Left | Center | Right,		/**< Mask of horizontal alignment */
-		VerticalMask = Top | Center | Bottom		/**< Mask of vertical alignment */
+		HorizontalMask = Left | Center | Right, /**< Mask of horizontal alignment */
+		VerticalMask = Top | Center | Bottom /**< Mask of vertical alignment */
 	};
 
 	DEATH_ENUM_FLAGS(Alignment);

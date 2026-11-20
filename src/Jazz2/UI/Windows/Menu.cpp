@@ -40,7 +40,7 @@ namespace Jazz2::UI::Windows
 
 	PopupMenu::PopupMenu(SmallVectorImpl<MenuEntry>&& entries)
 		: Panel(PanelStyle::Floating, Orientation::Vertical, 0.0f, Thickness(MenuBorder)), _highlight(-1), _revealHighlight(false),
-			_submenu(nullptr), _submenuRow(nullptr), _hoverRow(nullptr), _hoverTime(0.0f)
+		  _submenu(nullptr), _submenuRow(nullptr), _hoverRow(nullptr), _hoverTime(0.0f)
 	{
 		// A menu taller than the screen scrolls, it's never larger than the screen (see Surface::OnDraw())
 		_scroll = Add<ScrollView>();

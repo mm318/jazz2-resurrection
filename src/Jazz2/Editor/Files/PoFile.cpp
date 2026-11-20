@@ -20,23 +20,28 @@ namespace Jazz2::Editor
 		class TextBuilder
 		{
 		public:
-			TextBuilder& operator<<(StringView value) {
+			TextBuilder& operator<<(StringView value)
+			{
 				_data.append(value.data(), value.data() + value.size());
 				return *this;
 			}
-			TextBuilder& operator<<(char c) {
+			TextBuilder& operator<<(char c)
+			{
 				_data.push_back(c);
 				return *this;
 			}
 
-			bool HasSuffix(StringView suffix) const {
+			bool HasSuffix(StringView suffix) const
+			{
 				return (_data.size() >= suffix.size() && std::memcmp(_data.data() + _data.size() - suffix.size(), suffix.data(), suffix.size()) == 0);
 			}
-			void RemoveSuffix(std::size_t size) {
+			void RemoveSuffix(std::size_t size)
+			{
 				_data.truncate(_data.size() - size);
 			}
 
-			String ToString() const {
+			String ToString() const
+			{
 				return String(_data.data(), _data.size());
 			}
 
@@ -48,13 +53,27 @@ namespace Jazz2::Editor
 		{
 			for (char c : value) {
 				switch (c) {
-					case '"': result << "\\\""_s; break;
-					case '\\': result << "\\\\"_s; break;
-					case '\t': result << "\\t"_s; break;
-					case '\f': result << "\\f"_s; break;
-					case '\r': result << "\\r"_s; break;
-					case '\n': result << (multiline ? "\\n\"\n\""_s : "\\n"_s); break;
-					default: result << c; break;
+					case '"':
+						result << "\\\""_s;
+						break;
+					case '\\':
+						result << "\\\\"_s;
+						break;
+					case '\t':
+						result << "\\t"_s;
+						break;
+					case '\f':
+						result << "\\f"_s;
+						break;
+					case '\r':
+						result << "\\r"_s;
+						break;
+					case '\n':
+						result << (multiline ? "\\n\"\n\""_s : "\\n"_s);
+						break;
+					default:
+						result << c;
+						break;
 				}
 			}
 		}
@@ -119,11 +138,21 @@ namespace Jazz2::Editor
 				if (c == '\\' && i < line.size()) {
 					char e = line[i++];
 					switch (e) {
-						case 'n': result.push_back('\n'); break;
-						case 't': result.push_back('\t'); break;
-						case 'f': result.push_back('\f'); break;
-						case 'r': result.push_back('\r'); break;
-						default: result.push_back(e); break;
+						case 'n':
+							result.push_back('\n');
+							break;
+						case 't':
+							result.push_back('\t');
+							break;
+						case 'f':
+							result.push_back('\f');
+							break;
+						case 'r':
+							result.push_back('\r');
+							break;
+						default:
+							result.push_back(e);
+							break;
 					}
 				} else {
 					result.push_back(c);
@@ -179,7 +208,15 @@ namespace Jazz2::Editor
 			text = text.exceptPrefix(3);
 		}
 
-		enum class Field { None, Context, Id, Plural, Translation, OtherTranslation };
+		enum class Field
+		{
+			None,
+			Context,
+			Id,
+			Plural,
+			Translation,
+			OtherTranslation
+		};
 		PoEntry current;
 		Field field = Field::None;
 		bool hasId = false;
@@ -265,12 +302,20 @@ namespace Jazz2::Editor
 			} else if (line[0] == '"') {
 				// A line that continues the field before it
 				switch (field) {
-					case Field::Context: target = &current.Context; break;
-					case Field::Id: target = &current.Id; break;
-					case Field::Translation: target = &current.Translation; break;
+					case Field::Context:
+						target = &current.Context;
+						break;
+					case Field::Id:
+						target = &current.Id;
+						break;
+					case Field::Translation:
+						target = &current.Translation;
+						break;
 					case Field::Plural:
-					case Field::OtherTranslation: continue;
-					default: return false;
+					case Field::OtherTranslation:
+						continue;
+					default:
+						return false;
 				}
 			} else {
 				return false;

@@ -28,38 +28,46 @@ namespace nCine
 		Geometry& operator=(const Geometry&) = delete;
 
 		/** @brief Returns the primitive type (`PrimitiveType::Triangles`, `PrimitiveType::TriangleStrip`, ...) */
-		inline PrimitiveType GetPrimitiveType() const {
+		inline PrimitiveType GetPrimitiveType() const
+		{
 			return _primitiveType;
 		}
 		/** @brief Returns the index of the first vertex to draw */
-		inline std::int32_t GetFirstVertex() const {
+		inline std::int32_t GetFirstVertex() const
+		{
 			return _firstVertex;
 		}
 		/** @brief Returns the number of vertices */
-		inline std::int32_t GetVertexCount() const {
+		inline std::int32_t GetVertexCount() const
+		{
 			return _numVertices;
 		}
 		/** @brief Returns the number of float elements that compose the vertex format */
-		inline std::uint32_t GetElementsPerVertex() const {
+		inline std::uint32_t GetElementsPerVertex() const
+		{
 			return _numElementsPerVertex;
 		}
 
 		/** @brief Sets all three drawing parameters at once */
 		void SetDrawParameters(PrimitiveType primitiveType, std::int32_t firstVertex, std::int32_t numVertices);
 		/** @brief Sets the primitive type (`PrimitiveType::Triangles`, `PrimitiveType::TriangleStrip`, ...) */
-		inline void SetPrimitiveType(PrimitiveType primitiveType) {
+		inline void SetPrimitiveType(PrimitiveType primitiveType)
+		{
 			_primitiveType = primitiveType;
 		}
 		/** @brief Sets the index of the first vertex to draw */
-		inline void SetFirstVertex(std::int32_t firstVertex) {
+		inline void SetFirstVertex(std::int32_t firstVertex)
+		{
 			_firstVertex = firstVertex;
 		}
 		/** @brief Sets the number of vertices */
-		inline void SetVertexCount(std::int32_t numVertices) {
+		inline void SetVertexCount(std::int32_t numVertices)
+		{
 			_numVertices = numVertices;
 		}
 		/** @brief Sets the number of float elements that compose the vertex format */
-		inline void SetElementsPerVertex(std::uint32_t numElements) {
+		inline void SetElementsPerVertex(std::uint32_t numElements)
+		{
 			_numElementsPerVertex = numElements;
 		}
 		/** @brief Creates a custom VBO that is unique to this object */
@@ -74,7 +82,8 @@ namespace nCine
 		 */
 		float* AcquireVertexPointer(std::uint32_t numFloats, std::uint32_t numFloatsAlignment);
 		/** @brief Acquires a pointer for writing vertex data into a custom VBO owned by this object */
-		inline float* AcquireVertexPointer(std::uint32_t numFloats) {
+		inline float* AcquireVertexPointer(std::uint32_t numFloats)
+		{
 			return AcquireVertexPointer(numFloats, 1);
 		}
 		/** @brief Acquires a pointer for writing vertex data into a VBO owned by the buffers manager */
@@ -83,7 +92,8 @@ namespace nCine
 		void ReleaseVertexPointer();
 
 		/** @brief Returns a pointer into host memory containing vertex data to be copied into a VBO */
-		inline const float* GetHostVertexPointer() const {
+		inline const float* GetHostVertexPointer() const
+		{
 			return _hostVertexPointer;
 		}
 		/** @brief Sets a pointer into host memory containing vertex data to be copied into a VBO */
@@ -93,15 +103,18 @@ namespace nCine
 		void ShareVbo(const Geometry* geometry);
 
 		/** @brief Returns the number of indices used to render the geometry */
-		inline std::uint32_t GetIndexCount() const {
+		inline std::uint32_t GetIndexCount() const
+		{
 			return _numIndices;
 		}
 		/** @brief Sets the index of the first index to draw */
-		inline void SetFirstIndex(std::uint16_t firstIndex) {
+		inline void SetFirstIndex(std::uint16_t firstIndex)
+		{
 			_firstIndex = firstIndex;
 		}
 		/** @brief Sets the number of indices used to render the geometry */
-		inline void SetIndexCount(std::uint32_t numIndices) {
+		inline void SetIndexCount(std::uint32_t numIndices)
+		{
 			_numIndices = numIndices;
 		}
 		/** @brief Creates a custom IBO that is unique to this object */
@@ -114,7 +127,8 @@ namespace nCine
 		void ReleaseIndexPointer();
 
 		/** @brief Returns a pointer into host memory containing index data to be copied into an IBO */
-		inline const std::uint16_t* GetHostIndexPointer() const {
+		inline const std::uint16_t* GetHostIndexPointer() const
+		{
 			return _hostIndexPointer;
 		}
 		/** @brief Sets a pointer into host memory containing index data to be copied into an IBO */
@@ -151,10 +165,12 @@ namespace nCine
 		void CommitVertices();
 		void CommitIndices();
 
-		inline const RenderBuffersManager::Parameters& GetVboParams() const {
+		inline const RenderBuffersManager::Parameters& GetVboParams() const
+		{
 			return _sharedVboParams ? *_sharedVboParams : _vboParams;
 		}
-		inline const RenderBuffersManager::Parameters& GetIboParams() const {
+		inline const RenderBuffersManager::Parameters& GetIboParams() const
+		{
 			return _sharedIboParams ? *_sharedIboParams : _iboParams;
 		}
 	};

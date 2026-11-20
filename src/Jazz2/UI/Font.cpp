@@ -69,7 +69,7 @@ namespace Jazz2::UI
 	}
 
 	Font::Font(const std::unique_ptr<Stream>& s, StringView path, const std::uint32_t* palette)
-		: _asciiChars{}, _lineHeight(0), _baseSpacing(0), _glyphScale(1.0f), _paletteIndexed(false)
+		: _asciiChars {}, _lineHeight(0), _baseSpacing(0), _glyphScale(1.0f), _paletteIndexed(false)
 	{
 		if (!s->IsValid()) {
 			// A font that can't be opened at all used to fail silently here, which then looked like a
@@ -91,7 +91,7 @@ namespace Jazz2::UI
 		std::uint64_t signature = s->ReadValueAsLE<std::uint64_t>();
 		std::uint8_t fileType = s->ReadValue<std::uint8_t>();
 		std::uint8_t version = s->ReadValue<std::uint8_t>();
-		/*std::uint8_t flags =*/ s->ReadValue<std::uint8_t>();
+		/*std::uint8_t flags =*/s->ReadValue<std::uint8_t>();
 		if (signature != FontFormat::Signature || fileType != ContentFileType::Font || version != FontFormat::CurrentVersion) {
 			LOGE("\"{}\" is not a supported font file", path);
 			return;
@@ -167,8 +167,8 @@ namespace Jazz2::UI
 		// The decoder stores four bytes per pixel whatever it reads, so an expanded copy needs no more room
 		// than the indices plus the slack of that last write
 		const std::size_t bufferSize = (keepIndexed
-			? std::size_t(w) * h + ContentResolver::PixelSize
-			: std::size_t(w) * h * ContentResolver::PixelSize);
+				? std::size_t(w) * h + ContentResolver::PixelSize
+				: std::size_t(w) * h * ContentResolver::PixelSize);
 		auto pixels = std::make_unique<std::uint8_t[]>(bufferSize);
 		Compatibility::JJ2Anims::ReadImageContent(uc, pixels.get(), w, h, 1);
 
@@ -178,7 +178,7 @@ namespace Jazz2::UI
 			_texture = std::make_unique<Texture>(path.data(), Texture::Format::R8, w, h);
 		} else {
 			// Expanded from the back, so a pixel is always read before anything can be written over it
-			for (std::uint32_t i = std::uint32_t(w) * h; i-- > 0; ) {
+			for (std::uint32_t i = std::uint32_t(w) * h; i-- > 0;) {
 				const std::uint32_t dstIdx = i * ContentResolver::PixelSize;
 				const std::uint8_t index = pixels[i];
 				const std::uint32_t color = palette[index];
@@ -199,7 +199,7 @@ namespace Jazz2::UI
 
 	Font::Font(const char* name, const std::uint8_t* pixels, std::int32_t width, std::int32_t height, std::int32_t lineHeight,
 		float rasterScale, ArrayView<const Pair<char32_t, FontFormat::Glyph>> glyphs)
-		: _asciiChars{}, _lineHeight(lineHeight), _baseSpacing(0), _glyphScale(1.0f / rasterScale), _paletteIndexed(false)
+		: _asciiChars {}, _lineHeight(lineHeight), _baseSpacing(0), _glyphScale(1.0f / rasterScale), _paletteIndexed(false)
 	{
 		for (const Pair<char32_t, FontFormat::Glyph>& item : glyphs) {
 			// The fallback is codepoint 0, so it lands where the lookup expects it
@@ -321,7 +321,8 @@ namespace Jazz2::UI
 		}
 
 		float totalWidth = 0.0f, totalHeight = 0.0f;
-		std::size_t idx = 0;;
+		std::size_t idx = 0;
+		;
 		std::size_t lastCharFit = 0;
 
 		do {
@@ -502,19 +503,31 @@ namespace Jazz2::UI
 		// Rendering
 		Vector2f originPos = Vector2f(x, y);
 		switch (align & Alignment::HorizontalMask) {
-			case Alignment::Center: originPos.X -= totalWidth * 0.5f; break;
-			case Alignment::Right: originPos.X -= totalWidth; break;
+			case Alignment::Center:
+				originPos.X -= totalWidth * 0.5f;
+				break;
+			case Alignment::Right:
+				originPos.X -= totalWidth;
+				break;
 		}
 		switch (align & Alignment::VerticalMask) {
-			case Alignment::Center: originPos.Y -= totalHeight * 0.5f; break;
-			case Alignment::Bottom: originPos.Y -= totalHeight; break;
+			case Alignment::Center:
+				originPos.Y -= totalHeight * 0.5f;
+				break;
+			case Alignment::Bottom:
+				originPos.Y -= totalHeight;
+				break;
 		}
 
 		float lineStart = originPos.X;
 
 		switch (align & Alignment::HorizontalMask) {
-			case Alignment::Center: originPos.X += (totalWidth - lineWidths[0]) * 0.5f; break;
-			case Alignment::Right: originPos.X += (totalWidth - lineWidths[0]); break;
+			case Alignment::Center:
+				originPos.X += (totalWidth - lineWidths[0]) * 0.5f;
+				break;
+			case Alignment::Right:
+				originPos.X += (totalWidth - lineWidths[0]);
+				break;
 		}
 
 		Vector2i texSize = _texture->GetSize();
@@ -565,8 +578,12 @@ namespace Jazz2::UI
 				line++;
 				originPos.X = lineStart;
 				switch (align & Alignment::HorizontalMask) {
-					case Alignment::Center: originPos.X += (totalWidth - lineWidths[line & (MaxLines - 1)]) * 0.5f; break;
-					case Alignment::Right: originPos.X += (totalWidth - lineWidths[line & (MaxLines - 1)]); break;
+					case Alignment::Center:
+						originPos.X += (totalWidth - lineWidths[line & (MaxLines - 1)]) * 0.5f;
+						break;
+					case Alignment::Right:
+						originPos.X += (totalWidth - lineWidths[line & (MaxLines - 1)]);
+						break;
 				}
 				originPos.Y += (_lineHeight * scale * lineSpacing);
 			} else if (cursor.first() == '\f') {
@@ -704,8 +721,8 @@ namespace Jazz2::UI
 						const bool boundsKnown = (canvas->ViewSize.X > 0 && canvas->ViewSize.Y > 0);
 						const bool onScreen = (!boundsKnown ||
 							(unwobbled.X + glyphW + marginX >= 0.0f && unwobbled.Y + glyphH + marginY >= 0.0f &&
-							 unwobbled.X - marginX <= float(canvas->ViewSize.X) &&
-							 unwobbled.Y - marginY <= float(canvas->ViewSize.Y)));
+								unwobbled.X - marginX <= float(canvas->ViewSize.X) &&
+								unwobbled.Y - marginY <= float(canvas->ViewSize.Y)));
 						if (onScreen) {
 							if (angleOffset > 0.0f) {
 								float currentPhase = (phase + charOffset) * angleOffset * fPi;
@@ -735,8 +752,7 @@ namespace Jazz2::UI
 								glyph.Width * invTexWidth,
 								glyph.X * invTexWidth,
 								glyph.Height * invTexHeight,
-								glyph.Y * invTexHeight
-							);
+								glyph.Y * invTexHeight);
 
 							// The clip rectangle of the canvas cuts the glyph down, or leaves it out (see Canvas::ClipRect)
 							Vector2f glyphSize = Vector2f(glyph.Width * glyphScale, glyph.Height * glyphScale);
@@ -788,15 +804,32 @@ namespace Jazz2::UI
 										// from are multiples of four bytes
 										std::uint8_t* instance = batch.Instances + batch.Count * batch.Stride;
 										float* modelMatrix = static_cast<float*>(static_cast<void*>(instance + record.ModelMatrixOffset));
-										modelMatrix[0] = 1.0f; modelMatrix[1] = 0.0f; modelMatrix[2] = 0.0f; modelMatrix[3] = 0.0f;
-										modelMatrix[4] = 0.0f; modelMatrix[5] = 1.0f; modelMatrix[6] = 0.0f; modelMatrix[7] = 0.0f;
-										modelMatrix[8] = 0.0f; modelMatrix[9] = 0.0f; modelMatrix[10] = 1.0f; modelMatrix[11] = 0.0f;
-										modelMatrix[12] = pos.X; modelMatrix[13] = pos.Y; modelMatrix[14] = record.Depth; modelMatrix[15] = 1.0f;
+										modelMatrix[0] = 1.0f;
+										modelMatrix[1] = 0.0f;
+										modelMatrix[2] = 0.0f;
+										modelMatrix[3] = 0.0f;
+										modelMatrix[4] = 0.0f;
+										modelMatrix[5] = 1.0f;
+										modelMatrix[6] = 0.0f;
+										modelMatrix[7] = 0.0f;
+										modelMatrix[8] = 0.0f;
+										modelMatrix[9] = 0.0f;
+										modelMatrix[10] = 1.0f;
+										modelMatrix[11] = 0.0f;
+										modelMatrix[12] = pos.X;
+										modelMatrix[13] = pos.Y;
+										modelMatrix[14] = record.Depth;
+										modelMatrix[15] = 1.0f;
 										float* instanceColor = static_cast<float*>(static_cast<void*>(instance + record.ColorOffset));
-										instanceColor[0] = glyphColor.R; instanceColor[1] = glyphColor.G;
-										instanceColor[2] = glyphColor.B; instanceColor[3] = glyphColor.A;
+										instanceColor[0] = glyphColor.R;
+										instanceColor[1] = glyphColor.G;
+										instanceColor[2] = glyphColor.B;
+										instanceColor[3] = glyphColor.A;
 										float* texRect = static_cast<float*>(static_cast<void*>(instance + record.TexRectOffset));
-										texRect[0] = texCoords.X; texRect[1] = texCoords.Y; texRect[2] = texCoords.Z; texRect[3] = texCoords.W;
+										texRect[0] = texCoords.X;
+										texRect[1] = texCoords.Y;
+										texRect[2] = texCoords.Z;
+										texRect[3] = texCoords.W;
 										float* spriteSize = static_cast<float*>(static_cast<void*>(instance + record.SpriteSizeOffset));
 										spriteSize[0] = glyphSize.X;
 										spriteSize[1] = glyphSize.Y;

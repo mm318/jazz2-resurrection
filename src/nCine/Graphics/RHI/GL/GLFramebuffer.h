@@ -39,7 +39,8 @@ namespace nCine::RHI::GL
 		GLFramebuffer& operator=(const GLFramebuffer&) = delete;
 
 		/** @brief Returns the OpenGL handle of the framebuffer object */
-		inline GLuint GetGLHandle() const {
+		inline GLuint GetGLHandle() const
+		{
 			return _glHandle;
 		}
 
@@ -55,24 +56,32 @@ namespace nCine::RHI::GL
 
 		/** @brief Sets the handle @ref Unbind() binds as the "default" framebuffer — non-zero when the
 			screen is a framebuffer owned by a host (e.g. the libretro frontend's render FBO) */
-		static void SetDefaultHandle(GLuint handle) {
+		static void SetDefaultHandle(GLuint handle)
+		{
 			_defaultHandle = handle;
 		}
 		/** @brief Drops the cached read/draw bindings so the next bind re-applies (external code changed them) */
-		static void InvalidateCachedBindings() {
+		static void InvalidateCachedBindings()
+		{
 			_readBoundBuffer = ~0u;
 			_drawBoundBuffer = ~0u;
 		}
 
 		/** @brief Returns the number of active color draw buffers */
-		inline std::uint32_t GetDrawbufferCount() const { return _numDrawBuffers; }
+		inline std::uint32_t GetDrawbufferCount() const
+		{
+			return _numDrawBuffers;
+		}
 		/** @brief Sets the number of color attachments enabled as draw buffers */
 		bool DrawBuffers(std::uint32_t numDrawBuffers);
 
 		/** @brief Returns the number of attached renderbuffers */
-		inline std::uint32_t GetRenderbufferCount() const { return std::uint32_t(_attachedRenderbuffers.size()); }
+		inline std::uint32_t GetRenderbufferCount() const
+		{
+			return std::uint32_t(_attachedRenderbuffers.size());
+		}
 		/** @brief Creates a renderbuffer with a debug label and attaches it to the given attachment point */
-		bool AttachRenderbuffer(const char *label, GLenum internalFormat, GLsizei width, GLsizei height, GLenum attachment);
+		bool AttachRenderbuffer(const char* label, GLenum internalFormat, GLsizei width, GLsizei height, GLenum attachment);
 		/** @brief Creates a renderbuffer and attaches it to the given attachment point */
 		bool AttachRenderbuffer(GLenum internalFormat, GLsizei width, GLsizei height, GLenum attachment);
 		/** @brief Detaches and destroys the renderbuffer at the given attachment point */

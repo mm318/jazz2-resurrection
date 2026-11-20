@@ -11,7 +11,6 @@ namespace Jazz2::Input
 {
 	RumbleProcessor::RumbleProcessor()
 	{
-
 	}
 
 	RumbleProcessor::~RumbleProcessor()

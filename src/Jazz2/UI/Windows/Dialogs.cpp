@@ -15,14 +15,14 @@
 #include <cmath>
 
 #if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
-#	include <CommonWindows.h>
+#include <CommonWindows.h>
 #endif
 
 // Files are read on a thread of their own where the platform has threads, as BackgroundJob does
 #if defined(WITH_THREADS) && !defined(DEATH_TARGET_EMSCRIPTEN)
-#	define UI_FILE_DIALOG_THREADED
-#	include "../../../nCine/Threading/Thread.h"
-#	include "../../../nCine/Threading/ThreadSync.h"
+#define UI_FILE_DIALOG_THREADED
+#include "../../../nCine/Threading/Thread.h"
+#include "../../../nCine/Threading/ThreadSync.h"
 #endif
 
 using namespace Death::Containers::Literals;
@@ -64,13 +64,15 @@ namespace Jazz2::UI::Windows
 
 	Dialog::Dialog(StringView title, bool scrollContent)
 		: Panel(PanelStyle::Floating, Orientation::Vertical, Theme::Spacing * 3.0f,
-			Thickness(Theme::Padding * 3.0f, Theme::Padding * 2.0f, Theme::Padding * 3.0f, Theme::Padding * 3.0f))
+			  Thickness(Theme::Padding * 3.0f, Theme::Padding * 2.0f, Theme::Padding * 3.0f, Theme::Padding * 3.0f))
 	{
 		_title = title;
 		// The window is moved by its title
 		_titleBar = Add<DragBar>(Theme::Spacing);
 		_titleBar->Add<Label>(title, Theme::TextHeader)->Flex = 1.0f;
-		_closeButton = _titleBar->Add<DialogCloseButton>(*this, [this]() { Cancel(); });
+		_closeButton = _titleBar->Add<DialogCloseButton>(*this, [this]() {
+			Cancel();
+		});
 		_closeButton->Style = ButtonStyle::Flat;
 		// The title stays low, the cross is still easy to hit by its padding (see DialogCloseButton)
 		_closeButton->Width = _closeButton->Height = Theme::ButtonHeight - 2.0f;
@@ -345,7 +347,8 @@ namespace Jazz2::UI::Windows
 				if (*sharedCallback) {
 					(*sharedCallback)(index);
 				}
-			}, index == 0);
+			},
+				index == 0);
 			index++;
 		}
 		// Escape or the cross choose none of the buttons, the last one may be one that discards something
@@ -393,7 +396,10 @@ namespace Jazz2::UI::Windows
 				SmallVector<StringView, 4> lines;
 				for (const FileInfo::Row& row : Rows) {
 					if (row.Label.empty()) {
-						WrapText(row.Value, width, [&context](StringView text) { return context.MeasureText(text); }, lines);
+						WrapText(row.Value, width, [&context](StringView text) {
+							return context.MeasureText(text);
+						},
+							lines);
 						lineCount += std::max<std::int32_t>(std::int32_t(lines.size()), 1);
 					} else {
 						lineCount++;
@@ -442,7 +448,10 @@ namespace Jazz2::UI::Windows
 				}
 				if (row.Label.empty()) {
 					// A message without a label on as many lines as it needs
-					WrapText(row.Value, Bounds.W, [&painter](StringView text) { return painter.MeasureText(text); }, lines);
+					WrapText(row.Value, Bounds.W, [&painter](StringView text) {
+						return painter.MeasureText(text);
+					},
+						lines);
 					for (StringView line : lines) {
 						painter.TextInRect(line, Rectf(Bounds.X, y, Bounds.W, rowHeight), row.Color);
 						y += rowHeight;
@@ -493,7 +502,7 @@ namespace Jazz2::UI::Windows
 		}
 
 		// Breaks a text at spaces into lines of a width, a word wider than it gets a line of its own
-		template<class Measurer>
+		template <class Measurer>
 		static void WrapText(StringView text, float width, const Measurer& measure, SmallVectorImpl<StringView>& lines)
 		{
 			lines.clear();
@@ -700,7 +709,7 @@ namespace Jazz2::UI::Windows
 	FileDialog::FileDialog(StringView title, FileDialogMode mode, SmallVectorImpl<FileRoot>&& roots, StringView extension,
 		StringView initialDirectory, StringView initialName, Function<void(StringView)>&& onChosen, bool anywhere)
 		: Dialog(title), _mode(mode), _rootIndex(0), _computerRoot(-1), _extension(extension), _selected(-1), _rows(nullptr), _nameBox(nullptr),
-			_onChosen(Death::move(onChosen)), _preview(nullptr)
+		  _onChosen(Death::move(onChosen)), _preview(nullptr)
 	{
 		_roots = Death::move(roots);
 		for (FileRoot& root : _roots) {
@@ -715,12 +724,12 @@ namespace Jazz2::UI::Windows
 		// Only a desktop lets the files anywhere be reached, the places are where the game looks for them
 		if (anywhere) {
 			_computerRoot = std::int32_t(_roots.size());
-#	if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 			// TRANSLATORS: Name of a place in the file dialog, the whole computer with all its drives and folders
 			_roots.push_back({ _x("editor", "Computer"), String(), true });
-#	else
+#else
 			_roots.push_back({ _x("editor", "Computer"), "/"_s, true });
-#	endif
+#endif
 		}
 #else
 		static_cast<void>(anywhere);
@@ -748,7 +757,9 @@ namespace Jazz2::UI::Windows
 			});
 			button->Style = ButtonStyle::Flat;
 			button->Height = Theme::ButtonHeight + 2.0f;
-			button->IsCheckedFunc = [this, index]() { return (_rootIndex == index); };
+			button->IsCheckedFunc = [this, index]() {
+				return (_rootIndex == index);
+			};
 			if (!_roots[i].Writable) {
 				button->Tooltip = _x("editor", "Files here can't be changed");
 			}
@@ -757,7 +768,9 @@ namespace Jazz2::UI::Windows
 		// Where the list is, a path can be typed there too
 		auto* pathBox = _content->Add<TextBox>();
 		pathBox->MaxLength = 1024;
-		pathBox->TextFunc = [this]() { return GetRelativeDirectory(); };
+		pathBox->TextFunc = [this]() {
+			return GetRelativeDirectory();
+		};
 		pathBox->OnKeyPreview = [this, pathBox](const KeyboardEvent& event) {
 			if (event.Sym != Keys::Return && event.Sym != Keys::NumPadEnter) {
 				return false;
@@ -781,7 +794,9 @@ namespace Jazz2::UI::Windows
 		_rows = _list->SetContent<VirtualList>();
 		// A little taller than other lists, it's what the dialog is for, and easier to hit
 		_rows->RowHeight = Theme::RowHeight + 4.0f;
-		_rows->CountFunc = [this]() { return std::int32_t(_entries.size()); };
+		_rows->CountFunc = [this]() {
+			return std::int32_t(_entries.size());
+		};
 		_rows->DrawRow = [this](Painter& painter, std::int32_t index, const Rectf& rect, bool selected, float hover) {
 			Entry& entry = _entries[index];
 			if (!entry.IsDirectory && !entry.KindKnown && !entry.KindPending) {
@@ -809,12 +824,18 @@ namespace Jazz2::UI::Windows
 				painter.TextInRect(_special[entry.Special].Value, Rectf(x, rect.Y, std::max(rect.X + rect.W - x, 0.0f), rect.H), Theme::TextDim);
 			}
 		};
-		_rows->RowText = [this](std::int32_t index) { return (_entries[index].Label.empty() ? _entries[index].Name : _entries[index].Label); };
+		_rows->RowText = [this](std::int32_t index) {
+			return (_entries[index].Label.empty() ? _entries[index].Name : _entries[index].Label);
+		};
 		_rows->RowTooltip = [this](std::int32_t index) {
 			return (index >= 0 && index < std::int32_t(_entries.size()) ? _entries[index].Kind.Description : String());
 		};
-		_rows->OnSelectionChanged = [this](std::int32_t index) { Choose(index, false); };
-		_rows->OnActivated = [this](std::int32_t index) { Choose(index, true); };
+		_rows->OnSelectionChanged = [this](std::int32_t index) {
+			Choose(index, false);
+		};
+		_rows->OnActivated = [this](std::int32_t index) {
+			Choose(index, true);
+		};
 
 		if (_mode == FileDialogMode::Save) {
 			auto* nameRow = _content->Add<Stack>(Orientation::Horizontal, Theme::Spacing);
@@ -834,29 +855,36 @@ namespace Jazz2::UI::Windows
 		}
 
 		// TRANSLATORS: Button in the dialog to open a file, opens the selected file
-		AddButton(_mode == FileDialogMode::Save ? _("Save") : _x("editor", "Open"), [this]() { Confirm(); }, true)
+		AddButton(_mode == FileDialogMode::Save ? _("Save") : _x("editor", "Open"), [this]() {
+			Confirm();
+		},
+			true)
 			->IsEnabledFunc = [this]() {
-				if (_mode == FileDialogMode::Save) {
-					return (IsWritable() && _nameBox != nullptr && !_nameBox->Text.trimmed().empty());
-				}
-				return (_selected >= 0 && _selected < std::int32_t(_entries.size()) && !_entries[_selected].IsDirectory);
-			};
+			if (_mode == FileDialogMode::Save) {
+				return (IsWritable() && _nameBox != nullptr && !_nameBox->Text.trimmed().empty());
+			}
+			return (_selected >= 0 && _selected < std::int32_t(_entries.size()) && !_entries[_selected].IsDirectory);
+		};
 		// TRANSLATORS: Button in the dialog to open or save a file, closes it without a change
-		AddButton(_x("editor", "Cancel"), [this]() { Close(); });
+		AddButton(_x("editor", "Cancel"), [this]() {
+			Close();
+		});
 
 		// Left of the buttons, before the space that pushes them to the right
 		// TRANSLATORS: Check box at the bottom of the file dialog, lists also files and folders the system hides
-		auto showHidden = std::make_unique<CheckBox>(_x("editor", "Show hidden files"), []() { return ShowHiddenFiles; }, [this](bool value) {
-			ShowHiddenFiles = value;
-			// The same directory listed again, its path is replaced by itself
-			String directory = _directory;
-			Navigate(directory);
-		});
+		auto showHidden = std::make_unique<CheckBox>(_x("editor", "Show hidden files"), []() {
+			return ShowHiddenFiles;
+		},
+			[this](bool value) {
+				ShowHiddenFiles = value;
+				// The same directory listed again, its path is replaced by itself
+				String directory = _directory;
+				Navigate(directory);
+			});
 		_buttons->InsertChild(0, Death::move(showHidden));
 
 		// A directory to save to doesn't have to exist yet, it's created along with the file
-		bool useInitial = (!initialDirectory.empty() && (fs::DirectoryExists(initialDirectory) ||
-			(_mode == FileDialogMode::Save && !_roots.empty() && IsInRoot(initialDirectory, _rootIndex))));
+		bool useInitial = (!initialDirectory.empty() && (fs::DirectoryExists(initialDirectory) || (_mode == FileDialogMode::Save && !_roots.empty() && IsInRoot(initialDirectory, _rootIndex))));
 		Navigate(useInitial ? initialDirectory : StringView(_roots.empty() ? String() : _roots[_rootIndex].Path));
 
 		// The file chosen before is selected, it's scrolled to once the list is laid out
@@ -919,7 +947,7 @@ namespace Jazz2::UI::Windows
 
 		if (_mode == FileDialogMode::Open) {
 			for (std::size_t i = 0; i < _special.size(); i++) {
-				Entry entry{_special[i].Label, false};
+				Entry entry { _special[i].Label, false };
 				entry.KindKnown = true;
 				entry.Kind.Icon = _special[i].Icon;
 				entry.Kind.Description = _special[i].Description;
@@ -969,7 +997,7 @@ namespace Jazz2::UI::Windows
 				if (isHidden(item, name)) {
 					continue;
 				}
-				Entry entry{Death::move(name), true};
+				Entry entry { Death::move(name), true };
 				if (labelFunc != nullptr) {
 					entry.Label = labelFunc(item, true);
 				}
@@ -979,7 +1007,7 @@ namespace Jazz2::UI::Windows
 			for (auto item : fs::Directory(_directory, fs::EnumerationOptions::SkipDirectories)) {
 				String name = fs::GetFileName(item);
 				if (MatchesExtension(name) && !isHidden(item, name)) {
-					Entry entry{Death::move(name), false};
+					Entry entry { Death::move(name), false };
 					if (labelFunc != nullptr) {
 						entry.Label = labelFunc(item, false);
 					}
@@ -988,7 +1016,9 @@ namespace Jazz2::UI::Windows
 				}
 			}
 		}
-		auto byName = [](const SortedEntry& a, const SortedEntry& b) { return a.Key < b.Key; };
+		auto byName = [](const SortedEntry& a, const SortedEntry& b) {
+			return a.Key < b.Key;
+		};
 		std::sort(directories.begin(), directories.end(), byName);
 		std::sort(files.begin(), files.end(), byName);
 		for (SortedEntry& entry : directories) {
@@ -1028,7 +1058,7 @@ namespace Jazz2::UI::Windows
 			if (confirm) {
 				// Up from the root of a drive are the drives, which are entered at their roots
 				String target = (entry.Name == ".."_s ? String(fs::GetDirectoryName(_directory))
-					: (_directory.empty() ? String(entry.Name + "\\"_s) : fs::CombinePath(_directory, entry.Name)));
+													  : (_directory.empty() ? String(entry.Name + "\\"_s) : fs::CombinePath(_directory, entry.Name)));
 				// Deferred, this row is destroyed by navigating
 				_pendingNavigation = Death::move(target);
 				_navigationPending = true;
@@ -1145,7 +1175,7 @@ namespace Jazz2::UI::Windows
 		for (std::int32_t i = 0; i < std::int32_t(_entries.size()); i++) {
 			const Entry& entry = _entries[i];
 			if (entry.Special >= 0 ? (_special[entry.Special].Value == selectedValue && !selectedValue.empty())
-				: (!entry.IsDirectory && !selectedName.empty() && entry.Name == selectedName)) {
+								   : (!entry.IsDirectory && !selectedName.empty() && entry.Name == selectedName)) {
 				_selected = i;
 				_rows->SetSelected(i, true);
 				break;
@@ -1347,7 +1377,9 @@ namespace Jazz2::UI::Windows
 		}
 
 		if (ConfirmFunc) {
-			ConfirmFunc(path, [this, path]() { Choose(path); });
+			ConfirmFunc(path, [this, path]() {
+				Choose(path);
+			});
 		} else {
 			Choose(path);
 		}

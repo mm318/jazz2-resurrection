@@ -16,7 +16,7 @@
 #include <Containers/StringConcatenable.h>
 
 #if defined(DEATH_TARGET_ANDROID)
-#	include "../../../nCine/Backends/Android/AndroidApplication.h"
+#include "../../../nCine/Backends/Android/AndroidApplication.h"
 #endif
 
 using namespace Jazz2::UI::Menu::Resources;
@@ -35,8 +35,8 @@ namespace Jazz2::UI::Menu
 
 	MainMenu::MainMenu(IRootController* root, bool afterIntro)
 		: _root(root), _transitionWhite(afterIntro ? 1.0f : 0.0f),
-			_logoTransition(0.0f), _texturedBackgroundPass(this), _texturedBackgroundPhase(0.0f),
-			_pressedKeys(ValueInit, (std::size_t)Keys::Count)
+		  _logoTransition(0.0f), _texturedBackgroundPass(this), _texturedBackgroundPhase(0.0f),
+		  _pressedKeys(ValueInit, (std::size_t)Keys::Count)
 	{
 		theApplication().GetGfxDevice().SetWindowTitle("Jazz² Resurrection"_s);
 
@@ -114,7 +114,7 @@ namespace Jazz2::UI::Menu
 			_sections.pop_back();
 			shouldSwitch = true;
 		}
-		
+
 		SwitchToSection<BeginSection>();
 	}
 
@@ -562,7 +562,7 @@ namespace Jazz2::UI::Menu
 					std::int32_t curAnimFrame = res->FrameOffset + Random().Next(0, res->FrameCount);
 					Recti frameRect = resBase->GetFrameRect(curAnimFrame);
 
-					TileMap::DestructibleDebris debris = { };
+					TileMap::DestructibleDebris debris = {};
 					debris.Pos = debrisPos;
 					debris.Depth = MainLayer - 100 + 200 * scale;
 					debris.Size = Vector2f((float)frameRect.W, (float)frameRect.H);
@@ -732,11 +732,23 @@ namespace Jazz2::UI::Menu
 		auto& resolver = ContentResolver::Get();
 
 		switch (preset) {
-			case Preset::Default: _tileSet = resolver.RequestTileSet("easter99"_s, 0, true); break;
-			case Preset::Carrotus: _tileSet = resolver.RequestTileSet("carrot1"_s, 0, true); break;
-			case Preset::SharewareDemo: _tileSet = resolver.RequestTileSet("diam2"_s, 0, true); break;
-			case Preset::Xmas: _tileSet = resolver.RequestTileSet("xmas2"_s, 0, true); break;
-			default: _tileSet = nullptr; resolver.ApplyDefaultPalette(); _preset = Preset::None; return true;
+			case Preset::Default:
+				_tileSet = resolver.RequestTileSet("easter99"_s, 0, true);
+				break;
+			case Preset::Carrotus:
+				_tileSet = resolver.RequestTileSet("carrot1"_s, 0, true);
+				break;
+			case Preset::SharewareDemo:
+				_tileSet = resolver.RequestTileSet("diam2"_s, 0, true);
+				break;
+			case Preset::Xmas:
+				_tileSet = resolver.RequestTileSet("xmas2"_s, 0, true);
+				break;
+			default:
+				_tileSet = nullptr;
+				resolver.ApplyDefaultPalette();
+				_preset = Preset::None;
+				return true;
 		}
 
 		if (_tileSet == nullptr) {
@@ -795,7 +807,7 @@ namespace Jazz2::UI::Menu
 
 						std::int32_t tileId = layer.Layout[y * layoutSize.X + x].TileID;
 						Texture* tileTexture = _tileSet->ResolveTextureDiffuse(tileId);
-						if DEATH_UNLIKELY(tileTexture == nullptr) {
+						if DEATH_UNLIKELY (tileTexture == nullptr) {
 							continue;
 						}
 
@@ -833,8 +845,12 @@ namespace Jazz2::UI::Menu
 
 		Vector4f horizonColor;
 		switch (_preset) {
-			case Preset::Default: horizonColor = Vector4f(0.098f, 0.35f, 1.0f, 0.0f); break;
-			default: horizonColor = Vector4f(0.0f, 0.0f, 0.06f, 1.0f); break;
+			case Preset::Default:
+				horizonColor = Vector4f(0.098f, 0.35f, 1.0f, 0.0f);
+				break;
+			default:
+				horizonColor = Vector4f(0.0f, 0.0f, 0.06f, 1.0f);
+				break;
 		}
 
 		Vector2i viewSize = _canvasBackground->ViewSize;
@@ -953,8 +969,10 @@ namespace Jazz2::UI::Menu
 			for (std::int32_t k = 0; k < 4; k++) {
 				const Vector2f d = Vector2f((k & 1) ? viewSize.X : 0.0f, (k & 2) ? viewSize.Y : 0.0f) - pivot;
 				const float i = (d.X * c + d.Y * sn) / period.X, j = (-d.X * sn + d.Y * c) / period.Y;
-				minI = std::min(minI, i); maxI = std::max(maxI, i);
-				minJ = std::min(minJ, j); maxJ = std::max(maxJ, j);
+				minI = std::min(minI, i);
+				maxI = std::max(maxI, i);
+				minJ = std::min(minJ, j);
+				maxJ = std::max(maxJ, j);
 			}
 			const bool indexed = ((base->Flags & GenericGraphicResourceFlags::Indexed) == GenericGraphicResourceFlags::Indexed);
 			const Vector4f texCoords(1.0f, 0.0f, 1.0f, 0.0f);
@@ -1023,7 +1041,7 @@ namespace Jazz2::UI::Menu
 
 			renderQueue.AddCommand(command);
 		}
-		
+
 		// 32
 		{
 			GenericGraphicResource* base = res32->Base;
@@ -1060,7 +1078,7 @@ namespace Jazz2::UI::Menu
 
 			renderQueue.AddCommand(command);
 		}
-		
+
 		// 128
 		{
 			GenericGraphicResource* base = res128->Base;
@@ -1177,7 +1195,7 @@ namespace Jazz2::UI::Menu
 				// Rebase into the containing texture chunk (a no-op single-texture lookup normally)
 				std::int32_t tileId = tile.TileID;
 				Texture* tileTexture = _owner->_tileSet->ResolveTextureDiffuse(tileId);
-				if DEATH_UNLIKELY(tileTexture == nullptr) {
+				if DEATH_UNLIKELY (tileTexture == nullptr) {
 					continue;
 				}
 

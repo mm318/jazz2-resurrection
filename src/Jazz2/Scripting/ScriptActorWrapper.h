@@ -53,7 +53,8 @@ namespace Jazz2::Scripting
 		void Release();
 
 		// Assignment operator
-		ScriptActorWrapper& operator=(const ScriptActorWrapper& o) {
+		ScriptActorWrapper& operator=(const ScriptActorWrapper& o)
+		{
 			// Copy only the content, not the script proxy class
 			//_value = o._value;
 			return *this;

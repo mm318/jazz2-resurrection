@@ -126,12 +126,18 @@ namespace Jazz2::UI
 			float q = value * (1.0f - saturation * f);
 			float t = value * (1.0f - saturation * (1.0f - f));
 			switch (index) {
-				case 0: return Colorf(value, t, p, alpha);
-				case 1: return Colorf(q, value, p, alpha);
-				case 2: return Colorf(p, value, t, alpha);
-				case 3: return Colorf(p, q, value, alpha);
-				case 4: return Colorf(t, p, value, alpha);
-				default: return Colorf(value, p, q, alpha);
+				case 0:
+					return Colorf(value, t, p, alpha);
+				case 1:
+					return Colorf(q, value, p, alpha);
+				case 2:
+					return Colorf(p, value, t, alpha);
+				case 3:
+					return Colorf(p, q, value, alpha);
+				case 4:
+					return Colorf(t, p, value, alpha);
+				default:
+					return Colorf(value, p, q, alpha);
 			}
 		}
 
@@ -169,7 +175,7 @@ namespace Jazz2::UI
 
 	LoadingHandler::LoadingHandler(IRootController* root, bool darkMode)
 		: _root(root), _startTime(TimeStamp::Now()), _time(0.0f), _transition(0.0f), _progress(-1.0f), _progressTransition(0.0f),
-			_darkness(darkMode ? 1.0f : 0.0f), _aura(0.0f)
+		  _darkness(darkMode ? 1.0f : 0.0f), _aura(0.0f)
 	{
 		_canvasBackground = std::make_unique<BackgroundCanvas>(this);
 
@@ -287,8 +293,7 @@ namespace Jazz2::UI
 				float(frameRect.W) / float(texSize.X),
 				float(frameRect.X) / float(texSize.X),
 				float(frameRect.H) / float(texSize.Y),
-				float(frameRect.Y) / float(texSize.Y)
-			);
+				float(frameRect.Y) / float(texSize.Y));
 
 			Colorf color = Colorf(1.0f, 1.0f, 1.0f, lerp(1.0f, 0.5f, darkness) * _owner->_transition);
 			std::int32_t paletteOffset = ((base->Flags & GenericGraphicResourceFlags::Indexed) == GenericGraphicResourceFlags::Indexed ? loadingRes->PaletteOffset : -1);

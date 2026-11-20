@@ -38,36 +38,44 @@ namespace Jazz2::Editor
 	{
 	public:
 		/** @brief Returns a number that changes whenever the selection changes */
-		std::uint32_t GetRevision() const {
+		std::uint32_t GetRevision() const
+		{
 			return _revision;
 		}
 
 		/** @brief Returns `true` if nothing is selected, neither on the grid nor off it */
-		bool IsEmpty() const {
+		bool IsEmpty() const
+		{
 			return (_cells.empty() && _offGrid.empty());
 		}
 		/** @brief Returns `true` if an event of the grid is selected */
-		bool HasCells() const {
+		bool HasCells() const
+		{
 			return !_cells.empty();
 		}
 		/** @brief Returns `true` if an event off the grid is selected */
-		bool HasOffGrid() const {
+		bool HasOffGrid() const
+		{
 			return !_offGrid.empty();
 		}
 		/** @brief Returns the selected tiles of the event grid as @cpp x + y * width @ce, sorted */
-		ArrayView<const std::uint32_t> GetCells() const {
+		ArrayView<const std::uint32_t> GetCells() const
+		{
 			return _cells;
 		}
 		/** @brief Returns the indices of the selected events off the grid, sorted */
-		ArrayView<const std::int32_t> GetOffGrid() const {
+		ArrayView<const std::int32_t> GetOffGrid() const
+		{
 			return _offGrid;
 		}
 		/** @brief Returns the number of selected events of the grid */
-		std::int32_t GetCellCount() const {
+		std::int32_t GetCellCount() const
+		{
 			return std::int32_t(_cells.size());
 		}
 		/** @brief Returns the number of all selected events, on the grid and off it */
-		std::int32_t GetTotalCount() const {
+		std::int32_t GetTotalCount() const
+		{
 			return std::int32_t(_cells.size() + _offGrid.size());
 		}
 		/** @brief Returns `true` if a tile is selected */

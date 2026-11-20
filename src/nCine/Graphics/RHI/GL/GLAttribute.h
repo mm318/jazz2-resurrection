@@ -25,19 +25,23 @@ namespace nCine::RHI::GL
 		GLAttribute(GLuint program, const char* name, GLenum type);
 
 		/** @brief Returns the attribute location, or -1 if it has no location */
-		inline GLint GetLocation() const {
+		inline GLint GetLocation() const
+		{
 			return _location;
 		}
 		/** @brief Returns the number of components for array attributes (1 for non-array attributes) */
-		inline GLint GetSize() const {
+		inline GLint GetSize() const
+		{
 			return _size;
 		}
 		/** @brief Returns the GL type of the attribute (e.g., `GL_FLOAT_VEC4`) */
-		inline GLenum GetType() const {
+		inline GLenum GetType() const
+		{
 			return _type;
 		}
 		/** @brief Returns the attribute name */
-		inline const char* GetName() const {
+		inline const char* GetName() const
+		{
 			return _name;
 		}
 		/**

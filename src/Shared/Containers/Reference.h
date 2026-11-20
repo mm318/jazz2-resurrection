@@ -29,15 +29,19 @@
 
 #include <type_traits>
 
-namespace Death { namespace Containers {
-//###==##====#=====--==~--~=~- --- -- -  -  -   -
-
-	namespace Implementation
+namespace Death
+{
+	namespace Containers
 	{
-		template<class, class> struct ReferenceConverter;
-	}
+		//###==##====#=====--==~--~=~- --- -- -  -  -   -
 
-	/**
+		namespace Implementation
+		{
+			template <class, class>
+			struct ReferenceConverter;
+		}
+
+		/**
 		@brief Lightweight non-owning reference wrapper
 
 		Equivalent to @ref std::reference_wrapper from C++11, provides a copyable non-owning wrapper over
@@ -49,82 +53,97 @@ namespace Death { namespace Containers {
 
 		This class is exclusively for l-value references.
 	*/
-	template<class T> class Reference
-	{
-	public:
-		/** @brief Constructor */
-		constexpr /*implicit*/ Reference(T& reference) noexcept : _reference{&reference} {}
+		template <class T>
+		class Reference
+		{
+		public:
+			/** @brief Constructor */
+			constexpr /*implicit*/ Reference(T& reference) noexcept
+				: _reference { &reference }
+			{
+			}
 
-		/**
+			/**
 		 * @brief Construct a reference from external representation
 		 */
-		template<class U, class = decltype(Implementation::ReferenceConverter<T, U>::from(std::declval<U>()))> constexpr /*implicit*/ Reference(U other) noexcept : Reference{Implementation::ReferenceConverter<T, U>::from(other)} { }
+			template <class U, class = decltype(Implementation::ReferenceConverter<T, U>::from(std::declval<U>()))>
+			constexpr /*implicit*/ Reference(U other) noexcept
+				: Reference { Implementation::ReferenceConverter<T, U>::from(other) }
+			{
+			}
 
-		/**
+			/**
 		 * @brief Construction from r-value references is not allowed
 		 */
-		Reference(T&&) = delete;
+			Reference(T&&) = delete;
 
-		/**
+			/**
 		 * @brief Construct a reference from another of a derived type
 		 *
 		 * Expects that @p T is a base of @p U.
 		 */
-		template<class U
+			template <class U
 #ifndef DOXYGEN_GENERATING_OUTPUT
-			, typename std::enable_if<std::is_base_of<T, U>::value, int>::type = 0
+				,
+				typename std::enable_if<std::is_base_of<T, U>::value, int>::type = 0
 #endif
-		> constexpr /*implicit*/ Reference(Reference<U> other) noexcept : _reference{other._reference} { }
+				>
+			constexpr /*implicit*/ Reference(Reference<U> other) noexcept
+				: _reference { other._reference }
+			{
+			}
 
-		/**
+			/**
 		 * @brief Convert the reference to external representation
 		 */
-		template<class U, class = decltype(Implementation::ReferenceConverter<T, U>::to(std::declval<Reference<T>>()))> constexpr /*implicit*/ operator U() const
-		{
-			return Implementation::ReferenceConverter<T, U>::to(*this);
-		}
+			template <class U, class = decltype(Implementation::ReferenceConverter<T, U>::to(std::declval<Reference<T>>()))>
+			constexpr /*implicit*/ operator U() const
+			{
+				return Implementation::ReferenceConverter<T, U>::to(*this);
+			}
 
-		/** @brief Underlying reference */
-		constexpr /*implicit*/ operator T& () const
-		{
-			return *_reference;
-		}
-		/** @overload */
-		constexpr /*implicit*/ operator Reference<const T>() const
-		{
-			return *_reference;
-		}
+			/** @brief Underlying reference */
+			constexpr /*implicit*/ operator T&() const
+			{
+				return *_reference;
+			}
+			/** @overload */
+			constexpr /*implicit*/ operator Reference<const T>() const
+			{
+				return *_reference;
+			}
 
-		/** @brief Underlying reference */
-		constexpr T& get() const
-		{
-			return *_reference;
-		}
+			/** @brief Underlying reference */
+			constexpr T& get() const
+			{
+				return *_reference;
+			}
 
-		/**
+			/**
 		 * @brief Access the underlying reference
 		 */
-		constexpr T* operator->() const
-		{
-			return _reference;
-		}
+			constexpr T* operator->() const
+			{
+				return _reference;
+			}
 
-		/**
+			/**
 		 * @brief Access the underlying reference
 		 */
-		constexpr T& operator*() const
-		{
-			return *_reference;
-		}
+			constexpr T& operator*() const
+			{
+				return *_reference;
+			}
 
-	private:
-		// For the conversion constructor
-		template<class U> friend class Reference;
+		private:
+			// For the conversion constructor
+			template <class U>
+			friend class Reference;
 
-		T* _reference;
-	};
+			T* _reference;
+		};
 
-	/** @relatesalso Reference
+		/** @relatesalso Reference
 		@brief Make a reference wrapper
 
 		Convenience alternative to @ref Reference::Reference(T&).
@@ -133,8 +152,11 @@ namespace Death { namespace Containers {
 		in-place, and where the code would otherwise have to be extra verbose or would
 		fall back to raw pointers and risk them getting @cpp nullptr @ce.
 	*/
-	template<class T> constexpr Reference<T> reference(T& reference) {
-		return Reference<T>{reference};
-	}
+		template <class T>
+		constexpr Reference<T> reference(T& reference)
+		{
+			return Reference<T> { reference };
+		}
 
-}}
+	}
+}

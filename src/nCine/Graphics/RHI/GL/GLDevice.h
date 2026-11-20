@@ -146,13 +146,15 @@ namespace nCine::RHI::GL
 		 */
 		static void DrawElements(PrimitiveType primitive, std::uint32_t numIndices, IndexFormat indexFormat, std::uintptr_t indexOffset, std::int32_t baseVertex);
 		/** @brief Draws indexed geometry with 16-bit indices */
-		static inline void DrawElements(PrimitiveType primitive, std::uint32_t numIndices, std::uintptr_t indexOffset, std::int32_t baseVertex) {
+		static inline void DrawElements(PrimitiveType primitive, std::uint32_t numIndices, std::uintptr_t indexOffset, std::int32_t baseVertex)
+		{
 			DrawElements(primitive, numIndices, IndexFormat::UInt16, indexOffset, baseVertex);
 		}
 		/** @brief Draws indexed geometry with instancing */
 		static void DrawElementsInstanced(PrimitiveType primitive, std::uint32_t numIndices, IndexFormat indexFormat, std::uintptr_t indexOffset, std::int32_t numInstances, std::int32_t baseVertex);
 		/** @brief Draws indexed geometry (16-bit indices) with instancing */
-		static inline void DrawElementsInstanced(PrimitiveType primitive, std::uint32_t numIndices, std::uintptr_t indexOffset, std::int32_t numInstances, std::int32_t baseVertex) {
+		static inline void DrawElementsInstanced(PrimitiveType primitive, std::uint32_t numIndices, std::uintptr_t indexOffset, std::int32_t numInstances, std::int32_t baseVertex)
+		{
 			DrawElementsInstanced(primitive, numIndices, IndexFormat::UInt16, indexOffset, numInstances, baseVertex);
 		}
 
@@ -177,7 +179,8 @@ namespace nCine::RHI::GL
 		// branching on WITH_RHI_* (the D3D11 / Vulkan devices own a real swap chain behind the same surface).
 
 		/** @brief No-op (the window backend owns the GL context; there is no backend swap chain) */
-		static inline bool CreateSwapchain(void* windowHandle, std::int32_t width, std::int32_t height, bool vsync) {
+		static inline bool CreateSwapchain(void* windowHandle, std::int32_t width, std::int32_t height, bool vsync)
+		{
 			static_cast<void>(windowHandle);
 			static_cast<void>(width);
 			static_cast<void>(height);
@@ -185,14 +188,19 @@ namespace nCine::RHI::GL
 			return true;
 		}
 		/** @brief No-op */
-		static inline void DestroySwapchain() {}
+		static inline void DestroySwapchain()
+		{
+		}
 		/** @brief No-op (the GL default framebuffer resizes with the window) */
-		static inline void ResizeSwapchain(std::int32_t width, std::int32_t height) {
+		static inline void ResizeSwapchain(std::int32_t width, std::int32_t height)
+		{
 			static_cast<void>(width);
 			static_cast<void>(height);
 		}
 		/** @brief No-op (the window backend performs the buffer swap) */
-		static inline void PresentFrame() {}
+		static inline void PresentFrame()
+		{
+		}
 
 		/**
 			@brief Creates the presentation of a texture into a window besides the main one

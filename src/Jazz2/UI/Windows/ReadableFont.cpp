@@ -13,21 +13,21 @@
 
 // Third-party code, only what's used of it is compiled in
 #if defined(DEATH_TARGET_MSVC)
-#	pragma warning(push)
-#	pragma warning(disable: 4100 4127 4189 4244 4245 4456 4457 4701 4702)
+#pragma warning(push)
+#pragma warning(disable : 4100 4127 4189 4244 4245 4456 4457 4701 4702)
 #elif defined(DEATH_TARGET_GCC)
-#	pragma GCC diagnostic push
-#	pragma GCC diagnostic ignored "-Wunused-function"
-#	pragma GCC diagnostic ignored "-Wsign-compare"
-#	pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wconversion"
 #endif
 #define STB_TRUETYPE_IMPLEMENTATION
 #define STBTT_STATIC
 #include <stb/stb_truetype.h>
 #if defined(DEATH_TARGET_MSVC)
-#	pragma warning(pop)
+#pragma warning(pop)
 #elif defined(DEATH_TARGET_GCC)
-#	pragma GCC diagnostic pop
+#pragma GCC diagnostic pop
 #endif
 
 namespace Jazz2::UI::Windows
@@ -239,7 +239,7 @@ namespace Jazz2::UI::Windows
 				int advance, leftSideBearing, x0, y0, x1, y1;
 				stbtt_GetGlyphHMetrics(&info, int(glyphIndex), &advance, &leftSideBearing);
 				stbtt_GetGlyphBitmapBoxSubpixel(&info, int(glyphIndex), pixelScale, pixelScale, 0.0f, shiftY, &x0, &y0, &x1, &y1);
-				GlyphSource glyph{};
+				GlyphSource glyph {};
 				glyph.Codepoint = codepoint;
 				glyph.GlyphIndex = glyphIndex;
 				glyph.Advance = std::int32_t(std::lround(advance * pixelScale));
@@ -249,10 +249,7 @@ namespace Jazz2::UI::Windows
 				glyph.Y1 = y1;
 				// Left out if it doesn't fit its record, the fallback is drawn for it then
 				bool inked = (glyph.X1 > glyph.X0 && glyph.Y1 > glyph.Y0);
-				if (glyph.Advance <= 0 || glyph.Advance > 255 || (inked && (glyph.X1 - glyph.X0 + rim * 2 > UI::FontFormat::MaxGlyphSize ||
-					glyph.Y1 - glyph.Y0 + rim * 2 > UI::FontFormat::MaxGlyphSize ||
-					std::abs(glyph.X0 - rim) > UI::FontFormat::MaxGlyphBearing ||
-					std::abs(std::int32_t(baselinePixel) + glyph.Y0 - rim) > UI::FontFormat::MaxGlyphBearing))) {
+				if (glyph.Advance <= 0 || glyph.Advance > 255 || (inked && (glyph.X1 - glyph.X0 + rim * 2 > UI::FontFormat::MaxGlyphSize || glyph.Y1 - glyph.Y0 + rim * 2 > UI::FontFormat::MaxGlyphSize || std::abs(glyph.X0 - rim) > UI::FontFormat::MaxGlyphBearing || std::abs(std::int32_t(baselinePixel) + glyph.Y0 - rim) > UI::FontFormat::MaxGlyphBearing))) {
 					return;
 				}
 				glyphs.push_back(glyph);
@@ -321,7 +318,7 @@ namespace Jazz2::UI::Windows
 			SmallVector<Pair<char32_t, UI::FontFormat::Glyph>, 0> records;
 			records.reserve(glyphs.size());
 			for (const GlyphSource& source : glyphs) {
-				UI::FontFormat::Glyph glyph{};
+				UI::FontFormat::Glyph glyph {};
 				glyph.Advance = std::uint8_t(source.Advance);
 				if (source.X1 > source.X0 && source.Y1 > source.Y0) {
 					std::int32_t inkWidth = source.X1 - source.X0;

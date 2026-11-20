@@ -36,35 +36,53 @@
 #include "String.h"
 #include "StringView.h"
 
-namespace Death { namespace Containers { namespace Implementation {
-//###==##====#=====--==~--~=~- --- -- -  -  -   -
+namespace Death
+{
+	namespace Containers
+	{
+		namespace Implementation
+		{
+			//###==##====#=====--==~--~=~- --- -- -  -  -   -
 
-	/** @brief Provides automatic conversion from/to STL @ref std::string_view */
-	template<> struct StringConverter<std::string_view> {
-		static String from(std::string_view other) {
-			return String{other.data(), other.size()};
-		}
-		static std::string_view to(const String& other) {
-			return std::string_view{other.data(), other.size()};
-		}
-	};
+			/** @brief Provides automatic conversion from/to STL @ref std::string_view */
+			template <>
+			struct StringConverter<std::string_view>
+			{
+				static String from(std::string_view other)
+				{
+					return String { other.data(), other.size() };
+				}
+				static std::string_view to(const String& other)
+				{
+					return std::string_view { other.data(), other.size() };
+				}
+			};
 
-	/** @brief Provides automatic conversion from/to STL @ref std::string_view */
-	template<> struct StringViewConverter<const char, std::string_view> {
-		static StringView from(std::string_view other) {
-			return StringView{other.data(), other.size()};
-		}
-		static std::string_view to(StringView other) {
-			return std::string_view{other.data(), other.size()};
-		}
-	};
+			/** @brief Provides automatic conversion from/to STL @ref std::string_view */
+			template <>
+			struct StringViewConverter<const char, std::string_view>
+			{
+				static StringView from(std::string_view other)
+				{
+					return StringView { other.data(), other.size() };
+				}
+				static std::string_view to(StringView other)
+				{
+					return std::string_view { other.data(), other.size() };
+				}
+			};
 
-	/** @brief Provides automatic conversion from/to STL @ref std::string_view */
-	/* There's no mutable variant of std::string_view, so this goes just one direction */
-	template<> struct StringViewConverter<char, std::string_view> {
-		static std::string_view to(MutableStringView other) {
-			return std::string_view{other.data(), other.size()};
-		}
-	};
+			/** @brief Provides automatic conversion from/to STL @ref std::string_view */
+			/* There's no mutable variant of std::string_view, so this goes just one direction */
+			template <>
+			struct StringViewConverter<char, std::string_view>
+			{
+				static std::string_view to(MutableStringView other)
+				{
+					return std::string_view { other.data(), other.size() };
+				}
+			};
 
-}}}
+		}
+	}
+}

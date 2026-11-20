@@ -1,6 +1,6 @@
 #include "ContentResolver.h"
 #if defined(DEATH_TARGET_N64)
-#	include <n64sys.h>
+#include <n64sys.h>
 #endif
 #include <Shaders/Generated/ShadersGen.h>
 #include "Compatibility/JJ2Anims.Palettes.h"
@@ -22,21 +22,21 @@
 #include "../nCine/Graphics/RenderCommand.h"
 #include "../nCine/Base/Random.h"
 #if defined(WITH_OGC) && defined(DEATH_TARGET_GAMECUBE)
-#	include "../nCine/Backends/Ogc/OgcDvd.h"
-#	include "../nCine/Backends/Ogc/OgcStorage.h"
+#include "../nCine/Backends/Ogc/OgcDvd.h"
+#include "../nCine/Backends/Ogc/OgcStorage.h"
 #endif
 #if defined(WITH_PS2)
 // Brings removable storage up, so InitializePaths() below can look for the content on it.
 // Guarded on WITH_PS2, not DEATH_TARGET_PS2: the header's own contents are, and it is the narrower of
 // the two (a dedicated-server or libretro configure targets the PS2 without building its backend)
-#	include "../nCine/Backends/Ps2/Ps2Storage.h"
+#include "../nCine/Backends/Ps2/Ps2Storage.h"
 #endif
 
 #if defined(DEATH_TARGET_ANDROID)
-#	include "../nCine/Backends/Android/AndroidJniHelper.h"
-#	include <IO/AndroidAssetStream.h>
+#include "../nCine/Backends/Android/AndroidJniHelper.h"
+#include <IO/AndroidAssetStream.h>
 #elif defined(DEATH_TARGET_WINDOWS_RT)
-#	include <Environment.h>
+#include <Environment.h>
 #endif
 
 #include <cmath>
@@ -93,8 +93,8 @@ namespace Jazz2
 			never read it, so they do not spend the decode and the 3 KB per level on it.
 		*/
 #if defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || \
-		defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_AMIGA) || \
-		defined(DEATH_TARGET_MORPHOS) || defined(DEATH_TARGET_AMIGAOS4)
+	defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_AMIGA) ||                              \
+	defined(DEATH_TARGET_MORPHOS) || defined(DEATH_TARGET_AMIGAOS4)
 		constexpr bool KeepCaptionTiles = false;
 #else
 		constexpr bool KeepCaptionTiles = true;
@@ -156,10 +156,10 @@ namespace Jazz2
 	ContentResolver::ContentResolver()
 		: _isHeadless(false), _isLoading(false), _isContentPrebaked(false), _hasLooseAssets(false), _cachedMetadata(64), _cachedGraphics(256),
 #if defined(WITH_AUDIO)
-			_cachedSounds(192),
+		  _cachedSounds(192),
 #endif
-			_palettes{}, _paletteDirtyFirstRow(0), _paletteDirtyLastRow(PaletteCount - 1), _paletteRowRefCount{},
-			_paletteRowColor{}, _paletteRowScheme{}
+		  _palettes {}, _paletteDirtyFirstRow(0), _paletteDirtyLastRow(PaletteCount - 1), _paletteRowRefCount {},
+		  _paletteRowColor {}, _paletteRowScheme {}
 	{
 		InitializePaths();
 	}
@@ -254,7 +254,7 @@ namespace Jazz2
 	StringView ContentResolver::GetUserContentPath() const
 	{
 #if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_WINDOWS_RT) || \
-		defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_VITA)
+	defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_VITA)
 		return _userContentPath;
 #else
 		// "assets" is already where the user can reach it, or nothing next to it is writable
@@ -478,13 +478,13 @@ namespace Jazz2
 #elif defined(DEATH_TARGET_APPLE)
 		_cachePath = fs::CombinePath(fs::GetSavePath("Jazz² Resurrection"_s), "Cache/"_s);
 #elif defined(DEATH_TARGET_UNIX)
-#	if defined(NCINE_PACKAGED_CONTENT_PATH)
+#if defined(NCINE_PACKAGED_CONTENT_PATH)
 		_contentPath = "assets/"_s;
-#	elif defined(NCINE_OVERRIDE_CONTENT_PATH)
+#elif defined(NCINE_OVERRIDE_CONTENT_PATH)
 		_contentPath = NCINE_OVERRIDE_CONTENT_PATH;
-#	else
+#else
 		_contentPath = NCINE_INSTALL_PREFIX "/share/" NCINE_LINUX_PACKAGE "/assets/";
-#	endif
+#endif
 		String executablePath = fs::GetExecutablePath();
 		StringView localBase = fs::GetDirectoryName(executablePath);
 		String localContentPath = fs::CombinePath(localBase, "assets/"_s);
@@ -497,7 +497,7 @@ namespace Jazz2
 			}
 			auto localStorage = fs::GetLocalStorage();
 			_cachePath = (localStorage.empty() ? String("Cache/"_s)
-				: fs::CombinePath({ localStorage, NCINE_LINUX_PACKAGE, "Cache/"_s }));
+											   : fs::CombinePath({ localStorage, NCINE_LINUX_PACKAGE, "Cache/"_s }));
 		}
 #elif defined(DEATH_TARGET_WINDOWS_RT)
 		_cachePath = fs::CombinePath(fs::GetSavePath("Jazz² Resurrection"_s), "Cache/"_s);
@@ -557,7 +557,7 @@ namespace Jazz2
 			}
 			if (_contentPath.empty()) {
 				LOGW("No \"assets\" directory next to the executable, none under \"Games/Jazz2\" on any "
-					"removable storage, and no disc carrying one either");
+					 "removable storage, and no disc carrying one either");
 			}
 		}
 #elif defined(WITH_OGC) && defined(DEATH_TARGET_GAMECUBE)
@@ -619,8 +619,8 @@ namespace Jazz2
 			if (_contentPath.empty()) {
 				// The boot console is still on the screen, the renderer does not exist yet
 				OgcStorage::HaltWithMessage("  Cannot find the game files!\n\n"
-					"  Insert the game disc, or an SD card with the \"Jazz2\" folder\n"
-					"  into an SD Gecko or an SD2SP2 adapter.");
+											"  Insert the game disc, or an SD card with the \"Jazz2\" folder\n"
+											"  into an SD Gecko or an SD2SP2 adapter.");
 			}
 		}
 #endif
@@ -645,22 +645,22 @@ namespace Jazz2
 	String ContentResolver::GetUserContentCandidate() const
 	{
 #if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_WINDOWS_RT) || \
-		defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_VITA)
+	defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_VITA)
 		// "assets" is packed inside the application on these platforms (APK assets, app bundle, AppImage mount, system
 		// prefix, UWP package, RomFS, VPK), so nothing can be added to it or replaced in it. The directory with "Cache"
 		// is the one place the user can always reach, so custom content goes to "assets" next to it, which then has
 		// priority over everything. Except on iOS, where "Cache" is in "Library/Caches", and "Documents"
 		// is what the Files app exposes instead.
-#	if defined(DEATH_TARGET_IOS)
+#if defined(DEATH_TARGET_IOS)
 		String userBase = fs::CombinePath(::getenv("HOME"), "Documents"_s);
-#	else
+#else
 		StringView userBase = fs::GetDirectoryName(GetCachePath());
-#	endif
-#	if defined(DEATH_TARGET_WINDOWS_RT)
+#endif
+#if defined(DEATH_TARGET_WINDOWS_RT)
 		String userContentPath = fs::CombinePath(userBase, "assets\\"_s);
-#	else
+#else
 		String userContentPath = fs::CombinePath(userBase, "assets/"_s);
-#	endif
+#endif
 		// A portable Linux copy (or relative fallback paths) already has "assets" next to "Cache", so it's the same one
 		if (userContentPath != GetContentPath()) {
 			return userContentPath;
@@ -672,7 +672,7 @@ namespace Jazz2
 	void ContentResolver::DetectUserContent()
 	{
 #if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_WINDOWS_RT) || \
-		defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_VITA)
+	defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_VITA)
 		String userContentPath = GetUserContentCandidate();
 		if (!userContentPath.empty() && fs::DirectoryExists(userContentPath)) {
 			LOGI("Using also user content from \"{}\"", userContentPath);
@@ -690,8 +690,8 @@ namespace Jazz2
 		static_cast<void>(create);
 		return {};
 #else
-#	if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_WINDOWS_RT) || \
-		defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_VITA)
+#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_APPLE) || defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_WINDOWS_RT) || \
+	defined(DEATH_TARGET_SWITCH) || defined(DEATH_TARGET_VITA)
 		if (!_userContentPath.empty()) {
 			return _userContentPath;
 		}
@@ -703,9 +703,9 @@ namespace Jazz2
 			RemountPaks();
 			return _userContentPath;
 		}
-#	else
+#else
 		static_cast<void>(create);
-#	endif
+#endif
 		// Where it's not part of the application package, the content itself can be written to, in a portable copy
 		StringView contentPath = GetContentPath();
 		if (fs::IsWritable(contentPath)) {
@@ -927,14 +927,14 @@ namespace Jazz2
 			while (it != _cachedSounds.end()) {
 				if ((it->second->Flags & GenericSoundResourceFlags::Referenced) != GenericSoundResourceFlags::Referenced) {
 					it = _cachedSounds.erase(it);
-#	if defined(DEATH_DEBUG) || defined(DEATH_TARGET_N64)
+#if defined(DEATH_DEBUG) || defined(DEATH_TARGET_N64)
 					soundsReleased++;
-#	endif
+#endif
 				} else {
 					++it;
-#	if defined(DEATH_DEBUG) || defined(DEATH_TARGET_N64)
+#if defined(DEATH_DEBUG) || defined(DEATH_TARGET_N64)
 					soundsKept++;
-#	endif
+#endif
 				}
 			}
 		}
@@ -1206,7 +1206,8 @@ namespace Jazz2
 
 		Json::CharReaderBuilder builder;
 		auto reader = std::unique_ptr<Json::CharReader>(builder.newCharReader());
-		Json::Value doc; std::string errors;
+		Json::Value doc;
+		std::string errors;
 		if (reader->parse(buffer.get(), buffer.get() + fileSize, &doc, &errors)) {
 			metadata->BoundingBox = GetVector2iFromJson(doc["BoundingBox"], Vector2i(InvalidValue, InvalidValue));
 
@@ -1427,7 +1428,7 @@ namespace Jazz2
 				it->second->Flags |= GenericSoundResourceFlags::Referenced;
 				sound.Buffers.push_back(it->second.get());
 			} else {
-#	if defined(NCINE_HAS_NATIVE_AUDIO)
+#if defined(NCINE_HAS_NATIVE_AUDIO)
 				// The console plays only its own copy, which streams from the cartridge while it plays and holds
 				// nothing decoded (the prepared tree does not carry the originals at all)
 				String nativePath = GetNativeSoundPath(assetPath);
@@ -1435,11 +1436,11 @@ namespace Jazz2
 					continue;
 				}
 				auto resource = std::make_unique<GenericSoundResource>(nativePath);
-#	else
+#else
 				String resolvedPath;
 				auto s = OpenSoundFile(assetPath, resolvedPath);
 				auto resource = std::make_unique<GenericSoundResource>(Death::move(s), resolvedPath);
-#	endif
+#endif
 				if (resource->Buffer.GetSampleCount() <= 0) {
 					// The file was missing or could not be decoded (AudioBuffer already logged it).
 					// Keeping the dead resource cached would hold it for the rest of the level and
@@ -1602,7 +1603,8 @@ namespace Jazz2
 
 		Json::CharReaderBuilder builder;
 		auto reader = std::unique_ptr<Json::CharReader>(builder.newCharReader());
-		Json::Value doc; std::string errors;
+		Json::Value doc;
+		std::string errors;
 		if (reader->parse(buffer.get(), buffer.get() + fileSize, &doc, &errors)) {
 			// Try to load it
 			std::unique_ptr<GenericGraphicResource> graphics = std::make_unique<GenericGraphicResource>();
@@ -1701,7 +1703,7 @@ namespace Jazz2
 
 				graphics->FrameDimensions = GetVector2iFromJson(doc["FrameSize"]);
 				graphics->FrameConfiguration = GetVector2iFromJson(doc["FrameConfiguration"]);
-				
+
 				graphics->Hotspot = GetVector2iFromJson(doc["Hotspot"]);
 				graphics->Coldspot = GetVector2iFromJson(doc["Coldspot"], Vector2i(InvalidValue, InvalidValue));
 				graphics->Gunspot = GetVector2iFromJson(doc["Gunspot"], Vector2i(InvalidValue, InvalidValue));
@@ -1737,7 +1739,7 @@ namespace Jazz2
 			return false;
 		}
 
-		s->ReadValue<std::uint8_t>();	// channelCount
+		s->ReadValue<std::uint8_t>(); // channelCount
 		std::uint32_t frameDimensionsX = s->ReadValueAsLE<std::uint32_t>();
 		std::uint32_t frameDimensionsY = s->ReadValueAsLE<std::uint32_t>();
 		frameDimensions = Vector2i(std::int32_t(frameDimensionsX), std::int32_t(frameDimensionsY));
@@ -1849,7 +1851,7 @@ namespace Jazz2
 			// working downwards guarantees a pixel is read before anything can be written over it. Reading at
 			// PixelSize regardless of `channelCount` used to be wrong for the packed 1- and 2-channel sheets,
 			// which took their indices (and alpha) from the wrong bytes.
-			for (std::uint32_t i = width * height; i-- > 0; ) {
+			for (std::uint32_t i = width * height; i-- > 0;) {
 				const std::uint32_t srcIdx = i * channelCount;
 				const std::uint32_t dstIdx = i * PixelSize;
 				const std::uint32_t color = palette[pixels[srcIdx]];
@@ -1997,11 +1999,14 @@ namespace Jazz2
 		sheet.AnimDuration = header.AnimDuration / 256.0f;
 		// The same as RequestGraphicsAura() makes of them
 		sheet.Hotspot = (header.Hotspot[0] != UINT16_MAX || header.Hotspot[1] != UINT16_MAX
-			? Vector2i(header.Hotspot[0], header.Hotspot[1]) : Vector2i());
+				? Vector2i(header.Hotspot[0], header.Hotspot[1])
+				: Vector2i());
 		sheet.Coldspot = (header.Coldspot[0] != UINT16_MAX || header.Coldspot[1] != UINT16_MAX
-			? Vector2i(header.Coldspot[0], header.Coldspot[1]) : Vector2i(InvalidValue, InvalidValue));
+				? Vector2i(header.Coldspot[0], header.Coldspot[1])
+				: Vector2i(InvalidValue, InvalidValue));
 		sheet.Gunspot = (header.Gunspot[0] != UINT16_MAX || header.Gunspot[1] != UINT16_MAX
-			? Vector2i(header.Gunspot[0], header.Gunspot[1]) : Vector2i(InvalidValue, InvalidValue));
+				? Vector2i(header.Gunspot[0], header.Gunspot[1])
+				: Vector2i(InvalidValue, InvalidValue));
 		sheet.FrameRects = Death::move(header.FrameRects);
 		sheet.Pixels = nullptr;
 
@@ -2070,7 +2075,9 @@ namespace Jazz2
 	{
 		if constexpr (TileSet::TilePadding == 0) {
 			// The atlas has no border to fill on this platform, see TileSet::TilePadding
-			static_cast<void>(pixelsOffset); static_cast<void>(widthWithPadding); static_cast<void>(bytesPerPixel);
+			static_cast<void>(pixelsOffset);
+			static_cast<void>(widthWithPadding);
+			static_cast<void>(bytesPerPixel);
 			return;
 		}
 
@@ -2489,10 +2496,14 @@ namespace Jazz2
 						const std::uint32_t srcRow = (tileY % sheetBandRows) + y * 3 + row;
 						const std::uint32_t src = (srcRow * width + (tileX + x)) * channelCount;
 						if (captionIs32bit) {
-							r += pixels[src + 0]; g += pixels[src + 1]; b += pixels[src + 2];
+							r += pixels[src + 0];
+							g += pixels[src + 1];
+							b += pixels[src + 2];
 						} else {
 							const std::uint32_t color = bakePalette[pixels[src]];
-							r += (color >> 0) & 0xFF; g += (color >> 8) & 0xFF; b += (color >> 16) & 0xFF;
+							r += (color >> 0) & 0xFF;
+							g += (color >> 8) & 0xFF;
+							b += (color >> 16) & 0xFF;
 						}
 					}
 					captionTile[y * TileSet::DefaultTileSize + x] = Color((std::uint8_t)(r / 3), (std::uint8_t)(g / 3), (std::uint8_t)(b / 3));
@@ -2509,8 +2520,8 @@ namespace Jazz2
 					const std::int32_t bandBytes = std::int32_t(rows * width * channelCount);
 #if defined(WITH_LZ4)
 					const bool decoded = (sheetData != nullptr
-						? Compatibility::JJ2Anims::DecodeImageContentLz4(sheetSrc, sheetEnd, sheetBand.get(), bandBytes)
-						: Compatibility::JJ2Anims::ReadImageContentLz4(s, sheetBand.get(), bandBytes));
+							? Compatibility::JJ2Anims::DecodeImageContentLz4(sheetSrc, sheetEnd, sheetBand.get(), bandBytes)
+							: Compatibility::JJ2Anims::ReadImageContentLz4(s, sheetBand.get(), bandBytes));
 #else
 					const bool decoded = false;
 #endif
@@ -2568,15 +2579,16 @@ namespace Jazz2
 		// broke on the PlayStation 2 above - secretf/haunted1's 32-tile row is 1088 px padded, which no
 		// limit that is a power of two can hold.
 #if defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || \
-		defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_PSP) || \
-		defined(DEATH_TARGET_3DS) || defined(WITH_RHI_LEGACYGL)
+	defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_PSP) ||                                \
+	defined(DEATH_TARGET_3DS) || defined(WITH_RHI_LEGACYGL)
 		constexpr std::uint32_t PreferredAtlasTilesPerRow = 15;
 #else
 		constexpr std::uint32_t PreferredAtlasTilesPerRow = 0;
 #endif
 		const std::uint32_t totalTiles = srcTilesPerRow * srcTilesPerColumn;
 		const std::uint32_t tilesPerRow = (PreferredAtlasTilesPerRow > 0 && totalTiles > PreferredAtlasTilesPerRow
-			? PreferredAtlasTilesPerRow : srcTilesPerRow);
+				? PreferredAtlasTilesPerRow
+				: srcTilesPerRow);
 		// Where the caller knows which tiles the level actually references, only those go into the atlas.
 		// Slot 0 is reserved and left blank, so a tile that was pruned but turns up later - a script placing
 		// one, an id outside the set - maps there and draws as empty instead of sampling a neighbour.
@@ -2644,20 +2656,22 @@ namespace Jazz2
 		// 64 contiguous pages out of a 352-page cache, which is the first thing to fail once the window is
 		// broken up. Half-height chunks are 32 pages each for the same total.
 #if defined(DEATH_TARGET_DREAMCAST) || defined(DEATH_TARGET_N64) || defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_WIIU) || \
-		defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_PSP) || \
-		defined(DEATH_TARGET_3DS) || defined(WITH_RHI_LEGACYGL)
-#	if defined(DEATH_TARGET_N64)
+	defined(DEATH_TARGET_GAMECUBE) || defined(DEATH_TARGET_PS2) || defined(DEATH_TARGET_PSP) ||                                \
+	defined(DEATH_TARGET_3DS) || defined(WITH_RHI_LEGACYGL)
+#if defined(DEATH_TARGET_N64)
 		// 256 KB at most per chunk of a 1024-wide CI8 atlas: a taller chunk is one block of half a
 		// megabyte, which a heap that has been through a few level loads no longer holds in one piece
 		constexpr std::int32_t PreferredChunkHeight = 256;
-#	else
+#else
 		constexpr std::int32_t PreferredChunkHeight = 512;
-#	endif
+#endif
 #else
 		constexpr std::int32_t PreferredChunkHeight = 0;
 #endif
 		const std::int32_t chunkHeightLimit = (PreferredChunkHeight > 0 &&
-			(maxTextureSize <= 0 || PreferredChunkHeight < maxTextureSize) ? PreferredChunkHeight : maxTextureSize);
+					(maxTextureSize <= 0 || PreferredChunkHeight < maxTextureSize)
+				? PreferredChunkHeight
+				: maxTextureSize);
 		std::uint32_t tileRowsPerChunk = (chunkHeightLimit > 0 ? std::uint32_t(chunkHeightLimit) / paddedTileSize : tilesPerColumn);
 		if (tileRowsPerChunk == 0) {
 			tileRowsPerChunk = 1;
@@ -2717,7 +2731,7 @@ namespace Jazz2
 			const std::uint32_t lastSlot = std::min((firstTileRow + chunkTileRows) * tilesPerRow, atlasTiles);
 			for (std::uint32_t slot = firstSlot; slot < lastSlot; slot++) {
 				if (usedTiles != nullptr && slot == 0) {
-					continue;	// The reserved blank slot
+					continue; // The reserved blank slot
 				}
 				const std::uint32_t tile = (usedTiles != nullptr ? (std::uint32_t)slotToTile[slot] : slot);
 				const std::int32_t tileIdx = (std::int32_t)tile;
@@ -2738,7 +2752,7 @@ namespace Jazz2
 				// A source tile row is exactly one decoded band (both are DefaultTileSize rows tall). Slots
 				// ascend with tile IDs, so this only ever moves the decoder forward (see the note at the top).
 				const std::int32_t srcBand = std::int32_t(srcY / sheetBandRows);
-				if DEATH_UNLIKELY(srcBand < sheetBandIndex) {
+				if DEATH_UNLIKELY (srcBand < sheetBandIndex) {
 					LOGE("Tileset \"{}\" slot {} samples tile {} above the decoded band, skipped", name, slot, tile);
 					continue;
 				}
@@ -3149,9 +3163,14 @@ namespace Jazz2
 					}
 				} else if (chunk.Tag == Formats::WeaponsChunk::Tag) {
 					switch (Formats::WeaponsChunk::Read(chunk.Data, descriptor.Weapons)) {
-						case Formats::WeaponsChunk::ReadResult::Damaged: LOGW("Level \"{}\" has damaged weapons, those of the game are used", fullPath); break;
-						case Formats::WeaponsChunk::ReadResult::NewerVersion: LOGW("Level \"{}\" has weapons of a newer version, those of the game are used", fullPath); break;
-						default: break;
+						case Formats::WeaponsChunk::ReadResult::Damaged:
+							LOGW("Level \"{}\" has damaged weapons, those of the game are used", fullPath);
+							break;
+						case Formats::WeaponsChunk::ReadResult::NewerVersion:
+							LOGW("Level \"{}\" has weapons of a newer version, those of the game are used", fullPath);
+							break;
+						default:
+							break;
 					}
 				}
 			}
@@ -3254,7 +3273,7 @@ namespace Jazz2
 		Episode episode;
 		episode.Name = fs::GetFileNameWithoutExtension(path);
 
-		/*std::uint16_t flags =*/ s->ReadValueAsLE<std::uint16_t>();
+		/*std::uint16_t flags =*/s->ReadValueAsLE<std::uint16_t>();
 
 		std::uint8_t nameLength = s->ReadValue<std::uint8_t>();
 		episode.DisplayName = String(NoInit, nameLength);
@@ -3359,7 +3378,7 @@ namespace Jazz2
 			fullPath = _pathHandler(path);
 		}
 		if (fullPath.empty()) {
-#	if defined(NCINE_HAS_NATIVE_AUDIO)
+#if defined(NCINE_HAS_NATIVE_AUDIO)
 			// The console cannot decode any of the original module formats; the asset packer converts every track
 			// it can into a ".xm64" module, which the audio device plays with its instruments streamed from the
 			// cartridge, and pre-renders the rest into a compressed ".wav64" recording
@@ -3371,7 +3390,7 @@ namespace Jazz2
 					break;
 				}
 			}
-#	else
+#else
 			StringView userContentPath = GetUserContentPath();
 			if (!userContentPath.empty()) {
 				fullPath = fs::CombinePath({ userContentPath, "Music"_s, path });
@@ -3381,7 +3400,7 @@ namespace Jazz2
 				fullPath = fs::CombinePath({ GetContentPath(), "Music"_s, path });
 				found = fs::IsReadableFile(fullPath);
 			}
-#		if defined(WITH_LEVEL_PACKS)
+#if defined(WITH_LEVEL_PACKS)
 			if (!found && path.contains('~')) {
 				// Music of level packs is played from their stored original files
 				String levelPacksPath = GetLevelPacksPath(false);
@@ -3390,8 +3409,8 @@ namespace Jazz2
 					found = fs::IsReadableFile(fullPath);
 				}
 			}
-#		endif
-#	endif
+#endif
+#endif
 		} else {
 			found = fs::IsReadableFile(fullPath);
 		}
@@ -3435,8 +3454,12 @@ namespace Jazz2
 		if (font == nullptr) {
 			StringView fontName;
 			switch (fontType) {
-				case FontType::Small: fontName = "font_small.font"_s; break;
-				case FontType::Medium: fontName = "font_medium.font"_s; break;
+				case FontType::Small:
+					fontName = "font_small.font"_s;
+					break;
+				case FontType::Medium:
+					fontName = "font_medium.font"_s;
+					break;
 				default:
 					return nullptr;
 			}
@@ -3500,7 +3523,8 @@ namespace Jazz2
 		{
 			// The perspective of JJ2+ may be newer than the offline tables of some backends as the cylinder below, such a sky or
 			// tunnel is drawn as tiles where either of its variants is missing (see TileMap)
-			struct PlusShader {
+			struct PlusShader
+			{
 				PrecompiledShader Type;
 				PrecompiledShader DitherType;
 				const char* Name;
@@ -3561,8 +3585,8 @@ namespace Jazz2
 			for (PrecompiledShader heatShader : { PrecompiledShader::TileMapMeshHeat, PrecompiledShader::TileMapMeshHeatPalette }) {
 				auto& shader = _precompiledShaders[(std::int32_t)heatShader];
 				shader = (heatShader == PrecompiledShader::TileMapMeshHeat
-					? CompileShader("TileMapMeshHeat", ShadersGen::TileMapMeshHeat)
-					: CompileShader("TileMapMeshHeatPalette", ShadersGen::TileMapMeshHeat, "USE_PALETTE"));
+						? CompileShader("TileMapMeshHeat", ShadersGen::TileMapMeshHeat)
+						: CompileShader("TileMapMeshHeatPalette", ShadersGen::TileMapMeshHeat, "USE_PALETTE"));
 				if (shader == nullptr || !shader->IsLinked()) {
 					shader = nullptr;
 					continue;
@@ -3689,14 +3713,14 @@ namespace Jazz2
 		_precompiledShaders[(std::int32_t)PrecompiledShader::ResizeCrtScanlines] = CompileShader("ResizeCrtScanlines", ShadersGen::ResizeCrtScanlines);
 		_precompiledShaders[(std::int32_t)PrecompiledShader::ResizeCrtShadowMask] = CompileShader("ResizeCrtShadowMask", ShadersGen::ResizeCrtShadowMask);
 		_precompiledShaders[(std::int32_t)PrecompiledShader::ResizeCrtApertureGrille] = CompileShader("ResizeCrtApertureGrille", ShadersGen::ResizeCrtApertureGrille);
-#	if defined(RHI_CAP_HEAVY_RESCALE_SHADERS)
+#if defined(RHI_CAP_HEAVY_RESCALE_SHADERS)
 		// These three are skipped where the backend's offline shader profile rejected them (see
 		// RHI_CAP_HEAVY_RESCALE_SHADERS): the menu does not offer their modes there, so compiling them
 		// would only produce a program with nothing to bind - and one error line each, every launch
 		_precompiledShaders[(std::int32_t)PrecompiledShader::ResizeMonochrome] = CompileShader("ResizeMonochrome", ShadersGen::ResizeMonochrome);
 		_precompiledShaders[(std::int32_t)PrecompiledShader::ResizeSabr] = CompileShader("ResizeSabr", ShadersGen::ResizeSabr);
 		_precompiledShaders[(std::int32_t)PrecompiledShader::ResizeCleanEdge] = CompileShader("ResizeCleanEdge", ShadersGen::ResizeCleanEdge);
-#	endif
+#endif
 #endif
 #if !defined(DEATH_TARGET_VITA)
 		// vitaGL's runtime shader compiler (SceShaccCg) crashes while building the antialiasing resolve shader,
@@ -3774,8 +3798,8 @@ namespace Jazz2
 			for (PrecompiledShader meshShader : { PrecompiledShader::TileMapMeshChromaKey, PrecompiledShader::TileMapMeshChromaKeyPalette }) {
 				auto& shader = _precompiledShaders[(std::int32_t)meshShader];
 				shader = (meshShader == PrecompiledShader::TileMapMeshChromaKey
-					? CompileShader("TileMapMeshChromaKey", ShadersGen::TileMapMeshChromaKey)
-					: CompileShader("TileMapMeshChromaKeyPalette", ShadersGen::TileMapMeshChromaKey, "USE_PALETTE"));
+						? CompileShader("TileMapMeshChromaKey", ShadersGen::TileMapMeshChromaKey)
+						: CompileShader("TileMapMeshChromaKeyPalette", ShadersGen::TileMapMeshChromaKey, "USE_PALETTE"));
 				if (shader == nullptr || !shader->IsLinked()) {
 					LOGW("Shader of chroma key layers is not available, they are not drawn");
 					shader = nullptr;
@@ -3789,7 +3813,8 @@ namespace Jazz2
 
 			// The textured layers drawn translucent or keyed (see TileMap::RenderTexturedBackground()), such a layer is drawn opaque
 			// where its shader is missing
-			struct KeyedShader {
+			struct KeyedShader
+			{
 				PrecompiledShader Type;
 				const char* Name;
 				const ShaderCompiler::Program& Program;
@@ -3824,8 +3849,8 @@ namespace Jazz2
 			for (PrecompiledShader spriteShader : { PrecompiledShader::SpriteChromaKey, PrecompiledShader::SpriteChromaKeyPalette }) {
 				auto& shader = _precompiledShaders[(std::int32_t)spriteShader];
 				shader = (spriteShader == PrecompiledShader::SpriteChromaKey
-					? CompileShader("SpriteChromaKey", ShadersGen::SpriteChromaKey)
-					: CompileShader("SpriteChromaKeyPalette", ShadersGen::SpriteChromaKey, "USE_PALETTE"));
+						? CompileShader("SpriteChromaKey", ShadersGen::SpriteChromaKey)
+						: CompileShader("SpriteChromaKeyPalette", ShadersGen::SpriteChromaKey, "USE_PALETTE"));
 				if (shader != nullptr && !shader->IsLinked()) {
 					shader = nullptr;
 				}
@@ -4021,10 +4046,10 @@ namespace Jazz2
 	// the game, the others are what `SPRITE::GEM` of JJ2+ shows for the next params (measured), there only the first half
 	// is theirs, the rest of it alternates between the color and white
 	static constexpr std::uint8_t GemGradientStops[][5] = {
-		{ 55, 52, 48, 15, 15 },		// Red
-		{ 87, 84, 80, 15, 15 },		// Green
-		{ 39, 36, 32, 15, 15 },		// Blue
-		{ 95, 92, 88, 15, 15 },		// Purple
+		{ 55, 52, 48, 15, 15 }, // Red
+		{ 87, 84, 80, 15, 15 }, // Green
+		{ 39, 36, 32, 15, 15 }, // Blue
+		{ 95, 92, 88, 15, 15 }, // Purple
 		{ 47, 44, 40, 15, 15 },
 		{ 23, 21, 16, 15, 15 },
 		{ 71, 68, 64, 15, 15 },
@@ -4072,12 +4097,16 @@ namespace Jazz2
 			std::int32_t g = ((from >> 8) & 0xff) * 8, dg = (((to >> 8) & 0xff) * 8) - g;
 			std::int32_t b = ((from >> 16) & 0xff) * 8, db = (((to >> 16) & 0xff) * 8) - b;
 			std::int32_t a = (from & 0xff000000);
-			r *= Expansion; g *= Expansion; b *= Expansion;
+			r *= Expansion;
+			g *= Expansion;
+			b *= Expansion;
 
 			for (std::int32_t j = 0; j < Expansion; j++) {
 				outGradient[dst] = ((r / (8 * Expansion)) & 0xff) | (((g / (8 * Expansion)) & 0xff) << 8) |
-								   (((b / (8 * Expansion)) & 0xff) << 16) | a;
-				r += dr; g += dg; b += db;
+					(((b / (8 * Expansion)) & 0xff) << 16) | a;
+				r += dr;
+				g += dg;
+				b += db;
 				dst++;
 			}
 		}
@@ -4125,14 +4154,22 @@ namespace Jazz2
 		// Per-gradient rotations. The combined base+twin hues land roughly evenly around the wheel:
 		// base {0, 35, 73, 158, 207, 287, 335} + twins below fill the green/cyan/blue gaps.
 		switch (gradientStart) {
-			case 0x10: return 42.0f;	// chartreuse ~73°	-> green ~115°
-			case 0x18: return 195.0f;	// red ~0°			-> blue ~195°
-			case 0x20: return 104.0f;	// azure ~207°		-> magenta ~311°
-			case 0x28: return 145.0f;	// orange ~35°		-> cyan ~180°
-			case 0x30: return 65.0f;	// rose ~335°		-> gold ~40°
-			case 0x50: return 218.0f;	// spring-green ~158° -> crimson ~16°
-			case 0x58: return 168.0f;	// purple ~287°		-> lime ~95°
-			default: return 190.0f;		// neutrals (0x40, 0x48) and anything unrecognized -> ~190°
+			case 0x10:
+				return 42.0f; // chartreuse ~73°	-> green ~115°
+			case 0x18:
+				return 195.0f; // red ~0°			-> blue ~195°
+			case 0x20:
+				return 104.0f; // azure ~207°		-> magenta ~311°
+			case 0x28:
+				return 145.0f; // orange ~35°		-> cyan ~180°
+			case 0x30:
+				return 65.0f; // rose ~335°		-> gold ~40°
+			case 0x50:
+				return 218.0f; // spring-green ~158° -> crimson ~16°
+			case 0x58:
+				return 168.0f; // purple ~287°		-> lime ~95°
+			default:
+				return 190.0f; // neutrals (0x40, 0x48) and anything unrecognized -> ~190°
 		}
 	}
 
@@ -4142,10 +4179,11 @@ namespace Jazz2
 		// gradient (starting `SrcOffset` colors into it) into the palette starting at `Start`. A section can recolor
 		// more than one block, e.g., when a character draws one logical color across two separate palette ranges.
 		// `Size == 0` marks an unused block slot.
-		struct FurBlock {
-			std::int32_t Start;      // First destination palette index (0 = transparent, never a real destination)
-			std::int32_t Size;       // Number of consecutive indices to recolor (SrcOffset + Size must be <= FurSectionSize)
-			std::int32_t SrcOffset;  // Offset into the source gradient for Start (so Start+i takes gradient color SrcOffset+i)
+		struct FurBlock
+		{
+			std::int32_t Start; // First destination palette index (0 = transparent, never a real destination)
+			std::int32_t Size; // Number of consecutive indices to recolor (SrcOffset + Size must be <= FurSectionSize)
+			std::int32_t SrcOffset; // Offset into the source gradient for Start (so Start+i takes gradient color SrcOffset+i)
 		};
 		constexpr FurBlock NoBlock = { 0, 0, 0 };
 
@@ -4153,7 +4191,8 @@ namespace Jazz2
 		// Primary Fur, Secondary Fur, Weapon, Misc - so the same picked color recolors the analogous region on every
 		// character. The destination ranges differ per character because each one's sprites are drawn with a different
 		// set of palette ranges; derived from a palette-usage analysis of the dumped sprites (see player-color-customization).
-		struct FurScheme {
+		struct FurScheme
+		{
 			FurBlock Sections[ContentResolver::FurSectionCount][ContentResolver::FurSectionMaxBlocks];
 		};
 
@@ -4167,9 +4206,9 @@ namespace Jazz2
 		//     left at their original color.
 		constexpr FurScheme FurSchemes[] = {
 			//   Primary Fur                        Secondary Fur                Weapon                                      Misc
-			{ { { { 0x10, 8, 0 }, NoBlock },        { { 0x18, 8, 0 }, NoBlock }, { { 0x20, 8, 0 }, NoBlock },                { { 0x28, 8, 0 }, NoBlock } } },
-			{ { { { 0x18, 8, 0 }, NoBlock },        { { 0x28, 8, 0 }, NoBlock }, { { 0x10, 8, 0 }, NoBlock },                { { 0x20, 8, 0 }, NoBlock } } },
-			{ { { { 0x28, 7, 1 }, { 0x3B, 5, 2 } }, { { 0x58, 8, 0 }, NoBlock }, { { 0x20, 8, 0 }, { 0x48, 8, 0 } },         { { 0x30, 8, 0 }, NoBlock } } }
+			{ { { { 0x10, 8, 0 }, NoBlock }, { { 0x18, 8, 0 }, NoBlock }, { { 0x20, 8, 0 }, NoBlock }, { { 0x28, 8, 0 }, NoBlock } } },
+			{ { { { 0x18, 8, 0 }, NoBlock }, { { 0x28, 8, 0 }, NoBlock }, { { 0x10, 8, 0 }, NoBlock }, { { 0x20, 8, 0 }, NoBlock } } },
+			{ { { { 0x28, 7, 1 }, { 0x3B, 5, 2 } }, { { 0x58, 8, 0 }, NoBlock }, { { 0x20, 8, 0 }, { 0x48, 8, 0 } }, { { 0x30, 8, 0 }, NoBlock } } }
 		};
 		constexpr std::int32_t FurSchemeCount = (std::int32_t)(sizeof(FurSchemes) / sizeof(FurSchemes[0]));
 	}
@@ -4179,9 +4218,12 @@ namespace Jazz2
 		// Each playable character's sprites use different palette ranges, so each needs its own recolor scheme; the Frog
 		// morph and anything unspecified fall back to the Jazz (default) scheme.
 		switch (playerType) {
-			case PlayerType::Spaz: return 1;
-			case PlayerType::Lori: return 2;
-			default: return 0;
+			case PlayerType::Spaz:
+				return 1;
+			case PlayerType::Lori:
+				return 2;
+			default:
+				return 0;
 		}
 	}
 
@@ -4637,8 +4679,8 @@ namespace Jazz2
 	bool ContentResolver::ConfigureSpriteShader(RenderCommand& command, bool indexed)
 	{
 		bool shaderChanged = (indexed
-			? command.GetMaterial().SetShader(GetShader(PrecompiledShader::PaletteRemap))
-			: command.GetMaterial().SetShaderProgramType(Material::ShaderProgramType::Sprite));
+				? command.GetMaterial().SetShader(GetShader(PrecompiledShader::PaletteRemap))
+				: command.GetMaterial().SetShaderProgramType(Material::ShaderProgramType::Sprite));
 		if (shaderChanged) {
 			command.GetMaterial().ReserveUniformsDataMemory();
 			command.GetGeometry().SetDrawParameters(PrimitiveType::TriangleStrip, 0, 4);
@@ -4691,7 +4733,8 @@ namespace Jazz2
 
 		Json::CharReaderBuilder builder;
 		auto reader = std::unique_ptr<Json::CharReader>(builder.newCharReader());
-		Json::Value doc; std::string errors;
+		Json::Value doc;
+		std::string errors;
 		if (reader->parse(buffer.get(), buffer.get() + fileSize, &doc, &errors)) {
 			String fullPath = fs::CombinePath({ GetContentPath(), "Animations"_s, path });
 			std::unique_ptr<ITextureLoader> texLoader = ITextureLoader::CreateFromFile(fullPath);
@@ -4737,7 +4780,8 @@ namespace Jazz2
 
 				// Write to .aura file
 				auto so = fs::Open(auraPath, FileAccess::Write);
-				if (!so->IsValid()) return;
+				if (!so->IsValid())
+					return;
 
 				std::uint8_t flags = 0x80;
 				if (palette == nullptr) {

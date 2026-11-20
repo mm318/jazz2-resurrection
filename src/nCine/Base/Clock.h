@@ -14,7 +14,8 @@ namespace nCine
 	{
 	public:
 		/** @brief Returns the current counter value */
-		inline std::uint64_t Now() const {
+		inline std::uint64_t Now() const
+		{
 			return GetCounter();
 		}
 
@@ -22,7 +23,8 @@ namespace nCine
 		std::uint64_t GetCounter() const;
 
 		/** @brief Returns the counter frequency in counts per second */
-		inline std::uint32_t GetFrequency() const {
+		inline std::uint32_t GetFrequency() const
+		{
 			return _frequency;
 		}
 

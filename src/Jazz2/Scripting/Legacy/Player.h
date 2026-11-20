@@ -24,8 +24,8 @@ namespace Jazz2::Scripting
 		class jjPLAYER
 		{
 			friend class Scripting::LevelScriptLoader;
-			friend class jjLAYER;	// jjLAYER::getXPosition/getYPosition read the player's camera
-			friend class jjOBJ;		// jjOBJ::doesCollidePlayer() reads the hitbox of the player
+			friend class jjLAYER; // jjLAYER::getXPosition/getYPosition read the player's camera
+			friend class jjOBJ; // jjOBJ::doesCollidePlayer() reads the hitbox of the player
 
 		public:
 			/** @brief Creates a new instance wrapping the given engine player */
@@ -1179,10 +1179,10 @@ namespace Jazz2::Scripting
 			std::uint16_t _infiniteAmmo[std::int32_t(WeaponType::Count)] = {};
 
 			// Fires one bullet of the spread, -1 angled up, 0 straight, 1 angled down
-			template<typename T>
+			template <typename T>
 			Actors::ActorBase* FireSpreadShot(WeaponType weaponType, std::int8_t slot, float aimAngle = -1.0f);
 			// Fires one shot of a weapon of the game at an angle (0 up, clockwise), see fireBulletAngle()
-			template<typename T>
+			template <typename T>
 			Actors::ActorBase* FireAimedNativeShot(WeaponType weaponType, float aimAngle);
 
 			// Gives the properties what the player is now, except `bossActive` if a script changed it
@@ -1192,7 +1192,8 @@ namespace Jazz2::Scripting
 			// Sets the maximum health of the player (`/smhealth`), a player at full health stays at full health
 			void SetMaxHealth(std::int32_t value);
 			// Whether the script ended the boss fight of a boss of the game for the player (activateBoss(false))
-			bool HidesNativeBossMeter() const {
+			bool HidesNativeBossMeter() const
+			{
 				return (_syncedOnce && _syncedBossActive && !bossActive);
 			}
 		};

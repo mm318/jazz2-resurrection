@@ -5,16 +5,16 @@
 #include "../../../tracy_opengl.h"
 
 #ifndef GL_TEXTURE_SWIZZLE_R
-#	define GL_TEXTURE_SWIZZLE_R 0x8E42
+#define GL_TEXTURE_SWIZZLE_R 0x8E42
 #endif
 #ifndef GL_TEXTURE_SWIZZLE_G
-#	define GL_TEXTURE_SWIZZLE_G 0x8E43
+#define GL_TEXTURE_SWIZZLE_G 0x8E43
 #endif
 #ifndef GL_TEXTURE_SWIZZLE_B
-#	define GL_TEXTURE_SWIZZLE_B 0x8E44
+#define GL_TEXTURE_SWIZZLE_B 0x8E44
 #endif
 #ifndef GL_TEXTURE_SWIZZLE_A
-#	define GL_TEXTURE_SWIZZLE_A 0x8E45
+#define GL_TEXTURE_SWIZZLE_A 0x8E45
 #endif
 
 namespace nCine::RHI::GL
@@ -73,12 +73,18 @@ namespace nCine::RHI::GL
 		{
 			switch (channel) {
 				default:
-				case SwizzleChannel::Red:	return GL_RED;
-				case SwizzleChannel::Green:	return GL_GREEN;
-				case SwizzleChannel::Blue:	return GL_BLUE;
-				case SwizzleChannel::Alpha:	return GL_ALPHA;
-				case SwizzleChannel::Zero:	return GL_ZERO;
-				case SwizzleChannel::One:	return GL_ONE;
+				case SwizzleChannel::Red:
+					return GL_RED;
+				case SwizzleChannel::Green:
+					return GL_GREEN;
+				case SwizzleChannel::Blue:
+					return GL_BLUE;
+				case SwizzleChannel::Alpha:
+					return GL_ALPHA;
+				case SwizzleChannel::Zero:
+					return GL_ZERO;
+				case SwizzleChannel::One:
+					return GL_ONE;
 			}
 		}
 #endif
@@ -262,7 +268,10 @@ namespace nCine::RHI::GL
 		// non-identity swizzle the engine uses is the palette pipeline's (R,G,B,G) on RG8 index textures, and
 		// GLTextureFormat maps RG8 to LUMINANCE_ALPHA on both profiles, which natively samples (L,L,L,A) -
 		// identical for the channels the shaders read (.r/.a)
-		static_cast<void>(r); static_cast<void>(g); static_cast<void>(b); static_cast<void>(a);
+		static_cast<void>(r);
+		static_cast<void>(g);
+		static_cast<void>(b);
+		static_cast<void>(a);
 #else
 		// Channels are set individually because GL_TEXTURE_SWIZZLE_RGBA (a single glTexParameteriv) is desktop-only
 		// and absent on GLES/WebGL. Requires GL 3.3+ / GLES 3.0+.

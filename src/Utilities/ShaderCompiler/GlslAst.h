@@ -26,8 +26,8 @@
 #include <Containers/SmallVector.h>
 #include <Containers/StringConcatenable.h>
 
-#include "ConstFold.h"		// GlslToken, GlslTokenType, GlslExprTokenizer (+ String/StringView via Death::Containers)
-#include "ShaderParser.h"	// SourceLine, Diagnostic, Preprocessor, ShaderParser
+#include "ConstFold.h" // GlslToken, GlslTokenType, GlslExprTokenizer (+ String/StringView via Death::Containers)
+#include "ShaderParser.h" // SourceLine, Diagnostic, Preprocessor, ShaderParser
 
 namespace ShaderCompiler
 {
@@ -47,25 +47,51 @@ namespace ShaderCompiler
 	inline std::int32_t BinPrec(StringView op)
 	{
 		if (op == "=" || op == "+=" || op == "-=" || op == "*=" || op == "/=" ||
-			op == "%=" || op == "&=" || op == "|=" || op == "^=" || op == "<<=" || op == ">>=") return 1;
-		if (op == "||") return 3;
-		if (op == "^^") return 4;
-		if (op == "&&") return 5;
-		if (op == "|") return 6;
-		if (op == "^") return 7;
-		if (op == "&") return 8;
-		if (op == "==" || op == "!=") return 9;
-		if (op == "<" || op == ">" || op == "<=" || op == ">=") return 10;
-		if (op == "<<" || op == ">>") return 11;
-		if (op == "+" || op == "-") return 12;
-		if (op == "*" || op == "/" || op == "%") return 13;
+			op == "%=" || op == "&=" || op == "|=" || op == "^=" || op == "<<=" || op == ">>=")
+			return 1;
+		if (op == "||")
+			return 3;
+		if (op == "^^")
+			return 4;
+		if (op == "&&")
+			return 5;
+		if (op == "|")
+			return 6;
+		if (op == "^")
+			return 7;
+		if (op == "&")
+			return 8;
+		if (op == "==" || op == "!=")
+			return 9;
+		if (op == "<" || op == ">" || op == "<=" || op == ">=")
+			return 10;
+		if (op == "<<" || op == ">>")
+			return 11;
+		if (op == "+" || op == "-")
+			return 12;
+		if (op == "*" || op == "/" || op == "%")
+			return 13;
 		return -1;
 	}
 
 	// ── Expression AST ───────────────────────────────────────────────────────────────────────────
 
 	/** @brief Kind of an @ref Expr node (the union across the AST-based targets) */
-	enum class ExprKind { IntLit, UIntLit, FloatLit, BoolLit, Ident, Member, Index, Call, Unary, Binary, Assign, Conditional };
+	enum class ExprKind
+	{
+		IntLit,
+		UIntLit,
+		FloatLit,
+		BoolLit,
+		Ident,
+		Member,
+		Index,
+		Call,
+		Unary,
+		Binary,
+		Assign,
+		Conditional
+	};
 
 	/** @brief One expression-tree node; the type-free shape shared by the AST-based lowerings */
 	struct Expr

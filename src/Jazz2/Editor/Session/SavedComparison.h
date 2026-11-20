@@ -44,7 +44,8 @@ namespace Jazz2::Editor
 		SavedComparison& operator=(const SavedComparison&) = delete;
 
 		/** @brief Returns `true` while the differences are shown */
-		bool IsShown() const {
+		bool IsShown() const
+		{
 			return (_savedDocument != nullptr);
 		}
 		/**

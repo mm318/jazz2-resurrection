@@ -89,26 +89,31 @@ namespace Jazz2::Scripting
 
 	// The table of JJ2 has 1024 entries, an angle is taken of it as it wraps round - a negative one a script passes as `uint`
 	// would have no precision left as a float (the strings of puppets)
-	float get_sinTable(std::uint32_t angle) {
+	float get_sinTable(std::uint32_t angle)
+	{
 		return sinf(float(angle & 1023) * fTwoPi / 1024.0f);
 	};
-	float get_cosTable(std::uint32_t angle) {
+	float get_cosTable(std::uint32_t angle)
+	{
 		return cosf(float(angle & 1023) * fTwoPi / 1024.0f);
 	};
-	std::uint32_t RandWord32() {
+	std::uint32_t RandWord32()
+	{
 		return Random().Next();
 	}
-	std::uint64_t unixTimeSec() {
+	std::uint64_t unixTimeSec()
+	{
 		return Containers::DateTime::UtcNow().ToUnixMilliseconds() / 1000;
 	}
-	std::uint64_t unixTimeMs() {
+	std::uint64_t unixTimeMs()
+	{
 		return Containers::DateTime::UtcNow().ToUnixMilliseconds();
 	}
 
 	namespace
 	{
 		// std::regex reports an invalid expression only by throwing, without exceptions it terminates instead
-		template<class T, class Func>
+		template <class T, class Func>
 		T RunRegex(Func&& func, T fallback, bool logError = true)
 		{
 #if defined(__cpp_exceptions) || defined(_CPPUNWIND)
@@ -152,14 +157,16 @@ namespace Jazz2::Scripting
 		return RunRegex([&]() {
 			std::regex r(expression.begin(), expression.end());
 			return true;
-		}, false, false);
+		},
+			false, false);
 	}
 	bool jjRegexMatch(const String& text, const String& expression, bool ignoreCase)
 	{
 		return RunRegex([&]() {
 			std::regex r = CreateRegex(expression, ignoreCase);
 			return std::regex_match(text.begin(), text.end(), r);
-		}, false);
+		},
+			false);
 	}
 
 	bool jjRegexMatchWithResults(const String& text, const String& expression, CScriptArray& results, bool ignoreCase)
@@ -170,14 +177,16 @@ namespace Jazz2::Scripting
 			bool success = std::regex_match(text.begin(), text.end(), m, r);
 			StoreRegexResults(m, results);
 			return success;
-		}, false);
+		},
+			false);
 	}
 	bool jjRegexSearch(const String& text, const String& expression, bool ignoreCase)
 	{
 		return RunRegex([&]() {
 			std::regex r = CreateRegex(expression, ignoreCase);
 			return std::regex_search(text.begin(), text.end(), r);
-		}, false);
+		},
+			false);
 	}
 
 	bool jjRegexSearchWithResults(const String& text, const String& expression, CScriptArray& results, bool ignoreCase)
@@ -188,7 +197,8 @@ namespace Jazz2::Scripting
 			bool success = std::regex_search(text.begin(), text.end(), m, r);
 			StoreRegexResults(m, results);
 			return success;
-		}, false);
+		},
+			false);
 	}
 
 	String jjRegexReplace(const String& text, const String& expression, const String& replacement, bool ignoreCase)
@@ -198,15 +208,19 @@ namespace Jazz2::Scripting
 			std::string textStr = text;
 			std::string replacementStr = replacement;
 			return String(std::regex_replace(textStr, r, replacementStr));
-		}, String(text));
+		},
+			String(text));
 	}
 
-	std::int32_t GetFPS() {
+	std::int32_t GetFPS()
+	{
 		return (std::int32_t)theApplication().GetFrameTimer().GetAverageFps();
 	}
 
-	bool isAdmin() {
-		noop(); return false;
+	bool isAdmin()
+	{
+		noop();
+		return false;
 	}
 }
 

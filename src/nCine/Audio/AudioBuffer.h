@@ -52,43 +52,52 @@ namespace nCine
 #endif
 
 		/** @brief Returns the backend buffer id */
-		inline std::uint32_t GetBufferId() const {
+		inline std::uint32_t GetBufferId() const
+		{
 			return _bufferId;
 		}
 
 		/** @brief Returns the number of bytes per sample */
-		inline std::int32_t GetBytesPerSample() const {
+		inline std::int32_t GetBytesPerSample() const
+		{
 			return _bytesPerSample;
 		}
 		/** @brief Returns the number of audio channels */
-		inline std::int32_t GetChannelCount() const {
+		inline std::int32_t GetChannelCount() const
+		{
 			return _numChannels;
 		}
 		/** @brief Returns the sample frequency */
-		inline std::int32_t GetFrequency() const {
+		inline std::int32_t GetFrequency() const
+		{
 			return _frequency;
 		}
 		/** @brief Returns the original frequency for legacy scripts specifying an absolute playback rate */
-		inline std::int32_t GetOriginalFrequency() const {
+		inline std::int32_t GetOriginalFrequency() const
+		{
 			return _originalFrequency > 0 ? _originalFrequency : _frequency;
 		}
 
 		/** @brief Returns the total number of samples */
-		inline std::int32_t GetSampleCount() const {
+		inline std::int32_t GetSampleCount() const
+		{
 			return _numSamples;
 		}
 		/** @brief Returns the duration in seconds */
-		inline float GetDuration() const {
+		inline float GetDuration() const
+		{
 			return _duration;
 		}
 
 		/** @brief Returns the size of the buffer in bytes */
-		inline std::int32_t GetBufferSize() const {
+		inline std::int32_t GetBufferSize() const
+		{
 			return _numSamples * _numChannels * _bytesPerSample;
 		}
 
 		/** @brief Returns the static object type of this class */
-		inline static ObjectType sType() {
+		inline static ObjectType sType()
+		{
 			return ObjectType::AudioBuffer;
 		}
 

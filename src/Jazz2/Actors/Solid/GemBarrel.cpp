@@ -51,7 +51,7 @@ namespace Jazz2::Actors::Solid
 			WeaponType weaponType = shotBase->GetWeaponType();
 			if (_levelHandler->IsReforged() &&
 				(weaponType == WeaponType::RF || weaponType == WeaponType::Seeker ||
-				 weaponType == WeaponType::Pepper || weaponType == WeaponType::Electro)) {
+					weaponType == WeaponType::Pepper || weaponType == WeaponType::Electro)) {
 				DecreaseHealth(shotBase->GetStrength(), shotBase);
 				shotBase->DecreaseHealth(INT32_MAX);
 			} else {

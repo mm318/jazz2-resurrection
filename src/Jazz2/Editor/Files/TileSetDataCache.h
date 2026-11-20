@@ -58,11 +58,13 @@ namespace Jazz2::Editor
 		/** @brief Forgets the tile sets a level stores in itself, before another level is edited */
 		void InvalidateLevelTileSets();
 		/** @brief Tells that the bytes of the tile sets the level stores in itself may have changed */
-		void MarkLevelTilesChanged() {
+		void MarkLevelTilesChanged()
+		{
 			_levelTilesGeneration++;
 		}
 		/** @brief Returns a number that changes with each @ref MarkLevelTilesChanged() */
-		std::uint32_t GetLevelTilesGeneration() const {
+		std::uint32_t GetLevelTilesGeneration() const
+		{
 			return _levelTilesGeneration;
 		}
 

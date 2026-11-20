@@ -5,15 +5,15 @@
 #include "../../nCine/Graphics/RenderQueue.h"
 
 #if defined(DEATH_TARGET_PSP)
-#	include "../../nCine/Base/Algorithms.h"
-#	include <cstring>
+#include "../../nCine/Base/Algorithms.h"
+#include <cstring>
 #else
-#	include "SoftwareLightSplat.h"
+#include "SoftwareLightSplat.h"
 #endif
 
 #if !defined(RHI_CAP_SHADERS) || !defined(RHI_CAP_FRAMEBUFFERS)
-#	include <algorithm>
-#	include <cmath>
+#include <algorithm>
+#include <cmath>
 #endif
 
 namespace Jazz2::Rendering
@@ -119,25 +119,25 @@ namespace Jazz2::Rendering
 							: : [dx] "r"(dxBits));
 						for (std::int32_t q = 0; q < quads; q++) {
 							asm volatile(
-								"vmul.q C010, C000, C000\n\t"					// dx^2
-								"vadd.q C010, C010, C130[y,y,y,y]\n\t"			// + dy^2
-								"vsqrt.q C010, C010\n\t"							// distance from the centre
-								"vsub.q C010, C010, C130[z,z,z,z]\n\t"			// - ring
-								"vabs.q C010, C010\n\t"							// dist from the circle
-								"vsub.q C010, C120, C010\n\t"					// 1 - dist
-								"vscl.q C010, C010, S100\n\t"					// * invDenom
-								"vsat0.q C010, C010\n\t"							// t = clamp(.., 0, 1)
+								"vmul.q C010, C000, C000\n\t" // dx^2
+								"vadd.q C010, C010, C130[y,y,y,y]\n\t" // + dy^2
+								"vsqrt.q C010, C010\n\t" // distance from the centre
+								"vsub.q C010, C010, C130[z,z,z,z]\n\t" // - ring
+								"vabs.q C010, C010\n\t" // dist from the circle
+								"vsub.q C010, C120, C010\n\t" // 1 - dist
+								"vscl.q C010, C010, S100\n\t" // * invDenom
+								"vsat0.q C010, C010\n\t" // t = clamp(.., 0, 1)
 								"vmul.q C020, C010, C010\n\t"
-								"vmul.q C010, C020, C010\n\t"					// strength = t^3
-								"ulv.q C200, 0(%[row])\n\t"						// [R0 G0 R1 G1]
-								"ulv.q C210, 16(%[row])\n\t"						// [R2 G2 R3 G3]
-								"vmul.q C220, C010[x,x,y,y], C100[y,z,y,z]\n\t"	// [s0*I s0*B s1*I s1*B]
-								"vmul.q C230, C010[z,z,w,w], C100[y,z,y,z]\n\t"	// [s2*I s2*B s3*I s3*B]
+								"vmul.q C010, C020, C010\n\t" // strength = t^3
+								"ulv.q C200, 0(%[row])\n\t" // [R0 G0 R1 G1]
+								"ulv.q C210, 16(%[row])\n\t" // [R2 G2 R3 G3]
+								"vmul.q C220, C010[x,x,y,y], C100[y,z,y,z]\n\t" // [s0*I s0*B s1*I s1*B]
+								"vmul.q C230, C010[z,z,w,w], C100[y,z,y,z]\n\t" // [s2*I s2*B s3*I s3*B]
 								"vadd.q C200, C200, C220\n\t"
 								"vadd.q C210, C210, C230\n\t"
 								"usv.q C200, 0(%[row])\n\t"
 								"usv.q C210, 16(%[row])\n\t"
-								"vadd.q C000, C000, C100[w,w,w,w]\n\t"			// dx += 4/rLm
+								"vadd.q C000, C000, C100[w,w,w,w]\n\t" // dx += 4/rLm
 								: : [row] "r"(texelRow) : "memory");
 							texelRow += 8;
 						}
@@ -174,7 +174,7 @@ namespace Jazz2::Rendering
 	{
 		SetVisitOrderState(SceneNode::VisitOrderState::Disabled);
 	}
-		
+
 	void CombineRenderer::Initialize(std::int32_t x, std::int32_t y, std::int32_t width, std::int32_t height)
 	{
 		_bounds = Rectf(static_cast<float>(x), static_cast<float>(y), static_cast<float>(width), static_cast<float>(height));
@@ -267,7 +267,7 @@ namespace Jazz2::Rendering
 		// applies the combine in place. The underwater effect is the device's own: a per-row CPU pass on the
 		// software backend, the water program's fixed_function block on the console tiers.
 		if (!PrepareSoftwareLighting()) {
-			return false;	// Fully lit with no lights and no water: nothing to composite
+			return false; // Fully lit with no lights and no water: nothing to composite
 		}
 
 		// The variant is selected by the SAME test the shader path uses, so which program is bound says whether
@@ -340,7 +340,7 @@ namespace Jazz2::Rendering
 		}
 
 		auto* instanceBlock = command.GetMaterial().UniformBlock(Material::InstanceBlockName);
-		if DEATH_UNLIKELY(instanceBlock == nullptr) {
+		if DEATH_UNLIKELY (instanceBlock == nullptr) {
 			// The program failed to link (a driver rejected it), so none of its uniforms exist - skip the pass
 			// rather than dereference them every frame
 			return false;
@@ -440,9 +440,10 @@ namespace Jazz2::Rendering
 			// Water-only combine: no lightmap is needed, the device applies just the per-row water effect
 			RHI::Device::SetPendingSoftwareLighting(nullptr, 0, 0, 1, vpX, vpY, vpW, vpH, ambR, ambG, ambB,
 				true, viewWaterLevel, waterTime, _owner->_cameraPos.Y * _owner->_cameraScale
-#	if defined(WITH_RHI_SOFTWARE)
-				, waterInScene
-#	endif
+#if defined(WITH_RHI_SOFTWARE)
+				,
+				waterInScene
+#endif
 			);
 			return true;
 		}
@@ -683,23 +684,23 @@ namespace Jazz2::Rendering
 						: : [dx] "r"(dxBits), [dysq] "r"(dySqBits));
 					for (std::int32_t q = 0; q < quads; q++) {
 						asm volatile(
-							"vmul.q C010, C000, C000\n\t"					// dx^2
-							"vadd.q C010, C010, C130[y,y,y,y]\n\t"			// + dy^2
-							"vsqrt.q C010, C010\n\t"							// dist
-							"vsub.q C010, C120, C010\n\t"					// 1 - dist
-							"vscl.q C010, C010, S100\n\t"					// * invDenom
-							"vsat0.q C010, C010\n\t"							// t = clamp(.., 0, 1)
+							"vmul.q C010, C000, C000\n\t" // dx^2
+							"vadd.q C010, C010, C130[y,y,y,y]\n\t" // + dy^2
+							"vsqrt.q C010, C010\n\t" // dist
+							"vsub.q C010, C120, C010\n\t" // 1 - dist
+							"vscl.q C010, C010, S100\n\t" // * invDenom
+							"vsat0.q C010, C010\n\t" // t = clamp(.., 0, 1)
 							"vmul.q C020, C010, C010\n\t"
-							"vmul.q C010, C020, C010\n\t"					// strength = t^3
-							"ulv.q C200, 0(%[row])\n\t"						// [R0 G0 R1 G1]
-							"ulv.q C210, 16(%[row])\n\t"						// [R2 G2 R3 G3]
-							"vmul.q C220, C010[x,x,y,y], C100[y,z,y,z]\n\t"	// [s0*I s0*B s1*I s1*B]
-							"vmul.q C230, C010[z,z,w,w], C100[y,z,y,z]\n\t"	// [s2*I s2*B s3*I s3*B]
+							"vmul.q C010, C020, C010\n\t" // strength = t^3
+							"ulv.q C200, 0(%[row])\n\t" // [R0 G0 R1 G1]
+							"ulv.q C210, 16(%[row])\n\t" // [R2 G2 R3 G3]
+							"vmul.q C220, C010[x,x,y,y], C100[y,z,y,z]\n\t" // [s0*I s0*B s1*I s1*B]
+							"vmul.q C230, C010[z,z,w,w], C100[y,z,y,z]\n\t" // [s2*I s2*B s3*I s3*B]
 							"vadd.q C200, C200, C220\n\t"
 							"vadd.q C210, C210, C230\n\t"
 							"usv.q C200, 0(%[row])\n\t"
 							"usv.q C210, 16(%[row])\n\t"
-							"vadd.q C000, C000, C100[w,w,w,w]\n\t"			// dx += 4/rLm
+							"vadd.q C000, C000, C100[w,w,w,w]\n\t" // dx += 4/rLm
 							: : [row] "r"(texelRow) : "memory");
 						texelRow += 8;
 					}
@@ -739,9 +740,10 @@ namespace Jazz2::Rendering
 		// the same frame's Draw phase (before the next PrepareSoftwareLighting reassigns it).
 		RHI::Device::SetPendingSoftwareLighting(_swLightmap.data(), lmW, lmH, Scale, vpX, vpY, vpW, vpH, ambR, ambG, ambB,
 			viewHasWater, viewWaterLevel, waterTime, _owner->_cameraPos.Y * _owner->_cameraScale
-#	if defined(WITH_RHI_SOFTWARE)
-			, waterInScene
-#	endif
+#if defined(WITH_RHI_SOFTWARE)
+			,
+			waterInScene
+#endif
 		);
 #if defined(RHI_LIGHTING_LIT_SPANS)
 		// Outside the spans the lights reached this frame every texel holds exactly the reset value, which a device

@@ -27,25 +27,30 @@ namespace Jazz2::Actors::Enemies
 		bool CanCauseDamage(ActorBase* collider) override;
 
 		/** @brief Returns the speed a player it hurts is thrown with, zero for a plain hit */
-		virtual Vector2f GetContactThrowSpeed() const {
+		virtual Vector2f GetContactThrowSpeed() const
+		{
 			return Vector2f::Zero;
 		}
 		/** @brief Returns `true` if a TNT blast takes only one point of health however close it is */
-		virtual bool TakesSingleBlastDamage() const {
+		virtual bool TakesSingleBlastDamage() const
+		{
 			return false;
 		}
 
 		/** @brief Whether the enemy can hurt player */
-		bool CanHurtPlayer() const {
+		bool CanHurtPlayer() const
+		{
 			return (_canHurtPlayer && _frozenTimeLeft <= 0.0f);
 		}
 
 		/** @brief Returns the score awarded for destroying the enemy */
-		std::uint32_t GetScoreValue() const {
+		std::uint32_t GetScoreValue() const
+		{
 			return _scoreValue;
 		}
 		/** @brief Sets the score awarded for destroying the enemy */
-		void SetScoreValue(std::uint32_t value) {
+		void SetScoreValue(std::uint32_t value)
+		{
 			_scoreValue = value;
 		}
 
@@ -76,11 +81,13 @@ namespace Jazz2::Actors::Enemies
 		/** @brief Returns whether the enemy can move to the specified relative offset */
 		bool CanMoveToPosition(float x, float y);
 		/** @brief Returns `true` if the enemy turns around at @ref EventType::AreaStopEnemy, as measured in JJ2+ */
-		virtual bool StopsAtStopEnemy() const {
+		virtual bool StopsAtStopEnemy() const
+		{
 			return true;
 		}
 		/** @brief Returns the distance in front of the enemy's middle where the floor and @ref EventType::AreaStopEnemy are checked */
-		virtual float GetTurnLookAhead() const {
+		virtual float GetTurnLookAhead() const
+		{
 			return DefaultTurnLookAhead;
 		}
 		/** @brief Returns the nearest living player within the squared distance or `nullptr`, optionally with its squared distance */

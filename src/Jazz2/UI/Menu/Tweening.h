@@ -21,40 +21,47 @@ namespace Jazz2::UI::Menu
 		using Fn = float (*)(float);
 
 		/** @brief Linear interpolation (no easing) */
-		inline float Linear(float t) {
+		inline float Linear(float t)
+		{
 			return t;
 		}
 
 		/** @brief Quadratic ease-out */
-		inline float OutQuad(float t) {
+		inline float OutQuad(float t)
+		{
 			float u = 1.0f - t;
 			return 1.0f - u * u;
 		}
 
 		/** @brief Cubic ease-out */
-		inline float OutCubic(float t) {
+		inline float OutCubic(float t)
+		{
 			float u = 1.0f - t;
 			return 1.0f - u * u * u;
 		}
 
 		/** @brief Quartic ease-out */
-		inline float OutQuart(float t) {
+		inline float OutQuart(float t)
+		{
 			float u = 1.0f - t;
 			return 1.0f - u * u * u * u;
 		}
 
 		/** @brief Sinusoidal ease-in-out */
-		inline float InOutSine(float t) {
+		inline float InOutSine(float t)
+		{
 			return -(nCine::cosApprox(3.1415927f * t) - 1.0f) * 0.5f;
 		}
 
 		/** @brief Smoothstep (Hermite) ease-in-out */
-		inline float SmoothStep(float t) {
+		inline float SmoothStep(float t)
+		{
 			return t * t * (3.0f - 2.0f * t);
 		}
 
 		/** @brief Elastic ease-out (overshoots and settles) */
-		inline float OutElastic(float t) {
+		inline float OutElastic(float t)
+		{
 			if (t <= 0.0f) {
 				return 0.0f;
 			}
@@ -66,7 +73,8 @@ namespace Jazz2::UI::Menu
 		}
 
 		/** @brief Back ease-out (slight overshoot) */
-		inline float OutBack(float t) {
+		inline float OutBack(float t)
+		{
 			constexpr float c1 = 1.70158f;
 			constexpr float c3 = c1 + 1.0f;
 			float u = t - 1.0f;
@@ -74,7 +82,8 @@ namespace Jazz2::UI::Menu
 		}
 
 		/** @brief Bounce ease-out */
-		inline float OutBounce(float t) {
+		inline float OutBounce(float t)
+		{
 			constexpr float n1 = 7.5625f;
 			constexpr float d1 = 2.75f;
 			if (t < 1.0f / d1) {
@@ -111,10 +120,13 @@ namespace Jazz2::UI::Menu
 		Easing::Fn Ease;
 
 		AnimatedValue(float value = 0.0f, float target = 1.0f, float speed = 0.016f, Easing::Fn ease = Easing::Linear)
-			: Value(value), Target(target), Speed(speed), Ease(ease) {}
+			: Value(value), Target(target), Speed(speed), Ease(ease)
+		{
+		}
 
 		/** @brief Advances the value toward the target */
-		void Update(float timeMult) {
+		void Update(float timeMult)
+		{
 			if (Value < Target) {
 				Value = std::min(Value + Speed * timeMult, Target);
 			} else if (Value > Target) {
@@ -123,28 +135,33 @@ namespace Jazz2::UI::Menu
 		}
 
 		/** @brief Returns the eased value */
-		float Eased() const {
+		float Eased() const
+		{
 			return Ease(Value);
 		}
 
 		/** @brief Returns the raw (un-eased) value */
-		float Raw() const {
+		float Raw() const
+		{
 			return Value;
 		}
 
 		/** @brief Returns `true` if the value reached its target */
-		bool IsDone() const {
+		bool IsDone() const
+		{
 			return (Value == Target);
 		}
 
 		/** @brief Restarts the animation from the specified value toward `1.0f` */
-		void Restart(float from = 0.0f, float to = 1.0f) {
+		void Restart(float from = 0.0f, float to = 1.0f)
+		{
 			Value = from;
 			Target = to;
 		}
 
 		/** @brief Implicitly converts to the eased value */
-		operator float() const {
+		operator float() const
+		{
 			return Ease(Value);
 		}
 	};

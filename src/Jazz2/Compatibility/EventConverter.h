@@ -25,7 +25,8 @@ namespace Jazz2::Compatibility
 		pairing the resolved @ref Jazz2::EventType with the unpacked event parameter bytes. Produced by
 		@ref EventConverter::TryConvert.
 	*/
-	struct ConversionResult {
+	struct ConversionResult
+	{
 		/** @brief Resulting event type */
 		EventType Type;
 		/** @brief Resulting event parameters */
@@ -107,7 +108,8 @@ namespace Jazz2::Compatibility
 		static void ConvertParamInt(std::uint32_t paramInt, const ArrayView<const Pair<std::int32_t, std::int32_t>>& paramTypes, std::uint8_t eventParams[16]);
 
 		/** @overload */
-		static void ConvertParamInt(std::uint32_t paramInt, const std::initializer_list<const Pair<std::int32_t, std::int32_t>> paramTypes, std::uint8_t eventParams[16]) {
+		static void ConvertParamInt(std::uint32_t paramInt, const std::initializer_list<const Pair<std::int32_t, std::int32_t>> paramTypes, std::uint8_t eventParams[16])
+		{
 			ConvertParamInt(paramInt, arrayView(paramTypes), eventParams);
 		}
 

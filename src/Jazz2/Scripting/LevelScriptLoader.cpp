@@ -11,7 +11,7 @@
 #include "RegisterArray.h"
 #include "RegisterDictionary.h"
 #if defined(WITH_IMGUI)
-#	include "RegisterImGuiBindings.h"
+#include "RegisterImGuiBindings.h"
 #endif
 #include "ScriptActorWrapper.h"
 #include "ScriptPlayerWrapper.h"
@@ -25,7 +25,7 @@
 #include "../Compatibility/EventConverter.h"
 #include "../Compatibility/JJ2Strings.h"
 #if defined(WITH_LEVEL_PACKS)
-#	include "../LevelPacks/LevelPackLibrary.h"
+#include "../LevelPacks/LevelPackLibrary.h"
 #endif
 #include "../Rendering/PlayerViewport.h"
 #include "../UI/HUD.h"
@@ -39,15 +39,18 @@
 #include "../../nCine/Graphics/Viewport.h"
 
 #if defined(DEATH_TRACE)
-#	define AS_LOG_EXCEPTION(ctx)																						\
-		do {																											\
-			std::int32_t column = 0; const char* sectionName = nullptr;													\
-			std::int32_t line = ctx->GetExceptionLineNumber(&column, &sectionName);										\
-			__DEATH_TRACE(TraceLevel::Error, "AngelScript!", "An exception \"{}\" occurred in \"{}\" (called from \"{}:{}({})\")",	\
-				ctx->GetExceptionString(), ctx->GetExceptionFunction()->GetDeclaration(), sectionName, line, column);	\
-		} while (false)
+#define AS_LOG_EXCEPTION(ctx)                                                                                                  \
+	do {                                                                                                                       \
+		std::int32_t column = 0;                                                                                               \
+		const char* sectionName = nullptr;                                                                                     \
+		std::int32_t line = ctx->GetExceptionLineNumber(&column, &sectionName);                                                \
+		__DEATH_TRACE(TraceLevel::Error, "AngelScript!", "An exception \"{}\" occurred in \"{}\" (called from \"{}:{}({})\")", \
+			ctx->GetExceptionString(), ctx->GetExceptionFunction()->GetDeclaration(), sectionName, line, column);              \
+	} while (false)
 #else
-#	define AS_LOG_EXCEPTION(ctx) do {} while (false)
+#define AS_LOG_EXCEPTION(ctx) \
+	do {                      \
+	} while (false)
 #endif
 
 // Without namespace for shorter log messages
@@ -214,8 +217,8 @@ shared interface MLLEWeaponApply { bool Apply(uint, se::WeaponHook@ = null, jjST
 
 	LevelScriptLoader::LevelScriptLoader(LevelHandler* levelHandler, StringView scriptPath, StringView scriptText)
 		: _levelHandler(levelHandler), _onLevelUpdate(nullptr), _onLevelUpdateLastFrame(-1), _onDrawAmmo(nullptr),
-			_onDrawHealth(nullptr), _onDrawLives(nullptr), _onDrawPlayerTimer(nullptr), _onDrawScore(nullptr), _onDrawGameModeHUD(nullptr),
-			_enabledCallbacks(NoInit, 256), _particlesDrawPending(false)
+		  _onDrawHealth(nullptr), _onDrawLives(nullptr), _onDrawPlayerTimer(nullptr), _onDrawScore(nullptr), _onDrawGameModeHUD(nullptr),
+		  _enabledCallbacks(NoInit, 256), _particlesDrawPending(false)
 	{
 		if (!scriptText.empty()) {
 			_scriptText = scriptText;
@@ -223,9 +226,15 @@ shared interface MLLEWeaponApply { bool Apply(uint, se::WeaponHook@ = null, jjST
 		}
 		// jjDifficultyOrig, as jjDifficulty is when the level starts (scripts limit the speed of platforms by it)
 		switch (levelHandler->_difficulty) {
-			case GameDifficulty::Easy: DifficultyAtLevelStart = 0; break;
-			default: DifficultyAtLevelStart = 1; break;
-			case GameDifficulty::Hard: DifficultyAtLevelStart = 2; break;
+			case GameDifficulty::Easy:
+				DifficultyAtLevelStart = 0;
+				break;
+			default:
+				DifficultyAtLevelStart = 1;
+				break;
+			case GameDifficulty::Hard:
+				DifficultyAtLevelStart = 2;
+				break;
 		}
 		DifficultyForNextLevel = DifficultyAtLevelStart;
 
@@ -235,16 +244,16 @@ shared interface MLLEWeaponApply { bool Apply(uint, se::WeaponHook@ = null, jjST
 			{ "TARGET_ANDROID"_s, true },
 #elif defined(DEATH_TARGET_APPLE)
 			{ "TARGET_APPLE"_s, true },
-#	if defined(DEATH_TARGET_IOS)
+#if defined(DEATH_TARGET_IOS)
 			{ "TARGET_IOS"_s, true },
-#	endif
+#endif
 #elif defined(DEATH_TARGET_EMSCRIPTEN)
 			{ "TARGET_EMSCRIPTEN"_s, true },
 #elif defined(DEATH_TARGET_WINDOWS)
 			{ "TARGET_WINDOWS"_s, true },
-#	if defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_WINDOWS_RT)
 			{ "TARGET_WINDOWS_RT"_s, true },
-#	endif
+#endif
 #elif defined(DEATH_TARGET_SWITCH)
 			{ "TARGET_SWITCH"_s, true },
 #elif defined(DEATH_TARGET_UNIX)
@@ -544,7 +553,7 @@ shared interface MLLEWeaponApply { bool Apply(uint, se::WeaponHook@ = null, jjST
 		// Scenery is a part of its tile, it has an object only where a script drives it (see Legacy::ScriptSceneryObject),
 		// a script can still register a spawner of its own over this one
 		for (EventType type : { EventType::SceneryDestruct, EventType::SceneryDestructButtstomp, EventType::SceneryDestructSpeed, EventType::SceneryCollapse,
-			EventType::TriggerArea }) {
+				 EventType::TriggerArea }) {
 			_levelHandler->EventSpawner()->RegisterSpawnable(type, SpawnSceneryObject);
 		}
 		_levelHandler->EventSpawner()->RegisterSpawnable(EventType::PassthroughEvent, SpawnPassthroughObject);
@@ -728,7 +737,9 @@ shared interface MLLEWeaponApply { bool Apply(uint, se::WeaponHook@ = null, jjST
 		UpdateWaterLevel(currentTick);
 
 		if (_layerCanvas == nullptr && !ContentResolver::Get().IsHeadless() &&
-			std::any_of(std::begin(_onDrawLayer), std::end(_onDrawLayer), [](asIScriptFunction* f) { return f != nullptr; })) {
+			std::any_of(std::begin(_onDrawLayer), std::end(_onDrawLayer), [](asIScriptFunction* f) {
+				return f != nullptr;
+			})) {
 			_layerCanvas = std::make_unique<Legacy::ScriptLayerCanvas>(this);
 			_layerCanvas->OrderedDraws = true;
 			_layerCanvas->SetParent(_levelHandler->_rootNode.get());
@@ -847,8 +858,8 @@ shared interface MLLEWeaponApply { bool Apply(uint, se::WeaponHook@ = null, jjST
 									// In the colors of the fur of the player, as it draws itself
 									std::uint32_t mode = std::uint32_t(draw.spriteMode);
 									std::int32_t paletteOffset = (mode == Legacy::spriteType_NORMAL
-										? GetSpritePaletteOffset(Legacy::spriteType_PLAYER, std::uint8_t(player->GetPlayerIndex()))
-										: GetSpritePaletteOffset(mode, draw.spriteParam));
+											? GetSpritePaletteOffset(Legacy::spriteType_PLAYER, std::uint8_t(player->GetPlayerIndex()))
+											: GetSpritePaletteOffset(mode, draw.spriteParam));
 									Legacy::ScriptWorldCanvas::SpriteDraw sprite = { graphics, cell, draw.xOffset, draw.yOffset, 1, draw.xScale, draw.yScale,
 										draw.angle, mode, draw.spriteParam, GetLayerDrawZ(std::int8_t(draw.layer)), paletteOffset, player };
 									GetWorldCanvas().AddSprite(sprite);
@@ -941,7 +952,7 @@ shared interface MLLEWeaponApply { bool Apply(uint, se::WeaponHook@ = null, jjST
 		// jjWaterInteraction and jjWaterLighting are plain properties, scripts change them at any time
 		_levelHandler->_waterInteraction = (waterInteraction == Legacy::waterInteraction_LOWGRAVITY ? WaterInteraction::LowGravity : WaterInteraction::Swim);
 		_levelHandler->_waterLighting = (waterLightMode == LegacyWaterLightingGlobal ? Formats::LevelSettingsChunk::WaterLighting::Global
-			: (waterLightMode == LegacyWaterLightingLagunicus ? Formats::LevelSettingsChunk::WaterLighting::Depth : Formats::LevelSettingsChunk::WaterLighting::None));
+																					 : (waterLightMode == LegacyWaterLightingLagunicus ? Formats::LevelSettingsChunk::WaterLighting::Depth : Formats::LevelSettingsChunk::WaterLighting::None));
 	}
 
 	void LevelScriptLoader::ApplyLevelSettings()
@@ -954,14 +965,26 @@ shared interface MLLEWeaponApply { bool Apply(uint, se::WeaponHook@ = null, jjST
 		delayGeneratedCrateOrigins = settings.DelayGeneratedCrateOrigins;
 		_waterChangeSpeed = settings.WaterChangeSpeed / 70.0f;
 		switch (settings.Movement) {
-			case LevelSettingsChunk::WaterMovement::Swim: waterInteraction = Legacy::waterInteraction_SWIM; break;
-			case LevelSettingsChunk::WaterMovement::LowGravity: waterInteraction = Legacy::waterInteraction_LOWGRAVITY; break;
-			default: waterInteraction = Legacy::waterInteraction_POSITIONBASED; break;
+			case LevelSettingsChunk::WaterMovement::Swim:
+				waterInteraction = Legacy::waterInteraction_SWIM;
+				break;
+			case LevelSettingsChunk::WaterMovement::LowGravity:
+				waterInteraction = Legacy::waterInteraction_LOWGRAVITY;
+				break;
+			default:
+				waterInteraction = Legacy::waterInteraction_POSITIONBASED;
+				break;
 		}
 		switch (settings.Lighting) {
-			case LevelSettingsChunk::WaterLighting::Global: waterLightMode = LegacyWaterLightingGlobal; break;
-			case LevelSettingsChunk::WaterLighting::Depth: waterLightMode = LegacyWaterLightingLagunicus; break;
-			default: waterLightMode = LegacyWaterLightingNone; break;
+			case LevelSettingsChunk::WaterLighting::Global:
+				waterLightMode = LegacyWaterLightingGlobal;
+				break;
+			case LevelSettingsChunk::WaterLighting::Depth:
+				waterLightMode = LegacyWaterLightingLagunicus;
+				break;
+			default:
+				waterLightMode = LegacyWaterLightingNone;
+				break;
 		}
 		// The number of the layer in the original game, 1 in front of all of them, a number of no layer hides the water
 		if (settings.WaterLayer == LevelSettingsChunk::WaterHidden) {
@@ -1047,13 +1070,27 @@ shared interface MLLEWeaponApply { bool Apply(uint, se::WeaponHook@ = null, jjST
 	{
 		asIScriptFunction* func;
 		switch (type) {
-			case DrawType::WeaponAmmo: func = _onDrawAmmo; break;
-			case DrawType::Health: func = _onDrawHealth; break;
-			case DrawType::Lives: func = _onDrawLives; break;
-			case DrawType::PlayerTimer: func = _onDrawPlayerTimer; break;
-			case DrawType::Score: func = _onDrawScore; break;
-			case DrawType::GameModeHUD: func = _onDrawGameModeHUD; break;
-			default: func = nullptr; break;
+			case DrawType::WeaponAmmo:
+				func = _onDrawAmmo;
+				break;
+			case DrawType::Health:
+				func = _onDrawHealth;
+				break;
+			case DrawType::Lives:
+				func = _onDrawLives;
+				break;
+			case DrawType::PlayerTimer:
+				func = _onDrawPlayerTimer;
+				break;
+			case DrawType::Score:
+				func = _onDrawScore;
+				break;
+			case DrawType::GameModeHUD:
+				func = _onDrawGameModeHUD;
+				break;
+			default:
+				func = nullptr;
+				break;
 		}
 
 		bool overrideDraw = false;
@@ -1086,7 +1123,7 @@ shared interface MLLEWeaponApply { bool Apply(uint, se::WeaponHook@ = null, jjST
 
 			jjPLAYER* p = GetPlayerBackingStore(player);
 			ctx->SetArgObject(0, p);
-			jjCANVAS* canvasWrapper = new(asAllocMem(sizeof(jjCANVAS))) jjCANVAS(hud, Vector2f(view.X, view.Y), view.W, &_canvasDrawCount,
+			jjCANVAS* canvasWrapper = new (asAllocMem(sizeof(jjCANVAS))) jjCANVAS(hud, Vector2f(view.X, view.Y), view.W, &_canvasDrawCount,
 				UI::HUD::MainLayer, UI::HUD::FontLayer - 1); // TODO: Cache this object ???
 			ctx->SetArgObject(1, canvasWrapper);
 
@@ -1183,7 +1220,9 @@ shared interface MLLEWeaponApply { bool Apply(uint, se::WeaponHook@ = null, jjST
 		auto& description = tileMap->_layers[index].Description;
 		if (_layer8Fixed < 0) {
 			_layer8Fixed = (description.SpeedModelX == Tiles::LayerSpeedModel::AlwaysOnTop &&
-				description.SpeedModelY == Tiles::LayerSpeedModel::AlwaysOnTop ? 1 : 0);
+						description.SpeedModelY == Tiles::LayerSpeedModel::AlwaysOnTop
+					? 1
+					: 0);
 		}
 		if (_layer8Fixed != 0) {
 			Tiles::LayerSpeedModel model = (_useLayer8Speeds ? Tiles::LayerSpeedModel::Default : Tiles::LayerSpeedModel::AlwaysOnTop);
@@ -1267,84 +1306,102 @@ shared interface MLLEWeaponApply { bool Apply(uint, se::WeaponHook@ = null, jjST
 		// Math functions
 		int r;
 		/** @brief Cosine of an angle given in radians */
-		r = engine->RegisterGlobalFunction("float cos(float)", asFUNCTIONPR(cosf, (float), float), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("float cos(float)", asFUNCTIONPR(cosf, (float), float), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Sine of an angle given in radians */
-		r = engine->RegisterGlobalFunction("float sin(float)", asFUNCTIONPR(sinf, (float), float), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("float sin(float)", asFUNCTIONPR(sinf, (float), float), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Tangent of an angle given in radians */
-		r = engine->RegisterGlobalFunction("float tan(float)", asFUNCTIONPR(tanf, (float), float), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("float tan(float)", asFUNCTIONPR(tanf, (float), float), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 
 		/**
 		 * @brief Arc cosine in radians
 		 *
 		 * Returns an angle in the range 0 to pi. The argument must be in the range -1 to 1, otherwise the result is NaN.
 		 */
-		r = engine->RegisterGlobalFunction("float acos(float)", asFUNCTIONPR(acosf, (float), float), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("float acos(float)", asFUNCTIONPR(acosf, (float), float), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Arc sine in radians
 		 *
 		 * Returns an angle in the range -pi/2 to pi/2. The argument must be in the range -1 to 1, otherwise the result is NaN.
 		 */
-		r = engine->RegisterGlobalFunction("float asin(float)", asFUNCTIONPR(asinf, (float), float), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("float asin(float)", asFUNCTIONPR(asinf, (float), float), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Arc tangent in radians
 		 *
 		 * Returns an angle in the range -pi/2 to pi/2.
 		 * @see @ref atan2()
 		 */
-		r = engine->RegisterGlobalFunction("float atan(float)", asFUNCTIONPR(atanf, (float), float), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("float atan(float)", asFUNCTIONPR(atanf, (float), float), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Angle of a direction vector in radians
 		 *
 		 * Takes the Y component first and the X component second, as in C. Uses the signs of both to pick
 		 * the quadrant, so the result covers the full range -pi to pi.
 		 */
-		r = engine->RegisterGlobalFunction("float atan2(float, float)", asFUNCTIONPR(atan2f, (float, float), float), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("float atan2(float, float)", asFUNCTIONPR(atan2f, (float, float), float), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 
 		/** @brief Hyperbolic cosine */
-		r = engine->RegisterGlobalFunction("float cosh(float)", asFUNCTIONPR(coshf, (float), float), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("float cosh(float)", asFUNCTIONPR(coshf, (float), float), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Hyperbolic sine */
-		r = engine->RegisterGlobalFunction("float sinh(float)", asFUNCTIONPR(sinhf, (float), float), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("float sinh(float)", asFUNCTIONPR(sinhf, (float), float), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Hyperbolic tangent */
-		r = engine->RegisterGlobalFunction("float tanh(float)", asFUNCTIONPR(tanhf, (float), float), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("float tanh(float)", asFUNCTIONPR(tanhf, (float), float), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 
 		/**
 		 * @brief Natural (base e) logarithm
 		 *
 		 * Zero gives negative infinity, negative values give NaN.
 		 */
-		r = engine->RegisterGlobalFunction("float log(float)", asFUNCTIONPR(logf, (float), float), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("float log(float)", asFUNCTIONPR(logf, (float), float), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Base 10 logarithm
 		 *
 		 * Zero gives negative infinity, negative values give NaN.
 		 */
-		r = engine->RegisterGlobalFunction("float log10(float)", asFUNCTIONPR(log10f, (float), float), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("float log10(float)", asFUNCTIONPR(log10f, (float), float), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 
 		/**
 		 * @brief Raises a number to a power
 		 *
 		 * Takes the base first and the exponent second. A negative base with a non-integer exponent gives NaN.
 		 */
-		r = engine->RegisterGlobalFunction("float pow(float, float)", asFUNCTIONPR(powf, (float, float), float), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("float pow(float, float)", asFUNCTIONPR(powf, (float, float), float), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Square root
 		 *
 		 * Negative values give NaN.
 		 */
-		r = engine->RegisterGlobalFunction("float sqrt(float)", asFUNCTIONPR(sqrtf, (float), float), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("float sqrt(float)", asFUNCTIONPR(sqrtf, (float), float), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 
 		/** @brief Rounds up to the nearest whole number */
-		r = engine->RegisterGlobalFunction("float ceil(float)", asFUNCTIONPR(ceilf, (float), float), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("float ceil(float)", asFUNCTIONPR(ceilf, (float), float), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Absolute value of a floating-point number */
-		r = engine->RegisterGlobalFunction("float abs(float)", asFUNCTIONPR(fabsf, (float), float), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("float abs(float)", asFUNCTIONPR(fabsf, (float), float), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 		/** @brief Rounds down to the nearest whole number */
-		r = engine->RegisterGlobalFunction("float floor(float)", asFUNCTIONPR(floorf, (float), float), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("float floor(float)", asFUNCTIONPR(floorf, (float), float), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Fractional part of a number
 		 *
 		 * Removes the whole part and keeps the sign, so `fraction(2.75)` is `0.75` and `fraction(-2.75)` is `-0.75`.
 		 */
-		r = engine->RegisterGlobalFunction("float fraction(float)", asFUNCTIONPR(asFractionf, (float), float), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("float fraction(float)", asFUNCTIONPR(asFractionf, (float), float), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 
 		/**
 		 * @brief Returns whether two floating-point numbers are nearly equal
@@ -1353,41 +1410,47 @@ shared interface MLLEWeaponApply { bool Apply(uint, se::WeaponHook@ = null, jjST
 		 * zero, the absolute difference is compared to the tolerance. Otherwise the test is relative:
 		 * the difference divided by the sum of both absolute values must be less than the tolerance.
 		 */
-		r = engine->RegisterGlobalFunction("bool closeTo(float, float, float = 0.00001f)", asFUNCTION(asCloseTo), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("bool closeTo(float, float, float = 0.00001f)", asFUNCTION(asCloseTo), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Returns whether two double-precision numbers are nearly equal
 		 *
 		 * Same test as the `float` overload, with a smaller default tolerance.
 		 */
-		r = engine->RegisterGlobalFunction("bool closeTo(double, double, double = 0.0000000001)", asFUNCTION(asCloseToDouble), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("bool closeTo(double, double, double = 0.0000000001)", asFUNCTION(asCloseToDouble), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Reinterprets 32 bits as a `float`
 		 *
 		 * The bits are taken as an IEEE 754 single-precision number without any numeric conversion.
 		 * @see @ref fpToIEEE()
 		 */
-		r = engine->RegisterGlobalFunction("float fpFromIEEE(uint)", asFUNCTION(asFloatFromIEEE), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("float fpFromIEEE(uint)", asFUNCTION(asFloatFromIEEE), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Raw IEEE 754 bits of a `float`
 		 *
 		 * Returns the bit pattern of the number unchanged, not its numeric value.
 		 * @see @ref fpFromIEEE()
 		 */
-		r = engine->RegisterGlobalFunction("uint fpToIEEE(float)", asFUNCTION(asFloatToIEEE), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("uint fpToIEEE(float)", asFUNCTION(asFloatToIEEE), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Reinterprets 64 bits as a `double`
 		 *
 		 * The bits are taken as an IEEE 754 double-precision number without any numeric conversion.
 		 * @see @ref fpToIEEE()
 		 */
-		r = engine->RegisterGlobalFunction("double fpFromIEEE(uint64)", asFUNCTION(asDoubleFromIEEE), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("double fpFromIEEE(uint64)", asFUNCTION(asDoubleFromIEEE), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 		/**
 		 * @brief Raw IEEE 754 bits of a `double`
 		 *
 		 * Returns the bit pattern of the number unchanged, not its numeric value.
 		 * @see @ref fpFromIEEE()
 		 */
-		r = engine->RegisterGlobalFunction("uint64 fpToIEEE(double)", asFUNCTION(asDoubleToIEEE), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("uint64 fpToIEEE(double)", asFUNCTION(asDoubleToIEEE), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 
 		// Needs the array type, so it can't be part of RegisterString()
 		RegisterStringUtils(engine);
@@ -1423,33 +1486,55 @@ shared interface MLLEWeaponApply { bool Apply(uint, se::WeaponHook@ = null, jjST
 	void LevelScriptLoader::RegisterStandardFunctions(asIScriptEngine* engine, asIScriptModule* module)
 	{
 		int r;
-		r = engine->RegisterGlobalFunction("int Random()", asFUNCTIONPR(asRandom, (), int), asCALL_CDECL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterGlobalFunction("int Random(int)", asFUNCTIONPR(asRandom, (int), int), asCALL_CDECL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterGlobalFunction("float Random(float, float)", asFUNCTIONPR(asRandom, (float, float), float), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("int Random()", asFUNCTIONPR(asRandom, (), int), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("int Random(int)", asFUNCTIONPR(asRandom, (int), int), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("float Random(float, float)", asFUNCTIONPR(asRandom, (float, float), float), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 
-		r = engine->RegisterGlobalFunction("void Print(const string &in)", asFUNCTION(asScript), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("void Print(const string &in)", asFUNCTION(asScript), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 
-		r = engine->RegisterGlobalFunction("uint8 get_Difficulty()", asFUNCTION(asGetDifficulty), asCALL_CDECL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterGlobalFunction("bool get_IsReforged()", asFUNCTION(asIsReforged), asCALL_CDECL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterGlobalFunction("int get_LevelWidth()", asFUNCTION(asGetLevelWidth), asCALL_CDECL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterGlobalFunction("int get_LevelHeight()", asFUNCTION(asGetLevelHeight), asCALL_CDECL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterGlobalFunction("float get_ElapsedFrames()", asFUNCTION(asGetElapsedFrames), asCALL_CDECL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterGlobalFunction("float get_AmbientLight()", asFUNCTION(asGetAmbientLight), asCALL_CDECL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterGlobalFunction("void set_AmbientLight(float)", asFUNCTION(asSetAmbientLight), asCALL_CDECL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterGlobalFunction("float get_WaterLevel()", asFUNCTION(asGetWaterLevel), asCALL_CDECL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterGlobalFunction("void set_WaterLevel(float)", asFUNCTION(asSetWaterLevel), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("uint8 get_Difficulty()", asFUNCTION(asGetDifficulty), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("bool get_IsReforged()", asFUNCTION(asIsReforged), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("int get_LevelWidth()", asFUNCTION(asGetLevelWidth), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("int get_LevelHeight()", asFUNCTION(asGetLevelHeight), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("float get_ElapsedFrames()", asFUNCTION(asGetElapsedFrames), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("float get_AmbientLight()", asFUNCTION(asGetAmbientLight), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("void set_AmbientLight(float)", asFUNCTION(asSetAmbientLight), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("float get_WaterLevel()", asFUNCTION(asGetWaterLevel), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("void set_WaterLevel(float)", asFUNCTION(asSetWaterLevel), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 
-		r = engine->RegisterGlobalFunction("void PreloadMetadata(const string &in)", asFUNCTION(asPreloadMetadata), asCALL_CDECL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterGlobalFunction("void RegisterSpawnable(int, const string &in)", asFUNCTION(asRegisterSpawnable), asCALL_CDECL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterGlobalFunction("void Spawn(int, int, int)", asFUNCTION(asSpawnEvent), asCALL_CDECL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterGlobalFunction("void Spawn(int, int, int, const array<uint8> &in)", asFUNCTION(asSpawnEventParams), asCALL_CDECL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterGlobalFunction("void Spawn(const string &in, int, int)", asFUNCTION(asSpawnType), asCALL_CDECL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterGlobalFunction("void Spawn(const string &in, int, int, const array<uint8> &in)", asFUNCTION(asSpawnTypeParams), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("void PreloadMetadata(const string &in)", asFUNCTION(asPreloadMetadata), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("void RegisterSpawnable(int, const string &in)", asFUNCTION(asRegisterSpawnable), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("void Spawn(int, int, int)", asFUNCTION(asSpawnEvent), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("void Spawn(int, int, int, const array<uint8> &in)", asFUNCTION(asSpawnEventParams), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("void Spawn(const string &in, int, int)", asFUNCTION(asSpawnType), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("void Spawn(const string &in, int, int, const array<uint8> &in)", asFUNCTION(asSpawnTypeParams), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 
-		r = engine->RegisterGlobalFunction("void ChangeLevel(int, const string &in = string())", asFUNCTION(asChangeLevel), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("void ChangeLevel(int, const string &in = string())", asFUNCTION(asChangeLevel), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 		//r = engine->RegisterGlobalFunction("void MusicPlay(const string &in)", asFUNCTION(asMusicPlay), asCALL_CDECL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterGlobalFunction("void ShowLevelText(const string &in)", asFUNCTION(asShowLevelText), asCALL_CDECL); RETURN_ASSERT(r >= 0);
-		r = engine->RegisterGlobalFunction("void SetWeather(uint8, uint8)", asFUNCTION(asSetWeather), asCALL_CDECL); RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("void ShowLevelText(const string &in)", asFUNCTION(asShowLevelText), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
+		r = engine->RegisterGlobalFunction("void SetWeather(uint8, uint8)", asFUNCTION(asSetWeather), asCALL_CDECL);
+		RETURN_ASSERT(r >= 0);
 
 		// Game-specific classes
 		ScriptActorWrapper::RegisterFactory(engine, module);
@@ -1571,7 +1656,7 @@ shared interface MLLEWeaponApply { bool Apply(uint, se::WeaponHook@ = null, jjST
 		// Get the pointer to the C++ side of the ActorBase class
 		ScriptActorWrapper* obj2 = *static_cast<ScriptActorWrapper**>(obj->GetAddressOfProperty(0));
 
-		// Increase the reference count to the C++ object, as this is what will be used to control the life time of the object from the application side 
+		// Increase the reference count to the C++ object, as this is what will be used to control the life time of the object from the application side
 		obj2->AddRef();
 
 		// Release the reference to the script side
@@ -1685,7 +1770,7 @@ shared interface MLLEWeaponApply { bool Apply(uint, se::WeaponHook@ = null, jjST
 	{
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 
-		uint8_t spawnParams[Events::EventSpawner::SpawnParamsSize] { };
+		uint8_t spawnParams[Events::EventSpawner::SpawnParamsSize] {};
 		auto actor = _this->_levelHandler->EventSpawner()->SpawnEvent((EventType)eventType, spawnParams, Actors::ActorState::None, Vector3i(x, y, ILevelHandler::MainPlaneZ));
 		if (actor != nullptr) {
 			_this->_levelHandler->AddActor(actor);
@@ -1696,7 +1781,7 @@ shared interface MLLEWeaponApply { bool Apply(uint, se::WeaponHook@ = null, jjST
 	{
 		auto _this = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 
-		uint8_t spawnParams[Events::EventSpawner::SpawnParamsSize] { };
+		uint8_t spawnParams[Events::EventSpawner::SpawnParamsSize] {};
 		int size = eventParams.GetSize();
 		std::memcpy(spawnParams, eventParams.At(0), size);
 
@@ -1715,12 +1800,11 @@ shared interface MLLEWeaponApply { bool Apply(uint, se::WeaponHook@ = null, jjST
 			return;
 		}
 
-		uint8_t spawnParams[Events::EventSpawner::SpawnParamsSize] { };
+		uint8_t spawnParams[Events::EventSpawner::SpawnParamsSize] {};
 		actor->OnActivated(Actors::ActorActivationDetails(
 			_this->_levelHandler,
 			Vector3i(x, y, ILevelHandler::MainPlaneZ),
-			spawnParams
-		));
+			spawnParams));
 		_this->_levelHandler->AddActor(std::shared_ptr<Actors::ActorBase>(actor));
 	}
 
@@ -1733,15 +1817,14 @@ shared interface MLLEWeaponApply { bool Apply(uint, se::WeaponHook@ = null, jjST
 			return;
 		}
 
-		uint8_t spawnParams[Events::EventSpawner::SpawnParamsSize] { };
+		uint8_t spawnParams[Events::EventSpawner::SpawnParamsSize] {};
 		int size = eventParams.GetSize();
 		std::memcpy(spawnParams, eventParams.At(0), size);
 
 		actor->OnActivated(Actors::ActorActivationDetails(
 			_this->_levelHandler,
 			Vector3i(x, y, ILevelHandler::MainPlaneZ),
-			spawnParams
-		));
+			spawnParams));
 		_this->_levelHandler->AddActor(std::shared_ptr<Actors::ActorBase>(actor));
 	}
 

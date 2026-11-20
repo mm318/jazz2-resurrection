@@ -39,7 +39,8 @@ namespace Jazz2::Actors::Environment
 		// Longer than any ride, in frames
 		static constexpr float RiddenTimeout = 600.0f;
 
-		enum class State {
+		enum class State
+		{
 			Free,
 			Unmounted,
 			Mounted

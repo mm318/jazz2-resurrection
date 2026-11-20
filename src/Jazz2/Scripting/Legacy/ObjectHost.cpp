@@ -34,7 +34,6 @@
 #include <cfloat>
 #include <cstring>
 
-
 namespace Jazz2::Scripting::Legacy
 {
 	namespace
@@ -91,17 +90,44 @@ namespace Jazz2::Scripting::Legacy
 			}
 			switch (eventId) {
 				case aREDGEMTEMP:
-				case aGUN3AMMO3: case aGUN2AMMO3: case aGUN4AMMO3: case aGUN5AMMO3:
-				case aGUN6AMMO3: case aGUN7AMMO3: case aGUN8AMMO3: case aGUN9AMMO3:
-				case aSILVERCOIN: case aGOLDCOIN:
-				case aGUN3AMMO15: case aGUN2AMMO15: case aGUN4AMMO15: case aGUN5AMMO15: case aGUN6AMMO15:
+				case aGUN3AMMO3:
+				case aGUN2AMMO3:
+				case aGUN4AMMO3:
+				case aGUN5AMMO3:
+				case aGUN6AMMO3:
+				case aGUN7AMMO3:
+				case aGUN8AMMO3:
+				case aGUN9AMMO3:
+				case aSILVERCOIN:
+				case aGOLDCOIN:
+				case aGUN3AMMO15:
+				case aGUN2AMMO15:
+				case aGUN4AMMO15:
+				case aGUN5AMMO15:
+				case aGUN6AMMO15:
 				case aGUNFASTFIRE:
-				case aREDGEM: case aGREENGEM: case aBLUEGEM: case aPURPLEGEM: case aSUPERREDGEM:
-				case aENERGYUP: case aFULLENERGY:
-				case aFIRESHIELD: case aWATERSHIELD: case aLIGHTSHIELD: case aLASERSHIELD:
-				case aFASTFEET: case aEXTRALIFE: case aINVINCIBILITY: case aEXTRATIME: case aFREEZER: case aSTOPWATCH:
-				case aFLYCARROT: case aAIRBOARD:
-				case aRECTREDGEM: case aRECTGREENGEM: case aRECTBLUEGEM:
+				case aREDGEM:
+				case aGREENGEM:
+				case aBLUEGEM:
+				case aPURPLEGEM:
+				case aSUPERREDGEM:
+				case aENERGYUP:
+				case aFULLENERGY:
+				case aFIRESHIELD:
+				case aWATERSHIELD:
+				case aLIGHTSHIELD:
+				case aLASERSHIELD:
+				case aFASTFEET:
+				case aEXTRALIFE:
+				case aINVINCIBILITY:
+				case aEXTRATIME:
+				case aFREEZER:
+				case aSTOPWATCH:
+				case aFLYCARROT:
+				case aAIRBOARD:
+				case aRECTREDGEM:
+				case aRECTGREENGEM:
+				case aRECTBLUEGEM:
 					return hPICKUP;
 				default:
 					// Food, two runs of the events
@@ -336,7 +362,9 @@ namespace Jazz2::Scripting::Legacy
 	{
 		const PresetAnimation* end = PresetAnimations + arraySize(PresetAnimations);
 		const PresetAnimation* it = std::lower_bound(PresetAnimations, end, eventId,
-			[](const PresetAnimation& entry, std::uint8_t id) { return entry.EventID < id; });
+			[](const PresetAnimation& entry, std::uint8_t id) {
+				return entry.EventID < id;
+			});
 		return (it != end && it->EventID == eventId ? it : nullptr);
 	}
 
@@ -365,11 +393,27 @@ namespace Jazz2::Scripting::Legacy
 		void GetRoundLight(std::int32_t size, float& radiusNear, float& radiusFar, float& intensity)
 		{
 			switch (size) {
-				case 1: radiusNear = 3.0f; radiusFar = 23.0f; intensity = 0.25f; break;
+				case 1:
+					radiusNear = 3.0f;
+					radiusFar = 23.0f;
+					intensity = 0.25f;
+					break;
 				case 2:
-				case 3: radiusNear = 7.0f; radiusFar = 39.0f; intensity = 0.8f; break;
-				case 4: radiusNear = 10.0f; radiusFar = 41.0f; intensity = 0.85f; break;
-				case 5: radiusNear = 14.0f; radiusFar = 44.0f; intensity = 0.9f; break;
+				case 3:
+					radiusNear = 7.0f;
+					radiusFar = 39.0f;
+					intensity = 0.8f;
+					break;
+				case 4:
+					radiusNear = 10.0f;
+					radiusFar = 41.0f;
+					intensity = 0.85f;
+					break;
+				case 5:
+					radiusNear = 14.0f;
+					radiusFar = 44.0f;
+					intensity = 0.9f;
+					break;
 				default: {
 					// A light is clamped to full, the intensity above it widens what's lit fully
 					float radius = GetLightRadius(size);
@@ -681,7 +725,8 @@ namespace Jazz2::Scripting::Legacy
 		// more than the hitbox of the game is wide), and its top 2.5 px below the top of the frame
 		constexpr float PlayerReach = 6.375f;
 		constexpr float TopOffset = 2.5f;
-		Recti frameRect; Vector2i coldSpot;
+		Recti frameRect;
+		Vector2i coldSpot;
 		if (obj.curFrame == 0 || !levelScripts->GetAnimationTables().GetFrameSpots(obj.curFrame, frameRect, coldSpot) || frameRect.W <= 0) {
 			return false;
 		}
@@ -724,8 +769,8 @@ namespace Jazz2::Scripting::Legacy
 
 	ScriptObjectHost::ScriptObjectHost(LevelScriptLoader* levelScripts, jjOBJ* obj, Actors::ActorBase* actor)
 		: _levelScripts(levelScripts), _obj(obj), _actor(actor), _timeMult(1.0f), _nextTick(-1), _drawn(true), _drawFrame(false),
-			_ranOwnBehavior(false), _isRunningOwnBehavior(false), _hasFrameHitbox(false), _heldInPlace(false), _breaking(false),
-			_ownsLights(actor->GetState(Actors::ActorState::Illuminated)), _boundsFrame(0)
+		  _ranOwnBehavior(false), _isRunningOwnBehavior(false), _hasFrameHitbox(false), _heldInPlace(false), _breaking(false),
+		  _ownsLights(actor->GetState(Actors::ActorState::Illuminated)), _boundsFrame(0)
 	{
 		_obj->AddRef();
 		_obj->_host = this;
@@ -856,8 +901,7 @@ namespace Jazz2::Scripting::Legacy
 			}
 			if (behavior.behaviorId == aEXPLOSION || behavior.behaviorId == BehaviorExplosion2) {
 				// What ends a collected pickup and the like, as the game ends its own
-				Actors::Explosion::Create(actor->_levelHandler, Vector3i(std::int32_t(_obj->xPos + PositionOffset),
-					std::int32_t(_obj->yPos + PositionOffset), actor->_renderer.GetLayer()),
+				Actors::Explosion::Create(actor->_levelHandler, Vector3i(std::int32_t(_obj->xPos + PositionOffset), std::int32_t(_obj->yPos + PositionOffset), actor->_renderer.GetLayer()),
 					behavior.behaviorId == aEXPLOSION ? Actors::Explosion::Type::Small : Actors::Explosion::Type::Generator);
 				Delete();
 				return false;
@@ -931,7 +975,8 @@ namespace Jazz2::Scripting::Legacy
 		}
 		bool goesThrough = ((_obj->get_var(6) & 16) != 0);
 		if (BreakScenery(_levelScripts, *_actor, *_obj, shot->GetWeaponType(), std::max<std::int32_t>(shot->GetStrength(), 1),
-				goesThrough ? &_hitSceneryTiles : nullptr) && !goesThrough && _obj->state != sEXPLODE) {
+				goesThrough ? &_hitSceneryTiles : nullptr) &&
+			!goesThrough && _obj->state != sEXPLODE) {
 			_obj->state = sEXPLODE;
 			_obj->counter = 1;
 		}
@@ -1133,7 +1178,7 @@ namespace Jazz2::Scripting::Legacy
 			// sword here), as the player collides with them
 			constexpr std::uint32_t hEXPLOSION = 4;
 			std::uint32_t handling = (target->_playerHandlingSet ? target->_playerHandling
-				: (runtime_cast<Actors::Collectibles::CollectibleBase>(other) != nullptr ? hPICKUP : GetDefaultPlayerHandling(target->eventID)));
+																 : (runtime_cast<Actors::Collectibles::CollectibleBase>(other) != nullptr ? hPICKUP : GetDefaultPlayerHandling(target->eventID)));
 			if (handling == hPICKUP || handling == hDELAYEDPICKUP || handling == hPARTICLE || handling == hEXPLOSION ||
 				handling == hPLAYERBULLET || handling == hENEMYBULLET) {
 				continue;
@@ -1173,8 +1218,7 @@ namespace Jazz2::Scripting::Legacy
 			bool ownFrame = (_obj->_skinAnim > 0 || _obj->curFrame != _obj->_synced.CurFrame || _obj->_synced.NativeAnim == 0 ||
 				_obj->_synced.LongerAnim);
 			std::uint32_t frameCount, firstFrame;
-			bool blankSkin = (!_drawFrame && _obj->_skinAnim > 0 && (!_levelScripts->GetAnimationTables().GetAnimationFrames(
-				std::uint32_t(_obj->_skinAnim), frameCount, firstFrame) || frameCount == 0));
+			bool blankSkin = (!_drawFrame && _obj->_skinAnim > 0 && (!_levelScripts->GetAnimationTables().GetAnimationFrames(std::uint32_t(_obj->_skinAnim), frameCount, firstFrame) || frameCount == 0));
 			if (ownFrame && _obj->curFrame != 0 && !blankSkin) {
 				// Where it floats, as the object of the game draws a pickup
 				DrawFrame(_levelScripts, *_obj, _actor->_pos.Y - GetRestingY(*_actor));
@@ -1223,7 +1267,7 @@ namespace Jazz2::Scripting::Legacy
 
 		// What the object is to players, the game handles a pickup as one, anything else as special
 		std::uint32_t playerHandling = (obj._playerHandlingSet ? ResolveSetPlayerHandling(obj._playerHandling)
-			: (runtime_cast<Actors::Collectibles::CollectibleBase>(actor) != nullptr || GetDefaultPlayerHandling(obj.eventID) == hPICKUP ? hPICKUP : hSPECIAL));
+															   : (runtime_cast<Actors::Collectibles::CollectibleBase>(actor) != nullptr || GetDefaultPlayerHandling(obj.eventID) == hPICKUP ? hPICKUP : hSPECIAL));
 
 		if (obj._playerHandlingSet && playerHandling == hPARTICLE) {
 			// A particle collides with nothing, players and bullets go through it whatever its `bulletHandling` is, as in JJ2+ -
@@ -1363,7 +1407,8 @@ namespace Jazz2::Scripting::Legacy
 	{
 		SetState(Actors::ActorState::ForceDisableCollisions, true);
 		SetState(Actors::ActorState::CanBeFrozen | Actors::ActorState::CollideWithTileset | Actors::ActorState::CollideWithOtherActors |
-			Actors::ActorState::ApplyGravitation, false);
+				Actors::ActorState::ApplyGravitation,
+			false);
 		UpdatePhase(true);
 		async_return true;
 	}
@@ -1383,8 +1428,7 @@ namespace Jazz2::Scripting::Legacy
 	void ScriptSceneryObject::UpdatePhase(bool activating)
 	{
 		auto* tileMap = _levelHandler->TileMap();
-		bool destroyed = (tileMap != nullptr && tileMap->IsTileDestroyed(std::int32_t(_pos.X) / Tiles::TileSet::DefaultTileSize,
-			std::int32_t(_pos.Y) / Tiles::TileSet::DefaultTileSize));
+		bool destroyed = (tileMap != nullptr && tileMap->IsTileDestroyed(std::int32_t(_pos.X) / Tiles::TileSet::DefaultTileSize, std::int32_t(_pos.Y) / Tiles::TileSet::DefaultTileSize));
 		if (!destroyed) {
 			// Also a tile made whole again, by going back to a checkpoint
 			_phase = Phase::Whole;
@@ -1513,8 +1557,7 @@ namespace Jazz2::Scripting::Legacy
 		// game (measured in JJ2+, whatever the frame is)
 		constexpr float StandingTop = 5.0f;
 		float width = float(_platformWidth > 0 ? _platformWidth : _frameRect.W);
-		float left = _obj->xPos + PositionOffset + (_platformWidth > 0 ? -width * 0.5f
-			: (_obj->direction < 0 ? float(-_frameRect.X - _frameRect.W) : float(_frameRect.X)));
+		float left = _obj->xPos + PositionOffset + (_platformWidth > 0 ? -width * 0.5f : (_obj->direction < 0 ? float(-_frameRect.X - _frameRect.W) : float(_frameRect.X)));
 		float top = _obj->yPos + PositionOffset - StandingTop;
 		box = AABBf(left, top, left + width, top + 8.0f);
 		return true;
@@ -1625,8 +1668,7 @@ namespace Jazz2::Scripting::Legacy
 			return true;
 		}
 		// A special object the script collides itself is touched by its frame too (poles of a single column of pixels)
-		bool hitsByFrame = (isSolid || (_obj->_playerHandlingSet && (_obj->get_playerHandling() == 0 ||
-			(_obj->get_playerHandling() == hSPECIAL && _obj->_scriptedCollisions))));
+		bool hitsByFrame = (isSolid || (_obj->_playerHandlingSet && (_obj->get_playerHandling() == 0 || (_obj->get_playerHandling() == hSPECIAL && _obj->_scriptedCollisions))));
 		if (_obj->_skinAnim <= 0 || _obj->curFrame == 0 || !hitsByFrame) {
 			return false;
 		}
@@ -2074,7 +2116,7 @@ namespace Jazz2::Scripting::Legacy
 		obj.yAcc = preset.yAcc + slot * Side * preset.xAcc;
 		obj.xPos = owner->GetPos().X;
 		// The gunspot of the pose, 6 pixels higher standing as measured, lower crouching
-		obj.yPos = owner->GetPos().Y + 1.0f + gunspotOffsetY;	// jjPLAYER::yPos is 1 px lower
+		obj.yPos = owner->GetPos().Y + 1.0f + gunspotOffsetY; // jjPLAYER::yPos is 1 px lower
 		if (upward) {
 			// As JJ2 fires up (MLLE turns its bullets the same): the speeds along the way it flies turned up, the vertical ones
 			// of the template dropped (a sword stabs up by ySpeed -1), from the gunspot, 2/3 as far straight up
@@ -2249,8 +2291,15 @@ namespace Jazz2::Scripting::Legacy
 		}
 		std::uint8_t param = 15;
 		switch (obj.eventID) {
-			case aREDGEM: case aGREENGEM: case aBLUEGEM: case aPURPLEGEM: case aSUPERREDGEM: case aREDGEMTEMP:
-			case aRECTREDGEM: case aRECTGREENGEM: case aRECTBLUEGEM:
+			case aREDGEM:
+			case aGREENGEM:
+			case aBLUEGEM:
+			case aPURPLEGEM:
+			case aSUPERREDGEM:
+			case aREDGEMTEMP:
+			case aRECTREDGEM:
+			case aRECTGREENGEM:
+			case aRECTBLUEGEM:
 				// A gem in its color, as the behavior of the game draws it (skulls made of gems)
 				if (mode == spriteType_NORMAL) {
 					mode = spriteType_GEM;
@@ -2479,9 +2528,15 @@ namespace Jazz2::Scripting::Legacy
 			// As BEHAVIOR::BAT: hangs STILL, takes off in TURN and flies in FLY
 			if (obj.state == sSTART || obj.state == sSTILL || obj.state == sTURN || obj.state == sFLY || obj.state == sWALK) {
 				switch (bat->GetBatState()) {
-					case Actors::Enemies::Bat::BatState::Hanging: obj.state = sSTILL; break;
-					case Actors::Enemies::Bat::BatState::Waking: obj.state = sTURN; break;
-					case Actors::Enemies::Bat::BatState::Flying: obj.state = sFLY; break;
+					case Actors::Enemies::Bat::BatState::Hanging:
+						obj.state = sSTILL;
+						break;
+					case Actors::Enemies::Bat::BatState::Waking:
+						obj.state = sTURN;
+						break;
+					case Actors::Enemies::Bat::BatState::Flying:
+						obj.state = sFLY;
+						break;
 				}
 			}
 		} else if (auto* doggy = runtime_cast<Actors::Enemies::Doggy>(&actor)) {
@@ -2621,7 +2676,8 @@ namespace Jazz2::Scripting::Legacy
 			!tables.GetAnimationFrames(std::uint32_t(obj._skinAnim), frameCount, firstFrame) || frameCount == 0) {
 			return 0.0f;
 		}
-		Recti frameRect; Vector2i coldSpot;
+		Recti frameRect;
+		Vector2i coldSpot;
 		if (!tables.GetFrameSpots(firstFrame, frameRect, coldSpot) || coldSpot == Vector2i::Zero) {
 			return 0.0f;
 		}
@@ -2816,7 +2872,8 @@ namespace Jazz2::Scripting::Legacy
 		void LogBehaviorException(asIScriptContext* ctx)
 		{
 #if defined(DEATH_TRACE)
-			std::int32_t column = 0; const char* sectionName = nullptr;
+			std::int32_t column = 0;
+			const char* sectionName = nullptr;
 			std::int32_t line = ctx->GetExceptionLineNumber(&column, &sectionName);
 			__DEATH_TRACE(TraceLevel::Error, "AngelScript!", "An exception \"{}\" occurred in \"{}\" (called from \"{}:{}({})\")",
 				ctx->GetExceptionString(), ctx->GetExceptionFunction()->GetDeclaration(), sectionName, line, column);
@@ -3184,8 +3241,7 @@ namespace Jazz2::Scripting
 		}
 
 		events->ForEachEvent([this, added](Events::EventMap::EventTile& tile, std::int32_t x, std::int32_t y) {
-			if (tile.IsEventActive && (tile.Event == EventType::SceneryDestruct || tile.Event == EventType::SceneryDestructButtstomp ||
-				tile.Event == EventType::SceneryDestructSpeed || tile.Event == EventType::SceneryCollapse || tile.Event == EventType::TriggerArea)) {
+			if (tile.IsEventActive && (tile.Event == EventType::SceneryDestruct || tile.Event == EventType::SceneryDestructButtstomp || tile.Event == EventType::SceneryDestructSpeed || tile.Event == EventType::SceneryCollapse || tile.Event == EventType::TriggerArea)) {
 				std::uint8_t eventId = std::uint8_t(GetEventTranslator().ToOriginal(tile.Event, tile.EventParams) & 0xFF);
 				for (std::size_t i = 0; i < arraySize(SceneryEvents); i++) {
 					if (SceneryEvents[i] == eventId && (added & (1 << i)) != 0) {
@@ -3232,7 +3288,7 @@ namespace Jazz2::Scripting
 
 		// A copy of the template in no level, whatever its behavior does to it or with it goes away with it
 		void* mem = asAllocMem(sizeof(Legacy::jjOBJ));
-		Legacy::jjOBJ* obj = new(mem) Legacy::jjOBJ();
+		Legacy::jjOBJ* obj = new (mem) Legacy::jjOBJ();
 		obj->CopyTemplate(*preset);
 		obj->state = Legacy::sSTART;
 		obj->xOrg = obj->xPos = float(tileX * 32 + 15);
@@ -3352,7 +3408,7 @@ namespace Jazz2::Scripting
 		Legacy::jjOBJ*& preset = _objectPresets[eventId];
 		if (preset == nullptr) {
 			void* mem = asAllocMem(sizeof(Legacy::jjOBJ));
-			preset = new(mem) Legacy::jjOBJ();
+			preset = new (mem) Legacy::jjOBJ();
 			preset->eventID = eventId;
 			preset->behavior = Legacy::DefaultBehavior;
 			preset->state = Legacy::sSTART;
@@ -3377,38 +3433,79 @@ namespace Jazz2::Scripting
 			Legacy::InitPresetBullet(*preset);
 			// The color of a gem, which it's drawn by (SPRITE::GEM, var[0] - 1), as measured in JJ2+
 			switch (eventId) {
-				case Legacy::aREDGEM: case Legacy::aRECTREDGEM: case Legacy::aREDGEMTEMP: preset->set_var(0, 1); break;
-				case Legacy::aGREENGEM: case Legacy::aRECTGREENGEM: preset->set_var(0, 2); break;
-				case Legacy::aBLUEGEM: case Legacy::aRECTBLUEGEM: preset->set_var(0, 3); break;
-				case Legacy::aPURPLEGEM: preset->set_var(0, 4); break;
+				case Legacy::aREDGEM:
+				case Legacy::aRECTREDGEM:
+				case Legacy::aREDGEMTEMP:
+					preset->set_var(0, 1);
+					break;
+				case Legacy::aGREENGEM:
+				case Legacy::aRECTGREENGEM:
+					preset->set_var(0, 2);
+					break;
+				case Legacy::aBLUEGEM:
+				case Legacy::aRECTBLUEGEM:
+					preset->set_var(0, 3);
+					break;
+				case Legacy::aPURPLEGEM:
+					preset->set_var(0, 4);
+					break;
 			}
 			// The weapon (0 is the Blaster) of an ammo pickup, an ammo crate and a power-up in var[3], and the pickup a crate
 			// gives in var[2], as the original game sets them - the pickups of weapons of scripts give ammo by it
 			switch (eventId) {
-				case Legacy::aGUN2AMMO3: preset->set_var(3, 1); break;
-				case Legacy::aGUN3AMMO3: preset->set_var(3, 2); break;
-				case Legacy::aGUN4AMMO3: case Legacy::aGUN5AMMO3: case Legacy::aGUN6AMMO3: case Legacy::aGUN7AMMO3:
-				case Legacy::aGUN8AMMO3: case Legacy::aGUN9AMMO3:
+				case Legacy::aGUN2AMMO3:
+					preset->set_var(3, 1);
+					break;
+				case Legacy::aGUN3AMMO3:
+					preset->set_var(3, 2);
+					break;
+				case Legacy::aGUN4AMMO3:
+				case Legacy::aGUN5AMMO3:
+				case Legacy::aGUN6AMMO3:
+				case Legacy::aGUN7AMMO3:
+				case Legacy::aGUN8AMMO3:
+				case Legacy::aGUN9AMMO3:
 					preset->set_var(3, 3 + (eventId - Legacy::aGUN4AMMO3));
 					break;
-				case Legacy::aGUN2AMMO15: preset->set_var(3, 1); preset->set_var(2, Legacy::aGUN2AMMO3); break;
-				case Legacy::aGUN3AMMO15: preset->set_var(3, 2); preset->set_var(2, Legacy::aGUN3AMMO3); break;
-				case Legacy::aGUN4AMMO15: case Legacy::aGUN5AMMO15: case Legacy::aGUN6AMMO15:
+				case Legacy::aGUN2AMMO15:
+					preset->set_var(3, 1);
+					preset->set_var(2, Legacy::aGUN2AMMO3);
+					break;
+				case Legacy::aGUN3AMMO15:
+					preset->set_var(3, 2);
+					preset->set_var(2, Legacy::aGUN3AMMO3);
+					break;
+				case Legacy::aGUN4AMMO15:
+				case Legacy::aGUN5AMMO15:
+				case Legacy::aGUN6AMMO15:
 					preset->set_var(3, 3 + (eventId - Legacy::aGUN4AMMO15));
 					preset->set_var(2, Legacy::aGUN4AMMO3 + (eventId - Legacy::aGUN4AMMO15));
 					break;
-				case Legacy::aGUN1POWER: case Legacy::aGUN2POWER: case Legacy::aGUN3POWER: case Legacy::aGUN4POWER:
-				case Legacy::aGUN5POWER: case Legacy::aGUN6POWER:
+				case Legacy::aGUN1POWER:
+				case Legacy::aGUN2POWER:
+				case Legacy::aGUN3POWER:
+				case Legacy::aGUN4POWER:
+				case Legacy::aGUN5POWER:
+				case Legacy::aGUN6POWER:
 					preset->set_var(3, eventId - Legacy::aGUN1POWER);
 					break;
-				case Legacy::aTNTPOWER: case Legacy::aGUN8POWER: case Legacy::aGUN9POWER:
+				case Legacy::aTNTPOWER:
+				case Legacy::aGUN8POWER:
+				case Legacy::aGUN9POWER:
 					preset->set_var(3, 6 + (eventId - Legacy::aTNTPOWER));
 					break;
 			}
 			// As measured in JJ2+, these never deactivate
 			switch (eventId) {
-				case Legacy::aROCK: case Legacy::aBRIDGE: case Legacy::aROTSMALLTREE: case Legacy::aCARROTUSPOLE:
-				case Legacy::aPSYCHPOLE: case Legacy::aDIAMONDUSPOLE: case Legacy::aJUNGLEPOLE: preset->_deactivates = false; break;
+				case Legacy::aROCK:
+				case Legacy::aBRIDGE:
+				case Legacy::aROTSMALLTREE:
+				case Legacy::aCARROTUSPOLE:
+				case Legacy::aPSYCHPOLE:
+				case Legacy::aDIAMONDUSPOLE:
+				case Legacy::aJUNGLEPOLE:
+					preset->_deactivates = false;
+					break;
 			}
 			// What a script changes of the template is told apart by this, see OnActorAdded()
 			preset->_synced.Energy = preset->energy;
@@ -3426,7 +3523,7 @@ namespace Jazz2::Scripting
 		if (obj == nullptr) {
 			// An object ID nothing has gets an inactive object
 			void* mem = asAllocMem(sizeof(Legacy::jjOBJ));
-			obj = new(mem) Legacy::jjOBJ();
+			obj = new (mem) Legacy::jjOBJ();
 			obj->objectID = std::int16_t(objectId);
 			return obj;
 		}
@@ -3499,7 +3596,7 @@ namespace Jazz2::Scripting
 		// An object is built from its template, as in JJ2+ - also one no script took yet (the color of a purple gem is of it),
 		// with the event ID of the template, which a script can change (garbage cans made of GUNBARREL)
 		void* mem = asAllocMem(sizeof(Legacy::jjOBJ));
-		Legacy::jjOBJ* obj = new(mem) Legacy::jjOBJ();
+		Legacy::jjOBJ* obj = new (mem) Legacy::jjOBJ();
 		Legacy::jjOBJ* preset = GetObjectPreset(slot.EventID);
 		obj->CopyTemplate(*preset);
 		obj->objectID = std::int16_t(objectId);

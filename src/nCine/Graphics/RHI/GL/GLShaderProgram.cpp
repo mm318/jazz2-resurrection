@@ -20,34 +20,56 @@ namespace nCine::RHI::GL
 		GLenum UniformTypeToGL(ShaderCompiler::UniformType type)
 		{
 			switch (type) {
-				case ShaderCompiler::UniformType::Float: return GL_FLOAT;
-				case ShaderCompiler::UniformType::Int: return GL_INT;
-				case ShaderCompiler::UniformType::UInt: return GL_UNSIGNED_INT;
+				case ShaderCompiler::UniformType::Float:
+					return GL_FLOAT;
+				case ShaderCompiler::UniformType::Int:
+					return GL_INT;
+				case ShaderCompiler::UniformType::UInt:
+					return GL_UNSIGNED_INT;
 #if !defined(DEATH_TARGET_VITA)
-				case ShaderCompiler::UniformType::Bool: return GL_BOOL;
+				case ShaderCompiler::UniformType::Bool:
+					return GL_BOOL;
 #endif
-				case ShaderCompiler::UniformType::Vec2: return GL_FLOAT_VEC2;
-				case ShaderCompiler::UniformType::Vec3: return GL_FLOAT_VEC3;
-				case ShaderCompiler::UniformType::Vec4: return GL_FLOAT_VEC4;
-				case ShaderCompiler::UniformType::IVec2: return GL_INT_VEC2;
-				case ShaderCompiler::UniformType::IVec3: return GL_INT_VEC3;
-				case ShaderCompiler::UniformType::IVec4: return GL_INT_VEC4;
-#if !defined(DEATH_TARGET_VITA)	// vitaGL declares none of the bool / unsigned-int vector types
-				case ShaderCompiler::UniformType::UVec2: return GL_UNSIGNED_INT_VEC2;
-				case ShaderCompiler::UniformType::UVec3: return GL_UNSIGNED_INT_VEC3;
-				case ShaderCompiler::UniformType::UVec4: return GL_UNSIGNED_INT_VEC4;
-				case ShaderCompiler::UniformType::BVec2: return GL_BOOL_VEC2;
-				case ShaderCompiler::UniformType::BVec3: return GL_BOOL_VEC3;
-				case ShaderCompiler::UniformType::BVec4: return GL_BOOL_VEC4;
+				case ShaderCompiler::UniformType::Vec2:
+					return GL_FLOAT_VEC2;
+				case ShaderCompiler::UniformType::Vec3:
+					return GL_FLOAT_VEC3;
+				case ShaderCompiler::UniformType::Vec4:
+					return GL_FLOAT_VEC4;
+				case ShaderCompiler::UniformType::IVec2:
+					return GL_INT_VEC2;
+				case ShaderCompiler::UniformType::IVec3:
+					return GL_INT_VEC3;
+				case ShaderCompiler::UniformType::IVec4:
+					return GL_INT_VEC4;
+#if !defined(DEATH_TARGET_VITA) // vitaGL declares none of the bool / unsigned-int vector types
+				case ShaderCompiler::UniformType::UVec2:
+					return GL_UNSIGNED_INT_VEC2;
+				case ShaderCompiler::UniformType::UVec3:
+					return GL_UNSIGNED_INT_VEC3;
+				case ShaderCompiler::UniformType::UVec4:
+					return GL_UNSIGNED_INT_VEC4;
+				case ShaderCompiler::UniformType::BVec2:
+					return GL_BOOL_VEC2;
+				case ShaderCompiler::UniformType::BVec3:
+					return GL_BOOL_VEC3;
+				case ShaderCompiler::UniformType::BVec4:
+					return GL_BOOL_VEC4;
 #endif
-				case ShaderCompiler::UniformType::Mat2: return GL_FLOAT_MAT2;
-				case ShaderCompiler::UniformType::Mat3: return GL_FLOAT_MAT3;
-				case ShaderCompiler::UniformType::Mat4: return GL_FLOAT_MAT4;
-				case ShaderCompiler::UniformType::Sampler2D: return GL_SAMPLER_2D;
-#if !defined(DEATH_TARGET_VITA)	// GL_SAMPLER_3D is not declared by vitaGL
-				case ShaderCompiler::UniformType::Sampler3D: return GL_SAMPLER_3D;
+				case ShaderCompiler::UniformType::Mat2:
+					return GL_FLOAT_MAT2;
+				case ShaderCompiler::UniformType::Mat3:
+					return GL_FLOAT_MAT3;
+				case ShaderCompiler::UniformType::Mat4:
+					return GL_FLOAT_MAT4;
+				case ShaderCompiler::UniformType::Sampler2D:
+					return GL_SAMPLER_2D;
+#if !defined(DEATH_TARGET_VITA) // GL_SAMPLER_3D is not declared by vitaGL
+				case ShaderCompiler::UniformType::Sampler3D:
+					return GL_SAMPLER_3D;
 #endif
-				case ShaderCompiler::UniformType::SamplerCube: return GL_SAMPLER_CUBE;
+				case ShaderCompiler::UniformType::SamplerCube:
+					return GL_SAMPLER_CUBE;
 				default:
 					LOGW("No available case to handle reflected type: {}", std::uint32_t(type));
 					return GL_FLOAT;
@@ -71,7 +93,7 @@ namespace nCine::RHI::GL
 		_uniforms.reserve(UniformsInitialSize);
 		_uniformBlocks.reserve(UniformBlocksInitialSize);
 		_attributes.reserve(AttributesInitialSize);
-		
+
 #if defined(RHI_GL_PROFILE_ES2)
 		// GL_PROGRAM_BINARY_RETRIEVABLE_HINT (and glProgramParameteri) is ES 3.0; the ES2-era
 		// OES_get_program_binary path retrieves binaries without a hint
@@ -121,8 +143,8 @@ namespace nCine::RHI::GL
 	bool GLShaderProgram::IsLinked() const
 	{
 		return (_status == Status::Linked ||
-				_status == Status::LinkedWithDeferredQueries ||
-				_status == Status::LinkedWithIntrospection);
+			_status == Status::LinkedWithDeferredQueries ||
+			_status == Status::LinkedWithIntrospection);
 	}
 
 	std::uint32_t GLShaderProgram::RetrieveInfoLogLength() const
@@ -470,7 +492,8 @@ namespace nCine::RHI::GL
 			std::uint32_t dataSize = b.BaseSize;
 			if (b.InstanceStride > 0) {
 				effectiveBatchSize = (_batchSize != std::uint32_t(DefaultBatchSize) && _batchSize > 0)
-					? _batchSize : (64 * 1024) / b.InstanceStride;
+					? _batchSize
+					: (64 * 1024) / b.InstanceStride;
 				dataSize += b.InstanceStride * effectiveBatchSize;
 			}
 
@@ -494,7 +517,7 @@ namespace nCine::RHI::GL
 					blockUniform._blockIndex = GLint(blockIndex);
 					blockUniform._type = UniformTypeToGL(m.Type);
 					blockUniform._size = (m.ArraySize == ShaderCompiler::SymbolicArraySize) ? GLint(effectiveBatchSize)
-						: (m.ArraySize > 0 ? GLint(m.ArraySize) : 1);
+																							: (m.ArraySize > 0 ? GLint(m.ArraySize) : 1);
 					blockUniform._offset = GLint(m.Offset);
 #if defined(RHI_GL_PROFILE_ES2)
 					// The member is a real loose uniform on ES2 - resolve its location for the glUniform upload

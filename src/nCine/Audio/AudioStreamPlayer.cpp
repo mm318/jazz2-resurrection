@@ -36,7 +36,7 @@ namespace nCine
 			case PlayerState::Stopped: {
 				// A refusal is reported by the device itself, see AudioBufferPlayer::Play()
 				const std::uint32_t source = device.RegisterPlayer(this);
-				if DEATH_UNLIKELY(source == IAudioDevice::UnavailableSource) {
+				if DEATH_UNLIKELY (source == IAudioDevice::UnavailableSource) {
 					break;
 				}
 				_sourceId = source;
@@ -138,7 +138,7 @@ namespace nCine
 	{
 		if (_state == PlayerState::Playing) {
 			// Don't decode a silent stream, it stays Playing and Enqueue() restarts it once the gain returns
-			if DEATH_UNLIKELY(IsSilent()) {
+			if DEATH_UNLIKELY (IsSilent()) {
 				return;
 			}
 

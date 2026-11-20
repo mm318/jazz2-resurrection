@@ -32,11 +32,12 @@
 #include <type_traits>
 
 #if defined(DEATH_MSVC2015_COMPATIBILITY)
-#	include <utility>	/* for std::swap() ambiguity workaround below */
+#include <utility> /* for std::swap() ambiguity workaround below */
 #endif
 
-namespace Death {
-//###==##====#=====--==~--~=~- --- -- -  -  -   -
+namespace Death
+{
+	//###==##====#=====--==~--~=~- --- -- -  -  -   -
 
 	// forward() and move() are basically copied from libstdc++'s bits/move.h
 
@@ -47,7 +48,9 @@ namespace Death {
 		perfect forwarding, but without the @cpp #include <utility> @ce dependency and guaranteed to be
 		@cpp constexpr @ce even in C++11.
 	*/
-	template<class T> constexpr T&& forward(typename std::remove_reference<T>::type& t) noexcept {
+	template <class T>
+	constexpr T&& forward(typename std::remove_reference<T>::type& t) noexcept
+	{
 		return static_cast<T&&>(t);
 	}
 
@@ -58,7 +61,9 @@ namespace Death {
 		perfect forwarding, but without the @cpp #include <utility> @ce dependency and guaranteed to be
 		@cpp constexpr @ce even in C++11.
 	*/
-	template<class T> constexpr T&& forward(typename std::remove_reference<T>::type&& t) noexcept {
+	template <class T>
+	constexpr T&& forward(typename std::remove_reference<T>::type&& t) noexcept
+	{
 		/* bits/move.h in libstdc++ has this and it makes sense to have it here
 		   also, although I can't really explain what accidents it prevents */
 		static_assert(!std::is_lvalue_reference<T>::value, "T cannot be a l-value reference");
@@ -72,7 +77,9 @@ namespace Death {
 		@m_class{m-doc-external} [std::move()](https://en.cppreference.com/w/cpp/utility/move), but without
 		the @cpp #include <utility> @ce dependency and guaranteed to be @cpp constexpr @ce even in C++11.
 	*/
-	template<class T> constexpr typename std::remove_reference<T>::type&& move(T&& t) noexcept {
+	template <class T>
+	constexpr typename std::remove_reference<T>::type&& move(T&& t) noexcept
+	{
 		return static_cast<typename std::remove_reference<T>::type&&>(t);
 	}
 
@@ -93,9 +100,12 @@ namespace Death {
 	   potentially slightly worse debug perf than if this overload was used for those too, due to
 	   libstdc++, libc++ and MSVC STL all delegating to move() instead of inlining it. */
 #if defined(DOXYGEN_GENERATING_OUTPUT)
-	template<class T> void swap(T& a, T& b) noexcept(...);
+	template <class T>
+	void swap(T& a, T& b) noexcept(...);
 #elif !defined(DEATH_MSVC2015_COMPATIBILITY)
-	template<class T> void swap(T& a, typename std::common_type<T>::type& b) noexcept(std::is_nothrow_move_constructible<T>::value && std::is_nothrow_move_assignable<T>::value) {
+	template <class T>
+	void swap(T& a, typename std::common_type<T>::type& b) noexcept(std::is_nothrow_move_constructible<T>::value && std::is_nothrow_move_assignable<T>::value)
+	{
 		/* "Deinlining" move() for nicer debug performance */
 		T tmp = static_cast<T&&>(a);
 		a = static_cast<T&&>(b);
@@ -114,11 +124,14 @@ namespace Death {
 		Does the same as @ref swap(T&, T&), but for every array element.
 	*/
 #if defined(DOXYGEN_GENERATING_OUTPUT)
-	template<std::size_t size, class T> void swap(T(&a)[size], T(&b)[size]) noexcept(...);
+	template <std::size_t size, class T>
+	void swap(T (&a)[size], T (&b)[size]) noexcept(...);
 #elif !defined(DEATH_MSVC2015_COMPATIBILITY)
 	/* Using std::common_type<T>::type(&)[size] doesn't work on MSVC 2017 and 2019 (possibly also 2022 and `/permisive-`) */
-	template<std::size_t size, class T> void swap(T(&a)[size], typename std::common_type<T(&)[size]>::type b) noexcept(std::is_nothrow_move_constructible<T>::value && std::is_nothrow_move_assignable<T>::value) {
-		for(std::size_t i = 0; i != size; ++i) {
+	template <std::size_t size, class T>
+	void swap(T (&a)[size], typename std::common_type<T (&)[size]>::type b) noexcept(std::is_nothrow_move_constructible<T>::value && std::is_nothrow_move_assignable<T>::value)
+	{
+		for (std::size_t i = 0; i != size; ++i) {
 			/* "Deinlining" move() for nicer debug performance */
 			T tmp = static_cast<T&&>(a[i]);
 			a[i] = static_cast<T&&>(b[i]);

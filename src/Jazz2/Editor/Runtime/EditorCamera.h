@@ -32,19 +32,23 @@ namespace Jazz2::Editor
 		void SetLevelBounds(const Rectf& bounds);
 
 		/** @brief Returns the size of the view */
-		Vector2i GetViewSize() const {
+		Vector2i GetViewSize() const
+		{
 			return _viewSize;
 		}
 		/** @brief Returns the center of the view in the level */
-		Vector2f GetCenter() const {
+		Vector2f GetCenter() const
+		{
 			return _center;
 		}
 		/** @brief Returns how many pixels of the view one pixel of the level takes */
-		float GetScale() const {
+		float GetScale() const
+		{
 			return _scale;
 		}
 		/** @brief Returns the scale at which the view shows as much of the level as the game does */
-		float GetGameplayScale() const {
+		float GetGameplayScale() const
+		{
 			return _gameplayScale;
 		}
 		/** @brief Returns the scale the camera is getting to, the same as @ref GetScale() when it's not moving */
@@ -80,7 +84,8 @@ namespace Jazz2::Editor
 		/** @brief Ends dragging, the view keeps moving as fast as it was dragged for a while */
 		void EndDrag();
 		/** @brief Returns `true` if the view is being dragged */
-		bool IsDragging() const {
+		bool IsDragging() const
+		{
 			return _dragging;
 		}
 		/** @brief Flies the camera to a place, zooming out on the way if it's far */

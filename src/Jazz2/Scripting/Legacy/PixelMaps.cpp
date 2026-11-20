@@ -59,12 +59,16 @@ namespace Jazz2::Scripting
 			}
 		}
 
-		jjPIXELMAP::jjPIXELMAP() : _refCount(1) {
+		jjPIXELMAP::jjPIXELMAP()
+			: _refCount(1)
+		{
 		}
-		jjPIXELMAP::~jjPIXELMAP() {
+		jjPIXELMAP::~jjPIXELMAP()
+		{
 		}
 
-		jjPIXELMAP* jjPIXELMAP::Create(std::uint32_t width, std::uint32_t height) {
+		jjPIXELMAP* jjPIXELMAP::Create(std::uint32_t width, std::uint32_t height)
+		{
 			if (std::uint64_t(width) * height > MaxPixelMapPixels) {
 				asIScriptContext* ctx = asGetActiveContext();
 				if (ctx != nullptr) {
@@ -74,7 +78,7 @@ namespace Jazz2::Scripting
 			}
 
 			void* mem = asAllocMem(sizeof(jjPIXELMAP));
-			jjPIXELMAP* map = new(mem) jjPIXELMAP();
+			jjPIXELMAP* map = new (mem) jjPIXELMAP();
 			map->width = width;
 			map->height = height;
 			// Value-initialized, so the map is transparent
@@ -82,20 +86,24 @@ namespace Jazz2::Scripting
 			return map;
 		}
 
-		jjPIXELMAP* jjPIXELMAP::CreateFromTile(std::uint16_t tileID, const jjPAL* palette) {
+		jjPIXELMAP* jjPIXELMAP::CreateFromTile(std::uint16_t tileID, const jjPAL* palette)
+		{
 			jjPIXELMAP* map = Create(TileSet::DefaultTileSize, TileSet::DefaultTileSize);
 			ReadTileImage(ScriptLoader::FromActiveContext<LevelScriptLoader>(), tileID, palette, map->_pixels.get());
 			return map;
 		}
-		jjPIXELMAP* jjPIXELMAP::CreateFromSize(std::uint32_t width, std::uint32_t height) {
+		jjPIXELMAP* jjPIXELMAP::CreateFromSize(std::uint32_t width, std::uint32_t height)
+		{
 			return Create(width, height);
 		}
-		jjPIXELMAP* jjPIXELMAP::CreateFromOther(const jjPIXELMAP& other) {
+		jjPIXELMAP* jjPIXELMAP::CreateFromOther(const jjPIXELMAP& other)
+		{
 			jjPIXELMAP* map = Create(other.width, other.height);
 			std::memcpy(map->_pixels.get(), other._pixels.get(), std::size_t(other.width) * other.height);
 			return map;
 		}
-		jjPIXELMAP* jjPIXELMAP::CreateFromFrame(const jjANIMFRAME* animFrame, const jjPAL* palette) {
+		jjPIXELMAP* jjPIXELMAP::CreateFromFrame(const jjANIMFRAME* animFrame, const jjPAL* palette)
+		{
 			if (animFrame == nullptr) {
 				return Create(0, 0);
 			}
@@ -109,15 +117,18 @@ namespace Jazz2::Scripting
 			const_cast<jjANIMFRAME*>(animFrame)->Release();
 			return map;
 		}
-		jjPIXELMAP* jjPIXELMAP::CreateFromLayer(std::uint32_t left, std::uint32_t top, std::uint32_t width, std::uint32_t height, std::uint32_t layer, const jjPAL* palette) {
+		jjPIXELMAP* jjPIXELMAP::CreateFromLayer(std::uint32_t left, std::uint32_t top, std::uint32_t width, std::uint32_t height, std::uint32_t layer, const jjPAL* palette)
+		{
 			auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 			return CreateFromEngineLayer(left, top, width, height, owner->GetLayerIndex(std::int32_t(layer)), palette);
 		}
-		jjPIXELMAP* jjPIXELMAP::CreateFromLayerObject(std::uint32_t left, std::uint32_t top, std::uint32_t width, std::uint32_t height, const jjLAYER* layer, const jjPAL* palette) {
+		jjPIXELMAP* jjPIXELMAP::CreateFromLayerObject(std::uint32_t left, std::uint32_t top, std::uint32_t width, std::uint32_t height, const jjLAYER* layer, const jjPAL* palette)
+		{
 			// A layer a script made (see jjLAYER::CreateFromSize()) has no tiles, its map stays transparent
 			return CreateFromEngineLayer(left, top, width, height, (layer != nullptr ? layer->_layerIndex : -1), palette);
 		}
-		jjPIXELMAP* jjPIXELMAP::CreateFromEngineLayer(std::uint32_t left, std::uint32_t top, std::uint32_t width, std::uint32_t height, std::int32_t layerIndex, const jjPAL* palette) {
+		jjPIXELMAP* jjPIXELMAP::CreateFromEngineLayer(std::uint32_t left, std::uint32_t top, std::uint32_t width, std::uint32_t height, std::int32_t layerIndex, const jjPAL* palette)
+		{
 			constexpr std::uint32_t Size = TileSet::DefaultTileSize;
 
 			jjPIXELMAP* map = Create(width, height);
@@ -148,7 +159,8 @@ namespace Jazz2::Scripting
 			}
 			return map;
 		}
-		jjPIXELMAP* jjPIXELMAP::CreateFromTexture(std::uint32_t texture, const jjPAL* palette) {
+		jjPIXELMAP* jjPIXELMAP::CreateFromTexture(std::uint32_t texture, const jjPAL* palette)
+		{
 			constexpr std::uint32_t Size = Formats::LayerPropertiesChunk::TextureSize;
 			if (texture == 0) {
 				// TEXTURE::LAYER8, the tiles of the textured background
@@ -161,7 +173,8 @@ namespace Jazz2::Scripting
 			}
 			return map;
 		}
-		jjPIXELMAP* jjPIXELMAP::CreateFromFilename(const String& filename, const jjPAL* palette, std::uint8_t threshold) {
+		jjPIXELMAP* jjPIXELMAP::CreateFromFilename(const String& filename, const jjPAL* palette, std::uint8_t threshold)
+		{
 			// An image of a palette gives its indices as they are, 0 is transparent (a burger booth was a black
 			// square otherwise)
 			if (IsScriptFileNameSafe(filename)) {
@@ -228,7 +241,8 @@ namespace Jazz2::Scripting
 			return *this;
 		}
 
-		std::uint8_t* jjPIXELMAP::GetPixel(std::uint32_t x, std::uint32_t y) {
+		std::uint8_t* jjPIXELMAP::GetPixel(std::uint32_t x, std::uint32_t y)
+		{
 			// JJ2+ indexes the rows one after another without checking `x`, so `x` past the width is in the rows below
 			// (plusPixelMapEx draws its double-width slopes so); past the end is a scratch pixel, what's written there is lost
 			std::uint64_t index = std::uint64_t(y) * width + x;
@@ -239,7 +253,8 @@ namespace Jazz2::Scripting
 			return &_pixels[std::size_t(index)];
 		}
 
-		bool jjPIXELMAP::saveToTile(std::uint16_t tileID, bool hFlip) const {
+		bool jjPIXELMAP::saveToTile(std::uint16_t tileID, bool hFlip) const
+		{
 			constexpr std::int32_t Size = TileSet::DefaultTileSize;
 
 			// Saving into an animated tile is undefined in JJ2+
@@ -263,7 +278,8 @@ namespace Jazz2::Scripting
 			auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 			return owner->SetTilePixels(tileID & TileMap::TileIndexMask, image);
 		}
-		bool jjPIXELMAP::saveToFrame(jjANIMFRAME* frame) const {
+		bool jjPIXELMAP::saveToFrame(jjANIMFRAME* frame) const
+		{
 			if (frame == nullptr) {
 				return false;
 			}
@@ -278,12 +294,14 @@ namespace Jazz2::Scripting
 			frame->Release();
 			return result;
 		}
-		bool jjPIXELMAP::saveToFile(const String& filename, const jjPAL& palette) const {
+		bool jjPIXELMAP::saveToFile(const String& filename, const jjPAL& palette) const
+		{
 			noop();
 			return false;
 		}
 
-		bool jjPIXELMAP::makeTexture(jjLAYER* layer) const {
+		bool jjPIXELMAP::makeTexture(jjLAYER* layer) const
+		{
 			auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 			std::int32_t layerIndex = (layer != nullptr ? layer->_layerIndex : owner->GetLayerIndex(8));
 			// TEXTURE::CUSTOM, as JJ2+ reports a texture of a pixel map
@@ -300,7 +318,8 @@ namespace Jazz2::Scripting
 			return result;
 		}
 
-		void jjPIXELMAP::Reframe(std::int64_t left, std::int64_t top, std::uint32_t newWidth, std::uint32_t newHeight, std::uint8_t fill) {
+		void jjPIXELMAP::Reframe(std::int64_t left, std::int64_t top, std::uint32_t newWidth, std::uint32_t newHeight, std::uint8_t fill)
+		{
 			auto pixels = std::make_unique<std::uint8_t[]>(std::size_t(newWidth) * newHeight);
 			for (std::uint32_t y = 0; y < newHeight; y++) {
 				std::int64_t sy = top + y;
@@ -315,7 +334,8 @@ namespace Jazz2::Scripting
 			_pixels = Death::move(pixels);
 		}
 
-		jjPIXELMAP& jjPIXELMAP::addBorders(std::int32_t left, std::int32_t top, std::int32_t right, std::int32_t bottom, std::uint8_t borderColor) {
+		jjPIXELMAP& jjPIXELMAP::addBorders(std::int32_t left, std::int32_t top, std::int32_t right, std::int32_t bottom, std::uint8_t borderColor)
+		{
 			// Nothing changes if the image would be empty, or if more is cropped of it than it has
 			std::int64_t newWidth = std::int64_t(width) + left + right;
 			std::int64_t newHeight = std::int64_t(height) + top + bottom;
@@ -328,14 +348,16 @@ namespace Jazz2::Scripting
 			Reframe(-std::int64_t(left), -std::int64_t(top), std::uint32_t(newWidth), std::uint32_t(newHeight), borderColor);
 			return *this;
 		}
-		jjPIXELMAP& jjPIXELMAP::crop(std::uint32_t left, std::uint32_t top, std::uint32_t newWidth, std::uint32_t newHeight) {
+		jjPIXELMAP& jjPIXELMAP::crop(std::uint32_t left, std::uint32_t top, std::uint32_t newWidth, std::uint32_t newHeight)
+		{
 			if (newWidth == 0 || newHeight == 0 || std::uint64_t(left) + newWidth > width || std::uint64_t(top) + newHeight > height) {
 				return *this;
 			}
 			Reframe(left, top, newWidth, newHeight, 0);
 			return *this;
 		}
-		jjPIXELMAP& jjPIXELMAP::flip(std::int32_t directions) {
+		jjPIXELMAP& jjPIXELMAP::flip(std::int32_t directions)
+		{
 			// SPRITE::Direction is the direction byte of JJ2, its sign flips horizontally, and the bit below differing
 			// from it vertically (FLIPH = 0xFF, FLIPV = 0x40, FLIPHV = 0xBF)
 			std::uint8_t value = std::uint8_t(directions);
@@ -355,7 +377,8 @@ namespace Jazz2::Scripting
 			}
 			return *this;
 		}
-		jjPIXELMAP& jjPIXELMAP::recolor(const CScriptArray& colorMapping) {
+		jjPIXELMAP& jjPIXELMAP::recolor(const CScriptArray& colorMapping)
+		{
 			if (colorMapping.GetSize() < 256) {
 				return *this;
 			}
@@ -366,7 +389,8 @@ namespace Jazz2::Scripting
 			}
 			return *this;
 		}
-		jjPIXELMAP& jjPIXELMAP::resize(std::uint32_t newWidth, std::uint32_t newHeight) {
+		jjPIXELMAP& jjPIXELMAP::resize(std::uint32_t newWidth, std::uint32_t newHeight)
+		{
 			if (width == 0 || height == 0 || newWidth == 0 || newHeight == 0 || std::uint64_t(newWidth) * newHeight > MaxPixelMapPixels) {
 				return *this;
 			}
@@ -385,7 +409,8 @@ namespace Jazz2::Scripting
 			_pixels = Death::move(pixels);
 			return *this;
 		}
-		jjPIXELMAP& jjPIXELMAP::rotate() {
+		jjPIXELMAP& jjPIXELMAP::rotate()
+		{
 			// 90 degrees clockwise, the bottom-left pixel ends up at the top-left
 			auto pixels = std::make_unique<std::uint8_t[]>(std::size_t(width) * height);
 			for (std::uint32_t y = 0; y < width; y++) {
@@ -397,7 +422,8 @@ namespace Jazz2::Scripting
 			_pixels = Death::move(pixels);
 			return *this;
 		}
-		jjPIXELMAP& jjPIXELMAP::trim(std::uint32_t& left, std::uint32_t& top, std::uint32_t& right, std::uint32_t& bottom, std::uint8_t trimColor) {
+		jjPIXELMAP& jjPIXELMAP::trim(std::uint32_t& left, std::uint32_t& top, std::uint32_t& right, std::uint32_t& bottom, std::uint8_t trimColor)
+		{
 			std::uint32_t minX = width, minY = height, maxX = 0, maxY = 0;
 			for (std::uint32_t y = 0; y < height; y++) {
 				const std::uint8_t* row = &_pixels[std::size_t(y) * width];
@@ -430,11 +456,13 @@ namespace Jazz2::Scripting
 			}
 			return *this;
 		}
-		jjPIXELMAP& jjPIXELMAP::trimBasic(std::uint8_t trimColor) {
+		jjPIXELMAP& jjPIXELMAP::trimBasic(std::uint8_t trimColor)
+		{
 			std::uint32_t left, top, right, bottom;
 			return trim(left, top, right, bottom, trimColor);
 		}
-		jjPIXELMAP* jjPIXELMAP::CreateFromColorMap(const jjCOLORMAP& other, const jjPAL* palette) {
+		jjPIXELMAP* jjPIXELMAP::CreateFromColorMap(const jjCOLORMAP& other, const jjPAL* palette)
+		{
 			jjPIXELMAP* map = Create(other.width, other.height);
 			if (map != nullptr) {
 				auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
@@ -444,12 +472,16 @@ namespace Jazz2::Scripting
 			return map;
 		}
 
-		jjCOLORMAP::jjCOLORMAP() : _refCount(1) {
+		jjCOLORMAP::jjCOLORMAP()
+			: _refCount(1)
+		{
 		}
-		jjCOLORMAP::~jjCOLORMAP() {
+		jjCOLORMAP::~jjCOLORMAP()
+		{
 		}
 
-		jjCOLORMAP* jjCOLORMAP::Create(std::uint32_t width, std::uint32_t height) {
+		jjCOLORMAP* jjCOLORMAP::Create(std::uint32_t width, std::uint32_t height)
+		{
 			if (std::uint64_t(width) * height > MaxPixelMapPixels) {
 				asIScriptContext* ctx = asGetActiveContext();
 				if (ctx != nullptr) {
@@ -459,7 +491,7 @@ namespace Jazz2::Scripting
 			}
 
 			void* mem = asAllocMem(sizeof(jjCOLORMAP));
-			jjCOLORMAP* map = new(mem) jjCOLORMAP();
+			jjCOLORMAP* map = new (mem) jjCOLORMAP();
 			map->width = width;
 			map->height = height;
 			// Value-initialized, so the map is transparent
@@ -467,7 +499,8 @@ namespace Jazz2::Scripting
 			return map;
 		}
 
-		jjCOLORMAP* jjCOLORMAP::CreateFromIndices(const std::uint8_t* indices, std::uint32_t width, std::uint32_t height, const jjPAL& palette) {
+		jjCOLORMAP* jjCOLORMAP::CreateFromIndices(const std::uint8_t* indices, std::uint32_t width, std::uint32_t height, const jjPAL& palette)
+		{
 			jjCOLORMAP* map = Create(width, height);
 			if (map == nullptr || indices == nullptr) {
 				return map;
@@ -482,21 +515,25 @@ namespace Jazz2::Scripting
 			return map;
 		}
 
-		jjCOLORMAP* jjCOLORMAP::CreateFromSize(std::uint32_t width, std::uint32_t height) {
+		jjCOLORMAP* jjCOLORMAP::CreateFromSize(std::uint32_t width, std::uint32_t height)
+		{
 			return Create(width, height);
 		}
-		jjCOLORMAP* jjCOLORMAP::CreateFromPixelMap(const jjPIXELMAP& other, const jjPAL& palette) {
+		jjCOLORMAP* jjCOLORMAP::CreateFromPixelMap(const jjPIXELMAP& other, const jjPAL& palette)
+		{
 			jjPIXELMAP& source = const_cast<jjPIXELMAP&>(other);
 			return CreateFromIndices(other.width > 0 && other.height > 0 ? source.GetPixel(0, 0) : nullptr, other.width, other.height, palette);
 		}
-		jjCOLORMAP* jjCOLORMAP::CreateFromOther(const jjCOLORMAP& other) {
+		jjCOLORMAP* jjCOLORMAP::CreateFromOther(const jjCOLORMAP& other)
+		{
 			jjCOLORMAP* map = Create(other.width, other.height);
 			if (map != nullptr) {
 				std::memcpy(map->_pixels.get(), other._pixels.get(), std::size_t(other.width) * other.height * sizeof(jjPALCOLOR));
 			}
 			return map;
 		}
-		jjCOLORMAP* jjCOLORMAP::CreateFromFrame(const jjANIMFRAME* animFrame, const jjPAL& palette) {
+		jjCOLORMAP* jjCOLORMAP::CreateFromFrame(const jjANIMFRAME* animFrame, const jjPAL& palette)
+		{
 			if (animFrame == nullptr) {
 				return Create(0, 0);
 			}
@@ -514,7 +551,8 @@ namespace Jazz2::Scripting
 			const_cast<jjANIMFRAME*>(animFrame)->Release();
 			return map;
 		}
-		jjCOLORMAP* jjCOLORMAP::CreateFromTexture(std::uint32_t texture, const jjPAL& palette) {
+		jjCOLORMAP* jjCOLORMAP::CreateFromTexture(std::uint32_t texture, const jjPAL& palette)
+		{
 			jjPIXELMAP* indices = jjPIXELMAP::CreateFromTexture(texture, &palette);
 			if (indices == nullptr) {
 				return nullptr;
@@ -585,7 +623,8 @@ namespace Jazz2::Scripting
 			return map;
 		}
 
-		jjCOLORMAP* jjCOLORMAP::CreateFromTile(std::uint16_t tileID, const jjPAL& palette) {
+		jjCOLORMAP* jjCOLORMAP::CreateFromTile(std::uint16_t tileID, const jjPAL& palette)
+		{
 			constexpr std::uint32_t Size = TileSet::DefaultTileSize;
 			jjCOLORMAP* map = Create(Size, Size);
 			if (map != nullptr) {
@@ -594,14 +633,17 @@ namespace Jazz2::Scripting
 			}
 			return map;
 		}
-		jjCOLORMAP* jjCOLORMAP::CreateFromLayer(std::uint32_t left, std::uint32_t top, std::uint32_t width, std::uint32_t height, std::uint32_t layer, const jjPAL& palette) {
+		jjCOLORMAP* jjCOLORMAP::CreateFromLayer(std::uint32_t left, std::uint32_t top, std::uint32_t width, std::uint32_t height, std::uint32_t layer, const jjPAL& palette)
+		{
 			auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 			return CreateColorMapFromEngineLayer(Create(width, height), left, top, owner->GetLayerIndex(std::int32_t(layer)), palette);
 		}
-		jjCOLORMAP* jjCOLORMAP::CreateFromLayerObject(std::uint32_t left, std::uint32_t top, std::uint32_t width, std::uint32_t height, const jjLAYER& layer, const jjPAL& palette) {
+		jjCOLORMAP* jjCOLORMAP::CreateFromLayerObject(std::uint32_t left, std::uint32_t top, std::uint32_t width, std::uint32_t height, const jjLAYER& layer, const jjPAL& palette)
+		{
 			return CreateColorMapFromEngineLayer(Create(width, height), left, top, layer._layerIndex, palette);
 		}
-		jjCOLORMAP* jjCOLORMAP::CreateFromFilename(const String& filename) {
+		jjCOLORMAP* jjCOLORMAP::CreateFromFilename(const String& filename)
+		{
 			// The real colors and alpha of the file, whatever kind of image it is; JJ2+ gives a 1 × 1 map for a file it can't read
 			std::unique_ptr<ITextureLoader> loader;
 			if (IsScriptFileNameSafe(filename)) {
@@ -664,7 +706,8 @@ namespace Jazz2::Scripting
 			return *this;
 		}
 
-		jjPALCOLOR* jjCOLORMAP::GetPixel(std::uint32_t x, std::uint32_t y) {
+		jjPALCOLOR* jjCOLORMAP::GetPixel(std::uint32_t x, std::uint32_t y)
+		{
 			// As jjPIXELMAP::GetPixel(), the rows one after another
 			std::uint64_t index = std::uint64_t(y) * width + x;
 			if (index >= std::uint64_t(width) * height) {
@@ -674,7 +717,8 @@ namespace Jazz2::Scripting
 			return &_pixels[std::size_t(index)];
 		}
 
-		std::unique_ptr<std::uint8_t[]> jjCOLORMAP::ToIndices(const jjPAL& palette) const {
+		std::unique_ptr<std::uint8_t[]> jjCOLORMAP::ToIndices(const jjPAL& palette) const
+		{
 			// The same color is looked up only once, an image has few of them
 			std::size_t count = std::size_t(width) * height;
 			std::unique_ptr<std::uint8_t[]> indices = std::make_unique<std::uint8_t[]>(count);
@@ -694,7 +738,8 @@ namespace Jazz2::Scripting
 			return indices;
 		}
 
-		bool jjCOLORMAP::saveToTile(std::uint16_t tileID, bool hFlip) const {
+		bool jjCOLORMAP::saveToTile(std::uint16_t tileID, bool hFlip) const
+		{
 			constexpr std::uint32_t Size = TileSet::DefaultTileSize;
 
 			// Saving into an animated tile is undefined in JJ2+
@@ -716,7 +761,8 @@ namespace Jazz2::Scripting
 			auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 			return owner->SetTileColors(tileID & TileMap::TileIndexMask, image);
 		}
-		bool jjCOLORMAP::saveToFrame(jjANIMFRAME* frame) const {
+		bool jjCOLORMAP::saveToFrame(jjANIMFRAME* frame) const
+		{
 			if (frame == nullptr) {
 				return false;
 			}
@@ -732,12 +778,14 @@ namespace Jazz2::Scripting
 			frame->Release();
 			return result;
 		}
-		bool jjCOLORMAP::saveToFile(const String& filename, bool allowCompression) const {
+		bool jjCOLORMAP::saveToFile(const String& filename, bool allowCompression) const
+		{
 			noop();
 			return false;
 		}
 
-		void jjCOLORMAP::Reframe(std::int64_t left, std::int64_t top, std::uint32_t newWidth, std::uint32_t newHeight, jjPALCOLOR fill) {
+		void jjCOLORMAP::Reframe(std::int64_t left, std::int64_t top, std::uint32_t newWidth, std::uint32_t newHeight, jjPALCOLOR fill)
+		{
 			auto pixels = std::make_unique<jjPALCOLOR[]>(std::size_t(newWidth) * newHeight);
 			for (std::uint32_t y = 0; y < newHeight; y++) {
 				std::int64_t sy = top + y;
@@ -752,7 +800,8 @@ namespace Jazz2::Scripting
 			_pixels = Death::move(pixels);
 		}
 
-		jjCOLORMAP& jjCOLORMAP::addBorders(std::int32_t left, std::int32_t top, std::int32_t right, std::int32_t bottom, jjPALCOLOR borderColor) {
+		jjCOLORMAP& jjCOLORMAP::addBorders(std::int32_t left, std::int32_t top, std::int32_t right, std::int32_t bottom, jjPALCOLOR borderColor)
+		{
 			// The same as jjPIXELMAP::addBorders()
 			std::int64_t newWidth = std::int64_t(width) + left + right;
 			std::int64_t newHeight = std::int64_t(height) + top + bottom;
@@ -765,14 +814,16 @@ namespace Jazz2::Scripting
 			Reframe(-std::int64_t(left), -std::int64_t(top), std::uint32_t(newWidth), std::uint32_t(newHeight), borderColor);
 			return *this;
 		}
-		jjCOLORMAP& jjCOLORMAP::crop(std::uint32_t left, std::uint32_t top, std::uint32_t newWidth, std::uint32_t newHeight) {
+		jjCOLORMAP& jjCOLORMAP::crop(std::uint32_t left, std::uint32_t top, std::uint32_t newWidth, std::uint32_t newHeight)
+		{
 			if (newWidth == 0 || newHeight == 0 || std::uint64_t(left) + newWidth > width || std::uint64_t(top) + newHeight > height) {
 				return *this;
 			}
 			Reframe(left, top, newWidth, newHeight, {});
 			return *this;
 		}
-		jjCOLORMAP& jjCOLORMAP::flip(std::int32_t directions) {
+		jjCOLORMAP& jjCOLORMAP::flip(std::int32_t directions)
+		{
 			// SPRITE::Direction as jjPIXELMAP::flip() takes it
 			std::uint8_t value = std::uint8_t(directions);
 			bool flipX = ((value & 0x80) != 0);
@@ -791,7 +842,8 @@ namespace Jazz2::Scripting
 			}
 			return *this;
 		}
-		jjCOLORMAP& jjCOLORMAP::resize(std::uint32_t newWidth, std::uint32_t newHeight) {
+		jjCOLORMAP& jjCOLORMAP::resize(std::uint32_t newWidth, std::uint32_t newHeight)
+		{
 			if (width == 0 || height == 0 || newWidth == 0 || newHeight == 0 || std::uint64_t(newWidth) * newHeight > MaxPixelMapPixels) {
 				return *this;
 			}
@@ -810,7 +862,8 @@ namespace Jazz2::Scripting
 			_pixels = Death::move(pixels);
 			return *this;
 		}
-		jjCOLORMAP& jjCOLORMAP::rotate() {
+		jjCOLORMAP& jjCOLORMAP::rotate()
+		{
 			// 90 degrees clockwise, the bottom-left pixel ends up at the top-left
 			auto pixels = std::make_unique<jjPALCOLOR[]>(std::size_t(width) * height);
 			for (std::uint32_t y = 0; y < width; y++) {
@@ -822,7 +875,8 @@ namespace Jazz2::Scripting
 			_pixels = Death::move(pixels);
 			return *this;
 		}
-		jjCOLORMAP& jjCOLORMAP::swizzle(std::uint32_t red, std::uint32_t green, std::uint32_t blue, std::uint32_t alpha) {
+		jjCOLORMAP& jjCOLORMAP::swizzle(std::uint32_t red, std::uint32_t green, std::uint32_t blue, std::uint32_t alpha)
+		{
 			// COLOR::Component, RED to ALPHA
 			std::size_t count = std::size_t(width) * height;
 			for (std::size_t i = 0; i < count; i++) {
@@ -835,7 +889,8 @@ namespace Jazz2::Scripting
 			}
 			return *this;
 		}
-		jjCOLORMAP& jjCOLORMAP::trim(std::uint32_t& left, std::uint32_t& top, std::uint32_t& right, std::uint32_t& bottom, std::uint8_t trimAlpha) {
+		jjCOLORMAP& jjCOLORMAP::trim(std::uint32_t& left, std::uint32_t& top, std::uint32_t& right, std::uint32_t& bottom, std::uint8_t trimAlpha)
+		{
 			std::uint32_t minX = width, minY = height, maxX = 0, maxY = 0;
 			for (std::uint32_t y = 0; y < height; y++) {
 				const jjPALCOLOR* row = &_pixels[std::size_t(y) * width];
@@ -868,23 +923,29 @@ namespace Jazz2::Scripting
 			}
 			return *this;
 		}
-		jjCOLORMAP& jjCOLORMAP::trimBasic(std::uint8_t trimAlpha) {
+		jjCOLORMAP& jjCOLORMAP::trimBasic(std::uint8_t trimAlpha)
+		{
 			std::uint32_t left, top, right, bottom;
 			return trim(left, top, right, bottom, trimAlpha);
 		}
 
-		jjMASKMAP::jjMASKMAP() : _refCount(1), _mask{} {
+		jjMASKMAP::jjMASKMAP()
+			: _refCount(1), _mask {}
+		{
 		}
-		jjMASKMAP::~jjMASKMAP() {
+		jjMASKMAP::~jjMASKMAP()
+		{
 		}
 
-		jjMASKMAP* jjMASKMAP::CreateFromBool(bool filled) {
+		jjMASKMAP* jjMASKMAP::CreateFromBool(bool filled)
+		{
 			void* mem = asAllocMem(sizeof(jjMASKMAP));
-			jjMASKMAP* map = new(mem) jjMASKMAP();
+			jjMASKMAP* map = new (mem) jjMASKMAP();
 			std::fill(map->_mask, map->_mask + Size * Size, filled);
 			return map;
 		}
-		jjMASKMAP* jjMASKMAP::CreateFromTile(std::uint16_t tileID) {
+		jjMASKMAP* jjMASKMAP::CreateFromTile(std::uint16_t tileID)
+		{
 			jjMASKMAP* map = CreateFromBool(false);
 
 			auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
@@ -933,7 +994,8 @@ namespace Jazz2::Scripting
 			return *this;
 		}
 
-		bool* jjMASKMAP::GetPixel(std::uint32_t x, std::uint32_t y) {
+		bool* jjMASKMAP::GetPixel(std::uint32_t x, std::uint32_t y)
+		{
 			// The same as jjPIXELMAP::GetPixel()
 			std::uint64_t index = std::uint64_t(y) * Size + x;
 			if (index >= std::uint64_t(Size) * Size) {
@@ -943,7 +1005,8 @@ namespace Jazz2::Scripting
 			return &_mask[std::size_t(index)];
 		}
 
-		bool jjMASKMAP::save(std::uint16_t tileID, bool hFlip) const {
+		bool jjMASKMAP::save(std::uint16_t tileID, bool hFlip) const
+		{
 			// The same as jjPIXELMAP::saveToTile(), the flipped version of a tile always changes along with it
 			if ((tileID & TileMap::TileFlagAnimated) != 0) {
 				return false;

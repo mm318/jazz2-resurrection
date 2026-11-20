@@ -10,8 +10,7 @@
 namespace Jazz2::Actors::Enemies
 {
 	TurtleTough::TurtleTough()
-		:
-		_stuck(false)
+		: _stuck(false)
 	{
 	}
 

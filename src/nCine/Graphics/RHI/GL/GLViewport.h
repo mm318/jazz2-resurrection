@@ -34,7 +34,8 @@ namespace nCine::RHI::GL
 		};
 
 		/** @brief Returns the current viewport rectangle */
-		static Recti GetRect() {
+		static Recti GetRect()
+		{
 			return _state.rect;
 		}
 		/**
@@ -54,7 +55,8 @@ namespace nCine::RHI::GL
 		static void SetRect(GLint x, GLint y, GLsizei width, GLsizei height);
 
 		/** @brief Returns the whole cached viewport state */
-		static State GetState() {
+		static State GetState()
+		{
 			return _state;
 		}
 		/** @brief Restores the whole viewport state */

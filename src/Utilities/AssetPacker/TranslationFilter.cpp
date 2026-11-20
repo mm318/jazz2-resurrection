@@ -36,8 +36,8 @@ namespace Jazz2::AssetPacker
 		std::uint32_t ReadU32(const std::uint8_t* data, bool bigEndian)
 		{
 			return (bigEndian
-				? (std::uint32_t(data[0]) << 24) | (std::uint32_t(data[1]) << 16) | (std::uint32_t(data[2]) << 8) | std::uint32_t(data[3])
-				: (std::uint32_t(data[3]) << 24) | (std::uint32_t(data[2]) << 16) | (std::uint32_t(data[1]) << 8) | std::uint32_t(data[0]));
+					? (std::uint32_t(data[0]) << 24) | (std::uint32_t(data[1]) << 16) | (std::uint32_t(data[2]) << 8) | std::uint32_t(data[3])
+					: (std::uint32_t(data[3]) << 24) | (std::uint32_t(data[2]) << 16) | (std::uint32_t(data[1]) << 8) | std::uint32_t(data[0]));
 		}
 
 		void WriteU32(std::uint8_t* data, std::uint32_t value)
@@ -99,7 +99,7 @@ namespace Jazz2::AssetPacker
 			if (size < MoHeaderSize || size > 16 * 1024 * 1024) {
 				return -1;
 			}
-			file = Array<std::uint8_t>{NoInit, std::size_t(size)};
+			file = Array<std::uint8_t> { NoInit, std::size_t(size) };
 			if (s->Read(file.data(), size) != size) {
 				return -1;
 			}
@@ -160,9 +160,9 @@ namespace Jazz2::AssetPacker
 			totalSize += entry.Original.size() + 1 + entry.Translation.size() + 1;
 		}
 
-		Array<std::uint8_t> output{ValueInit, totalSize};
+		Array<std::uint8_t> output { ValueInit, totalSize };
 		WriteU32(&output[0], MoSignature);
-		WriteU32(&output[4], 0);	// Revision
+		WriteU32(&output[4], 0); // Revision
 		WriteU32(&output[8], keptCount);
 		WriteU32(&output[12], newOrigTableOffset);
 		WriteU32(&output[16], newTransTableOffset);

@@ -9,14 +9,14 @@ namespace nCine
 	/** @param parent The parent can be `nullptr` */
 	SceneNode::SceneNode(SceneNode* parent, float x, float y)
 		: Object(ObjectType::SceneNode),
-		_updateEnabled(true), _drawEnabled(true), _parent(nullptr),
-		_childOrderIndex(0), _withVisitOrder(true),
-		_visitOrderState(VisitOrderState::SameAsParent), _visitOrderIndex(0),
-		_position(x, y), _anchorPoint(0.0f, 0.0f), _scaleFactor(1.0f, 1.0f), _rotation(0.0f),
-		_color(Colorf::White), _layer(0), _absPosition(0.0f, 0.0f), _absScaleFactor(1.0f, 1.0f),
-		_absRotation(0.0f), _absColor(Colorf::White), _absLayer(0),
-		_worldMatrix(Matrix4x4f::Identity), _localMatrix(Matrix4x4f::Identity),
-		_shouldDeleteChildrenOnDestruction(true), _dirtyBits(0xFF), _lastFrameUpdated(0)
+		  _updateEnabled(true), _drawEnabled(true), _parent(nullptr),
+		  _childOrderIndex(0), _withVisitOrder(true),
+		  _visitOrderState(VisitOrderState::SameAsParent), _visitOrderIndex(0),
+		  _position(x, y), _anchorPoint(0.0f, 0.0f), _scaleFactor(1.0f, 1.0f), _rotation(0.0f),
+		  _color(Colorf::White), _layer(0), _absPosition(0.0f, 0.0f), _absScaleFactor(1.0f, 1.0f),
+		  _absRotation(0.0f), _absColor(Colorf::White), _absLayer(0),
+		  _worldMatrix(Matrix4x4f::Identity), _localMatrix(Matrix4x4f::Identity),
+		  _shouldDeleteChildrenOnDestruction(true), _dirtyBits(0xFF), _lastFrameUpdated(0)
 	{
 		SetParent(parent);
 	}
@@ -55,9 +55,9 @@ namespace nCine
 
 	SceneNode::SceneNode(SceneNode&& other) noexcept
 		: Object(Death::move(other)), _updateEnabled(other._updateEnabled), _drawEnabled(other._drawEnabled), _parent(other._parent),
-			_children(Death::move(other._children)), _visitOrderState(other._visitOrderState), _position(other._position), _anchorPoint(other._anchorPoint),
-			_scaleFactor(other._scaleFactor), _rotation(other._rotation), _color(other._color), _layer(other._layer),
-			_shouldDeleteChildrenOnDestruction(other._shouldDeleteChildrenOnDestruction), _dirtyBits(other._dirtyBits), _lastFrameUpdated(other._lastFrameUpdated)
+		  _children(Death::move(other._children)), _visitOrderState(other._visitOrderState), _position(other._position), _anchorPoint(other._anchorPoint),
+		  _scaleFactor(other._scaleFactor), _rotation(other._rotation), _color(other._color), _layer(other._layer),
+		  _shouldDeleteChildrenOnDestruction(other._shouldDeleteChildrenOnDestruction), _dirtyBits(other._dirtyBits), _lastFrameUpdated(other._lastFrameUpdated)
 	{
 		SwapChildPointer(this, &other);
 		for (SceneNode* child : _children) {
@@ -141,8 +141,8 @@ namespace nCine
 		}
 
 		bool hasBeenRemoved = false;
-		if (!_children.empty() &&			// Avoid checking if this node has no children
-			childNode->_parent == this)		// Avoid checking if the child doesn't belong to this node
+		if (!_children.empty() && // Avoid checking if this node has no children
+			childNode->_parent == this) // Avoid checking if the child doesn't belong to this node
 		{
 			for (unsigned int i = 0; i < _children.size(); i++) {
 				if (_children[i] == childNode) {
@@ -200,8 +200,8 @@ namespace nCine
 
 		bool hasBeenUnlinked = false;
 
-		if (!_children.empty() &&			// Avoid checking if this node has no children
-			childNode->_parent == this)		// Avoid checking if the child doesn't belong to this node
+		if (!_children.empty() && // Avoid checking if this node has no children
+			childNode->_parent == this) // Avoid checking if the child doesn't belong to this node
 		{
 			RemoveChildNode(childNode);
 
@@ -310,11 +310,11 @@ namespace nCine
 
 	SceneNode::SceneNode(const SceneNode& other)
 		: Object(other), _updateEnabled(other._updateEnabled), _drawEnabled(other._drawEnabled), _parent(nullptr), _childOrderIndex(0),
-			_withVisitOrder(true), _visitOrderState(other._visitOrderState), _visitOrderIndex(0), _position(other._position),
-			_anchorPoint(other._anchorPoint), _scaleFactor(other._scaleFactor), _rotation(other._rotation), _color(other._color),
-			_layer(other._layer), _absPosition(0.0f, 0.0f), _absScaleFactor(1.0f, 1.0f), _absRotation(0.0f), _absColor(Colorf::White),
-			_absLayer(0), _worldMatrix(Matrix4x4f::Identity), _localMatrix(Matrix4x4f::Identity),
-			_shouldDeleteChildrenOnDestruction(other._shouldDeleteChildrenOnDestruction), _dirtyBits(0xFF)
+		  _withVisitOrder(true), _visitOrderState(other._visitOrderState), _visitOrderIndex(0), _position(other._position),
+		  _anchorPoint(other._anchorPoint), _scaleFactor(other._scaleFactor), _rotation(other._rotation), _color(other._color),
+		  _layer(other._layer), _absPosition(0.0f, 0.0f), _absScaleFactor(1.0f, 1.0f), _absRotation(0.0f), _absColor(Colorf::White),
+		  _absLayer(0), _worldMatrix(Matrix4x4f::Identity), _localMatrix(Matrix4x4f::Identity),
+		  _shouldDeleteChildrenOnDestruction(other._shouldDeleteChildrenOnDestruction), _dirtyBits(0xFF)
 	{
 		SetParent(other._parent);
 	}
@@ -348,9 +348,15 @@ namespace nCine
 		}
 
 		switch (_visitOrderState) {
-			case VisitOrderState::Enabled: _withVisitOrder = true; break;
-			case VisitOrderState::SameAsParent: _withVisitOrder = (_parent == nullptr || _parent->_withVisitOrder); break;
-			default: _withVisitOrder = false; break;
+			case VisitOrderState::Enabled:
+				_withVisitOrder = true;
+				break;
+			case VisitOrderState::SameAsParent:
+				_withVisitOrder = (_parent == nullptr || _parent->_withVisitOrder);
+				break;
+			default:
+				_withVisitOrder = false;
+				break;
 		}
 
 		const bool parentHasDirtyColor = (_parent != nullptr && _parent->_dirtyBits.test(DirtyBitPositions::ColorBit));

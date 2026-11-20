@@ -104,7 +104,8 @@ namespace Jazz2::UI
 			float Previous;
 			float Current;
 
-			float Get() const {
+			float Get() const
+			{
 				return (Previous > Current ? Previous : Current);
 			}
 		};

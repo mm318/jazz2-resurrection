@@ -5,7 +5,7 @@
 #include <utility>
 
 #if defined(DEATH_TARGET_APPLE)
-#	include <libkern/OSByteOrder.h>
+#include <libkern/OSByteOrder.h>
 #endif
 
 namespace nCine
@@ -37,13 +37,20 @@ namespace nCine
 		v = 0;
 
 		switch (len & 7) {
-			case 7: v ^= static_cast<uint64_t>(pos2[6]) << 48;
-			case 6: v ^= static_cast<uint64_t>(pos2[5]) << 40;
-			case 5: v ^= static_cast<uint64_t>(pos2[4]) << 32;
-			case 4: v ^= static_cast<uint64_t>(pos2[3]) << 24;
-			case 3: v ^= static_cast<uint64_t>(pos2[2]) << 16;
-			case 2: v ^= static_cast<uint64_t>(pos2[1]) << 8;
-			case 1: v ^= static_cast<uint64_t>(pos2[0]);
+			case 7:
+				v ^= static_cast<uint64_t>(pos2[6]) << 48;
+			case 6:
+				v ^= static_cast<uint64_t>(pos2[5]) << 40;
+			case 5:
+				v ^= static_cast<uint64_t>(pos2[4]) << 32;
+			case 4:
+				v ^= static_cast<uint64_t>(pos2[3]) << 24;
+			case 3:
+				v ^= static_cast<uint64_t>(pos2[2]) << 16;
+			case 2:
+				v ^= static_cast<uint64_t>(pos2[1]) << 8;
+			case 1:
+				v ^= static_cast<uint64_t>(pos2[0]);
 				h ^= fasthash_mix(v);
 				h *= m;
 		}
@@ -61,9 +68,9 @@ namespace nCine
 
 	// CityHash
 #if defined(__has_builtin)
-#	define DEATH_HAS_BUILTIN(x) __has_builtin(x)
+#define DEATH_HAS_BUILTIN(x) __has_builtin(x)
 #else
-#	define DEATH_HAS_BUILTIN(x) 0
+#define DEATH_HAS_BUILTIN(x) 0
 #endif
 
 	inline std::uint32_t ByteSwap32(std::uint32_t value)
@@ -75,10 +82,10 @@ namespace nCine
 #elif DEATH_HAS_BUILTIN(__builtin_bswap32) || defined(DEATH_TARGET_GCC)
 		return __builtin_bswap32(value);
 #else
-		return (((value & std::uint32_t{0xFF}) << 24) |
-				((value & std::uint32_t{0xFF00}) << 8) |
-				((value & std::uint32_t{0xFF0000}) >> 8) |
-				((value & std::uint32_t{0xFF000000}) >> 24));
+		return (((value & std::uint32_t { 0xFF }) << 24) |
+			((value & std::uint32_t { 0xFF00 }) << 8) |
+			((value & std::uint32_t { 0xFF0000 }) >> 8) |
+			((value & std::uint32_t { 0xFF000000 }) >> 24));
 #endif
 	}
 
@@ -91,14 +98,14 @@ namespace nCine
 #elif DEATH_HAS_BUILTIN(__builtin_bswap64) || defined(DEATH_TARGET_GCC)
 		return __builtin_bswap64(value);
 #else
-		return (((value & std::uint64_t{0xFF}) << 56) |
-				((value & std::uint64_t{0xFF00}) << 40) |
-				((value & std::uint64_t{0xFF0000}) << 24) |
-				((value & std::uint64_t{0xFF000000}) << 8) |
-				((value & std::uint64_t{0xFF00000000}) >> 8) |
-				((value & std::uint64_t{0xFF0000000000}) >> 24) |
-				((value & std::uint64_t{0xFF000000000000}) >> 40) |
-				((value & std::uint64_t{0xFF00000000000000}) >> 56));
+		return (((value & std::uint64_t { 0xFF }) << 56) |
+			((value & std::uint64_t { 0xFF00 }) << 40) |
+			((value & std::uint64_t { 0xFF0000 }) << 24) |
+			((value & std::uint64_t { 0xFF000000 }) << 8) |
+			((value & std::uint64_t { 0xFF00000000 }) >> 8) |
+			((value & std::uint64_t { 0xFF0000000000 }) >> 24) |
+			((value & std::uint64_t { 0xFF000000000000 }) >> 40) |
+			((value & std::uint64_t { 0xFF00000000000000 }) >> 56));
 #endif
 	}
 
@@ -149,10 +156,10 @@ namespace nCine
 	}
 
 #undef PERMUTE3
-#define PERMUTE3(a, b, c)		\
-	do {						\
-		std::swap(a, b);		\
-		std::swap(a, c);		\
+#define PERMUTE3(a, b, c) \
+	do {                  \
+		std::swap(a, b);  \
+		std::swap(a, c);  \
 	} while (0)
 
 	static std::uint32_t Mur(std::uint32_t a, std::uint32_t h)

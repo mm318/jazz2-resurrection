@@ -152,7 +152,7 @@ namespace Jazz2::Editor
 
 		// Takes events of the same identifier on tiles next to each other together, as the tiles of a warp. The items
 		// are sorted by the tile, each gets the index of its group, the groups get the tiles they cover.
-		template<class TItem, class TGroup>
+		template <class TItem, class TGroup>
 		void GroupNeighbors(SmallVectorImpl<TItem>& items, std::int32_t gridWidth, SmallVectorImpl<TGroup>& groups)
 		{
 			std::int32_t count = std::int32_t(items.size());
@@ -172,7 +172,9 @@ namespace Jazz2::Editor
 				return i;
 			};
 			auto indexOf = [&items](std::int64_t cell) -> std::int32_t {
-				auto it = std::lower_bound(items.begin(), items.end(), cell, [](const TItem& item, std::int64_t c) { return std::int64_t(item.Cell) < c; });
+				auto it = std::lower_bound(items.begin(), items.end(), cell, [](const TItem& item, std::int64_t c) {
+					return std::int64_t(item.Cell) < c;
+				});
 				return (it != items.end() && std::int64_t(it->Cell) == cell ? std::int32_t(it - items.begin()) : -1);
 			};
 			// Only the neighbors after a tile, those before it looked at it already
@@ -217,18 +219,25 @@ namespace Jazz2::Editor
 
 	EditorShell::EditorShell(EditorSession& session)
 		: _session(session), _menuBar(nullptr), _toolbar(nullptr), _toolStrip(nullptr), _toolStripItems(nullptr), _rightFrame(nullptr), _rightDock(nullptr), _layersPanel(nullptr),
-			_pickerFrame(nullptr), _pickerDock(nullptr), _statusBar(nullptr), _playBar(nullptr), _rightSplitter(nullptr), _layersSplitter(nullptr),
-			_pickerSplitter(nullptr), _rightDockWidth(0.0f), _layerListHeight(0.0f), _pickerDockWidth(0.0f), _dragStartSize(0.0f), _cachedPathPoints(-1),
-			_cachedPathSegments(-1)
+		  _pickerFrame(nullptr), _pickerDock(nullptr), _statusBar(nullptr), _playBar(nullptr), _rightSplitter(nullptr), _layersSplitter(nullptr),
+		  _pickerSplitter(nullptr), _rightDockWidth(0.0f), _layerListHeight(0.0f), _pickerDockWidth(0.0f), _dragStartSize(0.0f), _cachedPathPoints(-1),
+		  _cachedPathSegments(-1)
 	{
 		CreateMenuBar();
 		CreateToolbar();
 		CreateToolStrip();
 		// Before the panels, which are drawn over the handles and get the pointer first
-		_resizeHandles = Add<LayerResizeHandles>(session, [this]() { return _viewRect; }, [this](const LayerView& view) { return GetLayerFrame(view); });
+		_resizeHandles = Add<LayerResizeHandles>(session, [this]() {
+			return _viewRect;
+		},
+			[this](const LayerView& view) {
+				return GetLayerFrame(view);
+			});
 		{
 			EditorSession* sessionPtr = &session;
-			_resizeHandles->IsVisibleFunc = [sessionPtr]() { return sessionPtr->ArePanelsShown(); };
+			_resizeHandles->IsVisibleFunc = [sessionPtr]() {
+				return sessionPtr->ArePanelsShown();
+			};
 		}
 
 		_changeObserver = std::make_shared<Function<void(const DocumentChanges&)>>([this](const DocumentChanges& changes) {
@@ -246,10 +255,14 @@ namespace Jazz2::Editor
 		EditorSession* s = &session;
 		auto* inspector = _rightDock->Add<InspectorPanel>(session);
 		inspector->Flex = 1.0f;
-		inspector->IsVisibleFunc = [s]() { return !s->IsEditingEvents(); };
+		inspector->IsVisibleFunc = [s]() {
+			return !s->IsEditingEvents();
+		};
 		auto* eventInspector = _rightDock->Add<EventInspectorPanel>(session);
 		eventInspector->Flex = 1.0f;
-		eventInspector->IsVisibleFunc = [s]() { return s->IsEditingEvents(); };
+		eventInspector->IsVisibleFunc = [s]() {
+			return s->IsEditingEvents();
+		};
 
 		// Tiles and events to pick from, next to the tools, where there's more room than below the view
 		_pickerFrame = Add<DockFrame>(DockSide::Left, _x("editor", "Drag to move the panel, to the edge of the screen to dock it again"));
@@ -260,16 +273,22 @@ namespace Jazz2::Editor
 		AddPickerPanelTabs(_pickerFrame->GetHeaderContent(), session);
 		auto* tilePicker = _pickerDock->Add<TilePickerPanel>(session);
 		tilePicker->Flex = 1.0f;
-		tilePicker->IsVisibleFunc = [s]() { return (s->GetPickerPanel() == PickerPanel::Tiles); };
+		tilePicker->IsVisibleFunc = [s]() {
+			return (s->GetPickerPanel() == PickerPanel::Tiles);
+		};
 		auto* eventPicker = _pickerDock->Add<EventPickerPanel>(session);
 		eventPicker->Flex = 1.0f;
-		eventPicker->IsVisibleFunc = [s]() { return (s->GetPickerPanel() == PickerPanel::Events); };
+		eventPicker->IsVisibleFunc = [s]() {
+			return (s->GetPickerPanel() == PickerPanel::Events);
+		};
 		_statusBar = Add<StatusBar>(session);
 
 		// The panels make way for the game while the level is played, only a bar to get back stays
-		auto isEditing = [s]() { return s->ArePanelsShown(); };
+		auto isEditing = [s]() {
+			return s->ArePanelsShown();
+		};
 		for (Element* element : { static_cast<Element*>(_menuBar), static_cast<Element*>(_toolbar), static_cast<Element*>(_toolStrip),
-				static_cast<Element*>(_rightFrame), static_cast<Element*>(_pickerFrame), _statusBar }) {
+				 static_cast<Element*>(_rightFrame), static_cast<Element*>(_pickerFrame), _statusBar }) {
 			element->IsVisibleFunc = isEditing;
 		}
 
@@ -301,39 +320,53 @@ namespace Jazz2::Editor
 		// The panels are resized by their inner edges, the size is remembered
 		_rightSplitter = Add<Splitter>(Orientation::Vertical, [this]() {
 			_dragStartSize = _rightDockWidth;
-		}, [this, settings](float offset) {
-			float scale = (GetSurface() != nullptr ? GetSurface()->GetScale() : 1.0f);
-			settings->RightPanelWidth = std::max(RightDockMinWidth, (_dragStartSize - offset) / scale);
-		}, [settings]() {
-			settings->Save();
-		});
+		},
+			[this, settings](float offset) {
+				float scale = (GetSurface() != nullptr ? GetSurface()->GetScale() : 1.0f);
+				settings->RightPanelWidth = std::max(RightDockMinWidth, (_dragStartSize - offset) / scale);
+			},
+			[settings]() {
+				settings->Save();
+			});
 		// A floating panel is resized by its own edges
-		_rightSplitter->IsVisibleFunc = [s, this]() { return (s->ArePanelsShown() && !_rightFrame->IsLifted() && !_compact); };
+		_rightSplitter->IsVisibleFunc = [s, this]() {
+			return (s->ArePanelsShown() && !_rightFrame->IsLifted() && !_compact);
+		};
 		// The edge between the layers and the properties goes with the panel, wherever it is
 		_layersSplitter = _rightFrame->Add<Splitter>(Orientation::Horizontal, [this]() {
 			_dragStartSize = _layerListHeight;
-		}, [this, settings](float offset) {
-			float scale = (GetSurface() != nullptr ? GetSurface()->GetScale() : 1.0f);
-			settings->LayerListHeight = std::max(LayerListMinHeight, (_dragStartSize + offset) / scale);
-		}, [settings]() {
-			settings->Save();
-		});
+		},
+			[this, settings](float offset) {
+				float scale = (GetSurface() != nullptr ? GetSurface()->GetScale() : 1.0f);
+				settings->LayerListHeight = std::max(LayerListMinHeight, (_dragStartSize + offset) / scale);
+			},
+			[settings]() {
+				settings->Save();
+			});
 		_layersSplitter->IsVisibleFunc = isEditing;
 		// It's the separator between them too, so the line seen is the one that is dragged
 		_layersSplitter->ShowLine = true;
 		_pickerSplitter = Add<Splitter>(Orientation::Vertical, [this]() {
 			_dragStartSize = _pickerDockWidth;
-		}, [this, settings](float offset) {
-			float scale = (GetSurface() != nullptr ? GetSurface()->GetScale() : 1.0f);
-			settings->PickerPanelWidth = std::max(PickerDockMinWidth, (_dragStartSize + offset) / scale);
-		}, [settings]() {
-			settings->Save();
-		});
-		_pickerSplitter->IsVisibleFunc = [s, this]() { return (s->ArePanelsShown() && !_pickerFrame->IsLifted() && !_compact); };
+		},
+			[this, settings](float offset) {
+				float scale = (GetSurface() != nullptr ? GetSurface()->GetScale() : 1.0f);
+				settings->PickerPanelWidth = std::max(PickerDockMinWidth, (_dragStartSize + offset) / scale);
+			},
+			[settings]() {
+				settings->Save();
+			});
+		_pickerSplitter->IsVisibleFunc = [s, this]() {
+			return (s->ArePanelsShown() && !_pickerFrame->IsLifted() && !_compact);
+		};
 
 		_playBar = Add<Panel>(PanelStyle::Floating, Orientation::Horizontal, Theme::Spacing, Thickness(3.0f, 4.0f));
-		_playBar->IsVisibleFunc = [s]() { return !s->ArePanelsShown(); };
-		auto* back = _playBar->Add<LiveTooltipButton>(_("Back to Editor"), EditorIcon::EnterEditor, [s]() { s->StopPlayTest(true); });
+		_playBar->IsVisibleFunc = [s]() {
+			return !s->ArePanelsShown();
+		};
+		auto* back = _playBar->Add<LiveTooltipButton>(_("Back to Editor"), EditorIcon::EnterEditor, [s]() {
+			s->StopPlayTest(true);
+		});
 		back->Style = ButtonStyle::Accent;
 		// A little taller than elsewhere, the bar is over the game
 		back->Height = Theme::ButtonHeight + 2.0f;
@@ -551,9 +584,12 @@ namespace Jazz2::Editor
 				MenuEntry entry;
 				entry.Label = makeLabel(openPath);
 				entry.Icon = getIcon(openPath);
-				entry.IsChecked = []() { return true; };
+				entry.IsChecked = []() {
+					return true;
+				};
 				// Open already, choosing it does nothing
-				entry.Execute = []() {};
+				entry.Execute = []() {
+				};
 				entries.push_back(Death::move(entry));
 				shown++;
 			}
@@ -568,7 +604,9 @@ namespace Jazz2::Editor
 				entry.Label = makeLabel(path);
 				entry.Icon = getIcon(path);
 				String pathCopy = path;
-				entry.Execute = [session, pathCopy]() { session->OpenFile(pathCopy); };
+				entry.Execute = [session, pathCopy]() {
+					session->OpenFile(pathCopy);
+				};
 				entries.push_back(Death::move(entry));
 				shown++;
 			}
@@ -576,42 +614,30 @@ namespace Jazz2::Editor
 		});
 		// TRANSLATORS: Menu in the menu bar of the editor
 		_menuBar->AddMenu(_x("editor", "Edit"), [addActions](SmallVectorImpl<MenuEntry>& entries) {
-			addActions(entries, { ActionIds::EditUndo, ActionIds::EditRedo, ActionIds::EditHistory, nullptr, ActionIds::EditCut, ActionIds::EditCopy, ActionIds::EditCopyWithEvents, ActionIds::EditPaste, ActionIds::EditDelete, nullptr,
-				ActionIds::EditGrabBlock, ActionIds::EditGrabBlockAdd, ActionIds::EditGrabBlockSubtract, nullptr,
-				ActionIds::EditSelectAll, ActionIds::EditDeselect, ActionIds::EditFindReplace, nullptr, ActionIds::EditFillGround, ActionIds::EditSmartRetile, ActionIds::EditBeautify, ActionIds::EditContinueRow, ActionIds::EditTerrainRules, ActionIds::EditTraceGround, ActionIds::EditBakeGround, nullptr,
-				ActionIds::EventsTakeAtPointer, ActionIds::EventsPlaceAtPointer, ActionIds::EventsSelectSameType, ActionIds::EventsCopyToMatchingTiles, nullptr, ActionIds::EditPrefabs });
+			addActions(entries, { ActionIds::EditUndo, ActionIds::EditRedo, ActionIds::EditHistory, nullptr, ActionIds::EditCut, ActionIds::EditCopy, ActionIds::EditCopyWithEvents, ActionIds::EditPaste, ActionIds::EditDelete, nullptr, ActionIds::EditGrabBlock, ActionIds::EditGrabBlockAdd, ActionIds::EditGrabBlockSubtract, nullptr, ActionIds::EditSelectAll, ActionIds::EditDeselect, ActionIds::EditFindReplace, nullptr, ActionIds::EditFillGround, ActionIds::EditSmartRetile, ActionIds::EditBeautify, ActionIds::EditContinueRow, ActionIds::EditTerrainRules, ActionIds::EditTraceGround, ActionIds::EditBakeGround, nullptr, ActionIds::EventsTakeAtPointer, ActionIds::EventsPlaceAtPointer, ActionIds::EventsSelectSameType, ActionIds::EventsCopyToMatchingTiles, nullptr, ActionIds::EditPrefabs });
 		});
 		// TRANSLATORS: Menu in the menu bar of the editor, the camera, what is drawn over the level and the look of the editor
 		_menuBar->AddMenu(_x("editor", "View"), [addActions, addSubmenu](SmallVectorImpl<MenuEntry>& entries) {
-			addActions(entries, { ActionIds::ViewZoomIn, ActionIds::ViewZoomOut, ActionIds::ViewZoomGame, ActionIds::ViewFit, nullptr, ActionIds::ViewGrid, ActionIds::ViewMasks, ActionIds::ViewEvents,
-				ActionIds::ViewEventsOnTop, ActionIds::ViewPlayPath, ActionIds::ViewFlat, ActionIds::ViewPauseLayers, ActionIds::ViewPreviewTextured, ActionIds::ViewOverriddenAssets });
+			addActions(entries, { ActionIds::ViewZoomIn, ActionIds::ViewZoomOut, ActionIds::ViewZoomGame, ActionIds::ViewFit, nullptr, ActionIds::ViewGrid, ActionIds::ViewMasks, ActionIds::ViewEvents, ActionIds::ViewEventsOnTop, ActionIds::ViewPlayPath, ActionIds::ViewFlat, ActionIds::ViewPauseLayers, ActionIds::ViewPreviewTextured, ActionIds::ViewOverriddenAssets });
 			entries.push_back(MenuEntry::Separator());
 			// TRANSLATORS: Submenu in the View menu, shows where the player can get and with which character
-			addSubmenu(entries, _x("editor", "Reachable Area"), EditorIcon::Reach, { ActionIds::ViewReachability, nullptr, ActionIds::ViewReachAny, ActionIds::ViewReachJazz,
-				ActionIds::ViewReachSpaz, ActionIds::ViewReachLori, nullptr, ActionIds::ViewReachFromMpStarts });
+			addSubmenu(entries, _x("editor", "Reachable Area"), EditorIcon::Reach, { ActionIds::ViewReachability, nullptr, ActionIds::ViewReachAny, ActionIds::ViewReachJazz, ActionIds::ViewReachSpaz, ActionIds::ViewReachLori, nullptr, ActionIds::ViewReachFromMpStarts });
 			// TRANSLATORS: Submenu in the View menu, the frame around the pointer that shows what the game screen would show
-			addSubmenu(entries, _x("editor", "Game Screen Frame"), EditorIcon::ScreenFrame, { ActionIds::ViewScreenFrame, nullptr, ActionIds::ViewScreenFrameGame, ActionIds::ViewScreenFrame4x3,
-				ActionIds::ViewScreenFrame16x9, ActionIds::ViewScreenFrameSplit });
+			addSubmenu(entries, _x("editor", "Game Screen Frame"), EditorIcon::ScreenFrame, { ActionIds::ViewScreenFrame, nullptr, ActionIds::ViewScreenFrameGame, ActionIds::ViewScreenFrame4x3, ActionIds::ViewScreenFrame16x9, ActionIds::ViewScreenFrameSplit });
 			addActions(entries, { ActionIds::ViewCompareSaved, nullptr, ActionIds::ViewNavigator, ActionIds::ViewAddNote });
 			entries.push_back(MenuEntry::Separator());
 			// TRANSLATORS: Submenu in the View menu, the size, layout and look of the editor itself
-			addSubmenu(entries, _x("editor", "Interface"), EditorIcon::None, { ActionIds::ViewUiLarger, ActionIds::ViewUiSmaller, ActionIds::ViewUiAuto, nullptr,
-				ActionIds::ViewLayoutAuto, ActionIds::ViewLayoutDesktop, ActionIds::ViewLayoutCompact, nullptr, ActionIds::ViewHighContrast, ActionIds::ViewReadableFont, ActionIds::ViewReducedMotion });
+			addSubmenu(entries, _x("editor", "Interface"), EditorIcon::None, { ActionIds::ViewUiLarger, ActionIds::ViewUiSmaller, ActionIds::ViewUiAuto, nullptr, ActionIds::ViewLayoutAuto, ActionIds::ViewLayoutDesktop, ActionIds::ViewLayoutCompact, nullptr, ActionIds::ViewHighContrast, ActionIds::ViewReadableFont, ActionIds::ViewReducedMotion });
 			addActions(entries, { ActionIds::ViewExpert });
 		});
 		// TRANSLATORS: Menu in the menu bar of the editor, commands for the selection
 		_menuBar->AddMenu(_x("editor", "Select"), [addActions](SmallVectorImpl<MenuEntry>& entries) {
-			addActions(entries, { ActionIds::EditSelectAll, ActionIds::EditDeselect, ActionIds::SelectInvert, ActionIds::SelectGrow, ActionIds::SelectShrink, ActionIds::SelectSameTiles, nullptr,
-				ActionIds::SelectMoveLeft, ActionIds::SelectMoveRight, ActionIds::SelectMoveUp, ActionIds::SelectMoveDown, nullptr, ActionIds::EditMirrorH, ActionIds::EditMirrorV, ActionIds::EditMirrorSwapTeams, nullptr,
-				ActionIds::EditCopyLayers, ActionIds::EditPasteLayers, nullptr, ActionIds::EditModifierNormal, ActionIds::EditModifierTranslucent, ActionIds::EditModifierInvisible,
-				ActionIds::EditModifierHeat, nullptr, ActionIds::EventsFillSelection });
+			addActions(entries, { ActionIds::EditSelectAll, ActionIds::EditDeselect, ActionIds::SelectInvert, ActionIds::SelectGrow, ActionIds::SelectShrink, ActionIds::SelectSameTiles, nullptr, ActionIds::SelectMoveLeft, ActionIds::SelectMoveRight, ActionIds::SelectMoveUp, ActionIds::SelectMoveDown, nullptr, ActionIds::EditMirrorH, ActionIds::EditMirrorV, ActionIds::EditMirrorSwapTeams, nullptr, ActionIds::EditCopyLayers, ActionIds::EditPasteLayers, nullptr, ActionIds::EditModifierNormal, ActionIds::EditModifierTranslucent, ActionIds::EditModifierInvisible, ActionIds::EditModifierHeat, nullptr, ActionIds::EventsFillSelection });
 		});
 		// TRANSLATORS: Menu in the menu bar of the editor
 		_menuBar->AddMenu(_x("editor", "Tools"), [addActions](SmallVectorImpl<MenuEntry>& entries) {
 			// Only the tools, the options of the chosen one are in the toolbar; in the order of the tool strip
-			addActions(entries, { ActionIds::ToolSelect, ActionIds::ToolBrush, ActionIds::ToolEraser, ActionIds::ToolRectangle, ActionIds::ToolFill, ActionIds::ToolEyedropper,
-				ActionIds::ToolWand, ActionIds::ToolShape, ActionIds::ToolSmart, ActionIds::ToolGround, nullptr, ActionIds::ToolEvent, ActionIds::ToolPath, nullptr,
-				ActionIds::ToolHand, ActionIds::ToolMeasure });
+			addActions(entries, { ActionIds::ToolSelect, ActionIds::ToolBrush, ActionIds::ToolEraser, ActionIds::ToolRectangle, ActionIds::ToolFill, ActionIds::ToolEyedropper, ActionIds::ToolWand, ActionIds::ToolShape, ActionIds::ToolSmart, ActionIds::ToolGround, nullptr, ActionIds::ToolEvent, ActionIds::ToolPath, nullptr, ActionIds::ToolHand, ActionIds::ToolMeasure });
 		});
 		// TRANSLATORS: Menu in the menu bar of the editor, a layer of tiles
 		_menuBar->AddMenu(_x("editor", "Layer"), [addActions](SmallVectorImpl<MenuEntry>& entries) {
@@ -632,13 +658,7 @@ namespace Jazz2::Editor
 			addSubmenu(entries, _("Character"), EditorIcon::None, { ActionIds::PlayJazz, ActionIds::PlaySpaz, ActionIds::PlayLori });
 			addSubmenu(entries, _("Difficulty"), EditorIcon::None, { ActionIds::PlayEasy, ActionIds::PlayNormal, ActionIds::PlayHard });
 #if defined(WITH_MULTIPLAYER)
-			addSubmenu(entries, _("Game Mode"), EditorIcon::None, { ActionIds::PlayAlone, ActionIds::PlayCooperation, nullptr,
-				ActionIds::PlayBattle, ActionIds::PlayTeamBattle, ActionIds::PlayRace, ActionIds::PlayTeamRace, ActionIds::PlayTreasureHunt, ActionIds::PlayTeamTreasureHunt,
-				ActionIds::PlayCaptureTheFlag, nullptr,
-				ActionIds::PlayRoastTag, ActionIds::PlayLastRabbitStanding, ActionIds::PlayExtendedLastRabbitStanding, ActionIds::PlayPestilence,
-				ActionIds::PlayTeamLastRabbitStanding, ActionIds::PlayJailbreak, ActionIds::PlayDeathCaptureTheFlag, ActionIds::PlayFlagRun,
-				ActionIds::PlayDomination, ActionIds::PlayHeadHunters, nullptr,
-				ActionIds::PlayPlayers1, ActionIds::PlayPlayers2, ActionIds::PlayPlayers3, ActionIds::PlayPlayers4 });
+			addSubmenu(entries, _("Game Mode"), EditorIcon::None, { ActionIds::PlayAlone, ActionIds::PlayCooperation, nullptr, ActionIds::PlayBattle, ActionIds::PlayTeamBattle, ActionIds::PlayRace, ActionIds::PlayTeamRace, ActionIds::PlayTreasureHunt, ActionIds::PlayTeamTreasureHunt, ActionIds::PlayCaptureTheFlag, nullptr, ActionIds::PlayRoastTag, ActionIds::PlayLastRabbitStanding, ActionIds::PlayExtendedLastRabbitStanding, ActionIds::PlayPestilence, ActionIds::PlayTeamLastRabbitStanding, ActionIds::PlayJailbreak, ActionIds::PlayDeathCaptureTheFlag, ActionIds::PlayFlagRun, ActionIds::PlayDomination, ActionIds::PlayHeadHunters, nullptr, ActionIds::PlayPlayers1, ActionIds::PlayPlayers2, ActionIds::PlayPlayers3, ActionIds::PlayPlayers4 });
 #endif
 			addActions(entries, { ActionIds::PlayReforged, ActionIds::PlayLedgeClimb, nullptr, ActionIds::ViewPlayPath, ActionIds::ViewDeaths, ActionIds::PlayClearPaths });
 		});
@@ -663,7 +683,9 @@ namespace Jazz2::Editor
 		// The panels in drawers on a small screen
 		for (const char* id : { ActionIds::ViewDrawerTiles, ActionIds::ViewDrawerLayers }) {
 			if (Button* button = AddActionButton(_toolbar, id)) {
-				button->IsVisibleFunc = [this]() { return _compact; };
+				button->IsVisibleFunc = [this]() {
+					return _compact;
+				};
 			}
 		}
 		AddActionButton(_toolbar, ActionIds::FileNew);
@@ -673,7 +695,9 @@ namespace Jazz2::Editor
 		AddActionButton(_toolbar, ActionIds::EditUndo);
 		AddActionButton(_toolbar, ActionIds::EditRedo);
 		// A narrow window leaves out what the menus have too
-		auto notNarrow = [this]() { return !_narrow; };
+		auto notNarrow = [this]() {
+			return !_narrow;
+		};
 		_toolbar->Add<Separator>(Orientation::Vertical)->IsVisibleFunc = notNarrow;
 		for (const char* id : { ActionIds::EditCut, ActionIds::EditCopy, ActionIds::EditPaste }) {
 			if (Button* button = AddActionButton(_toolbar, id)) {
@@ -683,10 +707,12 @@ namespace Jazz2::Editor
 		_toolbar->Add<Separator>(Orientation::Vertical)->IsVisibleFunc = notNarrow;
 		EditorSettings* settings = &_session.GetSettings();
 		for (const char* id : { ActionIds::ViewGrid, ActionIds::ViewFlat, ActionIds::ViewPauseLayers, ActionIds::ViewMasks, ActionIds::ViewEvents, ActionIds::ViewEventsOnTop, ActionIds::ViewOverriddenAssets, ActionIds::ViewPlayPath,
-			ActionIds::ViewReachability }) {
+				 ActionIds::ViewReachability }) {
 			if (Button* button = AddActionButton(_toolbar, id)) {
 				bool expert = IsExpertAction(id);
-				button->IsVisibleFunc = [this, settings, expert]() { return (!_narrow && (!expert || settings->Expert)); };
+				button->IsVisibleFunc = [this, settings, expert]() {
+					return (!_narrow && (!expert || settings->Expert));
+				};
 			}
 		}
 		_toolbar->Add<Separator>(Orientation::Vertical);
@@ -753,7 +779,9 @@ namespace Jazz2::Editor
 		};
 		if (IsExpertAction(actionId)) {
 			EditorSettings* settings = &_session.GetSettings();
-			button->IsVisibleFunc = [settings]() { return settings->Expert; };
+			button->IsVisibleFunc = [settings]() {
+				return settings->Expert;
+			};
 		}
 		// A unit more around the icon than other buttons have, the bars would look crowded otherwise
 		button->Height = Theme::ButtonHeight + 4.0f;
@@ -1127,7 +1155,7 @@ namespace Jazz2::Editor
 				const std::int32_t size = view.Size.X;
 				const std::int32_t firstMiddle = fromUnit.X * unit + unit / 2;
 				const std::int32_t lastMiddle = toUnit.X * unit + unit / 2;
-				for (std::int32_t k = floorDiv(firstMiddle - (bounds.X + bounds.W - 1), size); ; k++) {
+				for (std::int32_t k = floorDiv(firstMiddle - (bounds.X + bounds.W - 1), size);; k++) {
 					const std::int32_t first = bounds.X + k * size;
 					const std::int32_t last = first + bounds.W - 1;
 					if (first > lastMiddle) {
@@ -1214,8 +1242,12 @@ namespace Jazz2::Editor
 		for (const SelectionEdge& edge : _selectionEdges) {
 			float top = unitY(edge.Y), bottom = unitY(edge.Y + 1);
 			switch (edge.Side) {
-				case 0: DrawSelectionEdge(painter, unitX(edge.Start), top, bottom - top, false, animTime); break;
-				case 1: DrawSelectionEdge(painter, unitX(edge.Start) - thickness, top, bottom - top, false, animTime); break;
+				case 0:
+					DrawSelectionEdge(painter, unitX(edge.Start), top, bottom - top, false, animTime);
+					break;
+				case 1:
+					DrawSelectionEdge(painter, unitX(edge.Start) - thickness, top, bottom - top, false, animTime);
+					break;
 				default: {
 					float left = unitX(edge.Start);
 					DrawSelectionEdge(painter, left, edge.Side == 2 ? top : bottom - thickness, unitX(edge.End) - left, true, animTime);
@@ -1371,10 +1403,17 @@ namespace Jazz2::Editor
 			endHalfThickness = halfThicknesses.back();
 			float radius = std::max(endHalfThickness * 1.4f, minMarkerRadius);
 			switch (PlayPath::Break(segment.End)) {
-				case PlayPath::Break::Died: painter.Circle(last, radius, Theme::Danger, PaintLayer::Overlay); break;
-				case PlayPath::Break::Warped: painter.Circle(last, radius, Colorf(0.4f, 0.6f, 1.0f, 1.0f), PaintLayer::Overlay); break;
-				case PlayPath::Break::Exited: painter.Circle(last, radius, Theme::Play, PaintLayer::Overlay); break;
-				default: break;
+				case PlayPath::Break::Died:
+					painter.Circle(last, radius, Theme::Danger, PaintLayer::Overlay);
+					break;
+				case PlayPath::Break::Warped:
+					painter.Circle(last, radius, Colorf(0.4f, 0.6f, 1.0f, 1.0f), PaintLayer::Overlay);
+					break;
+				case PlayPath::Break::Exited:
+					painter.Circle(last, radius, Theme::Play, PaintLayer::Overlay);
+					break;
+				default:
+					break;
 			}
 		}
 		// Where the play-test was left
@@ -1613,7 +1652,8 @@ namespace Jazz2::Editor
 						break;
 					case EventType::ModifierVine:
 						stroke({ Vector2f(0.0f, 0.12f), Vector2f(0.125f, 0.2f), Vector2f(0.25f, 0.12f), Vector2f(0.375f, 0.2f), Vector2f(0.5f, 0.12f),
-							Vector2f(0.625f, 0.2f), Vector2f(0.75f, 0.12f), Vector2f(0.875f, 0.2f), Vector2f(1.0f, 0.12f) }, grabColor);
+								   Vector2f(0.625f, 0.2f), Vector2f(0.75f, 0.12f), Vector2f(0.875f, 0.2f), Vector2f(1.0f, 0.12f) },
+							grabColor);
 						break;
 					case EventType::ModifierHook:
 						stroke({ Vector2f(0.5f, 0.05f), Vector2f(0.5f, 0.45f), Vector2f(0.45f, 0.55f), Vector2f(0.35f, 0.55f), Vector2f(0.3f, 0.45f) }, grabColor);
@@ -2059,7 +2099,11 @@ namespace Jazz2::Editor
 			}
 
 			// The texts the event refers to, drawn above it once all of them are known
-			struct TextBubble { const EventParamField* Field; String Text; };
+			struct TextBubble
+			{
+				const EventParamField* Field;
+				String Text;
+			};
 			SmallVector<TextBubble, 2> bubbles;
 
 			for (std::uint8_t i = 0; i < descriptor->FieldCount; i++) {
@@ -2108,7 +2152,7 @@ namespace Jazz2::Editor
 				float bottom = center.Y - 16.0f * view.Scale - painter.Px(14.0f);
 				std::int32_t previousSlot = painter.GetSlot();
 				painter.SetSlot(BubbleSlot);
-				for (std::size_t i = bubbles.size(); i-- > 0; ) {
+				for (std::size_t i = bubbles.size(); i-- > 0;) {
 					// TRANSLATORS: In front of a text of an event shown in a bubble over the level, {} is the name of the parameter that holds the text
 					String label = (bubbles.size() > 1 ? _fx("editor", "{}: ", bubbles[i].Field->Name) : String());
 					float labelWidth = (label.empty() ? 0.0f : painter.MeasureText(label));
@@ -2201,7 +2245,7 @@ namespace Jazz2::Editor
 				continue;
 			}
 			if (const EventParamField* field = FindEventField(descriptor, ParamType::WarpId)) {
-				LinkEvent link{ EventCatalog::ReadField(event.Record, *field), event.Cell, -1 };
+				LinkEvent link { EventCatalog::ReadField(event.Record, *field), event.Cell, -1 };
 				if (EventType(event.Record.Type) == EventType::WarpTarget) {
 					_warpTargets.push_back(link);
 				} else {
@@ -2209,13 +2253,15 @@ namespace Jazz2::Editor
 				}
 			}
 			if (const EventParamField* field = FindEventField(descriptor, ParamType::TriggerId)) {
-				_triggerEvents.push_back(LinkEvent{ EventCatalog::ReadField(event.Record, *field), event.Cell, -1 });
+				_triggerEvents.push_back(LinkEvent { EventCatalog::ReadField(event.Record, *field), event.Cell, -1 });
 			}
 		}
 		// The events are sorted by the tile, so these are too
 		GroupNeighbors(origins, gridSize.X, _warpGroups);
 		GroupNeighbors(_triggerEvents, gridSize.X, _triggerGroups);
-		auto byId = [](const LinkEvent& a, const LinkEvent& b) { return (a.Id < b.Id); };
+		auto byId = [](const LinkEvent& a, const LinkEvent& b) {
+			return (a.Id < b.Id);
+		};
 		std::stable_sort(_warpTargets.begin(), _warpTargets.end(), byId);
 		std::stable_sort(_triggerEvents.begin(), _triggerEvents.end(), byId);
 		EventPreviews::CollectRaceTrack(document, _raceLinks);
@@ -2244,7 +2290,9 @@ namespace Jazz2::Editor
 			return (right >= viewRect.X && left <= viewRect.X + viewRect.W && bottom >= viewRect.Y && top <= viewRect.Y + viewRect.H);
 		};
 		auto findId = [](const SmallVectorImpl<LinkEvent>& events, std::int32_t id) {
-			return std::equal_range(events.begin(), events.end(), LinkEvent{ id, 0, -1 }, [](const LinkEvent& a, const LinkEvent& b) { return (a.Id < b.Id); });
+			return std::equal_range(events.begin(), events.end(), LinkEvent { id, 0, -1 }, [](const LinkEvent& a, const LinkEvent& b) {
+				return (a.Id < b.Id);
+			});
 		};
 		auto cellRect = [&view, gridSize](std::uint32_t cell) {
 			Vector2f world(float(cell % std::uint32_t(gridSize.X)) * 32.0f, float(cell / std::uint32_t(gridSize.X)) * 32.0f);

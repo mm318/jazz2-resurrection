@@ -28,7 +28,8 @@ namespace Jazz2::Editor
 		const std::uint8_t* Remapping = nullptr;
 
 		/** @brief Returns `true` if the tile set is stored in the level itself */
-		bool IsEmbedded() const {
+		bool IsEmbedded() const
+		{
 			return (Extra != nullptr && (Extra->Flags & Formats::ExtraTileSetRecord::Embedded) != 0);
 		}
 	};

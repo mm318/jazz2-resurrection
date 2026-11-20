@@ -45,11 +45,13 @@ namespace Jazz2::Editor
 		virtual void Resume() = 0;
 
 		/** @brief Returns the recorded path of the first player */
-		PlayPath& GetPlayPath() {
+		PlayPath& GetPlayPath()
+		{
 			return _playPath;
 		}
 		/** @brief Returns `true` if the player didn't start where it was asked to, but at the start of the level */
-		bool HasSpawnFallenBack() const {
+		bool HasSpawnFallenBack() const
+		{
 			return _spawnFellBack;
 		}
 

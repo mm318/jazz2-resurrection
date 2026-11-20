@@ -59,17 +59,24 @@ namespace Jazz2::Editor
 	{
 		switch (unit) {
 			// TRANSLATORS: Unit after the value of a parameter of an event, short for pixels, keep it short
-			case ParamUnit::Pixels: return _x("editor", "px");
+			case ParamUnit::Pixels:
+				return _x("editor", "px");
 			// TRANSLATORS: Unit after the value of a parameter of an event, a count of tiles, keep it short
-			case ParamUnit::Tiles: return _x("editor", "tiles");
+			case ParamUnit::Tiles:
+				return _x("editor", "tiles");
 			// TRANSLATORS: Unit after the value of a parameter of an event, a count of game frames, keep it short
-			case ParamUnit::Frames: return _x("editor", "frames");
+			case ParamUnit::Frames:
+				return _x("editor", "frames");
 			// TRANSLATORS: Unit after the value of a parameter of an event, symbol for seconds
-			case ParamUnit::Seconds: return _x("editor", "s");
-			case ParamUnit::Percent: return "%"_s;
+			case ParamUnit::Seconds:
+				return _x("editor", "s");
+			case ParamUnit::Percent:
+				return "%"_s;
 			// TRANSLATORS: Unit after the value of a parameter of an event, short for degrees of an angle
-			case ParamUnit::Degrees: return _x("editor", "deg");
-			default: return {};
+			case ParamUnit::Degrees:
+				return _x("editor", "deg");
+			default:
+				return {};
 		}
 	}
 
@@ -260,7 +267,7 @@ namespace Jazz2::Editor
 		_document = &document;
 		_chunk = chunk;
 		std::uint32_t tag = (chunk != nullptr ? chunk->Tag : 0);
-		bool same =(_valid && _tag == tag && size == _data.size() && (size == 0 || std::memcmp(chunk->Data.data(), _data.data(), size) == 0));
+		bool same = (_valid && _tag == tag && size == _data.size() && (size == 0 || std::memcmp(chunk->Data.data(), _data.data(), size) == 0));
 		if (!same) {
 			_valid = true;
 			_tag = tag;

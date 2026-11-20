@@ -22,18 +22,23 @@ namespace Jazz2::Scripting
 {
 	namespace Legacy
 	{
-		jjSTREAM::jjSTREAM() : _refCount(1), _readPos(0) {
+		jjSTREAM::jjSTREAM()
+			: _refCount(1), _readPos(0)
+		{
 		}
-		jjSTREAM::~jjSTREAM() {
+		jjSTREAM::~jjSTREAM()
+		{
 		}
 
-		jjSTREAM* jjSTREAM::Create() {
+		jjSTREAM* jjSTREAM::Create()
+		{
 			void* mem = asAllocMem(sizeof(jjSTREAM));
-			return new(mem) jjSTREAM();
+			return new (mem) jjSTREAM();
 		}
-		jjSTREAM* jjSTREAM::CreateFromFile(const String& filename) {
+		jjSTREAM* jjSTREAM::CreateFromFile(const String& filename)
+		{
 			void* mem = asAllocMem(sizeof(jjSTREAM));
-			jjSTREAM* result = new(mem) jjSTREAM();
+			jjSTREAM* result = new (mem) jjSTREAM();
 
 			// A missing file is not an error - scripts check isEmpty() to tell "no saved data yet" apart from
 			// "saved data that happens to be empty", which is how the original's scripts use it. A rejected
@@ -92,14 +97,16 @@ namespace Jazz2::Scripting
 			return *this;
 		}
 
-		const std::uint8_t* jjSTREAM::PeekFront(std::uint32_t count) const {
+		const std::uint8_t* jjSTREAM::PeekFront(std::uint32_t count) const
+		{
 			if (count > getSize()) {
 				return nullptr;
 			}
 			return _data.data() + _readPos;
 		}
 
-		bool jjSTREAM::Take(void* target, std::uint32_t count) {
+		bool jjSTREAM::Take(void* target, std::uint32_t count)
+		{
 			const std::uint8_t* front = PeekFront(count);
 			if (front == nullptr) {
 				return false;
@@ -115,7 +122,8 @@ namespace Jazz2::Scripting
 			return true;
 		}
 
-		void jjSTREAM::Append(const void* source, std::uint32_t count) {
+		void jjSTREAM::Append(const void* source, std::uint32_t count)
+		{
 			if (count == 0) {
 				return;
 			}
@@ -133,15 +141,18 @@ namespace Jazz2::Scripting
 			std::memcpy(_data.data() + offset, (selfReferential ? _data.data() + sourceOffset : (const std::uint8_t*)source), count);
 		}
 
-		std::uint32_t jjSTREAM::getSize() const {
+		std::uint32_t jjSTREAM::getSize() const
+		{
 			return (std::uint32_t)(_data.size() - _readPos);
 		}
 
-		bool jjSTREAM::isEmpty() const {
+		bool jjSTREAM::isEmpty() const
+		{
 			return (getSize() == 0);
 		}
 
-		bool jjSTREAM::save(const String& filename) const {
+		bool jjSTREAM::save(const String& filename) const
+		{
 			// Save mutable script state separately from the packaged assets.
 			// Paths are confined to this data directory, see IsScriptFileNameSafe()
 			if (!IsScriptFileNameSafe(filename)) {
@@ -168,12 +179,14 @@ namespace Jazz2::Scripting
 			return true;
 		}
 
-		void jjSTREAM::clear() {
+		void jjSTREAM::clear()
+		{
 			_data.clear();
 			_readPos = 0;
 		}
 
-		bool jjSTREAM::discard(std::uint32_t count) {
+		bool jjSTREAM::discard(std::uint32_t count)
+		{
 			if (count > getSize()) {
 				return false;
 			}
@@ -181,16 +194,19 @@ namespace Jazz2::Scripting
 			return true;
 		}
 
-		bool jjSTREAM::write(const String& value) {
+		bool jjSTREAM::write(const String& value)
+		{
 			// Raw bytes, no length prefix - this is the text-friendly counterpart to push(String)
 			Append(value.data(), (std::uint32_t)value.size());
 			return true;
 		}
-		bool jjSTREAM::write(const jjSTREAM& value) {
+		bool jjSTREAM::write(const jjSTREAM& value)
+		{
 			Append(value._data.data() + value._readPos, value.getSize());
 			return true;
 		}
-		bool jjSTREAM::get(String& value, std::uint32_t count) {
+		bool jjSTREAM::get(String& value, std::uint32_t count)
+		{
 			const std::uint8_t* front = PeekFront(count);
 			if (front == nullptr) {
 				return false;
@@ -199,7 +215,8 @@ namespace Jazz2::Scripting
 			_readPos += count;
 			return true;
 		}
-		bool jjSTREAM::get(jjSTREAM& value, std::uint32_t count) {
+		bool jjSTREAM::get(jjSTREAM& value, std::uint32_t count)
+		{
 			const std::uint8_t* front = PeekFront(count);
 			if (front == nullptr) {
 				return false;
@@ -208,7 +225,8 @@ namespace Jazz2::Scripting
 			_readPos += count;
 			return true;
 		}
-		bool jjSTREAM::getLine(String& value, const String& delim) {
+		bool jjSTREAM::getLine(String& value, const String& delim)
+		{
 			std::uint32_t size = getSize();
 			if (size == 0 || delim.empty()) {
 				return false;
@@ -231,55 +249,69 @@ namespace Jazz2::Scripting
 			return true;
 		}
 
-		bool jjSTREAM::push(bool value) {
+		bool jjSTREAM::push(bool value)
+		{
 			std::uint8_t raw = (value ? 1 : 0);
 			return PushValue(raw);
 		}
-		bool jjSTREAM::push(std::uint8_t value) {
+		bool jjSTREAM::push(std::uint8_t value)
+		{
 			return PushValue(value);
 		}
-		bool jjSTREAM::push(std::int8_t value) {
+		bool jjSTREAM::push(std::int8_t value)
+		{
 			return PushValue(value);
 		}
-		bool jjSTREAM::push(std::uint16_t value) {
+		bool jjSTREAM::push(std::uint16_t value)
+		{
 			return PushValue(value);
 		}
-		bool jjSTREAM::push(std::int16_t value) {
+		bool jjSTREAM::push(std::int16_t value)
+		{
 			return PushValue(value);
 		}
-		bool jjSTREAM::push(std::uint32_t value) {
+		bool jjSTREAM::push(std::uint32_t value)
+		{
 			return PushValue(value);
 		}
-		bool jjSTREAM::push(std::int32_t value) {
+		bool jjSTREAM::push(std::int32_t value)
+		{
 			return PushValue(value);
 		}
-		bool jjSTREAM::push(std::uint64_t value) {
+		bool jjSTREAM::push(std::uint64_t value)
+		{
 			return PushValue(value);
 		}
-		bool jjSTREAM::push(std::int64_t value) {
+		bool jjSTREAM::push(std::int64_t value)
+		{
 			return PushValue(value);
 		}
-		bool jjSTREAM::push(float value) {
+		bool jjSTREAM::push(float value)
+		{
 			return PushValue(value);
 		}
-		bool jjSTREAM::push(double value) {
+		bool jjSTREAM::push(double value)
+		{
 			return PushValue(value);
 		}
-		bool jjSTREAM::push(const String& value) {
+		bool jjSTREAM::push(const String& value)
+		{
 			// Length-prefixed, so pop(String) can recover it without a delimiter
 			std::uint32_t length = (std::uint32_t)value.size();
 			PushValue(length);
 			Append(value.data(), length);
 			return true;
 		}
-		bool jjSTREAM::push(const jjSTREAM& value) {
+		bool jjSTREAM::push(const jjSTREAM& value)
+		{
 			// Length-prefixed as a string, as measured in JJ2+ (and as MLLE keeps the parameters of a weapon)
 			std::uint32_t length = value.getSize();
 			PushValue(length);
 			return write(value);
 		}
 
-		bool jjSTREAM::pop(bool& value) {
+		bool jjSTREAM::pop(bool& value)
+		{
 			std::uint8_t raw;
 			if (!PopValue(raw)) {
 				return false;
@@ -287,37 +319,48 @@ namespace Jazz2::Scripting
 			value = (raw != 0);
 			return true;
 		}
-		bool jjSTREAM::pop(std::uint8_t& value) {
+		bool jjSTREAM::pop(std::uint8_t& value)
+		{
 			return PopValue(value);
 		}
-		bool jjSTREAM::pop(std::int8_t& value) {
+		bool jjSTREAM::pop(std::int8_t& value)
+		{
 			return PopValue(value);
 		}
-		bool jjSTREAM::pop(std::uint16_t& value) {
+		bool jjSTREAM::pop(std::uint16_t& value)
+		{
 			return PopValue(value);
 		}
-		bool jjSTREAM::pop(std::int16_t& value) {
+		bool jjSTREAM::pop(std::int16_t& value)
+		{
 			return PopValue(value);
 		}
-		bool jjSTREAM::pop(std::uint32_t& value) {
+		bool jjSTREAM::pop(std::uint32_t& value)
+		{
 			return PopValue(value);
 		}
-		bool jjSTREAM::pop(std::int32_t& value) {
+		bool jjSTREAM::pop(std::int32_t& value)
+		{
 			return PopValue(value);
 		}
-		bool jjSTREAM::pop(std::uint64_t& value) {
+		bool jjSTREAM::pop(std::uint64_t& value)
+		{
 			return PopValue(value);
 		}
-		bool jjSTREAM::pop(std::int64_t& value) {
+		bool jjSTREAM::pop(std::int64_t& value)
+		{
 			return PopValue(value);
 		}
-		bool jjSTREAM::pop(float& value) {
+		bool jjSTREAM::pop(float& value)
+		{
 			return PopValue(value);
 		}
-		bool jjSTREAM::pop(double& value) {
+		bool jjSTREAM::pop(double& value)
+		{
 			return PopValue(value);
 		}
-		bool jjSTREAM::PopLength(std::uint32_t& length) {
+		bool jjSTREAM::PopLength(std::uint32_t& length)
+		{
 			// The length prefix is validated before it is consumed, so a truncated payload leaves the stream
 			// exactly where it was. Reading it first and rolling back afterwards cannot work: `Take()` may
 			// compact the buffer and reset `_readPos` to 0 during that read, and the rollback then underflows
@@ -337,16 +380,19 @@ namespace Jazz2::Scripting
 			_readPos += sizeof(length);
 			return true;
 		}
-		bool jjSTREAM::pop(String& value) {
+		bool jjSTREAM::pop(String& value)
+		{
 			std::uint32_t length;
 			return PopLength(length) && get(value, length);
 		}
-		bool jjSTREAM::pop(jjSTREAM& value) {
+		bool jjSTREAM::pop(jjSTREAM& value)
+		{
 			std::uint32_t length;
 			return PopLength(length) && get(value, length);
 		}
 
-		bool jjSTREAM::ZlibCompress(const jjSTREAM& input, jjSTREAM& output) {
+		bool jjSTREAM::ZlibCompress(const jjSTREAM& input, jjSTREAM& output)
+		{
 #if defined(WITH_ZLIB) || defined(WITH_MINIZ)
 			Death::IO::MemoryStream ms(std::int64_t(input.getSize() / 2 + 64));
 			{
@@ -362,7 +408,8 @@ namespace Jazz2::Scripting
 			return false;
 #endif
 		}
-		bool jjSTREAM::ZlibUncompress(const jjSTREAM& input, jjSTREAM& output, std::uint32_t size) {
+		bool jjSTREAM::ZlibUncompress(const jjSTREAM& input, jjSTREAM& output, std::uint32_t size)
+		{
 #if defined(WITH_ZLIB) || defined(WITH_MINIZ)
 			Death::IO::MemoryStream ms(input._data.data() + input._readPos, input.getSize());
 			Death::IO::Compression::DeflateStream ds(ms, std::int32_t(input.getSize()), false);
@@ -381,7 +428,8 @@ namespace Jazz2::Scripting
 			return false;
 #endif
 		}
-		std::uint32_t jjSTREAM::CRC32(const jjSTREAM& input, std::uint32_t crc) {
+		std::uint32_t jjSTREAM::CRC32(const jjSTREAM& input, std::uint32_t crc)
+		{
 #if defined(WITH_ZLIB) || defined(WITH_MINIZ)
 			return (std::uint32_t)crc32(crc, input._data.data() + input._readPos, input.getSize());
 #else
@@ -389,39 +437,50 @@ namespace Jazz2::Scripting
 #endif
 		}
 
-		jjRNG::jjRNG(std::uint64_t seed) : _refCount(1) {
+		jjRNG::jjRNG(std::uint64_t seed)
+			: _refCount(1)
+		{
 			_random.Init(seed, DefaultInitSequence);
 		}
-		jjRNG::~jjRNG() {
+		jjRNG::~jjRNG()
+		{
 		}
-		jjRNG* jjRNG::Create(std::uint64_t seed) {
+		jjRNG* jjRNG::Create(std::uint64_t seed)
+		{
 			void* mem = asAllocMem(sizeof(jjRNG));
-			return new(mem) jjRNG(seed);
+			return new (mem) jjRNG(seed);
 		}
-		void jjRNG::AddRef() {
+		void jjRNG::AddRef()
+		{
 			_refCount++;
 		}
-		void jjRNG::Release() {
+		void jjRNG::Release()
+		{
 			if (--_refCount == 0) {
 				this->~jjRNG();
 				asFreeMem(this);
 			}
 		}
-		std::uint64_t jjRNG::operator()() {
+		std::uint64_t jjRNG::operator()()
+		{
 			// Join two 32-bit values to single 64-bit value
 			return _random.Next() | ((std::uint64_t)_random.Next() << 32ull);
 		}
-		jjRNG& jjRNG::operator=(const jjRNG& o) {
+		jjRNG& jjRNG::operator=(const jjRNG& o)
+		{
 			_random = o._random;
 			return *this;
 		}
-		bool jjRNG::operator==(const jjRNG& o) const {
+		bool jjRNG::operator==(const jjRNG& o) const
+		{
 			return (this == &o);
 		}
-		void jjRNG::seed(std::uint64_t value) {
+		void jjRNG::seed(std::uint64_t value)
+		{
 			_random.Init(value, DefaultInitSequence);
 		}
-		void jjRNG::discard(std::uint64_t count) {
+		void jjRNG::discard(std::uint64_t count)
+		{
 			for (std::uint64_t i = 0; i < count; i++) {
 				_random.Next();
 			}
@@ -430,9 +489,10 @@ namespace Jazz2::Scripting
 
 	// TODO
 
-
-	bool LevelScriptLoader::jjSendPacket(const jjSTREAM& packet, std::int32_t toClientID, std::uint32_t toScriptModuleID) {
-		noop(); return true;
+	bool LevelScriptLoader::jjSendPacket(const jjSTREAM& packet, std::int32_t toClientID, std::uint32_t toScriptModuleID)
+	{
+		noop();
+		return true;
 	}
 
 	void LevelScriptLoader::RegisterLegacyStream(asIScriptEngine* engine)

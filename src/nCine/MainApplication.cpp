@@ -7,44 +7,44 @@
 #include <IO/FileSystem.h>
 
 #if (defined(WITH_SDL2) || defined(WITH_SDL3))
-#	include "Backends/SdlGfxDevice.h"
-#	include "Backends/SdlInputManager.h"
+#include "Backends/SdlGfxDevice.h"
+#include "Backends/SdlInputManager.h"
 #elif defined(WITH_GLFW)
-#	include "Backends/GlfwGfxDevice.h"
-#	include "Backends/GlfwInputManager.h"
+#include "Backends/GlfwGfxDevice.h"
+#include "Backends/GlfwInputManager.h"
 #elif defined(WITH_QT5)
-#	include "Backends/Qt5GfxDevice.h"
-#	include "Backends/Qt5InputManager.h"
+#include "Backends/Qt5GfxDevice.h"
+#include "Backends/Qt5InputManager.h"
 #elif defined(WITH_OGC)
-#	include "Backends/Ogc/OgcGfxDevice.h"
-#	include "Backends/Ogc/OgcInputManager.h"
-#	include "Backends/Ogc/OgcStorage.h"
+#include "Backends/Ogc/OgcGfxDevice.h"
+#include "Backends/Ogc/OgcInputManager.h"
+#include "Backends/Ogc/OgcStorage.h"
 #elif defined(WITH_CTR)
-#	include "Backends/Ctr/CtrGfxDevice.h"
-#	include "Backends/Ctr/CtrInputManager.h"
-#	include "Backends/Ctr/CtrPlatform.h"
+#include "Backends/Ctr/CtrGfxDevice.h"
+#include "Backends/Ctr/CtrInputManager.h"
+#include "Backends/Ctr/CtrPlatform.h"
 #elif defined(WITH_DC)
-#	include "Backends/Dc/DcGfxDevice.h"
-#	include "Backends/Dc/DcInputManager.h"
+#include "Backends/Dc/DcGfxDevice.h"
+#include "Backends/Dc/DcInputManager.h"
 #elif defined(WITH_PSP)
-#	include "Backends/Psp/PspGfxDevice.h"
-#	include "Backends/Psp/PspInputManager.h"
-#	include "Backends/Psp/PspNetwork.h"
+#include "Backends/Psp/PspGfxDevice.h"
+#include "Backends/Psp/PspInputManager.h"
+#include "Backends/Psp/PspNetwork.h"
 #elif defined(WITH_PS2)
-#	include "Backends/Ps2/Ps2GfxDevice.h"
-#	include "Backends/Ps2/Ps2InputManager.h"
-#	include "Backends/Ps2/Ps2Modules.h"
-#	include "Backends/Ps2/Ps2Storage.h"
+#include "Backends/Ps2/Ps2GfxDevice.h"
+#include "Backends/Ps2/Ps2InputManager.h"
+#include "Backends/Ps2/Ps2Modules.h"
+#include "Backends/Ps2/Ps2Storage.h"
 #elif defined(WITH_PS3)
-#	include "Backends/Ps3/Ps3GfxDevice.h"
-#	include "Backends/Ps3/Ps3InputManager.h"
+#include "Backends/Ps3/Ps3GfxDevice.h"
+#include "Backends/Ps3/Ps3InputManager.h"
 #elif defined(WITH_N64)
-#	include "Backends/N64/N64GfxDevice.h"
-#	include "Backends/N64/N64InputManager.h"
+#include "Backends/N64/N64GfxDevice.h"
+#include "Backends/N64/N64InputManager.h"
 #elif defined(WITH_AMIGA)
-#	include "Backends/Amiga/AmigaGfxDevice.h"
-#	include "Backends/Amiga/AmigaInputManager.h"
-#	include "Backends/Amiga/AmigaPlatform.h"
+#include "Backends/Amiga/AmigaGfxDevice.h"
+#include "Backends/Amiga/AmigaInputManager.h"
+#include "Backends/Amiga/AmigaPlatform.h"
 #endif
 
 // For resizing the swap chain when the window size changes (the call is uniform across the backends;
@@ -52,52 +52,53 @@
 #include "Graphics/RHI/Rhi.h"
 
 #if defined(DEATH_TARGET_EMSCRIPTEN)
-#	include <emscripten/emscripten.h>
+#include <emscripten/emscripten.h>
 #elif defined(DEATH_TARGET_SWITCH)
-#	include <switch.h>
+#include <switch.h>
 #elif defined(DEATH_TARGET_DREAMCAST)
-#	include <kos.h>
+#include <kos.h>
 #elif defined(DEATH_TARGET_N64)
-#	include <libdragon.h>
+#include <libdragon.h>
 #elif defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_GAMECUBE)
-#	include <gccore.h>
-#	include <fat.h>
-#	include <ogc/pad.h>
-#	include <sys/iosupport.h>
-#	if defined(DEATH_TARGET_WII)
-#		include <wiiuse/wpad.h>
-#	endif
+#include <gccore.h>
+#include <fat.h>
+#include <ogc/pad.h>
+#include <sys/iosupport.h>
+#if defined(DEATH_TARGET_WII)
+#include <wiiuse/wpad.h>
+#endif
 #elif defined(DEATH_TARGET_3DS)
-#	include <3ds.h>
+#include <3ds.h>
 #elif defined(DEATH_TARGET_PS2)
-extern "C" {
-#	include <kernel.h>
-#	include <sifrpc.h>
-#	include <loadfile.h>
-#	include <libcdvd.h>
-#	include <libmc.h>
-#	include <delaythread.h>
-#	include <debug.h>
+extern "C"
+{
+#include <kernel.h>
+#include <sifrpc.h>
+#include <loadfile.h>
+#include <libcdvd.h>
+#include <libmc.h>
+#include <delaythread.h>
+#include <debug.h>
 }
-#	include <cstdio>
-#	if defined(WITH_PS2AUDIO)
-#		include "Audio/Backends/Ps2/Ps2AudioDevice.h"
-#	endif
+#include <cstdio>
+#if defined(WITH_PS2AUDIO)
+#include "Audio/Backends/Ps2/Ps2AudioDevice.h"
+#endif
 #elif defined(DEATH_TARGET_PSP)
-#	include "Backends/Psp/PspPower.h"
-#	include <pspkernel.h>
-#	include <pspdebug.h>
-#	include <psppower.h>
-#	include <kubridge.h>
+#include "Backends/Psp/PspPower.h"
+#include <pspkernel.h>
+#include <pspdebug.h>
+#include <psppower.h>
+#include <kubridge.h>
 #elif defined(DEATH_TARGET_VITA)
-#	include <vitasdk.h>
-#	include <vitaGL.h>
+#include <vitasdk.h>
+#include <vitaGL.h>
 #elif defined(DEATH_TARGET_UNIX)
-#	include <pwd.h>
-#	include <unistd.h>
+#include <pwd.h>
+#include <unistd.h>
 #elif defined(DEATH_TARGET_WINDOWS)
-#	include <timeapi.h>
-#	include <Utf8.h>
+#include <timeapi.h>
+#include <Utf8.h>
 #endif
 
 #include "Input/IInputEventHandler.h"
@@ -114,7 +115,7 @@ using namespace nCine::Backends;
 #endif
 
 #if defined(DEATH_TARGET_WINDOWS_RT)
-#	error "For DEATH_TARGET_WINDOWS_RT, UwpApplication should be used instead of MainApplication"
+#error "For DEATH_TARGET_WINDOWS_RT, UwpApplication should be used instead of MainApplication"
 #endif
 
 #if defined(DEATH_TARGET_N64)
@@ -125,13 +126,19 @@ using namespace nCine::Backends;
 // the stderr sink (`hook_stdio_calls`), so a release build that goes through the macros gets no log
 // channel whatsoever and silently drops every trace message. Declaring them directly bypasses the
 // macros; the `#undef`s are needed because the macros would otherwise eat these declarations too.
-#	undef debug_init_usblog
-#	undef debug_init_emulog
+#undef debug_init_usblog
+#undef debug_init_emulog
 extern "C" bool debug_init_usblog(void);
 extern "C" bool debug_init_emulog(void);
 
-static bool N64DebugInitUsbLog() { return debug_init_usblog(); }
-static bool N64DebugInitEmuLog() { return debug_init_emulog(); }
+static bool N64DebugInitUsbLog()
+{
+	return debug_init_usblog();
+}
+static bool N64DebugInitEmuLog()
+{
+	return debug_init_emulog();
+}
 
 #endif
 
@@ -160,8 +167,8 @@ namespace __gnu_cxx
 #endif
 
 #if defined(DEATH_TARGET_WINDOWS)
-#	include <shellapi.h>
-#	include <unknwn.h>
+#include <shellapi.h>
+#include <unknwn.h>
 
 // {4ce576fa-83dc-4F88-951c-9d0782b4e376}
 static const GUID CLSID_UIHostNoLaunch = { 0x4CE576FA, 0x83DC, 0x4f88, { 0x95, 0x1C, 0x9D, 0x07, 0x82, 0xB4, 0xE3, 0x76 } };
@@ -251,7 +258,9 @@ namespace nCine
 
 	static int PspExitCallback(int arg1, int arg2, void* common)
 	{
-		static_cast<void>(arg1); static_cast<void>(arg2); static_cast<void>(common);
+		static_cast<void>(arg1);
+		static_cast<void>(arg2);
+		static_cast<void>(common);
 		pspShutdownRequested = true;
 		return 0;
 	}
@@ -263,7 +272,8 @@ namespace nCine
 	// goes on the same thread, for the same reason (see PspPower).
 	static int PspCallbackThread(SceSize args, void* argp)
 	{
-		static_cast<void>(args); static_cast<void>(argp);
+		static_cast<void>(args);
+		static_cast<void>(argp);
 		int callbackId = sceKernelCreateCallback("nCineExitCallback", PspExitCallback, nullptr);
 		sceKernelRegisterExitCallback(callbackId);
 		Backends::PspPower::RegisterCallback();
@@ -285,29 +295,41 @@ namespace nCine
 	*/
 	static const char* GetConsoleModelName()
 	{
-#	if defined(DEATH_TARGET_PSP)
+#if defined(DEATH_TARGET_PSP)
 		// `sceKernelGetModel()` is a kernel export and cannot be reached from a user-mode module, so this
 		// goes through kubridge's user-mode relay of it instead (see the `pspkubridge` note in CMake).
 		// The value it returns is the hardware generation minus one - 0 is 01g, 1 is 02g and so on - and
 		// the gaps below (06g, 08g, 10g) are motherboard revisions that were never a retail model.
 		switch (kuKernelGetModel()) {
-			case 0: return "PSP-1000";
-			case 1: return "PSP-2000";
-			case 2: return "PSP-3000 (03g)";
-			case 3: return "PSP-3000 (04g)";
-			case 4: return "PSP-Go";
-			case 6: return "PSP-3000 (07g)";
-			case 8: return "PSP-E1000 (09g)";
-			case 10: return "PSP-E1000 (11g)";
-			default: return "unknown PSP model";
+			case 0:
+				return "PSP-1000";
+			case 1:
+				return "PSP-2000";
+			case 2:
+				return "PSP-3000 (03g)";
+			case 3:
+				return "PSP-3000 (04g)";
+			case 4:
+				return "PSP-Go";
+			case 6:
+				return "PSP-3000 (07g)";
+			case 8:
+				return "PSP-E1000 (09g)";
+			case 10:
+				return "PSP-E1000 (11g)";
+			default:
+				return "unknown PSP model";
 		}
-#	else
+#else
 		switch (sceKernelGetModel()) {
-			case SCE_KERNEL_MODEL_VITA: return "PS Vita";
-			case SCE_KERNEL_MODEL_VITATV: return "PlayStation TV";
-			default: return "unknown PS Vita model";
+			case SCE_KERNEL_MODEL_VITA:
+				return "PS Vita";
+			case SCE_KERNEL_MODEL_VITATV:
+				return "PlayStation TV";
+			default:
+				return "unknown PS Vita model";
 		}
-#	endif
+#endif
 	}
 #endif
 
@@ -324,17 +346,19 @@ namespace nCine
 		*/
 		void Ps2BootMarker(std::uint32_t rgb)
 		{
-			*reinterpret_cast<volatile std::uint64_t*>(0x12000000) = 0;		// PMODE
-			*reinterpret_cast<volatile std::uint64_t*>(0x120000E0) = rgb;	// BGCOLOR, R in the low byte
+			*reinterpret_cast<volatile std::uint64_t*>(0x12000000) = 0; // PMODE
+			*reinterpret_cast<volatile std::uint64_t*>(0x120000E0) = rgb; // BGCOLOR, R in the low byte
 		}
 
-		constexpr std::uint32_t Ps2MarkerStaticInit = 0x0000FF;	// Red: static initialization has begun
-		constexpr std::uint32_t Ps2MarkerRun = 0x00FF00;			// Green: main() reached MainApplication::Run()
-		constexpr std::uint32_t Ps2MarkerTrace = 0xFF0000;			// Blue: the trace system is up, the boot console is next
+		constexpr std::uint32_t Ps2MarkerStaticInit = 0x0000FF; // Red: static initialization has begun
+		constexpr std::uint32_t Ps2MarkerRun = 0x00FF00; // Green: main() reached MainApplication::Run()
+		constexpr std::uint32_t Ps2MarkerTrace = 0xFF0000; // Blue: the trace system is up, the boot console is next
 
 		/** @brief Runs ahead of every other static constructor, so red means "the executable started at all" */
-		struct Ps2EarlyMarker {
-			Ps2EarlyMarker() {
+		struct Ps2EarlyMarker
+		{
+			Ps2EarlyMarker()
+			{
 				Ps2BootMarker(Ps2MarkerStaticInit);
 			}
 		};
@@ -410,7 +434,8 @@ namespace nCine
 			// Without the DFS image there is no game content, so halt with a readable message instead of
 			// crashing on the missing files later
 			printf("\n  Cannot mount the cartridge filesystem!\n\n  The ROM was built without the attached game files.\n");
-			while (true) { }
+			while (true) {
+			}
 		}
 
 		// The console has no clock of its own, but some cartridges do, and some flashcarts and emulators offer
@@ -438,13 +463,13 @@ namespace nCine
 		VIDEO_WaitVSync();
 		printf("Application starting...\n");
 
-#	if defined(DEATH_TARGET_GAMECUBE)
+#if defined(DEATH_TARGET_GAMECUBE)
 		// The game content is on the disc or on an SD card, and which one is decided once everything has been
 		// asked (see ContentResolver::InitializePaths(), which also stops with a readable message when neither
 		// has it). Only the SD cards are mounted here, along with where the loader started the executable from,
 		// which only `argv` says and only this function has.
 		OgcStorage::Initialize(argc > 0 ? argv[0] : nullptr);
-#	else
+#else
 		if (!fatInitDefault()) {
 			// Without a FAT device there is no game content and no writable storage, so halt with
 			// a readable message instead of crashing on the missing device later
@@ -453,26 +478,29 @@ namespace nCine
 				VIDEO_WaitVSync();
 			}
 		}
-#	endif
+#endif
 		PAD_Init();
-#	if defined(DEATH_TARGET_WII)
+#if defined(DEATH_TARGET_WII)
 		WPAD_Init();
-#	endif
+#endif
 
 		// The console (and an emulator asking the title to stop) requests shutdown through these events;
 		// a title that ignores them keeps running until it is killed, so each one asks the game to quit
 		SYS_SetResetCallback([](std::uint32_t irq, void* ctx) {
-			static_cast<void>(irq); static_cast<void>(ctx);
+			static_cast<void>(irq);
+			static_cast<void>(ctx);
 			ogcShutdownRequested = true;
 		});
-#	if defined(DEATH_TARGET_WII)
+#if defined(DEATH_TARGET_WII)
 		// The GameCube has no power event - its power switch cuts the supply directly
-		SYS_SetPowerCallback([]() { ogcShutdownRequested = true; });
+		SYS_SetPowerCallback([]() {
+			ogcShutdownRequested = true;
+		});
 		WPAD_SetPowerButtonCallback([](std::int32_t chan) {
 			static_cast<void>(chan);
 			ogcShutdownRequested = true;
 		});
-#	endif
+#endif
 #elif defined(DEATH_TARGET_3DS)
 		// The system services (graphics, the boot console on the bottom screen, the CPU speed-up of a New 3DS)
 		// come up before any device exists; the SD card is already mounted as "sdmc:" by libctru's own startup,
@@ -614,7 +642,7 @@ namespace nCine
 		// the choice of which slot to save on, belong to PreferencesCache and are done there.
 		mcInit(MC_TYPE_MC);
 
-#	if defined(WITH_PS2AUDIO)
+#if defined(WITH_PS2AUDIO)
 		// The sound modules (`rom0:LIBSD`, `audsrv.irx`) are brought up here as well, not only when the audio
 		// device is constructed. That construction happens after Ps2GfxDevice has taken the display, and the
 		// bring-up is the one part of the IOP side that has been seen to hang - `audsrv_init()` spins forever
@@ -623,7 +651,7 @@ namespace nCine
 		// device constructor only reads that back. (It costs the ~20 KB of IOP memory the modules take even
 		// when the configuration turns audio off, which is nothing against the 2 MB the IOP has.)
 		Ps2AudioDevice::InitializeModules();
-#	endif
+#endif
 
 		// Nothing brings removable storage (a USB stick, or an SD card in an MX4SIO adapter) up here, even
 		// though this is where the rest of the I/O stack is assembled: the probe costs several module loads
@@ -657,13 +685,13 @@ namespace nCine
 		pspDebugScreenInit();
 		printf("Application starting...\n");
 
-#	if defined(WITH_CURL)
+#if defined(WITH_CURL)
 		// Brings up the socket stack that nothing on this console has at boot. It has to happen before
 		// Init() below, because the first thing that uses the network - the update check - is started from
 		// the event handler's OnInit(), which that call reaches. Only the stack is brought up here, no
 		// access point is joined (see PspNetwork::ScopedConnection), so it costs nothing.
 		PspNetwork::Initialize();
-#	endif
+#endif
 #elif defined(DEATH_TARGET_VITA)
 		// Homebrew is launched at a reduced power profile rather than the one a retail title gets, so the
 		// clocks are raised to the maximum the firmware allows before anything is timed against them. These
@@ -679,11 +707,11 @@ namespace nCine
 			scePowerGetArmClockFrequency(), scePowerGetBusClockFrequency(),
 			scePowerGetGpuClockFrequency(), scePowerGetGpuXbarClockFrequency());
 
-#	if defined(NCINE_HAS_TOUCH_CONTROLS)
+#if defined(NCINE_HAS_TOUCH_CONTROLS)
 		// Start sampling the front touchscreen and the rear touchpad
 		sceTouchSetSamplingState(SCE_TOUCH_PORT_FRONT, SCE_TOUCH_SAMPLING_STATE_START);
 		sceTouchSetSamplingState(SCE_TOUCH_PORT_BACK, SCE_TOUCH_SAMPLING_STATE_START);
-#	endif
+#endif
 
 		// Enabling sampling for the analogs
 		sceCtrlSetSamplingMode(SCE_CTRL_MODE_ANALOG_WIDE);
@@ -742,29 +770,29 @@ namespace nCine
 		// the browser, so loop timing must not be set during graphics initialization.
 		emscripten_set_main_loop(MainApplication::EmscriptenStep, 0, 1);
 #else
-#	if defined(DEATH_TARGET_PSP)
+#if defined(DEATH_TARGET_PSP)
 		std::uint32_t pspSeenResumes = Backends::PspPower::GetResumeCount();
-#	endif
+#endif
 		while (!app._shouldQuit) {
 			app.ProcessStep();
-#	if defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_VITA)
+#if defined(DEATH_TARGET_3DS) || defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_VITA)
 			// The IME is modal to the firmware but not to the game, which keeps running and presenting behind
 			// it - so its result has to be collected from the frame loop rather than from whoever opened it.
 			// On the 3DS the keyboard is run from here in the first place: the applet blocks the thread, and
 			// this is the one point where no frame is in flight (see ShowScreenKeyboard)
 			app.UpdateScreenKeyboard();
-#	endif
-#	if defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_GAMECUBE)
+#endif
+#if defined(DEATH_TARGET_WII) || defined(DEATH_TARGET_GAMECUBE)
 			if (ogcShutdownRequested) {
 				app.Quit();
 			}
-#	elif defined(DEATH_TARGET_3DS)
+#elif defined(DEATH_TARGET_3DS)
 			// The system asks the application to leave through the APT event queue (the HOME menu closing it, a
 			// power-off), and an application that ignores that keeps running until it is killed
 			if (!CtrPlatform::Update()) {
 				app.Quit();
 			}
-#	elif defined(DEATH_TARGET_PSP)
+#elif defined(DEATH_TARGET_PSP)
 			if (pspShutdownRequested) {
 				app.Quit();
 			}
@@ -776,13 +804,13 @@ namespace nCine
 				pspSeenResumes = pspResumes;
 				LOGI("The console woke up from sleep");
 			}
-#		if defined(WITH_CURL)
+#if defined(WITH_CURL)
 			// Drops the access point association once nothing has needed it for a while - it is deliberately
 			// not dropped the moment the last user goes away (see PspNetwork::ScopedConnection), and this is
 			// what notices that the grace period is over. Never waits, so a frame is never held up by it.
 			PspNetwork::Update();
-#		endif
-#	endif
+#endif
+#endif
 		}
 #endif
 
@@ -802,16 +830,16 @@ namespace nCine
 		// end the title instead of running off into whatever follows the entry point
 		fatUnmount("sd:");
 		fatUnmount("carda:");
-#	if defined(DEATH_TARGET_GAMECUBE)
+#if defined(DEATH_TARGET_GAMECUBE)
 		fatUnmount("cardb:");
-#	endif
-#	if defined(DEATH_TARGET_WII)
+#endif
+#if defined(DEATH_TARGET_WII)
 		if (*(volatile std::uint32_t*)0x80001804 != 0x53545542 /*"STUB"*/) {
 			SYS_ResetSystem(SYS_RETURNTOMENU, 0, 0);
 		}
-#	else
+#else
 		SYS_ResetSystem(SYS_HOTRESET, 0, 0);
-#	endif
+#endif
 #elif defined(DEATH_TARGET_3DS)
 		// The gfx device and the audio device are gone after ShutdownCommon(); returning from main() hands
 		// control back to the Homebrew Launcher
@@ -891,11 +919,11 @@ namespace nCine
 #elif defined(DEATH_TARGET_UNIX)
 		struct passwd* pw = ::getpwuid(::getuid());
 		if (pw != nullptr) {
-			StringView userName = pw->pw_gecos;	// Display name
+			StringView userName = pw->pw_gecos; // Display name
 			if (!userName.empty()) {
 				return userName;
 			}
-			userName = pw->pw_name;	// Plain name
+			userName = pw->pw_name; // Plain name
 			if (!userName.empty()) {
 				return userName;
 			}
@@ -915,20 +943,19 @@ namespace nCine
 #if defined(DEATH_TARGET_EMSCRIPTEN)
 			EM_ASM({
 				var url = UTF8ToString($0, $1);
-				if (url) window.open(url, '_blank');
-			}, url.data(), url.size());
+				if (url) window.open(url, '_blank'); }, url.data(), url.size());
 			return true;
 #elif (defined(WITH_SDL2) || defined(WITH_SDL3))
-#	if SDL_VERSION_ATLEAST(2, 0, 14)
+#if SDL_VERSION_ATLEAST(2, 0, 14)
 			return SDL_OpenURL(String::nullTerminatedView(url).data()) == 0;
-#	endif
+#endif
 #endif
 		}
 
 		// TODO: Not implemented in GLFW
 		return false;
 	}
-	
+
 #if defined(DEATH_TARGET_PSP)
 	void MainApplication::UpdateScreenKeyboard()
 	{
@@ -971,7 +998,7 @@ namespace nCine
 						// keystroke-feeding keyboard would have produced. That appends, which is the best this
 						// fallback can do.
 						TextInputEvent textInputEvent;
-						for (std::size_t i = 0; i < text.size(); ) {
+						for (std::size_t i = 0; i < text.size();) {
 							auto [codePoint, nextI] = Death::Utf8::NextChar(text, i);
 							i = nextI;
 							textInputEvent.Length = (std::int32_t)Death::Utf8::FromCodePoint(codePoint, textInputEvent.Text);
@@ -1023,7 +1050,7 @@ namespace nCine
 				// Nobody asked for the string, so it is delivered as the text input events a keystroke-feeding
 				// keyboard would have produced. That appends, which is the best this fallback can do.
 				TextInputEvent textInputEvent;
-				for (std::size_t i = 0; i < text.size(); ) {
+				for (std::size_t i = 0; i < text.size();) {
 					auto [codePoint, nextI] = Death::Utf8::NextChar(text, i);
 					i = nextI;
 					textInputEvent.Length = (std::int32_t)Death::Utf8::FromCodePoint(codePoint, textInputEvent.Text);
@@ -1077,7 +1104,7 @@ namespace nCine
 				// Nobody asked for the string, so it is delivered as the text input events a keystroke-feeding
 				// keyboard would have produced. That appends, which is the best this fallback can do.
 				TextInputEvent textInputEvent;
-				for (std::size_t i = 0; i < text.size(); ) {
+				for (std::size_t i = 0; i < text.size();) {
 					auto [codePoint, nextI] = Death::Utf8::NextChar(text, i);
 					i = nextI;
 					textInputEvent.Length = (std::int32_t)Death::Utf8::FromCodePoint(codePoint, textInputEvent.Text);
@@ -1190,7 +1217,7 @@ namespace nCine
 		// UTF-8 in, UCS-2 out; a code point the encoding cannot hold (outside the BMP) is dropped.
 		{
 			std::size_t out = 0;
-			for (std::size_t i = 0; i < initialText.size() && out < ImeMaxTextLength; ) {
+			for (std::size_t i = 0; i < initialText.size() && out < ImeMaxTextLength;) {
 				auto [codePoint, nextI] = Death::Utf8::NextChar(initialText, i);
 				i = nextI;
 				if (codePoint == U'\0') {
@@ -1270,7 +1297,7 @@ namespace nCine
 		// truncating mid-character.
 		{
 			std::size_t out = 0;
-			for (std::size_t i = 0; i < initialText.size() && out < ImeMaxTextLength; ) {
+			for (std::size_t i = 0; i < initialText.size() && out < ImeMaxTextLength;) {
 				auto [codePoint, nextI] = Death::Utf8::NextChar(initialText, i);
 				i = nextI;
 				if (codePoint == U'\0') {
@@ -1296,7 +1323,7 @@ namespace nCine
 
 		SceImeDialogParam param;
 		sceImeDialogParamInit(&param);
-		param.supportedLanguages = 0;					// 0 with languagesForced false = whatever the user has
+		param.supportedLanguages = 0; // 0 with languagesForced false = whatever the user has
 		param.languagesForced = SCE_FALSE;
 		param.type = SCE_IME_TYPE_DEFAULT;
 		param.dialogMode = SCE_IME_DIALOG_DIALOG_MODE_DEFAULT;
@@ -1316,7 +1343,7 @@ namespace nCine
 			// IID_ITipInvocation is supported only on Windows 10 and later
 			ITipInvocation* tip;
 			if (::CoCreateInstance(CLSID_UIHostNoLaunch, nullptr,
-				CLSCTX_INPROC_HANDLER | CLSCTX_LOCAL_SERVER, IID_ITipInvocation, (void**)&tip) == S_OK) {
+					CLSCTX_INPROC_HANDLER | CLSCTX_LOCAL_SERVER, IID_ITipInvocation, (void**)&tip) == S_OK) {
 				HRESULT hr = tip->Toggle(::GetDesktopWindow());
 				tip->Release();
 				return SUCCEEDED(hr);
@@ -1324,10 +1351,10 @@ namespace nCine
 		}
 
 		// Create the process directly if the above fails on Windows 7
-#	if defined(DEATH_TARGET_32BIT)
+#if defined(DEATH_TARGET_32BIT)
 		PVOID redirectOldValue = nullptr;
 		BOOL redirectSuccess = ::Wow64DisableWow64FsRedirection(&redirectOldValue);
-#	endif
+#endif
 		bool success = false;
 		wchar_t rawPath[MAX_PATH];
 		if (GetTabTipPathFromRegistry(rawPath, DWORD(arraySize(rawPath))) == 0) {
@@ -1340,11 +1367,11 @@ namespace nCine
 				nullptr, nullptr, SW_SHOWNORMAL);
 			success = ((INT_PTR)hinst > 32);
 		}
-#	if defined(DEATH_TARGET_32BIT)
+#if defined(DEATH_TARGET_32BIT)
 		if (redirectSuccess) {
 			::Wow64RevertWow64FsRedirection(redirectOldValue);
 		}
-#	endif
+#endif
 		return success;
 #elif defined(DEATH_TARGET_IOS)
 		// The overlay kind of keyboard (see Application.h): SDL raises UIKit's keyboard once text input starts and
@@ -1395,7 +1422,7 @@ namespace nCine
 			// IID_ITipInvocation is supported only on Windows 10 and later
 			ITipInvocation* tip;
 			if (::CoCreateInstance(CLSID_UIHostNoLaunch, nullptr,
-				CLSCTX_INPROC_HANDLER | CLSCTX_LOCAL_SERVER, IID_ITipInvocation, (void**)&tip) == S_OK) {
+					CLSCTX_INPROC_HANDLER | CLSCTX_LOCAL_SERVER, IID_ITipInvocation, (void**)&tip) == S_OK) {
 				HRESULT hr = tip->Toggle(::GetDesktopWindow());
 				tip->Release();
 				return SUCCEEDED(hr);
@@ -1470,27 +1497,27 @@ namespace nCine
 		}
 
 #if defined(DEATH_DEBUG)
-#	define INIT_MESSAGE_SUFFIX " in debug configuration"
+#define INIT_MESSAGE_SUFFIX " in debug configuration"
 #else
-#	define INIT_MESSAGE_SUFFIX ""
+#define INIT_MESSAGE_SUFFIX ""
 #endif
 
 // The graphics backend the build was configured with; the no-graphics path below deliberately names none
 #if defined(WITH_GLFW)
-#	define INIT_MESSAGE_BACKEND " (GLFW)"
+#define INIT_MESSAGE_BACKEND " (GLFW)"
 #elif defined(WITH_SDL3)
-#	define INIT_MESSAGE_BACKEND " (SDL3)"
+#define INIT_MESSAGE_BACKEND " (SDL3)"
 #elif defined(WITH_SDL2)
-#	define INIT_MESSAGE_BACKEND " (SDL2)"
+#define INIT_MESSAGE_BACKEND " (SDL2)"
 #else
-#	define INIT_MESSAGE_BACKEND ""
+#define INIT_MESSAGE_BACKEND ""
 #endif
 
 // Consoles name the hardware revision they are running on as well (see GetConsoleModelName())
 #if defined(DEATH_TARGET_PSP) || defined(DEATH_TARGET_VITA)
-#	define LOG_INIT_MESSAGE(backend) LOGI(NCINE_APP_NAME " v" NCINE_VERSION backend " initializing" INIT_MESSAGE_SUFFIX " on {}...", GetConsoleModelName())
+#define LOG_INIT_MESSAGE(backend) LOGI(NCINE_APP_NAME " v" NCINE_VERSION backend " initializing" INIT_MESSAGE_SUFFIX " on {}...", GetConsoleModelName())
 #else
-#	define LOG_INIT_MESSAGE(backend) LOGI(NCINE_APP_NAME " v" NCINE_VERSION backend " initializing" INIT_MESSAGE_SUFFIX "...")
+#define LOG_INIT_MESSAGE(backend) LOGI(NCINE_APP_NAME " v" NCINE_VERSION backend " initializing" INIT_MESSAGE_SUFFIX "...")
 #endif
 
 		if (_appCfg.WithGraphics) {
@@ -1631,7 +1658,7 @@ namespace nCine
 		ZoneScoped;
 
 		SDL_Event event;
-#	if !defined(DEATH_TARGET_EMSCRIPTEN)
+#if !defined(DEATH_TARGET_EMSCRIPTEN)
 		if (ShouldSuspend()) {
 			SDL_WaitEvent(&event);
 			SDL_PushEvent(&event);
@@ -1640,7 +1667,7 @@ namespace nCine
 				SDL_PushEvent(&event);
 			}
 		}
-#	endif
+#endif
 
 		while (SDL_PollEvent(&event)) {
 			// SDL3 flattened the SDL2 SDL_WINDOWEVENT/SDL_DISPLAYEVENT umbrellas into one event type per action,
@@ -1717,7 +1744,7 @@ namespace nCine
 		ZoneScoped;
 
 		SDL_Event event;
-#	if !defined(DEATH_TARGET_EMSCRIPTEN)
+#if !defined(DEATH_TARGET_EMSCRIPTEN)
 		if (ShouldSuspend()) {
 			SDL_WaitEvent(&event);
 			SDL_PushEvent(&event);
@@ -1726,7 +1753,7 @@ namespace nCine
 				SDL_PushEvent(&event);
 			}
 		}
-#	endif
+#endif
 
 		while (SDL_PollEvent(&event)) {
 			switch (event.type) {
@@ -1836,9 +1863,9 @@ namespace nCine
 	void MainApplication::ProcessEvents()
 	{
 		// GLFW does not seem to correctly handle Emscripten focus and blur events
-#	if !defined(DEATH_TARGET_EMSCRIPTEN)
+#if !defined(DEATH_TARGET_EMSCRIPTEN)
 		SetFocus(GlfwInputManager::HasFocus());
-#	endif
+#endif
 
 		if (ShouldSuspend()) {
 			glfwWaitEvents();

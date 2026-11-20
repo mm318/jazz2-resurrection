@@ -99,7 +99,7 @@ namespace Jazz2::Editor::StampClipboard
 				if (!ReadNumber(p, -1, UINT8_MAX, source) || !ReadNumber(p, 0, UINT16_MAX, index) || !ReadNumber(p, 0, UINT8_MAX, flags)) {
 					return false;
 				}
-				result.Tiles.push_back(TileRef{ std::uint16_t(index), std::uint8_t(source < 0 ? 0 : source), std::uint8_t(flags) });
+				result.Tiles.push_back(TileRef { std::uint16_t(index), std::uint8_t(source < 0 ? 0 : source), std::uint8_t(flags) });
 				result.Present.push_back(source >= 0);
 			}
 			return true;
@@ -135,7 +135,7 @@ namespace Jazz2::Editor::StampClipboard
 		}
 
 		// Reads a list of events as numbers, `false` if it isn't whole
-		template<class TCallback>
+		template <class TCallback>
 		bool ReadEventList(const char* p, std::int64_t maxOffset, TCallback&& callback)
 		{
 			std::size_t count = 0;
@@ -157,7 +157,7 @@ namespace Jazz2::Editor::StampClipboard
 				if (numbers[2] >= std::int64_t(EventType::Count)) {
 					continue;
 				}
-				Formats::EventRecord event{};
+				Formats::EventRecord event {};
 				event.Type = std::uint16_t(numbers[2]);
 				event.Flags = std::uint8_t(numbers[3]);
 				event.GeneratorFlags = std::uint8_t(numbers[4]);
@@ -185,8 +185,10 @@ namespace Jazz2::Editor::StampClipboard
 			}
 			for (std::size_t i = 0; i < a.size(); i++) {
 				char ca = a[i], cb = b[i];
-				if (ca >= 'A' && ca <= 'Z') ca = char(ca - 'A' + 'a');
-				if (cb >= 'A' && cb <= 'Z') cb = char(cb - 'A' + 'a');
+				if (ca >= 'A' && ca <= 'Z')
+					ca = char(ca - 'A' + 'a');
+				if (cb >= 'A' && cb <= 'Z')
+					cb = char(cb - 'A' + 'a');
 				if (ca != cb) {
 					return false;
 				}
@@ -299,7 +301,7 @@ namespace Jazz2::Editor::StampClipboard
 					}
 				}
 				if (!found) {
-					tile = TileRef{};
+					tile = TileRef {};
 					stamp.Present[i] = false;
 				}
 			}
@@ -364,10 +366,10 @@ namespace Jazz2::Editor::StampClipboard
 			result.Events.resize(result.Tiles.size(), LevelDocument::GetEmptyEvent());
 			String eventValues = text.suffix(foundEvents.end());
 			if (!ReadEventList(eventValues.data(), MaxSide, [&result](Vector2i offset, const Formats::EventRecord& event) {
-				if (offset.X >= 0 && offset.Y >= 0 && offset.X < result.Width && offset.Y < result.Height) {
-					result.Events[std::size_t(offset.Y) * std::size_t(result.Width) + std::size_t(offset.X)] = event;
-				}
-			})) {
+					if (offset.X >= 0 && offset.Y >= 0 && offset.X < result.Width && offset.Y < result.Height) {
+						result.Events[std::size_t(offset.Y) * std::size_t(result.Width) + std::size_t(offset.X)] = event;
+					}
+				})) {
 				return false;
 			}
 		}
@@ -375,10 +377,10 @@ namespace Jazz2::Editor::StampClipboard
 		if (!foundOffGrid.empty()) {
 			String offGridValues = text.suffix(foundOffGrid.end());
 			if (!ReadEventList(offGridValues.data(), MaxSide * 32, [&result](Vector2i offset, const Formats::EventRecord& event) {
-				if (offset.X >= 0 && offset.Y >= 0 && offset.X < result.Width * 32 && offset.Y < result.Height * 32) {
-					result.OffGridEvents.push_back(TileStamp::OffGridEvent{ offset, event });
-				}
-			})) {
+					if (offset.X >= 0 && offset.Y >= 0 && offset.X < result.Width * 32 && offset.Y < result.Height * 32) {
+						result.OffGridEvents.push_back(TileStamp::OffGridEvent { offset, event });
+					}
+				})) {
 				return false;
 			}
 		}
@@ -410,8 +412,8 @@ namespace Jazz2::Editor::StampClipboard
 		EventStamp result;
 		String values = text.suffix(found.end());
 		if (!ReadEventList(values.data(), MaxSide, [&result](Vector2i offset, const Formats::EventRecord& event) {
-			result.Items.push_back(EventStamp::Item{ offset, event });
-		})) {
+				result.Items.push_back(EventStamp::Item { offset, event });
+			})) {
 			return false;
 		}
 		// Off the grid by pixels, so within the largest level in pixels
@@ -419,8 +421,8 @@ namespace Jazz2::Editor::StampClipboard
 		if (!foundOffGrid.empty()) {
 			String offGridValues = text.suffix(foundOffGrid.end());
 			if (!ReadEventList(offGridValues.data(), MaxSide * 32, [&result](Vector2i offset, const Formats::EventRecord& event) {
-				result.OffGrid.push_back(EventStamp::OffGridItem{ offset, event });
-			})) {
+					result.OffGrid.push_back(EventStamp::OffGridItem { offset, event });
+				})) {
 				return false;
 			}
 		}
@@ -525,7 +527,7 @@ namespace Jazz2::Editor::StampClipboard
 	{
 		for (std::size_t i = 0; i < stamp.Tiles.size() && i < stamp.Present.size(); i++) {
 			if (stamp.Present[i] && !HasTile(document, stamp.Tiles[i])) {
-				stamp.Tiles[i] = TileRef{};
+				stamp.Tiles[i] = TileRef {};
 				stamp.Present[i] = false;
 			}
 		}

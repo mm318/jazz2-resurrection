@@ -22,7 +22,8 @@ namespace Jazz2::Compatibility
 		decoded against: the in-game sprite palette or the dedicated menu palette. Stored per entry in
 		@ref AnimSetMapping::Entry.
 	*/
-	enum class JJ2DefaultPalette {
+	enum class JJ2DefaultPalette
+	{
 		Sprite,
 		Menu
 	};
@@ -45,7 +46,8 @@ namespace Jazz2::Compatibility
 		/** @} */
 
 		/** @brief Mapped entry */
-		struct Entry {
+		struct Entry
+		{
 			/** @brief Category name */
 			String Category;
 			/**

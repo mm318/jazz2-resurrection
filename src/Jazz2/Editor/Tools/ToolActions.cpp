@@ -672,7 +672,7 @@ namespace Jazz2::Editor::ToolActions
 				}
 				MirrorEvent(event, horizontal, swapTeams);
 				Vector2i target(horizontal ? from.X + to.X - pos.X : pos.X, horizontal ? pos.Y : from.Y + to.Y - pos.Y);
-				moved.push_back(Moved{ pos, target, event });
+				moved.push_back(Moved { pos, target, event });
 			}
 			auto command = std::make_unique<SetEventsCommand>(document, name);
 			for (const Moved& item : moved) {
@@ -723,7 +723,7 @@ namespace Jazz2::Editor::ToolActions
 		for (std::int32_t y = bounds.Y; y < bounds.Y + bounds.H; y++) {
 			for (std::int32_t x = bounds.X; x < bounds.X + bounds.W; x++) {
 				if (selection.Contains(x, y) && !target[std::size_t(y) * std::size_t(width) + std::size_t(x)]) {
-					tiles->Set(x, y, TileRef{});
+					tiles->Set(x, y, TileRef {});
 				}
 			}
 		}
@@ -748,10 +748,15 @@ namespace Jazz2::Editor::ToolActions
 		// On the sprite layer, the events on the selected tiles turn with them, those off the grid within the rectangle of
 		// the selection in pixels
 		if (layerIndex == spriteLayer) {
-			CarrySelectedEvents(session, selection, name, [&mirror](Vector2i cell) { return mirror(cell.X, cell.Y); },
+			CarrySelectedEvents(session, selection, name, [&mirror](Vector2i cell) {
+				return mirror(cell.X, cell.Y);
+			},
 				[horizontal, bounds](Vector2i pixel) {
 					return Vector2i(horizontal ? (2 * bounds.X + bounds.W) * 32 - pixel.X : pixel.X, horizontal ? pixel.Y : (2 * bounds.Y + bounds.H) * 32 - pixel.Y);
-				}, [horizontal, swapTeams](Formats::EventRecord& event) { MirrorEvent(event, horizontal, swapTeams); });
+				},
+				[horizontal, swapTeams](Formats::EventRecord& event) {
+					MirrorEvent(event, horizontal, swapTeams);
+				});
 		}
 		session.GetHistory().EndTransaction();
 		selection.Select(layerIndex, Vector2i(width, height), target, false);
@@ -767,9 +772,7 @@ namespace Jazz2::Editor::ToolActions
 		LevelDocument& document = session.GetDocument();
 		TileSelection& selection = session.GetSelection();
 		const DocumentLayer& layer = document.Layers[layerIndex];
-		std::uint8_t value = (modifier == TileModifierMode::Translucent ? Formats::TileRecord::ModifierTranslucent :
-			(modifier == TileModifierMode::Invisible ? Formats::TileRecord::ModifierInvisible :
-			(modifier == TileModifierMode::Heat ? Formats::TileRecord::ModifierHeat : 0)));
+		std::uint8_t value = (modifier == TileModifierMode::Translucent ? Formats::TileRecord::ModifierTranslucent : (modifier == TileModifierMode::Invisible ? Formats::TileRecord::ModifierInvisible : (modifier == TileModifierMode::Heat ? Formats::TileRecord::ModifierHeat : 0)));
 		const Recti& bounds = selection.GetBounds();
 		// TRANSLATORS: Name of an undo step in the history, after the selected tiles were made normal, translucent, invisible or given heat
 		auto command = std::make_unique<SetTilesCommand>(document, layerIndex, _x("editor", "Set Tile Modifier"));
@@ -896,11 +899,13 @@ namespace Jazz2::Editor::ToolActions
 			if (!stamp.Present[i]) {
 				continue;
 			}
-			auto it = std::find_if(entries.begin(), entries.end(), [&](const Entry& entry) { return entry.Tile == stamp.Tiles[i]; });
+			auto it = std::find_if(entries.begin(), entries.end(), [&](const Entry& entry) {
+				return entry.Tile == stamp.Tiles[i];
+			});
 			if (it != entries.end()) {
 				it->Count++;
 			} else {
-				entries.push_back(Entry{ stamp.Tiles[i], 1 });
+				entries.push_back(Entry { stamp.Tiles[i], 1 });
 			}
 		}
 
@@ -950,14 +955,23 @@ namespace Jazz2::Editor::ToolActions
 						current.Weights[i] = std::max(value, 0.0f) / float(std::max<std::int32_t>(count, 1));
 					}
 				}
-			}, 0.0f, 100.0f, 1.0f, 1);
+			},
+				0.0f, 100.0f, 1.0f, 1);
 			box->Width = 56.0f;
 		}
-		content->Add<CheckBox>(_x("editor", "Paint tiles at random"), [s]() { return s->GetStamp().Random; },
-			[s](bool value) { s->GetStamp().Random = value; });
-		dialog->AddButton(_("Reset"), [s]() { s->GetStamp().Weights.clear(); });
+		content->Add<CheckBox>(_x("editor", "Paint tiles at random"), [s]() {
+			return s->GetStamp().Random;
+		},
+			[s](bool value) {
+				s->GetStamp().Random = value;
+			});
+		dialog->AddButton(_("Reset"), [s]() {
+			s->GetStamp().Weights.clear();
+		});
 		// Closed by its cross or Escape, resetting isn't what they do
-		dialog->OnCancel = [dialogPtr]() { dialogPtr->Close(); };
+		dialog->OnCancel = [dialogPtr]() {
+			dialogPtr->Close();
+		};
 
 		OverlayOptions options;
 		options.Centered = true;
@@ -975,25 +989,40 @@ namespace Jazz2::Editor::ToolActions
 		ToolSettings* t = &settings;
 
 		LoadSettings(session);
-		settings.OnChanged = [s]() { SaveSettings(*s); };
+		settings.OnChanged = [s]() {
+			SaveSettings(*s);
+		};
 
-		auto toggle = [&a, s, t](const char* id, StringView label, bool ToolSettings::* member) -> EditorAction& {
+		auto toggle = [&a, s, t](const char* id, StringView label, bool ToolSettings::*member) -> EditorAction& {
 			auto& action = a.Add(id, label, EditorIcon::None, [s, t, member]() {
 				t->*member = !(t->*member);
 				t->NotifyChanged();
 			});
-			action.IsChecked = [t, member]() { return (t->*member); };
+			action.IsChecked = [t, member]() {
+				return (t->*member);
+			};
 			return action;
 		};
-		auto hasTileSelection = [s]() { return (!s->IsEditingEvents() && !s->GetSelection().IsEmpty() && s->GetSelection().GetLayer() == s->GetCurrentLayer()); };
+		auto hasTileSelection = [s]() {
+			return (!s->IsEditingEvents() && !s->GetSelection().IsEmpty() && s->GetSelection().GetLayer() == s->GetCurrentLayer());
+		};
 
 		// The shape tool
 		{
 			// TRANSLATORS: Name of the tool that draws lines, rectangles and ellipses of tiles, in the Tools menu and the tool strip
-			auto& shape = a.Add(ActionIds::ToolShape, _x("editor", "Shapes"), EditorIcon::Shapes, [s]() { s->GetTools().SetActive(EditorToolType::Shape); });
+			auto& shape = a.Add(ActionIds::ToolShape, _x("editor", "Shapes"), EditorIcon::Shapes, [s]() {
+				s->GetTools().SetActive(EditorToolType::Shape);
+			});
 			shape.Key = { Keys::L, 0 };
-			shape.IsChecked = [s]() { return (s->GetTools().GetActiveType() == EditorToolType::Shape); };
-			struct ShapeChoice { const char* Id; String Label; ToolShape Shape; };
+			shape.IsChecked = [s]() {
+				return (s->GetTools().GetActiveType() == EditorToolType::Shape);
+			};
+			struct ShapeChoice
+			{
+				const char* Id;
+				String Label;
+				ToolShape Shape;
+			};
 			static const ShapeChoice Shapes[] = {
 				// TRANSLATORS: Commands in the menus and the list of keyboard shortcuts, the shape the shape tool draws
 				{ ActionIds::ShapeLine, _x("editor", "Shape: Line"), ToolShape::Line },
@@ -1008,32 +1037,49 @@ namespace Jazz2::Editor::ToolActions
 					t->NotifyChanged();
 					s->GetTools().SetActive(EditorToolType::Shape);
 				});
-				action.IsChecked = [t, value]() { return (t->Shape == value); };
+				action.IsChecked = [t, value]() {
+					return (t->Shape == value);
+				};
 			}
 		}
 
 		// The stamp
 		// The keymap like the Multi-Layer Level Editor gives it R, see ActionRegistry::ApplyPreset()
 		// TRANSLATORS: Command in the menus and the list of keyboard shortcuts, turns the brush of tiles (stamp) by 90 degrees
-		a.Add(ActionIds::StampRotate, _x("editor", "Turn Stamp Clockwise"), EditorIcon::RotateCW, [s]() { s->GetStamp().Rotate(true); }).Key = { Keys::R, KeyMod::Shift };
+		a.Add(ActionIds::StampRotate, _x("editor", "Turn Stamp Clockwise"), EditorIcon::RotateCW, [s]() {
+			 s->GetStamp().Rotate(true);
+		 }).Key = { Keys::R, KeyMod::Shift };
 		// TRANSLATORS: Command in the menus and the list of keyboard shortcuts, turns the brush of tiles (stamp) back by 90 degrees
-		a.Add(ActionIds::StampRotateCCW, _x("editor", "Turn Stamp Counter-Clockwise"), EditorIcon::RotateCCW, [s]() { s->GetStamp().Rotate(false); });
+		a.Add(ActionIds::StampRotateCCW, _x("editor", "Turn Stamp Counter-Clockwise"), EditorIcon::RotateCCW, [s]() {
+			s->GetStamp().Rotate(false);
+		});
 		{
 			// TRANSLATORS: Toggle command, a brush painting at random flips some of its tiles horizontally
-			auto& flipX = toggle(ActionIds::StampRandomFlipX,_x("editor", "Flip Tiles at Random Horizontally"), &ToolSettings::RandomFlipX);
+			auto& flipX = toggle(ActionIds::StampRandomFlipX, _x("editor", "Flip Tiles at Random Horizontally"), &ToolSettings::RandomFlipX);
 			flipX.Icon = EditorIcon::RandomFlipX;
-			flipX.IsEnabled = [s]() { return s->GetStamp().Random; };
+			flipX.IsEnabled = [s]() {
+				return s->GetStamp().Random;
+			};
 			// TRANSLATORS: Toggle command, a brush painting at random flips some of its tiles vertically
-			auto& flipY = toggle(ActionIds::StampRandomFlipY,_x("editor", "Flip Tiles at Random Vertically"), &ToolSettings::RandomFlipY);
+			auto& flipY = toggle(ActionIds::StampRandomFlipY, _x("editor", "Flip Tiles at Random Vertically"), &ToolSettings::RandomFlipY);
 			flipY.Icon = EditorIcon::RandomFlipY;
-			flipY.IsEnabled = [s]() { return s->GetStamp().Random; };
+			flipY.IsEnabled = [s]() {
+				return s->GetStamp().Random;
+			};
 		}
 		// TRANSLATORS: Command that opens the dialog setting how often each tile of the brush is painted at random
-		a.Add(ActionIds::StampWeights,_x("editor", "Weights of Tiles"), EditorIcon::Usage, [s]() { ShowStampWeights(*s); });
+		a.Add(ActionIds::StampWeights, _x("editor", "Weights of Tiles"), EditorIcon::Usage, [s]() {
+			ShowStampWeights(*s);
+		});
 
 		// The modifier painted with the tiles
 		{
-			struct ModifierChoice { const char* Id; String Label; TileModifierMode Mode; };
+			struct ModifierChoice
+			{
+				const char* Id;
+				String Label;
+				TileModifierMode Mode;
+			};
 			static const ModifierChoice Modifiers[] = {
 				// TRANSLATORS: Commands in the menus and the list of keyboard shortcuts, the modifier the tools paint the tiles with
 				{ ActionIds::ToolsModifierKeep, _x("editor", "Paint Tiles as They Are"), TileModifierMode::Keep },
@@ -1044,14 +1090,27 @@ namespace Jazz2::Editor::ToolActions
 			};
 			for (const ModifierChoice& choice : Modifiers) {
 				TileModifierMode mode = choice.Mode;
-				auto& action = a.Add(choice.Id, choice.Label, EditorIcon::None, [t, mode]() { t->Modifier = mode; });
-				action.IsChecked = [t, mode]() { return (t->Modifier == mode); };
+				auto& action = a.Add(choice.Id, choice.Label, EditorIcon::None, [t, mode]() {
+					t->Modifier = mode;
+				});
+				action.IsChecked = [t, mode]() {
+					return (t->Modifier == mode);
+				};
 			}
 			// TRANSLATORS: Toggle command, painting changes only the modifier of the tiles painted over and keeps the tiles
-			auto& only = a.Add(ActionIds::ToolsModifierOnly,_x("editor", "Change Only the Modifier of Tiles"), EditorIcon::None, [t]() { t->ModifierOnly = !t->ModifierOnly; });
-			only.IsChecked = [t]() { return t->ModifierOnly; };
+			auto& only = a.Add(ActionIds::ToolsModifierOnly, _x("editor", "Change Only the Modifier of Tiles"), EditorIcon::None, [t]() {
+				t->ModifierOnly = !t->ModifierOnly;
+			});
+			only.IsChecked = [t]() {
+				return t->ModifierOnly;
+			};
 
-			struct SetChoice { const char* Id; String Label; TileModifierMode Mode; };
+			struct SetChoice
+			{
+				const char* Id;
+				String Label;
+				TileModifierMode Mode;
+			};
 			static const SetChoice Sets[] = {
 				// TRANSLATORS: Commands in the Select menu, change the modifier of the selected tiles
 				{ ActionIds::EditModifierNormal, _x("editor", "Make Selected Tiles Normal"), TileModifierMode::Normal },
@@ -1061,7 +1120,9 @@ namespace Jazz2::Editor::ToolActions
 			};
 			for (const SetChoice& choice : Sets) {
 				TileModifierMode mode = choice.Mode;
-				a.Add(choice.Id, choice.Label, EditorIcon::None, [s, mode]() { SetSelectionModifier(*s, mode); }).IsEnabled = hasTileSelection;
+				a.Add(choice.Id, choice.Label, EditorIcon::None, [s, mode]() {
+					 SetSelectionModifier(*s, mode);
+				 }).IsEnabled = hasTileSelection;
 			}
 		}
 
@@ -1072,12 +1133,12 @@ namespace Jazz2::Editor::ToolActions
 		// TRANSLATORS: Toggle command, the fill, rectangle and shape tools paint only the tiles that are empty
 		toggle(ActionIds::ToolsOnlyEmpty, _x("editor", "Fill Only Empty Tiles"), &ToolSettings::OnlyEmpty);
 		// TRANSLATORS: Toggle command, the magic wand selects all such tiles of the layer, not only those joined together
-		toggle(ActionIds::ToolsWandGlobal,_x("editor", "Magic Wand Selects All Such Tiles"), &ToolSettings::WandGlobal);
+		toggle(ActionIds::ToolsWandGlobal, _x("editor", "Magic Wand Selects All Such Tiles"), &ToolSettings::WandGlobal);
 
 		// The selection
 		{
 			// Of the events with the event tool, as Select All
-			auto& invert = a.Add(ActionIds::SelectInvert,_x("editor", "Invert Selection"), EditorIcon::InvertSelection, [s]() {
+			auto& invert = a.Add(ActionIds::SelectInvert, _x("editor", "Invert Selection"), EditorIcon::InvertSelection, [s]() {
 				if (s->IsEditingEvents()) {
 					InvertEventSelection(*s);
 					return;
@@ -1090,11 +1151,25 @@ namespace Jazz2::Editor::ToolActions
 			});
 			invert.Key = { Keys::I, KeyMod::Ctrl };
 			// TRANSLATORS: Command in the Select menu, makes the selection of tiles one tile larger on each side
-			a.Add(ActionIds::SelectGrow, _x("editor", "Grow Selection"), EditorIcon::Plus, [s]() { s->GetSelection().Grow(false); }).IsEnabled = hasTileSelection;
+			a.Add(ActionIds::SelectGrow, _x("editor", "Grow Selection"), EditorIcon::Plus, [s]() {
+				 s->GetSelection().Grow(false);
+			 }).IsEnabled = hasTileSelection;
 			// TRANSLATORS: Command in the Select menu, makes the selection of tiles one tile smaller on each side
-			a.Add(ActionIds::SelectShrink, _x("editor", "Shrink Selection"), EditorIcon::Minus, [s]() { s->GetSelection().Grow(true); }).IsEnabled = hasTileSelection;
-			a.Add(ActionIds::SelectSameTiles,_x("editor", "Select All Tiles Like These"), EditorIcon::Wand, [s]() { SelectSameTiles(*s); }).IsEnabled = [s]() { return !s->IsEditingEvents(); };
-			struct Nudge { const char* Id; String Label; Keys Key; Vector2i Offset; };
+			a.Add(ActionIds::SelectShrink, _x("editor", "Shrink Selection"), EditorIcon::Minus, [s]() {
+				 s->GetSelection().Grow(true);
+			 }).IsEnabled = hasTileSelection;
+			a.Add(ActionIds::SelectSameTiles, _x("editor", "Select All Tiles Like These"), EditorIcon::Wand, [s]() {
+				 SelectSameTiles(*s);
+			 }).IsEnabled = [s]() {
+				return !s->IsEditingEvents();
+			};
+			struct Nudge
+			{
+				const char* Id;
+				String Label;
+				Keys Key;
+				Vector2i Offset;
+			};
 			static const Nudge Nudges[] = {
 				// TRANSLATORS: Commands in the Select menu, move the selected tiles by one tile in the direction
 				{ ActionIds::SelectMoveLeft, _x("editor", "Move Selected Tiles Left"), Keys::Left, Vector2i(-1, 0) },
@@ -1104,7 +1179,9 @@ namespace Jazz2::Editor::ToolActions
 			};
 			for (const Nudge& nudge : Nudges) {
 				Vector2i offset = nudge.Offset;
-				auto& action = a.Add(nudge.Id, nudge.Label, EditorIcon::None, [s, offset]() { MoveSelectedTiles(*s, offset); });
+				auto& action = a.Add(nudge.Id, nudge.Label, EditorIcon::None, [s, offset]() {
+					MoveSelectedTiles(*s, offset);
+				});
 				action.Key = { nudge.Key, KeyMod::Shift };
 				action.IsEnabled = hasTileSelection;
 			}
@@ -1112,27 +1189,44 @@ namespace Jazz2::Editor::ToolActions
 
 		// Mirroring and copying all layers
 		{
-			auto canMirror = [s]() { return (s->IsEditingEvents() ? !s->GetEventSelection().IsEmpty() : !s->GetSelection().IsEmpty()); };
-			auto& mirrorX = a.Add(ActionIds::EditMirrorH,_x("editor", "Mirror Selection Horizontally"), EditorIcon::FlipX, [s]() { MirrorSelection(*s, true); });
+			auto canMirror = [s]() {
+				return (s->IsEditingEvents() ? !s->GetEventSelection().IsEmpty() : !s->GetSelection().IsEmpty());
+			};
+			auto& mirrorX = a.Add(ActionIds::EditMirrorH, _x("editor", "Mirror Selection Horizontally"), EditorIcon::FlipX, [s]() {
+				MirrorSelection(*s, true);
+			});
 			mirrorX.Key = { Keys::X, KeyMod::Ctrl | KeyMod::Shift };
 			mirrorX.IsEnabled = canMirror;
-			auto& mirrorY = a.Add(ActionIds::EditMirrorV,_x("editor", "Mirror Selection Vertically"), EditorIcon::FlipY, [s]() { MirrorSelection(*s, false); });
+			auto& mirrorY = a.Add(ActionIds::EditMirrorV, _x("editor", "Mirror Selection Vertically"), EditorIcon::FlipY, [s]() {
+				MirrorSelection(*s, false);
+			});
 			mirrorY.Key = { Keys::Y, KeyMod::Ctrl | KeyMod::Shift };
 			mirrorY.IsEnabled = canMirror;
 			// TRANSLATORS: Toggle command in the Select menu, mirrored events of a team get the other team, for team game modes
-			toggle(ActionIds::EditMirrorSwapTeams,_x("editor", "Mirroring Swaps Teams of Events"), &ToolSettings::MirrorSwapTeams);
+			toggle(ActionIds::EditMirrorSwapTeams, _x("editor", "Mirroring Swaps Teams of Events"), &ToolSettings::MirrorSwapTeams);
 
 			// TRANSLATORS: Command in the Select menu, copies the selected area from all layers at once, with the events
 			// Without keys, Ctrl+Shift+C copies the tiles of one layer with the events on them, see ActionIds::EditCopyWithEvents
-			auto& copyLayers = a.Add(ActionIds::EditCopyLayers,_x("editor", "Copy All Layers"), EditorIcon::Copy, [s]() { CopyAllLayers(*s); });
-			copyLayers.IsEnabled = [s]() { return (!s->GetSelection().IsEmpty() || s->GetEventSelection().HasCells()); };
+			auto& copyLayers = a.Add(ActionIds::EditCopyLayers, _x("editor", "Copy All Layers"), EditorIcon::Copy, [s]() {
+				CopyAllLayers(*s);
+			});
+			copyLayers.IsEnabled = [s]() {
+				return (!s->GetSelection().IsEmpty() || s->GetEventSelection().HasCells());
+			};
 			// TRANSLATORS: Command in the Select menu, pastes what Copy All Layers copied into all layers at once
-			a.Add(ActionIds::EditPasteLayers,_x("editor", "Paste All Layers"), EditorIcon::Paste, [s]() { PasteAllLayers(*s); });
+			a.Add(ActionIds::EditPasteLayers, _x("editor", "Paste All Layers"), EditorIcon::Paste, [s]() {
+				PasteAllLayers(*s);
+			});
 		}
 
 		// How the event tool places events, or that it only selects them
 		{
-			struct ModeChoice { const char* Id; String Label; EventPlaceMode Mode; };
+			struct ModeChoice
+			{
+				const char* Id;
+				String Label;
+				EventPlaceMode Mode;
+			};
 			static const ModeChoice Modes[] = {
 				// TRANSLATORS: Commands in the menus and the list of keyboard shortcuts, how the event tool places events, or that it only selects them
 				{ ActionIds::EventsModePaint, _x("editor", "Place Events by Clicking"), EventPlaceMode::Paint },
@@ -1147,36 +1241,57 @@ namespace Jazz2::Editor::ToolActions
 					t->NotifyChanged();
 					s->GetTools().SetActive(EditorToolType::Event);
 				});
-				action.IsChecked = [t, mode]() { return (t->EventMode == mode); };
+				action.IsChecked = [t, mode]() {
+					return (t->EventMode == mode);
+				};
 			}
 			// TRANSLATORS: Command that places the chosen event on all selected tiles of the sprite layer
-			a.Add(ActionIds::EventsFillSelection,_x("editor", "Fill Selection with Event"), EditorIcon::Event, [s]() { FillSelectionWithEvent(*s); }).IsEnabled = [s]() {
+			a.Add(ActionIds::EventsFillSelection, _x("editor", "Fill Selection with Event"), EditorIcon::Event, [s]() {
+				 FillSelectionWithEvent(*s);
+			 }).IsEnabled = [s]() {
 				return (!s->GetSelection().IsEmpty() && s->GetSelection().GetLayer() == s->GetDocument().GetSpriteLayerIndex());
 			};
 
 			// The event under the pointer, with any tool, as in the editors of the original game
 			// TRANSLATORS: Command in the Edit menu, the event under the pointer becomes the one to place, as Ctrl+E of Jazz Creation Station
-			a.Add(ActionIds::EventsTakeAtPointer, _x("editor", "Take Event Under Pointer"), EditorIcon::Eyedropper, [s]() { TakeEventAtPointer(*s); }).Key = { Keys::E, KeyMod::Ctrl };
+			a.Add(ActionIds::EventsTakeAtPointer, _x("editor", "Take Event Under Pointer"), EditorIcon::Eyedropper, [s]() {
+				 TakeEventAtPointer(*s);
+			 }).Key = { Keys::E, KeyMod::Ctrl };
 			// TRANSLATORS: Command in the Edit menu, the event to place is placed at the tile under the pointer, as Shift+E of Jazz Creation Station
-			a.Add(ActionIds::EventsPlaceAtPointer, _x("editor", "Place Event Under Pointer"), EditorIcon::Event, [s]() { PlaceEventAtPointer(*s); }).Key = { Keys::E, KeyMod::Shift };
+			a.Add(ActionIds::EventsPlaceAtPointer, _x("editor", "Place Event Under Pointer"), EditorIcon::Event, [s]() {
+				 PlaceEventAtPointer(*s);
+			 }).Key = { Keys::E, KeyMod::Shift };
 			// TRANSLATORS: Command, the next event chosen in the list is placed at the tile under the pointer, as E of the Multi-Layer Level Editor
-			auto& choose = a.Add(ActionIds::EventsChooseAtPointer, _x("editor", "Choose Event for Tile Under Pointer"), EditorIcon::Event, [s]() { ChooseEventAtPointer(*s); });
+			auto& choose = a.Add(ActionIds::EventsChooseAtPointer, _x("editor", "Choose Event for Tile Under Pointer"), EditorIcon::Event, [s]() {
+				ChooseEventAtPointer(*s);
+			});
 			choose.IgnoresRepeat = true;
 		}
 
 		// The tile under the pointer as the brush, with any tool, as the comma of the Multi-Layer Level Editor
 		{
 			// TRANSLATORS: Command, the tile under the pointer becomes the brush
-			a.Add(ActionIds::StampPickTile, _x("editor", "Pick Tile Under Pointer"), EditorIcon::Eyedropper, [s]() { PickTileAtPointer(*s, false); });
+			a.Add(ActionIds::StampPickTile, _x("editor", "Pick Tile Under Pointer"), EditorIcon::Eyedropper, [s]() {
+				PickTileAtPointer(*s, false);
+			});
 			// TRANSLATORS: Command, the tile under the pointer with the event there becomes the brush
-			a.Add(ActionIds::StampPickTileEvent, _x("editor", "Pick Tile and Event Under Pointer"), EditorIcon::Eyedropper, [s]() { PickTileAtPointer(*s, true); });
+			a.Add(ActionIds::StampPickTileEvent, _x("editor", "Pick Tile and Event Under Pointer"), EditorIcon::Eyedropper, [s]() {
+				PickTileAtPointer(*s, true);
+			});
 			// TRANSLATORS: Command, the brush becomes a single empty tile, which erases, as Backspace of the Multi-Layer Level Editor
-			a.Add(ActionIds::StampBlank, _x("editor", "Brush of an Empty Tile"), EditorIcon::Eraser, [s]() { UseStamp(*s, TileStamp::FromTile(TileRef{})); });
+			a.Add(ActionIds::StampBlank, _x("editor", "Brush of an Empty Tile"), EditorIcon::Eraser, [s]() {
+				UseStamp(*s, TileStamp::FromTile(TileRef {}));
+			});
 		}
 
 		// The jumps the measure tool shows
 		{
-			struct ArcChoice { const char* Id; String Label; std::uint8_t Arc; };
+			struct ArcChoice
+			{
+				const char* Id;
+				String Label;
+				std::uint8_t Arc;
+			};
 			static const ArcChoice Arcs[] = {
 				// TRANSLATORS: Toggle commands, the jumps of the player the measure tool shows
 				{ ActionIds::MeasureWalk, _x("editor", "Measure: Walking Jump"), ToolSettings::ArcWalk },
@@ -1190,9 +1305,11 @@ namespace Jazz2::Editor::ToolActions
 					t->ShownArcs ^= arc;
 					t->NotifyChanged();
 				});
-				action.IsChecked = [t, arc]() { return ((t->ShownArcs & arc) != 0); };
+				action.IsChecked = [t, arc]() {
+					return ((t->ShownArcs & arc) != 0);
+				};
 			}
-			toggle(ActionIds::MeasureCollisions,_x("editor", "Measure: Jumps Stop at Solid Tiles"), &ToolSettings::ArcCollisions);
+			toggle(ActionIds::MeasureCollisions, _x("editor", "Measure: Jumps Stop at Solid Tiles"), &ToolSettings::ArcCollisions);
 		}
 	}
 
@@ -1213,7 +1330,7 @@ namespace Jazz2::Editor::ToolActions
 			stamp.Width = 3;
 			stamp.Height = 2;
 			for (std::int32_t i = 0; i < 6; i++) {
-				stamp.Tiles.push_back(TileRef{ std::uint16_t(i + 1), TileRef::DefaultTileSet, 0 });
+				stamp.Tiles.push_back(TileRef { std::uint16_t(i + 1), TileRef::DefaultTileSet, 0 });
 				stamp.Present.push_back(i != 4);
 			}
 			TileStamp turned = stamp;
@@ -1276,13 +1393,14 @@ namespace Jazz2::Editor::ToolActions
 			TileStamp stamp;
 			stamp.Width = 2;
 			stamp.Height = 1;
-			stamp.Tiles.push_back(TileRef{ 7, 1, Formats::TileRecord::FlipX });
-			stamp.Tiles.push_back(TileRef{ 0, 0, 0 });
+			stamp.Tiles.push_back(TileRef { 7, 1, Formats::TileRecord::FlipX });
+			stamp.Tiles.push_back(TileRef { 0, 0, 0 });
 			stamp.Present.push_back(true);
 			stamp.Present.push_back(false);
 			TileStamp read;
 			check(StampClipboard::ReadTiles(StampClipboard::WriteTiles(stamp), read) && read.Width == 2 && read.Tiles[0] == stamp.Tiles[0] &&
-				!read.Present[1], "tiles go through the clipboard");
+					!read.Present[1],
+				"tiles go through the clipboard");
 			check(!StampClipboard::ReadTiles("{\"J2R\":1,\"w\":65536,\"h\":65536,\"t\":[]}"_s, read), "a stamp too large isn't read");
 			check(!StampClipboard::ReadTiles("{\"J2R\":1,\"w\":3,\"h\":1,\"t\":[0,1,0]}"_s, read), "a stamp with tiles missing isn't read");
 
@@ -1290,8 +1408,8 @@ namespace Jazz2::Editor::ToolActions
 			layered.Width = 2;
 			layered.Height = 1;
 			layered.Origin = Vector2i(5, 6);
-			layered.Layers.push_back(LayeredStamp::Layer{ -1, stamp });
-			layered.Layers.push_back(LayeredStamp::Layer{ 0, stamp });
+			layered.Layers.push_back(LayeredStamp::Layer { -1, stamp });
+			layered.Layers.push_back(LayeredStamp::Layer { 0, stamp });
 			EventStamp::Item& item = layered.Events.Items.emplace_back();
 			item.Offset = Vector2i(1, 0);
 			std::memset(&item.Event, 0, sizeof(item.Event));
@@ -1304,10 +1422,11 @@ namespace Jazz2::Editor::ToolActions
 			String text = StampClipboard::WriteLayered(layered);
 			LayeredStamp readLayered;
 			check(StampClipboard::ReadLayered(text, readLayered) && readLayered.Layers.size() == 2 && readLayered.Layers[0].FromSpriteLayer == -1 &&
-				readLayered.Origin == Vector2i(5, 6) && readLayered.Events.Items.size() == 1 && readLayered.Events.Items[0].Event.Params[0] == 3,
+					readLayered.Origin == Vector2i(5, 6) && readLayered.Events.Items.size() == 1 && readLayered.Events.Items[0].Event.Params[0] == 3,
 				"tiles of several layers go through the clipboard");
 			check(readLayered.Events.OffGrid.size() == 1 && readLayered.Events.OffGrid[0].Offset == Vector2i(40, 7) &&
-				readLayered.Events.OffGrid[0].Event.Params[0] == 4, "events off the grid go through the clipboard");
+					readLayered.Events.OffGrid[0].Event.Params[0] == 4,
+				"events off the grid go through the clipboard");
 			// A prefab keeps them too, by pixels from its corner
 			LevelDocument emptyDocument;
 			TilePrefab prefab = TilePrefab::FromLayered(emptyDocument, layered, 0, "Test"_s);
@@ -1320,7 +1439,7 @@ namespace Jazz2::Editor::ToolActions
 			LevelDocument from, to;
 			from.Properties.DefaultTileSet = "A"_s;
 			to.Properties.DefaultTileSet = "A"_s;
-			Formats::ExtraTileSetRecord extra{};
+			Formats::ExtraTileSetRecord extra {};
 			extra.Name = "B"_s;
 			extra.Offset = 10;
 			extra.Count = 20;
@@ -1331,9 +1450,10 @@ namespace Jazz2::Editor::ToolActions
 			extra.Name = "b"_s;
 			extra.Count = 40;
 			to.ExtraTileSets.push_back(extra);
-			TileStamp extraStamp = TileStamp::FromTile(TileRef{ 3, 1, 0 });
+			TileStamp extraStamp = TileStamp::FromTile(TileRef { 3, 1, 0 });
 			check(StampClipboard::ReadTiles(StampClipboard::WriteTiles(extraStamp, &from), read, &to) && read.Present[0] &&
-				read.Tiles[0].Source == 2 && read.Tiles[0].Index == 13, "tiles are found in the tile sets of another level by their names");
+					read.Tiles[0].Source == 2 && read.Tiles[0].Index == 13,
+				"tiles are found in the tile sets of another level by their names");
 			to.ExtraTileSets.erase(to.ExtraTileSets.begin() + 1);
 			check(StampClipboard::ReadTiles(StampClipboard::WriteTiles(extraStamp, &from), read, &to) && !read.Present[0],
 				"tiles of a tile set another level hasn't are left out");
@@ -1342,23 +1462,25 @@ namespace Jazz2::Editor::ToolActions
 		// The options of the tools change the tiles painted as chosen
 		{
 			ToolSettings settings;
-			TileStamp stamp = TileStamp::FromTile(TileRef{ 5, 0, 0 });
-			TileRef existing{ 9, 0, Formats::TileRecord::FlipY };
+			TileStamp stamp = TileStamp::FromTile(TileRef { 5, 0, 0 });
+			TileRef existing { 9, 0, Formats::TileRecord::FlipY };
 			TileRef result;
 			settings.Modifier = TileModifierMode::Translucent;
 			check(settings.ResolveTile(stamp, Vector2i(), Vector2i(), existing, true, false, result) && result.Index == 5 &&
-				(result.Flags & Formats::TileRecord::ModifierMask) == Formats::TileRecord::ModifierTranslucent, "a tile is painted translucent");
+					(result.Flags & Formats::TileRecord::ModifierMask) == Formats::TileRecord::ModifierTranslucent,
+				"a tile is painted translucent");
 			settings.ModifierOnly = true;
 			check(settings.ResolveTile(stamp, Vector2i(), Vector2i(), existing, true, false, result) && result.Index == 9 &&
-				(result.Flags & Formats::TileRecord::FlipY) != 0, "only the modifier of the tile there changes");
-			check(!settings.ResolveTile(stamp, Vector2i(), Vector2i(), TileRef{}, true, false, result), "an empty tile gets no modifier");
+					(result.Flags & Formats::TileRecord::FlipY) != 0,
+				"only the modifier of the tile there changes");
+			check(!settings.ResolveTile(stamp, Vector2i(), Vector2i(), TileRef {}, true, false, result), "an empty tile gets no modifier");
 			settings.ModifierOnly = false;
 			check(!settings.ResolveTile(stamp, Vector2i(), Vector2i(), existing, true, true, result), "only empty tiles are filled");
 		}
 
 		// A walking jump reaches a tile up close, not far away
 		{
-			MeasureTool::JumpArc walk{ 4.0f, false, false };
+			MeasureTool::JumpArc walk { 4.0f, false, false };
 			check(MeasureTool::Reaches(walk, Vector2f(0.0f, 0.0f), Vector2f(64.0f, -32.0f)), "a walking jump gets a tile up");
 			check(!MeasureTool::Reaches(walk, Vector2f(0.0f, 0.0f), Vector2f(64.0f, -400.0f)), "a walking jump doesn't get twelve tiles up");
 			check(std::uint8_t(0x1F & ToolSettings::ArcAll) == (ToolSettings::ArcWalk | ToolSettings::ArcDash | ToolSettings::ArcDoubleJump | ToolSettings::ArcCopter),

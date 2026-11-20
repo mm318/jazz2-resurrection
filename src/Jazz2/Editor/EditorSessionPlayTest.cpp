@@ -111,15 +111,15 @@ namespace Jazz2::Editor
 		MessageDialog::Show(*_surface, _x("editor", "Level Finished"), _fx("editor", "The level that follows is \"{}\".", levelName),
 			// TRANSLATORS: Buttons of the dialog after a play-tested level was finished - open the following level in the editor, leave the editor and play it, or stay in this level
 			{ _x("editor", "Edit It"), _x("editor", "Play On"), _x("editor", "Stay Here") }, [this, next, path](std::int32_t button) {
-			if (button == 0) {
-				OpenFile(path);
-			} else if (button == 1) {
-				// The game goes on with the next level, as the episode would, the editor is left for it
-				_files->ConfirmDiscard([this, next]() {
-					_root->ChangeLevel(Death::move(*next));
-				});
-			}
-		});
+				if (button == 0) {
+					OpenFile(path);
+				} else if (button == 1) {
+					// The game goes on with the next level, as the episode would, the editor is left for it
+					_files->ConfirmDiscard([this, next]() {
+						_root->ChangeLevel(Death::move(*next));
+					});
+				}
+			});
 	}
 
 	void EditorSession::StartPlayTest(PlayStartMode mode)

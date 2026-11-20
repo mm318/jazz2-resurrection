@@ -40,16 +40,16 @@
 // So users don't need to include the SSE2 and SSE3 headers explicitly before, in correct order
 #include "IntrinsicsSse3.h"
 
-#if defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG) && __GNUC__*100 + __GNUC_MINOR__ < 409
+#if defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG) && __GNUC__ * 100 + __GNUC_MINOR__ < 409
 #pragma GCC push_options
 #pragma GCC target("ssse3")
 #pragma push_macro("__SSSE3__")
 #if !defined(__SSSE3__)
-#	define __SSSE3__
+#define __SSSE3__
 #endif
 #endif
 #include <tmmintrin.h>
-#if defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG) && __GNUC__*100 + __GNUC_MINOR__ < 409
+#if defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG) && __GNUC__ * 100 + __GNUC_MINOR__ < 409
 #pragma pop_macro("__SSSE3__")
 #pragma GCC pop_options
 #endif

@@ -39,7 +39,7 @@ namespace Jazz2::AssetPacker
 
 		// libdragon's rompak table of contents (src/rompak.c, tools/n64tool.c). `n64tool` puts it right after
 		// the bootcode, 16-aligned; libdragon searches the first 16 KB behind 0x1000 for it the same way.
-		constexpr std::uint32_t TocMagic = 0x544F4330;	// "TOC0"
+		constexpr std::uint32_t TocMagic = 0x544F4330; // "TOC0"
 		constexpr std::size_t TocSearchStart = 0x1000;
 		constexpr std::size_t TocSearchSteps = 1024;
 		constexpr std::size_t TocHeaderSize = 16;
@@ -47,8 +47,8 @@ namespace Jazz2::AssetPacker
 		// DragonFS 2.1 (src/dfs_internal.h, tools/mkdfs/mkdfs.c). Every word is big-endian.
 		constexpr StringView DfsRootPath = "DragonFS 2.1"_s;
 		constexpr std::uint32_t DfsRootFlags = 0xFFFFFFFF;
-		constexpr std::uint32_t DfsEntryHeaderSize = 12;	// next_entry, flags, file_pointer
-		constexpr std::uint32_t DfsMaxEntrySize = 256;		// MAX_DIRENT_SIZE, what the reader fetches per entry
+		constexpr std::uint32_t DfsEntryHeaderSize = 12; // next_entry, flags, file_pointer
+		constexpr std::uint32_t DfsMaxEntrySize = 256; // MAX_DIRENT_SIZE, what the reader fetches per entry
 		constexpr std::uint32_t DfsFlagsDirectory = 1;
 		constexpr std::uint32_t DfsMaxFileSize = 0x0FFFFFFF;
 		constexpr std::uint32_t DfsLookupPrime = 31;
@@ -107,10 +107,11 @@ namespace Jazz2::AssetPacker
 				The filter is called as `bool(StringView dfsPath, StringView hostItem, String& dfsName)` for every
 				item, and can leave it out or rename it.
 			*/
-			template<class Filter>
+			template <class Filter>
 			bool AddDirectory(StringView dfsPath, StringView hostPath, const Filter& filter)
 			{
-				struct Item {
+				struct Item
+				{
 					String HostPath;
 					String DfsName;
 				};
@@ -118,7 +119,7 @@ namespace Jazz2::AssetPacker
 				for (auto hostItem : fs::Directory(hostPath)) {
 					String dfsName = fs::GetFileName(hostItem);
 					if (filter(dfsPath, hostItem, dfsName)) {
-						items.push_back(Item{String(hostItem), Death::move(dfsName)});
+						items.push_back(Item { String(hostItem), Death::move(dfsName) });
 					}
 				}
 				// mkdfs sorts with strcmp(), and it is the order `dfs_dir_findnext()` lists a directory in
@@ -170,7 +171,7 @@ namespace Jazz2::AssetPacker
 							return false;
 						}
 					}
-					WriteU32BE(&_image[entry + 4], std::uint32_t(size));	// FLAGS_FILE (0) in the top nibble
+					WriteU32BE(&_image[entry + 4], std::uint32_t(size)); // FLAGS_FILE (0) in the top nibble
 					WriteU32BE(&_image[entry + 8], data);
 
 					DfsFile& file = _files.emplace_back();
@@ -183,7 +184,7 @@ namespace Jazz2::AssetPacker
 			}
 
 			/** @brief Adds a host directory as a directory called `dfsName` at the root */
-			template<class Filter>
+			template <class Filter>
 			bool AddNamedDirectory(StringView dfsName, StringView hostPath, const Filter& filter)
 			{
 				const std::uint32_t entry = Allocate(DfsEntryHeaderSize + std::uint32_t(dfsName.size()) + 1);
@@ -305,7 +306,7 @@ namespace Jazz2::AssetPacker
 					return true;
 				}
 				if (!isDirectory && name == "Prebaked.pak"_s && fs::IsReadableFile(fs::CombinePath(contentRoot, "Source.pak"_s))) {
-					return false;	// The build renames Source.pak over it
+					return false; // The build renames Source.pak over it
 				}
 				return true;
 			}
@@ -376,7 +377,7 @@ namespace Jazz2::AssetPacker
 				LOGE("Cannot open \"{}\"", sourcePath);
 				return false;
 			}
-			rom = Array<std::uint8_t>{NoInit, std::size_t(size)};
+			rom = Array<std::uint8_t> { NoInit, std::size_t(size) };
 			if (source->Read(rom.data(), size) != size) {
 				LOGE("Cannot read \"{}\"", sourcePath);
 				return false;
@@ -427,7 +428,7 @@ namespace Jazz2::AssetPacker
 			const std::uint32_t offset = ReadU32BE(entry);
 			const std::uint32_t size = ReadU32BE(entry + 4);
 			const char* name = reinterpret_cast<const char*>(entry + 8);
-			const StringView nameView{name, strnlen(name, entrySize - 8)};
+			const StringView nameView { name, strnlen(name, entrySize - 8) };
 			if (dfsIndex < 0 && nameView.hasSuffix(".dfs"_s)) {
 				dfsIndex = i;
 			}
@@ -472,7 +473,8 @@ namespace Jazz2::AssetPacker
 		const std::size_t romSize = (std::size_t(dfsOffset) + dfs.size() + RomPadAlignment - 1) / RomPadAlignment * RomPadAlignment;
 		if (romSize > MaxRomSize) {
 			LOGE("The ROM would be {} MiB, which exceeds the 64 MiB cartridge address space - drop or re-encode "
-				"something in \"{}\"", (romSize + 1048575) / 1048576, contentPath);
+				 "something in \"{}\"",
+				(romSize + 1048575) / 1048576, contentPath);
 			return false;
 		}
 
@@ -495,7 +497,7 @@ namespace Jazz2::AssetPacker
 				return false;
 			}
 			const std::size_t padding = romSize - dfsOffset - dfs.size();
-			Array<std::uint8_t> zeros{ValueInit, padding};
+			Array<std::uint8_t> zeros { ValueInit, padding };
 			if (target->Write(rom.data(), dfsOffset) != std::int64_t(dfsOffset) ||
 				target->Write(dfs.data(), std::int64_t(dfs.size())) != std::int64_t(dfs.size()) ||
 				(padding > 0 && target->Write(zeros.data(), std::int64_t(padding)) != std::int64_t(padding))) {

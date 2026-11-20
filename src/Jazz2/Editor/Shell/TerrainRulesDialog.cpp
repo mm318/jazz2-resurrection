@@ -29,7 +29,13 @@ namespace Jazz2::Editor
 {
 	namespace
 	{
-		enum class RulesPage : std::uint8_t { Rules, Slopes, Try, Coverage };
+		enum class RulesPage : std::uint8_t
+		{
+			Rules,
+			Slopes,
+			Try,
+			Coverage
+		};
 
 		struct RulesState
 		{
@@ -212,9 +218,9 @@ namespace Jazz2::Editor
 				}
 				const SmallVector<TileRef, 0>* ruled = _session.GetSmartTiles().GetRules().Find(_patterns[index]);
 				_tooltip = (ruled != nullptr
-					? String(_fnx("editor", "Chosen by hand, {} tile - the right button returns the learned one", "Chosen by hand, {} tiles in turns - the right button returns the learned one",
-						std::int32_t(ruled->size()), std::int32_t(ruled->size())))
-					: String(_x("editor", "Learned from the levels - a click gives it the tiles of the brush")));
+						? String(_fnx("editor", "Chosen by hand, {} tile - the right button returns the learned one", "Chosen by hand, {} tiles in turns - the right button returns the learned one",
+							  std::int32_t(ruled->size()), std::int32_t(ruled->size())))
+						: String(_x("editor", "Learned from the levels - a click gives it the tiles of the brush")));
 				return _tooltip;
 			}
 
@@ -314,14 +320,22 @@ namespace Jazz2::Editor
 							return (cx >= 0 && cx < Columns && cy >= 0 && _solid[cy * Columns + cx]);
 						};
 						using N = SmartTileModel::Neighbor;
-						if (solid(x - 1, y - 1)) neighbors |= N::UpLeft;
-						if (solid(x, y - 1)) neighbors |= N::Up;
-						if (solid(x + 1, y - 1)) neighbors |= N::UpRight;
-						if (solid(x - 1, y)) neighbors |= N::Left;
-						if (solid(x + 1, y)) neighbors |= N::Right;
-						if (solid(x - 1, y + 1)) neighbors |= N::DownLeft;
-						if (solid(x, y + 1)) neighbors |= N::Down;
-						if (solid(x + 1, y + 1)) neighbors |= N::DownRight;
+						if (solid(x - 1, y - 1))
+							neighbors |= N::UpLeft;
+						if (solid(x, y - 1))
+							neighbors |= N::Up;
+						if (solid(x + 1, y - 1))
+							neighbors |= N::UpRight;
+						if (solid(x - 1, y))
+							neighbors |= N::Left;
+						if (solid(x + 1, y))
+							neighbors |= N::Right;
+						if (solid(x - 1, y + 1))
+							neighbors |= N::DownLeft;
+						if (solid(x, y + 1))
+							neighbors |= N::Down;
+						if (solid(x + 1, y + 1))
+							neighbors |= N::DownRight;
 						const TileRef* left = (x > 0 && hasPicked[i - 1] ? &picked[i - 1] : nullptr);
 						const TileRef* up = (y > 0 && hasPicked[i - Columns] ? &picked[i - Columns] : nullptr);
 						std::uint32_t hash = std::uint32_t(x) * 73856093u ^ std::uint32_t(y) * 19349663u;
@@ -435,17 +449,28 @@ namespace Jazz2::Editor
 		// Pages
 		{
 			auto* tabs = content->Add<Stack>(Orientation::Horizontal, 2.0f);
-			struct PageOption { String Label; RulesPage Page; };
+			struct PageOption
+			{
+				String Label;
+				RulesPage Page;
+			};
 			static const PageOption Pages[] = {
 				// TRANSLATORS: Tabs of the Terrain Rules dialog, keep them short
-				{ _x("editor", "Rules"), RulesPage::Rules }, { _x("editor", "Slopes"), RulesPage::Slopes }, { _x("editor", "Try It"), RulesPage::Try }, { _x("editor", "Coverage"), RulesPage::Coverage },
+				{ _x("editor", "Rules"), RulesPage::Rules },
+				{ _x("editor", "Slopes"), RulesPage::Slopes },
+				{ _x("editor", "Try It"), RulesPage::Try },
+				{ _x("editor", "Coverage"), RulesPage::Coverage },
 			};
 			for (const PageOption& option : Pages) {
 				RulesPage page = option.Page;
-				auto* button = tabs->Add<Button>(option.Label, EditorIcon::None, [state, page]() { state->Page = page; });
+				auto* button = tabs->Add<Button>(option.Label, EditorIcon::None, [state, page]() {
+					state->Page = page;
+				});
 				button->Style = ButtonStyle::Flat;
 				button->Flex = 1.0f;
-				button->IsCheckedFunc = [state, page]() { return (state->Page == page); };
+				button->IsCheckedFunc = [state, page]() {
+					return (state->Page == page);
+				};
 			}
 		}
 
@@ -462,7 +487,9 @@ namespace Jazz2::Editor
 		// The rules of a terrain
 		{
 			auto* page = content->Add<Stack>(Orientation::Vertical, Theme::Spacing);
-			page->IsVisibleFunc = [state]() { return (state->Page == RulesPage::Rules); };
+			page->IsVisibleFunc = [state]() {
+				return (state->Page == RulesPage::Rules);
+			};
 
 			auto* terrainRow = page->Add<Stack>(Orientation::Horizontal, 2.0f);
 			// TRANSLATORS: Label in the Terrain Rules dialog before the choice of the terrain whose rules are shown, e.g. a wall or a cloud
@@ -470,16 +497,21 @@ namespace Jazz2::Editor
 			auto* terrains = terrainRow->Add<Dropdown>([s]() {
 				TerrainRules& rules = s->GetSmartTiles().GetRules();
 				return String(rules.GetTerrainName(rules.GetCurrentTerrain()));
-			}, [s](SmallVectorImpl<MenuEntry>& entries) {
-				TerrainRules& rules = s->GetSmartTiles().GetRules();
-				for (std::int32_t i = 0; i < rules.GetTerrainCount(); i++) {
-					MenuEntry entry;
-					entry.Label = rules.GetTerrainName(i);
-					entry.Execute = [s, i]() { s->GetSmartTiles().GetRules().SetCurrentTerrain(i); };
-					entry.IsChecked = [s, i]() { return (s->GetSmartTiles().GetRules().GetCurrentTerrain() == i); };
-					entries.push_back(Death::move(entry));
-				}
-			});
+			},
+				[s](SmallVectorImpl<MenuEntry>& entries) {
+					TerrainRules& rules = s->GetSmartTiles().GetRules();
+					for (std::int32_t i = 0; i < rules.GetTerrainCount(); i++) {
+						MenuEntry entry;
+						entry.Label = rules.GetTerrainName(i);
+						entry.Execute = [s, i]() {
+							s->GetSmartTiles().GetRules().SetCurrentTerrain(i);
+						};
+						entry.IsChecked = [s, i]() {
+							return (s->GetSmartTiles().GetRules().GetCurrentTerrain() == i);
+						};
+						entries.push_back(Death::move(entry));
+					}
+				});
 			terrains->Flex = 1.0f;
 			terrains->Tooltip = _x("editor", "The tools use the rules of the terrain chosen here");
 			auto* nameBox = terrainRow->Add<TextBox>();
@@ -516,7 +548,9 @@ namespace Jazz2::Editor
 			});
 			remove->Style = ButtonStyle::Flat;
 			remove->Tooltip = _x("editor", "Remove the terrain with its rules");
-			remove->IsEnabledFunc = [s]() { return (s->GetSmartTiles().GetRules().GetTerrainCount() > 1); };
+			remove->IsEnabledFunc = [s]() {
+				return (s->GetSmartTiles().GetRules().GetTerrainCount() > 1);
+			};
 
 			// TRANSLATORS: Hint above the patterns in the Terrain Rules dialog, what a click and a right-click give a pattern, keep it short
 			page->Add<Label>(_x("editor", "Click: the tiles of the brush - Right: the one learned from the levels"), Theme::TextDim);
@@ -528,7 +562,9 @@ namespace Jazz2::Editor
 		// Slope tags of the tiles of ground, for the ground line tool
 		{
 			auto* page = content->Add<Stack>(Orientation::Vertical, Theme::Spacing);
-			page->IsVisibleFunc = [state]() { return (state->Page == RulesPage::Slopes); };
+			page->IsVisibleFunc = [state]() {
+				return (state->Page == RulesPage::Slopes);
+			};
 			page->Add<Label>(_x("editor", "Slopes are found by the masks of the tiles, a tag of the brush tile goes before that"), Theme::TextDim);
 
 			auto* brushInfo = page->Add<Label>(StringView(), Theme::Text);
@@ -540,8 +576,8 @@ namespace Jazz2::Editor
 				TerrainRules& rules = s->GetSmartTiles().GetRules();
 				if (const TerrainRules::SlopeTag* tag = rules.FindSlope(tile.Index)) {
 					return (tag->Excluded ? String(_fx("editor", "Tile {} is left out of ground", tile.Index))
-						// TRANSLATORS: In the Slopes tab of the Terrain Rules dialog, {} are the number of the tile and the heights of its surface in pixels
-						: String(_fx("editor", "Tile {} is tagged, its surface is {} px high at the left and {} px at the right", tile.Index, std::int32_t(tag->Left), std::int32_t(tag->Right))));
+										  // TRANSLATORS: In the Slopes tab of the Terrain Rules dialog, {} are the number of the tile and the heights of its surface in pixels
+										  : String(_fx("editor", "Tile {} is tagged, its surface is {} px high at the left and {} px at the right", tile.Index, std::int32_t(tag->Left), std::int32_t(tag->Right))));
 				}
 				float left, right;
 				if (FindDetectedSurface(*s, tile, left, right)) {
@@ -554,10 +590,24 @@ namespace Jazz2::Editor
 			auto* heights = page->Add<Stack>(Orientation::Horizontal, 2.0f);
 			// TRANSLATORS: Label in the Slopes tab of the Terrain Rules dialog, the height of the slope at its left side, keep it short
 			heights->Add<Label>(_x("editor", "Left"), Theme::TextDim);
-			heights->Add<NumberBox>([state]() { return state->SlopeLeft; }, [state](float value, bool) { state->SlopeLeft = value; }, 0.0f, 32.0f)->Width = 40.0f;
+			heights->Add<NumberBox>([state]() {
+					   return state->SlopeLeft;
+				   },
+					   [state](float value, bool) {
+						   state->SlopeLeft = value;
+					   },
+					   0.0f, 32.0f)
+				->Width = 40.0f;
 			// TRANSLATORS: Label in the Slopes tab of the Terrain Rules dialog, the height of the slope at its right side, keep it short
 			heights->Add<Label>(_x("editor", "Right"), Theme::TextDim);
-			heights->Add<NumberBox>([state]() { return state->SlopeRight; }, [state](float value, bool) { state->SlopeRight = value; }, 0.0f, 32.0f)->Width = 40.0f;
+			heights->Add<NumberBox>([state]() {
+					   return state->SlopeRight;
+				   },
+					   [state](float value, bool) {
+						   state->SlopeRight = value;
+					   },
+					   0.0f, 32.0f)
+				->Width = 40.0f;
 			// TRANSLATORS: Button in the Slopes tab of the Terrain Rules dialog, takes the heights from the mask of the brush tile
 			auto* fromMask = heights->Add<Button>(_x("editor", "From Mask"), EditorIcon::Mask, [s, state]() {
 				TileRef tile;
@@ -585,21 +635,24 @@ namespace Jazz2::Editor
 			};
 			// TRANSLATORS: Button in the Slopes tab of the Terrain Rules dialog, tags the brush tile as a slope with the heights above
 			actions->Add<Button>(_x("editor", "Tag as Slope"), EditorIcon::Slope, withBrushTile([state](TerrainRules& rules, std::uint16_t index) {
-				TerrainRules::SlopeTag tag;
-				tag.Left = state->SlopeLeft;
-				tag.Right = state->SlopeRight;
-				rules.SetSlope(index, &tag);
-			}))->Tooltip = _x("editor", "The ground line tool takes the brush tile as ground with these heights");
+					   TerrainRules::SlopeTag tag;
+					   tag.Left = state->SlopeLeft;
+					   tag.Right = state->SlopeRight;
+					   rules.SetSlope(index, &tag);
+				   }))
+				->Tooltip = _x("editor", "The ground line tool takes the brush tile as ground with these heights");
 			// TRANSLATORS: Button in the Slopes tab of the Terrain Rules dialog, the brush tile is never taken as ground (verb)
 			actions->Add<Button>(_x("editor", "Leave Out"), EditorIcon::Close, withBrushTile([](TerrainRules& rules, std::uint16_t index) {
-				TerrainRules::SlopeTag tag;
-				tag.Excluded = true;
-				rules.SetSlope(index, &tag);
-			}))->Tooltip = _x("editor", "The ground line tool never takes the brush tile as ground");
+					   TerrainRules::SlopeTag tag;
+					   tag.Excluded = true;
+					   rules.SetSlope(index, &tag);
+				   }))
+				->Tooltip = _x("editor", "The ground line tool never takes the brush tile as ground");
 			// TRANSLATORS: Button in the Slopes tab of the Terrain Rules dialog, removes the tag of the brush tile (verb)
 			actions->Add<Button>(_x("editor", "Untag"), EditorIcon::Undo, withBrushTile([](TerrainRules& rules, std::uint16_t index) {
-				rules.SetSlope(index, nullptr);
-			}))->Tooltip = _x("editor", "The mask of the brush tile tells again what it is");
+					   rules.SetSlope(index, nullptr);
+				   }))
+				->Tooltip = _x("editor", "The mask of the brush tile tells again what it is");
 
 			auto* list = page->Add<Label>(StringView(), Theme::TextDim);
 			list->TextFunc = [s]() {
@@ -623,7 +676,9 @@ namespace Jazz2::Editor
 		// A small area to try the rules on
 		{
 			auto* page = content->Add<Stack>(Orientation::Vertical, Theme::Spacing);
-			page->IsVisibleFunc = [state]() { return (state->Page == RulesPage::Try); };
+			page->IsVisibleFunc = [state]() {
+				return (state->Page == RulesPage::Try);
+			};
 			page->Add<Label>(_x("editor", "Click or drag to make cells solid or empty"), Theme::TextDim);
 			page->Add<TryCanvas>(session);
 		}
@@ -631,28 +686,35 @@ namespace Jazz2::Editor
 		// Which of the 47 patterns have tiles to choose, see TerrainCoverageView
 		{
 			auto* page = content->Add<Stack>(Orientation::Vertical, Theme::Spacing);
-			page->IsVisibleFunc = [state]() { return (state->Page == RulesPage::Coverage); };
+			page->IsVisibleFunc = [state]() {
+				return (state->Page == RulesPage::Coverage);
+			};
 			// What the colors mean is drawn under the patterns, a row each, so the page is no wider than they are
 			auto* coverage = page->Add<TerrainCoverageView>(session);
 			auto* missing = page->Add<Label>(StringView(), Theme::Text);
 			missing->TextFunc = [coverage]() {
 				std::int32_t count = coverage->GetMissingCount();
 				return (count == 0 ? String(_x("editor", "Every pattern has tiles to choose from"))
-					: String(_fnx("editor", "{} pattern has no tile to choose from", "{} patterns have no tile to choose from", count, count)));
+								   : String(_fnx("editor", "{} pattern has no tile to choose from", "{} patterns have no tile to choose from", count, count)));
 			};
 		}
 
 		// TRANSLATORS: Button in the Terrain Rules dialog, removes all rules chosen by hand
 		dialog->AddButton(_x("editor", "Clear All"), [s]() {
-			TerrainRules& rules = s->GetSmartTiles().GetRules();
-			if (rules.GetCount() == 0) {
-				return;
-			}
-			rules.Clear();
-			SaveRules(*s);
-		})->IsVisibleFunc = [state]() { return (state->Page == RulesPage::Rules); };
+				  TerrainRules& rules = s->GetSmartTiles().GetRules();
+				  if (rules.GetCount() == 0) {
+					  return;
+				  }
+				  rules.Clear();
+				  SaveRules(*s);
+			  })
+			->IsVisibleFunc = [state]() {
+			return (state->Page == RulesPage::Rules);
+		};
 		// Closed by its cross or Escape, clearing the rules isn't what they do
-		dialog->OnCancel = [dialogPtr]() { dialogPtr->Close(); };
+		dialog->OnCancel = [dialogPtr]() {
+			dialogPtr->Close();
+		};
 
 		ShowModeless(*surface, Death::move(dialog));
 	}

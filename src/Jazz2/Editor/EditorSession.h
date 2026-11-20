@@ -69,8 +69,7 @@ namespace Jazz2::Editor
 		@ref PlayTestController), the comparison with the saved file (see @ref SavedComparison) and what is shown of how
 		the level is played (see @ref PlayOverlays).
 	*/
-	class EditorSession : public IStateHandler, public IRootController, public IEditorContext, private IPlayTestHost,
-		private IDocumentFilesHost, private IInputRouterHost
+	class EditorSession : public IStateHandler, public IRootController, public IEditorContext, private IPlayTestHost, private IDocumentFilesHost, private IInputRouterHost
 	{
 		DEATH_RUNTIME_OBJECT(IStateHandler);
 
@@ -83,11 +82,13 @@ namespace Jazz2::Editor
 		bool Initialize(const EditorInitialization& editorInit);
 
 		/** @brief Returns the history of the level being edited */
-		CommandHistory& GetHistory() override {
+		CommandHistory& GetHistory() override
+		{
 			return *_history;
 		}
 		/** @brief Returns the actions */
-		ActionRegistry& GetActions() override {
+		ActionRegistry& GetActions() override
+		{
 			return _actions;
 		}
 		/** @brief Returns the tools */
@@ -95,19 +96,23 @@ namespace Jazz2::Editor
 		/** @brief Returns the block grabbed by its corners with a key, marked in the level or in the picker of tiles */
 		BlockGrab& GetBlockGrab() override;
 		/** @brief Returns the level handler that shows the level, or `nullptr` */
-		EditorLevelHandler* GetEditHandler() const override {
+		EditorLevelHandler* GetEditHandler() const override
+		{
 			return _editHandler.get();
 		}
 		/** @brief Returns the surface of the interface */
-		Surface* GetSurface() const override {
+		Surface* GetSurface() const override
+		{
 			return _surface.get();
 		}
 		/** @brief Returns the settings */
-		EditorSettings& GetSettings() override {
+		EditorSettings& GetSettings() override
+		{
 			return _settings;
 		}
 		/** @brief Returns what is known about the tile sets of the game */
-		ContentTileSetLibrary& GetTileSetLibrary() override {
+		ContentTileSetLibrary& GetTileSetLibrary() override
+		{
 			return _tileSets;
 		}
 		/** @brief Opens a level file in the editor, asking about unsaved changes first */
@@ -141,7 +146,8 @@ namespace Jazz2::Editor
 		/** @brief Returns a whole tile set with the pixels and masks of its tiles, read once, or `nullptr` if it can't be read */
 		const Formats::TileSetData* GetTileSetData(StringView name) override;
 		/** @brief Returns the tile sets read whole for the level being edited, see @ref GetTileSetData() */
-		TileSetDataCache& GetTileSetDataCache() override {
+		TileSetDataCache& GetTileSetDataCache() override
+		{
 			return _tileSetData;
 		}
 		/** @brief Forgets what was read of a tile set, after its file was written */
@@ -155,7 +161,8 @@ namespace Jazz2::Editor
 		/** @brief Returns the transition into the level being played */
 		PlayTransition& GetPlayTransition();
 		/** @brief Returns `true` if the path of the last play-test is shown */
-		bool IsPlayPathShown() const {
+		bool IsPlayPathShown() const
+		{
 			return _showPlayPath;
 		}
 		/** @brief Returns what is shown over the level of how it's played, where the player can get and where it died */
@@ -170,32 +177,38 @@ namespace Jazz2::Editor
 		/** @brief Draws what is shown over the level of the editor, the differences from the saved file and the deaths in the last play-tests */
 		void DrawSessionOverlays(Painter& painter, const Rectf& viewRect);
 		/** @brief Loads the level again from the document, so the events in the game are as they are now, see @ref ComputeReachability() */
-		void ReloadRuntime() override {
+		void ReloadRuntime() override
+		{
 			RebuildRuntime();
 		}
 
 		/** @brief Changes the layer being edited */
 		void SetCurrentLayer(std::int32_t layer) override;
 		/** @brief Returns `true` if the grid is shown */
-		bool IsGridShown() const {
+		bool IsGridShown() const
+		{
 			return _showGrid;
 		}
 		/** @brief Returns `true` if events are shown over the level */
-		bool AreEventsShown() const override {
+		bool AreEventsShown() const override
+		{
 			return _showEvents;
 		}
 		/** @brief Returns how collision masks are shown, 0 not at all, 1 over the tiles, 2 instead of the tiles */
-		std::int32_t GetMaskMode() const {
+		std::int32_t GetMaskMode() const
+		{
 			return _maskMode;
 		}
 		/** @brief Returns what shows the collision masks over the level */
 		MaskOverlay& GetMaskOverlay();
 		/** @brief Returns what the panel with the tiles and the events shows */
-		PickerPanel GetPickerPanel() const override {
+		PickerPanel GetPickerPanel() const override
+		{
 			return _pickerPanel;
 		}
 		/** @brief Changes what the panel with the tiles and the events shows */
-		void SetPickerPanel(PickerPanel panel) override {
+		void SetPickerPanel(PickerPanel panel) override
+		{
 			_pickerPanel = panel;
 		}
 		/** @brief Chooses the events the event tool places, and the tool */
@@ -203,11 +216,13 @@ namespace Jazz2::Editor
 		/** @brief Lets the next event chosen in the list go to a callback, instead of becoming the one to place */
 		void PickEventFromList(Function<void(EventType)>&& callback) override;
 		/** @brief Returns `true` if the next event chosen in the list goes to a callback */
-		bool IsPickingEvent() const override {
+		bool IsPickingEvent() const override
+		{
 			return (bool)_eventPick;
 		}
 		/** @brief Lets the next event chosen in the list become the one to place again, see @ref PickEventFromList() */
-		void CancelEventPick() override {
+		void CancelEventPick() override
+		{
 			_eventPick = {};
 		}
 		/** @brief Called when an event is chosen in the list */

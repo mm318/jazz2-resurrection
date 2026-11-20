@@ -11,7 +11,7 @@ namespace Jazz2::UI::Windows
 {
 	Painter::Painter(UI::Canvas& canvas, Skin& skin, UI::Font* font, float scale, Rendering::PolylineRenderer* lines)
 		: _canvas(canvas), _skin(skin), _font(font), _scale(scale), _fontScale(Theme::GetTextScale(scale)), _slot(0), _opacity(1.0f), _lines(lines), _backdrop(nullptr),
-			_backdropFillOpacity(Theme::BackdropFillOpacity), _backdropFirstSlot(0), _textBase(Theme::GetTextScale(scale))
+		  _backdropFillOpacity(Theme::BackdropFillOpacity), _backdropFirstSlot(0), _textBase(Theme::GetTextScale(scale))
 	{
 	}
 
@@ -45,12 +45,12 @@ namespace Jazz2::UI::Windows
 		// The font draws every other glyph a depth lower (see UI::Font::DrawString()), so text takes two depths,
 		// and nothing else may be drawn at the lower one --- a selection under text would cover half of its glyphs
 		static constexpr std::uint8_t LayerDepths[] = {
-			0,		// Back
-			1,		// Fill
-			2,		// Content
-			4,		// Text, 3 and 4
-			5,		// Overlay
-			7		// OverlayText, 6 and 7
+			0, // Back
+			1, // Fill
+			2, // Content
+			4, // Text, 3 and 4
+			5, // Overlay
+			7 // OverlayText, 6 and 7
 		};
 		static_assert(LayerDepths[std::int32_t(PaintLayer::OverlayText)] < SlotDepth, "Layers don't fit in a slot");
 		return std::uint16_t(BaseDepth + _slot * SlotDepth + LayerDepths[std::int32_t(layer)]);
@@ -427,9 +427,15 @@ namespace Jazz2::UI::Windows
 		Alignment horizontal = (align & Alignment::HorizontalMask);
 		float x;
 		switch (horizontal) {
-			case Alignment::Right: x = rect.X + rect.W; break;
-			case Alignment::Left: x = rect.X; break;
-			default: x = rect.X + rect.W * 0.5f; break;
+			case Alignment::Right:
+				x = rect.X + rect.W;
+				break;
+			case Alignment::Left:
+				x = rect.X;
+				break;
+			default:
+				x = rect.X + rect.W * 0.5f;
+				break;
 		}
 		// Vertically centered, the alignment is only horizontal
 		Text(text, Vector2f(x, rect.Y + rect.H * 0.5f), color, horizontal, layer);

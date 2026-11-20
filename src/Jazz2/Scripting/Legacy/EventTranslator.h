@@ -56,17 +56,20 @@ namespace Jazz2::Scripting::Legacy
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
 		// Bits of the parameters that decide the same outputs, bit `i` of the outputs is byte `i` of the converted
 		// parameters, bit 16 is the type
-		struct BitGroup {
+		struct BitGroup
+		{
 			std::uint32_t Bits;
 			std::uint32_t Outputs;
 		};
 
-		struct EventProbe {
+		struct EventProbe
+		{
 			Compatibility::ConversionResult Base;
 			SmallVector<BitGroup, 4> Groups;
 		};
 
-		struct CachedEvent {
+		struct CachedEvent
+		{
 			std::uint16_t Type;
 			std::uint8_t Params[16];
 			std::uint32_t Word;

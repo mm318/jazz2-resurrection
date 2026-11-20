@@ -28,21 +28,22 @@ namespace Jazz2
 		resolution, ranging from pixel-perfect to upscalers (HQ2×, 3×BRZ, SABR, CleanEdge) and CRT
 		emulation. @ref TypeMask isolates the filter while @ref UseAntialiasing is an independent flag.
 	*/
-	enum class RescaleMode {
-		None,						/**< None/Pixel-perfect */
-		HQ2x,						/**< HQ2× */
-		_3xBrz,						/**< 3×BRZ */
-		CrtScanlines,				/**< CRT Scanlines */
-		CrtShadowMask,				/**< CRT Shadow Mask */
-		CrtApertureGrille,			/**< CRT Aperture Grille */
-		Monochrome,					/**< Monochrome */
-		Sabr,						/**< SABR */
-		CleanEdge,					/**< CleanEdge */
+	enum class RescaleMode
+	{
+		None, /**< None/Pixel-perfect */
+		HQ2x, /**< HQ2× */
+		_3xBrz, /**< 3×BRZ */
+		CrtScanlines, /**< CRT Scanlines */
+		CrtShadowMask, /**< CRT Shadow Mask */
+		CrtApertureGrille, /**< CRT Aperture Grille */
+		Monochrome, /**< Monochrome */
+		Sabr, /**< SABR */
+		CleanEdge, /**< CleanEdge */
 
-		Count,						/**< Count of rescale modes */
+		Count, /**< Count of rescale modes */
 
-		TypeMask = 0x0f,			/**< Mask for the rescale mode */
-		UseAntialiasing = 0x80		/**< Antialiasing should be applied */
+		TypeMask = 0x0f, /**< Mask for the rescale mode */
+		UseAntialiasing = 0x80 /**< Antialiasing should be applied */
 	};
 
 	DEATH_ENUM_FLAGS(RescaleMode);
@@ -53,10 +54,11 @@ namespace Jazz2
 		Controls whether the radial weapon selection wheel is available and, when enabled, whether it
 		also displays the remaining ammo count for each weapon.
 	*/
-	enum class WeaponWheelStyle : std::uint8_t {
-		Disabled,					/**< Disabled */
-		Enabled,					/**< Enabled */
-		EnabledWithAmmoCount		/**< Enabled with Ammo count */
+	enum class WeaponWheelStyle : std::uint8_t
+	{
+		Disabled, /**< Disabled */
+		Enabled, /**< Enabled */
+		EnabledWithAmmoCount /**< Enabled with Ammo count */
 	};
 
 	/**
@@ -67,10 +69,11 @@ namespace Jazz2
 		GPU time or whatever the graphics hardware can tell instead, the draw calls and the memory - averaged over half
 		a second, see @ref nCine::FrameStatistics.
 	*/
-	enum class PerformanceMetricsLevel : std::uint8_t {
-		Off,						/**< Hidden */
-		Basic,						/**< Frame rate only */
-		Detailed					/**< Frame rate and a breakdown of the frame */
+	enum class PerformanceMetricsLevel : std::uint8_t
+	{
+		Off, /**< Hidden */
+		Basic, /**< Frame rate only */
+		Detailed /**< Frame rate and a breakdown of the frame */
 	};
 
 	/**
@@ -80,10 +83,11 @@ namespace Jazz2
 		players in online multiplayer, additionally for the first local player, or for every local
 		player.
 	*/
-	enum class PlayerColorMode : std::uint8_t {
-		OnlineOnly,					/**< Only in online multiplayer */
-		FirstLocalPlayer,			/**< Online, and the first player in local games */
-		AllLocalPlayers				/**< Online, and all players in local games */
+	enum class PlayerColorMode : std::uint8_t
+	{
+		OnlineOnly, /**< Only in online multiplayer */
+		FirstLocalPlayer, /**< Online, and the first player in local games */
+		AllLocalPlayers /**< Online, and all players in local games */
 	};
 
 	/**
@@ -94,19 +98,21 @@ namespace Jazz2
 		unrestricted effect. @ref Ultra is reserved for a future quality tier above it and is not offered by
 		the menu yet - a configuration carrying it behaves as @ref High.
 	*/
-	enum class ParticleQuality : std::uint8_t {
-		Off,						/**< No particles */
-		Low,						/**< About half of the particles */
-		High,						/**< All particles (default) */
-		Ultra						/**< Reserved, behaves as @ref High for now */
+	enum class ParticleQuality : std::uint8_t
+	{
+		Off, /**< No particles */
+		Low, /**< About half of the particles */
+		High, /**< All particles (default) */
+		Ultra /**< Reserved, behaves as @ref High for now */
 	};
 
 	/** @brief What is drawn in the colors of the 16-bit renderer of JJ2+, see @ref PreferencesCache::Dithering */
-	enum class DitheringScope : std::uint8_t {
-		None,						/**< Nothing, everything is drawn in full colors */
-		Layers,						/**< The textured backgrounds and the translucent layers behind the sprites themselves */
-		BehindSprites,				/**< Everything behind the sprite layer as one image, the sprites and what is in front of them stay as they are */
-		Screen						/**< The whole scene, as the 16-bit renderer of JJ2+ draws it, the HUD stays as it is */
+	enum class DitheringScope : std::uint8_t
+	{
+		None, /**< Nothing, everything is drawn in full colors */
+		Layers, /**< The textured backgrounds and the translucent layers behind the sprites themselves */
+		BehindSprites, /**< Everything behind the sprite layer as one image, the sprites and what is in front of them stay as they are */
+		Screen /**< The whole scene, as the 16-bit renderer of JJ2+ draws it, the HUD stays as it is */
 	};
 
 	/**
@@ -115,13 +121,14 @@ namespace Jazz2
 		Selects which controller family's glyphs and button names are shown in the user interface, so
 		that on-screen prompts match the physical gamepad being used.
 	*/
-	enum class GamepadType : std::uint8_t {
-		Xbox,						/**< Xbox */
-		PlayStation,				/**< PlayStation */
-		PlayStationLegacy,			/**< PlayStation (Legacy) */
-		Steam,						/**< Steam */
-		Switch,						/**< Switch */
-		Nintendo64					/**< Nintendo 64 */
+	enum class GamepadType : std::uint8_t
+	{
+		Xbox, /**< Xbox */
+		PlayStation, /**< PlayStation */
+		PlayStationLegacy, /**< PlayStation (Legacy) */
+		Steam, /**< Steam */
+		Switch, /**< Switch */
+		Nintendo64 /**< Nintendo 64 */
 	};
 
 	/**
@@ -131,10 +138,11 @@ namespace Jazz2
 		previously stored one: always, only when no cheats were used, or only when the new score is
 		higher.
 	*/
-	enum class EpisodeEndOverwriteMode : std::uint8_t {
-		Always,						/**< Always */
-		NoCheatsOnly,				/**< No cheats only */
-		HigherScoreOnly				/**< Higher score only */
+	enum class EpisodeEndOverwriteMode : std::uint8_t
+	{
+		Always, /**< Always */
+		NoCheatsOnly, /**< No cheats only */
+		HigherScoreOnly /**< Higher score only */
 	};
 
 	/**
@@ -144,15 +152,16 @@ namespace Jazz2
 		compiled with `SHAREWARE_DEMO_ONLY` to gate access to the full episode list. Stored in
 		@ref PreferencesCache::UnlockedEpisodes.
 	*/
-	enum class UnlockableEpisodes : std::uint32_t {
-		None = 0x00,						/**< None */
+	enum class UnlockableEpisodes : std::uint32_t
+	{
+		None = 0x00, /**< None */
 
-		FormerlyAPrince = 0x01,				/**< Formerly a Prince */
-		JazzInTime = 0x02,					/**< Jazz in Time */
-		Flashback = 0x04,					/**< Flashback */
-		FunkyMonkeys = 0x08,				/**< Funky Monkeys */
-		ChristmasChronicles = 0x10,			/**< Christmas Chronicles */
-		TheSecretFiles = 0x20,				/**< The Secret Files */
+		FormerlyAPrince = 0x01, /**< Formerly a Prince */
+		JazzInTime = 0x02, /**< Jazz in Time */
+		Flashback = 0x04, /**< Flashback */
+		FunkyMonkeys = 0x08, /**< Funky Monkeys */
+		ChristmasChronicles = 0x10, /**< Christmas Chronicles */
+		TheSecretFiles = 0x20, /**< The Secret Files */
 	};
 
 	DEATH_ENUM_FLAGS(UnlockableEpisodes);
@@ -163,11 +172,12 @@ namespace Jazz2
 		Bit flags recorded alongside a stored @ref EpisodeContinuationState, marking whether the
 		episode has been completed and whether cheats were used during the saved playthrough.
 	*/
-	enum class EpisodeContinuationFlags : std::uint8_t {
-		None = 0x00,				/**< None */
+	enum class EpisodeContinuationFlags : std::uint8_t
+	{
+		None = 0x00, /**< None */
 
-		IsCompleted = 0x01,			/**< Episode is complete */
-		CheatsUsed = 0x02			/**< Cheats have been used */
+		IsCompleted = 0x01, /**< Episode is complete */
+		CheatsUsed = 0x02 /**< Cheats have been used */
 	};
 
 	/**
@@ -177,12 +187,13 @@ namespace Jazz2
 		position is measured from, so that its @ref TouchButtonLayout::EdgeOffset stays consistent
 		across different screen sizes and aspect ratios.
 	*/
-	enum class TouchButtonAnchor : std::uint8_t {
-		BottomLeft = 0,				/**< Bottom-left corner */
-		BottomRight = 1,			/**< Bottom-right corner */
-		TopLeft = 2,				/**< Top-left corner */
-		TopRight = 3,				/**< Top-right corner */
-		TopCenter = 4				/**< Top-center (used for round screens) */
+	enum class TouchButtonAnchor : std::uint8_t
+	{
+		BottomLeft = 0, /**< Bottom-left corner */
+		BottomRight = 1, /**< Bottom-right corner */
+		TopLeft = 2, /**< Top-left corner */
+		TopRight = 3, /**< Top-right corner */
+		TopCenter = 4 /**< Top-center (used for round screens) */
 	};
 
 	/**
@@ -192,15 +203,16 @@ namespace Jazz2
 		console) that can each be repositioned and resized independently. Used to index the
 		@ref PreferencesCache::TouchButtons array, with @ref Count giving the number of slots.
 	*/
-	enum class TouchButtonSlot : std::uint8_t {
-		Dpad = 0,					/**< D-pad / Joystick (moves and resizes as a unit with its sub-zones) */
-		Fire = 1,					/**< Fire button */
-		Jump = 2,					/**< Jump button */
-		Run = 3,					/**< Run button */
-		ChangeWeapon = 4,			/**< Change weapon button */
-		Menu = 5,					/**< Pause / Menu button */
-		Console = 6,				/**< Console button */
-		Count = 7					/**< Number of configurable slots */
+	enum class TouchButtonSlot : std::uint8_t
+	{
+		Dpad = 0, /**< D-pad / Joystick (moves and resizes as a unit with its sub-zones) */
+		Fire = 1, /**< Fire button */
+		Jump = 2, /**< Jump button */
+		Run = 3, /**< Run button */
+		ChangeWeapon = 4, /**< Change weapon button */
+		Menu = 5, /**< Pause / Menu button */
+		Console = 6, /**< Console button */
+		Count = 7 /**< Number of configurable slots */
 	};
 
 	/**
@@ -210,7 +222,8 @@ namespace Jazz2
 		from that edge in reference pixels and a size scale factor. One entry is stored per
 		@ref TouchButtonSlot in @ref PreferencesCache::TouchButtons.
 	*/
-	struct TouchButtonLayout {
+	struct TouchButtonLayout
+	{
 		/** @brief Offset from the anchor edge in reference pixels (`HUD::DefaultRef` = 360) */
 		Vector2f EdgeOffset;
 		/** @brief Size scale factor (0.5 = half size, 1.0 = default, 3.0 = triple size) */
@@ -227,17 +240,18 @@ namespace Jazz2
 		corners, a projector that is not quite aligned. The horizontal edges are a fraction of the view's
 		width and the vertical ones of its height, so the same configuration holds on any resolution.
 	*/
-	enum class SafeAreaEdge : std::uint8_t {
-		Left = 0,					/**< Left edge, as a fraction of the view width */
-		Top = 1,					/**< Top edge, as a fraction of the view height */
-		Right = 2,					/**< Right edge, as a fraction of the view width */
-		Bottom = 3,					/**< Bottom edge, as a fraction of the view height */
-		Count = 4					/**< Number of edges */
+	enum class SafeAreaEdge : std::uint8_t
+	{
+		Left = 0, /**< Left edge, as a fraction of the view width */
+		Top = 1, /**< Top edge, as a fraction of the view height */
+		Right = 2, /**< Right edge, as a fraction of the view width */
+		Bottom = 3, /**< Bottom edge, as a fraction of the view height */
+		Count = 4 /**< Number of edges */
 	};
 
 	DEATH_ENUM_FLAGS(EpisodeContinuationFlags);
 
-#	pragma pack(push, 1)
+#pragma pack(push, 1)
 
 	/**
 		@brief Continuation state between two episodes
@@ -246,7 +260,8 @@ namespace Jazz2
 		weapon upgrades) carried over when starting the next episode. Stored in @ref PreferencesCache.
 	*/
 	// These structures are aligned manually, because they are serialized and it should work cross-platform
-	struct EpisodeContinuationState {
+	struct EpisodeContinuationState
+	{
 		/** @brief Flags */
 		EpisodeContinuationFlags Flags;
 		/** @brief Difficulty and player type */
@@ -276,14 +291,15 @@ namespace Jazz2
 		in-progress episode can be resumed at the correct level. Stored per-episode in
 		@ref PreferencesCache.
 	*/
-	struct EpisodeContinuationStateWithLevel {
+	struct EpisodeContinuationStateWithLevel
+	{
 		/** @brief Base continuation state */
 		EpisodeContinuationState State;
 		/** @brief Last level name */
 		String LevelName;
 	};
 
-#	pragma pack(pop)
+#pragma pack(pop)
 
 	/**
 		@brief Provides access to a user preferences
@@ -507,7 +523,6 @@ namespace Jazz2
 		/** @brief Whether Discord integration is enabled */
 		static bool EnableDiscordIntegration;
 
-
 		/** @brief Initializes preferences cache from a given application configuration */
 		static void Initialize(AppConfiguration& config);
 		/** @brief Serializes current preferences to file */
@@ -585,7 +600,8 @@ namespace Jazz2
 		static Rectf ApplySafeArea(const Rectf& bounds, Vector2i viewSize);
 
 	private:
-		enum class BoolOptions : std::uint64_t {
+		enum class BoolOptions : std::uint64_t
+		{
 			None = 0x00,
 
 			EnableFullscreen = 0x01,

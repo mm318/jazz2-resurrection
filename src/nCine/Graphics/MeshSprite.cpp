@@ -23,7 +23,7 @@ namespace nCine
 
 	MeshSprite::MeshSprite(SceneNode* parent, Texture* texture, float xx, float yy)
 		: BaseSprite(parent, texture, xx, yy), _vertices(16), _vertexDataPointer(nullptr), _bytesPerVertex(0),
-			_numVertices(0), _indices(16), _indexDataPointer(nullptr), _numIndices(0)
+		  _numVertices(0), _indices(16), _indexDataPointer(nullptr), _numIndices(0)
 	{
 		Init();
 	}

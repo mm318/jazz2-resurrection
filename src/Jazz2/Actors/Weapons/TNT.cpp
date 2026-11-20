@@ -30,7 +30,6 @@ namespace Jazz2::Actors::Weapons
 
 		SetState(ActorState::CollideWithTileset | ActorState::CollideWithOtherActors | ActorState::CollideWithSolidObjects | ActorState::ApplyGravitation, false);
 
-
 		async_await RequestMetadataAsync("Weapon/TNT"_s);
 
 		SetAnimation(AnimState::Idle);

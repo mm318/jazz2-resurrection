@@ -4,10 +4,10 @@
 #include "LevelInitialization.h"
 
 #if defined(WITH_MULTIPLAYER)
-#	include "Multiplayer/ServerInitialization.h"
+#include "Multiplayer/ServerInitialization.h"
 #endif
 #if defined(WITH_EDITOR)
-#	include "Editor/EditorInitialization.h"
+#include "Editor/EditorInitialization.h"
 #endif
 
 #include <Containers/Function.h>
@@ -27,24 +27,29 @@ namespace Jazz2
 	{
 	public:
 		/** @brief State flags of root controller, supports a bitwise combination of its member values */
-		enum class Flags {
-			None = 0x00,									/**< None */
+		enum class Flags
+		{
+			None = 0x00, /**< None */
 
-			IsInitialized = 0x01,							/**< The controller has been initialized */
-			IsVerified = 0x02,								/**< The assets have been verified */
-			IsPlayable = 0x04,								/**< The game is playable */
+			IsInitialized = 0x01, /**< The controller has been initialized */
+			IsVerified = 0x02, /**< The assets have been verified */
+			IsPlayable = 0x04, /**< The game is playable */
 
 #if defined(DEATH_TARGET_ANDROID)
-			HasExternalStoragePermission = 0x10,			/**< External storage permission has been granted */
-			HasExternalStoragePermissionOnResume = 0x20,	/**< External storage permission should be checked on resume */
+			HasExternalStoragePermission = 0x10, /**< External storage permission has been granted */
+			HasExternalStoragePermissionOnResume = 0x20, /**< External storage permission should be checked on resume */
 #endif
 		};
 
 		DEATH_PRIVATE_ENUM_FLAGS(Flags);
 
 		/** @brief Creates a new instance */
-		IRootController() { }
-		virtual ~IRootController() { }
+		IRootController()
+		{
+		}
+		virtual ~IRootController()
+		{
+		}
 
 		IRootController(const IRootController&) = delete;
 		IRootController& operator=(const IRootController&) = delete;
@@ -91,6 +96,9 @@ namespace Jazz2
 		/** @brief Returns version of the latest update */
 		virtual StringView GetNewestVersion() const = 0;
 		/** @brief Returns loading progress, or -1 when no progress is reported */
-		virtual float GetInitializationProgress() const { return -1.0f; }
+		virtual float GetInitializationProgress() const
+		{
+			return -1.0f;
+		}
 	};
 }

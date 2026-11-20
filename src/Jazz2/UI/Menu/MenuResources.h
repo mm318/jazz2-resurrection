@@ -285,18 +285,39 @@ namespace Jazz2::UI::Menu::Resources
 			// Its C buttons arrive as the right stick, but each of them is one direction of it, see GetResourceForAxisDirection().
 			// The axes it doesn't have reuse Xbox labels below.
 			switch (axis) {
-				case AxisName::LeftX: axisName = "X"_s; return GamepadN64ControlStick; break;
-				case AxisName::LeftY: axisName = "Y"_s; return GamepadN64ControlStick; break;
-				case AxisName::RightTrigger: return GamepadN64ZTrigger; break;
-				default: break;
+				case AxisName::LeftX:
+					axisName = "X"_s;
+					return GamepadN64ControlStick;
+					break;
+				case AxisName::LeftY:
+					axisName = "Y"_s;
+					return GamepadN64ControlStick;
+					break;
+				case AxisName::RightTrigger:
+					return GamepadN64ZTrigger;
+					break;
+				default:
+					break;
 			}
 		}
 
 		switch (axis) {
-			case AxisName::LeftX: axisName = "X"_s; return GamepadXboxLeftStick; break;
-			case AxisName::LeftY: axisName = "Y"_s; return GamepadXboxLeftStick; break;
-			case AxisName::RightX: axisName = "X"_s; return GamepadXboxRightStick; break;
-			case AxisName::RightY: axisName = "Y"_s; return GamepadXboxRightStick; break;
+			case AxisName::LeftX:
+				axisName = "X"_s;
+				return GamepadXboxLeftStick;
+				break;
+			case AxisName::LeftY:
+				axisName = "Y"_s;
+				return GamepadXboxLeftStick;
+				break;
+			case AxisName::RightX:
+				axisName = "X"_s;
+				return GamepadXboxRightStick;
+				break;
+			case AxisName::RightY:
+				axisName = "Y"_s;
+				return GamepadXboxRightStick;
+				break;
 
 			case AxisName::LeftTrigger:
 				switch (PreferencesCache::GamepadButtonLabels) {
@@ -325,7 +346,9 @@ namespace Jazz2::UI::Menu::Resources
 						return GamepadPslRightTrigger;
 				}
 
-			default: return AnimState::Default; break;
+			default:
+				return AnimState::Default;
+				break;
 		}
 	}
 
@@ -339,9 +362,14 @@ namespace Jazz2::UI::Menu::Resources
 	{
 		if (PreferencesCache::GamepadButtonLabels == GamepadType::Nintendo64) {
 			switch (axis) {
-				case AxisName::RightX: return (isNegative ? GamepadN64CLeft : GamepadN64CRight); break;
-				case AxisName::RightY: return (isNegative ? GamepadN64CUp : GamepadN64CDown); break;
-				default: break;
+				case AxisName::RightX:
+					return (isNegative ? GamepadN64CLeft : GamepadN64CRight);
+					break;
+				case AxisName::RightY:
+					return (isNegative ? GamepadN64CUp : GamepadN64CDown);
+					break;
+				default:
+					break;
 			}
 		}
 		return AnimState::Default;
@@ -354,134 +382,350 @@ namespace Jazz2::UI::Menu::Resources
 			default:
 			case GamepadType::Xbox: {
 				switch (button) {
-					case ButtonName::A: return GamepadXboxA; break;
-					case ButtonName::B: return GamepadXboxB; break;
-					case ButtonName::X: return GamepadXboxX; break;
-					case ButtonName::Y: return GamepadXboxY; break;
-					case ButtonName::Back: return GamepadXboxBack; break;
-					case ButtonName::Guide: return GamepadXboxGuide; break;
-					case ButtonName::Start: return GamepadXboxStart; break;
-					case ButtonName::LeftStick: return GamepadXboxLeftStick; break;
-					case ButtonName::RightStick: return GamepadXboxRightStick; break;
-					case ButtonName::LeftBumper: return GamepadXboxLeftShoulder; break;
-					case ButtonName::RightBumper: return GamepadXboxRightShoulder; break;
-					case ButtonName::Up: return GamepadXboxDPadUp; break;
-					case ButtonName::Down: return GamepadXboxDPadDown; break;
-					case ButtonName::Left: return GamepadXboxDPadLeft; break;
-					case ButtonName::Right: return GamepadXboxDPadRight; break;
-					case ButtonName::Misc1: return GamepadXboxMisc1; break;
-					case ButtonName::Touchpad: return GamepadPsTouchpad; break;				// Not valid for Xbox - reuse PlayStation label
-					default: return AnimState::Default; break;
+					case ButtonName::A:
+						return GamepadXboxA;
+						break;
+					case ButtonName::B:
+						return GamepadXboxB;
+						break;
+					case ButtonName::X:
+						return GamepadXboxX;
+						break;
+					case ButtonName::Y:
+						return GamepadXboxY;
+						break;
+					case ButtonName::Back:
+						return GamepadXboxBack;
+						break;
+					case ButtonName::Guide:
+						return GamepadXboxGuide;
+						break;
+					case ButtonName::Start:
+						return GamepadXboxStart;
+						break;
+					case ButtonName::LeftStick:
+						return GamepadXboxLeftStick;
+						break;
+					case ButtonName::RightStick:
+						return GamepadXboxRightStick;
+						break;
+					case ButtonName::LeftBumper:
+						return GamepadXboxLeftShoulder;
+						break;
+					case ButtonName::RightBumper:
+						return GamepadXboxRightShoulder;
+						break;
+					case ButtonName::Up:
+						return GamepadXboxDPadUp;
+						break;
+					case ButtonName::Down:
+						return GamepadXboxDPadDown;
+						break;
+					case ButtonName::Left:
+						return GamepadXboxDPadLeft;
+						break;
+					case ButtonName::Right:
+						return GamepadXboxDPadRight;
+						break;
+					case ButtonName::Misc1:
+						return GamepadXboxMisc1;
+						break;
+					case ButtonName::Touchpad:
+						return GamepadPsTouchpad;
+						break; // Not valid for Xbox - reuse PlayStation label
+					default:
+						return AnimState::Default;
+						break;
 				}
 			}
 			case GamepadType::PlayStation: {
 				switch (button) {
-					case ButtonName::A: return GamepadPsA; break;
-					case ButtonName::B: return GamepadPsB; break;
-					case ButtonName::X: return GamepadPsX; break;
-					case ButtonName::Y: return GamepadPsY; break;
-					case ButtonName::Back: return GamepadPsBack; break;
-					case ButtonName::Guide: return GamepadPsGuide; break;
-					case ButtonName::Start: return GamepadPsStart; break;
-					case ButtonName::LeftStick: return GamepadXboxLeftStick; break;			// Reuse Xbox label
-					case ButtonName::RightStick: return GamepadXboxRightStick; break;		// Reuse Xbox label
-					case ButtonName::LeftBumper: return GamepadPsLeftShoulder; break;
-					case ButtonName::RightBumper: return GamepadPsRightShoulder; break;
-					case ButtonName::Up: return GamepadPsDPadUp; break;
-					case ButtonName::Down: return GamepadPsDPadDown; break;
-					case ButtonName::Left: return GamepadPsDPadLeft; break;
-					case ButtonName::Right: return GamepadPsDPadRight; break;
-					case ButtonName::Misc1: return GamepadPsMisc1; break;
-					case ButtonName::Touchpad: return GamepadPsTouchpad; break;
-					default: return AnimState::Default; break;
+					case ButtonName::A:
+						return GamepadPsA;
+						break;
+					case ButtonName::B:
+						return GamepadPsB;
+						break;
+					case ButtonName::X:
+						return GamepadPsX;
+						break;
+					case ButtonName::Y:
+						return GamepadPsY;
+						break;
+					case ButtonName::Back:
+						return GamepadPsBack;
+						break;
+					case ButtonName::Guide:
+						return GamepadPsGuide;
+						break;
+					case ButtonName::Start:
+						return GamepadPsStart;
+						break;
+					case ButtonName::LeftStick:
+						return GamepadXboxLeftStick;
+						break; // Reuse Xbox label
+					case ButtonName::RightStick:
+						return GamepadXboxRightStick;
+						break; // Reuse Xbox label
+					case ButtonName::LeftBumper:
+						return GamepadPsLeftShoulder;
+						break;
+					case ButtonName::RightBumper:
+						return GamepadPsRightShoulder;
+						break;
+					case ButtonName::Up:
+						return GamepadPsDPadUp;
+						break;
+					case ButtonName::Down:
+						return GamepadPsDPadDown;
+						break;
+					case ButtonName::Left:
+						return GamepadPsDPadLeft;
+						break;
+					case ButtonName::Right:
+						return GamepadPsDPadRight;
+						break;
+					case ButtonName::Misc1:
+						return GamepadPsMisc1;
+						break;
+					case ButtonName::Touchpad:
+						return GamepadPsTouchpad;
+						break;
+					default:
+						return AnimState::Default;
+						break;
 				}
 			}
 			case GamepadType::Steam: {
 				switch (button) {
-					case ButtonName::A: return GamepadSteamA; break;
-					case ButtonName::B: return GamepadSteamB; break;
-					case ButtonName::X: return GamepadSteamX; break;
-					case ButtonName::Y: return GamepadSteamY; break;
-					case ButtonName::Back: return GamepadSteamBack; break;
-					case ButtonName::Guide: return GamepadSteamGuide; break;
-					case ButtonName::Start: return GamepadSteamStart; break;
-					case ButtonName::LeftStick: return GamepadXboxLeftStick; break;			// Reuse Xbox label
-					case ButtonName::RightStick: return GamepadXboxRightStick; break;		// Reuse Xbox label
-					case ButtonName::LeftBumper: return GamepadSteamLeftShoulder; break;
-					case ButtonName::RightBumper: return GamepadSteamRightShoulder; break;
-					case ButtonName::Up: return GamepadSteamDPadUp; break;
-					case ButtonName::Down: return GamepadSteamDPadDown; break;
-					case ButtonName::Left: return GamepadSteamDPadLeft; break;
-					case ButtonName::Right: return GamepadSteamDPadRight; break;
-					case ButtonName::Misc1: return GamepadSteamMisc1; break;
-					case ButtonName::Touchpad: return GamepadPsTouchpad; break;				// Not valid for Steam - reuse PlayStation label
-					default: return AnimState::Default; break;
+					case ButtonName::A:
+						return GamepadSteamA;
+						break;
+					case ButtonName::B:
+						return GamepadSteamB;
+						break;
+					case ButtonName::X:
+						return GamepadSteamX;
+						break;
+					case ButtonName::Y:
+						return GamepadSteamY;
+						break;
+					case ButtonName::Back:
+						return GamepadSteamBack;
+						break;
+					case ButtonName::Guide:
+						return GamepadSteamGuide;
+						break;
+					case ButtonName::Start:
+						return GamepadSteamStart;
+						break;
+					case ButtonName::LeftStick:
+						return GamepadXboxLeftStick;
+						break; // Reuse Xbox label
+					case ButtonName::RightStick:
+						return GamepadXboxRightStick;
+						break; // Reuse Xbox label
+					case ButtonName::LeftBumper:
+						return GamepadSteamLeftShoulder;
+						break;
+					case ButtonName::RightBumper:
+						return GamepadSteamRightShoulder;
+						break;
+					case ButtonName::Up:
+						return GamepadSteamDPadUp;
+						break;
+					case ButtonName::Down:
+						return GamepadSteamDPadDown;
+						break;
+					case ButtonName::Left:
+						return GamepadSteamDPadLeft;
+						break;
+					case ButtonName::Right:
+						return GamepadSteamDPadRight;
+						break;
+					case ButtonName::Misc1:
+						return GamepadSteamMisc1;
+						break;
+					case ButtonName::Touchpad:
+						return GamepadPsTouchpad;
+						break; // Not valid for Steam - reuse PlayStation label
+					default:
+						return AnimState::Default;
+						break;
 				}
 			}
 			case GamepadType::Switch: {
 				switch (button) {
-					case ButtonName::A: return GamepadSwitchA; break;
-					case ButtonName::B: return GamepadSwitchB; break;
-					case ButtonName::X: return GamepadSwitchX; break;
-					case ButtonName::Y: return GamepadSwitchY; break;
-					case ButtonName::Back: return GamepadSwitchBack; break;
-					case ButtonName::Guide: return GamepadSwitchGuide; break;
-					case ButtonName::Start: return GamepadSwitchStart; break;
-					case ButtonName::LeftStick: return GamepadXboxLeftStick; break;			// Reuse Xbox label
-					case ButtonName::RightStick: return GamepadXboxRightStick; break;		// Reuse Xbox label
-					case ButtonName::LeftBumper: return GamepadXboxLeftShoulder; break;		// Reuse Xbox label
-					case ButtonName::RightBumper: return GamepadXboxRightShoulder; break;	// Reuse Xbox label
-					case ButtonName::Up: return GamepadSwitchDPadUp; break;
-					case ButtonName::Down: return GamepadSwitchDPadDown; break;
-					case ButtonName::Left: return GamepadSwitchDPadLeft; break;
-					case ButtonName::Right: return GamepadSwitchDPadRight; break;
-					case ButtonName::Misc1: return GamepadSwitchMisc1; break;
-					case ButtonName::Touchpad: return GamepadPsTouchpad; break;				// Not valid for Switch - reuse PlayStation label
-					default: return AnimState::Default; break;
+					case ButtonName::A:
+						return GamepadSwitchA;
+						break;
+					case ButtonName::B:
+						return GamepadSwitchB;
+						break;
+					case ButtonName::X:
+						return GamepadSwitchX;
+						break;
+					case ButtonName::Y:
+						return GamepadSwitchY;
+						break;
+					case ButtonName::Back:
+						return GamepadSwitchBack;
+						break;
+					case ButtonName::Guide:
+						return GamepadSwitchGuide;
+						break;
+					case ButtonName::Start:
+						return GamepadSwitchStart;
+						break;
+					case ButtonName::LeftStick:
+						return GamepadXboxLeftStick;
+						break; // Reuse Xbox label
+					case ButtonName::RightStick:
+						return GamepadXboxRightStick;
+						break; // Reuse Xbox label
+					case ButtonName::LeftBumper:
+						return GamepadXboxLeftShoulder;
+						break; // Reuse Xbox label
+					case ButtonName::RightBumper:
+						return GamepadXboxRightShoulder;
+						break; // Reuse Xbox label
+					case ButtonName::Up:
+						return GamepadSwitchDPadUp;
+						break;
+					case ButtonName::Down:
+						return GamepadSwitchDPadDown;
+						break;
+					case ButtonName::Left:
+						return GamepadSwitchDPadLeft;
+						break;
+					case ButtonName::Right:
+						return GamepadSwitchDPadRight;
+						break;
+					case ButtonName::Misc1:
+						return GamepadSwitchMisc1;
+						break;
+					case ButtonName::Touchpad:
+						return GamepadPsTouchpad;
+						break; // Not valid for Switch - reuse PlayStation label
+					default:
+						return AnimState::Default;
+						break;
 				}
 			}
 			case GamepadType::PlayStationLegacy: {
 				switch (button) {
-					case ButtonName::A: return GamepadPslA; break;
-					case ButtonName::B: return GamepadPslB; break;
-					case ButtonName::X: return GamepadPslX; break;
-					case ButtonName::Y: return GamepadPslY; break;
-					case ButtonName::Back: return GamepadPslBack; break;
-					case ButtonName::Guide: return GamepadPslGuide; break;
-					case ButtonName::Start: return GamepadPslStart; break;
-					case ButtonName::LeftStick: return GamepadXboxLeftStick; break;			// Reuse Xbox label
-					case ButtonName::RightStick: return GamepadXboxRightStick; break;		// Reuse Xbox label
-					case ButtonName::LeftBumper: return GamepadPslLeftShoulder; break;
-					case ButtonName::RightBumper: return GamepadPslRightShoulder; break;
-					case ButtonName::Up: return GamepadPslDPadUp; break;
-					case ButtonName::Down: return GamepadPslDPadDown; break;
-					case ButtonName::Left: return GamepadPslDPadLeft; break;
-					case ButtonName::Right: return GamepadPslDPadRight; break;
-					case ButtonName::Misc1: return GamepadPslMisc1; break;
-					case ButtonName::Touchpad: return GamepadPslTouchpad; break;
-					default: return AnimState::Default; break;
+					case ButtonName::A:
+						return GamepadPslA;
+						break;
+					case ButtonName::B:
+						return GamepadPslB;
+						break;
+					case ButtonName::X:
+						return GamepadPslX;
+						break;
+					case ButtonName::Y:
+						return GamepadPslY;
+						break;
+					case ButtonName::Back:
+						return GamepadPslBack;
+						break;
+					case ButtonName::Guide:
+						return GamepadPslGuide;
+						break;
+					case ButtonName::Start:
+						return GamepadPslStart;
+						break;
+					case ButtonName::LeftStick:
+						return GamepadXboxLeftStick;
+						break; // Reuse Xbox label
+					case ButtonName::RightStick:
+						return GamepadXboxRightStick;
+						break; // Reuse Xbox label
+					case ButtonName::LeftBumper:
+						return GamepadPslLeftShoulder;
+						break;
+					case ButtonName::RightBumper:
+						return GamepadPslRightShoulder;
+						break;
+					case ButtonName::Up:
+						return GamepadPslDPadUp;
+						break;
+					case ButtonName::Down:
+						return GamepadPslDPadDown;
+						break;
+					case ButtonName::Left:
+						return GamepadPslDPadLeft;
+						break;
+					case ButtonName::Right:
+						return GamepadPslDPadRight;
+						break;
+					case ButtonName::Misc1:
+						return GamepadPslMisc1;
+						break;
+					case ButtonName::Touchpad:
+						return GamepadPslTouchpad;
+						break;
+					default:
+						return AnimState::Default;
+						break;
 				}
 			}
 			case GamepadType::Nintendo64: {
 				switch (button) {
-					case ButtonName::A: return GamepadN64A; break;
-					case ButtonName::B: return GamepadN64B; break;
-					case ButtonName::X: return GamepadXboxX; break;							// Not valid for N64 - reuse Xbox label
-					case ButtonName::Y: return GamepadXboxY; break;							// Not valid for N64 - reuse Xbox label
-					case ButtonName::Back: return GamepadXboxBack; break;					// Not valid for N64 - reuse Xbox label
-					case ButtonName::Guide: return GamepadXboxGuide; break;					// Not valid for N64 - reuse Xbox label
-					case ButtonName::Start: return GamepadN64Start; break;
-					case ButtonName::LeftStick: return GamepadXboxLeftStick; break;			// Not valid for N64 - reuse Xbox label
-					case ButtonName::RightStick: return GamepadXboxRightStick; break;		// Not valid for N64 - reuse Xbox label
-					case ButtonName::LeftBumper: return GamepadN64LeftShoulder; break;
-					case ButtonName::RightBumper: return GamepadN64RightShoulder; break;
-					case ButtonName::Up: return GamepadN64DPadUp; break;
-					case ButtonName::Down: return GamepadN64DPadDown; break;
-					case ButtonName::Left: return GamepadN64DPadLeft; break;
-					case ButtonName::Right: return GamepadN64DPadRight; break;
-					case ButtonName::Misc1: return GamepadXboxMisc1; break;					// Not valid for N64 - reuse Xbox label
-					case ButtonName::Touchpad: return GamepadPsTouchpad; break;				// Not valid for N64 - reuse PlayStation label
-					default: return AnimState::Default; break;
+					case ButtonName::A:
+						return GamepadN64A;
+						break;
+					case ButtonName::B:
+						return GamepadN64B;
+						break;
+					case ButtonName::X:
+						return GamepadXboxX;
+						break; // Not valid for N64 - reuse Xbox label
+					case ButtonName::Y:
+						return GamepadXboxY;
+						break; // Not valid for N64 - reuse Xbox label
+					case ButtonName::Back:
+						return GamepadXboxBack;
+						break; // Not valid for N64 - reuse Xbox label
+					case ButtonName::Guide:
+						return GamepadXboxGuide;
+						break; // Not valid for N64 - reuse Xbox label
+					case ButtonName::Start:
+						return GamepadN64Start;
+						break;
+					case ButtonName::LeftStick:
+						return GamepadXboxLeftStick;
+						break; // Not valid for N64 - reuse Xbox label
+					case ButtonName::RightStick:
+						return GamepadXboxRightStick;
+						break; // Not valid for N64 - reuse Xbox label
+					case ButtonName::LeftBumper:
+						return GamepadN64LeftShoulder;
+						break;
+					case ButtonName::RightBumper:
+						return GamepadN64RightShoulder;
+						break;
+					case ButtonName::Up:
+						return GamepadN64DPadUp;
+						break;
+					case ButtonName::Down:
+						return GamepadN64DPadDown;
+						break;
+					case ButtonName::Left:
+						return GamepadN64DPadLeft;
+						break;
+					case ButtonName::Right:
+						return GamepadN64DPadRight;
+						break;
+					case ButtonName::Misc1:
+						return GamepadXboxMisc1;
+						break; // Not valid for N64 - reuse Xbox label
+					case ButtonName::Touchpad:
+						return GamepadPsTouchpad;
+						break; // Not valid for N64 - reuse PlayStation label
+					default:
+						return AnimState::Default;
+						break;
 				}
 			}
 		}

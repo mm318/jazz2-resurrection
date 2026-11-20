@@ -18,10 +18,11 @@ namespace Jazz2::Actors::Enemies
 
 	public:
 		/** @brief State of the bat */
-		enum class BatState : std::uint8_t {
-			Hanging,	/**< Hangs from its roost */
-			Waking,		/**< Takes off */
-			Flying		/**< Flies towards the player or back to its roost */
+		enum class BatState : std::uint8_t
+		{
+			Hanging, /**< Hangs from its roost */
+			Waking, /**< Takes off */
+			Flying /**< Flies towards the player or back to its roost */
 		};
 
 		/** @brief Creates a new instance */
@@ -31,7 +32,8 @@ namespace Jazz2::Actors::Enemies
 		static void Preload(const ActorActivationDetails& details);
 
 		/** @brief Returns the current state */
-		BatState GetBatState() const {
+		BatState GetBatState() const
+		{
 			return _batState;
 		}
 

@@ -14,20 +14,20 @@ namespace Jazz2
 	*/
 	enum class WeaponType : std::uint8_t
 	{
-		Unknown = UINT8_MAX,		/**< Unspecified */
+		Unknown = UINT8_MAX, /**< Unspecified */
 
-		Blaster = 0,				/**< Blaster */
-		Bouncer,					/**< Bouncer */
-		Freezer,					/**< Freezer */
-		Seeker,						/**< Seeker */
-		RF,							/**< RF */
-		Toaster,					/**< Toaster */
-		TNT,						/**< TNT */
-		Pepper,						/**< Pepper */
-		Electro,					/**< Electro */
+		Blaster = 0, /**< Blaster */
+		Bouncer, /**< Bouncer */
+		Freezer, /**< Freezer */
+		Seeker, /**< Seeker */
+		RF, /**< RF */
+		Toaster, /**< Toaster */
+		TNT, /**< TNT */
+		Pepper, /**< Pepper */
+		Electro, /**< Electro */
 
-		Thunderbolt,				/**< Thunderbolt */
+		Thunderbolt, /**< Thunderbolt */
 
-		Count						/**< Number of weapons */
+		Count /**< Number of weapons */
 	};
 }

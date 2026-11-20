@@ -61,15 +61,28 @@ namespace Jazz2::UI::Windows
 			_shift = !_shift;
 			UpdateLetters();
 		});
-		shift->IsCheckedFunc = [this]() { return _shift; };
+		shift->IsCheckedFunc = [this]() {
+			return _shift;
+		};
 		// TRANSLATORS: Key of the keyboard on the screen, the space bar, as a real keyboard names it
-		auto* space = line->Add<KeyButton>(_x("editor", "Space"), StockIcon::None, [this]() { Type(" "_s); });
+		auto* space = line->Add<KeyButton>(_x("editor", "Space"), StockIcon::None, [this]() {
+			Type(" "_s);
+		});
 		space->Flex = 1.0f;
 		// TRANSLATORS: Tooltip of a key of the keyboard on the screen, moves the text cursor one character to the left
-		line->Add<KeyButton>(StringView(), StockIcon::ChevronLeft, [this]() { Press(Keys::Left); })->Tooltip = _x("editor", "Move left");
+		line->Add<KeyButton>(StringView(), StockIcon::ChevronLeft, [this]() {
+				Press(Keys::Left);
+			})
+			->Tooltip = _x("editor", "Move left");
 		// TRANSLATORS: Tooltip of a key of the keyboard on the screen, moves the text cursor one character to the right
-		line->Add<KeyButton>(StringView(), StockIcon::ChevronRight, [this]() { Press(Keys::Right); })->Tooltip = _x("editor", "Move right");
-		line->Add<KeyButton>(StringView(), StockIcon::Delete, [this]() { Press(Keys::Backspace); })->Tooltip = _x("editor", "Delete the character before");
+		line->Add<KeyButton>(StringView(), StockIcon::ChevronRight, [this]() {
+				Press(Keys::Right);
+			})
+			->Tooltip = _x("editor", "Move right");
+		line->Add<KeyButton>(StringView(), StockIcon::Delete, [this]() {
+				Press(Keys::Backspace);
+			})
+			->Tooltip = _x("editor", "Delete the character before");
 		// TRANSLATORS: Key of the keyboard on the screen, confirms the text and hides the keyboard
 		auto* done = line->Add<KeyButton>(_x("editor", "Done"), StockIcon::Check, [this]() {
 			// Taking the focus away confirms the text, Enter would break a line in a box of more lines first

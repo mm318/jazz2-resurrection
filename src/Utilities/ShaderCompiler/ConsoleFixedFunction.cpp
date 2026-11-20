@@ -23,40 +23,62 @@ namespace ShaderCompiler
 
 		enum class Ty
 		{
-			Float, Int, Bool,
-			Vec2, Vec3, Vec4,
-			Pass		// nCine::RHI::FixedFunctionPass — only declarable and submittable, never a value
+			Float,
+			Int,
+			Bool,
+			Vec2,
+			Vec3,
+			Vec4,
+			Pass // nCine::RHI::FixedFunctionPass — only declarable and submittable, never a value
 		};
 
-		bool IsVec(Ty t) { return (t == Ty::Vec2 || t == Ty::Vec3 || t == Ty::Vec4); }
-		bool IsNumericScalar(Ty t) { return (t == Ty::Float || t == Ty::Int); }
+		bool IsVec(Ty t)
+		{
+			return (t == Ty::Vec2 || t == Ty::Vec3 || t == Ty::Vec4);
+		}
+		bool IsNumericScalar(Ty t)
+		{
+			return (t == Ty::Float || t == Ty::Int);
+		}
 
 		std::int32_t Comps(Ty t)
 		{
 			switch (t) {
-				case Ty::Vec2: return 2;
-				case Ty::Vec3: return 3;
-				case Ty::Vec4: return 4;
-				default: return 1;
+				case Ty::Vec2:
+					return 2;
+				case Ty::Vec3:
+					return 3;
+				case Ty::Vec4:
+					return 4;
+				default:
+					return 1;
 			}
 		}
 
 		Ty VecOf(std::int32_t n)
 		{
-			return (n == 2 ? Ty::Vec2 : n == 3 ? Ty::Vec3 : Ty::Vec4);
+			return (n == 2 ? Ty::Vec2 : n == 3 ? Ty::Vec3
+											   : Ty::Vec4);
 		}
 
 		// Human-readable type name for diagnostics (matches the GLSL spelling)
 		StringView TyName(Ty t)
 		{
 			switch (t) {
-				case Ty::Float: return "float"_s;
-				case Ty::Int: return "int"_s;
-				case Ty::Bool: return "bool"_s;
-				case Ty::Vec2: return "vec2"_s;
-				case Ty::Vec3: return "vec3"_s;
-				case Ty::Vec4: return "vec4"_s;
-				case Ty::Pass: return "pass"_s;
+				case Ty::Float:
+					return "float"_s;
+				case Ty::Int:
+					return "int"_s;
+				case Ty::Bool:
+					return "bool"_s;
+				case Ty::Vec2:
+					return "vec2"_s;
+				case Ty::Vec3:
+					return "vec3"_s;
+				case Ty::Vec4:
+					return "vec4"_s;
+				case Ty::Pass:
+					return "pass"_s;
 			}
 			return "?"_s;
 		}
@@ -64,19 +86,38 @@ namespace ShaderCompiler
 		// Recognizes a declarable local type keyword of the subset ("pass" is handled separately)
 		bool TryLocalType(StringView k, Ty& out)
 		{
-			if (k == "float") { out = Ty::Float; return true; }
-			if (k == "int") { out = Ty::Int; return true; }
-			if (k == "bool") { out = Ty::Bool; return true; }
-			if (k == "vec2") { out = Ty::Vec2; return true; }
-			if (k == "vec3") { out = Ty::Vec3; return true; }
-			if (k == "vec4") { out = Ty::Vec4; return true; }
+			if (k == "float") {
+				out = Ty::Float;
+				return true;
+			}
+			if (k == "int") {
+				out = Ty::Int;
+				return true;
+			}
+			if (k == "bool") {
+				out = Ty::Bool;
+				return true;
+			}
+			if (k == "vec2") {
+				out = Ty::Vec2;
+				return true;
+			}
+			if (k == "vec3") {
+				out = Ty::Vec3;
+				return true;
+			}
+			if (k == "vec4") {
+				out = Ty::Vec4;
+				return true;
+			}
 			return false;
 		}
 
 		// GLSL assignment conversion: identical types, plus the implicit int -> float widening
 		bool CanAssign(Ty dst, Ty src)
 		{
-			if (dst == src) return true;
+			if (dst == src)
+				return true;
 			return (dst == Ty::Float && src == Ty::Int);
 		}
 
@@ -86,8 +127,10 @@ namespace ShaderCompiler
 			String s = text;
 			while (!s.empty()) {
 				char c = s[s.size() - 1];
-				if (c == 'f' || c == 'F' || c == 'l' || c == 'L') s = String{s.prefix(s.size() - 1)};
-				else break;
+				if (c == 'f' || c == 'F' || c == 'l' || c == 'L')
+					s = String { s.prefix(s.size() - 1) };
+				else
+					break;
 			}
 			return s + "f"_s;
 		}
@@ -95,20 +138,30 @@ namespace ShaderCompiler
 		// The pass-field enum vocabularies, mapped to their FixedFunctionPass spellings
 		const char* BlendValueName(StringView v)
 		{
-			if (v == "MATERIAL") return "Material";
-			if (v == "ADD") return "Additive";
-			if (v == "OPAQUE") return "Opaque";
-			if (v == "ALPHA") return "Alpha";
+			if (v == "MATERIAL")
+				return "Material";
+			if (v == "ADD")
+				return "Additive";
+			if (v == "OPAQUE")
+				return "Opaque";
+			if (v == "ALPHA")
+				return "Alpha";
 			return nullptr;
 		}
 		const char* TevValueName(StringView v)
 		{
-			if (v == "MODULATE") return "Modulate";
-			if (v == "SILHOUETTE") return "Silhouette";
-			if (v == "MODULATE_X2") return "ModulateX2";
-			if (v == "MODULATE_X4") return "ModulateX4";
-			if (v == "TINT_MIX") return "TintMix";
-			if (v == "LUMA_RAMP") return "LumaRamp";
+			if (v == "MODULATE")
+				return "Modulate";
+			if (v == "SILHOUETTE")
+				return "Silhouette";
+			if (v == "MODULATE_X2")
+				return "ModulateX2";
+			if (v == "MODULATE_X4")
+				return "ModulateX4";
+			if (v == "TINT_MIX")
+				return "TintMix";
+			if (v == "LUMA_RAMP")
+				return "LumaRamp";
 			return nullptr;
 		}
 		// The preset only the GX's programmable combiner can express: LUMA_RAMP needs per-texel
@@ -161,13 +214,20 @@ namespace ShaderCompiler
 		FixedFunctionBackend BackendOfTarget(FixedFunctionTarget target)
 		{
 			switch (target) {
-				case FixedFunctionTarget::Gx: return FixedFunctionBackend::Gx;
-				case FixedFunctionTarget::Gu: return FixedFunctionBackend::Gu;
-				case FixedFunctionTarget::Gs: return FixedFunctionBackend::Gs;
-				case FixedFunctionTarget::Rdp: return FixedFunctionBackend::Rdp;
-				case FixedFunctionTarget::LegacyGl: return FixedFunctionBackend::LegacyGl;
-				case FixedFunctionTarget::Pica: return FixedFunctionBackend::Pica;
-				default: return FixedFunctionBackend::Pvr;
+				case FixedFunctionTarget::Gx:
+					return FixedFunctionBackend::Gx;
+				case FixedFunctionTarget::Gu:
+					return FixedFunctionBackend::Gu;
+				case FixedFunctionTarget::Gs:
+					return FixedFunctionBackend::Gs;
+				case FixedFunctionTarget::Rdp:
+					return FixedFunctionBackend::Rdp;
+				case FixedFunctionTarget::LegacyGl:
+					return FixedFunctionBackend::LegacyGl;
+				case FixedFunctionTarget::Pica:
+					return FixedFunctionBackend::Pica;
+				default:
+					return FixedFunctionBackend::Pvr;
 			}
 		}
 
@@ -188,13 +248,20 @@ namespace ShaderCompiler
 		const char* BackendName(FixedFunctionBackend backend)
 		{
 			switch (backend) {
-				case FixedFunctionBackend::Gx: return "gx";
-				case FixedFunctionBackend::Gu: return "gu";
-				case FixedFunctionBackend::Gs: return "gs";
-				case FixedFunctionBackend::Rdp: return "rdp";
-				case FixedFunctionBackend::LegacyGl: return "legacygl";
-				case FixedFunctionBackend::Pica: return "pica";
-				default: return "pvr";
+				case FixedFunctionBackend::Gx:
+					return "gx";
+				case FixedFunctionBackend::Gu:
+					return "gu";
+				case FixedFunctionBackend::Gs:
+					return "gs";
+				case FixedFunctionBackend::Rdp:
+					return "rdp";
+				case FixedFunctionBackend::LegacyGl:
+					return "legacygl";
+				case FixedFunctionBackend::Pica:
+					return "pica";
+				default:
+					return "pvr";
 			}
 		}
 
@@ -212,8 +279,10 @@ namespace ShaderCompiler
 			// OpenGL 1.3's GL_COMBINE has GL_RGB_SCALE, which takes 1, 2 or 4 - both scales, exactly; the
 			// PICA200's combiner stages have the same three-valued scale register (GPU_TEVSCALE_1/2/4)
 			if (backend == FixedFunctionBackend::Gx || backend == FixedFunctionBackend::LegacyGl ||
-				backend == FixedFunctionBackend::Pica) return true;
-			if (backend == FixedFunctionBackend::Rdp) return !x4;
+				backend == FixedFunctionBackend::Pica)
+				return true;
+			if (backend == FixedFunctionBackend::Rdp)
+				return !x4;
 			return false;
 		}
 
@@ -237,21 +306,31 @@ namespace ShaderCompiler
 		// statement model is local. Every statement carries the 1-based input line it started on, so
 		// semantic errors (which surface during emission) can point at real source lines.
 
-		enum class StmtKind { Block, VarDecl, ExprStmt, If, For };
+		enum class StmtKind
+		{
+			Block,
+			VarDecl,
+			ExprStmt,
+			If,
+			For
+		};
 
 		struct Stmt
 		{
 			StmtKind Kind;
 			std::int32_t Line = 0;
-			SmallVector<std::unique_ptr<Stmt>, 0> Body;		// Block
-			Ty DeclType = Ty::Float;						// VarDecl
+			SmallVector<std::unique_ptr<Stmt>, 0> Body; // Block
+			Ty DeclType = Ty::Float; // VarDecl
 			String DeclName;
 			ExprPtr Init;
 			SmallVector<std::pair<String, ExprPtr>, 0> ExtraDecls;
-			ExprPtr E;										// ExprStmt
-			ExprPtr Cond;									// If
+			ExprPtr E; // ExprStmt
+			ExprPtr Cond; // If
 			std::unique_ptr<Stmt> Then, Else;
-			std::unique_ptr<Stmt> ForInit; ExprPtr ForCond; ExprPtr ForUpdate; std::unique_ptr<Stmt> ForBody;
+			std::unique_ptr<Stmt> ForInit;
+			ExprPtr ForCond;
+			ExprPtr ForUpdate;
+			std::unique_ptr<Stmt> ForBody;
 		};
 		using StmtPtr = std::unique_ptr<Stmt>;
 
@@ -270,22 +349,38 @@ namespace ShaderCompiler
 		class Parser
 		{
 		public:
-			explicit Parser(const SmallVectorImpl<GlslToken>& tokens) : _toks(tokens) {}
+			explicit Parser(const SmallVectorImpl<GlslToken>& tokens)
+				: _toks(tokens)
+			{
+			}
 
 			StmtPtr Run()
 			{
 				StmtPtr block = MakeStmt(StmtKind::Block, CurLine());
 				while (!AtEnd() && _ok) {
-					if (IsOp(";")) { Next(); continue; }
+					if (IsOp(";")) {
+						Next();
+						continue;
+					}
 					StmtPtr s = ParseStatement();
-					if (s != nullptr) block->Body.push_back(Death::move(s));
+					if (s != nullptr)
+						block->Body.push_back(Death::move(s));
 				}
 				return block;
 			}
 
-			bool Ok() const { return _ok; }
-			const String& Reason() const { return _reason; }
-			std::int32_t ErrorLine() const { return _errLine; }
+			bool Ok() const
+			{
+				return _ok;
+			}
+			const String& Reason() const
+			{
+				return _reason;
+			}
+			std::int32_t ErrorLine() const
+			{
+				return _errLine;
+			}
 
 		private:
 			const SmallVectorImpl<GlslToken>& _toks;
@@ -294,35 +389,69 @@ namespace ShaderCompiler
 			String _reason;
 			std::int32_t _errLine = 0;
 
-			const GlslToken& Cur() const { return _toks[_pos]; }
-			const GlslToken& At(std::size_t p) const { return _toks[p < _toks.size() ? p : _toks.size() - 1]; }
-			bool AtEnd() const { return Cur().Type == GlslTokenType::End; }
-			bool Is(GlslTokenType t) const { return Cur().Type == t; }
-			bool IsOp(const char* s) const { return Cur().Type == GlslTokenType::Operator && Cur().Text == s; }
-			bool IsKw(const char* s) const { return Cur().Type == GlslTokenType::Identifier && Cur().Text == s; }
-			void Next() { if (Cur().Type != GlslTokenType::End) _pos++; }
+			const GlslToken& Cur() const
+			{
+				return _toks[_pos];
+			}
+			const GlslToken& At(std::size_t p) const
+			{
+				return _toks[p < _toks.size() ? p : _toks.size() - 1];
+			}
+			bool AtEnd() const
+			{
+				return Cur().Type == GlslTokenType::End;
+			}
+			bool Is(GlslTokenType t) const
+			{
+				return Cur().Type == t;
+			}
+			bool IsOp(const char* s) const
+			{
+				return Cur().Type == GlslTokenType::Operator && Cur().Text == s;
+			}
+			bool IsKw(const char* s) const
+			{
+				return Cur().Type == GlslTokenType::Identifier && Cur().Text == s;
+			}
+			void Next()
+			{
+				if (Cur().Type != GlslTokenType::End)
+					_pos++;
+			}
 
 			// Tokens carry the ORIGINAL input line in their Index (the tokenizer is fed per-line); the
 			// End token carries the last line, so errors at end-of-block still point somewhere sensible
 			std::int32_t CurLine() const
 			{
-				if (!AtEnd()) return static_cast<std::int32_t>(Cur().Index);
+				if (!AtEnd())
+					return static_cast<std::int32_t>(Cur().Index);
 				return (_pos > 0 ? static_cast<std::int32_t>(At(_pos - 1).Index) : 0);
 			}
 
-			void Fail(String why) { if (_ok) { _ok = false; _reason = Death::move(why); _errLine = CurLine(); } }
+			void Fail(String why)
+			{
+				if (_ok) {
+					_ok = false;
+					_reason = Death::move(why);
+					_errLine = CurLine();
+				}
+			}
 
 			bool Expect(const char* op)
 			{
-				if (IsOp(op)) { Next(); return true; }
-				String context = (AtEnd() ? String{} : String(" before '"_s + Cur().Text + "'"_s));
+				if (IsOp(op)) {
+					Next();
+					return true;
+				}
+				String context = (AtEnd() ? String {} : String(" before '"_s + Cur().Text + "'"_s));
 				Fail("expected '"_s + op + "'"_s + context);
 				return false;
 			}
 
 			bool LooksLikeDecl() const
 			{
-				if (At(_pos).Type != GlslTokenType::Identifier) return false;
+				if (At(_pos).Type != GlslTokenType::Identifier)
+					return false;
 				Ty t;
 				return (TryLocalType(At(_pos).Text, t) || At(_pos).Text == "pass"_s);
 			}
@@ -330,11 +459,13 @@ namespace ShaderCompiler
 			StmtPtr ParseBlock()
 			{
 				std::int32_t line = CurLine();
-				if (!Expect("{")) return nullptr;
+				if (!Expect("{"))
+					return nullptr;
 				StmtPtr block = MakeStmt(StmtKind::Block, line);
 				while (!IsOp("}") && !AtEnd() && _ok) {
 					StmtPtr s = ParseStatement();
-					if (s != nullptr) block->Body.push_back(Death::move(s));
+					if (s != nullptr)
+						block->Body.push_back(Death::move(s));
 				}
 				Expect("}");
 				return block;
@@ -342,19 +473,24 @@ namespace ShaderCompiler
 
 			StmtPtr ParseStatement()
 			{
-				if (IsOp("{")) return ParseBlock();
-				if (IsKw("if")) return ParseIf();
-				if (IsKw("for")) return ParseFor();
+				if (IsOp("{"))
+					return ParseBlock();
+				if (IsKw("if"))
+					return ParseIf();
+				if (IsKw("for"))
+					return ParseFor();
 				if (IsKw("while") || IsKw("do") || IsKw("switch") || IsKw("return") ||
 					IsKw("discard") || IsKw("break") || IsKw("continue")) {
 					Fail("'"_s + Cur().Text + "' is not part of the fixed_function grammar (statements: pass/local declarations, assignments, if/else, for, submit_quad)"_s);
 					return nullptr;
 				}
-				if (LooksLikeDecl()) return ParseLocalDecl();
+				if (LooksLikeDecl())
+					return ParseLocalDecl();
 
 				std::int32_t line = CurLine();
 				ExprPtr e = ParseExpression(0);
-				if (!_ok) return nullptr;
+				if (!_ok)
+					return nullptr;
 				Expect(";");
 				StmtPtr s = MakeStmt(StmtKind::ExprStmt, line);
 				s->E = Death::move(e);
@@ -379,24 +515,49 @@ namespace ShaderCompiler
 				s->DeclType = t;
 				s->DeclName = Cur().Text;
 				Next();
-				if (IsOp("[")) { Fail("array declarations are not part of the fixed_function grammar"_s); return nullptr; }
+				if (IsOp("[")) {
+					Fail("array declarations are not part of the fixed_function grammar"_s);
+					return nullptr;
+				}
 				if (isPass) {
 					// A pass always starts from the engine defaults (a plain modulated material pass);
 					// an initializer would suggest copyable pass values, which the vocabulary avoids
-					if (IsOp("=")) { Fail("a 'pass' declaration takes no initializer (fields are assigned one by one)"_s); return nullptr; }
-					if (IsOp(",")) { Fail("declare each pass in its own statement"_s); return nullptr; }
+					if (IsOp("=")) {
+						Fail("a 'pass' declaration takes no initializer (fields are assigned one by one)"_s);
+						return nullptr;
+					}
+					if (IsOp(",")) {
+						Fail("declare each pass in its own statement"_s);
+						return nullptr;
+					}
 					Expect(";");
 					return s;
 				}
-				if (IsOp("=")) { Next(); s->Init = ParseExpression(1); if (!_ok) return nullptr; }
+				if (IsOp("=")) {
+					Next();
+					s->Init = ParseExpression(1);
+					if (!_ok)
+						return nullptr;
+				}
 				while (IsOp(",")) {
 					Next();
-					if (!Is(GlslTokenType::Identifier)) { Fail("expected a variable name"_s); return nullptr; }
+					if (!Is(GlslTokenType::Identifier)) {
+						Fail("expected a variable name"_s);
+						return nullptr;
+					}
 					String name = Cur().Text;
 					Next();
-					if (IsOp("[")) { Fail("array declarations are not part of the fixed_function grammar"_s); return nullptr; }
+					if (IsOp("[")) {
+						Fail("array declarations are not part of the fixed_function grammar"_s);
+						return nullptr;
+					}
 					ExprPtr init;
-					if (IsOp("=")) { Next(); init = ParseExpression(1); if (!_ok) return nullptr; }
+					if (IsOp("=")) {
+						Next();
+						init = ParseExpression(1);
+						if (!_ok)
+							return nullptr;
+					}
 					s->ExtraDecls.emplace_back(Death::move(name), Death::move(init));
 				}
 				Expect(";");
@@ -412,7 +573,10 @@ namespace ShaderCompiler
 				Expect(")");
 				StmtPtr th = ParseStatement();
 				StmtPtr el;
-				if (IsKw("else")) { Next(); el = ParseStatement(); }
+				if (IsKw("else")) {
+					Next();
+					el = ParseStatement();
+				}
 				StmtPtr s = MakeStmt(StmtKind::If, line);
 				s->Cond = Death::move(cond);
 				s->Then = Death::move(th);
@@ -426,9 +590,11 @@ namespace ShaderCompiler
 				Next();
 				Expect("(");
 				StmtPtr init;
-				if (IsOp(";")) { Next(); }
-				else if (LooksLikeDecl()) { init = ParseLocalDecl(); }
-				else {
+				if (IsOp(";")) {
+					Next();
+				} else if (LooksLikeDecl()) {
+					init = ParseLocalDecl();
+				} else {
 					std::int32_t initLine = CurLine();
 					ExprPtr e = ParseExpression(0);
 					Expect(";");
@@ -436,10 +602,12 @@ namespace ShaderCompiler
 					init->E = Death::move(e);
 				}
 				ExprPtr cond;
-				if (!IsOp(";")) cond = ParseExpression(0);
+				if (!IsOp(";"))
+					cond = ParseExpression(0);
 				Expect(";");
 				ExprPtr upd;
-				if (!IsOp(")")) upd = ParseExpression(0);
+				if (!IsOp(")"))
+					upd = ParseExpression(0);
 				Expect(")");
 				StmtPtr body = ParseStatement();
 				StmtPtr s = MakeStmt(StmtKind::For, line);
@@ -453,11 +621,13 @@ namespace ShaderCompiler
 			ExprPtr ParseExpression(std::int32_t minPrec)
 			{
 				ExprPtr lhs = ParseUnary();
-				if (!_ok) return lhs;
+				if (!_ok)
+					return lhs;
 				while (Is(GlslTokenType::Operator) && _ok) {
 					StringView op = Cur().Text;
 					if (op == "?") {
-						if (minPrec > 2) break;
+						if (minPrec > 2)
+							break;
 						Next();
 						ExprPtr mid = ParseExpression(0);
 						Expect(":");
@@ -470,12 +640,14 @@ namespace ShaderCompiler
 						continue;
 					}
 					std::int32_t prec = BinPrec(op);
-					if (prec < 0 || prec < minPrec) break;
+					if (prec < 0 || prec < minPrec)
+						break;
 					String opText = Cur().Text;
 					Next();
 					bool assign = (prec == 1);
 					ExprPtr rhs = ParseExpression(assign ? prec : prec + 1);
-					if (!_ok) return lhs;
+					if (!_ok)
+						return lhs;
 					ExprPtr node = MakeExpr(assign ? ExprKind::Assign : ExprKind::Binary, Death::move(opText));
 					node->A = Death::move(lhs);
 					node->B = Death::move(rhs);
@@ -488,7 +660,10 @@ namespace ShaderCompiler
 			{
 				if (Is(GlslTokenType::Operator)) {
 					StringView op = Cur().Text;
-					if (op == "+") { Next(); return ParseUnary(); }
+					if (op == "+") {
+						Next();
+						return ParseUnary();
+					}
 					if (op == "-" || op == "!" || op == "++" || op == "--") {
 						String o = Cur().Text;
 						Next();
@@ -497,7 +672,10 @@ namespace ShaderCompiler
 						node->A = Death::move(v);
 						return node;
 					}
-					if (op == "~") { Fail("unary '~' is not part of the fixed_function grammar"_s); return nullptr; }
+					if (op == "~") {
+						Fail("unary '~' is not part of the fixed_function grammar"_s);
+						return nullptr;
+					}
 				}
 				return ParsePostfix();
 			}
@@ -505,11 +683,15 @@ namespace ShaderCompiler
 			ExprPtr ParsePostfix()
 			{
 				ExprPtr e = ParsePrimary();
-				if (!_ok) return e;
+				if (!_ok)
+					return e;
 				while (Is(GlslTokenType::Operator) && _ok) {
 					if (IsOp(".")) {
 						Next();
-						if (!Is(GlslTokenType::Identifier)) { Fail("expected a member name after '.'"_s); return e; }
+						if (!Is(GlslTokenType::Identifier)) {
+							Fail("expected a member name after '.'"_s);
+							return e;
+						}
 						ExprPtr m = MakeExpr(ExprKind::Member, Cur().Text);
 						Next();
 						m->A = Death::move(e);
@@ -543,7 +725,7 @@ namespace ShaderCompiler
 						// Treat unsigned literals as int: drop the trailing u/U suffix
 						String text = t.Text;
 						while (!text.empty() && (text[text.size() - 1] == 'u' || text[text.size() - 1] == 'U')) {
-							text = String{text.prefix(text.size() - 1)};
+							text = String { text.prefix(text.size() - 1) };
 						}
 						ExprPtr e = MakeExpr(ExprKind::IntLit, Death::move(text));
 						Next();
@@ -568,8 +750,12 @@ namespace ShaderCompiler
 							if (!IsOp(")")) {
 								for (;;) {
 									call->Args.push_back(ParseExpression(0));
-									if (!_ok) return call;
-									if (IsOp(",")) { Next(); continue; }
+									if (!_ok)
+										return call;
+									if (IsOp(",")) {
+										Next();
+										continue;
+									}
 									break;
 								}
 							}
@@ -611,12 +797,30 @@ namespace ShaderCompiler
 				// than by the header being written - see the gates below
 			}
 
-			bool Ok() const { return _ok; }
-			const String& Reason() const { return _reason; }
-			std::int32_t ErrorLine() const { return _errLine; }
-			bool UsesColor() const { return _usesColor; }
-			bool UsesOffsetColor() const { return _usesOffsetColor; }
-			FixedFunctionRequirements Requirements() const { return FixedFunctionRequirements(_requirements); }
+			bool Ok() const
+			{
+				return _ok;
+			}
+			const String& Reason() const
+			{
+				return _reason;
+			}
+			std::int32_t ErrorLine() const
+			{
+				return _errLine;
+			}
+			bool UsesColor() const
+			{
+				return _usesColor;
+			}
+			bool UsesOffsetColor() const
+			{
+				return _usesOffsetColor;
+			}
+			FixedFunctionRequirements Requirements() const
+			{
+				return FixedFunctionRequirements(_requirements);
+			}
 
 			String EmitBody(const Stmt* topBlock, const String& indent)
 			{
@@ -645,14 +849,18 @@ namespace ShaderCompiler
 			bool _ok = true;
 			String _reason;
 			std::int32_t _errLine = 0;
-			std::int32_t _stmtLine = 0;		// line of the statement being emitted (expression errors point here)
+			std::int32_t _stmtLine = 0; // line of the statement being emitted (expression errors point here)
 			bool _usesColor = false;
 			bool _usesOffsetColor = false;
-			std::uint8_t _requirements = 0;	// FixedFunctionRequirements bits, collected during emission
+			std::uint8_t _requirements = 0; // FixedFunctionRequirements bits, collected during emission
 
 			void Fail(String why)
 			{
-				if (_ok) { _ok = false; _reason = Death::move(why); _errLine = _stmtLine; }
+				if (_ok) {
+					_ok = false;
+					_reason = Death::move(why);
+					_errLine = _stmtLine;
+				}
 			}
 
 			// Records that the emitted code calls one of the optional context facilities; the bits
@@ -755,12 +963,12 @@ namespace ShaderCompiler
 				const char* name = BackendName(lacking);
 				String why = what + " cannot be expressed for the "_s + name + " target - "_s +
 					(lacking == FixedFunctionBackend::Gs
-						? "the Graphics Synthesizer's texture function has no combiner output scale"_s
-						: (lacking == FixedFunctionBackend::Gu
-							? "the Graphics Engine's texture environment has no combiner output scale"_s
-							: (lacking == FixedFunctionBackend::Rdp
-								? "the Reality Display Processor's second combiner cycle can double its output but not quadruple it"_s
-								: "that backend has no combiner output scale"_s)));
+							? "the Graphics Synthesizer's texture function has no combiner output scale"_s
+							: (lacking == FixedFunctionBackend::Gu
+									  ? "the Graphics Engine's texture environment has no combiner output scale"_s
+									  : (lacking == FixedFunctionBackend::Rdp
+												? "the Reality Display Processor's second combiner cycle can double its output but not quadruple it"_s
+												: "that backend has no combiner output scale"_s)));
 				if (listed && _targets.size() > 1) {
 					// The list form: the block would have been valid without that target in it
 					why += ", which this block also names"_s;
@@ -800,10 +1008,10 @@ namespace ShaderCompiler
 				const char* name = BackendName(lacking);
 				String why = what + " cannot be expressed for the "_s + name + " target - "_s +
 					(lacking == FixedFunctionBackend::Gs
-						? "the Graphics Synthesizer's texture functions cannot lerp a texel toward a constant colour"_s
-						: (lacking == FixedFunctionBackend::Gu
-							? "the Graphics Engine's texture functions cannot lerp a texel toward a constant colour"_s
-							: "the CLX2's texture environment can only modulate a texel and add an offset colour, not lerp one toward a colour"_s));
+							? "the Graphics Synthesizer's texture functions cannot lerp a texel toward a constant colour"_s
+							: (lacking == FixedFunctionBackend::Gu
+									  ? "the Graphics Engine's texture functions cannot lerp a texel toward a constant colour"_s
+									  : "the CLX2's texture environment can only modulate a texel and add an offset colour, not lerp one toward a colour"_s));
 				if (listed && _targets.size() > 1) {
 					// The list form: the block would have been valid without that target in it
 					why += ", which this block also names"_s;
@@ -845,7 +1053,7 @@ namespace ShaderCompiler
 				}
 				const char* limiting = "";
 				const std::int32_t capacity = StripCapacityLimit(limiting);
-				const std::int32_t value = std::atoi(String{e->Text}.data());
+				const std::int32_t value = std::atoi(String { e->Text }.data());
 				if (value < lo || value > capacity - (lo == 0 ? 1 : 0)) {
 					String why = what + " "_s + e->Text + " is outside the "_s + limiting +
 						" strip builder's capacity of "_s + Death::format("{}", capacity) + " vertices"_s;
@@ -862,8 +1070,11 @@ namespace ShaderCompiler
 			bool Lookup(StringView name, Ty& out) const
 			{
 				for (std::size_t i = _scopes.size(); i > 0; i--) {
-					auto it = _scopes[i - 1].find(String{name});
-					if (it != _scopes[i - 1].end()) { out = it->second; return true; }
+					auto it = _scopes[i - 1].find(String { name });
+					if (it != _scopes[i - 1].end()) {
+						out = it->second;
+						return true;
+					}
 				}
 				return false;
 			}
@@ -889,13 +1100,15 @@ namespace ShaderCompiler
 
 			void EmitStmt(const Stmt* s, const String& indent, String& out)
 			{
-				if (s == nullptr || !_ok) return;
+				if (s == nullptr || !_ok)
+					return;
 				_stmtLine = s->Line;
 				switch (s->Kind) {
 					case StmtKind::Block: {
 						_scopes.emplace_back();
 						out += indent + "{\n"_s;
-						for (const StmtPtr& c : s->Body) EmitStmt(c.get(), indent + "\t"_s, out);
+						for (const StmtPtr& c : s->Body)
+							EmitStmt(c.get(), indent + "\t"_s, out);
 						out += indent + "}\n"_s;
 						_scopes.pop_back();
 						break;
@@ -909,8 +1122,12 @@ namespace ShaderCompiler
 					case StmtKind::If: {
 						Ty condTy = Ty::Bool;
 						String cond = EmitExpr(s->Cond.get(), 0, condTy);
-						if (!_ok) return;
-						if (condTy != Ty::Bool) { Fail("the if condition must be a bool expression"_s); return; }
+						if (!_ok)
+							return;
+						if (condTy != Ty::Bool) {
+							Fail("the if condition must be a bool expression"_s);
+							return;
+						}
 						out += indent + "if ("_s + cond + ") "_s;
 						EmitBranch(s->Then.get(), indent, out);
 						if (s->Else != nullptr) {
@@ -933,7 +1150,8 @@ namespace ShaderCompiler
 				String inner = indent + "\t"_s;
 				out += "{\n"_s;
 				if (s != nullptr && s->Kind == StmtKind::Block) {
-					for (const StmtPtr& c : s->Body) EmitStmt(c.get(), inner, out);
+					for (const StmtPtr& c : s->Body)
+						EmitStmt(c.get(), inner, out);
 				} else if (s != nullptr) {
 					EmitStmt(s, inner, out);
 				}
@@ -946,7 +1164,8 @@ namespace ShaderCompiler
 				if (s->DeclType == Ty::Pass) {
 					// Default-constructed = the engine defaults documented on FixedFunctionPass
 					Declare(s->DeclName, Ty::Pass);
-					if (!_ok) return;
+					if (!_ok)
+						return;
 					out += indent + "FixedFunctionPass "_s + s->DeclName + ";\n"_s;
 					return;
 				}
@@ -958,28 +1177,35 @@ namespace ShaderCompiler
 
 			void EmitOneDecl(Ty t, const String& name, const Expr* init, const String& indent, String& out)
 			{
-				if (!_ok) return;
+				if (!_ok)
+					return;
 				String initCode;
 				if (init != nullptr) {
 					Ty initTy = t;
 					initCode = EmitExpr(init, 1, initTy);
-					if (!_ok) return;
+					if (!_ok)
+						return;
 					if (!CanAssign(t, initTy)) {
 						Fail("cannot initialize "_s + TyName(t) + " '"_s + name + "' with a "_s + TyName(initTy) + " expression"_s);
 						return;
 					}
 				}
 				Declare(name, t);
-				if (!_ok) return;
+				if (!_ok)
+					return;
 				out += indent + TyName(t) + " "_s + name;
-				if (init != nullptr) out += " = "_s + initCode;
+				if (init != nullptr)
+					out += " = "_s + initCode;
 				out += ";\n"_s;
 			}
 
 			// A statement-level expression: (compound) assignment, ++/--, or a submission/builder call
 			void EmitExprStatement(const Expr* e, const String& indent, String& out)
 			{
-				if (e == nullptr) { Fail("empty statement"_s); return; }
+				if (e == nullptr) {
+					Fail("empty statement"_s);
+					return;
+				}
 				if (e->Kind == ExprKind::Call && e->Text == "submit_quad"_s) {
 					out += indent + EmitSubmitQuad(e) + ";\n"_s;
 					return;
@@ -1031,7 +1257,8 @@ namespace ShaderCompiler
 			// positions + per-vertex colours for the shaded, untextured form)
 			String EmitSubmitStrip(const Expr* e)
 			{
-				if (!RequireExtended(e->Text)) return {};
+				if (!RequireExtended(e->Text))
+					return {};
 				Require(FixedFunctionRequirements::NeedsStripBuilder);
 				if (e->Args.size() != 2 || e->Args[0]->Kind != ExprKind::Ident) {
 					Fail("usage: "_s + e->Text + "(<pass variable>, <vertex count>);"_s);
@@ -1045,14 +1272,16 @@ namespace ShaderCompiler
 				}
 				Ty countTy;
 				String count = EmitExpr(e->Args[1].get(), 0, countTy);
-				if (!_ok) return {};
+				if (!_ok)
+					return {};
 				if (countTy != Ty::Int) {
 					Fail(e->Text + "() takes an int vertex count (got "_s + TyName(countTy) + ")"_s);
 					return {};
 				}
 				// A literal count above the scratch capacity would be clamped at runtime, drawing a
 				// truncated strip; below 3 it would be dropped entirely
-				if (!CheckStripLiteral(e->Args[1].get(), "vertex count"_s, 3)) return {};
+				if (!CheckStripLiteral(e->Args[1].get(), "vertex count"_s, 3))
+					return {};
 				// The flat form is textured; the shaded one only samples when a pass sets TINT_MIX, which
 				// is recorded where that assignment is emitted (see FixedFunctionRequirements::SamplesTexture)
 				if (e->Text == "submit_strip"_s) {
@@ -1060,14 +1289,15 @@ namespace ShaderCompiler
 				}
 				// Through the support code, which clips the strip first while strip_clip() is in effect
 				const char* method = (e->Text == "submit_strip"_s ? "SubmitStrip" : "SubmitStripShaded");
-				return String{method} + "(ctx, "_s + name + ", "_s + count + ")"_s;
+				return String { method } + "(ctx, "_s + name + ", "_s + count + ")"_s;
 			}
 
 			// strip_clip(vec4) - clips every strip submitted after it to the rectangle (x0, y0, x1, y1) of the
 			// quad's raster space, until the end of the block; an empty one (x1 <= x0) clips no more
 			String EmitStripClip(const Expr* e)
 			{
-				if (!RequireExtended(e->Text)) return {};
+				if (!RequireExtended(e->Text))
+					return {};
 				Require(FixedFunctionRequirements::NeedsStripBuilder);
 				if (e->Args.size() != 1) {
 					Fail("usage: strip_clip(<vec4 x0, y0, x1, y1>);"_s);
@@ -1075,7 +1305,8 @@ namespace ShaderCompiler
 				}
 				Ty rectTy;
 				String rect = EmitExpr(e->Args[0].get(), 0, rectTy);
-				if (!_ok) return {};
+				if (!_ok)
+					return {};
 				if (rectTy != Ty::Vec4) {
 					Fail("strip_clip() takes a vec4 rectangle (got "_s + TyName(rectTy) + ")"_s);
 					return {};
@@ -1088,7 +1319,8 @@ namespace ShaderCompiler
 			// padded-store scale, exactly like the quad corner synthesis does)
 			String EmitStripSetter(const Expr* e)
 			{
-				if (!RequireExtended(e->Text)) return {};
+				if (!RequireExtended(e->Text))
+					return {};
 				Require(FixedFunctionRequirements::NeedsStripBuilder);
 				const bool isColor = (e->Text == "strip_color"_s);
 				const bool isQ = (e->Text == "strip_q"_s);
@@ -1099,24 +1331,28 @@ namespace ShaderCompiler
 				}
 				Ty indexTy;
 				String index = EmitExpr(e->Args[0].get(), 0, indexTy);
-				if (!_ok) return {};
+				if (!_ok)
+					return {};
 				if (indexTy != Ty::Int) {
 					Fail(e->Text + "() takes an int vertex index (got "_s + TyName(indexTy) + ")"_s);
 					return {};
 				}
 				// A literal index past the scratch capacity would be dropped at runtime, leaving that
 				// vertex at whatever the previous strip put there
-				if (!CheckStripLiteral(e->Args[0].get(), "vertex index"_s, 0)) return {};
+				if (!CheckStripLiteral(e->Args[0].get(), "vertex index"_s, 0))
+					return {};
 				Ty vTy;
 				String value = EmitExpr(e->Args[1].get(), 0, vTy);
-				if (!_ok) return {};
+				if (!_ok)
+					return {};
 				if (vTy != valueTy) {
 					Fail(e->Text + "() takes a "_s + TyName(valueTy) + " value (got "_s + TyName(vTy) + ")"_s);
 					return {};
 				}
 				const char* helper = (e->Text == "strip_position"_s ? "StripPosition"
-					: e->Text == "strip_uv"_s ? "StripUv" : (isQ ? "StripQ" : "StripColor"));
-				return String{helper} + "(ctx, "_s + index + ", "_s + value + ")"_s;
+						: e->Text == "strip_uv"_s                   ? "StripUv"
+																	: (isQ ? "StripQ" : "StripColor"));
+				return String { helper } + "(ctx, "_s + index + ", "_s + value + ")"_s;
 			}
 
 			String EmitIncDec(const Expr* e)
@@ -1136,7 +1372,10 @@ namespace ShaderCompiler
 			void EmitAssignStatement(const Expr* e, const String& indent, String& out)
 			{
 				const Expr* target = e->A.get();
-				if (target == nullptr) { Fail("malformed assignment"_s); return; }
+				if (target == nullptr) {
+					Fail("malformed assignment"_s);
+					return;
+				}
 
 				// "p.<field> = ..." — the pass-descriptor vocabulary
 				if (target->Kind == ExprKind::Member && target->A != nullptr && target->A->Kind == ExprKind::Ident) {
@@ -1159,8 +1398,8 @@ namespace ShaderCompiler
 				if (field == "blend"_s || field == "tev"_s) {
 					if (rhs == nullptr || rhs->Kind != ExprKind::Ident) {
 						Fail((field == "blend"_s)
-							? String{"p.blend takes one of: MATERIAL, ADD, OPAQUE, ALPHA"_s}
-							: String{"p.tev takes one of: MODULATE, SILHOUETTE, MODULATE_X2, MODULATE_X4, TINT_MIX, LUMA_RAMP"_s});
+								? String { "p.blend takes one of: MATERIAL, ADD, OPAQUE, ALPHA"_s }
+								: String { "p.tev takes one of: MODULATE, SILHOUETTE, MODULATE_X2, MODULATE_X4, TINT_MIX, LUMA_RAMP"_s });
 						return;
 					}
 					if (field == "blend"_s) {
@@ -1199,7 +1438,8 @@ namespace ShaderCompiler
 				if (field == "luma_gain"_s) {
 					Ty gainTy;
 					String gain = EmitExpr(rhs, 0, gainTy);
-					if (!_ok) return;
+					if (!_ok)
+						return;
 					if (!CanAssign(Ty::Float, gainTy)) {
 						Fail("p.luma_gain takes a float expression (got "_s + TyName(gainTy) + ")"_s);
 						return;
@@ -1223,16 +1463,23 @@ namespace ShaderCompiler
 
 				Ty expected;
 				const char* member;
-				if (field == "color"_s) { expected = Ty::Vec4; member = "Color"; }
-				else if (field == "offset_color"_s) { expected = Ty::Vec3; member = "OffsetColor"; }
-				else if (field == "screen_offset"_s) { expected = Ty::Vec2; member = "ScreenOffset"; }
-				else {
+				if (field == "color"_s) {
+					expected = Ty::Vec4;
+					member = "Color";
+				} else if (field == "offset_color"_s) {
+					expected = Ty::Vec3;
+					member = "OffsetColor";
+				} else if (field == "screen_offset"_s) {
+					expected = Ty::Vec2;
+					member = "ScreenOffset";
+				} else {
 					Fail("unknown pass field '."_s + field + "' (fields: color, offset_color, screen_offset, blend, tev, luma_gain, texture_repeat)"_s);
 					return;
 				}
 				Ty rhsTy;
 				String code = EmitExpr(rhs, 0, rhsTy);
-				if (!_ok) return;
+				if (!_ok)
+					return;
 				if (rhsTy != expected) {
 					Fail("p."_s + field + " takes a "_s + TyName(expected) + " expression (got "_s + TyName(rhsTy) + ")"_s);
 					return;
@@ -1264,7 +1511,10 @@ namespace ShaderCompiler
 						Fail("a pass variable itself cannot be assigned (assign its fields)"_s);
 						return {};
 					}
-					if (target->Text == "COLOR"_s) { Fail("COLOR is read-only"_s); return {}; }
+					if (target->Text == "COLOR"_s) {
+						Fail("COLOR is read-only"_s);
+						return {};
+					}
 					dstCode = target->Text;
 				} else if (target->Kind == ExprKind::Member && target->A != nullptr && target->A->Kind == ExprKind::Ident) {
 					// Single-component swizzle store ("v.x = ..."); multi-component stores stay out of
@@ -1274,13 +1524,17 @@ namespace ShaderCompiler
 						Fail("cannot assign to unknown variable '"_s + target->A->Text + "'"_s);
 						return {};
 					}
-					if (target->A->Text == "COLOR"_s) { Fail("COLOR is read-only"_s); return {}; }
+					if (target->A->Text == "COLOR"_s) {
+						Fail("COLOR is read-only"_s);
+						return {};
+					}
 					if (!IsVec(baseTy)) {
 						Fail("'."_s + target->Text + "' store target must be a vector variable"_s);
 						return {};
 					}
 					String component = NormalizeSwizzle(target->Text, Comps(baseTy));
-					if (!_ok) return {};
+					if (!_ok)
+						return {};
 					if (component.size() != 1) {
 						Fail("only single components of a vector can be assigned ('."_s + target->Text + "' is a multi-component swizzle)"_s);
 						return {};
@@ -1294,7 +1548,8 @@ namespace ShaderCompiler
 
 				Ty rhsTy;
 				String rhs = EmitExpr(e->B.get(), 1, rhsTy);
-				if (!_ok) return {};
+				if (!_ok)
+					return {};
 
 				if (e->Text == "="_s) {
 					if (!CanAssign(dstTy, rhsTy)) {
@@ -1303,10 +1558,14 @@ namespace ShaderCompiler
 					}
 				} else if (e->Text == "+="_s || e->Text == "-="_s || e->Text == "*="_s || e->Text == "/="_s) {
 					bool ok;
-					if (dstTy == Ty::Int) ok = (rhsTy == Ty::Int);
-					else if (dstTy == Ty::Float) ok = IsNumericScalar(rhsTy);
-					else if (IsVec(dstTy)) ok = (rhsTy == dstTy || IsNumericScalar(rhsTy));	// vec op= scalar broadcasts
-					else ok = false;
+					if (dstTy == Ty::Int)
+						ok = (rhsTy == Ty::Int);
+					else if (dstTy == Ty::Float)
+						ok = IsNumericScalar(rhsTy);
+					else if (IsVec(dstTy))
+						ok = (rhsTy == dstTy || IsNumericScalar(rhsTy)); // vec op= scalar broadcasts
+					else
+						ok = false;
 					if (!ok) {
 						Fail("cannot apply '"_s + e->Text + "' with a "_s + TyName(rhsTy) + " operand to "_s + TyName(dstTy) + " '"_s + dstCode + "'"_s);
 						return {};
@@ -1333,14 +1592,18 @@ namespace ShaderCompiler
 						String declOut;
 						EmitVarDecl(s->ForInit.get(), ""_s, declOut);
 						// Reuse the declaration emission, then strip its statement dressing (";\n")
-						if (_ok && declOut.size() >= 2) init = String{declOut.prefix(declOut.size() - 2)};
+						if (_ok && declOut.size() >= 2)
+							init = String { declOut.prefix(declOut.size() - 2) };
 					}
 				} else if (s->ForInit->Kind == StmtKind::ExprStmt && s->ForInit->E != nullptr && s->ForInit->E->Kind == ExprKind::Assign) {
 					init = EmitLocalAssign(s->ForInit->E.get());
 				} else {
 					Fail("the for-loop init must declare or assign an int counter"_s);
 				}
-				if (!_ok) { _scopes.pop_back(); return; }
+				if (!_ok) {
+					_scopes.pop_back();
+					return;
+				}
 
 				if (s->ForCond == nullptr) {
 					Fail("for loops need an integer-bound condition"_s);
@@ -1349,8 +1612,12 @@ namespace ShaderCompiler
 				}
 				Ty condTy;
 				String cond = EmitExpr(s->ForCond.get(), 0, condTy);
-				if (_ok && condTy != Ty::Bool) Fail("the for-loop condition must be a bool expression"_s);
-				if (!_ok) { _scopes.pop_back(); return; }
+				if (_ok && condTy != Ty::Bool)
+					Fail("the for-loop condition must be a bool expression"_s);
+				if (!_ok) {
+					_scopes.pop_back();
+					return;
+				}
 
 				String update;
 				if (s->ForUpdate != nullptr) {
@@ -1362,7 +1629,10 @@ namespace ShaderCompiler
 						Fail("the for-loop update must be an assignment or '++'/'--'"_s);
 					}
 				}
-				if (!_ok) { _scopes.pop_back(); return; }
+				if (!_ok) {
+					_scopes.pop_back();
+					return;
+				}
 
 				out += indent + "for ("_s + init + "; "_s + cond + "; "_s + update + ") "_s;
 				EmitBranch(s->ForBody.get(), indent, out);
@@ -1376,26 +1646,36 @@ namespace ShaderCompiler
 			std::int32_t EmitPrec(const Expr* e) const
 			{
 				switch (e->Kind) {
-					case ExprKind::Binary: return BinPrec(e->Text);
-					case ExprKind::Conditional: return 2;
-					case ExprKind::Unary: return 90;
-					default: return 100;
+					case ExprKind::Binary:
+						return BinPrec(e->Text);
+					case ExprKind::Conditional:
+						return 2;
+					case ExprKind::Unary:
+						return 90;
+					default:
+						return 100;
 				}
 			}
 
 			String EmitExpr(const Expr* e, std::int32_t minPrec, Ty& t)
 			{
-				if (e == nullptr) { Fail("missing expression"_s); return {}; }
+				if (e == nullptr) {
+					Fail("missing expression"_s);
+					return {};
+				}
 				String s = EmitCore(e, t);
-				if (!_ok) return {};
-				if (EmitPrec(e) < minPrec) return "("_s + s + ")"_s;
+				if (!_ok)
+					return {};
+				if (EmitPrec(e) < minPrec)
+					return "("_s + s + ")"_s;
 				return s;
 			}
 
 			String EmitCore(const Expr* e, Ty& t)
 			{
 				switch (e->Kind) {
-					case ExprKind::IntLit: case ExprKind::UIntLit:
+					case ExprKind::IntLit:
+					case ExprKind::UIntLit:
 						t = Ty::Int;
 						return e->Text;
 					case ExprKind::FloatLit:
@@ -1417,16 +1697,24 @@ namespace ShaderCompiler
 						}
 						Ty inner;
 						String code = EmitExpr(e->A.get(), 90, inner);
-						if (!_ok) return {};
+						if (!_ok)
+							return {};
 						if (e->Text == "!"_s) {
-							if (inner != Ty::Bool) { Fail("'!' takes a bool operand"_s); return {}; }
+							if (inner != Ty::Bool) {
+								Fail("'!' takes a bool operand"_s);
+								return {};
+							}
 							t = Ty::Bool;
 							return "!"_s + code;
 						}
 						// Unary minus on any numeric scalar or vector
-						if (!IsNumericScalar(inner) && !IsVec(inner)) { Fail("unary '-' takes a numeric operand"_s); return {}; }
+						if (!IsNumericScalar(inner) && !IsVec(inner)) {
+							Fail("unary '-' takes a numeric operand"_s);
+							return {};
+						}
 						t = inner;
-						if (!code.empty() && code[0] == '-') return "- "_s + code;	// avoid a spurious "--"
+						if (!code.empty() && code[0] == '-')
+							return "- "_s + code; // avoid a spurious "--"
 						return "-"_s + code;
 					}
 					case ExprKind::Binary:
@@ -1439,9 +1727,16 @@ namespace ShaderCompiler
 						String cond = EmitExpr(e->A.get(), 3, condTy);
 						String thenCode = EmitExpr(e->B.get(), 3, thenTy);
 						String elseCode = EmitExpr(e->C.get(), 2, elseTy);
-						if (!_ok) return {};
-						if (condTy != Ty::Bool) { Fail("the ?: condition must be a bool expression"_s); return {}; }
-						if (thenTy != elseTy) { Fail("both ?: branches must have the same type"_s); return {}; }
+						if (!_ok)
+							return {};
+						if (condTy != Ty::Bool) {
+							Fail("the ?: condition must be a bool expression"_s);
+							return {};
+						}
+						if (thenTy != elseTy) {
+							Fail("both ?: branches must have the same type"_s);
+							return {};
+						}
 						t = thenTy;
 						return cond + " ? "_s + thenCode + " : "_s + elseCode;
 					}
@@ -1484,20 +1779,38 @@ namespace ShaderCompiler
 					char c = field[i];
 					char n;
 					switch (c) {
-						case 'x': case 'r': case 's': n = 'x'; break;
-						case 'y': case 'g': case 't': n = 'y'; break;
-						case 'z': case 'b': case 'p': n = 'z'; break;
-						case 'w': case 'a': case 'q': n = 'w'; break;
+						case 'x':
+						case 'r':
+						case 's':
+							n = 'x';
+							break;
+						case 'y':
+						case 'g':
+						case 't':
+							n = 'y';
+							break;
+						case 'z':
+						case 'b':
+						case 'p':
+							n = 'z';
+							break;
+						case 'w':
+						case 'a':
+						case 'q':
+							n = 'w';
+							break;
 						default:
 							Fail("member '."_s + field + "' is not a swizzle"_s);
 							return {};
 					}
-					std::int32_t index = (n == 'x' ? 0 : n == 'y' ? 1 : n == 'z' ? 2 : 3);
+					std::int32_t index = (n == 'x' ? 0 : n == 'y' ? 1
+							: n == 'z'                            ? 2
+																  : 3);
 					if (index >= baseComps) {
 						Fail("swizzle '."_s + field + "' reads past the end of a "_s + TyName(VecOf(baseComps)) + ""_s);
 						return {};
 					}
-					normalized += String{&n, 1};
+					normalized += String { &n, 1 };
 				}
 				if (normalized.empty() || normalized.size() > 4) {
 					Fail("swizzle '."_s + field + "' has an unsupported length"_s);
@@ -1510,7 +1823,8 @@ namespace ShaderCompiler
 			{
 				Ty baseTy;
 				String base = EmitExpr(e->A.get(), 100, baseTy);
-				if (!_ok) return {};
+				if (!_ok)
+					return {};
 				if (baseTy == Ty::Pass) {
 					Fail("pass fields cannot be read back (they are write-only descriptors)"_s);
 					return {};
@@ -1520,7 +1834,8 @@ namespace ShaderCompiler
 					return {};
 				}
 				String sw = NormalizeSwizzle(e->Text, Comps(baseTy));
-				if (!_ok) return {};
+				if (!_ok)
+					return {};
 				if (sw.size() == 1) {
 					t = Ty::Float;
 					return base + "."_s + sw;
@@ -1532,8 +1847,14 @@ namespace ShaderCompiler
 					return base;
 				}
 				if (sw == "xy"_s || sw == "zw"_s || sw == "xyz"_s || sw == "yzw"_s) {
-					if (sw == "zw"_s && baseTy != Ty::Vec4) { Fail("swizzle '.zw' needs a vec4 base"_s); return {}; }
-					if ((sw == "xyz"_s || sw == "yzw"_s) && baseTy != Ty::Vec4) { Fail("swizzle '."_s + sw + "' needs a vec4 base"_s); return {}; }
+					if (sw == "zw"_s && baseTy != Ty::Vec4) {
+						Fail("swizzle '.zw' needs a vec4 base"_s);
+						return {};
+					}
+					if ((sw == "xyz"_s || sw == "yzw"_s) && baseTy != Ty::Vec4) {
+						Fail("swizzle '."_s + sw + "' needs a vec4 base"_s);
+						return {};
+					}
 					t = VecOf(static_cast<std::int32_t>(sw.size()));
 					return base + "."_s + sw + "()"_s;
 				}
@@ -1545,10 +1866,12 @@ namespace ShaderCompiler
 			{
 				String r;
 				for (std::size_t i = 0; i < call->Args.size(); i++) {
-					if (i != 0) r += ", "_s;
+					if (i != 0)
+						r += ", "_s;
 					Ty t;
 					r += EmitExpr(call->Args[i].get(), 0, t);
-					if (!_ok) return {};
+					if (!_ok)
+						return {};
 					types.push_back(t);
 				}
 				return r;
@@ -1559,7 +1882,10 @@ namespace ShaderCompiler
 				const String& name = e->Text;
 
 				if (name == "texel_size"_s) {
-					if (!e->Args.empty()) { Fail("texel_size() takes no arguments"_s); return {}; }
+					if (!e->Args.empty()) {
+						Fail("texel_size() takes no arguments"_s);
+						return {};
+					}
 					// The per-backend displacement of one texel in the quad's own coordinate space
 					// (raster space on the PVR, logical pixels on the GX), derived from the texel
 					// size in UV space the Outline shader family carries in its instance color.xy -
@@ -1569,7 +1895,10 @@ namespace ShaderCompiler
 					return "vec2(ctx.TexelStepX(), ctx.TexelStepY())"_s;
 				}
 				if (name == "has_texel_size"_s) {
-					if (!e->Args.empty()) { Fail("has_texel_size() takes no arguments"_s); return {}; }
+					if (!e->Args.empty()) {
+						Fail("has_texel_size() takes no arguments"_s);
+						return {};
+					}
 					// Whether texel_size() is derivable at all (a zero texRect has no scale); blocks
 					// guard their ring taps with it exactly like the handwritten effects did
 					Require(FixedFunctionRequirements::NeedsTexelStep);
@@ -1588,20 +1917,30 @@ namespace ShaderCompiler
 				// arrays - those are post-scissor-clip, and geometry synthesized from them (the iris
 				// circle, the warp bands) would be distorted by a clipped quad.
 				if (name == "quad_origin"_s || name == "quad_axis_x"_s || name == "quad_axis_y"_s) {
-					if (!RequireExtended(name)) return {};
-					if (!e->Args.empty()) { Fail(name + "() takes no arguments"_s); return {}; }
+					if (!RequireExtended(name))
+						return {};
+					if (!e->Args.empty()) {
+						Fail(name + "() takes no arguments"_s);
+						return {};
+					}
 					Require(FixedFunctionRequirements::NeedsQuadAxes);
 					t = Ty::Vec2;
-					if (name == "quad_origin"_s) return "vec2(ctx.QuadOriginX(), ctx.QuadOriginY())"_s;
-					if (name == "quad_axis_x"_s) return "vec2(ctx.QuadAxisXx(), ctx.QuadAxisXy())"_s;
+					if (name == "quad_origin"_s)
+						return "vec2(ctx.QuadOriginX(), ctx.QuadOriginY())"_s;
+					if (name == "quad_axis_x"_s)
+						return "vec2(ctx.QuadAxisXx(), ctx.QuadAxisXy())"_s;
 					return "vec2(ctx.QuadAxisYx(), ctx.QuadAxisYy())"_s;
 				}
 				// The texRect of the instance (scale and bias of U, then of V), which maps the quad onto the texture
 				// space of the shader - a quad that is only a part of what the shader draws over a larger area
 				// (the textured background of a layer only partly in the view) has it smaller than (1, 0, 1, 0)
 				if (name == "quad_tex_rect"_s) {
-					if (!RequireExtended(name)) return {};
-					if (!e->Args.empty()) { Fail(name + "() takes no arguments"_s); return {}; }
+					if (!RequireExtended(name))
+						return {};
+					if (!e->Args.empty()) {
+						Fail(name + "() takes no arguments"_s);
+						return {};
+					}
 					t = Ty::Vec4;
 					return "vec4(ctx.TexRect[0], ctx.TexRect[1], ctx.TexRect[2], ctx.TexRect[3])"_s;
 				}
@@ -1611,7 +1950,8 @@ namespace ShaderCompiler
 				// argument is an identifier rather than a string literal - the expression tokenizer has
 				// no string literals, and an identifier is validated as a well-formed uniform name.
 				if (name == "has_uniform"_s || name == "uniform_float"_s || name == "uniform_vec2"_s || name == "uniform_vec4"_s) {
-					if (!RequireExtended(name)) return {};
+					if (!RequireExtended(name))
+						return {};
 					Require(FixedFunctionRequirements::NeedsUniforms);
 					if (e->Args.size() != 1 || e->Args[0]->Kind != ExprKind::Ident) {
 						Fail("usage: "_s + name + "(<uniform name>), e.g. "_s + name + "(uViewSize)"_s);
@@ -1627,7 +1967,7 @@ namespace ShaderCompiler
 						return "UniformFloat(ctx, \""_s + uniform + "\")"_s;
 					}
 					t = (name == "uniform_vec2"_s ? Ty::Vec2 : Ty::Vec4);
-					return String{name == "uniform_vec2"_s ? "UniformVec2" : "UniformVec4"} +
+					return String { name == "uniform_vec2"_s ? "UniformVec2" : "UniformVec4" } +
 						"(ctx, \""_s + uniform + "\")"_s;
 				}
 
@@ -1635,7 +1975,8 @@ namespace ShaderCompiler
 				if (name == "float"_s || name == "int"_s) {
 					SmallVector<Ty, 0> argTypes;
 					String args = EmitArgs(e, argTypes);
-					if (!_ok) return {};
+					if (!_ok)
+						return {};
 					if (argTypes.size() != 1 || !IsNumericScalar(argTypes[0])) {
 						Fail(name + "(...) takes exactly one numeric scalar argument"_s);
 						return {};
@@ -1651,11 +1992,18 @@ namespace ShaderCompiler
 				if (TryLocalType(name, ctorTy) && IsVec(ctorTy)) {
 					SmallVector<Ty, 0> argTypes;
 					String args = EmitArgs(e, argTypes);
-					if (!_ok) return {};
-					if (argTypes.empty()) { Fail(name + "() needs arguments"_s); return {}; }
+					if (!_ok)
+						return {};
+					if (argTypes.empty()) {
+						Fail(name + "() needs arguments"_s);
+						return {};
+					}
 					std::int32_t sum = 0;
 					for (Ty a : argTypes) {
-						if (a == Ty::Bool || a == Ty::Pass) { Fail(name + "(...) arguments must be numeric"_s); return {}; }
+						if (a == Ty::Bool || a == Ty::Pass) {
+							Fail(name + "(...) arguments must be numeric"_s);
+							return {};
+						}
 						sum += (IsVec(a) ? Comps(a) : 1);
 					}
 					bool splat = (argTypes.size() == 1 && IsNumericScalar(argTypes[0]));
@@ -1670,41 +2018,71 @@ namespace ShaderCompiler
 				if (name == "min"_s || name == "max"_s) {
 					SmallVector<Ty, 0> a;
 					String args = EmitArgs(e, a);
-					if (!_ok) return {};
-					if (a.size() != 2) { Fail(name + "() takes 2 arguments"_s); return {}; }
+					if (!_ok)
+						return {};
+					if (a.size() != 2) {
+						Fail(name + "() takes 2 arguments"_s);
+						return {};
+					}
 					// Mixed int/float scalars are rejected (as in GLSL) — the emitted C++ overload set
 					// would otherwise be ambiguous
-					if (a[0] == Ty::Int && a[1] == Ty::Int) t = Ty::Int;
-					else if (a[0] == Ty::Float && a[1] == Ty::Float) t = Ty::Float;
-					else if (IsVec(a[0]) && (a[1] == a[0] || a[1] == Ty::Float)) t = a[0];
-					else { Fail(name + "() takes (float, float), (int, int), (vecN, vecN) or (vecN, float)"_s); return {}; }
+					if (a[0] == Ty::Int && a[1] == Ty::Int)
+						t = Ty::Int;
+					else if (a[0] == Ty::Float && a[1] == Ty::Float)
+						t = Ty::Float;
+					else if (IsVec(a[0]) && (a[1] == a[0] || a[1] == Ty::Float))
+						t = a[0];
+					else {
+						Fail(name + "() takes (float, float), (int, int), (vecN, vecN) or (vecN, float)"_s);
+						return {};
+					}
 					return name + "("_s + args + ")"_s;
 				}
 				if (name == "clamp"_s) {
 					SmallVector<Ty, 0> a;
 					String args = EmitArgs(e, a);
-					if (!_ok) return {};
-					if (a.size() != 3) { Fail("clamp() takes 3 arguments"_s); return {}; }
-					if (a[0] == Ty::Float && a[1] == Ty::Float && a[2] == Ty::Float) t = Ty::Float;
-					else if (a[0] == Ty::Int && a[1] == Ty::Int && a[2] == Ty::Int) t = Ty::Int;
-					else if (IsVec(a[0]) && ((a[1] == a[0] && a[2] == a[0]) || (a[1] == Ty::Float && a[2] == Ty::Float))) t = a[0];
-					else { Fail("clamp() takes (float, float, float), (int, int, int), (vecN, vecN, vecN) or (vecN, float, float)"_s); return {}; }
+					if (!_ok)
+						return {};
+					if (a.size() != 3) {
+						Fail("clamp() takes 3 arguments"_s);
+						return {};
+					}
+					if (a[0] == Ty::Float && a[1] == Ty::Float && a[2] == Ty::Float)
+						t = Ty::Float;
+					else if (a[0] == Ty::Int && a[1] == Ty::Int && a[2] == Ty::Int)
+						t = Ty::Int;
+					else if (IsVec(a[0]) && ((a[1] == a[0] && a[2] == a[0]) || (a[1] == Ty::Float && a[2] == Ty::Float)))
+						t = a[0];
+					else {
+						Fail("clamp() takes (float, float, float), (int, int, int), (vecN, vecN, vecN) or (vecN, float, float)"_s);
+						return {};
+					}
 					return "clamp("_s + args + ")"_s;
 				}
 				if (name == "mix"_s) {
 					SmallVector<Ty, 0> a;
 					String args = EmitArgs(e, a);
-					if (!_ok) return {};
-					if (a.size() != 3) { Fail("mix() takes 3 arguments"_s); return {}; }
-					if (a[0] == Ty::Float && a[1] == Ty::Float && a[2] == Ty::Float) t = Ty::Float;
-					else if (IsVec(a[0]) && a[1] == a[0] && (a[2] == Ty::Float || a[2] == a[0])) t = a[0];
-					else { Fail("mix() takes (float, float, float), (vecN, vecN, float) or (vecN, vecN, vecN)"_s); return {}; }
+					if (!_ok)
+						return {};
+					if (a.size() != 3) {
+						Fail("mix() takes 3 arguments"_s);
+						return {};
+					}
+					if (a[0] == Ty::Float && a[1] == Ty::Float && a[2] == Ty::Float)
+						t = Ty::Float;
+					else if (IsVec(a[0]) && a[1] == a[0] && (a[2] == Ty::Float || a[2] == a[0]))
+						t = a[0];
+					else {
+						Fail("mix() takes (float, float, float), (vecN, vecN, float) or (vecN, vecN, vecN)"_s);
+						return {};
+					}
 					return "mix("_s + args + ")"_s;
 				}
 				if (name == "ceil"_s || name == "floor"_s) {
 					SmallVector<Ty, 0> a;
 					String args = EmitArgs(e, a);
-					if (!_ok) return {};
+					if (!_ok)
+						return {};
 					if (a.size() != 1 || (a[0] != Ty::Float && !IsVec(a[0]))) {
 						Fail(name + "() takes one float or vector argument"_s);
 						return {};
@@ -1717,7 +2095,8 @@ namespace ShaderCompiler
 				if (name == "abs"_s || name == "sqrt"_s || name == "sin"_s || name == "cos"_s) {
 					SmallVector<Ty, 0> a;
 					String args = EmitArgs(e, a);
-					if (!_ok) return {};
+					if (!_ok)
+						return {};
 					if (a.size() != 1 || a[0] != Ty::Float) {
 						Fail(name + "() takes one float argument"_s);
 						return {};
@@ -1737,7 +2116,8 @@ namespace ShaderCompiler
 				Ty lt, rt;
 				String l = EmitExpr(e->A.get(), p, lt);
 				String r = EmitExpr(e->B.get(), p + 1, rt);
-				if (!_ok) return {};
+				if (!_ok)
+					return {};
 
 				if (op == "+"_s || op == "-"_s || op == "*"_s || op == "/"_s) {
 					if (lt == Ty::Bool || rt == Ty::Bool || lt == Ty::Pass || rt == Ty::Pass) {
@@ -1745,37 +2125,52 @@ namespace ShaderCompiler
 						return {};
 					}
 					if (IsVec(lt) && IsVec(rt)) {
-						if (lt != rt) { Fail("'"_s + op + "' operands have mismatched vector sizes"_s); return {}; }
+						if (lt != rt) {
+							Fail("'"_s + op + "' operands have mismatched vector sizes"_s);
+							return {};
+						}
 						t = lt;
 					} else if (IsVec(lt)) {
-						t = lt;			// vec op scalar broadcasts (an int scalar converts to float)
+						t = lt; // vec op scalar broadcasts (an int scalar converts to float)
 					} else if (IsVec(rt)) {
-						t = rt;			// scalar op vec broadcasts
+						t = rt; // scalar op vec broadcasts
 					} else {
 						t = (lt == Ty::Int && rt == Ty::Int) ? Ty::Int : Ty::Float;
 					}
 					return l + " "_s + op + " "_s + r;
 				}
 				if (op == "%"_s) {
-					if (lt != Ty::Int || rt != Ty::Int) { Fail("'%' takes int operands"_s); return {}; }
+					if (lt != Ty::Int || rt != Ty::Int) {
+						Fail("'%' takes int operands"_s);
+						return {};
+					}
 					t = Ty::Int;
 					return l + " % "_s + r;
 				}
 				if (op == "<"_s || op == ">"_s || op == "<="_s || op == ">="_s) {
-					if (!IsNumericScalar(lt) || !IsNumericScalar(rt)) { Fail("'"_s + op + "' compares numeric scalars"_s); return {}; }
+					if (!IsNumericScalar(lt) || !IsNumericScalar(rt)) {
+						Fail("'"_s + op + "' compares numeric scalars"_s);
+						return {};
+					}
 					t = Ty::Bool;
 					return l + " "_s + op + " "_s + r;
 				}
 				if (op == "=="_s || op == "!="_s) {
 					bool ok = (IsNumericScalar(lt) && IsNumericScalar(rt)) || (lt == Ty::Bool && rt == Ty::Bool);
-					if (!ok) { Fail("'"_s + op + "' compares scalars"_s); return {}; }
+					if (!ok) {
+						Fail("'"_s + op + "' compares scalars"_s);
+						return {};
+					}
 					t = Ty::Bool;
 					return l + " "_s + op + " "_s + r;
 				}
 				if (op == "&&"_s || op == "||"_s || op == "^^"_s) {
-					if (lt != Ty::Bool || rt != Ty::Bool) { Fail("'"_s + op + "' takes bool operands"_s); return {}; }
+					if (lt != Ty::Bool || rt != Ty::Bool) {
+						Fail("'"_s + op + "' takes bool operands"_s);
+						return {};
+					}
 					t = Ty::Bool;
-					return l + " "_s + (op == "^^"_s ? "!="_s : StringView{op}) + " "_s + r;
+					return l + " "_s + (op == "^^"_s ? "!="_s : StringView { op }) + " "_s + r;
 				}
 				Fail("operator '"_s + op + "' is not part of the fixed_function grammar"_s);
 				return {};
@@ -1845,9 +2240,9 @@ namespace ShaderCompiler
 				// effects (iris, warped background) are ordinary transpiled blocks since phase 4.
 				const StringView name = tokens[1].Text;
 				const char* intrinsic =
-					name == "tile_map_mesh"_s ? "TileMapMesh" :
-					name == "lighting_combine"_s ? "LightingCombine" :
-					name == "line_strip_mesh"_s ? "LineStripMesh" : nullptr;
+					name == "tile_map_mesh"_s ? "TileMapMesh" : name == "lighting_combine"_s ? "LightingCombine"
+					: name == "line_strip_mesh"_s                                            ? "LineStripMesh"
+																							 : nullptr;
 				if (intrinsic == nullptr) {
 					result.Error = "unknown pipeline \""_s + name + "\" (known: tile_map_mesh, lighting_combine, line_strip_mesh)"_s;
 					result.Line = lineNo;
@@ -1910,7 +2305,7 @@ namespace ShaderCompiler
 		// Emitted once per aggregate header at 2-tab indent (backend namespace + anonymous
 		// namespace). Everything is `inline` so support code the emitted effects happen not to
 		// call stays warning-free in the including device translation unit.
-		return String{R"SUPPORT(		// Minimal GLSL-style float-vector runtime for the generated effect functions. Defined in the
+		return String { R"SUPPORT(		// Minimal GLSL-style float-vector runtime for the generated effect functions. Defined in the
 		// generated header (not shipped as an engine header) so the artifact stays self-contained:
 		// FixedFunctionPass.h remains the only contract between the generator and the backends.
 		namespace ff
@@ -2074,7 +2469,8 @@ namespace ShaderCompiler
 			inline float UniformFloat(EffectContext& ctx, const char* name) { float v = 0.0f; ctx.LoadUniform(name, &v, 1); return v; }
 			inline vec2 UniformVec2(EffectContext& ctx, const char* name) { float v[2] = { 0.0f, 0.0f }; ctx.LoadUniform(name, v, 2); return vec2(v[0], v[1]); }
 			inline vec4 UniformVec4(EffectContext& ctx, const char* name) { float v[4] = { 0.0f, 0.0f, 0.0f, 0.0f }; ctx.LoadUniform(name, v, 4); return vec4(v[0], v[1], v[2], v[3]); }
-)SUPPORT" R"SUPPORT(
+)SUPPORT"
+						R"SUPPORT(
 			// While strip_clip() is in effect, a strip is kept here and handed to the context only when it's submitted,
 			// cut to the rectangle. Without it, the setters go straight to the context, as they always did.
 			// Every member initialized, so the state is constant-initialized - no guard is checked on each access
@@ -2263,6 +2659,6 @@ namespace ShaderCompiler
 				if (Strip().Clipping) StripSubmit(ctx, pass, count, true); else ctx.SubmitStripShaded(pass, count);
 			}
 		}
-)SUPPORT"};
+)SUPPORT" };
 	}
 }

@@ -21,14 +21,14 @@
 #include <IO/MemoryStream.h>
 
 #if defined(ASSETPACKER_WITH_N64_ENCODERS)
-#	include "Mpeg1Encoder.h"
-#	include "Wav64Writer.h"
-#	include "Xm64Converter.h"
+#include "Mpeg1Encoder.h"
+#include "Wav64Writer.h"
+#include "Xm64Converter.h"
 #endif
 
 #if defined(ASSETPACKER_WITH_OPENMPT)
-#	include <libopenmpt.h>
-#	include <string>
+#include <libopenmpt.h>
+#include <string>
 #endif
 
 using namespace Death::Containers::Literals;
@@ -234,14 +234,14 @@ namespace Jazz2::AssetPacker
 		/** @brief Makes the module stop right at the end of the song, without the short fade-out libopenmpt adds by default */
 		void SetStopAtEnd(openmpt_module* mod)
 		{
-#	if OPENMPT_API_VERSION_AT_LEAST(0, 5, 0)
+#if OPENMPT_API_VERSION_AT_LEAST(0, 5, 0)
 			openmpt_module_ctl_set_text(mod, "play.at_end", "stop");
-#	else
+#else
 			openmpt_module_ctl_set(mod, "play.at_end", "stop");
-#	endif
+#endif
 		}
 
-#	if !OPENMPT_API_VERSION_AT_LEAST(0, 8, 0)
+#if !OPENMPT_API_VERSION_AT_LEAST(0, 8, 0)
 		/**
 			@brief Finds the frame a song repeats from, for libopenmpt versions that cannot tell it (e.g. 0.6 in Ubuntu
 				22.04, or the 0.7 the web build is compiled with)
@@ -278,7 +278,7 @@ namespace Jazz2::AssetPacker
 			openmpt_module_destroy(mod);
 			return restartFrame;
 		}
-#	endif
+#endif
 
 		/**
 			@brief Renders a module once through with libopenmpt, the player the game uses on the other platforms
@@ -309,13 +309,13 @@ namespace Jazz2::AssetPacker
 				// every time the recording loops
 				SetStopAtEnd(mod);
 				*loopStartFrame = 0;
-#	if OPENMPT_API_VERSION_AT_LEAST(0, 8, 0)
+#if OPENMPT_API_VERSION_AT_LEAST(0, 8, 0)
 				const std::int32_t restartOrder = openmpt_module_get_restart_order(mod, 0);
 				const std::int32_t restartRow = openmpt_module_get_restart_row(mod, 0);
 				const double seconds = (restartOrder > 0 || restartRow > 0 ? openmpt_module_set_position_order_row(mod, restartOrder, restartRow) : 0.0);
 				*loopStartFrame = std::int64_t(std::llround(std::max(0.0, seconds) * RenderRate));
 				openmpt_module_set_position_seconds(mod, 0.0);
-#	endif
+#endif
 			}
 			float buffer[2 * 4096];
 			bool ended = false;
@@ -332,14 +332,14 @@ namespace Jazz2::AssetPacker
 				}
 			}
 			openmpt_module_destroy(mod);
-#	if !OPENMPT_API_VERSION_AT_LEAST(0, 8, 0)
+#if !OPENMPT_API_VERSION_AT_LEAST(0, 8, 0)
 			// A module that never ends has no first pass to repeat after, it loops from the start
 			if (loopStartFrame != nullptr && ended) {
 				*loopStartFrame = FindRestartFrame(data, std::int64_t(stereo.size() / 2));
 			}
-#	else
+#else
 			static_cast<void>(ended);
-#	endif
+#endif
 			return !stereo.empty();
 		}
 #endif
@@ -358,11 +358,15 @@ namespace Jazz2::AssetPacker
 					for (std::int32_t dy = 0; dy < factor; dy++) {
 						for (std::int32_t dx = 0; dx < factor; dx++) {
 							const std::uint8_t* c = &palette[indices[std::size_t(y * factor + dy) * width + (x * factor + dx)] * 4];
-							r += c[0]; g += c[1]; b += c[2];
+							r += c[0];
+							g += c[1];
+							b += c[2];
 						}
 					}
 					float* dst = &rgb[(std::size_t(y) * w + x) * 3];
-					dst[0] = r * area; dst[1] = g * area; dst[2] = b * area;
+					dst[0] = r * area;
+					dst[1] = g * area;
+					dst[2] = b * area;
 				}
 			}
 
@@ -380,9 +384,13 @@ namespace Jazz2::AssetPacker
 					float r = 0, g = 0, b = 0;
 					for (std::int32_t k = 0; k < 4; k++) {
 						const float* c = &rgb[(std::size_t(y * 2 + (k >> 1)) * w + (x * 2 + (k & 1))) * 3];
-						r += c[0]; g += c[1]; b += c[2];
+						r += c[0];
+						g += c[1];
+						b += c[2];
 					}
-					r *= 0.25f; g *= 0.25f; b *= 0.25f;
+					r *= 0.25f;
+					g *= 0.25f;
+					b *= 0.25f;
 					U[std::size_t(y) * cw + x] = std::uint8_t(std::clamp(128.0f + (-37.797f * r - 74.203f * g + 112.0f * b) / 255.0f + 0.5f, 0.0f, 255.0f));
 					V[std::size_t(y) * cw + x] = std::uint8_t(std::clamp(128.0f + (112.0f * r - 93.786f * g - 18.214f * b) / 255.0f + 0.5f, 0.0f, 255.0f));
 				}
@@ -427,7 +435,8 @@ namespace Jazz2::AssetPacker
 			candidates.push_back(hint);
 		}
 #if defined(DEATH_TARGET_WINDOWS)
-		char* inst; std::size_t instLength;
+		char* inst;
+		std::size_t instLength;
 		if (_dupenv_s(&inst, &instLength, "N64_INST") == 0 && inst != nullptr) {
 			if (inst[0] != '\0') {
 				candidates.push_back(fs::CombinePath(StringView(inst), "bin"_s));
@@ -468,11 +477,11 @@ namespace Jazz2::AssetPacker
 			tools.VideoConv = {};
 		}
 		tools.CanEncodeVideo = (!tools.VideoConv.empty() || HasBuiltInEncoders());
-#	if defined(DEATH_TARGET_WINDOWS)
+#if defined(DEATH_TARGET_WINDOWS)
 		_putenv_s("N64_INST", String(tools.Root).data());
-#	else
+#else
 		setenv("N64_INST", String(tools.Root).data(), 1);
-#	endif
+#endif
 		return true;
 #endif
 	}
@@ -656,13 +665,13 @@ namespace Jazz2::AssetPacker
 				// ULC is decoded with the RSP's help and costs the CPU far less than Opus
 				loopStart = std::clamp<std::int64_t>(loopStart, 0, frames > 0 ? frames - 1 : 0);
 				bool converted = false;
-#	if defined(ASSETPACKER_WITH_N64_ENCODERS)
+#if defined(ASSETPACKER_WITH_N64_ENCODERS)
 				if (tools.BuiltIn) {
 					converted = WriteStereoWav64(fs::CombinePath(musicPath, String(stem + ".wav64"_s)), stereo.data(), frames, RenderRate,
 						loopStart, Wav64Format::Ulc);
 				}
-#	endif
-#	if !defined(DEATH_TARGET_EMSCRIPTEN)
+#endif
+#if !defined(DEATH_TARGET_EMSCRIPTEN)
 				if (!tools.BuiltIn) {
 					const String wavPath = fs::CombinePath(rendersPath, String(stem + ".wav"_s));
 					WriteWave(wavPath, stereo.data(), frames, RenderRate);
@@ -671,7 +680,7 @@ namespace Jazz2::AssetPacker
 						"--wav-loop-offset"_s, loopOffset, "-o"_s, musicPath, wavPath };
 					converted = RunTool(args);
 				}
-#	endif
+#endif
 				if (converted) {
 					renders++;
 					fs::RemoveFile(file);
@@ -754,8 +763,7 @@ namespace Jazz2::AssetPacker
 		Compatibility::J2vVideoInfo info;
 		std::int64_t outputFrames = 0;
 		bool encodingFailed = false;
-		const bool decoded = Compatibility::J2vRecompressor::DecodeFrames(videoPath, [&](const Compatibility::J2vVideoInfo& video,
-			std::int32_t frameIndex, const std::uint8_t* indices, const std::uint8_t* palette, bool paletteChanged) {
+		const bool decoded = Compatibility::J2vRecompressor::DecodeFrames(videoPath, [&](const Compatibility::J2vVideoInfo& video, std::int32_t frameIndex, const std::uint8_t* indices, const std::uint8_t* palette, bool paletteChanged) {
 			static_cast<void>(paletteChanged);
 			const std::int32_t factor = std::max(1, video.Width / VideoWidth);
 			const std::int32_t width = video.Width / factor;
@@ -809,7 +817,8 @@ namespace Jazz2::AssetPacker
 				outputFrames++;
 			}
 			return true;
-		}, &info);
+		},
+			&info);
 #if defined(ASSETPACKER_WITH_N64_ENCODERS)
 		if (builtIn && decoded && !encodingFailed) {
 			encodingFailed = !encoder.End(encoded);
@@ -849,9 +858,9 @@ namespace Jazz2::AssetPacker
 		auto playlist = (pak.IsValid() ? pak.OpenFile(fs::CombinePath("Cinematics"_s, String(lowerName + ".j2sfx"_s))) : nullptr);
 		std::int32_t effectCount = 0;
 		if (playlist != nullptr && playlist->IsValid()) {
-			playlist->ReadValueAsLE<std::uint64_t>();	// Signature
-			playlist->ReadValue<std::uint8_t>();		// File type
-			playlist->ReadValueAsLE<std::uint16_t>();	// Version
+			playlist->ReadValueAsLE<std::uint64_t>(); // Signature
+			playlist->ReadValue<std::uint8_t>(); // File type
+			playlist->ReadValueAsLE<std::uint16_t>(); // Version
 			const std::uint32_t sampleCount = playlist->ReadValueAsLE<std::uint16_t>();
 			SmallVector<SoundSample, 0> samples;
 			samples.resize(sampleCount);
@@ -885,7 +894,7 @@ namespace Jazz2::AssetPacker
 				const SoundSample& sample = samples[sampleIndex];
 				const std::int64_t start = std::int64_t(frame) * info.FrameDelay * RenderRate / 1000;
 				const double step = double(sample.Frequency) / RenderRate;
-				for (std::int64_t k = 0; ; k++) {
+				for (std::int64_t k = 0;; k++) {
 					const double position = k * step;
 					const std::size_t index = std::size_t(position);
 					if (index + 1 >= sample.Samples.size() || start + k >= frames) {

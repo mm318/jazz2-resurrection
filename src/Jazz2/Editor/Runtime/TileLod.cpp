@@ -35,13 +35,13 @@ namespace Jazz2::Editor
 		constexpr float MaxMissingBuildMilliseconds = 4.0f;
 #else
 		// Phones, tablets and the Xbox have the memory a desktop has, but share it with much more
-#	if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_IOS) || defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_IOS) || defined(DEATH_TARGET_WINDOWS_RT)
 		constexpr std::size_t MaxBytes = 96 * 1024 * 1024;
 		constexpr std::size_t MaxPooledBytes = 8 * 1024 * 1024;
-#	else
+#else
 		constexpr std::size_t MaxBytes = 384 * 1024 * 1024;
 		constexpr std::size_t MaxPooledBytes = 32 * 1024 * 1024;
-#	endif
+#endif
 		constexpr std::int32_t MaxBuildsPerFrame = 48;
 		constexpr float MaxBuildMilliseconds = 4.0f;
 		// The tiles of a chunk missing are drawn, which takes much longer from far away than making the chunk, so the
@@ -126,16 +126,16 @@ namespace Jazz2::Editor
 		ChunkSpan GetChunkSpan(std::int32_t layerTiles, bool repeat, std::int32_t size, std::int32_t c)
 		{
 			if (!repeat) {
-				return ChunkSpan{ c * size, size, c * size };
+				return ChunkSpan { c * size, size, c * size };
 			}
 			if (layerTiles >= size) {
 				std::int32_t perPeriod = GetChunksPerPeriod(layerTiles, size);
 				std::int32_t period = FloorDivide(c, perPeriod);
 				std::int32_t index = c - period * perPeriod;
-				return ChunkSpan{ period * layerTiles + index * size, std::min<std::int32_t>(size, layerTiles - index * size), index * size };
+				return ChunkSpan { period * layerTiles + index * size, std::min<std::int32_t>(size, layerTiles - index * size), index * size };
 			}
 			std::int32_t length = GetPeriodsPerChunk(layerTiles, size) * layerTiles;
-			return ChunkSpan{ c * length, length, 0 };
+			return ChunkSpan { c * length, length, 0 };
 		}
 
 		// Returns the chunk of a size a tile is in, the tile counted from the tile 0 of the layer without wrapping
@@ -188,9 +188,9 @@ namespace Jazz2::Editor
 
 	TileLod::TileLod(const LevelDocument& document, TileSetDataCache& tileSets)
 		: _document(document), _tileSets(tileSets), _pooledBytes(0), _bytes(0), _frame(0), _buildStamp(0), _lastOverrideFrame(0), _evicted(true), _zoom(1.0f), _lastScale(0.0f),
-			_buildsLeft(MaxBuildsPerFrame), _buildMilliseconds(0.0f), _tilePixels(TilePixels),
-			_wantedTilePixels(TilePixels), _drawnChunks(0), _lastDrawnChunks(0), _drawnBytes(0), _lastDrawnBytes(0), _missingChunks(0), _lastMissingChunks(0), _drawnChunkTiles(GetChunkTiles(TilePixels)), _active(false),
-			_warmUpState(WarmUpState::Done), _warmUpLayer(0), _warmUpRow(0), _warmUpColumn(0), _warmUpNext(0), _baseChunksDirty(false)
+		  _buildsLeft(MaxBuildsPerFrame), _buildMilliseconds(0.0f), _tilePixels(TilePixels),
+		  _wantedTilePixels(TilePixels), _drawnChunks(0), _lastDrawnChunks(0), _drawnBytes(0), _lastDrawnBytes(0), _missingChunks(0), _lastMissingChunks(0), _drawnChunkTiles(GetChunkTiles(TilePixels)), _active(false),
+		  _warmUpState(WarmUpState::Done), _warmUpLayer(0), _warmUpRow(0), _warmUpColumn(0), _warmUpNext(0), _baseChunksDirty(false)
 	{
 		_lastChange = TimeStamp::Now();
 		ClearBlockCache();
@@ -248,7 +248,9 @@ namespace Jazz2::Editor
 				for (const auto& entry : _warmUpCounts) {
 					byCount.push_back({ entry.second, entry.first });
 				}
-				std::sort(byCount.begin(), byCount.end(), [](const auto& a, const auto& b) { return a.first > b.first; });
+				std::sort(byCount.begin(), byCount.end(), [](const auto& a, const auto& b) {
+					return a.first > b.first;
+				});
 				_warmUpKeys.reserve(byCount.size());
 				for (const auto& entry : byCount) {
 					_warmUpKeys.push_back(entry.second);
@@ -297,7 +299,7 @@ namespace Jazz2::Editor
 
 		while (_warmUpNext < _warmUpKeys.size()) {
 			std::uint32_t key = _warmUpKeys[_warmUpNext++];
-			GetBlock(TileRef{ std::uint16_t(key & 0xFFFFu), std::uint8_t(key >> 24), std::uint8_t((key >> 16) & 0x03) });
+			GetBlock(TileRef { std::uint16_t(key & 0xFFFFu), std::uint8_t(key >> 24), std::uint8_t((key >> 16) & 0x03) });
 			if (start.GetMillisecondsSince() >= milliseconds) {
 				return;
 			}
@@ -410,7 +412,7 @@ namespace Jazz2::Editor
 	{
 		ClearBlockCache();
 		bool erased = false;
-		for (auto it = _blocks.begin(); it != _blocks.end(); ) {
+		for (auto it = _blocks.begin(); it != _blocks.end();) {
 			if ((it->first >> 24) == TileRef::Animated) {
 				it = _blocks.erase(it);
 				erased = true;
@@ -418,7 +420,7 @@ namespace Jazz2::Editor
 				++it;
 			}
 		}
-		for (auto it = _paletteBlocks.begin(); it != _paletteBlocks.end(); ) {
+		for (auto it = _paletteBlocks.begin(); it != _paletteBlocks.end();) {
 			if (((it->first >> 24) & 0xFF) == TileRef::Animated) {
 				it = _paletteBlocks.erase(it);
 			} else {
@@ -468,13 +470,13 @@ namespace Jazz2::Editor
 			_texturePool.erase(_texturePool.begin());
 		}
 		_pooledBytes += bytes;
-		_texturePool.push_back(PooledTexture{ Death::move(image), lastDrawn });
+		_texturePool.push_back(PooledTexture { Death::move(image), lastDrawn });
 	}
 
 	void TileLod::ClearBlockCache()
 	{
 		for (BlockCacheEntry& entry : _blockCache) {
-			entry = BlockCacheEntry{ 0, nullptr };
+			entry = BlockCacheEntry { 0, nullptr };
 		}
 		_lastPaletteBlockKey = UINT64_MAX;
 		_lastPaletteBlock = nullptr;
@@ -490,9 +492,9 @@ namespace Jazz2::Editor
 		_lastChange = TimeStamp::Now();
 		ClearBlockCache();
 		SmallVector<std::uint32_t, 0> erased;
-		for (auto it = _blocks.begin(); it != _blocks.end(); ) {
+		for (auto it = _blocks.begin(); it != _blocks.end();) {
 			std::uint32_t key = it->first;
-			TileRef tile{ std::uint16_t(key & 0xFFFFu), std::uint8_t(key >> 24), std::uint8_t((key >> 16) & 0x03) };
+			TileRef tile { std::uint16_t(key & 0xFFFFu), std::uint8_t(key >> 24), std::uint8_t((key >> 16) & 0x03) };
 			if (RuntimeSync::ShowsAnyTile(document, tile, sortedTileIds)) {
 				it = _blocks.erase(it);
 				erased.push_back(key);
@@ -500,9 +502,9 @@ namespace Jazz2::Editor
 				++it;
 			}
 		}
-		for (auto it = _paletteBlocks.begin(); it != _paletteBlocks.end(); ) {
+		for (auto it = _paletteBlocks.begin(); it != _paletteBlocks.end();) {
 			std::uint32_t key = std::uint32_t(it->first);
-			TileRef tile{ std::uint16_t(key & 0xFFFFu), std::uint8_t(key >> 24), std::uint8_t((key >> 16) & 0x03) };
+			TileRef tile { std::uint16_t(key & 0xFFFFu), std::uint8_t(key >> 24), std::uint8_t((key >> 16) & 0x03) };
 			if (RuntimeSync::ShowsAnyTile(document, tile, sortedTileIds)) {
 				it = _paletteBlocks.erase(it);
 				erased.push_back(key);
@@ -575,7 +577,7 @@ namespace Jazz2::Editor
 						newIndices[order[i]] = std::int32_t(i);
 					}
 				}
-				for (std::size_t i = 0; i < _chunks.size(); ) {
+				for (std::size_t i = 0; i < _chunks.size();) {
 					Chunk& chunk = _chunks[i];
 					std::int32_t layer = (chunk.Layer >= 0 && std::size_t(chunk.Layer) < newIndices.size() ? newIndices[chunk.Layer] : -1);
 					if (layer < 0) {
@@ -665,7 +667,7 @@ namespace Jazz2::Editor
 			return;
 		}
 		// Those made ahead are kept for when the view gets far again, with the colors of the tiles
-		for (std::size_t i = 0; i < _chunks.size(); ) {
+		for (std::size_t i = 0; i < _chunks.size();) {
 			if (!_chunks[i].Base) {
 				_bytes -= _chunks[i].Bytes;
 				if (i + 1 < _chunks.size()) {
@@ -772,7 +774,7 @@ namespace Jazz2::Editor
 			return true;
 		}
 
-		DrawnLayer drawnLayer{ layerIndex, width, height, repeatX, repeatY, origin };
+		DrawnLayer drawnLayer { layerIndex, width, height, repeatX, repeatY, origin };
 		std::int32_t size = GetChunkTiles(_tilePixels);
 		std::int32_t cx1 = GetChunkAt(width, repeatX, size, tx1), cx2 = GetChunkAt(width, repeatX, size, tx2 - 1);
 		std::int32_t cy1 = GetChunkAt(height, repeatY, size, ty1), cy2 = GetChunkAt(height, repeatY, size, ty2 - 1);
@@ -799,7 +801,7 @@ namespace Jazz2::Editor
 		for (std::int32_t cy = cy1; cy <= cy2; cy++) {
 			for (std::int32_t cx = cx1; cx <= cx2; cx++) {
 				Chunk& chunk = FindOrAddChunk(layerIndex, size, GetChunkStart(drawnLayer, size, cx, cy));
-				ViewCell& cell = _cells.emplace_back(ViewCell{ cx, cy, Cover() });
+				ViewCell& cell = _cells.emplace_back(ViewCell { cx, cy, Cover() });
 				bool canBuild = (_buildsLeft > 0 && (_buildMilliseconds < MaxBuildMilliseconds || _buildsLeft == MaxBuildsPerFrame));
 				if (chunk.TilePixels == 0) {
 					cell.By = FindCover(drawnLayer, size, cx, cy);
@@ -988,7 +990,7 @@ namespace Jazz2::Editor
 				return true;
 			}
 		}
-		images.push_back(TileMapLayerImage{ chunk->Image.get(), rect, texScale });
+		images.push_back(TileMapLayerImage { chunk->Image.get(), rect, texScale });
 		return true;
 	}
 
@@ -1000,7 +1002,7 @@ namespace Jazz2::Editor
 			std::int32_t y = GetLargerChunk(layer.Height, layer.RepeatY, size, cy, larger);
 			Chunk* chunk = FindChunk(layer.Index, larger, GetChunkStart(layer, larger, x, y));
 			if (chunk != nullptr && chunk->TilePixels != 0) {
-				return Cover{ CoverKind::Larger, larger, x, y };
+				return Cover { CoverKind::Larger, larger, x, y };
 			}
 		}
 		// Or all the smaller ones in it, as when the view got farther, those past the end of a layer that doesn't repeat
@@ -1019,7 +1021,7 @@ namespace Jazz2::Editor
 				}
 			}
 			if (all) {
-				return Cover{ CoverKind::Smaller, smaller, cx, cy };
+				return Cover { CoverKind::Smaller, smaller, cx, cy };
 			}
 		}
 		// Or the image of the layer made ahead, only from far away, it's blurred
@@ -1039,7 +1041,7 @@ namespace Jazz2::Editor
 		std::int32_t y = GetLargerChunk(layer.Height, layer.RepeatY, size, cy, MaxChunkTiles);
 		Chunk* chunk = FindChunk(layer.Index, MaxChunkTiles, GetChunkStart(layer, MaxChunkTiles, x, y), true);
 		if (chunk != nullptr && chunk->TilePixels != 0) {
-			return Cover{ CoverKind::Base, MaxChunkTiles, x, y };
+			return Cover { CoverKind::Base, MaxChunkTiles, x, y };
 		}
 		return Cover();
 	}
@@ -1189,13 +1191,13 @@ namespace Jazz2::Editor
 		}
 		auto it = _blocks.find(key);
 		if (it != _blocks.end()) {
-			cached = BlockCacheEntry{ key, &it->second };
+			cached = BlockCacheEntry { key, &it->second };
 			return it->second;
 		}
 
 		// The blocks stay where they are in the map when another one is added, so the cache stays valid
 		TileBlock& block = _blocks[key];
-		cached = BlockCacheEntry{ key, &block };
+		cached = BlockCacheEntry { key, &block };
 		FillBlock(block, tile, ContentResolver::Get().GetPalettes().data());
 		return block;
 	}
@@ -1221,7 +1223,7 @@ namespace Jazz2::Editor
 			} else {
 				ContentResolver::Get().BuildLayerPalette(rendererType == LayerRendererType::AlphaMap, param, palette);
 			}
-			it = _paletteBlocks.emplace(key, TileBlock{}).first;
+			it = _paletteBlocks.emplace(key, TileBlock {}).first;
 			FillBlock(it->second, tile, palette);
 		}
 		_lastPaletteBlockKey = key;
@@ -1233,7 +1235,8 @@ namespace Jazz2::Editor
 	{
 		auto rendererType = LayerRendererType(layer.Record.RendererType);
 		if ((rendererType != LayerRendererType::PaletteShift && rendererType != LayerRendererType::AlphaMap &&
-			 rendererType != LayerRendererType::PaletteMapping) || (rendererType == LayerRendererType::PaletteShift && layer.Record.Color[0] == 0)) {
+				rendererType != LayerRendererType::PaletteMapping) ||
+			(rendererType == LayerRendererType::PaletteShift && layer.Record.Color[0] == 0)) {
 			return 0;
 		}
 		return (std::uint32_t(layer.Record.RendererType) << 8) | layer.Record.Color[0];
@@ -1329,7 +1332,7 @@ namespace Jazz2::Editor
 	{
 		// Chunks not made yet that weren't in view in the last frame go anyway, they take no memory, but would pile up
 		bool changed = false;
-		for (std::size_t i = 0; i < _chunks.size(); ) {
+		for (std::size_t i = 0; i < _chunks.size();) {
 			if (_chunks[i].TilePixels == 0 && _chunks[i].LastUsed + 1 < _frame && !_chunks[i].Base) {
 				if (i + 1 < _chunks.size()) {
 					_chunks[i] = Death::move(_chunks.back());

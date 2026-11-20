@@ -68,18 +68,18 @@ namespace nCine
 		switch (_state) {
 			case PlayerState::Initial:
 			case PlayerState::Stopped: {
-				if DEATH_UNLIKELY(_audioBuffer == nullptr) {
+				if DEATH_UNLIKELY (_audioBuffer == nullptr) {
 					break;
 				}
 				// Don't play a silent sound at all, callers already handle a stopped player
-				if DEATH_UNLIKELY(IsSilent()) {
+				if DEATH_UNLIKELY (IsSilent()) {
 					break;
 				}
 
 				// A refusal is reported by the device itself, which can say what is holding the sources
 				// and can keep a caller that retries every frame from flooding the log
 				const std::uint32_t source = device.RegisterPlayer(this);
-				if DEATH_UNLIKELY(source == IAudioDevice::UnavailableSource) {
+				if DEATH_UNLIKELY (source == IAudioDevice::UnavailableSource) {
 					break;
 				}
 				_sourceId = source;

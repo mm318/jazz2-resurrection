@@ -18,18 +18,18 @@ namespace Jazz2::UI::Menu
 	using Jazz2::TouchButtonAnchor;
 	using Jazz2::TouchButtonLayout;
 
-	static constexpr float DefaultRef = 360.0f;			// Must match HUD::DefaultRef - the unit the layout is stored in
+	static constexpr float DefaultRef = 360.0f; // Must match HUD::DefaultRef - the unit the layout is stored in
 	static constexpr float DockThreshold = 0.5f;
 	static constexpr float HandleRadius = 15.0f;
 
 	TouchControlsOptionsSection::TouchControlsOptionsSection()
 		: _focusedSlot(-1), _editMode(EditMode::None), _pulseTime(0.0f),
-			_primaryPointerId(-1), _primaryStartX(0.0f), _primaryStartY(0.0f),
-			_slotEdgeOffsetAtStart(0.0f, 0.0f), _slotAnchorAtStart(TouchButtonAnchor::BottomLeft),
-			_resizeCenterX(0.0f), _resizeCenterY(0.0f),
-			_secondaryPointerId(-1), _pinchStartDist(1.0f), _pinchStartScale(1.0f),
-			_resizingViaCorner(false), _cornerHandleX(0.0f), _cornerHandleY(0.0f),
-			_tapDownTime(-1.0f), _tapDownX(0.0f), _tapDownY(0.0f), _isDirty(false)
+		  _primaryPointerId(-1), _primaryStartX(0.0f), _primaryStartY(0.0f),
+		  _slotEdgeOffsetAtStart(0.0f, 0.0f), _slotAnchorAtStart(TouchButtonAnchor::BottomLeft),
+		  _resizeCenterX(0.0f), _resizeCenterY(0.0f),
+		  _secondaryPointerId(-1), _pinchStartDist(1.0f), _pinchStartScale(1.0f),
+		  _resizingViaCorner(false), _cornerHandleX(0.0f), _cornerHandleY(0.0f),
+		  _tapDownTime(-1.0f), _tapDownX(0.0f), _tapDownY(0.0f), _isDirty(false)
 	{
 		for (std::int32_t i = 0; i < (std::int32_t)TouchButtonSlot::Count; i++) {
 			_bounceAnim[i] = 0.0f;
@@ -217,15 +217,36 @@ namespace Jazz2::UI::Menu
 
 		// Map slot to the matching touch button animation in MenuResources
 		AnimState anim;
-		float nativeHalf;	// half of the sprite's native pixel size
+		float nativeHalf; // half of the sprite's native pixel size
 		switch (slot) {
-			case TouchButtonSlot::Fire:			anim = TouchFire;   nativeHalf = 35.0f; break;
-			case TouchButtonSlot::Jump:			anim = TouchJump;   nativeHalf = 35.0f; break;
-			case TouchButtonSlot::Run:			anim = TouchRun;    nativeHalf = 35.0f; break;
-			case TouchButtonSlot::ChangeWeapon:	anim = TouchChange; nativeHalf = 20.0f; break;
-			case TouchButtonSlot::Menu:			anim = TouchPause;  nativeHalf = 20.0f; break;
-			case TouchButtonSlot::Console:		anim = TouchClose;  nativeHalf = 17.5f; break;
-			default: /* D-pad */				anim = TouchDpad;   nativeHalf = 46.0f; break;
+			case TouchButtonSlot::Fire:
+				anim = TouchFire;
+				nativeHalf = 35.0f;
+				break;
+			case TouchButtonSlot::Jump:
+				anim = TouchJump;
+				nativeHalf = 35.0f;
+				break;
+			case TouchButtonSlot::Run:
+				anim = TouchRun;
+				nativeHalf = 35.0f;
+				break;
+			case TouchButtonSlot::ChangeWeapon:
+				anim = TouchChange;
+				nativeHalf = 20.0f;
+				break;
+			case TouchButtonSlot::Menu:
+				anim = TouchPause;
+				nativeHalf = 20.0f;
+				break;
+			case TouchButtonSlot::Console:
+				anim = TouchClose;
+				nativeHalf = 17.5f;
+				break;
+			default: /* D-pad */
+				anim = TouchDpad;
+				nativeHalf = 46.0f;
+				break;
 		}
 
 		float spriteScale = hw / nativeHalf;
@@ -237,9 +258,9 @@ namespace Jazz2::UI::Menu
 	void TouchControlsOptionsSection::DrawOutlineRect(float cx, float cy, float hw, float hh,
 		std::uint16_t z, float thickness, Colorf color)
 	{
-		_root->DrawSolid(cx - hw, cy - hh,				z, Alignment::TopLeft, Vector2f(hw * 2.0f, thickness), color);
-		_root->DrawSolid(cx - hw, cy + hh - thickness,	z, Alignment::TopLeft, Vector2f(hw * 2.0f, thickness), color);
-		_root->DrawSolid(cx - hw, cy - hh + thickness,	z, Alignment::TopLeft, Vector2f(thickness, (hh - thickness) * 2.0f), color);
+		_root->DrawSolid(cx - hw, cy - hh, z, Alignment::TopLeft, Vector2f(hw * 2.0f, thickness), color);
+		_root->DrawSolid(cx - hw, cy + hh - thickness, z, Alignment::TopLeft, Vector2f(hw * 2.0f, thickness), color);
+		_root->DrawSolid(cx - hw, cy - hh + thickness, z, Alignment::TopLeft, Vector2f(thickness, (hh - thickness) * 2.0f), color);
 		_root->DrawSolid(cx + hw - thickness, cy - hh + thickness, z, Alignment::TopLeft, Vector2f(thickness, (hh - thickness) * 2.0f), color);
 	}
 
@@ -293,11 +314,14 @@ namespace Jazz2::UI::Menu
 	float TouchControlsOptionsSection::GetDefaultHalfSize(TouchButtonSlot slot)
 	{
 		switch (slot) {
-			case TouchButtonSlot::Dpad: return HUD::DpadSize * DefaultRef * 0.5f;
+			case TouchButtonSlot::Dpad:
+				return HUD::DpadSize * DefaultRef * 0.5f;
 			case TouchButtonSlot::Fire:
 			case TouchButtonSlot::Jump:
-			case TouchButtonSlot::Run:  return HUD::ButtonSize * DefaultRef * 0.5f;
-			default:                    return HUD::SmallButtonSize * DefaultRef * 0.5f;
+			case TouchButtonSlot::Run:
+				return HUD::ButtonSize * DefaultRef * 0.5f;
+			default:
+				return HUD::SmallButtonSize * DefaultRef * 0.5f;
 		}
 	}
 
@@ -310,8 +334,8 @@ namespace Jazz2::UI::Menu
 	void TouchControlsOptionsSection::ReAnchor(TouchButtonLayout& layout, float cx, float cy,
 		float hw, float hh, Vector2i viewSize)
 	{
-		bool right  = (cx >= (float)viewSize.X * DockThreshold);
-		bool bottom = (cy >= (float)viewSize.Y / 3.0f);	// top 1/3 snaps to top, rest to bottom
+		bool right = (cx >= (float)viewSize.X * DockThreshold);
+		bool bottom = (cy >= (float)viewSize.Y / 3.0f); // top 1/3 snaps to top, rest to bottom
 
 		TouchButtonAnchor newAnchor;
 		float ex, ey;
@@ -343,10 +367,14 @@ namespace Jazz2::UI::Menu
 	{
 		ButtonRect r = GetButtonRect(slot, viewSize);
 		switch (PreferencesCache::TouchButtons[(std::int32_t)slot].Anchor) {
-			case TouchButtonAnchor::BottomLeft:  return Vector2f(r.CenterX + r.HalfW, r.CenterY - r.HalfH);
-			case TouchButtonAnchor::BottomRight: return Vector2f(r.CenterX - r.HalfW, r.CenterY - r.HalfH);
-			case TouchButtonAnchor::TopLeft:     return Vector2f(r.CenterX + r.HalfW, r.CenterY + r.HalfH);
-			default:                             return Vector2f(r.CenterX - r.HalfW, r.CenterY + r.HalfH);
+			case TouchButtonAnchor::BottomLeft:
+				return Vector2f(r.CenterX + r.HalfW, r.CenterY - r.HalfH);
+			case TouchButtonAnchor::BottomRight:
+				return Vector2f(r.CenterX - r.HalfW, r.CenterY - r.HalfH);
+			case TouchButtonAnchor::TopLeft:
+				return Vector2f(r.CenterX + r.HalfW, r.CenterY + r.HalfH);
+			default:
+				return Vector2f(r.CenterX - r.HalfW, r.CenterY + r.HalfH);
 		}
 	}
 
@@ -364,7 +392,8 @@ namespace Jazz2::UI::Menu
 			case TouchEventType::Down:
 			case TouchEventType::PointerDown: {
 				std::int32_t pi = event.FindPointerIndex(event.ActionIndex);
-				if (pi == -1) break;
+				if (pi == -1)
+					break;
 
 				float px = event.Pointers[pi].X * (float)viewSize.X;
 				float py = event.Pointers[pi].Y * (float)viewSize.Y;
@@ -393,13 +422,13 @@ namespace Jazz2::UI::Menu
 					float dy = py - _cornerHandleY;
 					if (dx * dx + dy * dy <= HandleRadius * HandleRadius) {
 						ButtonRect r = GetButtonRect((TouchButtonSlot)_focusedSlot, viewSize);
-					float fdx = px - r.CenterX;
-					float fdy = py - r.CenterY;
+						float fdx = px - r.CenterX;
+						float fdy = py - r.CenterY;
 
-					_primaryPointerId = event.ActionIndex;
-					_primaryStartX = px;
-					_primaryStartY = py;
-					_pinchStartDist = std::max(1.0f, std::sqrt(fdx * fdx + fdy * fdy));
+						_primaryPointerId = event.ActionIndex;
+						_primaryStartX = px;
+						_primaryStartY = py;
+						_pinchStartDist = std::max(1.0f, std::sqrt(fdx * fdx + fdy * fdy));
 						_pinchStartScale = PreferencesCache::TouchButtons[_focusedSlot].Scale;
 						_resizeCenterX = r.CenterX;
 						_resizeCenterY = r.CenterY;
@@ -441,7 +470,7 @@ namespace Jazz2::UI::Menu
 					}
 				}
 				if (_primaryPointerId != -1) {
-					break;	// Consumed by a button
+					break; // Consumed by a button
 				}
 
 				// Fixed UI - only if no touch button was hit
@@ -494,9 +523,11 @@ namespace Jazz2::UI::Menu
 			}
 
 			case TouchEventType::Move: {
-				if (_primaryPointerId == -1) break;
+				if (_primaryPointerId == -1)
+					break;
 				std::int32_t pi = event.FindPointerIndex(_primaryPointerId);
-				if (pi == -1) break;
+				if (pi == -1)
+					break;
 
 				float px = event.Pointers[pi].X * (float)viewSize.X;
 				float py = event.Pointers[pi].Y * (float)viewSize.Y;

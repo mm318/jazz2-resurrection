@@ -29,12 +29,12 @@ namespace Jazz2::UI::Windows
 	/** @brief Layer of a slot, things of a later layer are drawn over those of an earlier one */
 	enum class PaintLayer : std::uint8_t
 	{
-		Back,			/**< Shadows */
-		Fill,			/**< Backgrounds of panels and controls */
-		Content,		/**< Images, tiles and icons */
-		Text,			/**< Text */
-		Overlay,		/**< Highlights and outlines over the content */
-		OverlayText		/**< Text over the highlights */
+		Back, /**< Shadows */
+		Fill, /**< Backgrounds of panels and controls */
+		Content, /**< Images, tiles and icons */
+		Text, /**< Text */
+		Overlay, /**< Highlights and outlines over the content */
+		OverlayText /**< Text over the highlights */
 	};
 
 	/**
@@ -56,22 +56,26 @@ namespace Jazz2::UI::Windows
 		Painter(UI::Canvas& canvas, Skin& skin, UI::Font* font, float scale, Rendering::PolylineRenderer* lines = nullptr);
 
 		/** @brief Returns how many pixels a unit takes */
-		float GetScale() const {
+		float GetScale() const
+		{
 			return _scale;
 		}
 		/** @brief Converts units to whole pixels */
 		float Px(float units) const;
 		/** @brief Returns the font */
-		UI::Font* GetFont() const {
+		UI::Font* GetFont() const
+		{
 			return _font;
 		}
 
 		/** @brief Sets the slot things are drawn in */
-		void SetSlot(std::int32_t slot) {
+		void SetSlot(std::int32_t slot)
+		{
 			_slot = slot;
 		}
 		/** @brief Returns the slot things are drawn in */
-		std::int32_t GetSlot() const {
+		std::int32_t GetSlot() const
+		{
 			return _slot;
 		}
 		/** @brief Returns the depth of a layer of the current slot */
@@ -126,7 +130,8 @@ namespace Jazz2::UI::Windows
 		 */
 		void SetRaster(float raster);
 		/** @brief Returns the pixels of the target for a pixel of the interface, see @ref SetRaster() */
-		float GetRaster() const {
+		float GetRaster() const
+		{
 			return _raster;
 		}
 		/**
@@ -135,7 +140,8 @@ namespace Jazz2::UI::Windows
 		 * A panel that fills it gets square corners too and no shadow, rounded ones would leave the corners of the
 		 * window showing the background, see @ref Panel().
 		 */
-		void SetSquareWindow(const Rectf& bounds) {
+		void SetSquareWindow(const Rectf& bounds)
+		{
 			_squareWindow = bounds;
 		}
 		/** @brief Draws a panel, its shadow, background and border, with square corners unless @p rounded */
@@ -197,7 +203,8 @@ namespace Jazz2::UI::Windows
 		// Puts the edges of a rectangle on whole pixels of the target
 		Rectf SnapRect(const Rectf& rect) const;
 		// Puts a position on a whole pixel of the target
-		float Snap(float value) const {
+		float Snap(float value) const
+		{
 			return std::round(value * _raster) / _raster;
 		}
 		void DrawNineSlice(const Skin::NineSlice& slice, const Rectf& rect, const Colorf& color, PaintLayer layer, bool withMiddle = true);

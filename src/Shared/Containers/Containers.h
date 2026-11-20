@@ -45,41 +45,58 @@
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
 
-namespace Death { namespace Containers {
-//###==##====#=====--==~--~=~- --- -- -  -  -   -
-
-	template<class T, class = void(*)(T*, std::size_t)> class Array;
-	template<class> class ArrayView;
-	template<std::size_t, class> class StaticArray;
-	template<std::size_t, class> class StaticArrayView;
-
-	template<class> class ComPtr;
-	template<class, class> class Pair;
-	template<class> class Pointer;
-	template<class> class Reference;
-
-	class FunctionData;
-	template<class> class Function;
-
-	enum class StringViewFlags : std::size_t;
-	class String;
-	template<class> class BasicStringView;
-	typedef BasicStringView<const char> StringView;
-	typedef BasicStringView<char> MutableStringView;
-
-	class StringIterable;
-	class StringIterableIterator;
-
-	class DateTime;
-	class TimeSpan;
-
-	namespace Implementation
+namespace Death
+{
+	namespace Containers
 	{
-		template<class, class, class = void> struct ArrayViewConverter;
-		template<std::size_t, class, class, class = void> struct StaticArrayViewConverter;
-		template<class, class = void> struct ErasedStaticArrayViewConverter;
-	}
+		//###==##====#=====--==~--~=~- --- -- -  -  -   -
 
-}}
+		template <class T, class = void(*)(T*, std::size_t)>
+		class Array;
+		template <class>
+		class ArrayView;
+		template <std::size_t, class>
+		class StaticArray;
+		template <std::size_t, class>
+		class StaticArrayView;
+
+		template <class>
+		class ComPtr;
+		template <class, class>
+		class Pair;
+		template <class>
+		class Pointer;
+		template <class>
+		class Reference;
+
+		class FunctionData;
+		template <class>
+		class Function;
+
+		enum class StringViewFlags : std::size_t;
+		class String;
+		template <class>
+		class BasicStringView;
+		typedef BasicStringView<const char> StringView;
+		typedef BasicStringView<char> MutableStringView;
+
+		class StringIterable;
+		class StringIterableIterator;
+
+		class DateTime;
+		class TimeSpan;
+
+		namespace Implementation
+		{
+			template <class, class, class = void>
+			struct ArrayViewConverter;
+			template <std::size_t, class, class, class = void>
+			struct StaticArrayViewConverter;
+			template <class, class = void>
+			struct ErasedStaticArrayViewConverter;
+		}
+
+	}
+}
 
 #endif

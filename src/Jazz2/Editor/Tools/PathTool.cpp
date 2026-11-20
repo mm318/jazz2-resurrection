@@ -199,15 +199,27 @@ namespace Jazz2::Editor
 	{
 		std::shared_ptr<Options> options = _options;
 		// TRANSLATORS: Label of the distance between two events placed along a path, in pixels
-		builder.AddNumber(_x("editor", "Distance"), _x("editor", "Distance between two events along the path in pixels, 32 is a tile"), 4.0f, 1024.0f, 1.0f,
-			[options]() { return options->Spacing; }, [options](float value, bool final) { options->Spacing = std::clamp(value, 4.0f, 1024.0f); });
+		builder.AddNumber(_x("editor", "Distance"), _x("editor", "Distance between two events along the path in pixels, 32 is a tile"), 4.0f, 1024.0f, 1.0f, [options]() {
+			return options->Spacing;
+		},
+			[options](float value, bool final) {
+				options->Spacing = std::clamp(value, 4.0f, 1024.0f);
+			});
 		builder.AddSeparator();
 		// TRANSLATORS: Toggle in the toolbar, the path is a smooth curve through its points
-		builder.AddToggle({ _x("editor", "Smooth"), EditorIcon::None, nullptr, _x("editor", "Through the points in a curve, otherwise straight from one to the next") },
-			[options]() { return options->Smooth; }, [options](bool value) { options->Smooth = value; });
+		builder.AddToggle({ _x("editor", "Smooth"), EditorIcon::None, nullptr, _x("editor", "Through the points in a curve, otherwise straight from one to the next") }, [options]() {
+			return options->Smooth;
+		},
+			[options](bool value) {
+				options->Smooth = value;
+			});
 		// TRANSLATORS: Toggle in the toolbar, the events are placed on the tiles the path goes through
-		builder.AddToggle({ _x("editor", "On tiles"), EditorIcon::None, nullptr, _x("editor", "Each on the tile the path goes through, otherwise off the grid, exactly on the path") },
-			[options]() { return options->OnGrid; }, [options](bool value) { options->OnGrid = value; });
+		builder.AddToggle({ _x("editor", "On tiles"), EditorIcon::None, nullptr, _x("editor", "Each on the tile the path goes through, otherwise off the grid, exactly on the path") }, [options]() {
+			return options->OnGrid;
+		},
+			[options](bool value) {
+				options->OnGrid = value;
+			});
 	}
 
 	void PathTool::DrawOverlay(Painter& painter, const ToolPointer& hover, bool hoverValid)

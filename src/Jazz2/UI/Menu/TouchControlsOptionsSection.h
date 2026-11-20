@@ -27,14 +27,16 @@ namespace Jazz2::UI::Menu
 		void OnTouchEvent(const nCine::TouchEvent& event, Vector2i viewSize) override;
 
 	private:
-		enum class EditMode {
+		enum class EditMode
+		{
 			None,
 			Dragging,
 			Resizing
 		};
 
 		/** @brief Axis-aligned box for a button preview */
-		struct ButtonRect {
+		struct ButtonRect
+		{
 			float CenterX, CenterY, HalfW, HalfH;
 		};
 
@@ -47,9 +49,10 @@ namespace Jazz2::UI::Menu
 			to carry two copies of these numbers. The touch buttons being edited are not part of this: they
 			keep their own positions against the screen edges, which is what is being configured here.
 		*/
-		struct ChromeLayout {
-			float OriginX, OriginY;		// Top-left corner of the safe area, which the rest is measured from
-			float Width;				// Width of the safe area
+		struct ChromeLayout
+		{
+			float OriginX, OriginY; // Top-left corner of the safe area, which the rest is measured from
+			float Width; // Width of the safe area
 			float CenterX;
 			float SaveLeft, ResetLeft;
 			float Row1Y, Row2Y, Row3Y;
@@ -72,17 +75,17 @@ namespace Jazz2::UI::Menu
 
 		// Primary touch (drag or resize-corner)
 		std::int32_t _primaryPointerId;
-		float _primaryStartX, _primaryStartY;      // normalized touch pos at gesture start
+		float _primaryStartX, _primaryStartY; // normalized touch pos at gesture start
 		Vector2f _slotEdgeOffsetAtStart;
 		Jazz2::TouchButtonAnchor _slotAnchorAtStart;
-		float _resizeCenterX, _resizeCenterY;       // button center saved at corner-resize start
+		float _resizeCenterX, _resizeCenterY; // button center saved at corner-resize start
 
 		// Secondary touch for pinch-to-resize
 		std::int32_t _secondaryPointerId;
 		float _pinchStartDist;
 		float _pinchStartScale;
 		bool _resizingViaCorner;
-		float _cornerHandleX, _cornerHandleY;       // screen-space corner handle center
+		float _cornerHandleX, _cornerHandleY; // screen-space corner handle center
 
 		// Bounce animation per slot (0 = idle, decays to 0 when bouncing)
 		float _bounceAnim[(std::int32_t)Jazz2::TouchButtonSlot::Count];
@@ -105,7 +108,9 @@ namespace Jazz2::UI::Menu
 		Vector2f GetCornerHandlePos(Jazz2::TouchButtonSlot slot, Vector2i viewSize);
 
 		void DrawButtonPreview(Canvas* canvas, Jazz2::TouchButtonSlot slot, Vector2i viewSize, bool isFocused) const;
-		void DrawOutlineRect(float cx, float cy, float hw, float hh, std::uint16_t z, float thickness, Colorf color);		void DrawToggle(float left, float top, float w, float h, bool on);	};
+		void DrawOutlineRect(float cx, float cy, float hw, float hh, std::uint16_t z, float thickness, Colorf color);
+		void DrawToggle(float left, float top, float w, float h, bool on);
+	};
 }
 
 #endif

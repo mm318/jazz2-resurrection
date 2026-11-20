@@ -12,7 +12,7 @@
 #include "../../../nCine/I18n.h"
 #include "../../../nCine/Graphics/RenderQueue.h"
 #include "../../../nCine/Graphics/Texture.h"
-#include "../../../nCine/Graphics/RHI/RhiFwd.h"	// RHI_CAP_SHADERS (a header macro, not a build define)
+#include "../../../nCine/Graphics/RHI/RhiFwd.h" // RHI_CAP_SHADERS (a header macro, not a build define)
 
 #include <algorithm>
 #include <cmath>
@@ -156,13 +156,12 @@ namespace Jazz2::UI::Multiplayer
 			if (dotIt == _minimapDots.end() || (target - dotIt->second.Target).SqrLength() > MaxStep * MaxStep ||
 				(target - dotIt->second.Pos).SqrLength() > 4.0f * MaxStep * MaxStep) {
 				// New, warped or respawned, so it jumps right there
-				_minimapDots[actorId] = MinimapDot{target, Vector2f::Zero, target, true};
+				_minimapDots[actorId] = MinimapDot { target, Vector2f::Zero, target, true };
 				continue;
 			}
 
 			auto& dot = dotIt->second;
-			bool isFar = (hasFarPlayers && (std::abs(target.X - center.X) > MpLevelHandler::RelevanceEnterHalfWidth ||
-				std::abs(target.Y - center.Y) > MpLevelHandler::RelevanceEnterHalfHeight));
+			bool isFar = (hasFarPlayers && (std::abs(target.X - center.X) > MpLevelHandler::RelevanceEnterHalfWidth || std::abs(target.Y - center.Y) > MpLevelHandler::RelevanceEnterHalfHeight));
 			if (deltaTime > 0.0f) {
 				SmoothDamp(dot.Pos, dot.Velocity, target, isFar ? FarSmoothTime : NearSmoothTime, deltaTime);
 			}
@@ -268,7 +267,6 @@ namespace Jazz2::UI::Multiplayer
 		} else {
 			_countdownText = "Go!"_s;
 			sfxName = "CountdownEnd"_s;
-
 		}
 		_countdownTimeLeft = FrameTimer::FramesPerSecond;
 
@@ -291,14 +289,14 @@ namespace Jazz2::UI::Multiplayer
 		auto* mpPlayer = static_cast<MpPlayer*>(player);
 		auto peerDesc = mpPlayer->GetPeerDescriptor();
 
-		if DEATH_UNLIKELY(player->GetPlayerType() == PlayerType::Spectate) {
+		if DEATH_UNLIKELY (player->GetPlayerType() == PlayerType::Spectate) {
 			bool isFollowing = (mpLevelHandler->GetSpectateFollowActorId() != MpLevelHandler::SpectateFreeCamera);
 			if (isFollowing) {
 				// Right after the "Spectating" label the base class draws, so it reads as one line: "Spectating <name>"
 				StringView followedName = mpLevelHandler->GetSpectateFollowPlayerName();
 				Colorf nameColor = (IsTeamGameMode(mpLevelHandler->_networkManager->GetServerConfiguration().GameMode)
-					? GetTeamColor(mpLevelHandler->GetSpectateFollowPlayerTeam())
-					: Colorf(0.62f, 0.44f, 0.34f, 0.5f));
+						? GetTeamColor(mpLevelHandler->GetSpectateFollowPlayerTeam())
+						: Colorf(0.62f, 0.44f, 0.34f, 0.5f));
 
 				// TRANSLATORS: Shown in the HUD while spectating in multiplayer, followed by the name of the watched player
 				float nameX = view.X + 10.0f + _smallFont->MeasureString(_("Spectating"), 0.8f, 0.9f).X + 8.0f;
@@ -314,10 +312,10 @@ namespace Jazz2::UI::Multiplayer
 			// round is running and no overtime countdown is on it. The leaderboard starts another line further down.
 			if (mpLevelHandler->_levelState == MpLevelHandler::LevelState::Running && !mpLevelHandler->_overtimeStarted) {
 				auto hintText = (isFollowing
-					// TRANSLATORS: Spectator hint, "Fire" and "Run" are the names of the two actions
-					? _("Fire: next player, Run: free camera")
-					// TRANSLATORS: Spectator hint, "Fire" is the name of the action
-					: _("Fire: follow a player"));
+						// TRANSLATORS: Spectator hint, "Fire" and "Run" are the names of the two actions
+						? _("Fire: next player, Run: free camera")
+						// TRANSLATORS: Spectator hint, "Fire" is the name of the action
+						: _("Fire: follow a player"));
 				if constexpr (Font::ShadowsEnabled) {
 					_smallFont->DrawString(this, hintText, charOffsetShadow, view.X + 10.0f, view.Y + 20.0f + 1.0f, FontShadowLayer,
 						Alignment::TopLeft, Colorf(0.0f, 0.0f, 0.0f, 0.32f), 0.7f, 0.0f, 0.0f, 0.0f, 0.0f, 0.9f);
@@ -393,7 +391,7 @@ namespace Jazz2::UI::Multiplayer
 		auto* mpLevelHandler = static_cast<MpLevelHandler*>(_levelHandler);
 		const auto& serverConfig = mpLevelHandler->_networkManager->GetServerConfiguration();
 
-		if DEATH_UNLIKELY(mpLevelHandler->_levelState != MpLevelHandler::LevelState::Running) {
+		if DEATH_UNLIKELY (mpLevelHandler->_levelState != MpLevelHandler::LevelState::Running) {
 			return;
 		}
 
@@ -432,7 +430,7 @@ namespace Jazz2::UI::Multiplayer
 	{
 		auto* mpLevelHandler = static_cast<MpLevelHandler*>(_levelHandler);
 
-		if DEATH_UNLIKELY(mpLevelHandler->_levelState != MpLevelHandler::LevelState::Running) {
+		if DEATH_UNLIKELY (mpLevelHandler->_levelState != MpLevelHandler::LevelState::Running) {
 			return;
 		}
 
@@ -469,9 +467,15 @@ namespace Jazz2::UI::Multiplayer
 		AnimState state;
 		switch (icon) {
 			default:
-			case GameModeHudIcon::Food: state = Resources::PickupFood; break;
-			case GameModeHudIcon::GemRed: state = Resources::PickupGemRed; break;
-			case GameModeHudIcon::GemGreen: state = Resources::PickupGemGreen; break;
+			case GameModeHudIcon::Food:
+				state = Resources::PickupFood;
+				break;
+			case GameModeHudIcon::GemRed:
+				state = Resources::PickupGemRed;
+				break;
+			case GameModeHudIcon::GemGreen:
+				state = Resources::PickupGemGreen;
+				break;
 		}
 		DrawElement(state, -1, x, y + shadowOffsetY, ShadowLayer, alignment, Colorf(0.0f, 0.0f, 0.0f, 0.4f), scaleX, scaleY);
 		DrawElement(state, -1, x, y, MainLayer, alignment, color, scaleX, scaleY);
@@ -489,7 +493,9 @@ namespace Jazz2::UI::Multiplayer
 		std::uint8_t Team;
 
 		PositionInRoundItem(StringView playerName, std::uint32_t position, std::uint32_t points, bool isLocal, bool isReference, std::uint8_t team)
-			: PlayerName(playerName), PositionInRound(position), PointsInRound(points), IsLocal(isLocal), IsReference(isReference), Team(team) {}
+			: PlayerName(playerName), PositionInRound(position), PointsInRound(points), IsLocal(isLocal), IsReference(isReference), Team(team)
+		{
+		}
 	};
 
 	void MpHUD::DrawTargetArrow(const Rectf& view, Actors::Player* player, Vector2f targetPos, const Colorf& color)
@@ -652,7 +658,7 @@ namespace Jazz2::UI::Multiplayer
 				} else {
 					length += formatInto({ &stringBuffer[length], sizeof(stringBuffer) - length }, "{}", std::abs(pointsDiff));
 				}
-				
+
 				if constexpr (Font::ShadowsEnabled) {
 					_smallFont->DrawString(this, { stringBuffer, length }, charOffsetShadow, view.X + std::max(130.0f, playerNameSize.X + 48.0f), view.Y + offset + 1.0f, FontShadowLayer,
 						Alignment::TopLeft, Colorf(0.0f, 0.0f, 0.0f, 0.32f), 0.8f, 0.0f, 0.0f, 0.0f, 0.0f, 0.9f);
@@ -686,24 +692,31 @@ namespace Jazz2::UI::Multiplayer
 		// What the right-hand column of the board shows, a mode with its own score names it
 		StringView scoreLabel;
 		auto* activeMode = mpLevelHandler->GetActiveGameMode();
-		StringView modeLabel = (activeMode != nullptr ? activeMode->GetScoreboardLabel() : StringView{});
+		StringView modeLabel = (activeMode != nullptr ? activeMode->GetScoreboardLabel() : StringView {});
 		if (!modeLabel.empty()) {
 			scoreLabel = modeLabel;
-		} else switch (gameMode) {
-			case MpGameMode::Race:
-			// TRANSLATORS: Column header in the final standings shown at the end of a multiplayer round (race finishing time), keep it short
-			case MpGameMode::TeamRace: scoreLabel = _("Time"); break;
-			case MpGameMode::TreasureHunt:
-			// TRANSLATORS: Column header in the final standings shown at the end of a multiplayer round (amount of treasure collected), keep it short
-			case MpGameMode::TeamTreasureHunt: scoreLabel = _("Treasure"); break;
-			// TRANSLATORS: Column header in the final standings shown at the end of a multiplayer round (number of kills), keep it short
-			default: scoreLabel = _("Kills"); break;
-		}
+		} else
+			switch (gameMode) {
+				case MpGameMode::Race:
+				// TRANSLATORS: Column header in the final standings shown at the end of a multiplayer round (race finishing time), keep it short
+				case MpGameMode::TeamRace:
+					scoreLabel = _("Time");
+					break;
+				case MpGameMode::TreasureHunt:
+				// TRANSLATORS: Column header in the final standings shown at the end of a multiplayer round (amount of treasure collected), keep it short
+				case MpGameMode::TeamTreasureHunt:
+					scoreLabel = _("Treasure");
+					break;
+				// TRANSLATORS: Column header in the final standings shown at the end of a multiplayer round (number of kills), keep it short
+				default:
+					scoreLabel = _("Kills");
+					break;
+			}
 
 		constexpr float RowHeight = 17.0f;
-		constexpr float TitleHeight = 38.0f;	// Title row, measured from the top of the content box
-		constexpr float LabelHeight = 18.0f;	// Column label row, right above the first result
-		constexpr float TeamGap = 8.0f;			// Space between the team rows and the column label row
+		constexpr float TitleHeight = 38.0f; // Title row, measured from the top of the content box
+		constexpr float LabelHeight = 18.0f; // Column label row, right above the first result
+		constexpr float TeamGap = 8.0f; // Space between the team rows and the column label row
 
 		// In team modes the teams come first, ordered by their score
 		std::uint8_t teamOrder[MaxTeamCount];
@@ -894,7 +907,7 @@ namespace Jazz2::UI::Multiplayer
 		Rectf pauseRect;
 		if (GetTouchPauseButtonRect(pauseRect)) {
 			bool overlaps = (pauseRect.X < boxX + boxW && pauseRect.X + pauseRect.W > boxX &&
-							 pauseRect.Y < boxY + boxH && pauseRect.Y + pauseRect.H > boxY);
+				pauseRect.Y < boxY + boxH && pauseRect.Y + pauseRect.H > boxY);
 			if (overlaps) {
 				boxX = std::max(view.X + Margin, pauseRect.X - boxW - Margin);
 			}
@@ -911,7 +924,7 @@ namespace Jazz2::UI::Multiplayer
 		};
 		auto clampToBox = [&](Vector2f p) -> Vector2f {
 			return Vector2f(std::min(std::max(p.X, boxX + Pad), boxX + boxW - Pad),
-							std::min(std::max(p.Y, boxY + Pad), boxY + boxH - Pad));
+				std::min(std::max(p.Y, boxY + Pad), boxY + boxH - Pad));
 		};
 
 		// Smoothed thick track line drawn as a triangle-strip mesh, with a drop shadow underneath (no background panel)
@@ -1061,9 +1074,7 @@ namespace Jazz2::UI::Multiplayer
 		std::size_t i = 0;
 		while (i < checkpoints.size()) {
 			std::size_t j = i + 1;
-			while (j < checkpoints.size()
-				&& checkpoints[j].Group == checkpoints[j - 1].Group
-				&& checkpoints[j].Order == checkpoints[j - 1].Order + 1) {
+			while (j < checkpoints.size() && checkpoints[j].Group == checkpoints[j - 1].Group && checkpoints[j].Order == checkpoints[j - 1].Order + 1) {
 				j++;
 			}
 
@@ -1111,12 +1122,18 @@ namespace Jazz2::UI::Multiplayer
 		// Everything the raster depends on, folded into one key: the track (its own cache key), the box size
 		// and the projection into it. A change of any of them is rare - a level load, a view size change.
 		std::uint32_t key = _minimapCacheKey;
-		auto fold = [&key](std::uint32_t value) { key = key * 2654435761u + value; };
-		fold((std::uint32_t)boxWidth); fold((std::uint32_t)boxHeight);
+		auto fold = [&key](std::uint32_t value) {
+			key = key * 2654435761u + value;
+		};
+		fold((std::uint32_t)boxWidth);
+		fold((std::uint32_t)boxHeight);
 		std::uint32_t bits;
-		std::memcpy(&bits, &scale, sizeof(bits)); fold(bits);
-		std::memcpy(&bits, &localOrigin.X, sizeof(bits)); fold(bits);
-		std::memcpy(&bits, &localOrigin.Y, sizeof(bits)); fold(bits);
+		std::memcpy(&bits, &scale, sizeof(bits));
+		fold(bits);
+		std::memcpy(&bits, &localOrigin.X, sizeof(bits));
+		fold(bits);
+		std::memcpy(&bits, &localOrigin.Y, sizeof(bits));
+		fold(bits);
 		if (_minimapTrackTexture != nullptr && key == _minimapTrackTextureKey) {
 			return;
 		}

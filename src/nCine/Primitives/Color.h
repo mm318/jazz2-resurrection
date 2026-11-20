@@ -45,36 +45,44 @@ namespace nCine
 
 #if defined(DEATH_TARGET_BIG_ENDIAN)
 			/** @brief Alpha */
-			std::uint8_t A;  // Stored first (highest byte of std::uint32_t)
+			std::uint8_t A; // Stored first (highest byte of std::uint32_t)
 			/** @brief Blue */
 			std::uint8_t B;
 			/** @brief Green */
 			std::uint8_t G;
 			/** @brief Red */
-			std::uint8_t R;  // Stored last (lowest byte of std::uint32_t)
+			std::uint8_t R; // Stored last (lowest byte of std::uint32_t)
 #else
 			/** @brief Red */
-			std::uint8_t R;  // Stored first (lowest byte of std::uint32_t)
+			std::uint8_t R; // Stored first (lowest byte of std::uint32_t)
 			/** @brief Green */
 			std::uint8_t G;
 			/** @brief Blue */
 			std::uint8_t B;
 			/** @brief Alpha */
-			std::uint8_t A;  // Stored last (highest byte of std::uint32_t)
+			std::uint8_t A; // Stored last (highest byte of std::uint32_t)
 #endif
 
 			/** @brief Default constructor, creates a fully transparent black color */
 			constexpr Color() noexcept
-				: Color(0, 0, 0, 0) {}
+				: Color(0, 0, 0, 0)
+			{
+			}
 
-			explicit Color(NoInitT) noexcept {}
+			explicit Color(NoInitT) noexcept
+			{
+			}
 
 			/** @brief Constructs an opaque color from three channels */
 			constexpr Color(std::uint8_t red, std::uint8_t green, std::uint8_t blue) noexcept
-				: Color(red, green, blue, 255) {}
+				: Color(red, green, blue, 255)
+			{
+			}
 			/** @brief Constructs a color from four channels */
 			constexpr Color(std::uint8_t red, std::uint8_t green, std::uint8_t blue, std::uint8_t alpha) noexcept
-				: R(red), G(green), B(blue), A(alpha) {}
+				: R(red), G(green), B(blue), A(alpha)
+			{
+			}
 			/** @brief Constructs an opaque color from a 24-bit hexadecimal RGB code */
 			explicit Color(std::uint32_t hex);
 			/** @brief Constructs a color from a four-channel array */
@@ -91,11 +99,13 @@ namespace nCine
 			std::uint32_t Bgra() const;
 
 			/** @brief Returns a pointer to the channel array */
-			inline const std::uint8_t* Data() const {
+			inline const std::uint8_t* Data() const
+			{
 				return &R;
 			}
 			/** @overload */
-			inline std::uint8_t* Data() {
+			inline std::uint8_t* Data()
+			{
 				return &R;
 			}
 
@@ -140,15 +150,15 @@ namespace nCine
 
 		inline namespace Literals
 		{
-			// According to https://wg21.link/CWG2521, space between "" and literal name is deprecated because _Uppercase
-			// or _double names could be treated as reserved depending on whether the space was present or not,
-			// and whitespace is not load-bearing in any other contexts. Clang 17+ adds an off-by-default warning for this;
-			// GCC 4.8 however *requires* the space there, so until GCC 4.8 support is dropped, we suppress this warning
-			// instead of removing the space. GCC 15 now has the same warning but it's enabled by default on -std=c++23.
-			#if (defined(DEATH_TARGET_CLANG) && __clang_major__ >= 17) || (defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG) && __GNUC__ >= 15)
-			#	pragma GCC diagnostic push
-			#	pragma GCC diagnostic ignored "-Wdeprecated-literal-operator"
-			#endif
+// According to https://wg21.link/CWG2521, space between "" and literal name is deprecated because _Uppercase
+// or _double names could be treated as reserved depending on whether the space was present or not,
+// and whitespace is not load-bearing in any other contexts. Clang 17+ adds an off-by-default warning for this;
+// GCC 4.8 however *requires* the space there, so until GCC 4.8 support is dropped, we suppress this warning
+// instead of removing the space. GCC 15 now has the same warning but it's enabled by default on -std=c++23.
+#if (defined(DEATH_TARGET_CLANG) && __clang_major__ >= 17) || (defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG) && __GNUC__ >= 15)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-literal-operator"
+#endif
 
 			/** @relatesalso nCine::Primitives::Color
 				@brief 8bit-per-channel RGB color literal
@@ -160,7 +170,8 @@ namespace nCine
 
 				See @ref Color for more information.
 			*/
-			constexpr Color operator"" _rgb(unsigned long long value) {
+			constexpr Color operator"" _rgb(unsigned long long value)
+			{
 				return { std::uint8_t(value >> 16), std::uint8_t(value >> 8), std::uint8_t(value) };
 			}
 
@@ -174,13 +185,14 @@ namespace nCine
 
 				See @ref Color for more information.
 			*/
-			constexpr Color operator"" _rgba(unsigned long long value) {
+			constexpr Color operator"" _rgba(unsigned long long value)
+			{
 				return { std::uint8_t(value >> 24), std::uint8_t(value >> 16), std::uint8_t(value >> 8), std::uint8_t(value) };
 			}
 
-			#if (defined(DEATH_TARGET_CLANG) && __clang_major__ >= 17) || (defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG) && __GNUC__ >= 15)
-			#	pragma GCC diagnostic pop
-			#endif
+#if (defined(DEATH_TARGET_CLANG) && __clang_major__ >= 17) || (defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG) && __GNUC__ >= 15)
+#pragma GCC diagnostic pop
+#endif
 		}
 	}
 }

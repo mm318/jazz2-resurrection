@@ -15,12 +15,13 @@ namespace Jazz2::UI::Menu
 		implemented purely as a per-layer draw transform (offset/scale/tint) applied by the container, so they
 		require no render targets and add no draw calls.
 	*/
-	enum class TransitionStyle {
-		None,				/**< No animation, the switch is instant */
-		Fade,				/**< Cross-fade by alpha */
-		SlideHorizontal,	/**< Slide left when going forward, right when going back */
-		SlideVertical,		/**< Slide down when going forward, up when going back */
-		Scale				/**< Scale combined with a cross-fade */
+	enum class TransitionStyle
+	{
+		None, /**< No animation, the switch is instant */
+		Fade, /**< Cross-fade by alpha */
+		SlideHorizontal, /**< Slide left when going forward, right when going back */
+		SlideVertical, /**< Slide down when going forward, up when going back */
+		Scale /**< Scale combined with a cross-fade */
 	};
 
 	/**
@@ -29,13 +30,15 @@ namespace Jazz2::UI::Menu
 		Describes the @ref TransitionStyle, its duration in `timeMult` units, and the easing curve used to shape
 		the progress. A @ref MenuSection can return its own to override @ref MenuStyle::DefaultTransition.
 	*/
-	struct TransitionInfo {
+	struct TransitionInfo
+	{
 		TransitionStyle Style = TransitionStyle::SlideHorizontal;
 		float Duration = 16.0f;
 		Easing::Fn Ease = Easing::OutCubic;
 
 		/** @brief Returns an instant (no animation) transition */
-		static TransitionInfo Instant() {
+		static TransitionInfo Instant()
+		{
 			return { TransitionStyle::None, 0.0f, Easing::Linear };
 		}
 	};

@@ -32,16 +32,16 @@ namespace Jazz2::UI::Menu
 		TransitionInfo GetTransition() const override;
 
 	private:
-		std::int32_t _scrollY;			// Vertical scroll offset in pixels (<= 0; 0 = top), same convention as ScrollView
-		std::int32_t _contentHeight;	// Total height of all rows
-		std::int32_t _availableHeight;	// Height of the visible (clipped) row band
+		std::int32_t _scrollY; // Vertical scroll offset in pixels (<= 0; 0 = top), same convention as ScrollView
+		std::int32_t _contentHeight; // Total height of all rows
+		std::int32_t _availableHeight; // Height of the visible (clipped) row band
 		bool _scrollable;
 		Vector2f _touchStart;
 		Vector2f _touchLast;
 		float _touchTime;
 		float _touchSpeed;
 		std::int8_t _touchDirection;
-		bool _touchStartedAtBottom;	// Whether the scroll was already at the bottom when the current touch began (gates swipe-up-to-close)
+		bool _touchStartedAtBottom; // Whether the scroll was already at the bottom when the current touch began (gates swipe-up-to-close)
 	};
 }
 

@@ -145,7 +145,7 @@ namespace Jazz2::Editor
 
 		void GetLegacyJumpPath(const MeasureTool::JumpArc& arc, Vector2f start, float direction, Tiles::TileMap* tileMap, SmallVectorImpl<Vector2f>& path)
 		{
-			Mover mover{ tileMap, false, false };
+			Mover mover { tileMap, false, false };
 			float speedX = arc.SpeedX;
 			float speedY;
 			float springHold = 0.0f, springRun = 0.0f;
@@ -220,7 +220,7 @@ namespace Jazz2::Editor
 
 		void GetReforgedJumpPath(const MeasureTool::JumpArc& arc, Vector2f start, float direction, Tiles::TileMap* tileMap, SmallVectorImpl<Vector2f>& path)
 		{
-			Mover mover{ tileMap, true, false };
+			Mover mover { tileMap, true, false };
 			float speedX = arc.SpeedX;
 			float speedY, force, externalX = 0.0f;
 			float springRun = 0.0f;
@@ -427,7 +427,7 @@ namespace Jazz2::Editor
 			// The springs of the original that face either way are told by where the measure goes
 			bool horizontal = (orientation == 1 || orientation >= 3);
 			if (EventType(event.Type) == EventType::Spring && orientation != 2) {
-				JumpArc arc{ 0.0f, false, reforged };
+				JumpArc arc { 0.0f, false, reforged };
 				arc.Spring = GetSpringStrength(event.Params[0], horizontal, reforged);
 				arc.SpringHorizontal = horizontal;
 				float springDirection = (orientation == 1 ? 1.0f : (orientation == 3 ? -1.0f : direction));

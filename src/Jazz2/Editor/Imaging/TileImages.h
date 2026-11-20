@@ -60,10 +60,10 @@ namespace Jazz2::Editor
 	/** @brief What the colors of the tiles of an image become, see @ref SliceTileSet() */
 	enum class TileImportColors : std::uint8_t
 	{
-		OwnPalette,			/**< The indices of an indexed image, with its palette as the palette of the tile set */
-		TrueColor,			/**< The colors as they are, true color tiles */
-		MatchPalette,		/**< The closest colors of a palette, the palette of the tile set */
-		Reduce				/**< The colors reduced to a palette made for them, with the locked entries of a palette kept, see @ref BuildPalette() */
+		OwnPalette, /**< The indices of an indexed image, with its palette as the palette of the tile set */
+		TrueColor, /**< The colors as they are, true color tiles */
+		MatchPalette, /**< The closest colors of a palette, the palette of the tile set */
+		Reduce /**< The colors reduced to a palette made for them, with the locked entries of a palette kept, see @ref BuildPalette() */
 	};
 
 	/** @brief How an image is made into a tile set, see @ref SliceTileSet() */
@@ -109,10 +109,10 @@ namespace Jazz2::Editor
 	/** @brief Why @ref SliceTileSet() couldn't make a tile set */
 	enum class TileImportError : std::uint8_t
 	{
-		None,				/**< It could */
-		TooSmall,			/**< The image is smaller than a tile */
-		TooManyTiles,		/**< The tile set would have more tiles than @ref MaxImportedTiles */
-		Cancelled			/**< @ref TileImportOptions::Progress stopped it */
+		None, /**< It could */
+		TooSmall, /**< The image is smaller than a tile */
+		TooManyTiles, /**< The tile set would have more tiles than @ref MaxImportedTiles */
+		Cancelled /**< @ref TileImportOptions::Progress stopped it */
 	};
 
 	/** @brief Number of columns and rows of tiles in an image with the layout of @p options, see @ref SliceTileSet() */

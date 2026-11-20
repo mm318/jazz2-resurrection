@@ -24,7 +24,10 @@ namespace nCine
 		 */
 		struct DisplaySettings
 		{
-			DisplaySettings() : ShowProfilerGraphs(true), ShowInfoText(true), ShowInterface(false) {}
+			DisplaySettings()
+				: ShowProfilerGraphs(true), ShowInfoText(true), ShowInterface(false)
+			{
+			}
 
 			/** @brief Whether to show the profiler graphs */
 			bool ShowProfilerGraphs;
@@ -41,7 +44,8 @@ namespace nCine
 		IDebugOverlay& operator=(const IDebugOverlay&) = delete;
 
 		/** @brief Returns the mutable display settings of the overlay */
-		inline DisplaySettings& GetSettings() {
+		inline DisplaySettings& GetSettings()
+		{
 			return _settings;
 		}
 		/** @brief Updates the overlay and draws it for the current frame */
@@ -64,7 +68,11 @@ namespace nCine
 	};
 
 	inline IDebugOverlay::IDebugOverlay(float profileTextUpdateTime)
-		: _updateTime(profileTextUpdateTime) {}
+		: _updateTime(profileTextUpdateTime)
+	{
+	}
 
-	inline IDebugOverlay::~IDebugOverlay() {}
+	inline IDebugOverlay::~IDebugOverlay()
+	{
+	}
 }

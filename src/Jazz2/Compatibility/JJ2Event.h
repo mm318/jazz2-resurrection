@@ -12,7 +12,8 @@ namespace Jazz2::Compatibility
 		Values match the original byte identifiers and are translated to the engine's native
 		@ref Jazz2::EventType by @ref EventConverter during level import.
 	*/
-	enum class JJ2Event : uint8_t {
+	enum class JJ2Event : uint8_t
+	{
 		EMPTY = 0x00,
 
 		// Base events

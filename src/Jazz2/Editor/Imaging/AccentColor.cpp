@@ -45,12 +45,18 @@ namespace Jazz2::Editor
 			float f = sector - std::floor(sector);
 			float p = v * (1.0f - s), q = v * (1.0f - s * f), t = v * (1.0f - s * (1.0f - f));
 			switch (i) {
-				case 0: return Colorf(v, t, p, 1.0f);
-				case 1: return Colorf(q, v, p, 1.0f);
-				case 2: return Colorf(p, v, t, 1.0f);
-				case 3: return Colorf(p, q, v, 1.0f);
-				case 4: return Colorf(t, p, v, 1.0f);
-				default: return Colorf(v, p, q, 1.0f);
+				case 0:
+					return Colorf(v, t, p, 1.0f);
+				case 1:
+					return Colorf(q, v, p, 1.0f);
+				case 2:
+					return Colorf(p, v, t, 1.0f);
+				case 3:
+					return Colorf(p, q, v, 1.0f);
+				case 4:
+					return Colorf(t, p, v, 1.0f);
+				default:
+					return Colorf(v, p, q, 1.0f);
 			}
 		}
 

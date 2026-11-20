@@ -31,7 +31,7 @@ namespace nCine
 
 		/** @brief Window position coordinates in the virtual screen made of all the connected monitors */
 		Vector2i WindowPosition;
-		
+
 		/** @brief Maximum number of frames to render per second or 0 for no limit */
 		std::uint32_t FrameLimit;
 
@@ -97,24 +97,29 @@ namespace nCine
 		String& GetDataPath();
 
 		/** @brief Returns `true` if the OpenGL profile is going to be core */
-		inline bool IsGlCoreProfile() const {
+		inline bool IsGlCoreProfile() const
+		{
 			return _glCoreProfile;
 		}
 		/** @brief Returns `true` if the OpenGL context is going to be forward compatible */
-		inline bool IsGlForwardCompatible() const {
+		inline bool IsGlForwardCompatible() const
+		{
 			return _glForwardCompatible;
 		}
 		/** @brief Returns major version number of the OpenGL context */
-		inline std::uint32_t GetGlMajorVersion() const {
+		inline std::uint32_t GetGlMajorVersion() const
+		{
 			return _glMajorVersion;
 		}
 		/** @brief Returns minor version number of the OpenGL context */
-		inline std::uint32_t GetGlMinorVersion() const {
+		inline std::uint32_t GetGlMinorVersion() const
+		{
 			return _glMinorVersion;
 		}
 
 		/** @brief Returns number of arguments passed on the command-line */
-		inline std::size_t GetArgc() const {
+		inline std::size_t GetArgc() const
+		{
 			return _argv.size();
 		}
 		/** @brief Returns selected argument from the ones passed on the command-line */

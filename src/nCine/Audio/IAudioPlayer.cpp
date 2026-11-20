@@ -8,7 +8,7 @@ namespace nCine
 {
 	IAudioPlayer::IAudioPlayer(ObjectType type)
 		: Object(type), _sourceId(IAudioDevice::UnavailableSource), _state(PlayerState::Stopped), _flags(PlayerFlags::None),
-			_gain(1.0f), _pitch(1.0f), _lowPass(1.0f), _position(0.0f, 0.0f, 0.0f)
+		  _gain(1.0f), _pitch(1.0f), _lowPass(1.0f), _position(0.0f, 0.0f, 0.0f)
 	{
 	}
 
@@ -119,9 +119,9 @@ namespace nCine
 		if (listenerSpaceDist < SmoothPanRadius) {
 			float panningActive = listenerSpaceDist / SmoothPanRadius;
 			adjustedPos = Vector3f::Lerp(
-								Vector3(0.0f, 0.0f, 1.0f + (SmoothPanRadius - 1.0f) * panningActive),
-								adjustedPos,
-								panningActive);
+				Vector3(0.0f, 0.0f, 1.0f + (SmoothPanRadius - 1.0f) * panningActive),
+				adjustedPos,
+				panningActive);
 		}
 
 		// Ensure the source is always at the front

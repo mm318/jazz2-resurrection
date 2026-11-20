@@ -9,8 +9,8 @@
 #include "../../../nCine/I18n.h"
 
 #if defined(WITH_MULTIPLAYER)
-#	include "CreateServerOptionsSection.h"
-#	include "CreateLocalGameOptionsSection.h"
+#include "CreateServerOptionsSection.h"
+#include "CreateLocalGameOptionsSection.h"
 #endif
 
 #include <Containers/StringConcatenable.h>
@@ -25,18 +25,20 @@ namespace Jazz2::UI::Menu
 {
 	CustomLevelSelectSection::CustomLevelSelectSection(bool multiplayer, bool privateServer, bool localGame)
 		: _multiplayer(multiplayer), _privateServer(privateServer), _localGame(localGame), _selectedIndex(0), _animation(0.0f), _y(0.0f),
-			_height(0.0f), _availableHeight(0.0f), _touchTime(0.0f), _touchSpeed(0.0f), _pressedCount(0),
-			_noiseCooldown(0.0f), _touchDirection(0), _indexingFinished(false), _indexingCancelled(false), _itemsSorted(false), _selectionMoved(false),
-			_previewAnimation(0.0f), _previewWait(0.0f), _previewWaitIndex(-1)
+		  _height(0.0f), _availableHeight(0.0f), _touchTime(0.0f), _touchSpeed(0.0f), _pressedCount(0),
+		  _noiseCooldown(0.0f), _touchDirection(0), _indexingFinished(false), _indexingCancelled(false), _itemsSorted(false), _selectionMoved(false),
+		  _previewAnimation(0.0f), _previewWait(0.0f), _previewWaitIndex(-1)
 #if defined(WITH_THREADS) && !defined(DEATH_TARGET_EMSCRIPTEN)
-			, _previewRequestDone(false), _previewRequestActive(false)
+		  ,
+		  _previewRequestDone(false), _previewRequestActive(false)
 #endif
 	{
 #if defined(WITH_THREADS) && !defined(DEATH_TARGET_EMSCRIPTEN)
 		_indexingThread = Thread([](void* arg) {
 			auto* _this = static_cast<CustomLevelSelectSection*>(arg);
 			_this->AddCustomLevels();
-		}, this);
+		},
+			this);
 #else
 		AddCustomLevels();
 		TakeIndexedItems();
@@ -277,7 +279,8 @@ namespace Jazz2::UI::Menu
 			auto* _this = static_cast<CustomLevelSelectSection*>(arg);
 			ReadPreview(_this->_previewRequest);
 			_this->_previewRequestDone.store(true, std::memory_order_release);
-		}, this);
+		},
+			this);
 #else
 		PreviewData preview;
 		preview.Path = item.Path;

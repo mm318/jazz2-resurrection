@@ -11,81 +11,78 @@ using namespace Death::IO;
 namespace nCine
 {
 	AppConfiguration::AppConfiguration()
-		:
-		Resolution(0, 0),
-		WindowPosition(WindowPositionIgnore, WindowPositionIgnore),
-		FrameLimit(0),
-		FrameTimerLogInterval(5.0f),
-		Fullscreen(false),
-		Resizable(true),
-		WindowScaling(true),
-		UseBufferMapping(false),
-		UseBufferStorage(true),
-		// Only the build-time override lives here. A batch size that follows from the rendering device is the
-		// device's own business and is published as IntValues::MaxBatchSize by the backend that knows it
-		// (GLRhiCapabilities for the ANGLE/Emscripten/WinRT targets, GxmRhiCapabilities, RsxRhiCapabilities);
-		// everything that sizes a batch consults that, so leaving this 0 is what lets the device speak.
+		: Resolution(0, 0),
+		  WindowPosition(WindowPositionIgnore, WindowPositionIgnore),
+		  FrameLimit(0),
+		  FrameTimerLogInterval(5.0f),
+		  Fullscreen(false),
+		  Resizable(true),
+		  WindowScaling(true),
+		  UseBufferMapping(false),
+		  UseBufferStorage(true),
+	// Only the build-time override lives here. A batch size that follows from the rendering device is the
+	// device's own business and is published as IntValues::MaxBatchSize by the backend that knows it
+	// (GLRhiCapabilities for the ANGLE/Emscripten/WinRT targets, GxmRhiCapabilities, RsxRhiCapabilities);
+	// everything that sizes a batch consults that, so leaving this 0 is what lets the device speak.
 #if defined(WITH_FIXED_BATCH_SIZE) && WITH_FIXED_BATCH_SIZE > 0
-		FixedBatchSize(WITH_FIXED_BATCH_SIZE),
+		  FixedBatchSize(WITH_FIXED_BATCH_SIZE),
 #else
-		FixedBatchSize(0),
+		  FixedBatchSize(0),
 #endif
-		// These two also decide how many draws an aggregated mesh costs: a tile layer goes out as one command
-		// per RenderResources::GetMaxQuadsPerDraw() quads, and a quad is 128 bytes of vertices and 12 of
-		// indices. The 64 KB / 8 KB pair held 512 of the ~2200 quads a 1080p viewport of a layer covers, so a
-		// layer took several draws, each out of a buffer newly created because nothing in hand had room - and
-		// how many of those a frame needed moved with the camera. 512 KB / 128 KB is a whole layer in one
-		// draw at any resolution the game runs at, for under 2 MB. The console backends keep the small pair,
-		// where a few hundred quads fit either way and buffer memory is what is short, keyed on the backend
-		// like `UseBufferMapping` below, the ES2 profile being Vita's vitaGL.
-#if !defined(WITH_IMGUI) && (defined(WITH_RHI_RDP) || defined(WITH_RHI_GU) || defined(WITH_RHI_PVR) || \
-		defined(WITH_RHI_GX) || defined(WITH_RHI_GS) || defined(WITH_RHI_PICA) || defined(WITH_RHI_SOFTWARE) || \
-		defined(WITH_RHI_LEGACYGL) || defined(WITH_RHI_GXM) || defined(WITH_RHI_RSX) || defined(WITH_RHI_GX2) || defined(RHI_GL_PROFILE_ES2))
-		VboSize(64 * 1024),
-		IboSize(8 * 1024),
+	// These two also decide how many draws an aggregated mesh costs: a tile layer goes out as one command
+	// per RenderResources::GetMaxQuadsPerDraw() quads, and a quad is 128 bytes of vertices and 12 of
+	// indices. The 64 KB / 8 KB pair held 512 of the ~2200 quads a 1080p viewport of a layer covers, so a
+	// layer took several draws, each out of a buffer newly created because nothing in hand had room - and
+	// how many of those a frame needed moved with the camera. 512 KB / 128 KB is a whole layer in one
+	// draw at any resolution the game runs at, for under 2 MB. The console backends keep the small pair,
+	// where a few hundred quads fit either way and buffer memory is what is short, keyed on the backend
+	// like `UseBufferMapping` below, the ES2 profile being Vita's vitaGL.
+#if !defined(WITH_IMGUI) && (defined(WITH_RHI_RDP) || defined(WITH_RHI_GU) || defined(WITH_RHI_PVR) || defined(WITH_RHI_GX) || defined(WITH_RHI_GS) || defined(WITH_RHI_PICA) || defined(WITH_RHI_SOFTWARE) || defined(WITH_RHI_LEGACYGL) || defined(WITH_RHI_GXM) || defined(WITH_RHI_RSX) || defined(WITH_RHI_GX2) || defined(RHI_GL_PROFILE_ES2))
+		  VboSize(64 * 1024),
+		  IboSize(8 * 1024),
 #else
-		VboSize(512 * 1024),
-		IboSize(128 * 1024),
+		  VboSize(512 * 1024),
+		  IboSize(128 * 1024),
 #endif
-		VaoPoolSize(16),
-		RenderCommandPoolSize(32),
+		  VaoPoolSize(16),
+		  RenderCommandPoolSize(32),
 #if defined(WITH_IMGUI)
-		WithDebugOverlay(false),
+		  WithDebugOverlay(false),
 #endif
-		WithAudio(true),
-		WithGraphics(true),
-		WithScenegraph(true),
-		WithThreads(false),
-		WithVSync(true),
-		WithGlDebugContext(false),
+		  WithAudio(true),
+		  WithGraphics(true),
+		  WithScenegraph(true),
+		  WithThreads(false),
+		  WithVSync(true),
+		  WithGlDebugContext(false),
 
-		// Compile-time variables
+	// Compile-time variables
 #if defined(WITH_RHI_LEGACYGL)
-		// The fixed-function GL backend needs the fixed-function pipeline, which only a compatibility
-		// context has - a core profile has neither glBegin/glInterleavedArrays nor the texture
-		// environment the effect tables are expressed in. 1.3 is what it actually uses (the texture
-		// combiners); asking for exactly that also keeps a driver from handing out a context that
-		// deprecates what the backend calls.
-		_glCoreProfile(false),
-		_glForwardCompatible(false),
-		_glMajorVersion(1),
-		_glMinorVersion(3),
+		  // The fixed-function GL backend needs the fixed-function pipeline, which only a compatibility
+		  // context has - a core profile has neither glBegin/glInterleavedArrays nor the texture
+		  // environment the effect tables are expressed in. 1.3 is what it actually uses (the texture
+		  // combiners); asking for exactly that also keeps a driver from handing out a context that
+		  // deprecates what the backend calls.
+		  _glCoreProfile(false),
+		  _glForwardCompatible(false),
+		  _glMajorVersion(1),
+		  _glMinorVersion(3),
 #else
-		_glCoreProfile(true),
-		_glForwardCompatible(true),
-#	if defined(RHI_GL_PROFILE_ES2)
-		// Real OpenGL|ES 2.0 profile (PS Vita target): ESSL 100, no UBOs, no gl_VertexID
-		_glMajorVersion(2),
-		_glMinorVersion(0),
-#	elif defined(RHI_GL_PROFILE_ES) || defined(DEATH_TARGET_EMSCRIPTEN)
-		_glMajorVersion(3),
-		_glMinorVersion(0),
-#	else
-		_glMajorVersion(3),
-		_glMinorVersion(3),
-#	endif
+		  _glCoreProfile(true),
+		  _glForwardCompatible(true),
+#if defined(RHI_GL_PROFILE_ES2)
+		  // Real OpenGL|ES 2.0 profile (PS Vita target): ESSL 100, no UBOs, no gl_VertexID
+		  _glMajorVersion(2),
+		  _glMinorVersion(0),
+#elif defined(RHI_GL_PROFILE_ES) || defined(DEATH_TARGET_EMSCRIPTEN)
+		  _glMajorVersion(3),
+		  _glMinorVersion(0),
+#else
+		  _glMajorVersion(3),
+		  _glMinorVersion(3),
 #endif
-		_argv(nullptr)
+#endif
+		  _argv(nullptr)
 	{
 #if defined(DEATH_TARGET_ANDROID)
 		GetDataPath() = "assets:/"_s;
@@ -104,7 +101,7 @@ namespace nCine
 #endif
 
 #if defined(WITH_RHI_RDP) || defined(WITH_RHI_GU) || defined(WITH_RHI_PVR) || defined(WITH_RHI_GX) || \
-		defined(WITH_RHI_GS) || defined(WITH_RHI_PICA) || defined(WITH_RHI_SOFTWARE)
+	defined(WITH_RHI_GS) || defined(WITH_RHI_PICA) || defined(WITH_RHI_SOFTWARE)
 		// These tiers have no device memory at all: a buffer object is a host allocation, and the draw
 		// dispatch reads the vertices and indices out of it with the CPU. Mapping it is therefore the
 		// identity, and it is the unmapped path that costs something - RenderBuffersManager::FlushUnmap()

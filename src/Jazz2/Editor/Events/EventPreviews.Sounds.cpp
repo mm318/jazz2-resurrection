@@ -7,7 +7,7 @@
 #include "../../Resources.h"
 
 #if defined(WITH_AUDIO)
-#	include "../../../nCine/Audio/AudioBufferPlayer.h"
+#include "../../../nCine/Audio/AudioBufferPlayer.h"
 #endif
 
 #include <algorithm>
@@ -31,10 +31,17 @@ namespace Jazz2::Editor
 				case EventType::AreaAmbientSound:
 					// AmbientSound::OnActivatedAsync()
 					switch (event.Params[0]) {
-						case 0: identifier = "AmbientWind"_s; break;
-						case 1: identifier = "AmbientFire"_s; break;
-						case 2: identifier = "AmbientScienceNoise"_s; break;
-						default: return false;
+						case 0:
+							identifier = "AmbientWind"_s;
+							break;
+						case 1:
+							identifier = "AmbientFire"_s;
+							break;
+						case 2:
+							identifier = "AmbientScienceNoise"_s;
+							break;
+						default:
+							return false;
 					}
 					metadata = "Common/AmbientSound"_s;
 					gain = 0.4f * (event.Params[1] / 255.0f);

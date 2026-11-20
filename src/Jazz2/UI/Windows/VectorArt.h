@@ -42,7 +42,7 @@ namespace Jazz2::UI::Windows
 	{
 	public:
 		/** @brief Returns the color of a letter as R, G, B and A bytes from the lowest, 0 if it's not a color */
-		using ColorFunc = std::uint32_t(*)(char letter);
+		using ColorFunc = std::uint32_t (*)(char letter);
 
 		VectorArt() = delete;
 

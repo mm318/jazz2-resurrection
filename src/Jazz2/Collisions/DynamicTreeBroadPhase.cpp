@@ -61,9 +61,9 @@ namespace Jazz2::Collisions
 	void DynamicTreeBroadPhase::MoveProxy(std::int32_t proxyId, const AABBf& aabb, Vector2f displacement)
 	{
 		// NOTE: Touch proxy everytime, because it's called only when something changes
-		/*bool buffer =*/ _tree.MoveProxy(proxyId, aabb, displacement);
+		/*bool buffer =*/_tree.MoveProxy(proxyId, aabb, displacement);
 		//if (buffer) {
-			BufferMove(proxyId);
+		BufferMove(proxyId);
 		//}
 	}
 

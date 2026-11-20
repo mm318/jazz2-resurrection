@@ -98,8 +98,8 @@ namespace Jazz2::Editor
 				}
 				// The first one of each, a group has one or two fields along an axis
 				std::uint8_t& slot = (field.Direction == DirectionAxis::X
-					? (field.DirectionNegative ? fields.NegativeX : fields.PositiveX)
-					: (field.DirectionNegative ? fields.NegativeY : fields.PositiveY));
+						? (field.DirectionNegative ? fields.NegativeX : fields.PositiveX)
+						: (field.DirectionNegative ? fields.NegativeY : fields.PositiveY));
 				if (slot == 0xFF) {
 					slot = i;
 				}
@@ -222,12 +222,30 @@ namespace Jazz2::Editor
 		// one of the parameter; the handles measured from the level are only of the game's own events
 		bool builtIn = !EventCatalog::IsExtension(descriptor);
 		switch (gizmo.Kind) {
-			case EventGizmoKind::Radius: if (GetGizmo(*field) != FieldGizmo::Radius) return false; break;
-			case EventGizmoKind::ChainLength: if (GetGizmo(*field) != FieldGizmo::LengthDown) return false; break;
-			case EventGizmoKind::BridgeWidth: if (GetGizmo(*field) != FieldGizmo::WidthRight) return false; break;
-			case EventGizmoKind::Offset: if (GetGizmo(*field) != FieldGizmo::OffsetX) return false; break;
-			case EventGizmoKind::Direction: if (field->Direction == DirectionAxis::None) return false; break;
-			default: if (!builtIn) return false; break;
+			case EventGizmoKind::Radius:
+				if (GetGizmo(*field) != FieldGizmo::Radius)
+					return false;
+				break;
+			case EventGizmoKind::ChainLength:
+				if (GetGizmo(*field) != FieldGizmo::LengthDown)
+					return false;
+				break;
+			case EventGizmoKind::BridgeWidth:
+				if (GetGizmo(*field) != FieldGizmo::WidthRight)
+					return false;
+				break;
+			case EventGizmoKind::Offset:
+				if (GetGizmo(*field) != FieldGizmo::OffsetX)
+					return false;
+				break;
+			case EventGizmoKind::Direction:
+				if (field->Direction == DirectionAxis::None)
+					return false;
+				break;
+			default:
+				if (!builtIn)
+					return false;
+				break;
 		}
 		Formats::EventRecord before = event;
 		Vector2f center = GetCenter(cell);

@@ -15,8 +15,8 @@ namespace Jazz2::UI::Menu
 {
 	StartGameOptionsSection::StartGameOptionsSection(StringView levelName, StringView previousEpisodeName)
 		: _levelName(levelName), _previousEpisodeName(previousEpisodeName), _selectedIndex(2),
-			_availableCharacters(3), _selectedPlayerType(0), _selectedDifficulty(1), _lastPlayerType(0), _lastDifficulty(0),
-			_imageTransition(1.0f), _animation(0.0f), _transitionTime(0.0f), _shouldStart(false)
+		  _availableCharacters(3), _selectedPlayerType(0), _selectedDifficulty(1), _lastPlayerType(0), _lastDifficulty(0),
+		  _imageTransition(1.0f), _animation(0.0f), _transitionTime(0.0f), _shouldStart(false)
 	{
 		// TRANSLATORS: Menu item to select player character (Jazz, Spaz, Lori)
 		_items[(std::int32_t)Item::Character].Name = _("Character");
@@ -142,9 +142,15 @@ namespace Jazz2::UI::Menu
 		AnimState selectedDifficultyImage;
 		switch (_selectedPlayerType) {
 			default:
-			case 0: selectedDifficultyImage = MenuDifficultyJazz; break;
-			case 1: selectedDifficultyImage = MenuDifficultySpaz; break;
-			case 2: selectedDifficultyImage = MenuDifficultyLori; break;
+			case 0:
+				selectedDifficultyImage = MenuDifficultyJazz;
+				break;
+			case 1:
+				selectedDifficultyImage = MenuDifficultySpaz;
+				break;
+			case 2:
+				selectedDifficultyImage = MenuDifficultyLori;
+				break;
 		}
 
 		_root->DrawElement(MenuDim, 0, center.X * 0.36f, artCenterY, IMenuContainer::ShadowLayer - 2, Alignment::Center, Colorf::White, 24.0f * artZoom, 36.0f * artZoom);
@@ -155,9 +161,15 @@ namespace Jazz2::UI::Menu
 			AnimState lastDifficultyImage;
 			switch (_lastPlayerType) {
 				default:
-				case 0: lastDifficultyImage = MenuDifficultyJazz; break;
-				case 1: lastDifficultyImage = MenuDifficultySpaz; break;
-				case 2: lastDifficultyImage = MenuDifficultyLori; break;
+				case 0:
+					lastDifficultyImage = MenuDifficultyJazz;
+					break;
+				case 1:
+					lastDifficultyImage = MenuDifficultySpaz;
+					break;
+				case 2:
+					lastDifficultyImage = MenuDifficultyLori;
+					break;
 			}
 			_root->DrawElement(lastDifficultyImage, _lastDifficulty, center.X * 0.36f, artCenterY, IMenuContainer::MainLayer, Alignment::Center, Colorf(1.0f, 1.0f, 1.0f, 1.0f - _imageTransition), 0.88f * artZoom, 0.88f * artZoom);
 		}

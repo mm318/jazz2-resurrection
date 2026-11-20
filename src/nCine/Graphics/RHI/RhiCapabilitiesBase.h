@@ -17,7 +17,8 @@ namespace nCine::RHI
 	{
 	public:
 		std::int32_t GetApiVersion(ApiVersion version) const override;
-		inline const InfoStrings& GetInfoStrings() const override {
+		inline const InfoStrings& GetInfoStrings() const override
+		{
 			return _infoStrings;
 		}
 		std::int32_t GetValue(IntValues valueName) const override;

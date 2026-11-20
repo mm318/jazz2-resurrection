@@ -33,7 +33,6 @@ namespace Jazz2::Actors::Multiplayer
 		/** @overload */
 		std::shared_ptr<const PeerDescriptor> GetPeerDescriptor() const;
 
-
 	protected:
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		std::shared_ptr<PeerDescriptor> _peerDesc;

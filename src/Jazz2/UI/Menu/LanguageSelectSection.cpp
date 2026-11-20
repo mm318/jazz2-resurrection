@@ -48,7 +48,9 @@ namespace Jazz2::UI::Menu
 		auto list = std::make_unique<ScrollView>();
 
 		// Default (built-in English)
-		list->Add<ListItem>("English \f[c:#707070]· en"_s, [root]() { ApplyLanguage(root, {}); });
+		list->Add<ListItem>("English \f[c:#707070]· en"_s, [root]() {
+			ApplyLanguage(root, {});
+		});
 
 		std::int32_t selectedIndex = 0;
 		std::int32_t nextIndex = 1;
@@ -69,14 +71,16 @@ namespace Jazz2::UI::Menu
 			}
 
 			String displayName = isCustom
-				? String{I18n::GetLanguageName(language) + " \f[c:#707070]· "_s + language + "⁺"_s}
-				: String{I18n::GetLanguageName(language) + " \f[c:#707070]· "_s + language};
+				? String { I18n::GetLanguageName(language) + " \f[c:#707070]· "_s + language + "⁺"_s }
+				: String { I18n::GetLanguageName(language) + " \f[c:#707070]· "_s + language };
 			if (language == StringView(PreferencesCache::Language)) {
 				selectedIndex = nextIndex;
 			}
 
 			String fileName = languageFile;
-			list->Add<ListItem>(displayName, [root, fileName]() { ApplyLanguage(root, fileName); });
+			list->Add<ListItem>(displayName, [root, fileName]() {
+				ApplyLanguage(root, fileName);
+			});
 			nextIndex++;
 		};
 

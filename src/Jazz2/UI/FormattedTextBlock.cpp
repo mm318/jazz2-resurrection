@@ -67,17 +67,16 @@ namespace Jazz2::UI
 
 	FormattedTextBlock::FormattedTextBlock()
 		: _font(nullptr), _flags(FormattedTextBlockFlags::None), _defaultColor(Font::DefaultColor),
-			_proposedWidth(4096), _cachedWidth(0), _defaultScale(1.0f), _defaultCharSpacing(1.0f),
-			_defaultLineSpacing(1.0f), _alignment(Alignment::Left)
+		  _proposedWidth(4096), _cachedWidth(0), _defaultScale(1.0f), _defaultCharSpacing(1.0f),
+		  _defaultLineSpacing(1.0f), _alignment(Alignment::Left)
 	{
 	}
 
 	FormattedTextBlock::FormattedTextBlock(const FormattedTextBlockParams& params)
 		: _font(params.TextFont), _text(params.Text), _flags(FormattedTextBlockFlags::None), _defaultColor(params.Color),
-			_proposedWidth(4096), _cachedWidth(0), _defaultScale(params.Scale), _defaultCharSpacing(params.CharSpacing),
-			_defaultLineSpacing(params.LineSpacing), _alignment(params.Align)
+		  _proposedWidth(4096), _cachedWidth(0), _defaultScale(params.Scale), _defaultCharSpacing(params.CharSpacing),
+		  _defaultLineSpacing(params.LineSpacing), _alignment(params.Align)
 	{
-
 	}
 
 	FormattedTextBlock::FormattedTextBlock(FormattedTextBlock&& other) noexcept
@@ -247,13 +246,15 @@ namespace Jazz2::UI
 		float charSpacing = _defaultCharSpacing;
 		float lineSpacing = _defaultLineSpacing;
 
-		enum class SkipTill {
+		enum class SkipTill
+		{
 			None,
 			EndOfLine,
 			EndOfHighlight
 		};
 
-		enum class StyleIndex {
+		enum class StyleIndex
+		{
 			Bold,
 			Italic,
 			Underline,
@@ -949,7 +950,8 @@ namespace Jazz2::UI
 		_background.clear();
 	}
 
-	void FormattedTextBlock::SetProposedWidth(float value) {
+	void FormattedTextBlock::SetProposedWidth(float value)
+	{
 		if (_proposedWidth == value) {
 			return;
 		}
@@ -1012,6 +1014,6 @@ namespace Jazz2::UI
 	Colorf FormattedTextBlock::Uint32ToColorf(std::uint32_t value)
 	{
 		return Colorf((float)((value & 0x00ff0000) >> 16) / 255.0f, (float)((value & 0x0000ff00) >> 8) / 255.0f,
-					  (float)(value & 0x000000ff) / 255.0f, (float)((value & 0xff000000) >> 24) / 255.0f);
+			(float)(value & 0x000000ff) / 255.0f, (float)((value & 0xff000000) >> 24) / 255.0f);
 	}
 }

@@ -22,21 +22,28 @@ namespace Jazz2::Scripting
 		namespace
 		{
 			// Clamps a float to a 0-255 color channel with rounding
-			static std::uint8_t ClampChannel(float value) {
-				if (value <= 0.0f) return 0;
-				if (value >= 255.0f) return 255;
+			static std::uint8_t ClampChannel(float value)
+			{
+				if (value <= 0.0f)
+					return 0;
+				if (value >= 255.0f)
+					return 255;
 				return (std::uint8_t)(value + 0.5f);
 			}
 
 			// Linearly blends an original channel toward a target by the given opacity (1.0 = fully replace)
-			static std::uint8_t BlendChannel(std::uint8_t orig, std::uint8_t target, float opacity) {
-				if (opacity <= 0.0f) return orig;
-				if (opacity >= 1.0f) return target;
+			static std::uint8_t BlendChannel(std::uint8_t orig, std::uint8_t target, float opacity)
+			{
+				if (opacity <= 0.0f)
+					return orig;
+				if (opacity >= 1.0f)
+					return target;
 				return ClampChannel(orig * (1.0f - opacity) + target * opacity);
 			}
 
 			// Converts an RGB color to HSL with all components normalized to the 0..1 range
-			static void RgbToHsl(std::uint8_t R, std::uint8_t G, std::uint8_t B, float& h, float& s, float& l) {
+			static void RgbToHsl(std::uint8_t R, std::uint8_t G, std::uint8_t B, float& h, float& s, float& l)
+			{
 				float r = R / 255.0f, g = G / 255.0f, b = B / 255.0f;
 				float mx = std::max(r, std::max(g, b));
 				float mn = std::min(r, std::min(g, b));
@@ -58,17 +65,24 @@ namespace Jazz2::Scripting
 				h /= 6.0f;
 			}
 
-			static float Hue2Rgb(float p, float q, float t) {
-				if (t < 0.0f) t += 1.0f;
-				if (t > 1.0f) t -= 1.0f;
-				if (t < 1.0f / 6.0f) return p + (q - p) * 6.0f * t;
-				if (t < 1.0f / 2.0f) return q;
-				if (t < 2.0f / 3.0f) return p + (q - p) * (2.0f / 3.0f - t) * 6.0f;
+			static float Hue2Rgb(float p, float q, float t)
+			{
+				if (t < 0.0f)
+					t += 1.0f;
+				if (t > 1.0f)
+					t -= 1.0f;
+				if (t < 1.0f / 6.0f)
+					return p + (q - p) * 6.0f * t;
+				if (t < 1.0f / 2.0f)
+					return q;
+				if (t < 2.0f / 3.0f)
+					return p + (q - p) * (2.0f / 3.0f - t) * 6.0f;
 				return p;
 			}
 
 			// Converts an HSL color (all components in the 0..1 range) back to RGB
-			static void HslToRgb(float h, float s, float l, std::uint8_t& R, std::uint8_t& G, std::uint8_t& B) {
+			static void HslToRgb(float h, float s, float l, std::uint8_t& R, std::uint8_t& G, std::uint8_t& B)
+			{
 				float rf, gf, bf;
 				if (s <= 0.0f) {
 					rf = gf = bf = l;
@@ -85,57 +99,78 @@ namespace Jazz2::Scripting
 			}
 		}
 
-		void jjPALCOLOR::Create(void* self) {
-			new(self) jjPALCOLOR{};
+		void jjPALCOLOR::Create(void* self)
+		{
+			new (self) jjPALCOLOR {};
 		}
-		void jjPALCOLOR::CreateFromRgb(std::uint8_t red, std::uint8_t green, std::uint8_t blue, void* self) {
-			new(self) jjPALCOLOR{red, green, blue};
+		void jjPALCOLOR::CreateFromRgb(std::uint8_t red, std::uint8_t green, std::uint8_t blue, void* self)
+		{
+			new (self) jjPALCOLOR { red, green, blue };
 		}
-		void jjPALCOLOR::CreateFromRgba(std::uint8_t red, std::uint8_t green, std::uint8_t blue, std::uint8_t alpha, void* self) {
-			new(self) jjPALCOLOR{red, green, blue, alpha};
+		void jjPALCOLOR::CreateFromRgba(std::uint8_t red, std::uint8_t green, std::uint8_t blue, std::uint8_t alpha, void* self)
+		{
+			new (self) jjPALCOLOR { red, green, blue, alpha };
 		}
 
-		std::uint8_t jjPALCOLOR::getHue() {
+		std::uint8_t jjPALCOLOR::getHue()
+		{
 			float h, s, l;
 			RgbToHsl(red, green, blue, h, s, l);
 			return ClampChannel(h * 255.0f);
 		}
-		std::uint8_t jjPALCOLOR::getSat() {
+		std::uint8_t jjPALCOLOR::getSat()
+		{
 			float h, s, l;
 			RgbToHsl(red, green, blue, h, s, l);
 			return ClampChannel(s * 255.0f);
 		}
-		std::uint8_t jjPALCOLOR::getLight() {
+		std::uint8_t jjPALCOLOR::getLight()
+		{
 			float h, s, l;
 			RgbToHsl(red, green, blue, h, s, l);
 			return ClampChannel(l * 255.0f);
 		}
 
-		void jjPALCOLOR::swizzle(std::uint32_t redc, std::uint32_t greenc, std::uint32_t bluec) {
+		void jjPALCOLOR::swizzle(std::uint32_t redc, std::uint32_t greenc, std::uint32_t bluec)
+		{
 
 			std::uint8_t r = red;
 			std::uint8_t g = green;
 			std::uint8_t b = blue;
 
 			switch (redc) {
-				case 1: red = g; break;
-				case 2: red = b; break;
+				case 1:
+					red = g;
+					break;
+				case 2:
+					red = b;
+					break;
 			}
 			switch (greenc) {
-				case 0: green = r; break;
-				case 2: green = b; break;
+				case 0:
+					green = r;
+					break;
+				case 2:
+					green = b;
+					break;
 			}
 			switch (bluec) {
-				case 0: blue = r; break;
-				case 1: blue = g; break;
+				case 0:
+					blue = r;
+					break;
+				case 1:
+					blue = g;
+					break;
 			}
 		}
-		void jjPALCOLOR::setHSL(std::int32_t hue, std::uint8_t sat, std::uint8_t light) {
+		void jjPALCOLOR::setHSL(std::int32_t hue, std::uint8_t sat, std::uint8_t light)
+		{
 			// Hue wraps around the 0..255 range
 			HslToRgb((hue & 0xFF) / 255.0f, sat / 255.0f, light / 255.0f, red, green, blue);
 		}
 
-		jjPALCOLOR& jjPALCOLOR::operator=(const jjPALCOLOR& other) {
+		jjPALCOLOR& jjPALCOLOR::operator=(const jjPALCOLOR& other)
+		{
 
 			red = other.red;
 			green = other.green;
@@ -144,18 +179,23 @@ namespace Jazz2::Scripting
 			alpha = other.alpha;
 			return *this;
 		}
-		bool jjPALCOLOR::operator==(const jjPALCOLOR& other) {
+		bool jjPALCOLOR::operator==(const jjPALCOLOR& other)
+		{
 			return (red == other.red && green == other.green && blue == other.blue);
 		}
 
-		jjPAL::jjPAL() : _refCount(1), _palette{} {
+		jjPAL::jjPAL()
+			: _refCount(1), _palette {}
+		{
 		}
-		jjPAL::~jjPAL() {
+		jjPAL::~jjPAL()
+		{
 		}
 
-		jjPAL* jjPAL::Create() {
+		jjPAL* jjPAL::Create()
+		{
 			void* mem = asAllocMem(sizeof(jjPAL));
-			return new(mem) jjPAL();
+			return new (mem) jjPAL();
 		}
 
 		void jjPAL::AddRef()
@@ -171,7 +211,8 @@ namespace Jazz2::Scripting
 			}
 		}
 
-		jjPAL& jjPAL::operator=(const jjPAL& o) {
+		jjPAL& jjPAL::operator=(const jjPAL& o)
+		{
 			if (this != &o) {
 				// Copy only the palette colors, never the reference count
 				std::memcpy(_palette, o._palette, sizeof(_palette));
@@ -179,39 +220,42 @@ namespace Jazz2::Scripting
 			return *this;
 		}
 
-		bool jjPAL::operator==(const jjPAL& o) {
+		bool jjPAL::operator==(const jjPAL& o)
+		{
 			return (this == &o);
 		}
 
-		jjPALCOLOR& jjPAL::getColor(std::uint8_t idx) {
+		jjPALCOLOR& jjPAL::getColor(std::uint8_t idx)
+		{
 			return _palette[idx];
 		}
 
-		const jjPALCOLOR& jjPAL::getConstColor(std::uint8_t idx) const {
+		const jjPALCOLOR& jjPAL::getConstColor(std::uint8_t idx) const
+		{
 			return _palette[idx];
 		}
 
-		jjPALCOLOR& jjPAL::setColorEntry(std::uint8_t idx, jjPALCOLOR& value) {
+		jjPALCOLOR& jjPAL::setColorEntry(std::uint8_t idx, jjPALCOLOR& value)
+		{
 			_palette[idx] = value;
 			return _palette[idx];
 		}
 
-		void jjPAL::reset() {
+		void jjPAL::reset()
+		{
 			// Restores this palette to the level's original palette (captured at script load)
 			auto owner = ScriptLoader::FromActiveContext<LevelScriptLoader>();
 			if (owner != nullptr && &owner->jjBackupPalette != this) {
 				*this = owner->jjBackupPalette;
 			}
 		}
-		void jjPAL::apply() {
+		void jjPAL::apply()
+		{
 			// Push this palette to the live sprite palette so it affects rendering from the next frame
 			std::uint32_t packed[ContentResolver::ColorsPerPalette];
 			for (std::int32_t i = 0; i < ContentResolver::ColorsPerPalette; i++) {
 				// Palette index 0 is the transparent color; all others are fully opaque
-				packed[i] = (std::uint32_t)_palette[i].red
-					| ((std::uint32_t)_palette[i].green << 8)
-					| ((std::uint32_t)_palette[i].blue << 16)
-					| (i == 0 ? 0u : 0xFF000000u);
+				packed[i] = (std::uint32_t)_palette[i].red | ((std::uint32_t)_palette[i].green << 8) | ((std::uint32_t)_palette[i].blue << 16) | (i == 0 ? 0u : 0xFF000000u);
 			}
 			ContentResolver::Get().SetSpritePalette(ArrayView<const std::uint32_t>(packed, ContentResolver::ColorsPerPalette));
 
@@ -224,7 +268,8 @@ namespace Jazz2::Scripting
 				owner->GetAnimationTables().OnPaletteChanged();
 			}
 		}
-		bool jjPAL::load(const String& filename) {
+		bool jjPAL::load(const String& filename)
+		{
 			if (StringUtils::lowercase(filename).hasSuffix(".j2t"_s)) {
 				// The palette of a tile set, the converted one has it as the original
 				String name = GetTileSetName(filename);
@@ -278,14 +323,16 @@ namespace Jazz2::Scripting
 			}
 			return true;
 		}
-		void jjPAL::fill(std::uint8_t red, std::uint8_t green, std::uint8_t blue, float opacity) {
+		void jjPAL::fill(std::uint8_t red, std::uint8_t green, std::uint8_t blue, float opacity)
+		{
 			for (std::int32_t i = 0; i < 256; i++) {
 				_palette[i].red = BlendChannel(_palette[i].red, red, opacity);
 				_palette[i].green = BlendChannel(_palette[i].green, green, opacity);
 				_palette[i].blue = BlendChannel(_palette[i].blue, blue, opacity);
 			}
 		}
-		void jjPAL::fillTint(std::uint8_t red, std::uint8_t green, std::uint8_t blue, std::uint8_t start, std::uint8_t length, float opacity) {
+		void jjPAL::fillTint(std::uint8_t red, std::uint8_t green, std::uint8_t blue, std::uint8_t start, std::uint8_t length, float opacity)
+		{
 			std::int32_t end = std::min<std::int32_t>((std::int32_t)start + (std::int32_t)length, 256);
 			for (std::int32_t i = start; i < end; i++) {
 				_palette[i].red = BlendChannel(_palette[i].red, red, opacity);
@@ -293,13 +340,16 @@ namespace Jazz2::Scripting
 				_palette[i].blue = BlendChannel(_palette[i].blue, blue, opacity);
 			}
 		}
-		void jjPAL::fillFromColor(jjPALCOLOR color, float opacity) {
+		void jjPAL::fillFromColor(jjPALCOLOR color, float opacity)
+		{
 			fill(color.red, color.green, color.blue, opacity);
 		}
-		void jjPAL::fillTintFromColor(jjPALCOLOR color, std::uint8_t start, std::uint8_t length, float opacity) {
+		void jjPAL::fillTintFromColor(jjPALCOLOR color, std::uint8_t start, std::uint8_t length, float opacity)
+		{
 			fillTint(color.red, color.green, color.blue, start, length, opacity);
 		}
-		void jjPAL::gradient(std::uint8_t red1, std::uint8_t green1, std::uint8_t blue1, std::uint8_t red2, std::uint8_t green2, std::uint8_t blue2, std::uint8_t start, std::uint8_t length, float opacity, bool inclusive) {
+		void jjPAL::gradient(std::uint8_t red1, std::uint8_t green1, std::uint8_t blue1, std::uint8_t red2, std::uint8_t green2, std::uint8_t blue2, std::uint8_t start, std::uint8_t length, float opacity, bool inclusive)
+		{
 			if (length == 0) {
 				return;
 			}
@@ -308,16 +358,19 @@ namespace Jazz2::Scripting
 			std::int32_t end = std::min<std::int32_t>((std::int32_t)start + (std::int32_t)length, 256);
 			for (std::int32_t i = start; i < end; i++) {
 				float t = (i - start) / denom;
-				if (t > 1.0f) t = 1.0f;
+				if (t > 1.0f)
+					t = 1.0f;
 				_palette[i].red = BlendChannel(_palette[i].red, ClampChannel(red1 + (red2 - red1) * t), opacity);
 				_palette[i].green = BlendChannel(_palette[i].green, ClampChannel(green1 + (green2 - green1) * t), opacity);
 				_palette[i].blue = BlendChannel(_palette[i].blue, ClampChannel(blue1 + (blue2 - blue1) * t), opacity);
 			}
 		}
-		void jjPAL::gradientFromColor(jjPALCOLOR color1, jjPALCOLOR color2, std::uint8_t start, std::uint8_t length, float opacity, bool inclusive) {
+		void jjPAL::gradientFromColor(jjPALCOLOR color1, jjPALCOLOR color2, std::uint8_t start, std::uint8_t length, float opacity, bool inclusive)
+		{
 			gradient(color1.red, color1.green, color1.blue, color2.red, color2.green, color2.blue, start, length, opacity, inclusive);
 		}
-		void jjPAL::copyFrom(std::uint8_t start, std::uint8_t length, std::uint8_t start2, const jjPAL& source, float opacity) {
+		void jjPAL::copyFrom(std::uint8_t start, std::uint8_t length, std::uint8_t start2, const jjPAL& source, float opacity)
+		{
 			for (std::int32_t i = 0; i < (std::int32_t)length; i++) {
 				std::int32_t dst = start + i;
 				std::int32_t src = start2 + i;
@@ -329,7 +382,8 @@ namespace Jazz2::Scripting
 				_palette[dst].blue = BlendChannel(_palette[dst].blue, source._palette[src].blue, opacity);
 			}
 		}
-		std::uint8_t jjPAL::findNearestColor(jjPALCOLOR color) {
+		std::uint8_t jjPAL::findNearestColor(jjPALCOLOR color)
+		{
 			std::int32_t bestIndex = 0;
 			std::int32_t bestDistance = INT32_MAX;
 			for (std::int32_t i = 0; i < 256; i++) {
@@ -347,7 +401,8 @@ namespace Jazz2::Scripting
 			}
 			return (std::uint8_t)bestIndex;
 		}
-		std::uint8_t jjPAL::FindNearestOpaqueColor(const jjPALCOLOR& color) const {
+		std::uint8_t jjPAL::FindNearestOpaqueColor(const jjPALCOLOR& color) const
+		{
 			std::int32_t bestIndex = 1;
 			std::int32_t bestDistance = INT32_MAX;
 			for (std::int32_t i = 1; i < 256; i++) {
@@ -491,10 +546,10 @@ namespace Jazz2::Scripting
 		engine->SetDefaultNamespace("COLOR");
 		/** @brief Component of a @ref jjPALCOLOR */
 		engine->RegisterEnum("Component");
-		engine->RegisterEnumValue("Component", "RED", 0);	///< Red component
-		engine->RegisterEnumValue("Component", "GREEN", 1);	///< Green component
-		engine->RegisterEnumValue("Component", "BLUE", 2);	///< Blue component
-		engine->RegisterEnumValue("Component", "ALPHA", 3);	///< Alpha component
+		engine->RegisterEnumValue("Component", "RED", 0); ///< Red component
+		engine->RegisterEnumValue("Component", "GREEN", 1); ///< Green component
+		engine->RegisterEnumValue("Component", "BLUE", 2); ///< Blue component
+		engine->RegisterEnumValue("Component", "ALPHA", 3); ///< Alpha component
 		engine->SetDefaultNamespace("");
 		engine->RegisterObjectMethod("jjPALCOLOR", "void swizzle(COLOR::Component red, COLOR::Component green, COLOR::Component blue)", asMETHOD(jjPALCOLOR, swizzle), asCALL_THISCALL);
 
@@ -537,68 +592,68 @@ namespace Jazz2::Scripting
 		 * of the blending modes are only approximated.
 		 */
 		engine->RegisterEnum("Mode");
-		engine->RegisterEnumValue("Mode", "NORMAL", spriteType_NORMAL);	///< Drawn with its own colors
-		engine->RegisterEnumValue("Mode", "TRANSLUCENT", spriteType_TRANSLUCENT);	///< Drawn half transparent
-		engine->RegisterEnumValue("Mode", "TINTED", spriteType_TINTED);	///< Mixed with the palette color `param` @partialsupport Text in the game font and rectangles are drawn plain.
-		engine->RegisterEnumValue("Mode", "GEM", spriteType_GEM);	///< Drawn like a gem, `param` selects the gem color @partialsupport Text in the game font is drawn plain.
-		engine->RegisterEnumValue("Mode", "INVISIBLE", spriteType_INVISIBLE);	///< Not drawn at all @partialsupport Text drawn in this mode stays visible.
-		engine->RegisterEnumValue("Mode", "SINGLECOLOR", spriteType_SINGLECOLOR);	///< Shape filled with the palette color `param`
-		engine->RegisterEnumValue("Mode", "RESIZED", spriteType_RESIZED);	///< Drawn like `NORMAL`
-		engine->RegisterEnumValue("Mode", "NEONGLOW", spriteType_NEONGLOW);	///< Brightness added to what is behind, `param` selects the color channels @partialsupport Approximated, `param` above 6 counts as 6. Text in the game font drawn in the level is blended at half opacity instead, rectangles are drawn plain.
-		engine->RegisterEnumValue("Mode", "FROZEN", spriteType_FROZEN);	///< Drawn frozen in ice @partialsupport Drawn as the game draws frozen objects. Text in the game font and rectangles are drawn plain.
-		engine->RegisterEnumValue("Mode", "PLAYER", spriteType_PLAYER);	///< Drawn in the fur colors of the player with index `param` @partialsupport Text in the game font and rectangles are drawn plain.
-		engine->RegisterEnumValue("Mode", "PALSHIFT", spriteType_PALSHIFT);	///< Palette indices shifted by `param` @partialsupport Text in the game font and rectangles aren't shifted.
-		engine->RegisterEnumValue("Mode", "SHADOW", spriteType_SHADOW);	///< Darkens what is behind, in the shape of the sprite
-		engine->RegisterEnumValue("Mode", "SINGLEHUE", spriteType_SINGLEHUE);	///< Drawn in shades of the palette gradient starting at index `param` @partialsupport Rectangles are drawn plain.
-		engine->RegisterEnumValue("Mode", "BRIGHTNESS", spriteType_BRIGHTNESS);	///< Brightness scaled by `param`, 128 is unchanged @partialsupport Rectangles are drawn plain.
-		engine->RegisterEnumValue("Mode", "TRANSLUCENTCOLOR", spriteType_TRANSLUCENTCOLOR);	///< Translucent variant of @ref SINGLECOLOR @partialsupport Text in the game font is drawn plain.
-		engine->RegisterEnumValue("Mode", "TRANSLUCENTPLAYER", spriteType_TRANSLUCENTPLAYER);	///< Translucent variant of `PLAYER` @partialsupport Text in the game font is drawn plain, rectangles only translucent.
-		engine->RegisterEnumValue("Mode", "TRANSLUCENTPALSHIFT", spriteType_TRANSLUCENTPALSHIFT);	///< Translucent variant of `PALSHIFT` @partialsupport Text in the game font is drawn plain, rectangles only translucent.
-		engine->RegisterEnumValue("Mode", "TRANSLUCENTSINGLEHUE", spriteType_TRANSLUCENTSINGLEHUE);	///< Translucent variant of @ref SINGLEHUE @partialsupport Text in the game font is drawn plain, rectangles only translucent.
-		engine->RegisterEnumValue("Mode", "ALPHAMAP", spriteType_ALPHAMAP);	///< Palette color `param`, with the sprite's palette indices used as its opacity @partialsupport Text in the game font and rectangles are drawn plain.
-		engine->RegisterEnumValue("Mode", "MENUPLAYER", spriteType_MENUPLAYER);	///< Player colors as used in menus @partialsupport Drawn as `NORMAL`.
-		engine->RegisterEnumValue("Mode", "BLEND_NORMAL", spriteType_BLENDNORMAL);	///< Normal blending, `param` is the opacity
-		engine->RegisterEnumValue("Mode", "BLEND_DARKEN", spriteType_BLENDDARKEN);	///< Darken blending, `param` is the opacity @partialsupport Only layers are blended, sprites and rectangles are drawn as `NORMAL` and text only takes the opacity.
-		engine->RegisterEnumValue("Mode", "BLEND_LIGHTEN", spriteType_BLENDLIGHTEN);	///< Lighten blending, `param` is the opacity @partialsupport Sprites and rectangles are added to what is behind, ignoring `param`; text only takes the opacity.
-		engine->RegisterEnumValue("Mode", "BLEND_HUE", spriteType_BLENDHUE);	///< Hue blending, `param` is the opacity @partialsupport Only layers are blended, sprites and rectangles are drawn as `NORMAL` and text only takes the opacity.
-		engine->RegisterEnumValue("Mode", "BLEND_SATURATION", spriteType_BLENDSATURATION);	///< Saturation blending, `param` is the opacity @partialsupport Only layers are blended, sprites and rectangles are drawn as `NORMAL` and text only takes the opacity.
-		engine->RegisterEnumValue("Mode", "BLEND_COLOR", spriteType_BLENDCOLOR);	///< Color blending, `param` is the opacity @partialsupport Only layers are blended, sprites and rectangles are drawn as `NORMAL` and text only takes the opacity.
-		engine->RegisterEnumValue("Mode", "BLEND_LUMINANCE", spriteType_BLENDLUMINANCE);	///< Luminance blending, `param` is the opacity @partialsupport Only layers are blended, sprites and rectangles are drawn as `NORMAL` and text is approximated.
-		engine->RegisterEnumValue("Mode", "BLEND_MULTIPLY", spriteType_BLENDMULTIPLY);	///< Multiply blending, `param` is the opacity @partialsupport Sprites are drawn as `NORMAL` and text only takes the opacity.
-		engine->RegisterEnumValue("Mode", "BLEND_SCREEN", spriteType_BLENDSCREEN);	///< Screen blending, `param` is the opacity @partialsupport Sprites are drawn as `NORMAL` and text only takes the opacity.
-		engine->RegisterEnumValue("Mode", "BLEND_DISSOLVE", spriteType_BLENDDISSOLVE);	///< Random pixels drawn, `param` is their density @partialsupport Sprites and rectangles are drawn translucent by `param` instead.
-		engine->RegisterEnumValue("Mode", "BLEND_OVERLAY", spriteType_BLENDOVERLAY);	///< Overlay blending, `param` is the opacity @partialsupport Only layers are blended, sprites and rectangles are drawn as `NORMAL` and text only takes the opacity.
-		engine->RegisterEnumValue("Mode", "BLEND_HARDLIGHT", spriteType_BLENDHARDLIGHT);	///< Hard light blending, `param` is the opacity @partialsupport Only layers are blended, sprites and rectangles are drawn as `NORMAL` and text only takes the opacity.
-		engine->RegisterEnumValue("Mode", "BLEND_SOFTLIGHT", spriteType_BLENDSOFTLIGHT);	///< Soft light blending, `param` is the opacity @partialsupport Only layers are blended, sprites and rectangles are drawn as `NORMAL` and text only takes the opacity.
-		engine->RegisterEnumValue("Mode", "BLEND_DIFFERENCE", spriteType_BLENDDIFFERENCE);	///< Difference blending, `param` is the opacity @partialsupport Approximated for sprites by scaling their colors by `param`; text only takes the opacity.
-		engine->RegisterEnumValue("Mode", "BLEND_DODGE", spriteType_BLENDDODGE);	///< Color dodge blending, `param` is the opacity @partialsupport Only layers are blended, sprites and rectangles are drawn as `NORMAL` and text only takes the opacity.
-		engine->RegisterEnumValue("Mode", "BLEND_BURN", spriteType_BLENDBURN);	///< Color burn blending, `param` is the opacity @partialsupport Only layers are blended, sprites and rectangles are drawn as `NORMAL` and text only takes the opacity.
-		engine->RegisterEnumValue("Mode", "BLEND_EXCLUSION", spriteType_BLENDEXCLUSION);	///< Exclusion blending, `param` is the opacity @partialsupport Sprites and rectangles are drawn as `BLEND_DIFFERENCE`, text only takes the opacity.
-		engine->RegisterEnumValue("Mode", "TRANSLUCENTTILE", spriteType_TRANSLUCENTTILE);	///< Translucent the way translucent tiles are
-		engine->RegisterEnumValue("Mode", "CHROMAKEY", spriteType_CHROMAKEY);	///< Drawn only over pixels of the palette color `param` @partialsupport Only sprites drawn into the level by the `jjDraw*` functions are keyed, and not by every renderer; elsewhere they're drawn as `NORMAL`, as are text and rectangles.
-		engine->RegisterEnumValue("Mode", "MAPPING", spriteType_MAPPING);	///< Colors remapped by mapping `param`, see @ref jjSpriteModeSetMapping(), a mapping the script didn't define is the additional palette of the level with that index @partialsupport Text and rectangles are drawn as `NORMAL`, sprites stored in true color too; a mapping of indices follows the palette as it was when it was first drawn.
-		engine->RegisterEnumValue("Mode", "TRANSLUCENTMAPPING", spriteType_TRANSLUCENTMAPPING);	///< Translucent variant of @ref MAPPING @partialsupport As @ref MAPPING.
-		engine->RegisterEnumValue("Mode", "INVERSE", spriteType_INVERSE);	///< Inverted colors @partialsupport Drawn as `NORMAL`.
+		engine->RegisterEnumValue("Mode", "NORMAL", spriteType_NORMAL); ///< Drawn with its own colors
+		engine->RegisterEnumValue("Mode", "TRANSLUCENT", spriteType_TRANSLUCENT); ///< Drawn half transparent
+		engine->RegisterEnumValue("Mode", "TINTED", spriteType_TINTED); ///< Mixed with the palette color `param` @partialsupport Text in the game font and rectangles are drawn plain.
+		engine->RegisterEnumValue("Mode", "GEM", spriteType_GEM); ///< Drawn like a gem, `param` selects the gem color @partialsupport Text in the game font is drawn plain.
+		engine->RegisterEnumValue("Mode", "INVISIBLE", spriteType_INVISIBLE); ///< Not drawn at all @partialsupport Text drawn in this mode stays visible.
+		engine->RegisterEnumValue("Mode", "SINGLECOLOR", spriteType_SINGLECOLOR); ///< Shape filled with the palette color `param`
+		engine->RegisterEnumValue("Mode", "RESIZED", spriteType_RESIZED); ///< Drawn like `NORMAL`
+		engine->RegisterEnumValue("Mode", "NEONGLOW", spriteType_NEONGLOW); ///< Brightness added to what is behind, `param` selects the color channels @partialsupport Approximated, `param` above 6 counts as 6. Text in the game font drawn in the level is blended at half opacity instead, rectangles are drawn plain.
+		engine->RegisterEnumValue("Mode", "FROZEN", spriteType_FROZEN); ///< Drawn frozen in ice @partialsupport Drawn as the game draws frozen objects. Text in the game font and rectangles are drawn plain.
+		engine->RegisterEnumValue("Mode", "PLAYER", spriteType_PLAYER); ///< Drawn in the fur colors of the player with index `param` @partialsupport Text in the game font and rectangles are drawn plain.
+		engine->RegisterEnumValue("Mode", "PALSHIFT", spriteType_PALSHIFT); ///< Palette indices shifted by `param` @partialsupport Text in the game font and rectangles aren't shifted.
+		engine->RegisterEnumValue("Mode", "SHADOW", spriteType_SHADOW); ///< Darkens what is behind, in the shape of the sprite
+		engine->RegisterEnumValue("Mode", "SINGLEHUE", spriteType_SINGLEHUE); ///< Drawn in shades of the palette gradient starting at index `param` @partialsupport Rectangles are drawn plain.
+		engine->RegisterEnumValue("Mode", "BRIGHTNESS", spriteType_BRIGHTNESS); ///< Brightness scaled by `param`, 128 is unchanged @partialsupport Rectangles are drawn plain.
+		engine->RegisterEnumValue("Mode", "TRANSLUCENTCOLOR", spriteType_TRANSLUCENTCOLOR); ///< Translucent variant of @ref SINGLECOLOR @partialsupport Text in the game font is drawn plain.
+		engine->RegisterEnumValue("Mode", "TRANSLUCENTPLAYER", spriteType_TRANSLUCENTPLAYER); ///< Translucent variant of `PLAYER` @partialsupport Text in the game font is drawn plain, rectangles only translucent.
+		engine->RegisterEnumValue("Mode", "TRANSLUCENTPALSHIFT", spriteType_TRANSLUCENTPALSHIFT); ///< Translucent variant of `PALSHIFT` @partialsupport Text in the game font is drawn plain, rectangles only translucent.
+		engine->RegisterEnumValue("Mode", "TRANSLUCENTSINGLEHUE", spriteType_TRANSLUCENTSINGLEHUE); ///< Translucent variant of @ref SINGLEHUE @partialsupport Text in the game font is drawn plain, rectangles only translucent.
+		engine->RegisterEnumValue("Mode", "ALPHAMAP", spriteType_ALPHAMAP); ///< Palette color `param`, with the sprite's palette indices used as its opacity @partialsupport Text in the game font and rectangles are drawn plain.
+		engine->RegisterEnumValue("Mode", "MENUPLAYER", spriteType_MENUPLAYER); ///< Player colors as used in menus @partialsupport Drawn as `NORMAL`.
+		engine->RegisterEnumValue("Mode", "BLEND_NORMAL", spriteType_BLENDNORMAL); ///< Normal blending, `param` is the opacity
+		engine->RegisterEnumValue("Mode", "BLEND_DARKEN", spriteType_BLENDDARKEN); ///< Darken blending, `param` is the opacity @partialsupport Only layers are blended, sprites and rectangles are drawn as `NORMAL` and text only takes the opacity.
+		engine->RegisterEnumValue("Mode", "BLEND_LIGHTEN", spriteType_BLENDLIGHTEN); ///< Lighten blending, `param` is the opacity @partialsupport Sprites and rectangles are added to what is behind, ignoring `param`; text only takes the opacity.
+		engine->RegisterEnumValue("Mode", "BLEND_HUE", spriteType_BLENDHUE); ///< Hue blending, `param` is the opacity @partialsupport Only layers are blended, sprites and rectangles are drawn as `NORMAL` and text only takes the opacity.
+		engine->RegisterEnumValue("Mode", "BLEND_SATURATION", spriteType_BLENDSATURATION); ///< Saturation blending, `param` is the opacity @partialsupport Only layers are blended, sprites and rectangles are drawn as `NORMAL` and text only takes the opacity.
+		engine->RegisterEnumValue("Mode", "BLEND_COLOR", spriteType_BLENDCOLOR); ///< Color blending, `param` is the opacity @partialsupport Only layers are blended, sprites and rectangles are drawn as `NORMAL` and text only takes the opacity.
+		engine->RegisterEnumValue("Mode", "BLEND_LUMINANCE", spriteType_BLENDLUMINANCE); ///< Luminance blending, `param` is the opacity @partialsupport Only layers are blended, sprites and rectangles are drawn as `NORMAL` and text is approximated.
+		engine->RegisterEnumValue("Mode", "BLEND_MULTIPLY", spriteType_BLENDMULTIPLY); ///< Multiply blending, `param` is the opacity @partialsupport Sprites are drawn as `NORMAL` and text only takes the opacity.
+		engine->RegisterEnumValue("Mode", "BLEND_SCREEN", spriteType_BLENDSCREEN); ///< Screen blending, `param` is the opacity @partialsupport Sprites are drawn as `NORMAL` and text only takes the opacity.
+		engine->RegisterEnumValue("Mode", "BLEND_DISSOLVE", spriteType_BLENDDISSOLVE); ///< Random pixels drawn, `param` is their density @partialsupport Sprites and rectangles are drawn translucent by `param` instead.
+		engine->RegisterEnumValue("Mode", "BLEND_OVERLAY", spriteType_BLENDOVERLAY); ///< Overlay blending, `param` is the opacity @partialsupport Only layers are blended, sprites and rectangles are drawn as `NORMAL` and text only takes the opacity.
+		engine->RegisterEnumValue("Mode", "BLEND_HARDLIGHT", spriteType_BLENDHARDLIGHT); ///< Hard light blending, `param` is the opacity @partialsupport Only layers are blended, sprites and rectangles are drawn as `NORMAL` and text only takes the opacity.
+		engine->RegisterEnumValue("Mode", "BLEND_SOFTLIGHT", spriteType_BLENDSOFTLIGHT); ///< Soft light blending, `param` is the opacity @partialsupport Only layers are blended, sprites and rectangles are drawn as `NORMAL` and text only takes the opacity.
+		engine->RegisterEnumValue("Mode", "BLEND_DIFFERENCE", spriteType_BLENDDIFFERENCE); ///< Difference blending, `param` is the opacity @partialsupport Approximated for sprites by scaling their colors by `param`; text only takes the opacity.
+		engine->RegisterEnumValue("Mode", "BLEND_DODGE", spriteType_BLENDDODGE); ///< Color dodge blending, `param` is the opacity @partialsupport Only layers are blended, sprites and rectangles are drawn as `NORMAL` and text only takes the opacity.
+		engine->RegisterEnumValue("Mode", "BLEND_BURN", spriteType_BLENDBURN); ///< Color burn blending, `param` is the opacity @partialsupport Only layers are blended, sprites and rectangles are drawn as `NORMAL` and text only takes the opacity.
+		engine->RegisterEnumValue("Mode", "BLEND_EXCLUSION", spriteType_BLENDEXCLUSION); ///< Exclusion blending, `param` is the opacity @partialsupport Sprites and rectangles are drawn as `BLEND_DIFFERENCE`, text only takes the opacity.
+		engine->RegisterEnumValue("Mode", "TRANSLUCENTTILE", spriteType_TRANSLUCENTTILE); ///< Translucent the way translucent tiles are
+		engine->RegisterEnumValue("Mode", "CHROMAKEY", spriteType_CHROMAKEY); ///< Drawn only over pixels of the palette color `param` @partialsupport Only sprites drawn into the level by the `jjDraw*` functions are keyed, and not by every renderer; elsewhere they're drawn as `NORMAL`, as are text and rectangles.
+		engine->RegisterEnumValue("Mode", "MAPPING", spriteType_MAPPING); ///< Colors remapped by mapping `param`, see @ref jjSpriteModeSetMapping(), a mapping the script didn't define is the additional palette of the level with that index @partialsupport Text and rectangles are drawn as `NORMAL`, sprites stored in true color too; a mapping of indices follows the palette as it was when it was first drawn.
+		engine->RegisterEnumValue("Mode", "TRANSLUCENTMAPPING", spriteType_TRANSLUCENTMAPPING); ///< Translucent variant of @ref MAPPING @partialsupport As @ref MAPPING.
+		engine->RegisterEnumValue("Mode", "INVERSE", spriteType_INVERSE); ///< Inverted colors @partialsupport Drawn as `NORMAL`.
 		/** @brief How a sprite is flipped, used as the `direction` of drawing functions */
 		engine->RegisterEnum("Direction");
-		engine->RegisterEnumValue("Direction", "FLIPNONE", 0x00);	///< Not flipped
-		engine->RegisterEnumValue("Direction", "FLIPH", 0xFF - 0x100);	///< Flipped horizontally
-		engine->RegisterEnumValue("Direction", "FLIPV", 0x40);	///< Flipped vertically
-		engine->RegisterEnumValue("Direction", "FLIPHV", 0xBF - 0x100);	///< Flipped both horizontally and vertically
+		engine->RegisterEnumValue("Direction", "FLIPNONE", 0x00); ///< Not flipped
+		engine->RegisterEnumValue("Direction", "FLIPH", 0xFF - 0x100); ///< Flipped horizontally
+		engine->RegisterEnumValue("Direction", "FLIPV", 0x40); ///< Flipped vertically
+		engine->RegisterEnumValue("Direction", "FLIPHV", 0xBF - 0x100); ///< Flipped both horizontally and vertically
 		engine->SetDefaultNamespace("TILE");
 		/** @brief Part of a tile to draw, see @ref jjCANVAS::drawTile() */
 		engine->RegisterEnum("Quadrant");
-		engine->RegisterEnumValue("Quadrant", "TOPLEFT", 0);	///< Top left quarter only
-		engine->RegisterEnumValue("Quadrant", "TOPRIGHT", 1);	///< Top right quarter only
-		engine->RegisterEnumValue("Quadrant", "BOTTOMLEFT", 2);	///< Bottom left quarter only
-		engine->RegisterEnumValue("Quadrant", "BOTTOMRIGHT", 3);	///< Bottom right quarter only
-		engine->RegisterEnumValue("Quadrant", "ALLQUADRANTS", 4);	///< The whole tile
+		engine->RegisterEnumValue("Quadrant", "TOPLEFT", 0); ///< Top left quarter only
+		engine->RegisterEnumValue("Quadrant", "TOPRIGHT", 1); ///< Top right quarter only
+		engine->RegisterEnumValue("Quadrant", "BOTTOMLEFT", 2); ///< Bottom left quarter only
+		engine->RegisterEnumValue("Quadrant", "BOTTOMRIGHT", 3); ///< Bottom right quarter only
+		engine->RegisterEnumValue("Quadrant", "ALLQUADRANTS", 4); ///< The whole tile
 		/** @brief Bits of a tile value besides the tile index */
 		engine->RegisterEnum("Flags");
-		engine->RegisterEnumValue("Flags", "RAWRANGE", FLAG_HFLIPPED_TILE - 1);	///< Mask of the bits holding the tile index
-		engine->RegisterEnumValue("Flags", "HFLIPPED", FLAG_HFLIPPED_TILE);	///< Tile is flipped horizontally
-		engine->RegisterEnumValue("Flags", "VFLIPPED", FLAG_VFLIPPED_TILE);	///< Tile is flipped vertically
-		engine->RegisterEnumValue("Flags", "ANIMATED", FLAG_ANIMATED_TILE);	///< Index refers to an animated tile
+		engine->RegisterEnumValue("Flags", "RAWRANGE", FLAG_HFLIPPED_TILE - 1); ///< Mask of the bits holding the tile index
+		engine->RegisterEnumValue("Flags", "HFLIPPED", FLAG_HFLIPPED_TILE); ///< Tile is flipped horizontally
+		engine->RegisterEnumValue("Flags", "VFLIPPED", FLAG_VFLIPPED_TILE); ///< Tile is flipped vertically
+		engine->RegisterEnumValue("Flags", "ANIMATED", FLAG_ANIMATED_TILE); ///< Index refers to an animated tile
 		engine->SetDefaultNamespace("");
 
 		engine->RegisterObjectMethod("jjPLAYER", "SPRITE::Mode get_spriteMode() const", asMETHOD(jjPLAYER, get_spriteMode), asCALL_THISCALL);

@@ -158,19 +158,23 @@ namespace Jazz2::Editor
 		 */
 		void WarmUp(float milliseconds);
 		/** @brief Returns the memory the images take in bytes */
-		std::size_t GetMemoryUsage() const {
+		std::size_t GetMemoryUsage() const
+		{
 			return _bytes;
 		}
 		/** @brief Returns the pixels of a tile on a side in the images made now */
-		std::int32_t GetTilePixels() const {
+		std::int32_t GetTilePixels() const
+		{
 			return _tilePixels;
 		}
 		/** @brief Returns the pixels of a tile on a side the scale of the view asks for, more than @ref GetTilePixels() if memory is short */
-		std::int32_t GetWantedTilePixels() const {
+		std::int32_t GetWantedTilePixels() const
+		{
 			return _wantedTilePixels;
 		}
 		/** @brief Returns the number of images drawn in the last frame, each once, and the memory they take in bytes */
-		std::int32_t GetDrawnChunks(std::size_t* bytes = nullptr) const {
+		std::int32_t GetDrawnChunks(std::size_t* bytes = nullptr) const
+		{
 			if (bytes != nullptr) {
 				*bytes = _lastDrawnBytes;
 			}
@@ -181,15 +185,18 @@ namespace Jazz2::Editor
 		 *
 		 * A power of two and half again as much as it, so the sizes between them are made from those twice as large too.
 		 */
-		static constexpr std::int32_t GetLargerTileSize(std::int32_t tilePixels) {
+		static constexpr std::int32_t GetLargerTileSize(std::int32_t tilePixels)
+		{
 			return Implementation::GetLargerLodTileSize(tilePixels);
 		}
 		/** @brief Returns the size of a tile in the images before @p tilePixels, see @ref GetLargerTileSize() */
-		static constexpr std::int32_t GetSmallerTileSize(std::int32_t tilePixels) {
+		static constexpr std::int32_t GetSmallerTileSize(std::int32_t tilePixels)
+		{
 			return Implementation::GetSmallerLodTileSize(tilePixels);
 		}
 		/** @brief Returns the tiles on a side of a chunk with so many pixels for a tile, a power of two */
-		static constexpr std::int32_t GetChunkTiles(std::int32_t tilePixels) {
+		static constexpr std::int32_t GetChunkTiles(std::int32_t tilePixels)
+		{
 			// By the power of two of the size or the next one, chunks of all sizes fit into each other
 			std::int32_t pixels = 1;
 			while (pixels < tilePixels) {
@@ -230,10 +237,10 @@ namespace Jazz2::Editor
 		enum class CoverKind : std::uint8_t
 		{
 			None,
-			Larger,		// A larger chunk around it
-			Smaller,	// All the smaller chunks in it
-			Base,		// The image of the layer made ahead around it
-			Tiles		// Nothing yet, its tiles are drawn
+			Larger, // A larger chunk around it
+			Smaller, // All the smaller chunks in it
+			Base, // The image of the layer made ahead around it
+			Tiles // Nothing yet, its tiles are drawn
 		};
 
 		struct Cover
@@ -333,7 +340,13 @@ namespace Jazz2::Editor
 		SmallVector<Rectf, 0> _coverRects;
 		// What WarmUp() does next: counts the tiles of the layers row by row, computes the colors in that order, then makes
 		// the images of the layers with a pixel for a tile, or makes those that changed again
-		enum class WarmUpState : std::uint8_t { Done, Counting, Computing, BaseChunks };
+		enum class WarmUpState : std::uint8_t
+		{
+			Done,
+			Counting,
+			Computing,
+			BaseChunks
+		};
 		WarmUpState _warmUpState;
 		std::int32_t _warmUpLayer;
 		std::int32_t _warmUpRow;

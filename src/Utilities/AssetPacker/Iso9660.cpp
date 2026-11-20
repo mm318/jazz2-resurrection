@@ -22,7 +22,8 @@ namespace Jazz2::AssetPacker
 	namespace
 	{
 		/** @brief Offsets of the volume descriptor fields that say where everything is */
-		enum : std::uint32_t {
+		enum : std::uint32_t
+		{
 			DescriptorTypeOffset = 0,
 			DescriptorVersionOffset = 6,
 			VolumeSpaceSizeOffset = 80,
@@ -90,7 +91,7 @@ namespace Jazz2::AssetPacker
 		Array<std::uint8_t> ToUcs2(StringView name, bool versioned)
 		{
 			Array<std::uint8_t> result;
-			for (std::size_t i = 0; i < name.size(); ) {
+			for (std::size_t i = 0; i < name.size();) {
 				Pair<char32_t, std::size_t> next = Utf8::NextChar(arrayView(name.data(), name.size()), i);
 				i = next.second();
 				// Joliet has no room for anything outside the basic multilingual plane
@@ -159,17 +160,17 @@ namespace Jazz2::AssetPacker
 				baseName = baseName.prefix(baseLimit);
 			}
 
-			String result{NoInit, baseName.size() + (extension.empty() ? 0 : extension.size() + 1) + (isDirectory ? 0 : 2)};
+			String result { NoInit, baseName.size() + (extension.empty() ? 0 : extension.size() + 1) + (isDirectory ? 0 : 2) };
 			char* target = result.data();
 			for (char c : baseName) {
 				*target++ = ((c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') ? c
-					: (c >= 'a' && c <= 'z' ? char(c - 'a' + 'A') : '_'));
+																			  : (c >= 'a' && c <= 'z' ? char(c - 'a' + 'A') : '_'));
 			}
 			if (!extension.empty()) {
 				*target++ = '.';
 				for (char c : extension) {
 					*target++ = ((c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') ? c
-						: (c >= 'a' && c <= 'z' ? char(c - 'a' + 'A') : '_'));
+																				  : (c >= 'a' && c <= 'z' ? char(c - 'a' + 'A') : '_'));
 				}
 			}
 			if (!isDirectory) {
@@ -228,7 +229,7 @@ namespace Jazz2::AssetPacker
 				length = size / 2;
 			}
 
-			Array<std::uint8_t> converted{ValueInit, size};
+			Array<std::uint8_t> converted { ValueInit, size };
 			for (std::size_t i = 0; i < size / 2; i++) {
 				converted[i * 2] = 0;
 				converted[i * 2 + 1] = (i < length ? field[i] : ' ');
@@ -268,7 +269,7 @@ namespace Jazz2::AssetPacker
 	{
 		_reader = &reader;
 
-		Array<std::uint8_t> sector{ValueInit, IsoSectorSize};
+		Array<std::uint8_t> sector { ValueInit, IsoSectorSize };
 		if (!reader.ReadSector(trackStartLba + 16, sector.data())) {
 			LOGE("Cannot read the primary volume descriptor");
 			return false;
@@ -278,7 +279,7 @@ namespace Jazz2::AssetPacker
 			return false;
 		}
 
-		_primaryDescriptor = Array<std::uint8_t>{NoInit, IsoSectorSize};
+		_primaryDescriptor = Array<std::uint8_t> { NoInit, IsoSectorSize };
 		std::memcpy(_primaryDescriptor.data(), sector.data(), IsoSectorSize);
 		_volumeSpaceSize = ReadU32LE(sector.data() + VolumeSpaceSizeOffset);
 		_rootLba = ReadU32LE(sector.data() + RootRecordOffset + 2);
@@ -300,7 +301,7 @@ namespace Jazz2::AssetPacker
 			}
 			const std::uint8_t* escape = sector.data() + EscapeSequencesOffset;
 			if (escape[0] == '%' && escape[1] == '/' && (escape[2] == '@' || escape[2] == 'C' || escape[2] == 'E')) {
-				_supplementaryDescriptor = Array<std::uint8_t>{NoInit, IsoSectorSize};
+				_supplementaryDescriptor = Array<std::uint8_t> { NoInit, IsoSectorSize };
 				std::memcpy(_supplementaryDescriptor.data(), sector.data(), IsoSectorSize);
 				_rootLba = ReadU32LE(sector.data() + RootRecordOffset + 2);
 				_rootSize = ReadU32LE(sector.data() + RootRecordOffset + 10);
@@ -315,7 +316,7 @@ namespace Jazz2::AssetPacker
 	{
 		bool joliet = !_supplementaryDescriptor.empty();
 		std::uint32_t sectorCount = SectorsFor(size);
-		Array<std::uint8_t> data{ValueInit, sectorCount * IsoSectorSize};
+		Array<std::uint8_t> data { ValueInit, sectorCount * IsoSectorSize };
 		for (std::uint32_t i = 0; i < sectorCount; i++) {
 			if (!_reader->ReadSector(lba + i, data.data() + i * IsoSectorSize)) {
 				LOGE("Cannot read the directory at sector {}", lba + i);
@@ -346,8 +347,8 @@ namespace Jazz2::AssetPacker
 			}
 
 			String decoded = (joliet
-				? FromUcs2(name, nameLength)
-				: String(reinterpret_cast<const char*>(name), nameLength));
+					? FromUcs2(name, nameLength)
+					: String(reinterpret_cast<const char*>(name), nameLength));
 
 			Entry& entry = entries.emplace_back();
 			entry.Name = StripVersion(decoded);
@@ -373,21 +374,21 @@ namespace Jazz2::AssetPacker
 
 	void Iso9660Builder::SetSystemArea(ArrayView<const std::uint8_t> data)
 	{
-		_systemArea = Array<std::uint8_t>{ValueInit, IsoSystemAreaSize};
+		_systemArea = Array<std::uint8_t> { ValueInit, IsoSystemAreaSize };
 		std::memcpy(_systemArea.data(), data.data(), (data.size() < IsoSystemAreaSize ? data.size() : IsoSystemAreaSize));
 	}
 
 	void Iso9660Builder::SetDescriptorTemplates(ArrayView<const std::uint8_t> primary, ArrayView<const std::uint8_t> supplementary)
 	{
 		if (primary.size() >= IsoSectorSize) {
-			_primaryTemplate = Array<std::uint8_t>{NoInit, IsoSectorSize};
+			_primaryTemplate = Array<std::uint8_t> { NoInit, IsoSectorSize };
 			std::memcpy(_primaryTemplate.data(), primary.data(), IsoSectorSize);
 			// The root directory keeps the date it was given rather than being stamped with the moment the
 			// volume was generated, so generating the same one twice produces the same bytes twice
 			std::memcpy(_root.Recorded, _primaryTemplate.data() + RootRecordOffset + 18, 7);
 		}
 		if (supplementary.size() >= IsoSectorSize) {
-			_supplementaryTemplate = Array<std::uint8_t>{NoInit, IsoSectorSize};
+			_supplementaryTemplate = Array<std::uint8_t> { NoInit, IsoSectorSize };
 			std::memcpy(_supplementaryTemplate.data(), supplementary.data(), IsoSectorSize);
 		}
 	}
@@ -506,7 +507,8 @@ namespace Jazz2::AssetPacker
 			Node* node = AddChild(parent, itemName, isDirectory);
 			if (node == nullptr) {
 				LOGE("Cannot put \"{}\" on the disc, something of the same name is already there --- names "
-					"that differ only in case name the same file to everything that reads a disc", item);
+					 "that differ only in case name the same file to everything that reads a disc",
+					item);
 				return false;
 			}
 			WriteRecordDate(node->Recorded, fs::GetLastModificationTime(item));
@@ -889,7 +891,7 @@ namespace Jazz2::AssetPacker
 		}
 
 		// The system area, which on a Dreamcast disc holds the bootstrap the drive reads before anything else
-		Array<std::uint8_t> sector{ValueInit, IsoSectorSize};
+		Array<std::uint8_t> sector { ValueInit, IsoSectorSize };
 		for (std::uint32_t i = 0; i < 16; i++) {
 			if (!sink.WriteSector(_systemArea.empty() ? sector.data() : _systemArea.data() + i * IsoSectorSize)) {
 				return false;
@@ -899,7 +901,7 @@ namespace Jazz2::AssetPacker
 		// Everything between the descriptors and the files is small enough to lay out in one go
 		Node* lastDirectory = layout.Directories.back();
 		std::uint32_t metadataEnd = (lastDirectory->JolietLba - _trackStartLba) + lastDirectory->JolietExtentSize / IsoSectorSize;
-		Array<std::uint8_t> metadata{ValueInit, (metadataEnd - 16) * IsoSectorSize};
+		Array<std::uint8_t> metadata { ValueInit, (metadataEnd - 16) * IsoSectorSize };
 		WriteDescriptors(metadata, layout);
 		WritePathTables(metadata, layout);
 		WriteDirectoryExtents(metadata, layout, false);

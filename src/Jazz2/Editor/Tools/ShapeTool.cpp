@@ -97,7 +97,7 @@ namespace Jazz2::Editor
 				for (std::int32_t y = y1; y <= y2; y++) {
 					Span& span = spans[std::size_t(y - y1)];
 					if (!isInside(middle, y)) {
-						span = Span{ 0, -1 };
+						span = Span { 0, -1 };
 						continue;
 					}
 					float dy = (y - cy) / ry;
@@ -116,7 +116,7 @@ namespace Jazz2::Editor
 					while (b > middle && !isInside(b, y)) {
 						b--;
 					}
-					span = Span{ a, b };
+					span = Span { a, b };
 					total += std::int64_t(b) - a + 1;
 				}
 
@@ -135,7 +135,7 @@ namespace Jazz2::Editor
 
 				// Of the outline only the cells next to the outside, at the sides, so it's a line without gaps: the ends of
 				// the span of a row, and its cells the row above or below doesn't have
-				Span none{ 0, -1 };
+				Span none { 0, -1 };
 				for (std::int32_t y = y1; y <= y2; y++) {
 					const Span& span = spans[std::size_t(y - y1)];
 					if (span.From > span.To) {
@@ -215,7 +215,7 @@ namespace Jazz2::Editor
 		_dragging = false;
 		_end = ((pointer.Modifiers & KeyMod::Shift) != 0 ? Constrain(GetSettings().Shape, _start, pointer.Cell) : pointer.Cell);
 
-		TileStamp eraseStamp = TileStamp::FromTile(TileRef{});
+		TileStamp eraseStamp = TileStamp::FromTile(TileRef {});
 		const TileStamp& stamp = (_erase ? eraseStamp : _host.GetStamp());
 		// TRANSLATORS: Names of undo steps in the history, after the shape tool erased or drew a shape of tiles
 		if (stamp.IsEmpty() || !BeginStroke(_erase ? _x("editor", "Erase shape") : _x("editor", "Draw shape"), false)) {

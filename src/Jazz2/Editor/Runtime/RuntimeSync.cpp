@@ -191,13 +191,13 @@ namespace Jazz2::Editor
 				return false;
 			}
 			for (const TileRef& frame : document.Animations[tile.Index].Frames) {
-				if (contains(TileRef{ frame.Index, frame.Source, 0 })) {
+				if (contains(TileRef { frame.Index, frame.Source, 0 })) {
 					return true;
 				}
 			}
 			return false;
 		}
-		return contains(TileRef{ tile.Index, tile.Source, 0 });
+		return contains(TileRef { tile.Index, tile.Source, 0 });
 	}
 
 	bool RuntimeSync::IsLayerShown(const DocumentLayer& layer)

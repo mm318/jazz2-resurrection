@@ -10,7 +10,7 @@
 #include "../Files/EditorSettings.h"
 #include "../Files/TileSetDataCache.h"
 #if defined(DEATH_TARGET_EMSCRIPTEN)
-#	include "../Files/WebFileBridge.h"
+#include "../Files/WebFileBridge.h"
 #endif
 #include "../Imaging/LevelThumbnail.h"
 #include "../Imaging/PngCodec.h"
@@ -32,7 +32,7 @@
 #include "../../Formats/TileSetFile.h"
 #include "../../Formats/WeaponsChunk.h"
 #if defined(WITH_LEVEL_PACKS)
-#	include "../../LevelPacks/LevelPackLibrary.h"
+#include "../../LevelPacks/LevelPackLibrary.h"
 #endif
 
 #include "../../../nCine/Application.h"
@@ -48,14 +48,14 @@
 #include <cstdio>
 
 #if defined(DEATH_TARGET_WINDOWS) && !defined(DEATH_TARGET_WINDOWS_RT)
-#	include <shellapi.h>
+#include <shellapi.h>
 #endif
 #if (defined(DEATH_TARGET_UNIX) || defined(DEATH_TARGET_APPLE)) && !defined(DEATH_TARGET_SWITCH) && !defined(DEATH_TARGET_EMSCRIPTEN)
-#	include <cerrno>
-#	include <fcntl.h>
-#	include <signal.h>
-#	include <sys/wait.h>
-#	include <unistd.h>
+#include <cerrno>
+#include <fcntl.h>
+#include <signal.h>
+#include <sys/wait.h>
+#include <unistd.h>
 #endif
 
 using namespace Death::Containers::Literals;
@@ -288,7 +288,7 @@ namespace Jazz2::Editor
 			if (size <= 0 || size > 4096) {
 				return {};
 			}
-			String text{NoInit, std::size_t(size)};
+			String text { NoInit, std::size_t(size) };
 			if (s->Read(text.data(), size) != size) {
 				return {};
 			}
@@ -301,11 +301,11 @@ namespace Jazz2::Editor
 #if defined(SHAREWARE_DEMO_ONLY)
 			String episode = IEditorContext::MakeLevelName(path).partition('/')[0];
 			if (!PreferencesCache::IsEpisodeUnlocked(episode)) {
-#	if defined(DEATH_TARGET_EMSCRIPTEN)
+#if defined(DEATH_TARGET_EMSCRIPTEN)
 				return _fx("editor", "The episode \"{}\" has to be imported first", episode);
-#	else
+#else
 				return _fx("editor", "The episode \"{}\" isn't available in the Shareware Demo", episode);
-#	endif
+#endif
 			}
 #endif
 			auto s = fs::Open(path, FileAccess::Read);
@@ -379,7 +379,9 @@ namespace Jazz2::Editor
 	DocumentFiles::DocumentFiles(IEditorContext& context, IDocumentFilesHost& host, IRootController& root)
 		: _context(context), _host(host), _root(root)
 	{
-		_autosave.BeforeSave = [this]() { _host.StoreViewState(); };
+		_autosave.BeforeSave = [this]() {
+			_host.StoreViewState();
+		};
 	}
 
 	DocumentFiles::~DocumentFiles()
@@ -438,7 +440,7 @@ namespace Jazz2::Editor
 			if (size < 0 || size > 16 * 1024 * 1024) {
 				return false;
 			}
-			text = String{NoInit, std::size_t(size)};
+			text = String { NoInit, std::size_t(size) };
 			if (s->Read(text.data(), size) != size) {
 				return false;
 			}
@@ -501,7 +503,7 @@ namespace Jazz2::Editor
 		String levelPacks = fs::CombinePath(resolver.GetLevelPacksCachePath(), "Episodes"_s);
 		if (!forSaving && fs::DirectoryExists(levelPacks)) {
 			// TRANSLATORS: Name of a place in the file dialog, the installed level packs
-			FileRoot root{ _x("editor", "Level packs"), Death::move(levelPacks), false };
+			FileRoot root { _x("editor", "Level packs"), Death::move(levelPacks), false };
 			root.LabelFunc = GetLevelPackLabel;
 			roots.push_back(Death::move(root));
 		}
@@ -715,21 +717,21 @@ namespace Jazz2::Editor
 		MessageDialog::Show(*_context.GetSurface(), _x("editor", "Unsaved Changes"), _x("editor", "Changes of this level that weren't saved were found.\nDo you want to restore them?"),
 			// TRANSLATORS: Buttons of the message box about found changes that weren't saved, restore them or throw them away
 			{ _x("editor", "Restore"), _x("editor", "Discard") }, [this, recoveryPath](std::int32_t button) {
-			if (button < 0) {
-				// Closed without choosing, the changes are kept and offered again the next time the level is opened,
-				// nothing is saved over them until then (saving the level on purpose still replaces them)
-				_recoveryKept = true;
-				return;
-			}
-			if (button != 0) {
-				_autosave.Discard();
-				return;
-			}
-			String filePath = _filePath, levelName = _levelName;
-			if (!RestoreRecoveryCopy(recoveryPath, filePath, levelName)) {
-				_context.ShowMessage(_x("editor", "The changes couldn't be restored"));
-			}
-		});
+				if (button < 0) {
+					// Closed without choosing, the changes are kept and offered again the next time the level is opened,
+					// nothing is saved over them until then (saving the level on purpose still replaces them)
+					_recoveryKept = true;
+					return;
+				}
+				if (button != 0) {
+					_autosave.Discard();
+					return;
+				}
+				String filePath = _filePath, levelName = _levelName;
+				if (!RestoreRecoveryCopy(recoveryPath, filePath, levelName)) {
+					_context.ShowMessage(_x("editor", "The changes couldn't be restored"));
+				}
+			});
 		return true;
 	}
 
@@ -744,24 +746,26 @@ namespace Jazz2::Editor
 		MessageDialog::Show(*_context.GetSurface(), _x("editor", "Unsaved Changes"), _x("editor", "The level was changed since it was saved.\nDo you want to save the changes?"),
 			// TRANSLATORS: Buttons of the message box asking to save the changed level before leaving it
 			{ _("Save"), _x("editor", "Don't Save"), _x("editor", "Cancel") }, [this, sharedProceed](std::int32_t button) {
-			if (button == 0) {
-				if (CanSaveInPlace()) {
-					if (SaveTo(_filePath, false)) {
-						(*sharedProceed)();
+				if (button == 0) {
+					if (CanSaveInPlace()) {
+						if (SaveTo(_filePath, false)) {
+							(*sharedProceed)();
+						} else {
+							_context.ShowMessage(_x("editor", "The level couldn't be saved"));
+						}
 					} else {
-						_context.ShowMessage(_x("editor", "The level couldn't be saved"));
+						ShowSaveAsDialog(false, [sharedProceed]() {
+							(*sharedProceed)();
+						});
 					}
-				} else {
-					ShowSaveAsDialog(false, [sharedProceed]() { (*sharedProceed)(); });
+				} else if (button == 1) {
+					if (!_recoveryKept) {
+						// Changes kept from before, not chosen about yet, aren't these
+						_autosave.Discard();
+					}
+					(*sharedProceed)();
 				}
-			} else if (button == 1) {
-				if (!_recoveryKept) {
-					// Changes kept from before, not chosen about yet, aren't these
-					_autosave.Discard();
-				}
-				(*sharedProceed)();
-			}
-		});
+			});
 	}
 
 	void DocumentFiles::ExitEditor()
@@ -795,15 +799,17 @@ namespace Jazz2::Editor
 		// The browser has the files of the computer, a level is uploaded into the game
 		// TRANSLATORS: Button in the Open Level dialog of the web version, picks a level file of the computer to upload
 		dialog->GetContent()->Add<Button>(_x("editor", "From This Computer"), EditorIcon::Folder, [this, dialog, open]() mutable {
-			dialog->Close();
-			WebFileBridge::PickFile(".j2l"_s, Death::move(open));
-		})->Tooltip = _x("editor", "Upload a level, saving it downloads it back");
+								dialog->Close();
+								WebFileBridge::PickFile(".j2l"_s, Death::move(open));
+							})
+			->Tooltip = _x("editor", "Upload a level, saving it downloads it back");
 #endif
 	}
 
 	void DocumentFiles::ShowNewLevelDialog()
 	{
-		struct NewLevelSettings {
+		struct NewLevelSettings
+		{
 			String TileSet;
 			float Width = 128.0f;
 			float Height = 64.0f;
@@ -821,25 +827,40 @@ namespace Jazz2::Editor
 		tileSetRow->Add<Label>(_x("editor", "Tile set"), Theme::TextDim)->Width = 60.0f;
 		auto* tileSetBox = tileSetRow->Add<TextBox>(settings->TileSet);
 		tileSetBox->Width = 120.0f;
-		tileSetBox->OnChanged = [settings](StringView text) { settings->TileSet = text; };
+		tileSetBox->OnChanged = [settings](StringView text) {
+			settings->TileSet = text;
+		};
 		tileSetRow->Add<Button>(StringView(), EditorIcon::Folder, [this, settings, tileSetBox]() {
-			// TRANSLATORS: Title of the file dialog choosing the tile set of a new level
-			ShowTileSetPicker(_context, _x("editor", "Tile Set of the New Level"), tileSetBox->Text.trimmed(), [settings, tileSetBox](StringView name) {
-				tileSetBox->Text = name;
-				settings->TileSet = name;
-			});
-		})->Tooltip = _x("editor", "Choose a tile set");
+					  // TRANSLATORS: Title of the file dialog choosing the tile set of a new level
+					  ShowTileSetPicker(_context, _x("editor", "Tile Set of the New Level"), tileSetBox->Text.trimmed(), [settings, tileSetBox](StringView name) {
+						  tileSetBox->Text = name;
+						  settings->TileSet = name;
+					  });
+				  })
+			->Tooltip = _x("editor", "Choose a tile set");
 
 		auto* widthRow = content->Add<Stack>(Orientation::Horizontal, Theme::Spacing);
 		// TRANSLATORS: Label in the New Level dialog, the width of the level in tiles, keep it short
 		widthRow->Add<Label>(_x("editor", "Width"), Theme::TextDim)->Width = 60.0f;
-		widthRow->Add<NumberBox>([settings]() { return settings->Width; }, [settings](float value, bool) { settings->Width = value; },
-			16.0f, 1024.0f, 1.0f, 0)->Width = 60.0f;
+		widthRow->Add<NumberBox>([settings]() {
+					return settings->Width;
+				},
+					[settings](float value, bool) {
+						settings->Width = value;
+					},
+					16.0f, 1024.0f, 1.0f, 0)
+			->Width = 60.0f;
 		auto* heightRow = content->Add<Stack>(Orientation::Horizontal, Theme::Spacing);
 		// TRANSLATORS: Label in the New Level dialog, the height of the level in tiles, keep it short
 		heightRow->Add<Label>(_x("editor", "Height"), Theme::TextDim)->Width = 60.0f;
-		heightRow->Add<NumberBox>([settings]() { return settings->Height; }, [settings](float value, bool) { settings->Height = value; },
-			16.0f, 1024.0f, 1.0f, 0)->Width = 60.0f;
+		heightRow->Add<NumberBox>([settings]() {
+					 return settings->Height;
+				 },
+					 [settings](float value, bool) {
+						 settings->Height = value;
+					 },
+					 16.0f, 1024.0f, 1.0f, 0)
+			->Width = 60.0f;
 
 		// TRANSLATORS: Button in the New Level dialog, creates the level
 		dialog->AddButton(_x("editor", "Create"), [this, dialogPtr, settings, tileSetBox]() {
@@ -855,8 +876,11 @@ namespace Jazz2::Editor
 			// Made by whoever plays as the player name of the options
 			document.Properties.Author = PreferencesCache::GetEffectivePlayerName();
 			_host.ReplaceDocument(Death::move(document), {}, "unknown/untitled"_s);
-		}, true);
-		dialog->AddButton(_x("editor", "Cancel"), [dialogPtr]() { dialogPtr->Close(); });
+		},
+			true);
+		dialog->AddButton(_x("editor", "Cancel"), [dialogPtr]() {
+			dialogPtr->Close();
+		});
 
 		ShowModal(*_context.GetSurface(), Death::move(dialog));
 	}
@@ -896,8 +920,8 @@ namespace Jazz2::Editor
 		// so a failed write --- a full disk too --- never leaves a damaged level behind
 		LevelFlags extraFlags = (exportOnly && _exportNotEditable ? LevelFlags::NotEditable : LevelFlags::None);
 		if (!Utils::AtomicFile::Write(path, [&document, exportOnly, extraFlags](Stream& s) {
-			return document.Save(s, exportOnly, 9, extraFlags);
-		})) {
+				return document.Save(s, exportOnly, 9, extraFlags);
+			})) {
 			LOGE("Level cannot be saved to \"{}\"", path);
 			return false;
 		}
@@ -1020,8 +1044,8 @@ namespace Jazz2::Editor
 		// TRANSLATORS: Titles of the file dialog that exports the level to be played, or saves it under another name
 		FileDialog* fileDialog = FileDialog::Show(surface, exportOnly ? _x("editor", "Export Level") : _x("editor", "Save Level As"), FileDialogMode::Save, Death::move(roots), ".j2l"_s,
 			directory, name, [this, exportOnly, sharedOnSaved](StringView chosenPath) {
-			SaveAsConfirmed(chosenPath, exportOnly, sharedOnSaved);
-		});
+				SaveAsConfirmed(chosenPath, exportOnly, sharedOnSaved);
+			});
 		if (fileDialog == nullptr) {
 			return;
 		}
@@ -1053,10 +1077,10 @@ namespace Jazz2::Editor
 			for (std::size_t i = 0; i < allRoots.size() && targetRoot >= 0; i++) {
 				if (std::int32_t(i) != targetRoot && fs::FileExists(String(allRoots[i].Path + relative))) {
 					warning = (std::int32_t(i) > targetRoot
-						// TRANSLATORS: Warning when saving a level, {} is the name of a place in the file dialog, e.g. "User content"
-						? _fx("editor", "The game will play this level instead of the one in {}.", allRoots[i].Name)
-						// TRANSLATORS: Warning when saving a level, {} is the name of a place in the file dialog, e.g. "User content"
-						: _fx("editor", "The game will play the level in {} instead of this one.", allRoots[i].Name));
+							// TRANSLATORS: Warning when saving a level, {} is the name of a place in the file dialog, e.g. "User content"
+							? _fx("editor", "The game will play this level instead of the one in {}.", allRoots[i].Name)
+							// TRANSLATORS: Warning when saving a level, {} is the name of a place in the file dialog, e.g. "User content"
+							: _fx("editor", "The game will play the level in {} instead of this one.", allRoots[i].Name));
 					break;
 				}
 			}
@@ -1073,10 +1097,10 @@ namespace Jazz2::Editor
 				auto sharedProceed = std::make_shared<Function<void()>>(Death::move(proceed));
 				MessageDialog::Show(*_context.GetSurface(), exportOnly ? _x("editor", "Export Level") : _x("editor", "Save Level As"), String(warning + "\n"_s + _x("editor", "Do you want to continue?")),
 					{ _("Save"), _x("editor", "Cancel") }, [sharedProceed](std::int32_t button) {
-					if (button == 0) {
-						(*sharedProceed)();
-					}
-				});
+						if (button == 0) {
+							(*sharedProceed)();
+						}
+					});
 			}
 		};
 
@@ -1085,8 +1109,12 @@ namespace Jazz2::Editor
 			// Whether the editor can open the exported level again, chosen along with where it goes
 			_exportNotEditable = false;
 			// TRANSLATORS: Check box in the Export Level dialog, keeps the exported level from being opened in the editor
-			auto* notEditable = fileDialog->GetContent()->Add<CheckBox>(_x("editor", "Don't allow editing"),
-				[this]() { return _exportNotEditable; }, [this](bool value) { _exportNotEditable = value; });
+			auto* notEditable = fileDialog->GetContent()->Add<CheckBox>(_x("editor", "Don't allow editing"), [this]() {
+				return _exportNotEditable;
+			},
+				[this](bool value) {
+					_exportNotEditable = value;
+				});
 			notEditable->Tooltip = _x("editor", "Keep the exported level from being opened in the editor, keep the level you edit to change it later");
 		}
 	}
@@ -1121,15 +1149,32 @@ namespace Jazz2::Editor
 			StringView description;
 			switch (problem) {
 				// TRANSLATORS: Problems of a level that make it unloadable, shown when the level can't be exported
-				case DocumentProblem::LayerSize: description = _x("editor", "A layer has a different number of tiles than its size"); break;
-				case DocumentProblem::SpriteLayerCount: description = _x("editor", "The level has to have exactly one sprite layer"); break;
-				case DocumentProblem::TooManyLayers: description = _x("editor", "The level has too many layers"); break;
-				case DocumentProblem::TooManyTexts: description = _x("editor", "The level has too many texts"); break;
-				case DocumentProblem::TooManyExtraTileSets: description = _x("editor", "The level has too many extra tile sets"); break;
-				case DocumentProblem::TooManyAnimations: description = _x("editor", "The level has too many animated tiles"); break;
-				case DocumentProblem::TooManyFrames: description = _x("editor", "An animated tile has too many frames"); break;
-				case DocumentProblem::UnaddressableTile: description = _x("editor", "The level uses tiles past the tile IDs it can address"); break;
-				default: break;
+				case DocumentProblem::LayerSize:
+					description = _x("editor", "A layer has a different number of tiles than its size");
+					break;
+				case DocumentProblem::SpriteLayerCount:
+					description = _x("editor", "The level has to have exactly one sprite layer");
+					break;
+				case DocumentProblem::TooManyLayers:
+					description = _x("editor", "The level has too many layers");
+					break;
+				case DocumentProblem::TooManyTexts:
+					description = _x("editor", "The level has too many texts");
+					break;
+				case DocumentProblem::TooManyExtraTileSets:
+					description = _x("editor", "The level has too many extra tile sets");
+					break;
+				case DocumentProblem::TooManyAnimations:
+					description = _x("editor", "The level has too many animated tiles");
+					break;
+				case DocumentProblem::TooManyFrames:
+					description = _x("editor", "An animated tile has too many frames");
+					break;
+				case DocumentProblem::UnaddressableTile:
+					description = _x("editor", "The level uses tiles past the tile IDs it can address");
+					break;
+				default:
+					break;
 			}
 			MessageDialog::Show(*_context.GetSurface(), _x("editor", "Export Level"), _fx("editor", "The level can't be exported:\n{}", description), { _x("editor", "OK") }, {});
 			return;
@@ -1215,7 +1260,7 @@ namespace Jazz2::Editor
 		}
 		// Only once, the file it went to may have been in the list already
 		bool seen = false;
-		for (std::size_t i = 0; i < settings.RecentFiles.size(); ) {
+		for (std::size_t i = 0; i < settings.RecentFiles.size();) {
 			if (IsSameFile(settings.RecentFiles[i], to)) {
 				if (seen) {
 					settings.RecentFiles.erase(settings.RecentFiles.begin() + i);
@@ -1269,10 +1314,10 @@ namespace Jazz2::Editor
 		MessageDialog::Show(*surface, _x("editor", "Edit Script"), _x("editor", "The level has no script yet.\nDo you want to make a new one?"),
 			// TRANSLATORS: Buttons of the message box asking whether to make a new script for the level
 			{ _x("editor", "Make Script"), _x("editor", "Cancel") }, [this, path](std::int32_t button) {
-			if (button == 0 && CreateScript(path)) {
-				OpenScript(path);
-			}
-		});
+				if (button == 0 && CreateScript(path)) {
+					OpenScript(path);
+				}
+			});
 	}
 
 	bool DocumentFiles::CreateScript(StringView path)
@@ -1280,14 +1325,14 @@ namespace Jazz2::Editor
 		// Something to start from, with how the script describes its events for the editor
 		String name = fs::GetFileNameWithoutExtension(_filePath);
 		String text = "// Script of the level \""_s + name + "\", it runs while the level is played\r\n"_s
-			"//\r\n"_s
-			"// Events the script reacts to can be described for the level editor, each by a line such as this one,\r\n"_s
-			"// without the slashes, see the documentation of the level editor for all that can be described:\r\n"_s
-			"// #pragma editor-event {\"Type\": 255, \"Name\": \"My Event\", \"Category\": \"Other\", \"Params\": [{\"Name\": \"Speed\", \"Type\": \"UInt\", \"Offset\": 0, \"Bits\": 4}]}\r\n"_s
-			"\r\n"_s
-			"void onLevelBegin()\r\n"_s
-			"{\r\n"_s
-			"}\r\n"_s;
+															 "//\r\n"_s
+															 "// Events the script reacts to can be described for the level editor, each by a line such as this one,\r\n"_s
+															 "// without the slashes, see the documentation of the level editor for all that can be described:\r\n"_s
+															 "// #pragma editor-event {\"Type\": 255, \"Name\": \"My Event\", \"Category\": \"Other\", \"Params\": [{\"Name\": \"Speed\", \"Type\": \"UInt\", \"Offset\": 0, \"Bits\": 4}]}\r\n"_s
+															 "\r\n"_s
+															 "void onLevelBegin()\r\n"_s
+															 "{\r\n"_s
+															 "}\r\n"_s;
 		if (!Utils::AtomicFile::Write(path, text.data(), std::int64_t(text.size()))) {
 			_context.ShowMessage(_x("editor", "The script couldn't be made"));
 			return false;
@@ -1325,7 +1370,7 @@ namespace Jazz2::Editor
 			if (size <= 0 || size > 4 * 1024 * 1024) {
 				return {};
 			}
-			String text{NoInit, std::size_t(size)};
+			String text { NoInit, std::size_t(size) };
 			std::int64_t read = s->Read(text.data(), size);
 			if (read != size) {
 				LOGW("File \"{}\" couldn't be read whole", path);
@@ -1457,11 +1502,11 @@ namespace Jazz2::Editor
 			MessageDialog::Show(*surface, _x("editor", "Tile Set Changed"), _fx("editor", "The tile set \"{}\" was changed outside of the editor.\nDo you want to load it again?", name),
 				// TRANSLATORS: Buttons of the message box about a tile set changed outside of the editor
 				{ _x("editor", "Load Again"), _x("editor", "Not Now") }, [this, name](std::int32_t button) {
-				if (button == 0) {
-					_host.ReloadTileSet(name);
-					_context.ShowMessage(_fx("editor", "The tile set \"{}\" was loaded again", name));
-				}
-			});
+					if (button == 0) {
+						_host.ReloadTileSet(name);
+						_context.ShowMessage(_fx("editor", "The tile set \"{}\" was loaded again", name));
+					}
+				});
 			break;
 		}
 		return true;
@@ -1504,10 +1549,12 @@ namespace Jazz2::Editor
 				MessageDialog::Show(*surface, _x("editor", "Level Open Elsewhere"), _x("editor", "The level seems to be open in another editor, the changes made in one would be lost by saving the other.\nDo you want to edit it anyway?"),
 					// TRANSLATORS: Buttons of the message box about the level being open in another editor
 					{ _x("editor", "Edit Anyway"), _x("editor", "Open Another Level") }, [this](std::int32_t button) {
-					if (button == 1) {
-						ConfirmDiscard([this]() { ShowOpenDialog(); });
-					}
-				});
+						if (button == 1) {
+							ConfirmDiscard([this]() {
+								ShowOpenDialog();
+							});
+						}
+					});
 			}
 		}
 		_lockPath = Death::move(lockPath);

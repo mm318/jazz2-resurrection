@@ -16,13 +16,13 @@ namespace Jazz2::Actors::Bosses
 	static constexpr AnimState ShootInProgress = (AnimState)11;
 	static constexpr AnimState ShootEnd = (AnimState)12;
 	static constexpr AnimState ShootEnd2 = (AnimState)13;
-	static constexpr AnimState CrouchStart = (AnimState)14;			// TODO: Unused
-	static constexpr AnimState CrouchInProgress = (AnimState)15;	// TODO: Unused
-	static constexpr AnimState CrouchEnd = (AnimState)16;			// TODO: Unused
-	static constexpr AnimState JumpStart = (AnimState)17;			// TODO: Unused
-	static constexpr AnimState JumpInProgress = (AnimState)18;		// TODO: Unused
-	static constexpr AnimState JumpEnd = (AnimState)19;				// TODO: Unused
-	static constexpr AnimState JumpEnd2 = (AnimState)20;			// TODO: Unused
+	static constexpr AnimState CrouchStart = (AnimState)14; // TODO: Unused
+	static constexpr AnimState CrouchInProgress = (AnimState)15; // TODO: Unused
+	static constexpr AnimState CrouchEnd = (AnimState)16; // TODO: Unused
+	static constexpr AnimState JumpStart = (AnimState)17; // TODO: Unused
+	static constexpr AnimState JumpInProgress = (AnimState)18; // TODO: Unused
+	static constexpr AnimState JumpEnd = (AnimState)19; // TODO: Unused
+	static constexpr AnimState JumpEnd2 = (AnimState)20; // TODO: Unused
 	static constexpr AnimState DisarmedStart = (AnimState)22;
 	static constexpr AnimState DisarmedGunDecor = (AnimState)23;
 	static constexpr AnimState DisorientedStart = (AnimState)24;
@@ -40,7 +40,7 @@ namespace Jazz2::Actors::Bosses
 
 	Devan::Devan()
 		: _state(State::Waiting), _stateTime(0.0f), _endText(0), _shots(0), _isDemon(false),
-			_isDead(false), _evalAcc(0.0f), _jumpTicks(0.0f)
+		  _isDead(false), _evalAcc(0.0f), _jumpTicks(0.0f)
 	{
 	}
 
@@ -176,8 +176,7 @@ namespace Jazz2::Actors::Bosses
 					gun->OnActivated(ActorActivationDetails(
 						_levelHandler,
 						Vector3i((std::int32_t)_pos.X + (IsFacingLeft() ? 12 : -12), (std::int32_t)_pos.Y - 8, _renderer.GetLayer() + 40),
-						gunParams
-					));
+						gunParams));
 					_levelHandler->AddActor(gun);
 
 					_state = State::Transition;
@@ -279,8 +278,7 @@ namespace Jazz2::Actors::Bosses
 					fireball->OnActivated(ActorActivationDetails(
 						_levelHandler,
 						Vector3i((std::int32_t)_pos.X + (IsFacingLeft() ? -26 : 26), (std::int32_t)_pos.Y - 14, _renderer.GetLayer() + 2),
-						fireballParams
-					));
+						fireballParams));
 					_levelHandler->AddActor(fireball);
 
 					SetTransition(DemonSpewFireballEnd, false, [this]() {
@@ -451,8 +449,7 @@ namespace Jazz2::Actors::Bosses
 			bullet->OnActivated(ActorActivationDetails(
 				_levelHandler,
 				Vector3i((std::int32_t)_pos.X + (IsFacingLeft() ? -24 : 24), (std::int32_t)_pos.Y + 2, _renderer.GetLayer() + 2),
-				bulletParams
-			));
+				bulletParams));
 			_levelHandler->AddActor(bullet);
 
 			_shots++;

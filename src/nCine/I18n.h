@@ -86,7 +86,7 @@ namespace nCine
 		StringView result = i18n.LookupTranslation(text);
 		return (result ? result : StringView(text));
 	}
-	
+
 	/**
 	 * @relates I18n
 	 * @brief Translates text in singular form using the primary translation catalog and the specified @p context
@@ -130,7 +130,7 @@ namespace nCine
 	 * @relates I18n
 	 * @brief Translates and formats text in singular form using the primary translation catalog
 	 */
-	template<class ...Args>
+	template <class... Args>
 	String _f(const char* text, const Args&... args)
 	{
 		I18n& i18n = I18n::Get();
@@ -142,7 +142,7 @@ namespace nCine
 	 * @relates I18n
 	 * @brief Translates and formats text in singular or plural form (selected by count @p n) using the primary translation catalog
 	 */
-	template<class ...Args>
+	template <class... Args>
 	String _fn(const char* textSingular, const char* textPlural, std::int32_t n, const Args&... args)
 	{
 		I18n& i18n = I18n::Get();
@@ -160,7 +160,7 @@ namespace nCine
 	 * @relates I18n
 	 * @brief Translates and formats text in singular form using the primary translation catalog and the specified @p context
 	 */
-	template<class ...Args>
+	template <class... Args>
 	String _fx(StringView context, const char* text, const Args&... args)
 	{
 		I18n& i18n = I18n::Get();
@@ -173,7 +173,7 @@ namespace nCine
 	 * @relates I18n
 	 * @brief Translates and formats text in singular or plural form (selected by count @p n) using the primary translation catalog and the specified @p context
 	 */
-	template<class ...Args>
+	template <class... Args>
 	String _fnx(StringView context, const char* textSingular, const char* textPlural, std::int32_t n, const Args&... args)
 	{
 		I18n& i18n = I18n::Get();

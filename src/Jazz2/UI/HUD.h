@@ -95,8 +95,9 @@ namespace Jazz2::UI
 	protected:
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		// Doxygen 1.12.0 outputs also private structs/unions even if it shouldn't
-#	if defined(NCINE_HAS_TOUCH_CONTROLS)
-		struct TouchButtonInfo {
+#if defined(NCINE_HAS_TOUCH_CONTROLS)
+		struct TouchButtonInfo
+		{
 			PlayerAction Action;
 
 			float Left;
@@ -108,23 +109,29 @@ namespace Jazz2::UI
 			std::int32_t CurrentPointerId;
 			Alignment Align;
 		};
-#	endif
+#endif
 
-		struct Vertex {
+		struct Vertex
+		{
 			float X, Y;
 			float U, V;
 
 			Vertex()
-				: X(0.0f), Y(0.0f), U(0.0f), V(0.0f) {}
+				: X(0.0f), Y(0.0f), U(0.0f), V(0.0f)
+			{
+			}
 			Vertex(float x, float y, float u, float v)
-				: X(x), Y(y), U(u), V(v) {}
+				: X(x), Y(y), U(u), V(v)
+			{
+			}
 		};
 
-		struct WeaponWheelState {
+		struct WeaponWheelState
+		{
 			SmallVector<std::unique_ptr<RenderCommand>, 0> RenderCommands;
 			std::unique_ptr<Vertex[]> Vertices;
 			std::int32_t WeaponCount;
-			std::int32_t  RenderCommandsCount;
+			std::int32_t RenderCommandsCount;
 			std::int32_t VerticesCount;
 			std::int32_t LastIndex;
 			float Anim;
@@ -132,13 +139,13 @@ namespace Jazz2::UI
 			// but the highlight share one size, and powf() is slow on the consoles
 			float SegmentSize[2];
 			float SegmentSizePow[2];
-#	if defined(WITH_RHI_RDP)
+#if defined(WITH_RHI_RDP)
 			// The arcs that share a layer and a color, as one list of lines (see DrawWeaponWheelSegment())
 			std::unique_ptr<Vertex[]> MergedVertices;
 			std::int32_t MergedVerticesCount;
 			std::uint16_t MergedLayer;
 			Colorf MergedColor;
-#	endif
+#endif
 			bool Shown;
 
 			WeaponWheelState();
@@ -163,7 +170,7 @@ namespace Jazz2::UI
 		static constexpr std::uint16_t PerformanceMetricsLayer = 450;
 
 		/** @} */
-		
+
 #ifndef DOXYGEN_GENERATING_OUTPUT
 		LevelHandler* _levelHandler;
 		Metadata* _metadata;
@@ -255,9 +262,10 @@ namespace Jazz2::UI
 		/** @brief Draws a textured element with clipping */
 		void DrawElementClipped(AnimState state, std::int32_t frame, float x, float y, std::uint16_t z, Alignment align,
 			const Colorf& color, float clipX, float clipY);
-	
+
 	private:
-		enum class TransitionState {
+		enum class TransitionState
+		{
 			None,
 			WaitingForFadeIn,
 			FadeIn,

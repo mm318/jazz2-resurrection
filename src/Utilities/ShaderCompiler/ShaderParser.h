@@ -107,26 +107,33 @@ namespace ShaderCompiler
 	/** @brief One backend a "void fixed_function(...) { ... }" block can name in its parentheses */
 	enum class FixedFunctionTarget : std::uint8_t
 	{
-		Pvr,		/**< Dreamcast-specific override (wins over the generic block for that backend) */
-		Gx,			/**< Wii/GameCube-specific override (wins over the generic block for that backend) */
-		Pica,		/**< Nintendo 3DS-specific override (wins over the generic block for that backend) */
-		Gu,			/**< PlayStation Portable-specific override (wins over the generic block for that backend) */
-		Gs,			/**< PlayStation 2-specific override (wins over the generic block for that backend) */
-		Rdp,		/**< Nintendo 64-specific override (wins over the generic block for that backend) */
-		LegacyGl	/**< Legacy-OpenGL-specific override (MorphOS's TinyGL and any other fixed-function GL) */
+		Pvr, /**< Dreamcast-specific override (wins over the generic block for that backend) */
+		Gx, /**< Wii/GameCube-specific override (wins over the generic block for that backend) */
+		Pica, /**< Nintendo 3DS-specific override (wins over the generic block for that backend) */
+		Gu, /**< PlayStation Portable-specific override (wins over the generic block for that backend) */
+		Gs, /**< PlayStation 2-specific override (wins over the generic block for that backend) */
+		Rdp, /**< Nintendo 64-specific override (wins over the generic block for that backend) */
+		LegacyGl /**< Legacy-OpenGL-specific override (MorphOS's TinyGL and any other fixed-function GL) */
 	};
 
 	/** @brief Spelling of @p target as it is written inside a block's parentheses */
 	inline const char* FixedFunctionTargetName(FixedFunctionTarget target)
 	{
 		switch (target) {
-			case FixedFunctionTarget::Gx: return "gx";
-			case FixedFunctionTarget::Pica: return "pica";
-			case FixedFunctionTarget::Gu: return "gu";
-			case FixedFunctionTarget::Gs: return "gs";
-			case FixedFunctionTarget::Rdp: return "rdp";
-			case FixedFunctionTarget::LegacyGl: return "legacygl";
-			default: return "pvr";
+			case FixedFunctionTarget::Gx:
+				return "gx";
+			case FixedFunctionTarget::Pica:
+				return "pica";
+			case FixedFunctionTarget::Gu:
+				return "gu";
+			case FixedFunctionTarget::Gs:
+				return "gs";
+			case FixedFunctionTarget::Rdp:
+				return "rdp";
+			case FixedFunctionTarget::LegacyGl:
+				return "legacygl";
+			default:
+				return "pvr";
 		}
 	}
 

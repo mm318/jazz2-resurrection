@@ -8,8 +8,8 @@ namespace Jazz2::Actors::Multiplayer
 {
 	RemoteElectroShot::RemoteElectroShot()
 		: _poweredUp(false), _currentStep(0.0f),
-			// The owning shot starts the swirl only after it has snapped to the gunspot (2 frames after firing)
-			_particleSpawnTime(2.0f)
+		  // The owning shot starts the swirl only after it has snapped to the gunspot (2 frames after firing)
+		  _particleSpawnTime(2.0f)
 	{
 		// The sprite stays hidden, but the particle trail follows the position, so it has to keep interpolating
 		_alwaysInterpolate = true;

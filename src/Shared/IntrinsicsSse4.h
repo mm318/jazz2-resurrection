@@ -55,29 +55,29 @@
 // Unfortunately, as opposed to AVX, the SSE4.1 and 4.2 intrinsics live in the exact same header, which for GCC 4.8 means
 // we have to subsequently have target("sse4.2") again in order to call even SSE4.1. This is the reason why
 // DEATH_ENABLE_SSE41 is not defined there.
-#if defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG) && __GNUC__*100 + __GNUC_MINOR__ < 409
+#if defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG) && __GNUC__ * 100 + __GNUC_MINOR__ < 409
 #pragma GCC push_options
 #pragma GCC target("sse4.1")
 #pragma GCC target("sse4.2")
 #pragma push_macro("__SSE4_1__")
 #pragma push_macro("__SSE4_2__")
 #if !defined(__SSE4_1__)
-#	define __SSE4_1__
+#define __SSE4_1__
 #endif
 #if !defined(__SSE4_2__)
-#	define __SSE4_2__
+#define __SSE4_2__
 #endif
 #endif
 // https://github.com/llvm/llvm-project/commit/092d42557b6c70d32b0b9362e4a8db9566369ddc says this was an accidental omission, so this should do no harm
 #if defined(DEATH_TARGET_CLANG) && __clang_major__ < 7
 #pragma push_macro("__POPCNT__")
 #if !defined(__POPCNT__)
-#	define __POPCNT__
+#define __POPCNT__
 #endif
 #endif
 #include <smmintrin.h>
 #include <nmmintrin.h>
-#if defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG) && __GNUC__*100 + __GNUC_MINOR__ < 409
+#if defined(DEATH_TARGET_GCC) && !defined(DEATH_TARGET_CLANG) && __GNUC__ * 100 + __GNUC_MINOR__ < 409
 #pragma pop_macro("__SSE4_1__")
 #pragma pop_macro("__SSE4_2__")
 #pragma GCC pop_options

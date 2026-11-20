@@ -56,7 +56,7 @@ namespace nCine::RHI::GL
 			case GL_INT_VEC3:
 			case GL_INT_VEC4:
 				return GL_INT;
-#if !defined(DEATH_TARGET_VITA)	// vitaGL declares none of the bool / unsigned-int vector types
+#if !defined(DEATH_TARGET_VITA) // vitaGL declares none of the bool / unsigned-int vector types
 			case GL_BOOL:
 			case GL_BOOL_VEC2:
 			case GL_BOOL_VEC3:
@@ -78,7 +78,7 @@ namespace nCine::RHI::GL
 			case GL_SAMPLER_1D:
 #endif
 			case GL_SAMPLER_2D:
-#if !defined(DEATH_TARGET_VITA)	// GL_SAMPLER_3D is not declared by vitaGL
+#if !defined(DEATH_TARGET_VITA) // GL_SAMPLER_3D is not declared by vitaGL
 			case GL_SAMPLER_3D:
 #endif
 			case GL_SAMPLER_CUBE:
@@ -133,7 +133,7 @@ namespace nCine::RHI::GL
 			case GL_SAMPLER_1D:
 #endif
 			case GL_SAMPLER_2D:
-#if !defined(DEATH_TARGET_VITA)	// GL_SAMPLER_3D is not declared by vitaGL
+#if !defined(DEATH_TARGET_VITA) // GL_SAMPLER_3D is not declared by vitaGL
 			case GL_SAMPLER_3D:
 #endif
 			case GL_SAMPLER_CUBE:
@@ -150,34 +150,56 @@ namespace nCine::RHI::GL
 	ShaderCompiler::UniformType GLUniform::GetType() const
 	{
 		switch (_type) {
-			case GL_FLOAT: return ShaderCompiler::UniformType::Float;
-			case GL_INT: return ShaderCompiler::UniformType::Int;
-			case GL_UNSIGNED_INT: return ShaderCompiler::UniformType::UInt;
+			case GL_FLOAT:
+				return ShaderCompiler::UniformType::Float;
+			case GL_INT:
+				return ShaderCompiler::UniformType::Int;
+			case GL_UNSIGNED_INT:
+				return ShaderCompiler::UniformType::UInt;
 #if !defined(DEATH_TARGET_VITA)
-			case GL_BOOL: return ShaderCompiler::UniformType::Bool;
+			case GL_BOOL:
+				return ShaderCompiler::UniformType::Bool;
 #endif
-			case GL_FLOAT_VEC2: return ShaderCompiler::UniformType::Vec2;
-			case GL_FLOAT_VEC3: return ShaderCompiler::UniformType::Vec3;
-			case GL_FLOAT_VEC4: return ShaderCompiler::UniformType::Vec4;
-			case GL_INT_VEC2: return ShaderCompiler::UniformType::IVec2;
-			case GL_INT_VEC3: return ShaderCompiler::UniformType::IVec3;
-			case GL_INT_VEC4: return ShaderCompiler::UniformType::IVec4;
-#if !defined(DEATH_TARGET_VITA)	// vitaGL declares none of the bool / unsigned-int vector types
-			case GL_UNSIGNED_INT_VEC2: return ShaderCompiler::UniformType::UVec2;
-			case GL_UNSIGNED_INT_VEC3: return ShaderCompiler::UniformType::UVec3;
-			case GL_UNSIGNED_INT_VEC4: return ShaderCompiler::UniformType::UVec4;
-			case GL_BOOL_VEC2: return ShaderCompiler::UniformType::BVec2;
-			case GL_BOOL_VEC3: return ShaderCompiler::UniformType::BVec3;
-			case GL_BOOL_VEC4: return ShaderCompiler::UniformType::BVec4;
+			case GL_FLOAT_VEC2:
+				return ShaderCompiler::UniformType::Vec2;
+			case GL_FLOAT_VEC3:
+				return ShaderCompiler::UniformType::Vec3;
+			case GL_FLOAT_VEC4:
+				return ShaderCompiler::UniformType::Vec4;
+			case GL_INT_VEC2:
+				return ShaderCompiler::UniformType::IVec2;
+			case GL_INT_VEC3:
+				return ShaderCompiler::UniformType::IVec3;
+			case GL_INT_VEC4:
+				return ShaderCompiler::UniformType::IVec4;
+#if !defined(DEATH_TARGET_VITA) // vitaGL declares none of the bool / unsigned-int vector types
+			case GL_UNSIGNED_INT_VEC2:
+				return ShaderCompiler::UniformType::UVec2;
+			case GL_UNSIGNED_INT_VEC3:
+				return ShaderCompiler::UniformType::UVec3;
+			case GL_UNSIGNED_INT_VEC4:
+				return ShaderCompiler::UniformType::UVec4;
+			case GL_BOOL_VEC2:
+				return ShaderCompiler::UniformType::BVec2;
+			case GL_BOOL_VEC3:
+				return ShaderCompiler::UniformType::BVec3;
+			case GL_BOOL_VEC4:
+				return ShaderCompiler::UniformType::BVec4;
 #endif
-			case GL_FLOAT_MAT2: return ShaderCompiler::UniformType::Mat2;
-			case GL_FLOAT_MAT3: return ShaderCompiler::UniformType::Mat3;
-			case GL_FLOAT_MAT4: return ShaderCompiler::UniformType::Mat4;
-			case GL_SAMPLER_2D: return ShaderCompiler::UniformType::Sampler2D;
-#if !defined(DEATH_TARGET_VITA)	// GL_SAMPLER_3D is not declared by vitaGL
-			case GL_SAMPLER_3D: return ShaderCompiler::UniformType::Sampler3D;
+			case GL_FLOAT_MAT2:
+				return ShaderCompiler::UniformType::Mat2;
+			case GL_FLOAT_MAT3:
+				return ShaderCompiler::UniformType::Mat3;
+			case GL_FLOAT_MAT4:
+				return ShaderCompiler::UniformType::Mat4;
+			case GL_SAMPLER_2D:
+				return ShaderCompiler::UniformType::Sampler2D;
+#if !defined(DEATH_TARGET_VITA) // GL_SAMPLER_3D is not declared by vitaGL
+			case GL_SAMPLER_3D:
+				return ShaderCompiler::UniformType::Sampler3D;
 #endif
-			case GL_SAMPLER_CUBE: return ShaderCompiler::UniformType::SamplerCube;
+			case GL_SAMPLER_CUBE:
+				return ShaderCompiler::UniformType::SamplerCube;
 			default:
 				LOGW("No available case to handle GL type: {}", _type);
 				return ShaderCompiler::UniformType::Float;

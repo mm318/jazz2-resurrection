@@ -21,7 +21,7 @@ namespace Jazz2::Actors::Enemies
 {
 	LizardFloat::LizardFloat()
 		: _attackTime(0.0f), _moveTime(0.0f), _targetIndex(0), _theme(0), _copterDuration(DefaultCopterDuration), _awake(false), _attacking(false),
-			_dropsCopter(true)
+		  _dropsCopter(true)
 	{
 	}
 
@@ -72,8 +72,7 @@ namespace Jazz2::Actors::Enemies
 		_copter->OnActivated(ActorActivationDetails(
 			_levelHandler,
 			Vector3i((std::int32_t)_pos.X, (std::int32_t)_pos.Y, _renderer.GetLayer() - 2),
-			copterParams
-		));
+			copterParams));
 		_levelHandler->AddActor(_copter);
 
 		async_return true;
@@ -160,9 +159,14 @@ namespace Jazz2::Actors::Enemies
 
 		std::int32_t difficultyLevel = 1;
 		switch (_levelHandler->GetDifficulty()) {
-			case GameDifficulty::Easy: difficultyLevel = 0; break;
-			case GameDifficulty::Hard: difficultyLevel = 2; break;
-			default: break;
+			case GameDifficulty::Easy:
+				difficultyLevel = 0;
+				break;
+			case GameDifficulty::Hard:
+				difficultyLevel = 2;
+				break;
+			default:
+				break;
 		}
 		float maxSpeed = (2.0f + 2.0f * difficultyLevel) * TicksPerFrame;
 		_speed.X = std::clamp(_speed.X, -maxSpeed, maxSpeed);
@@ -187,8 +191,7 @@ namespace Jazz2::Actors::Enemies
 					bomb->OnActivated(ActorActivationDetails(
 						_levelHandler,
 						Vector3i((std::int32_t)_pos.X + (IsFacingLeft() ? -30 : 30), (std::int32_t)_pos.Y - 10, _renderer.GetLayer() + 2),
-						bombParams
-					));
+						bombParams));
 					_levelHandler->AddActor(bomb);
 
 					SetTransition(AnimState::TransitionAttackEnd, false);
@@ -257,8 +260,7 @@ namespace Jazz2::Actors::Enemies
 			ActorActivationDetails details(
 				_levelHandler,
 				Vector3i((std::int32_t)_pos.X, (std::int32_t)_pos.Y, _renderer.GetLayer()),
-				lizardParams
-			);
+				lizardParams);
 			// The lizard is a regular event object, so it can be spawned again from a level state snapshot
 			details.Type = EventType::EnemyLizard;
 			lizard->OnActivated(details);

@@ -35,7 +35,8 @@ namespace Jazz2::Actors::Solid
 		bool OnPerish(ActorBase* collider) override;
 
 	private:
-		enum class MorphType {
+		enum class MorphType
+		{
 			Swap2,
 			Swap3,
 			ToBird

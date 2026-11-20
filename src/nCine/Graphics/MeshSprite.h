@@ -28,9 +28,13 @@ namespace nCine
 			float u, v;
 
 			Vertex()
-				: x(0.0f), y(0.0f), u(0.0f), v(0.0f) {}
+				: x(0.0f), y(0.0f), u(0.0f), v(0.0f)
+			{
+			}
 			Vertex(float xx, float yy, float uu, float vv)
-				: x(xx), y(yy), u(uu), v(vv) {}
+				: x(xx), y(yy), u(uu), v(vv)
+			{
+			}
 		};
 		static const std::uint32_t VertexBytes = sizeof(Vertex);
 		static const std::uint32_t VertexFloats = VertexBytes / sizeof(float);
@@ -43,9 +47,13 @@ namespace nCine
 			float x, y;
 
 			VertexNoTexture()
-				: x(0.0f), y(0.0f) {}
+				: x(0.0f), y(0.0f)
+			{
+			}
 			VertexNoTexture(float xx, float yy)
-				: x(xx), y(yy) {}
+				: x(xx), y(yy)
+			{
+			}
 		};
 		static const std::uint32_t VertexNoTextureBytes = sizeof(VertexNoTexture);
 		static const std::uint32_t VertexNoTextureFloats = VertexNoTextureBytes / sizeof(float);
@@ -55,8 +63,8 @@ namespace nCine
 		 */
 		enum class TextureCutMode
 		{
-			Resize,									/**< Sizes the sprite from the texture rectangle */
-			Crop									/**< Sizes the sprite from the bounding box of the supplied points */
+			Resize, /**< Sizes the sprite from the texture rectangle */
+			Crop /**< Sizes the sprite from the bounding box of the supplied points */
 		};
 
 		/** @brief Default constructor for a sprite with no parent and no texture, positioned in the origin */
@@ -79,28 +87,34 @@ namespace nCine
 		MeshSprite& operator=(MeshSprite&&) = default;
 
 		/** @brief Returns a copy of this object */
-		inline MeshSprite Clone() const {
+		inline MeshSprite Clone() const
+		{
 			return MeshSprite(*this);
 		}
 
 		/** @brief Returns the number of bytes used by each vertex */
-		inline std::uint32_t GetBytesPerVertex() const {
+		inline std::uint32_t GetBytesPerVertex() const
+		{
 			return _bytesPerVertex;
 		}
 		/** @brief Returns the number of vertices of the sprite mesh */
-		inline std::uint32_t GetVertexCount() const {
+		inline std::uint32_t GetVertexCount() const
+		{
 			return _numVertices;
 		}
 		/** @brief Returns the total number of bytes used by all sprite's vertices */
-		inline std::uint32_t GetByteCount() const {
+		inline std::uint32_t GetByteCount() const
+		{
 			return _numVertices * _bytesPerVertex;
 		}
 		/** @brief Returns the vertices data of the sprite mesh */
-		inline const float* GetVertices() const {
+		inline const float* GetVertices() const
+		{
 			return _vertexDataPointer;
 		}
 		/** @brief Returns `true` if the vertices belong to the sprite and are not stored externally */
-		inline bool HasUniqueVertices() const {
+		inline bool HasUniqueVertices() const
+		{
 			return _vertexDataPointer == _vertices.data();
 		}
 
@@ -141,15 +155,18 @@ namespace nCine
 		void CreateVerticesFromTexels(std::uint32_t numVertices, const Vector2f* points);
 
 		/** @brief Returns the number of indices used to draw the sprite mesh */
-		inline std::uint32_t GetIndexCount() const {
+		inline std::uint32_t GetIndexCount() const
+		{
 			return _numIndices;
 		}
 		/** @brief Returns the indices used to draw the sprite mesh */
-		inline const std::uint16_t* GetIndices() const {
+		inline const std::uint16_t* GetIndices() const
+		{
 			return _indexDataPointer;
 		}
 		/** @brief Returns `true` if the indices belong to the sprite and are not stored externally */
-		inline bool HasUniqueIndices() const {
+		inline bool HasUniqueIndices() const
+		{
 			return _indexDataPointer == _indices.data();
 		}
 		/** @brief Copies the indices from a pointer into the sprite */
@@ -164,7 +181,8 @@ namespace nCine
 		/** @brief Returns the internal indices data, cleared and set to the required size */
 		std::uint16_t* EmplaceIndices(std::uint32_t numIndices);
 
-		inline static ObjectType sType() {
+		inline static ObjectType sType()
+		{
 			return ObjectType::MeshSprite;
 		}
 

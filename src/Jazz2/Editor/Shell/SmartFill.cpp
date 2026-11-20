@@ -236,7 +236,7 @@ namespace Jazz2::Editor
 						if (IsEmpty(mask)) {
 							break;
 						}
-						_byHash[Hash(mask)].push_back(TileRef{ std::uint16_t(index), TileRef::DefaultTileSet, flags });
+						_byHash[Hash(mask)].push_back(TileRef { std::uint16_t(index), TileRef::DefaultTileSet, flags });
 					}
 				}
 			}
@@ -402,7 +402,9 @@ namespace Jazz2::Editor
 		SmallVector<CellCandidates, 0> cellCandidates;
 		cellCandidates.resize(std::size_t(bounds.W) * std::size_t(bounds.H));
 		SmallVector<TileRef, 0> allCandidates;
-		auto key = [&bounds](std::int32_t x, std::int32_t y) { return std::size_t(y - bounds.Y) * std::size_t(bounds.W) + std::size_t(x - bounds.X); };
+		auto key = [&bounds](std::int32_t x, std::int32_t y) {
+			return std::size_t(y - bounds.Y) * std::size_t(bounds.W) + std::size_t(x - bounds.X);
+		};
 		auto hasCandidates = [&](std::int32_t x, std::int32_t y) {
 			return (x >= bounds.X && y >= bounds.Y && x < bounds.X + bounds.W && y < bounds.Y + bounds.H && cellCandidates[key(x, y)].Count > 0);
 		};
@@ -418,7 +420,7 @@ namespace Jazz2::Editor
 				if (!selection.Contains(x, y) || !SmartTileModel::IsModelTile(tile)) {
 					continue;
 				}
-				masks.Find(TileRef{ tile.Index, tile.Source, std::uint8_t(tile.Flags & 0x03) }, found);
+				masks.Find(TileRef { tile.Index, tile.Source, std::uint8_t(tile.Flags & 0x03) }, found);
 				if (found.size() < 2) {
 					continue;
 				}
@@ -431,7 +433,7 @@ namespace Jazz2::Editor
 				bool hasCurrent = false;
 				for (std::size_t i = 0; i < found.size() && i < MaxCandidates; i++) {
 					// The modifier of the tile stays, translucent or not
-					TileRef candidate{ found[i].Index, found[i].Source, std::uint8_t((tile.Flags & ~0x03) | found[i].Flags) };
+					TileRef candidate { found[i].Index, found[i].Source, std::uint8_t((tile.Flags & ~0x03) | found[i].Flags) };
 					allCandidates.push_back(candidate);
 					hasCurrent |= (candidate == tile);
 				}
@@ -448,7 +450,9 @@ namespace Jazz2::Editor
 			return false;
 		}
 
-		auto log1 = [](std::uint32_t count) { return std::log(1.0f + float(count)); };
+		auto log1 = [](std::uint32_t count) {
+			return std::log(1.0f + float(count));
+		};
 		// How well a tile fits a cell by itself and with the tiles above and below, a little for being the one there
 		auto unary = [&](std::int32_t x, std::int32_t y, const TileRef& tile, bool withSides) {
 			float score = log1(model->GetCount(tiles.GetNeighbors(x, y), spriteLayer, tile));

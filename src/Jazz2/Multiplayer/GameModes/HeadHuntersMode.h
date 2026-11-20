@@ -19,10 +19,12 @@ namespace Jazz2::Multiplayer::GameModes
 	public:
 		HeadHuntersMode();
 
-		MpGameMode GetMode() const override {
+		MpGameMode GetMode() const override
+		{
 			return MpGameMode::HeadHunters;
 		}
-		bool IsTeamBased() const override {
+		bool IsTeamBased() const override
+		{
 			return true;
 		}
 

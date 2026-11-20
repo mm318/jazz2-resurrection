@@ -59,8 +59,7 @@ namespace
 		const std::int32_t whole = (y >= 0.0f ? std::int32_t(y + 0.5f) : -std::int32_t(0.5f - y));
 		// e^(f*ln(2)) as its Taylor series, |f| <= 0.5
 		const float f = y - float(whole);
-		const float p = 1.0f + f * (0.693147181f + f * (0.240226507f + f * (0.0555041087f + f * (0.00961812911f +
-			f * (0.00133335581f + f * (0.000154035304f + f * 0.0000152527338f))))));
+		const float p = 1.0f + f * (0.693147181f + f * (0.240226507f + f * (0.0555041087f + f * (0.00961812911f + f * (0.00133335581f + f * (0.000154035304f + f * 0.0000152527338f))))));
 		const std::uint32_t scaleBits = std::uint32_t(whole + 127) << 23;
 		float scale;
 		std::memcpy(&scale, &scaleBits, sizeof(scale));
@@ -163,7 +162,7 @@ namespace
 		std::uint64_t r = n - d;
 		std::uint64_t q = 1;
 		const float invDivisorTop = 1.0f / float(std::int32_t(d >> 32));
-		for (std::int32_t bits = 52; bits > 0; ) {
+		for (std::int32_t bits = 52; bits > 0;) {
 			const std::int32_t step = (bits < 10 ? bits : 10);
 			bits -= step;
 			r <<= step;
@@ -213,7 +212,6 @@ extern "C" double __wrap___divdf3(double a, double b)
 
 #endif
 
-
 // `floorf()` and `ceilf()` have no instruction on any of these CPUs, so they are newlib's out-of-line routines that
 // take the float apart bit by bit - about 1.9 us each on the N64, a few tenths of a microsecond on the PSP and the
 // PS2. The generated fixed-function effects call them several times per band of the textured background (`floor()`
@@ -252,7 +250,7 @@ extern "C" float __wrap_floorf(float x)
 	value.Value = x;
 	const std::uint32_t exponent = (value.Bits >> 23) & 0xFFu;
 	if (exponent >= 127 + 23) {
-		return x;	// A whole number already, an infinity or a NaN
+		return x; // A whole number already, an infinity or a NaN
 	}
 	if (exponent < 127) {
 		// |x| < 1: a zero keeps its sign, anything else is 0 or -1
@@ -271,7 +269,7 @@ extern "C" float __wrap_ceilf(float x)
 	value.Value = x;
 	const std::uint32_t exponent = (value.Bits >> 23) & 0xFFu;
 	if (exponent >= 127 + 23) {
-		return x;	// A whole number already, an infinity or a NaN
+		return x; // A whole number already, an infinity or a NaN
 	}
 	if (exponent < 127) {
 		// |x| < 1: a zero keeps its sign, anything else is 1 or -0

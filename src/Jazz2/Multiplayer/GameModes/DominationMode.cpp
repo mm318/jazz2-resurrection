@@ -15,7 +15,7 @@
 namespace Jazz2::Multiplayer::GameModes
 {
 	DominationMode::DominationMode()
-		: _teamPoints{}, _scoreInterval(0.0f)
+		: _teamPoints {}, _scoreInterval(0.0f)
 	{
 	}
 
@@ -133,9 +133,9 @@ namespace Jazz2::Multiplayer::GameModes
 						point.CaptureFrames = 0.0f;
 						point.ScoreFrames = 0.0f;
 						if (!point.Name.empty()) {
-							ctx.ShowAlertToAllPlayers(ServerMessage(ServerMessageType::ControlPointCaptured, ServerMessageTeam{point.Team}, point.Name));
+							ctx.ShowAlertToAllPlayers(ServerMessage(ServerMessageType::ControlPointCaptured, ServerMessageTeam { point.Team }, point.Name));
 						} else {
-							ctx.ShowAlertToAllPlayers(ServerMessage(ServerMessageType::ControlPointCapturedUnnamed, ServerMessageTeam{point.Team}, (std::int32_t)(i + 1)));
+							ctx.ShowAlertToAllPlayers(ServerMessage(ServerMessageType::ControlPointCapturedUnnamed, ServerMessageTeam { point.Team }, (std::int32_t)(i + 1)));
 						}
 						objectsChanged = true;
 					}

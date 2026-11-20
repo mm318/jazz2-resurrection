@@ -31,8 +31,8 @@ namespace Jazz2::UI::Menu
 		SetTitle(_("Controls"));
 
 		// Row heights matching the original section (ItemHeight = 40, integer math)
-		constexpr float RemapHeight = 40 * 4 / 5;	// 32
-		constexpr float ActionHeight = 40 * 8 / 7;	// 45
+		constexpr float RemapHeight = 40 * 4 / 5; // 32
+		constexpr float ActionHeight = 40 * 8 / 7; // 45
 
 		auto list = std::make_unique<ScrollView>();
 
@@ -44,13 +44,16 @@ namespace Jazz2::UI::Menu
 		if (MaxSupportedPlayers > 1) {
 			for (std::int32_t i = 0; i < MaxSupportedPlayers; i++) {
 				// TRANSLATORS: Menu item in Options > Controls section
-				list->Add<ListItem>(_f("Remap Controls for Player {}", i + 1),
-					[root, i]() { root->SwitchToSection<RemapControlsSection>(i); }, RemapHeight);
+				list->Add<ListItem>(_f("Remap Controls for Player {}", i + 1), [root, i]() {
+					root->SwitchToSection<RemapControlsSection>(i);
+				},
+					RemapHeight);
 			}
 		} else {
 			// TRANSLATORS: Menu item in Options > Controls section
-			list->Add<ListItem>(_("Remap Controls"),
-				[root]() { root->SwitchToSection<RemapControlsSection>(0); },
+			list->Add<ListItem>(_("Remap Controls"), [root]() {
+				root->SwitchToSection<RemapControlsSection>(0);
+			},
 #if defined(NCINE_HAS_TOUCH_CONTROLS)
 				RemapHeight
 #else
@@ -61,35 +64,52 @@ namespace Jazz2::UI::Menu
 
 #if defined(NCINE_HAS_TOUCH_CONTROLS)
 		// TRANSLATORS: Menu item in Options > Controls section
-		list->Add<ListItem>(_("Touch Controls"),
-			[root]() { root->SwitchToSection<TouchControlsOptionsSection>(); }, ActionHeight);
+		list->Add<ListItem>(_("Touch Controls"), [root]() {
+			root->SwitchToSection<TouchControlsOptionsSection>();
+		},
+			ActionHeight);
 #endif
 
 		// TRANSLATORS: Menu item in Options > Controls section
 		list->Add<ChoiceItem>(_("Toggle Run"),
 			// TRANSLATORS: Option for on/off items in Options > Controls section
-			[]() -> StringView { return (PreferencesCache::ToggleRunAction ? _("Enabled") : _("Disabled")); },
-			[this](std::int32_t) { PreferencesCache::ToggleRunAction = !PreferencesCache::ToggleRunAction; _isDirty = true; });
+			[]() -> StringView {
+				return (PreferencesCache::ToggleRunAction ? _("Enabled") : _("Disabled"));
+			},
+			[this](std::int32_t) {
+				PreferencesCache::ToggleRunAction = !PreferencesCache::ToggleRunAction;
+				_isDirty = true;
+			});
 
 		// TRANSLATORS: Menu item in Options > Controls section, keys of Jump action work as Change Weapon in menus and vice versa
 		list->Add<ChoiceItem>(_("Swap Jump/Weapon in Menus"),
 			// TRANSLATORS: Option for on/off items in Options > Controls section
-			[]() -> StringView { return (PreferencesCache::SwapJumpAndChangeWeaponInMenu ? _("Enabled") : _("Disabled")); },
-			[this](std::int32_t) { PreferencesCache::SwapJumpAndChangeWeaponInMenu = !PreferencesCache::SwapJumpAndChangeWeaponInMenu; _isDirty = true; });
+			[]() -> StringView {
+				return (PreferencesCache::SwapJumpAndChangeWeaponInMenu ? _("Enabled") : _("Disabled"));
+			},
+			[this](std::int32_t) {
+				PreferencesCache::SwapJumpAndChangeWeaponInMenu = !PreferencesCache::SwapJumpAndChangeWeaponInMenu;
+				_isDirty = true;
+			});
 
 		// TRANSLATORS: Menu item in Options > Controls section, which gamepad's button names and icons are shown
-		list->Add<ChoiceItem>(_("Gamepad Button Labels"),
-			[]() -> StringView {
-				switch (PreferencesCache::GamepadButtonLabels) {
-					default:
-					case GamepadType::Xbox: return "Xbox"_s;
-					case GamepadType::PlayStation: return "PlayStation™"_s;
-					case GamepadType::PlayStationLegacy: return "PlayStation™ (Legacy)"_s;
-					case GamepadType::Steam: return "Steam Deck"_s;
-					case GamepadType::Switch: return "Switch"_s;
-					case GamepadType::Nintendo64: return "Nintendo 64"_s;
-				}
-			},
+		list->Add<ChoiceItem>(_("Gamepad Button Labels"), []() -> StringView {
+			switch (PreferencesCache::GamepadButtonLabels) {
+				default:
+				case GamepadType::Xbox:
+					return "Xbox"_s;
+				case GamepadType::PlayStation:
+					return "PlayStation™"_s;
+				case GamepadType::PlayStationLegacy:
+					return "PlayStation™ (Legacy)"_s;
+				case GamepadType::Steam:
+					return "Steam Deck"_s;
+				case GamepadType::Switch:
+					return "Switch"_s;
+				case GamepadType::Nintendo64:
+					return "Nintendo 64"_s;
+			}
+		},
 			[this](std::int32_t direction) {
 				// 6 contiguous values; Left/Right step backward/forward with wraparound
 				PreferencesCache::GamepadButtonLabels = (GamepadType)(((std::int32_t)PreferencesCache::GamepadButtonLabels + direction + 6) % 6);
@@ -102,17 +122,16 @@ namespace Jazz2::UI::Menu
 		// DualShock has), which reaches a controller paired to a PS TV - and, through the ds3vita/ds4vita
 		// plugins, one paired to a handheld too. Where nothing can rumble the setting simply does nothing.
 		// TRANSLATORS: Menu item in Options > Controls section
-		list->Add<ChoiceItem>(_("Gamepad Rumble"),
-			[]() -> StringView {
-				return (PreferencesCache::GamepadRumble == 2
+		list->Add<ChoiceItem>(_("Gamepad Rumble"), []() -> StringView {
+			return (PreferencesCache::GamepadRumble == 2
 					// TRANSLATORS: Option for Gamepad Rumble in Options > Controls section
 					? _("Strong")
 					: (PreferencesCache::GamepadRumble == 1
-						// TRANSLATORS: Option for Gamepad Rumble in Options > Controls section
-						? _("Weak")
-						// TRANSLATORS: Option for Gamepad Rumble in Options > Controls section
-						: _("Disabled")));
-			},
+							  // TRANSLATORS: Option for Gamepad Rumble in Options > Controls section
+							  ? _("Weak")
+							  // TRANSLATORS: Option for Gamepad Rumble in Options > Controls section
+							  : _("Disabled")));
+		},
 			[this](std::int32_t direction) {
 				// 3 contiguous values (Disabled/Weak/Strong); Left/Right step backward/forward with wraparound
 				PreferencesCache::GamepadRumble = (PreferencesCache::GamepadRumble + direction + 3) % 3;
@@ -123,7 +142,9 @@ namespace Jazz2::UI::Menu
 		// TRANSLATORS: Menu item in Options > Controls section, enables the extra features of PlayStation controllers
 		list->Add<ChoiceItem>(_("Extended PlayStation™ Support"),
 			// TRANSLATORS: Option for on/off items in Options > Controls section
-			[]() -> StringView { return (PreferencesCache::PlayStationExtendedSupport ? _("Enabled") : _("Disabled")); },
+			[]() -> StringView {
+				return (PreferencesCache::PlayStationExtendedSupport ? _("Enabled") : _("Disabled"));
+			},
 			[this](std::int32_t) {
 				PreferencesCache::PlayStationExtendedSupport = !PreferencesCache::PlayStationExtendedSupport;
 				theApplication().EnablePlayStationExtendedSupport(PreferencesCache::PlayStationExtendedSupport);
@@ -134,16 +155,26 @@ namespace Jazz2::UI::Menu
 		// TRANSLATORS: Menu item in Options > Controls section (Android only)
 		list->Add<ChoiceItem>(_("Native Back Button"),
 			// TRANSLATORS: Option for on/off items in Options > Controls section
-			[]() -> StringView { return (PreferencesCache::UseNativeBackButton ? _("Enabled") : _("Disabled")); },
-			[this](std::int32_t) { PreferencesCache::UseNativeBackButton = !PreferencesCache::UseNativeBackButton; _isDirty = true; });
+			[]() -> StringView {
+				return (PreferencesCache::UseNativeBackButton ? _("Enabled") : _("Disabled"));
+			},
+			[this](std::int32_t) {
+				PreferencesCache::UseNativeBackButton = !PreferencesCache::UseNativeBackButton;
+				_isDirty = true;
+			});
 #endif
 
 		// TRANSLATORS: Menu item in Options > Controls section
-		list->Add<ListItem>(_("Input Diagnostics"),
-			[root]() { root->SwitchToSection<InputDiagnosticsSection>(); }, ActionHeight);
+		list->Add<ListItem>(_("Input Diagnostics"), [root]() {
+			root->SwitchToSection<InputDiagnosticsSection>();
+		},
+			ActionHeight);
 		// TRANSLATORS: Menu item in Options > Controls section, resets all controls of all players to their defaults
-		list->Add<ListItem>(_("Reset To Default"),
-			[this]() { ControlScheme::Reset(); _isDirty = true; }, ActionHeight);
+		list->Add<ListItem>(_("Reset To Default"), [this]() {
+			ControlScheme::Reset();
+			_isDirty = true;
+		},
+			ActionHeight);
 
 		SetContent(Death::move(list));
 	}

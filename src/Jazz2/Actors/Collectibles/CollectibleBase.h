@@ -40,7 +40,8 @@ namespace Jazz2::Actors::Collectibles
 			/** @brief Seeds the swarm at @p elapsedFrames of the level, every swarm is in the same phase at the same time */
 			void Create(float elapsedFrames);
 			/** @brief Returns `true` if the swarm hasn't been seeded yet */
-			bool IsEmpty() const {
+			bool IsEmpty() const
+			{
 				return _lights.empty();
 			}
 			/** @brief Advances the swarm */
@@ -52,7 +53,8 @@ namespace Jazz2::Actors::Collectibles
 			// Number of lights the swarm consists of
 			static constexpr std::int32_t LightCount = 20;
 
-			struct Light {
+			struct Light
+			{
 				float Intensity;
 				float Distance;
 				float Phase;
@@ -69,7 +71,8 @@ namespace Jazz2::Actors::Collectibles
 		bool OnHandleCollision(ActorBase* other) override;
 
 		/** @brief Makes the collectible untouchable for the specified number of frames, as one thrown out of a container is */
-		void SetPickupDelay(float frames) {
+		void SetPickupDelay(float frames)
+		{
 			_pickupDelay = frames;
 		}
 
@@ -89,8 +92,11 @@ namespace Jazz2::Actors::Collectibles
 		void OnDeserializeState(Stream& src) override;
 		void OnEmitLights(SmallVectorImpl<LightEmitter>& lights) override;
 		// Every observer reproduces the swarm from the remoted ActorState::Illuminated instead
-		void OnEmitRemotedLights(SmallVectorImpl<LightEmitter>& lights) override { }
-		bool IsIlluminatedStateRemoted() const override {
+		void OnEmitRemotedLights(SmallVectorImpl<LightEmitter>& lights) override
+		{
+		}
+		bool IsIlluminatedStateRemoted() const override
+		{
 			return true;
 		}
 

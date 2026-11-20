@@ -45,10 +45,11 @@ namespace Jazz2::Formats
 		static constexpr std::uint32_t MaxSoundSize = 2 * 1024 * 1024;
 
 		/** @brief Result of @ref Read() */
-		enum class ReadResult {
-			Success,			/**< Read */
-			Damaged,			/**< The payload is damaged, the weapons are left as the game has them */
-			NewerVersion		/**< The payload is of a newer version, the weapons are left as the game has them */
+		enum class ReadResult
+		{
+			Success, /**< Read */
+			Damaged, /**< The payload is damaged, the weapons are left as the game has them */
+			NewerVersion /**< The payload is of a newer version, the weapons are left as the game has them */
 		};
 
 		WeaponsChunk() = delete;

@@ -2,7 +2,7 @@
 
 #include "../../Main.h"
 #if !defined(NCINE_HAS_NATIVE_AUDIO)
-#	include "IAudioReader.h"
+#include "IAudioReader.h"
 #endif
 #include "../Primitives/Vector3.h"
 #include "../Base/FrameTimer.h"
@@ -26,10 +26,11 @@ namespace nCine
 	struct StreamDecodeRequest
 	{
 		/** @brief State of the request */
-		enum class State : std::uint8_t {
-			Idle,		/**< Not submitted, the buffer contents are not valid */
-			Pending,	/**< Submitted, the request is owned by the decoding thread */
-			Ready		/**< Executed, the buffer holds @ref BytesRead decoded bytes */
+		enum class State : std::uint8_t
+		{
+			Idle, /**< Not submitted, the buffer contents are not valid */
+			Pending, /**< Submitted, the request is owned by the decoding thread */
+			Ready /**< Executed, the buffer holds @ref BytesRead decoded bytes */
 		};
 
 		/** @brief Reader that decodes the data, shared with the owning stream */
@@ -46,7 +47,9 @@ namespace nCine
 		std::atomic<State> CurrentState;
 
 		StreamDecodeRequest()
-			: BufferSize(0), BytesRead(0), Looping(false), CurrentState(State::Idle) {}
+			: BufferSize(0), BytesRead(0), Looping(false), CurrentState(State::Idle)
+		{
+		}
 
 		/** @brief Decodes one buffer of data and marks the request as ready */
 		void Execute()
@@ -98,11 +101,12 @@ namespace nCine
 	public:
 #if !defined(NCINE_HAS_NATIVE_AUDIO) || defined(DOXYGEN_GENERATING_OUTPUT)
 		/** @brief Sample format of an audio buffer */
-		enum class BufferFormat {
-			Mono8,		/**< 8-bit unsigned, single channel */
-			Stereo8,	/**< 8-bit unsigned, two channels */
-			Mono16,		/**< 16-bit signed, single channel */
-			Stereo16	/**< 16-bit signed, two channels */
+		enum class BufferFormat
+		{
+			Mono8, /**< 8-bit unsigned, single channel */
+			Stereo8, /**< 8-bit unsigned, two channels */
+			Mono16, /**< 16-bit signed, single channel */
+			Stereo16 /**< 16-bit signed, two channels */
 		};
 #endif
 
@@ -111,9 +115,10 @@ namespace nCine
 		 *
 		 * Most backends ignore it, it matters where sample memory isn't uniform (e.g. Dreamcast sound RAM).
 		 */
-		enum class BufferUsage {
-			Static,		/**< Loaded once and played as a whole, by @ref AudioBuffer */
-			Streaming	/**< Refilled continuously and played through a queue, by @ref AudioStream */
+		enum class BufferUsage
+		{
+			Static, /**< Loaded once and played as a whole, by @ref AudioBuffer */
+			Streaming /**< Refilled continuously and played through a queue, by @ref AudioStream */
 		};
 
 		/** @{ @name Constants */
@@ -133,9 +138,10 @@ namespace nCine
 		/** @} */
 
 		/** @brief Player backing type */
-		enum class PlayerType {
-			Buffer,	/**< Player backed by a fully loaded @ref AudioBuffer */
-			Stream	/**< Player decoding an @ref AudioStream on the fly */
+		enum class PlayerType
+		{
+			Buffer, /**< Player backed by a fully loaded @ref AudioBuffer */
+			Stream /**< Player decoding an @ref AudioStream on the fly */
 		};
 
 		/** @brief Returns `true` if the device was initialized successfully */
@@ -205,7 +211,11 @@ namespace nCine
 		 * @param availableMs   Time left, a step that would not fit is not started
 		 * @return `true` if a step was done and more remains
 		 */
-		virtual bool RunIdleWork(float availableMs) { static_cast<void>(availableMs); return false; }
+		virtual bool RunIdleWork(float availableMs)
+		{
+			static_cast<void>(availableMs);
+			return false;
+		}
 
 		/** @brief Returns the 3D position of the listener */
 		virtual const Vector3f& GetListenerPosition() const = 0;
@@ -220,7 +230,8 @@ namespace nCine
 		 * Honoured only by software mixers (PSP, Amiga), @ref GetNativeFrequency() then reports the new rate.
 		 * An unsupported rate or `0` is ignored, a no-op on other backends.
 		 */
-		virtual void SetMixingFrequency(std::int32_t frequency) {
+		virtual void SetMixingFrequency(std::int32_t frequency)
+		{
 			static_cast<void>(frequency);
 		}
 
@@ -343,9 +354,13 @@ namespace nCine
 		 * For devices mixing on the main thread, which would starve during e.g. a level load (PS2 `audsrv`
 		 * repeats its last buffer). No-op for devices with their own mixing thread.
 		 */
-		virtual void BeginBlockingOperation() { }
+		virtual void BeginBlockingOperation()
+		{
+		}
 		/** @brief Ends what @ref BeginBlockingOperation() started, and resumes playback */
-		virtual void EndBlockingOperation() { }
+		virtual void EndBlockingOperation()
+		{
+		}
 
 		/** @brief Suspends the audio device */
 		virtual void SuspendDevice() = 0;
@@ -353,95 +368,198 @@ namespace nCine
 		virtual void ResumeDevice() = 0;
 	};
 
-	inline IAudioDevice::~IAudioDevice() { }
+	inline IAudioDevice::~IAudioDevice()
+	{
+	}
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
 	// Silent fallback device used when no audio backend is available
 	class NullAudioDevice : public IAudioDevice
 	{
 	public:
-		bool IsValid() const override {
+		bool IsValid() const override
+		{
 			return false;
 		}
 
-		const char* GetName() const override {
+		const char* GetName() const override
+		{
 			return "NullAudioDevice";
 		}
 
-		float GetGain() const override {
+		float GetGain() const override
+		{
 			return 1.0f;
 		}
-		void SetGain(float gain) override { }
+		void SetGain(float gain) override
+		{
+		}
 
-		std::uint32_t GetMaxPlayerCount() const override {
+		std::uint32_t GetMaxPlayerCount() const override
+		{
 			return 0;
 		}
-		std::uint32_t GetPlayerCount() const override {
+		std::uint32_t GetPlayerCount() const override
+		{
 			return 0;
 		}
-		const IAudioPlayer* GetPlayer(std::uint32_t index) const override {
+		const IAudioPlayer* GetPlayer(std::uint32_t index) const override
+		{
 			return nullptr;
 		}
-		IAudioPlayer* GetPlayer(std::uint32_t index) override {
+		IAudioPlayer* GetPlayer(std::uint32_t index) override
+		{
 			return nullptr;
 		}
 
-		void StopPlayers() override { }
-		void PausePlayers() override { }
-		void StopPlayers(PlayerType playerType) override { }
-		void PausePlayers(PlayerType playerType) override { }
+		void StopPlayers() override
+		{
+		}
+		void PausePlayers() override
+		{
+		}
+		void StopPlayers(PlayerType playerType) override
+		{
+		}
+		void PausePlayers(PlayerType playerType) override
+		{
+		}
 
-		void FreezePlayers() override { }
-		void UnfreezePlayers() override { }
+		void FreezePlayers() override
+		{
+		}
+		void UnfreezePlayers() override
+		{
+		}
 
-		std::uint32_t RegisterPlayer(IAudioPlayer* player) override { return UnavailableSource; }
-		void UnregisterPlayer(IAudioPlayer* player) override { }
-		void UpdatePlayers() override {}
+		std::uint32_t RegisterPlayer(IAudioPlayer* player) override
+		{
+			return UnavailableSource;
+		}
+		void UnregisterPlayer(IAudioPlayer* player) override
+		{
+		}
+		void UpdatePlayers() override
+		{
+		}
 #if !defined(NCINE_HAS_NATIVE_AUDIO)
-		bool SubmitStreamDecode(const std::shared_ptr<StreamDecodeRequest>& request) override { return false; }
-		void DrainStreamDecode(const std::shared_ptr<StreamDecodeRequest>& request) override { }
+		bool SubmitStreamDecode(const std::shared_ptr<StreamDecodeRequest>& request) override
+		{
+			return false;
+		}
+		void DrainStreamDecode(const std::shared_ptr<StreamDecodeRequest>& request) override
+		{
+		}
 #endif
-		const Vector3f& GetListenerPosition() const override { return Vector3f::Zero; }
-		void UpdateListener(const Vector3f& position, const Vector3f& velocity) override { }
-		std::int32_t GetNativeFrequency() override { return 0; }
+		const Vector3f& GetListenerPosition() const override
+		{
+			return Vector3f::Zero;
+		}
+		void UpdateListener(const Vector3f& position, const Vector3f& velocity) override
+		{
+		}
+		std::int32_t GetNativeFrequency() override
+		{
+			return 0;
+		}
 
-		std::uint32_t CreateBuffer(BufferUsage usage) override { return 0; }
-		void DeleteBuffer(std::uint32_t bufferId) override { }
+		std::uint32_t CreateBuffer(BufferUsage usage) override
+		{
+			return 0;
+		}
+		void DeleteBuffer(std::uint32_t bufferId) override
+		{
+		}
 #if defined(NCINE_HAS_NATIVE_AUDIO)
-		bool LoadNativeBuffer(std::uint32_t bufferId, Death::Containers::StringView path, NativeAudioInfo& info) override { return false; }
-		std::uint32_t OpenNativeStream(Death::Containers::StringView path, NativeAudioInfo& info) override { return 0; }
-		void CloseNativeStream(std::uint32_t streamId) override { }
-		void SetSourceNativeStream(std::uint32_t sourceId, std::uint32_t streamId) override { }
+		bool LoadNativeBuffer(std::uint32_t bufferId, Death::Containers::StringView path, NativeAudioInfo& info) override
+		{
+			return false;
+		}
+		std::uint32_t OpenNativeStream(Death::Containers::StringView path, NativeAudioInfo& info) override
+		{
+			return 0;
+		}
+		void CloseNativeStream(std::uint32_t streamId) override
+		{
+		}
+		void SetSourceNativeStream(std::uint32_t sourceId, std::uint32_t streamId) override
+		{
+		}
 #else
-		bool UploadBuffer(std::uint32_t bufferId, BufferFormat format, const void* data, std::int32_t size, std::int32_t frequency) override { return false; }
+		bool UploadBuffer(std::uint32_t bufferId, BufferFormat format, const void* data, std::int32_t size, std::int32_t frequency) override
+		{
+			return false;
+		}
 #endif
 
-		void SetSourceBuffer(std::uint32_t sourceId, std::uint32_t bufferId) override { }
-		void SetSourceGain(std::uint32_t sourceId, float gain) override { }
-		void SetSourcePitch(std::uint32_t sourceId, float pitch) override { }
-		void SetSourceLooping(std::uint32_t sourceId, bool looping) override { }
-		void SetSourceRelative(std::uint32_t sourceId, bool relative) override { }
-		void SetSourcePosition(std::uint32_t sourceId, const Vector3f& position) override { }
-		void SetSourceLowPass(std::uint32_t sourceId, float value) override { }
-		std::int32_t GetSourceSampleOffset(std::uint32_t sourceId) override { return 0; }
-		void SetSourceSampleOffset(std::uint32_t sourceId, std::int32_t offset) override { }
-		void PlaySource(std::uint32_t sourceId) override { }
-		void PauseSource(std::uint32_t sourceId) override { }
-		void StopSource(std::uint32_t sourceId) override { }
-		bool IsSourcePlaying(std::uint32_t sourceId) override { return false; }
+		void SetSourceBuffer(std::uint32_t sourceId, std::uint32_t bufferId) override
+		{
+		}
+		void SetSourceGain(std::uint32_t sourceId, float gain) override
+		{
+		}
+		void SetSourcePitch(std::uint32_t sourceId, float pitch) override
+		{
+		}
+		void SetSourceLooping(std::uint32_t sourceId, bool looping) override
+		{
+		}
+		void SetSourceRelative(std::uint32_t sourceId, bool relative) override
+		{
+		}
+		void SetSourcePosition(std::uint32_t sourceId, const Vector3f& position) override
+		{
+		}
+		void SetSourceLowPass(std::uint32_t sourceId, float value) override
+		{
+		}
+		std::int32_t GetSourceSampleOffset(std::uint32_t sourceId) override
+		{
+			return 0;
+		}
+		void SetSourceSampleOffset(std::uint32_t sourceId, std::int32_t offset) override
+		{
+		}
+		void PlaySource(std::uint32_t sourceId) override
+		{
+		}
+		void PauseSource(std::uint32_t sourceId) override
+		{
+		}
+		void StopSource(std::uint32_t sourceId) override
+		{
+		}
+		bool IsSourcePlaying(std::uint32_t sourceId) override
+		{
+			return false;
+		}
 
 #if !defined(NCINE_HAS_NATIVE_AUDIO)
-		void QueueBuffer(std::uint32_t sourceId, std::uint32_t bufferId) override { }
-		std::int32_t GetProcessedBufferCount(std::uint32_t sourceId) override { return 0; }
-		void UnqueueBuffers(std::uint32_t sourceId, std::int32_t count, std::uint32_t* bufferIds) override { }
+		void QueueBuffer(std::uint32_t sourceId, std::uint32_t bufferId) override
+		{
+		}
+		std::int32_t GetProcessedBufferCount(std::uint32_t sourceId) override
+		{
+			return 0;
+		}
+		void UnqueueBuffers(std::uint32_t sourceId, std::int32_t count, std::uint32_t* bufferIds) override
+		{
+		}
 #endif
 
 #if defined(WITH_LIBRETRO)
-		bool RenderSamples(std::int16_t* buffer, std::int32_t numFrames) override { return false; }
+		bool RenderSamples(std::int16_t* buffer, std::int32_t numFrames) override
+		{
+			return false;
+		}
 #endif
 
-		void SuspendDevice() override { }
-		void ResumeDevice() override { }
+		void SuspendDevice() override
+		{
+		}
+		void ResumeDevice() override
+		{
+		}
 	};
 #endif
 }

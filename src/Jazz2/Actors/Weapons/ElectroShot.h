@@ -37,7 +37,8 @@ namespace Jazz2::Actors::Weapons
 		/** @brief Emits the light surrounding the swirl, shared with the remote representation of the shot */
 		static void EmitParticleLight(SmallVectorImpl<LightEmitter>& lights, Vector2f pos, float currentStep);
 
-		WeaponType GetWeaponType() override {
+		WeaponType GetWeaponType() override
+		{
 			return WeaponType::Electro;
 		}
 
@@ -50,7 +51,9 @@ namespace Jazz2::Actors::Weapons
 		void OnEmitLights(SmallVectorImpl<LightEmitter>& lights) override;
 		// The swirling particles carry the whole light, and `Multiplayer::RemoteElectroShot` replays them
 		// client-side, so there is nothing to describe to remote peers
-		void OnEmitRemotedLights(SmallVectorImpl<LightEmitter>& lights) override { }
+		void OnEmitRemotedLights(SmallVectorImpl<LightEmitter>& lights) override
+		{
+		}
 		bool OnPerish(ActorBase* collider) override;
 		void OnHitWall(float timeMult) override;
 		void OnRicochet() override;

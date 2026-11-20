@@ -139,7 +139,6 @@ namespace Jazz2::Actors::Weapons
 			light2.Brightness = 0.8f;
 			light2.RadiusNear = 3.0f;
 			light2.RadiusFar = 14.0f;
-
 		}
 	}
 

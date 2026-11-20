@@ -28,13 +28,15 @@ namespace nCine
 
 	public:
 		/** @brief Load mode */
-		enum class LoadMode {
+		enum class LoadMode
+		{
 			String,
 			File
 		};
 
 		/** @brief Introspection mode */
-		enum class Introspection {
+		enum class Introspection
+		{
 			Enabled,
 			NoUniformsInBlocks,
 			Disabled
@@ -121,7 +123,8 @@ namespace nCine
 		void RegisterBatchedShader(Shader& batchedShader);
 
 		/** @brief Returns the `render_mode` flags of the shader (a bitmask of @ref ShaderCompiler::RenderMode, 0 when none were declared) */
-		inline std::uint32_t GetRenderModes() const {
+		inline std::uint32_t GetRenderModes() const
+		{
 			return _renderModes;
 		}
 		/**
@@ -130,15 +133,18 @@ namespace nCine
 		 * Loaders that see the program-level reflection (e.g. ContentResolver) call this so that
 		 * @ref Material::SetShader() can apply the declared blending preset automatically.
 		 */
-		inline void SetRenderModes(std::uint32_t renderModes) {
+		inline void SetRenderModes(std::uint32_t renderModes)
+		{
 			_renderModes = renderModes;
 		}
 
-		RHI::ShaderProgram* GetHandle() {
+		RHI::ShaderProgram* GetHandle()
+		{
 			return _glShaderProgram.get();
 		}
 
-		inline static ObjectType sType() {
+		inline static ObjectType sType()
+		{
 			return ObjectType::Shader;
 		}
 

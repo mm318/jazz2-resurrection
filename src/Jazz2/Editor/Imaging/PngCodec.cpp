@@ -68,14 +68,22 @@ namespace Jazz2::Editor
 	String PngCodec::GetErrorMessage(PngError error)
 	{
 		switch (error) {
-			case PngError::None: return {};
-			case PngError::NotPng: return _x("editor", "It isn't a PNG image");
-			case PngError::EndsTooSoon: return _x("editor", "The image ends too soon");
-			case PngError::TooLarge: return _x("editor", "The image is too large");
-			case PngError::UnknownKind: return _x("editor", "The image is of an unknown kind");
-			case PngError::Unsupported: return _x("editor", "The image uses a feature that isn't supported");
-			case PngError::NoPalette: return _x("editor", "The image has no palette");
-			default: return _x("editor", "The image is damaged");
+			case PngError::None:
+				return {};
+			case PngError::NotPng:
+				return _x("editor", "It isn't a PNG image");
+			case PngError::EndsTooSoon:
+				return _x("editor", "The image ends too soon");
+			case PngError::TooLarge:
+				return _x("editor", "The image is too large");
+			case PngError::UnknownKind:
+				return _x("editor", "The image is of an unknown kind");
+			case PngError::Unsupported:
+				return _x("editor", "The image uses a feature that isn't supported");
+			case PngError::NoPalette:
+				return _x("editor", "The image has no palette");
+			default:
+				return _x("editor", "The image is damaged");
 		}
 	}
 }

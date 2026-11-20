@@ -130,14 +130,36 @@ namespace nCine::RHI::GL
 			std::int32_t rowsPerElement = 1;
 			std::int32_t tightRowBytes = 0;
 			switch (uniform->GetGLType()) {
-				case GL_FLOAT: case GL_INT: tightRowBytes = 4; break;
-				case GL_FLOAT_VEC2: case GL_INT_VEC2: tightRowBytes = 8; break;
-				case GL_FLOAT_VEC3: case GL_INT_VEC3: tightRowBytes = 12; break;
-				case GL_FLOAT_VEC4: case GL_INT_VEC4: tightRowBytes = 16; break;
-				case GL_FLOAT_MAT2: rowsPerElement = 2; tightRowBytes = 8; break;
-				case GL_FLOAT_MAT3: rowsPerElement = 3; tightRowBytes = 12; break;
-				case GL_FLOAT_MAT4: rowsPerElement = 4; tightRowBytes = 16; break;
-				default: continue;
+				case GL_FLOAT:
+				case GL_INT:
+					tightRowBytes = 4;
+					break;
+				case GL_FLOAT_VEC2:
+				case GL_INT_VEC2:
+					tightRowBytes = 8;
+					break;
+				case GL_FLOAT_VEC3:
+				case GL_INT_VEC3:
+					tightRowBytes = 12;
+					break;
+				case GL_FLOAT_VEC4:
+				case GL_INT_VEC4:
+					tightRowBytes = 16;
+					break;
+				case GL_FLOAT_MAT2:
+					rowsPerElement = 2;
+					tightRowBytes = 8;
+					break;
+				case GL_FLOAT_MAT3:
+					rowsPerElement = 3;
+					tightRowBytes = 12;
+					break;
+				case GL_FLOAT_MAT4:
+					rowsPerElement = 4;
+					tightRowBytes = 16;
+					break;
+				default:
+					continue;
 			}
 			// std140: each row (array element or matrix column) is padded to a vec4 boundary, except that a
 			// non-array scalar/vec member is stored at its tight size with no trailing padding to skip
@@ -156,18 +178,41 @@ namespace nCine::RHI::GL
 			const GLfloat* asFloat = reinterpret_cast<const GLfloat*>(data);
 			const GLint* asInt = reinterpret_cast<const GLint*>(data);
 			switch (uniform->GetGLType()) {
-				case GL_FLOAT:			glUniform1fv(location, count, asFloat); break;
-				case GL_FLOAT_VEC2:		glUniform2fv(location, count, asFloat); break;
-				case GL_FLOAT_VEC3:		glUniform3fv(location, count, asFloat); break;
-				case GL_FLOAT_VEC4:		glUniform4fv(location, count, asFloat); break;
-				case GL_INT:			glUniform1iv(location, count, asInt); break;
-				case GL_INT_VEC2:		glUniform2iv(location, count, asInt); break;
-				case GL_INT_VEC3:		glUniform3iv(location, count, asInt); break;
-				case GL_INT_VEC4:		glUniform4iv(location, count, asInt); break;
-				case GL_FLOAT_MAT2:		glUniformMatrix2fv(location, count, GL_FALSE, asFloat); break;
-				case GL_FLOAT_MAT3:		glUniformMatrix3fv(location, count, GL_FALSE, asFloat); break;
-				case GL_FLOAT_MAT4:		glUniformMatrix4fv(location, count, GL_FALSE, asFloat); break;
-				default: break;
+				case GL_FLOAT:
+					glUniform1fv(location, count, asFloat);
+					break;
+				case GL_FLOAT_VEC2:
+					glUniform2fv(location, count, asFloat);
+					break;
+				case GL_FLOAT_VEC3:
+					glUniform3fv(location, count, asFloat);
+					break;
+				case GL_FLOAT_VEC4:
+					glUniform4fv(location, count, asFloat);
+					break;
+				case GL_INT:
+					glUniform1iv(location, count, asInt);
+					break;
+				case GL_INT_VEC2:
+					glUniform2iv(location, count, asInt);
+					break;
+				case GL_INT_VEC3:
+					glUniform3iv(location, count, asInt);
+					break;
+				case GL_INT_VEC4:
+					glUniform4iv(location, count, asInt);
+					break;
+				case GL_FLOAT_MAT2:
+					glUniformMatrix2fv(location, count, GL_FALSE, asFloat);
+					break;
+				case GL_FLOAT_MAT3:
+					glUniformMatrix3fv(location, count, GL_FALSE, asFloat);
+					break;
+				case GL_FLOAT_MAT4:
+					glUniformMatrix4fv(location, count, GL_FALSE, asFloat);
+					break;
+				default:
+					break;
 			}
 		}
 	}

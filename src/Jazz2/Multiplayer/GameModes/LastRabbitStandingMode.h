@@ -18,10 +18,12 @@ namespace Jazz2::Multiplayer::GameModes
 	public:
 		LastRabbitStandingMode();
 
-		MpGameMode GetMode() const override {
+		MpGameMode GetMode() const override
+		{
 			return MpGameMode::LastRabbitStanding;
 		}
-		bool IsTeamBased() const override {
+		bool IsTeamBased() const override
+		{
 			return false;
 		}
 
@@ -33,7 +35,8 @@ namespace Jazz2::Multiplayer::GameModes
 		std::uint32_t GetStateScore(const MpPlayerState& state) const override;
 		void OnDrawHUD(IGameModeContext& ctx, IGameModeHUD& hud, Actors::Player* player, const Rectf& view) override;
 		StringView GetScoreboardLabel() const override;
-		bool HasDamageAmplifierInOvertime() const override {
+		bool HasDamageAmplifierInOvertime() const override
+		{
 			return true;
 		}
 
@@ -43,14 +46,18 @@ namespace Jazz2::Multiplayer::GameModes
 		/** @brief Number of players that started the round, a round of a single player never ends by elimination */
 		std::int32_t _participantCount;
 
-		OvertimeRule GetOvertimeRule() const override {
+		OvertimeRule GetOvertimeRule() const override
+		{
 			return OvertimeRule::TiedLeaders;
 		}
-		std::uint32_t GetLeaderScore(IGameModeContext& ctx, Actors::Player* player) override {
+		std::uint32_t GetLeaderScore(IGameModeContext& ctx, Actors::Player* player) override
+		{
 			return (std::uint32_t)std::max<std::int32_t>(ctx.GetPlayerState(player).ModeLives, 0);
 		}
 		/** @brief Called when a player who joined too late is taken out */
-		virtual void OnLateJoinerOut(IGameModeContext& ctx, Actors::Player* player) { }
+		virtual void OnLateJoinerOut(IGameModeContext& ctx, Actors::Player* player)
+		{
+		}
 		/** @brief Announces the position of a player who doesn't roast anybody */
 		void AnnouncePosition(IGameModeContext& ctx, Actors::Player* player);
 
@@ -72,7 +79,8 @@ namespace Jazz2::Multiplayer::GameModes
 	public:
 		ExtendedLastRabbitStandingMode();
 
-		MpGameMode GetMode() const override {
+		MpGameMode GetMode() const override
+		{
 			return MpGameMode::ExtendedLastRabbitStanding;
 		}
 

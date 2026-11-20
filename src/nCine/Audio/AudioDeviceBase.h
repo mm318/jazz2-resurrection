@@ -4,8 +4,8 @@
 #include "../Base/TimeStamp.h"
 
 #if defined(WITH_THREADS) && !defined(NCINE_HAS_NATIVE_AUDIO)
-#	include "../Threading/Thread.h"
-#	include "../Threading/ThreadSync.h"
+#include "../Threading/Thread.h"
+#include "../Threading/ThreadSync.h"
 #endif
 
 #include <Containers/SmallVector.h>
@@ -28,14 +28,17 @@ namespace nCine
 		AudioDeviceBase(const AudioDeviceBase&) = delete;
 		AudioDeviceBase& operator=(const AudioDeviceBase&) = delete;
 
-		inline float GetGain() const override {
+		inline float GetGain() const override
+		{
 			return _gain;
 		}
 
-		inline std::uint32_t GetMaxPlayerCount() const override {
+		inline std::uint32_t GetMaxPlayerCount() const override
+		{
 			return std::uint32_t(_sourcePool.size() + _players.size());
 		}
-		inline std::uint32_t GetPlayerCount() const override {
+		inline std::uint32_t GetPlayerCount() const override
+		{
 			return std::uint32_t(_players.size());
 		}
 		// Spelled with the fixed-width type the interface uses: on targets where `std::uint32_t` is `long
@@ -71,9 +74,13 @@ namespace nCine
 			
 			Blocking operations can nest, so backends override this instead of @ref BeginBlockingOperation().
 		*/
-		virtual void OnBlockingOperationBegan() { }
+		virtual void OnBlockingOperationBegan()
+		{
+		}
 		/** @brief Called when the last outstanding blocking operation ends (see @ref OnBlockingOperationBegan()) */
-		virtual void OnBlockingOperationEnded() { }
+		virtual void OnBlockingOperationEnded()
+		{
+		}
 
 		/** @brief Typical number of sources a backend creates, only the inline capacity of the pools */
 		static constexpr std::size_t TypicalNumSources = 16;

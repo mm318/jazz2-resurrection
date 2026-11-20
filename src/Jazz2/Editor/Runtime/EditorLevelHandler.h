@@ -58,13 +58,15 @@ namespace Jazz2::Editor
 		bool Initialize(const LevelDocument& document, StringView levelName, StringView fullPath);
 
 		/** @brief Returns the camera */
-		EditorCamera& GetCamera() {
+		EditorCamera& GetCamera()
+		{
 			return _camera;
 		}
 		/** @brief Returns the viewport, or `nullptr` before the viewports are initialized */
 		Rendering::PlayerViewport* GetViewport() const;
 		/** @brief Returns the size of the view the game would show the level in, for the parallax of the layers */
-		Vector2i GetReferenceViewSize() const {
+		Vector2i GetReferenceViewSize() const
+		{
 			return _referenceViewSize;
 		}
 
@@ -81,7 +83,8 @@ namespace Jazz2::Editor
 		/** @brief Sets how much the music is muffled, 1 for not at all */
 		void SetMusicLowPass(float value);
 		/** @brief Returns how much the music is muffled, 1 for not at all */
-		float GetMusicLowPass() const {
+		float GetMusicLowPass() const
+		{
 			return _musicLowPass;
 		}
 		/** @brief Pauses or continues the music, while the level is played */
@@ -93,7 +96,8 @@ namespace Jazz2::Editor
 		/** @brief Returns `true` if the level has to be loaded again to show the document as it is now */
 		bool NeedsReload(const LevelDocument& document) const;
 		/** @brief Returns the last image of the level as shown, it stays while the rendering is suspended */
-		Texture* GetFrameTexture() const {
+		Texture* GetFrameTexture() const
+		{
 			return _upscalePass.GetTargetTexture();
 		}
 		/**

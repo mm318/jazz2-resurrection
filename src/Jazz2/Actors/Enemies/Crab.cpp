@@ -105,8 +105,10 @@ namespace Jazz2::Actors::Enemies
 		EnemyBase::OnSerializeState(dest);
 
 		std::uint8_t flags = 0;
-		if (_canJumpPrev) flags |= 0x01;
-		if (_stuck) flags |= 0x02;
+		if (_canJumpPrev)
+			flags |= 0x01;
+		if (_stuck)
+			flags |= 0x02;
 		dest.WriteValue<std::uint8_t>(flags);
 	}
 

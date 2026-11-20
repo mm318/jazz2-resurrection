@@ -19,10 +19,11 @@ namespace Jazz2::Actors::Multiplayer
 
 	public:
 		/** @brief Kind of the visual */
-		enum class Visual : std::uint8_t {
-			ControlPoint,	/**< Giant gem in the color of the owning team, translucent while nobody owns it */
-			Jail,			/**< Base in the color of the team */
-			Flag			/**< Flag in the color of the carrier's team */
+		enum class Visual : std::uint8_t
+		{
+			ControlPoint, /**< Giant gem in the color of the owning team, translucent while nobody owns it */
+			Jail, /**< Base in the color of the team */
+			Flag /**< Flag in the color of the carrier's team */
 		};
 
 		GameModeObjectActor();

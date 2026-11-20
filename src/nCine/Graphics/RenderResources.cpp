@@ -6,7 +6,7 @@
 #include "RenderBatcher.h"
 #include "Camera.h"
 #include "RHI/IRhiCapabilities.h"
-#include "RHI/RhiFwd.h"	// RHI_RENDER_TARGETS_BOTTOM_UP (a header macro, not a build define)
+#include "RHI/RhiFwd.h" // RHI_RENDER_TARGETS_BOTTOM_UP (a header macro, not a build define)
 #include "../Application.h"
 #include "../ServiceLocator.h"
 #include "../../Main.h"
@@ -14,7 +14,7 @@
 #include <Shaders/Generated/ShadersGen.h>
 
 #include <algorithm>
-#include <cstddef>	// for offsetof()
+#include <cstddef> // for offsetof()
 #include <cstring>
 
 using namespace Death::Containers::Literals;
@@ -264,7 +264,7 @@ namespace nCine
 		DEATH_ASSERT(_binaryShaderCache == nullptr);
 		DEATH_ASSERT(_buffersManager == nullptr);
 		DEATH_ASSERT(_vaoPool == nullptr);
-	
+
 		const AppConfiguration& appCfg = theApplication().GetAppConfiguration();
 		_binaryShaderCache = std::make_unique<BinaryShaderCache>(appCfg.ShaderCachePath);
 		_buffersManager = std::make_unique<RenderBuffersManager>(appCfg.UseBufferMapping, appCfg.UseBufferStorage, appCfg.VboSize, appCfg.IboSize);
@@ -300,7 +300,7 @@ namespace nCine
 		// synthesizing it from gl_VertexID. The four corners are in the order of the single-quad 4-vertex
 		// TRIANGLE_STRIP draw (matching the old "vec2(1.0 - float(gl_VertexID >> 1), float(gl_VertexID % 2))").
 		if (_quadCornerVbo == nullptr) {
-			static const float quadCorners[] = { 1.0f, 0.0f,  1.0f, 1.0f,  0.0f, 0.0f,  0.0f, 1.0f };
+			static const float quadCorners[] = { 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f };
 			_quadCornerVbo = std::make_unique<RHI::Buffer>(BufferTarget::Vertex);
 			_quadCornerVbo->BufferData(sizeof(quadCorners), quadCorners, BufferUsage::StaticDraw);
 			_quadCornerVbo->SetObjectLabel("QuadCornerVBO");

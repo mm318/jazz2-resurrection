@@ -22,7 +22,7 @@ namespace nCine::RHI::GL
 		each target. The number of buckets `S` must match the range of the mapping
 		function.
 	*/
-	template<std::uint32_t S, class MappingFunc>
+	template <std::uint32_t S, class MappingFunc>
 	class GLHashMap
 	{
 	public:
@@ -31,7 +31,8 @@ namespace nCine::RHI::GL
 		value_t& operator[](key_t key);
 
 		/** @brief Overwrites every bucket with the same value (used to drop the cache when external code changed the bindings) */
-		void SetAll(value_t value) {
+		void SetAll(value_t value)
+		{
 			for (std::uint32_t i = 0; i < S; i++) {
 				_buckets[i] = value;
 			}
@@ -42,7 +43,7 @@ namespace nCine::RHI::GL
 		MappingFunc mappingFunc;
 	};
 
-	template<std::uint32_t S, class MappingFunc>
+	template <std::uint32_t S, class MappingFunc>
 	GLHashMap<S, MappingFunc>::GLHashMap()
 	{
 		// Initializing with a null OpenGL object id
@@ -50,7 +51,7 @@ namespace nCine::RHI::GL
 			_buckets[i] = 0;
 	}
 
-	template<std::uint32_t S, class MappingFunc>
+	template <std::uint32_t S, class MappingFunc>
 	inline value_t& GLHashMap<S, MappingFunc>::operator[](key_t key)
 	{
 		return _buckets[mappingFunc(key)];

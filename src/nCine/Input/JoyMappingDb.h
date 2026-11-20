@@ -5,27 +5,27 @@
 #ifndef DOXYGEN_GENERATING_OUTPUT
 
 #if defined(DEATH_TARGET_ANDROID)
-#	define SDL_PLATFORM_ANDROID (1)
+#define SDL_PLATFORM_ANDROID (1)
 #elif defined(DEATH_TARGET_EMSCRIPTEN)
-#	define SDL_JOYSTICK_EMSCRIPTEN (1)
+#define SDL_JOYSTICK_EMSCRIPTEN (1)
 #elif defined(DEATH_TARGET_VITA)
-#	define SDL_JOYSTICK_VITA (1)
+#define SDL_JOYSTICK_VITA (1)
 #elif defined(DEATH_TARGET_WINDOWS_RT)
-#	define SDL_JOYSTICK_XINPUT (1)
+#define SDL_JOYSTICK_XINPUT (1)
 #elif defined(DEATH_TARGET_WINDOWS)
-#	define SDL_JOYSTICK_XINPUT (1)
-#	define SDL_JOYSTICK_WGI (1)
-#	define SDL_JOYSTICK_DINPUT (1)
+#define SDL_JOYSTICK_XINPUT (1)
+#define SDL_JOYSTICK_WGI (1)
+#define SDL_JOYSTICK_DINPUT (1)
 #elif defined(DEATH_TARGET_APPLE)
-#	define SDL_PLATFORM_MACOS (1)
+#define SDL_PLATFORM_MACOS (1)
 #elif defined(__FreeBSD__) || defined(__DragonFly__) || defined(__OPENBSD__)
-#	define SDL_PLATFORM_OPENBSD (1)
+#define SDL_PLATFORM_OPENBSD (1)
 #elif defined(DEATH_TARGET_UNIX)
-#	define SDL_JOYSTICK_LINUX (1)
+#define SDL_JOYSTICK_LINUX (1)
 #endif
 
 static const char* ControllerMappings[] = {
-	// Additional nCine gamepad mappings
+// Additional nCine gamepad mappings
 #if defined(SDL_PLATFORM_ANDROID)
 	"05000000791d000009000000cf7f3f00,NYKO PLAYPAD PRO,a:b0,b:b1,x:b2,y:b3,leftshoulder:b4,rightshoulder:b5,leftstick:b6,rightstick:b7,start:b8,back:b9,leftx:a0,lefty:a1,rightx:a2,righty:a3,lefttrigger:a4,righttrigger:a5,dpup:h0.1,dpdown:h0.4,dpleft:h0.8,dpright:h0.2",
 	"05000000c82d000001610000ffff3f00,8BitDo SN30 Pro,a:b1,b:b0,back:b13,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,leftshoulder:b6,leftstick:b10,lefttrigger:b8,leftx:a0,lefty:a1,rightshoulder:b7,rightstick:b11,righttrigger:b9,rightx:a2,righty:a3,start:b12,x:b4,y:b3",
@@ -58,7 +58,6 @@ static const char* ControllerMappings[] = {
 	"030057564c050000e60c000000016800,PS5 Controller,a:b0,b:b1,back:b4,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,guide:b5,leftshoulder:b9,leftstick:b7,lefttrigger:a4,leftx:a0,lefty:a1,touchpad:b15,misc1:b16,rightshoulder:b10,rightstick:b8,righttrigger:a5,rightx:a2,righty:a3,start:b6,x:b2,y:b3,",
 	"030057564c050000e60c000000006800,PS5 Controller (BT),a:b0,b:b1,back:b4,dpdown:b12,dpleft:b13,dpright:b14,dpup:b11,guide:b5,leftshoulder:b9,leftstick:b7,lefttrigger:a4,leftx:a0,lefty:a1,touchpad:b15,misc1:b16,rightshoulder:b10,rightstick:b8,righttrigger:a5,rightx:a2,righty:a3,start:b6,x:b2,y:b3,",
 #endif
-
 
 	// SDL2 mappings from `SDL2-2.30.2/src/joystick/SDL_gamecontrollerdb.h`
 	"xinput,XInput Controller,a:b0,b:b1,back:b6,dpdown:h0.4,dpleft:h0.8,dpright:h0.2,dpup:h0.1,guide:b10,leftshoulder:b4,leftstick:b8,lefttrigger:a4,leftx:a0,lefty:a1,rightshoulder:b5,rightstick:b9,righttrigger:a5,rightx:a2,righty:a3,start:b7,x:b2,y:b3,",

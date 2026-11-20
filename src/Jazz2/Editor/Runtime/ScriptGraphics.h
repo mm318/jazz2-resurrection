@@ -77,7 +77,8 @@ namespace Jazz2::Editor
 			std::uint32_t Frame;
 			bool Restyled;
 
-			bool operator==(const Look& other) const {
+			bool operator==(const Look& other) const
+			{
 				return FirstFrame == other.FirstFrame && FrameCount == other.FrameCount && Frame == other.Frame;
 			}
 		};

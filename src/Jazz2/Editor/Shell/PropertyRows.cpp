@@ -45,28 +45,37 @@ namespace Jazz2::Editor
 				}
 			}
 			return (binding->OtherLabel ? binding->OtherLabel(value) : String());
-		}, [binding](SmallVectorImpl<MenuEntry>& entries) {
-			for (const PropertyChoice& choice : binding->Choices) {
-				std::int32_t value = choice.Value;
-				MenuEntry entry;
-				entry.Label = choice.Label;
-				entry.IsChecked = [binding, value]() { return (binding->Getter() == value); };
-				if (binding->IsEnabled) {
-					entry.IsEnabled = [binding, value]() { return binding->IsEnabled(value); };
+		},
+			[binding](SmallVectorImpl<MenuEntry>& entries) {
+				for (const PropertyChoice& choice : binding->Choices) {
+					std::int32_t value = choice.Value;
+					MenuEntry entry;
+					entry.Label = choice.Label;
+					entry.IsChecked = [binding, value]() {
+						return (binding->Getter() == value);
+					};
+					if (binding->IsEnabled) {
+						entry.IsEnabled = [binding, value]() {
+							return binding->IsEnabled(value);
+						};
+					}
+					entry.Execute = [binding, value]() {
+						binding->Setter(value);
+					};
+					entries.push_back(Death::move(entry));
 				}
-				entry.Execute = [binding, value]() { binding->Setter(value); };
-				entries.push_back(Death::move(entry));
-			}
-		});
+			});
 	}
 
 	NumberBox* AddByteBox(Element* row, Function<std::uint8_t()>&& getter, Function<void(std::uint8_t, bool)>&& setter)
 	{
 		return row->Add<NumberBox>([getter = Death::move(getter)]() mutable {
 			return float(getter());
-		}, [setter = Death::move(setter)](float value, bool final) mutable {
-			setter(std::uint8_t(std::clamp<std::int32_t>(std::int32_t(std::round(value)), 0, 255)), final);
-		}, 0.0f, 255.0f, 1.0f, 0);
+		},
+			[setter = Death::move(setter)](float value, bool final) mutable {
+				setter(std::uint8_t(std::clamp<std::int32_t>(std::int32_t(std::round(value)), 0, 255)), final);
+			},
+			0.0f, 255.0f, 1.0f, 0);
 	}
 
 	void ShowRowWhen(Stack* row, Function<bool()>&& isVisible)

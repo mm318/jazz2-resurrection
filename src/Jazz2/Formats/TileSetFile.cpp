@@ -104,8 +104,12 @@ namespace Jazz2::Formats
 			}
 
 			std::int32_t paddedWidth = 1, paddedHeight = 1;
-			while (paddedWidth < candidateWidth) { paddedWidth <<= 1; }
-			while (paddedHeight < candidateHeight) { paddedHeight <<= 1; }
+			while (paddedWidth < candidateWidth) {
+				paddedWidth <<= 1;
+			}
+			while (paddedHeight < candidateHeight) {
+				paddedHeight <<= 1;
+			}
 
 			// Among layouts that pad to the same texture, prefer the one with fewer unused cells
 			const std::int64_t emptyCells = std::int64_t(columns) * ((tileCount - 1) / columns + 1) - tileCount;
@@ -158,8 +162,8 @@ namespace Jazz2::Formats
 		if (size >= 0 && position >= 0) {
 			const std::uint64_t imageBytesLeft = std::uint64_t(size - position - header.BodySize);
 			const std::uint64_t imageBytesNeeded = ((header.Flags & ImageLz4) != 0
-				? std::uint64_t(header.Height / TileSize) * 5
-				: (std::uint64_t(header.Width) * header.Height + 63) / 64);
+					? std::uint64_t(header.Height / TileSize) * 5
+					: (std::uint64_t(header.Width) * header.Height + 63) / 64);
 			if (imageBytesLeft < imageBytesNeeded) {
 				return false;
 			}

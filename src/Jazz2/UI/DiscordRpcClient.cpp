@@ -9,9 +9,9 @@
 #include <Containers/StringStlView.h>
 
 #if defined(DEATH_TARGET_UNIX)
-#	include <unistd.h>
-#	include <sys/socket.h>
-#	include <sys/un.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <sys/un.h>
 #endif
 
 using namespace Death::Containers::Literals;
@@ -29,11 +29,11 @@ namespace Jazz2::UI
 	DiscordRpcClient::DiscordRpcClient()
 		:
 #if defined(DEATH_TARGET_WINDOWS)
-		_hPipe(INVALID_HANDLE_VALUE), _hEventRead(NULL), _hEventWrite(NULL),
+		  _hPipe(INVALID_HANDLE_VALUE), _hEventRead(NULL), _hEventWrite(NULL),
 #else
-		_sockFd(-1),
+		  _sockFd(-1),
 #endif
-		_nonce(0), _userId(0)
+		  _nonce(0), _userId(0)
 	{
 	}
 
@@ -90,11 +90,11 @@ namespace Jazz2::UI
 			LOGE("Failed to create socket");
 			return false;
 		}
-		
-#	if defined(SO_NOSIGPIPE)
+
+#if defined(SO_NOSIGPIPE)
 		std::int32_t optval = 1;
 		::setsockopt(_sockFd, SOL_SOCKET, SO_NOSIGPIPE, &optval, sizeof(optval));
-#	endif
+#endif
 
 		struct sockaddr_un addr;
 		addr.sun_family = AF_UNIX;
@@ -241,7 +241,7 @@ namespace Jazz2::UI
 		}
 
 		bufferOffset += formatInto({ buffer + bufferOffset, sizeof(buffer) - bufferOffset }, "}}}}}}}}");
-		
+
 #if defined(DEATH_TARGET_WINDOWS)
 		_pendingFrame = String(buffer, bufferOffset);
 		::SetEvent(_hEventWrite);
@@ -257,7 +257,8 @@ namespace Jazz2::UI
 
 		Json::CharReaderBuilder builder;
 		auto reader = std::unique_ptr<Json::CharReader>(builder.newCharReader());
-		Json::Value doc; std::string errors;
+		Json::Value doc;
+		std::string errors;
 		if (reader->parse(json, json + length, &doc, &errors)) {
 			std::string_view cmd;
 			if (doc["cmd"].get(cmd) == Json::SUCCESS && cmd == "DISPATCH"sv) {
@@ -284,7 +285,7 @@ namespace Jazz2::UI
 #if defined(DEATH_TARGET_WINDOWS)
 		DWORD bytesWritten = 0;
 		return ::WriteFile(_hPipe, frameHeader, sizeof(frameHeader), &bytesWritten, NULL) &&
-			   ::WriteFile(_hPipe, buffer, bufferSize, &bytesWritten, NULL);
+			::WriteFile(_hPipe, buffer, bufferSize, &bytesWritten, NULL);
 #else
 		if (::write(_sockFd, frameHeader, sizeof(frameHeader)) < 0) {
 			return false;
@@ -333,7 +334,7 @@ namespace Jazz2::UI
 				case WAIT_OBJECT_0: {
 					DWORD bytesRead;
 					if (::GetOverlappedResult(hPipe, &ov, &bytesRead, FALSE) && bytesRead > 0) {
-						Opcodes opcode = (Opcodes)*(std::uint32_t*)&buffer[0];
+						Opcodes opcode = (Opcodes) * (std::uint32_t*)&buffer[0];
 						std::uint32_t frameSize = *(std::uint32_t*)&buffer[4];
 						if (frameSize >= sizeof(buffer)) {
 							continue;
@@ -382,7 +383,7 @@ namespace Jazz2::UI
 					}
 					break;
 				}
-			}	
+			}
 		}
 #else
 		while (_this->_sockFd >= 0) {
@@ -396,7 +397,7 @@ namespace Jazz2::UI
 				break;
 			}
 
-			Opcodes opcode = (Opcodes)*(std::uint32_t*)&buffer[0];
+			Opcodes opcode = (Opcodes) * (std::uint32_t*)&buffer[0];
 			std::uint32_t frameSize = *(std::uint32_t*)&buffer[4];
 			if (frameSize >= sizeof(buffer)) {
 				continue;

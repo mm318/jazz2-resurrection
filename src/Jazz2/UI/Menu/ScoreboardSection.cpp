@@ -26,7 +26,7 @@ namespace Jazz2::UI::Menu
 
 	ScoreboardSection::ScoreboardSection()
 		: _scrollY(0), _contentHeight(0), _availableHeight(0), _scrollable(false),
-			_touchTime(0.0f), _touchSpeed(0.0f), _touchDirection(0), _touchStartedAtBottom(false)
+		  _touchTime(0.0f), _touchSpeed(0.0f), _touchDirection(0), _touchStartedAtBottom(false)
 	{
 	}
 
@@ -106,12 +106,14 @@ namespace Jazz2::UI::Menu
 		} else if (navUp) {
 			if (_scrollable && _scrollY < 0) {
 				_scrollY = std::min<std::int32_t>(0, _scrollY + (std::int32_t)RowHeight);
-				if (navSound) _root->PlaySfx("MenuSelect"_s, 0.4f);
+				if (navSound)
+					_root->PlaySfx("MenuSelect"_s, 0.4f);
 			}
 		} else if (navDown) {
 			if (_scrollable && _scrollY > minScroll) {
 				_scrollY = std::max(minScroll, _scrollY - (std::int32_t)RowHeight);
-				if (navSound) _root->PlaySfx("MenuSelect"_s, 0.4f);
+				if (navSound)
+					_root->PlaySfx("MenuSelect"_s, 0.4f);
 			} else if (_root->ActionHit(PlayerAction::Down)) {
 				// Nothing more to scroll - a deliberate (fresh) Down press dismisses the scoreboard and returns to the
 				// pause menu. Gated on the fresh press so a hold-scroll that reaches the bottom doesn't kick you out.
@@ -137,13 +139,16 @@ namespace Jazz2::UI::Menu
 		bool hasExtra = false;
 		if (roundStarted && (gameMode == MpGameMode::Race || gameMode == MpGameMode::TeamRace)) {
 			// TRANSLATORS: Column header in the multiplayer scoreboard (number of completed laps in a race), keep it short
-			extraLabel = _("Laps"); hasExtra = true;
+			extraLabel = _("Laps");
+			hasExtra = true;
 		} else if (roundStarted && (gameMode == MpGameMode::TreasureHunt || gameMode == MpGameMode::TeamTreasureHunt)) {
 			// TRANSLATORS: Column header in the multiplayer scoreboard (amount of treasure collected), keep it short
-			extraLabel = _("Treasure"); hasExtra = true;
+			extraLabel = _("Treasure");
+			hasExtra = true;
 		} else if (roundStarted) {
 			if (auto* activeMode = mpLevelHandler->GetActiveGameMode()) {
-				extraLabel = activeMode->GetScoreboardLabel(); hasExtra = !extraLabel.empty();
+				extraLabel = activeMode->GetScoreboardLabel();
+				hasExtra = !extraLabel.empty();
 			}
 		}
 
@@ -232,8 +237,7 @@ namespace Jazz2::UI::Menu
 		bool roundStarted = (mpLevelHandler->GetLevelState() >= MpLevelHandler::LevelState::Running);
 		bool raceMode = (gameMode == MpGameMode::Race || gameMode == MpGameMode::TeamRace);
 		auto* activeMode = mpLevelHandler->GetActiveGameMode();
-		bool hasExtra = roundStarted && (raceMode || gameMode == MpGameMode::TreasureHunt || gameMode == MpGameMode::TeamTreasureHunt ||
-			(activeMode != nullptr && !activeMode->GetScoreboardLabel().empty()));
+		bool hasExtra = roundStarted && (raceMode || gameMode == MpGameMode::TreasureHunt || gameMode == MpGameMode::TeamTreasureHunt || (activeMode != nullptr && !activeMode->GetScoreboardLabel().empty()));
 		std::uint32_t totalLaps = (raceMode ? mpLevelHandler->GetTotalLaps() : 0);
 
 		Recti contentBounds = _root->GetContentBounds();

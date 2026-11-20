@@ -37,7 +37,10 @@ namespace Jazz2::Actors::Bosses
 
 	protected:
 		// Activated and controlled by DevanRemote, which is never restored, so it has to come back dormant too
-		bool IsSerializable() const override { return false; }
+		bool IsSerializable() const override
+		{
+			return false;
+		}
 		Task<bool> OnActivatedAsync(const ActorActivationDetails& details) override;
 		void OnUpdate(float timeMult) override;
 		void OnHealthChanged(ActorBase* collider) override;
@@ -87,7 +90,10 @@ namespace Jazz2::Actors::Bosses
 		{
 		public:
 			/** @brief Sets the horizontal launch speed in pixels per original tick */
-			void SetLaunchSpeed(float speedPerTick) { _launchSpeed = speedPerTick; }
+			void SetLaunchSpeed(float speedPerTick)
+			{
+				_launchSpeed = speedPerTick;
+			}
 
 		protected:
 			Task<bool> OnActivatedAsync(const ActorActivationDetails& details) override;

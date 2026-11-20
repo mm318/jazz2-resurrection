@@ -47,7 +47,7 @@ namespace nCine
 		void Uuid(Containers::StaticArrayView<16, std::uint8_t> result);
 
 		/** @brief Shuffles the elements of the specified array in place */
-		template<class T>
+		template <class T>
 		void Shuffle(Containers::ArrayView<T> data) noexcept
 		{
 			if (data.size() < 2) {

@@ -15,7 +15,7 @@
 #endif
 
 #if defined(WITH_VORBIS_DYNAMIC) && defined(DEATH_TARGET_WINDOWS)
-#	include <CommonWindows.h>
+#include <CommonWindows.h>
 #endif
 
 #include <IO/Stream.h>

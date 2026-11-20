@@ -69,7 +69,9 @@ namespace nCine
 		struct CameraUniformData
 		{
 			CameraUniformData()
-				: camera(nullptr), updateFrameProjectionMatrix(0), updateFrameViewMatrix(0), projectionFlippedY(false) {}
+				: camera(nullptr), updateFrameProjectionMatrix(0), updateFrameViewMatrix(0), projectionFlippedY(false)
+			{
+			}
 
 			RHI::ShaderUniforms shaderUniforms;
 			Camera* camera;
@@ -79,25 +81,31 @@ namespace nCine
 			bool projectionFlippedY;
 		};
 
-		static inline BinaryShaderCache& GetBinaryShaderCache() {
+		static inline BinaryShaderCache& GetBinaryShaderCache()
+		{
 			return *_binaryShaderCache;
 		}
-		static inline RenderBuffersManager& GetBuffersManager() {
+		static inline RenderBuffersManager& GetBuffersManager()
+		{
 			return *_buffersManager;
 		}
-		static inline RenderVaoPool& GetVaoPool() {
+		static inline RenderVaoPool& GetVaoPool()
+		{
 			return *_vaoPool;
 		}
-		static inline RenderCommandPool& GetRenderCommandPool() {
+		static inline RenderCommandPool& GetRenderCommandPool()
+		{
 			return *_renderCommandPool;
 		}
-		static inline RenderBatcher& GetRenderBatcher() {
+		static inline RenderBatcher& GetRenderBatcher()
+		{
 			return *_renderBatcher;
 		}
 
 #if defined(RHI_GL_PROFILE_ES2)
 		/** @brief OpenGL|ES 2.0 only: shared static VBO of the 4 quad corners feeding the aQuadCorner attribute (replaces gl_VertexID) */
-		static inline RHI::Buffer* GetQuadCornerVbo() {
+		static inline RHI::Buffer* GetQuadCornerVbo()
+		{
 			return _quadCornerVbo.get();
 		}
 #endif
@@ -138,17 +146,20 @@ namespace nCine
 		static bool RegisterBatchedShader(const RHI::ShaderProgram* shader, RHI::ShaderProgram* batchedShader);
 		static bool UnregisterBatchedShader(const RHI::ShaderProgram* shader);
 
-		static inline std::uint8_t* GetCameraUniformsBuffer() {
+		static inline std::uint8_t* GetCameraUniformsBuffer()
+		{
 			return _cameraUniformsBuffer;
 		}
 		static CameraUniformData* FindCameraUniformData(RHI::ShaderProgram* shaderProgram);
 		static void InsertCameraUniformData(RHI::ShaderProgram* shaderProgram, CameraUniformData&& cameraUniformData);
 		static bool RemoveCameraUniformData(RHI::ShaderProgram* shaderProgram);
 
-		static inline const Camera* GetCurrentCamera() {
+		static inline const Camera* GetCurrentCamera()
+		{
 			return _currentCamera;
 		}
-		static inline const Viewport* GetCurrentViewport() {
+		static inline const Viewport* GetCurrentViewport()
+		{
 			return _currentViewport;
 		}
 

@@ -221,7 +221,7 @@ namespace Jazz2::Utils
 						entryDisk = Get32(data + dataPos);
 					}
 				} else if (id == UnicodePathExtraId && size > 5 && data[0] == 1 &&
-						   Get32(data + 1) == ZipFormat::UpdateCrc32(0, rawName.data(), rawName.size())) {
+					Get32(data + 1) == ZipFormat::UpdateCrc32(0, rawName.data(), rawName.size())) {
 					unicodeName = String(StringView(reinterpret_cast<const char*>(data + 5), size - 5));
 				}
 				extraPos += 4 + std::size_t(size);
@@ -335,17 +335,28 @@ namespace Jazz2::Utils
 	StringView ZipArchive::GetErrorDescription(ZipError error)
 	{
 		switch (error) {
-			case ZipError::None: return "No error"_s;
-			case ZipError::CannotOpen: return "The archive cannot be opened"_s;
-			case ZipError::NotArchive: return "The file is not a ZIP archive"_s;
-			case ZipError::Corrupted: return "The archive is damaged"_s;
-			case ZipError::Multipart: return "Archives split into several files are not supported"_s;
-			case ZipError::Encrypted: return "Encrypted archives are not supported"_s;
-			case ZipError::UnsupportedMethod: return "The archive uses an unsupported compression method"_s;
-			case ZipError::TooLarge: return "The archive or a file in it is too large"_s;
-			case ZipError::ChecksumMismatch: return "A file in the archive is damaged"_s;
-			case ZipError::CannotWrite: return "The file cannot be written"_s;
-			default: return "Unknown error"_s;
+			case ZipError::None:
+				return "No error"_s;
+			case ZipError::CannotOpen:
+				return "The archive cannot be opened"_s;
+			case ZipError::NotArchive:
+				return "The file is not a ZIP archive"_s;
+			case ZipError::Corrupted:
+				return "The archive is damaged"_s;
+			case ZipError::Multipart:
+				return "Archives split into several files are not supported"_s;
+			case ZipError::Encrypted:
+				return "Encrypted archives are not supported"_s;
+			case ZipError::UnsupportedMethod:
+				return "The archive uses an unsupported compression method"_s;
+			case ZipError::TooLarge:
+				return "The archive or a file in it is too large"_s;
+			case ZipError::ChecksumMismatch:
+				return "A file in the archive is damaged"_s;
+			case ZipError::CannotWrite:
+				return "The file cannot be written"_s;
+			default:
+				return "Unknown error"_s;
 		}
 	}
 }

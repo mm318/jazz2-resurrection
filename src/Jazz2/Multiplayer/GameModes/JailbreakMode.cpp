@@ -16,7 +16,7 @@
 namespace Jazz2::Multiplayer::GameModes
 {
 	JailbreakMode::JailbreakMode()
-		: _jails{}, _jailsResolved(false), _teamPoints{}, _releaseTimeLeft(0.0f), _lastCountdown(0), _openTimeLeft(0.0f), _lastFreeTime{}
+		: _jails {}, _jailsResolved(false), _teamPoints {}, _releaseTimeLeft(0.0f), _lastCountdown(0), _openTimeLeft(0.0f), _lastFreeTime {}
 	{
 	}
 
@@ -206,8 +206,7 @@ namespace Jazz2::Multiplayer::GameModes
 		std::uint8_t teamCount = ctx.GetTeamCount();
 		for (std::uint8_t team = 0; team < teamCount; team++) {
 			// TRANSLATORS: Shown in the HUD in Jailbreak under the score of a team, first {} is the number of its players in jail, second {} is the number of all its players
-			DrawUnderTeamScore(ctx, hud, view, team, _f("jailed {}/{}", ctx.CountPlayersWithRole(PlayerModeFlags::Jailed, team),
-				ctx.CountPlayersWithRole(PlayerModeFlags::None, team)));
+			DrawUnderTeamScore(ctx, hud, view, team, _f("jailed {}/{}", ctx.CountPlayersWithRole(PlayerModeFlags::Jailed, team), ctx.CountPlayersWithRole(PlayerModeFlags::None, team)));
 		}
 
 		if (HasFlag(ctx, player, PlayerModeFlags::Jailed)) {
@@ -345,7 +344,7 @@ namespace Jazz2::Multiplayer::GameModes
 		const auto& config = ctx.GetServerConfiguration();
 		if (freeTeams == 1) {
 			_teamPoints[lastFreeTeam]++;
-			ctx.SendMessageToAllPlayers(ServerMessage(ServerMessageType::JailbreakTeamScored, ServerMessageTeam{lastFreeTeam}));
+			ctx.SendMessageToAllPlayers(ServerMessage(ServerMessageType::JailbreakTeamScored, ServerMessageTeam { lastFreeTeam }));
 		}
 
 		// The round is over, everybody dies (only the losing team without ResetAllTeams) and the jails open later

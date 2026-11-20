@@ -11,8 +11,8 @@ namespace nCine
 {
 	Texture::Texture()
 		: Object(ObjectType::Texture), _rhiTexture(std::make_unique<RHI::Texture>(TextureTarget::Texture2D)), _width(0), _height(0),
-			_mipMapLevels(0), _isCompressed(false), _format(Format::Unknown), _dataSize(0), _minFiltering(SamplerFilter::Nearest),
-			_magFiltering(SamplerFilter::Nearest), _wrapMode(SamplerWrapping::ClampToEdge)
+		  _mipMapLevels(0), _isCompressed(false), _format(Format::Unknown), _dataSize(0), _minFiltering(SamplerFilter::Nearest),
+		  _magFiltering(SamplerFilter::Nearest), _wrapMode(SamplerWrapping::ClampToEdge)
 	{
 	}
 
@@ -155,10 +155,18 @@ namespace nCine
 		// Tightly-packed single-/dual-/triple-channel rows may not meet the default 4-byte unpack alignment
 		std::int32_t alignment;
 		switch (_format) {
-			case Format::R8:	alignment = 1; break;
-			case Format::RG8:	alignment = 2; break;
-			case Format::RGB8:	alignment = 1; break;
-			default:			alignment = 4; break;
+			case Format::R8:
+				alignment = 1;
+				break;
+			case Format::RG8:
+				alignment = 2;
+				break;
+			case Format::RGB8:
+				alignment = 1;
+				break;
+			default:
+				alignment = 4;
+				break;
 		}
 		RHI::Texture::ClearErrors();
 		if (alignment != 4) {

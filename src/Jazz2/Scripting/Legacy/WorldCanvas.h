@@ -28,7 +28,8 @@ namespace Jazz2::Scripting::Legacy
 	{
 	public:
 		/** @brief Frame of a sprite drawn in the level */
-		struct SpriteDraw {
+		struct SpriteDraw
+		{
 			/** @brief Graphics with the frame */
 			Resources::GenericGraphicResource* Graphics;
 			/** @brief Frame of the graphics */
@@ -59,7 +60,8 @@ namespace Jazz2::Scripting::Legacy
 		};
 
 		/** @brief Rectangle of a color of the palette drawn in the level */
-		struct SolidDraw {
+		struct SolidDraw
+		{
 			/** @brief Position and size */
 			float X, Y, Width, Height;
 			/** @brief Index of the color in the palette */
@@ -74,7 +76,8 @@ namespace Jazz2::Scripting::Legacy
 		};
 
 		/** @brief Tile drawn in the level */
-		struct TileDraw {
+		struct TileDraw
+		{
 			/** @brief Tile map of the tile */
 			Tiles::TileMap* TileMap;
 			/** @brief Position of the top left corner */
@@ -87,7 +90,8 @@ namespace Jazz2::Scripting::Legacy
 		};
 
 		/** @brief Text drawn in the level */
-		struct TextDraw {
+		struct TextDraw
+		{
 			/** @brief Text, as the font of the game has it */
 			String Text;
 			/** @brief Position where the script puts it */
@@ -101,26 +105,31 @@ namespace Jazz2::Scripting::Legacy
 		};
 
 		/** @brief Draws a sprite in the level until the next @ref Clear() */
-		void AddSprite(const SpriteDraw& draw) {
+		void AddSprite(const SpriteDraw& draw)
+		{
 			_sprites.push_back(draw);
 		}
 		/** @brief Draws a rectangle in the level until the next @ref Clear() */
-		void AddSolid(const SolidDraw& draw) {
+		void AddSolid(const SolidDraw& draw)
+		{
 			_solids.push_back(draw);
 		}
 		/** @brief Draws a tile in the level until the next @ref Clear() */
-		void AddTile(const TileDraw& draw) {
+		void AddTile(const TileDraw& draw)
+		{
 			_tiles.push_back(draw);
 		}
 		/** @brief Draws text in the level until the next @ref Clear() */
-		void AddText(TextDraw draw) {
+		void AddText(TextDraw draw)
+		{
 			_texts.push_back(Death::move(draw));
 		}
 		/** @brief Level whose views give the copy of the scene the sprites of `SPRITE::CHROMAKEY` are keyed against, see @ref OnDraw() */
 		LevelHandler* EffectsOwner = nullptr;
 
 		/** @brief Removes everything drawn */
-		void Clear() {
+		void Clear()
+		{
 			_sprites.clear();
 			_solids.clear();
 			_tiles.clear();

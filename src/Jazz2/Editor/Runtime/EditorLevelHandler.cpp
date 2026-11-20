@@ -180,7 +180,7 @@ namespace Jazz2::Editor
 		float timeMult = theApplication().GetTimeMult();
 
 #if defined(WITH_AUDIO)
-		if DEATH_UNLIKELY(_musicStartDelay > 0 && --_musicStartDelay == 0 && _music != nullptr) {
+		if DEATH_UNLIKELY (_musicStartDelay > 0 && --_musicStartDelay == 0 && _music != nullptr) {
 			_music->SetLowPass(_musicLowPass);
 			if (!_musicPaused) {
 				_music->Play();
@@ -230,8 +230,7 @@ namespace Jazz2::Editor
 
 		if (!_cameraPlaced && _initialCameraScale > 0.0f) {
 			_cameraPlaced = true;
-			_camera.JumpTo(_initialCameraCenter, _initialCameraRelative
-				? _camera.SnapScale(_initialCameraScale * gameplayScale, 0) : _initialCameraScale);
+			_camera.JumpTo(_initialCameraCenter, _initialCameraRelative ? _camera.SnapScale(_initialCameraScale * gameplayScale, 0) : _initialCameraScale);
 		} else if (!_cameraPlaced) {
 			_cameraPlaced = true;
 			Vector2f center = _eventMap->GetSpawnPosition(PlayerType::Jazz);

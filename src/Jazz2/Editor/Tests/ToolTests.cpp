@@ -26,27 +26,31 @@ namespace Jazz2::Editor::ToolTests
 {
 	namespace
 	{
-		constexpr TileRef TileA{ 5, TileRef::DefaultTileSet, 0 };
-		constexpr TileRef TileB{ 6, TileRef::DefaultTileSet, Formats::TileRecord::FlipX };
-		constexpr TileRef TileC{ 7, TileRef::DefaultTileSet, 0 };
-		constexpr TileRef TileD{ 8, TileRef::DefaultTileSet, Formats::TileRecord::FlipY };
-		constexpr TileRef Wall{ 9, TileRef::DefaultTileSet, 0 };
+		constexpr TileRef TileA { 5, TileRef::DefaultTileSet, 0 };
+		constexpr TileRef TileB { 6, TileRef::DefaultTileSet, Formats::TileRecord::FlipX };
+		constexpr TileRef TileC { 7, TileRef::DefaultTileSet, 0 };
+		constexpr TileRef TileD { 8, TileRef::DefaultTileSet, Formats::TileRecord::FlipY };
+		constexpr TileRef Wall { 9, TileRef::DefaultTileSet, 0 };
 
 		// Counts the problems of a test, each is logged with what was expected
 		class Expect
 		{
 		public:
 			explicit Expect(const char* test)
-				: _test(test), _problems(0) {}
+				: _test(test), _problems(0)
+			{
+			}
 
-			void operator()(bool condition, const char* what) {
+			void operator()(bool condition, const char* what)
+			{
 				if (!condition) {
 					LOGE("{}: {}", _test, what);
 					_problems++;
 				}
 			}
 
-			std::int32_t GetProblems() const {
+			std::int32_t GetProblems() const
+			{
 				return _problems;
 			}
 
@@ -156,8 +160,9 @@ namespace Jazz2::Editor::ToolTests
 				"tiles erased");
 			expect(host.Undo() && layer.GetTile(3, 2) == TileA, "erasing undone");
 
-			while (host.Undo()) {}
-			expect(CountTiles(layer, TileRef{}) == layer.GetWidth() * layer.GetHeight(), "everything undone");
+			while (host.Undo()) {
+			}
+			expect(CountTiles(layer, TileRef {}) == layer.GetWidth() * layer.GetHeight(), "everything undone");
 			return expect.GetProblems();
 		}
 
@@ -179,7 +184,8 @@ namespace Jazz2::Editor::ToolTests
 			host.Drag(rectangle, Vector2i(4, 2), Vector2i(1, 1));
 			expect(host.Previews.empty() && host.GetHistory().GetDoneCount() == 1, "a rectangle is one step");
 			expect(layer.GetTile(1, 1) == TileA && layer.GetTile(2, 1) == TileB && layer.GetTile(3, 2) == TileA && layer.GetTile(4, 2) == TileB &&
-				CountTiles(layer, TileA) == 4 && CountTiles(layer, TileB) == 4, "the stamp repeated from the corner");
+					CountTiles(layer, TileA) == 4 && CountTiles(layer, TileB) == 4,
+				"the stamp repeated from the corner");
 
 			host.Drag(rectangle, Vector2i(2, 1), Vector2i(3, 2), MouseButton::Right);
 			expect(layer.GetTile(2, 1).IsEmpty() && layer.GetTile(3, 2).IsEmpty() && CountTiles(layer, TileA) == 2 && CountTiles(layer, TileB) == 2,
@@ -192,7 +198,7 @@ namespace Jazz2::Editor::ToolTests
 			expect(CountTiles(layer, TileC) == 4 && layer.GetTile(1, 1) == TileA && layer.GetTile(4, 1) == TileB && layer.GetTile(0, 1) == TileC,
 				"only the empty tiles painted");
 
-			expect(host.Undo() && host.Undo() && host.Undo() && !host.Undo() && CountTiles(layer, TileRef{}) == layer.GetWidth() * layer.GetHeight(),
+			expect(host.Undo() && host.Undo() && host.Undo() && !host.Undo() && CountTiles(layer, TileRef {}) == layer.GetWidth() * layer.GetHeight(),
 				"three steps undone");
 			return expect.GetProblems();
 		}
@@ -281,11 +287,13 @@ namespace Jazz2::Editor::ToolTests
 			host.Drag(eyedropper, Vector2i(0, 0), Vector2i(2, 1));
 			const TileStamp& stamp = host.GetStamp();
 			expect(stamp.Width == 3 && stamp.Height == 2 && stamp.GetTile(0, 0) == TileA && stamp.GetTile(1, 0) == TileB && stamp.GetTile(2, 1) == TileC &&
-				stamp.IsPresent(0, 1) && stamp.GetTile(0, 1).IsEmpty(), "a rectangle picked");
+					stamp.IsPresent(0, 1) && stamp.GetTile(0, 1).IsEmpty(),
+				"a rectangle picked");
 
 			host.Drag(eyedropper, Vector2i(33, 24), Vector2i(30, 22));
 			expect(stamp.Width == 4 && stamp.Height == 3 && stamp.GetTile(1, 1) == TileD && stamp.IsPresent(1, 1) && !stamp.IsPresent(2, 1) &&
-				!stamp.IsPresent(0, 2), "the tiles outside of the layer left out");
+					!stamp.IsPresent(0, 2),
+				"the tiles outside of the layer left out");
 			expect(host.GetHistory().GetDoneCount() == 0 && host.Messages.empty(), "picking changes nothing");
 
 			// More tiles than a stamp can have, or a side longer than it can be
@@ -333,7 +341,8 @@ namespace Jazz2::Editor::ToolTests
 			expect(layer.GetTile(6, 5) == TileA && layer.GetTile(7, 5) == TileB && layer.GetTile(3, 3).IsEmpty() && layer.GetTile(4, 3).IsEmpty(),
 				"the tiles moved");
 			expect(document.GetEvent(6, 5).Type == std::uint16_t(EventType::Gem) && LevelDocument::IsEmptyEvent(document.GetEvent(3, 3)) &&
-				document.GetEvent(10, 10).Type == std::uint16_t(EventType::Gem) && CountEvents(document) == 2, "the event on them moved");
+					document.GetEvent(10, 10).Type == std::uint16_t(EventType::Gem) && CountEvents(document) == 2,
+				"the event on them moved");
 			expect(document.OffGridEvents.size() == 1 && document.OffGridEvents[0].X == 7 * 32 + 5 && document.OffGridEvents[0].Y == 5 * 32 + 7,
 				"the event off the grid on them moved");
 			expect(selection.GetBounds() == Recti(6, 5, 2, 1), "the selection moved with them");
@@ -343,7 +352,8 @@ namespace Jazz2::Editor::ToolTests
 				"nothing moved out of the layer");
 
 			expect(host.Undo() && layer.GetTile(3, 3) == TileA && layer.GetTile(6, 5).IsEmpty() && document.GetEvent(3, 3).Type == std::uint16_t(EventType::Gem) &&
-				LevelDocument::IsEmptyEvent(document.GetEvent(6, 5)) && document.OffGridEvents[0].X == 4 * 32 + 5, "moving undone at once");
+					LevelDocument::IsEmptyEvent(document.GetEvent(6, 5)) && document.OffGridEvents[0].X == 4 * 32 + 5,
+				"moving undone at once");
 			expect(host.Redo() && layer.GetTile(7, 5) == TileB && document.GetEvent(6, 5).Type == std::uint16_t(EventType::Gem), "moving redone");
 
 			// A click without dragging ends the selection
@@ -429,7 +439,7 @@ namespace Jazz2::Editor::ToolTests
 
 			TileStamp stamp = BlockGrab::MakeStamp(document, sprite, host.GetLayerView(sprite), Recti(2, 2, 2, 2));
 			expect(stamp.Width == 2 && stamp.Height == 2 && stamp.EmptyIsTransparent && stamp.HasEvents() && stamp.Tiles[0] == TileA &&
-				stamp.Tiles[1].IsEmpty() && LevelDocument::IsEmptyEvent(stamp.Events[0]) && stamp.Events[1].Type == gem && stamp.Events[2].Type == gem,
+					stamp.Tiles[1].IsEmpty() && LevelDocument::IsEmptyEvent(stamp.Events[0]) && stamp.Events[1].Type == gem && stamp.Events[2].Type == gem,
 				"a block of the sprite layer with its events");
 
 			// Painted with its middle at the pointer, the empty tile leaves the wall there and its event isn't placed, the
@@ -444,7 +454,8 @@ namespace Jazz2::Editor::ToolTests
 			expect(layer.GetTile(10, 10) == TileA && layer.GetTile(11, 10) == Wall && layer.GetTile(10, 11) == TileC && layer.GetTile(11, 11) == TileD,
 				"the empty tile of a block skipped");
 			expect(LevelDocument::IsEmptyEvent(document.GetEvent(10, 10)) && document.GetEvent(10, 11).Type == gem && LevelDocument::IsEmptyEvent(document.GetEvent(11, 10)) &&
-				host.GetHistory().GetDoneCount() == doneCount + 1, "the events of a block placed with its tiles, as one step");
+					host.GetHistory().GetDoneCount() == doneCount + 1,
+				"the events of a block placed with its tiles, as one step");
 			expect(host.Undo() && layer.GetTile(10, 10).IsEmpty() && document.GetEvent(10, 10).Type == gem && LevelDocument::IsEmptyEvent(document.GetEvent(10, 11)),
 				"a block undone with its events");
 
@@ -496,7 +507,8 @@ namespace Jazz2::Editor::ToolTests
 			doneCount = host.GetHistory().GetDoneCount();
 			host.Click(brush, Vector2i(6, 16));
 			expect(document.OffGridEvents.size() == offGridBefore + 1 && document.OffGridEvents.back().X == 6 * 32 + 5 &&
-				document.OffGridEvents.back().Y == 16 * 32 + 7 && host.GetHistory().GetDoneCount() == doneCount + 1, "an event off the grid placed with its tile");
+					document.OffGridEvents.back().Y == 16 * 32 + 7 && host.GetHistory().GetDoneCount() == doneCount + 1,
+				"an event off the grid placed with its tile");
 			// Painted at the same place again, it isn't placed twice
 			host.Click(brush, Vector2i(6, 16));
 			expect(document.OffGridEvents.size() == offGridBefore + 1, "an event off the grid not placed twice at the same place");
@@ -516,7 +528,7 @@ namespace Jazz2::Editor::ToolTests
 			// Through the clipboard of the system with the events on the tiles and off the grid, tiles alone stay without them
 			TileStamp copied;
 			expect(StampClipboard::ReadTiles(StampClipboard::WriteTiles(withOffGrid), copied) && copied.HasEvents() && copied.Events[1].Type == gem &&
-				LevelDocument::IsEmptyEvent(copied.Events[0]) && copied.OffGridEvents.size() == 2 && copied.OffGridEvents[0].Offset == Vector2i(37, 39),
+					LevelDocument::IsEmptyEvent(copied.Events[0]) && copied.OffGridEvents.size() == 2 && copied.OffGridEvents[0].Offset == Vector2i(37, 39),
 				"tiles with their events through the clipboard");
 			TileStamp plain;
 			expect(StampClipboard::ReadTiles(StampClipboard::WriteTiles(MakeStamp(1, 1, { TileA })), plain) && !plain.HasEvents() && plain.OffGridEvents.empty(),
@@ -662,14 +674,7 @@ namespace Jazz2::Editor::ToolTests
 			addTileSet(target, "shared"_s, 0, 40, false);
 			addTileSet(target, ":level"_s, 0, 4, true);
 
-			TileStamp stamp = MakeStamp(6, 1, {
-				TileRef{ 7, TileRef::DefaultTileSet, 0 },
-				TileRef{ 3, 1, 0 },
-				TileRef{ 5, 2, Formats::TileRecord::FlipX },
-				TileRef{ 2, 3, 0 },
-				TileRef{ 0, TileRef::Animated, 0 },
-				TileRef{ 1, TileRef::DefaultTileSet, 0 }
-			});
+			TileStamp stamp = MakeStamp(6, 1, { TileRef { 7, TileRef::DefaultTileSet, 0 }, TileRef { 3, 1, 0 }, TileRef { 5, 2, Formats::TileRecord::FlipX }, TileRef { 2, 3, 0 }, TileRef { 0, TileRef::Animated, 0 }, TileRef { 1, TileRef::DefaultTileSet, 0 } });
 			stamp.Present[5] = false;
 			String text = StampClipboard::WriteTiles(stamp, &source);
 
@@ -684,9 +689,9 @@ namespace Jazz2::Editor::ToolTests
 			TileStamp read;
 			expect(StampClipboard::ReadTiles(text, read, &target) && read.Width == 6 && read.Height == 1, "tiles read into another level");
 			if (read.Tiles.size() == 6 && read.Present.size() == 6) {
-				expect(read.Present[0] && read.Tiles[0] == TileRef{ 7, TileRef::DefaultTileSet, 0 }, "a tile of the default tile set by its name");
+				expect(read.Present[0] && read.Tiles[0] == TileRef { 7, TileRef::DefaultTileSet, 0 }, "a tile of the default tile set by its name");
 				expect(!read.Present[1], "a tile of a tile set the level hasn't left out");
-				expect(read.Present[2] && read.Tiles[2] == TileRef{ 15, 1, Formats::TileRecord::FlipX }, "a tile found in another slot and range");
+				expect(read.Present[2] && read.Tiles[2] == TileRef { 15, 1, Formats::TileRecord::FlipX }, "a tile found in another slot and range");
 				expect(!read.Present[3], "a tile of a tile set of the other level itself left out");
 				expect(read.Present[4] && read.Tiles[4].IsAnimated() && !read.Present[5], "an animated tile kept until it's checked");
 				StampClipboard::RemoveUnknownTiles(target, read);
@@ -701,8 +706,9 @@ namespace Jazz2::Editor::ToolTests
 			host.SetStamp(Death::move(read));
 			host.Click(*tools.Get(EditorToolType::Brush), Vector2i(3, 0));
 			const DocumentLayer& layer = target.Layers[0];
-			expect(layer.GetTile(0, 0) == TileRef{ 7, TileRef::DefaultTileSet, 0 } && layer.GetTile(1, 0) == Wall &&
-				layer.GetTile(2, 0) == TileRef{ 15, 1, Formats::TileRecord::FlipX } && layer.GetTile(3, 0).IsEmpty(), "the tiles pasted");
+			expect(layer.GetTile(0, 0) == TileRef { 7, TileRef::DefaultTileSet, 0 } && layer.GetTile(1, 0) == Wall &&
+					layer.GetTile(2, 0) == TileRef { 15, 1, Formats::TileRecord::FlipX } && layer.GetTile(3, 0).IsEmpty(),
+				"the tiles pasted");
 			return expect.GetProblems();
 		}
 
@@ -811,7 +817,7 @@ namespace Jazz2::Editor::ToolTests
 		DocumentChanges changes;
 		auto paint = std::make_unique<SetTilesCommand>(document, 0, "Paint"_s);
 		paint->Set(1, 1, TileA);
-		paint->Set(2, 3, TileRef{});
+		paint->Set(2, 3, TileRef {});
 		history.Execute(Death::move(paint), changes);
 		paint = std::make_unique<SetTilesCommand>(document, 2, "Paint"_s);
 		paint->Set(31, 31, TileD);
@@ -849,16 +855,16 @@ namespace Jazz2::Editor::ToolTests
 		// ExecuteGrowingTileIdSpace()
 		LevelDocument growing;
 		growing.CreateNew("selftest-no-tileset"_s, 20, Vector2i(8, 8));
-		growing.Animations.emplace_back().Frames.push_back(TileRef{ 2, TileRef::DefaultTileSet, 0 });
+		growing.Animations.emplace_back().Frames.push_back(TileRef { 2, TileRef::DefaultTileSet, 0 });
 		growing.TileIdSpace = 20;
-		growing.Layers[0].GetTile(1, 1) = TileRef{ 0, TileRef::Animated, 0 };
+		growing.Layers[0].GetTile(1, 1) = TileRef { 0, TileRef::Animated, 0 };
 		std::unique_ptr<Tiles::TileMap> growingShown = LoadShownLevel(growing);
 		expect(growingShown != nullptr, "a level with animated tiles shown");
 		if (growingShown != nullptr) {
 			CommandHistory growingHistory(growing, SIZE_MAX);
 			changes.Clear();
 			paint = std::make_unique<SetTilesCommand>(growing, 0, "Paint"_s);
-			paint->Set(3, 2, TileRef{ 19, TileRef::DefaultTileSet, 0 });
+			paint->Set(3, 2, TileRef { 19, TileRef::DefaultTileSet, 0 });
 			ExecuteGrowingTileIdSpace(growingHistory, Death::move(paint), changes);
 			expect(changes.HasAny(DocumentChangeKind::AnimationStructure) && RuntimeSync::Apply(growing, *growingShown, changes), "animated tiles moved in place");
 			expect((growingShown->GetTile(0, 1, 1) & Tiles::TileMap::TileFlagAnimated) != 0 && growingShown->GetTile(0, 3, 2) == 19,

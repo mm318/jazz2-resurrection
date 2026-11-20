@@ -20,21 +20,22 @@ namespace Jazz2::Actors::Multiplayer
 
 	public:
 		/** @brief State flags of the remote player */
-		enum class PlayerFlags {
-			None = 0,					/**< None */
+		enum class PlayerFlags
+		{
+			None = 0, /**< None */
 
-			SpecialMoveMask = 0x07,		/**< Mask of the current special move */
+			SpecialMoveMask = 0x07, /**< Mask of the current special move */
 
-			IsFacingLeft = 0x10,		/**< Player is facing left */
-			IsVisible = 0x20,			/**< Player is visible */
-			IsActivelyPushing = 0x40,	/**< Player is actively pushing against something */
+			IsFacingLeft = 0x10, /**< Player is facing left */
+			IsVisible = 0x20, /**< Player is visible */
+			IsActivelyPushing = 0x40, /**< Player is actively pushing against something */
 
-			JustWarped = 0x100,			/**< Player has just warped */
+			JustWarped = 0x100, /**< Player has just warped */
 
-			EnableContinuousJump = 0x200,	/**< Continuous jump is enabled */
+			EnableContinuousJump = 0x200, /**< Continuous jump is enabled */
 
-			InMenu = 0x1000,			/**< Player has a menu open */
-			InConsole = 0x2000			/**< Player has the console open */
+			InMenu = 0x1000, /**< Player has a menu open */
+			InConsole = 0x2000 /**< Player has the console open */
 		};
 
 		/** @brief State flags */

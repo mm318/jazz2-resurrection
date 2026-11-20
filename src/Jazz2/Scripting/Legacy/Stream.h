@@ -199,14 +199,16 @@ namespace Jazz2::Scripting
 			bool Take(void* target, std::uint32_t count);
 			void Append(const void* source, std::uint32_t count);
 
-			template<class T>
-			bool PushValue(const T& value) {
+			template <class T>
+			bool PushValue(const T& value)
+			{
 				Append(&value, sizeof(T));
 				return true;
 			}
 
-			template<class T>
-			bool PopValue(T& value) {
+			template <class T>
+			bool PopValue(T& value)
+			{
 				return Take(&value, sizeof(T));
 			}
 		};

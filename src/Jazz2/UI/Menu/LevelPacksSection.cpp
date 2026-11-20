@@ -23,7 +23,7 @@ namespace Jazz2::UI::Menu
 {
 	LevelPacksSection::LevelPacksSection(EpisodeSelectMode mode, bool privateServer)
 		: _mode(mode), _privateServer(privateServer), _selectedIndex(0), _columns(1), _animation(0.0f), _y(0.0f), _height(0.0f),
-			_availableHeight(0.0f), _noiseCooldown(0.0f), _pressedCount(0), _touchTime(0.0f)
+		  _availableHeight(0.0f), _noiseCooldown(0.0f), _pressedCount(0), _touchTime(0.0f)
 	{
 	}
 

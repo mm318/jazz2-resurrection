@@ -7,10 +7,12 @@ namespace nCine
 	AudioDeviceBase::AudioDeviceBase()
 		: _gain(1.0f), _lastSourceProgress(0), _stalledCheckLeft(0), _blockingOperationDepth(0)
 #if defined(DEATH_TRACE)
-			, _suppressedSourceWarnings(0)
+		  ,
+		  _suppressedSourceWarnings(0)
 #endif
 #if defined(WITH_THREADS) && !defined(NCINE_HAS_NATIVE_AUDIO)
-			, _decodeThreadCreated(false), _decodeThreadShouldQuit(false)
+		  ,
+		  _decodeThreadCreated(false), _decodeThreadShouldQuit(false)
 #endif
 	{
 	}
@@ -217,7 +219,7 @@ namespace nCine
 	{
 		if (!_sourcePool.empty()) {
 			// Something is free, so nothing is waiting and there is nothing to judge
-			_stalledSince = TimeStamp{};
+			_stalledSince = TimeStamp {};
 			_stalledCheckLeft = 0;
 			return;
 		}
@@ -245,12 +247,12 @@ namespace nCine
 			}
 		}
 		if (numPlaying == 0) {
-			_stalledSince = TimeStamp{};
+			_stalledSince = TimeStamp {};
 			return;
 		}
 		if (numWithOffset == 0) {
 			// AICA and ASND report 0 for streamed or unqueued sources, so a sum stuck at zero proves nothing
-			_stalledSince = TimeStamp{};
+			_stalledSince = TimeStamp {};
 			return;
 		}
 
@@ -268,13 +270,13 @@ namespace nCine
 
 		// Release everything, so playback recovers as soon as the device mixes again
 		StopPlayers();
-		_stalledSince = TimeStamp{};
+		_stalledSince = TimeStamp {};
 	}
 
 #if !defined(NCINE_HAS_NATIVE_AUDIO)
 	bool AudioDeviceBase::SubmitStreamDecode(const std::shared_ptr<StreamDecodeRequest>& request)
 	{
-#	if defined(WITH_THREADS)
+#if defined(WITH_THREADS)
 		_decodeMutex.Lock();
 		if (!_decodeThreadCreated) {
 			// The decoding thread is created lazily on the first streamed sound
@@ -285,14 +287,14 @@ namespace nCine
 		_decodeMutex.Unlock();
 		_decodeQueueCond.Signal();
 		return true;
-#	else
+#else
 		return false;
-#	endif
+#endif
 	}
 
 	void AudioDeviceBase::DrainStreamDecode(const std::shared_ptr<StreamDecodeRequest>& request)
 	{
-#	if defined(WITH_THREADS)
+#if defined(WITH_THREADS)
 		// A null request would compare equal to the idle active request and wait forever
 		if (request == nullptr) {
 			return;
@@ -313,12 +315,12 @@ namespace nCine
 			_decodeDoneCond.Wait(_decodeMutex);
 		}
 		_decodeMutex.Unlock();
-#	endif
+#endif
 	}
 
 	void AudioDeviceBase::ShutdownDecodeThread()
 	{
-#	if defined(WITH_THREADS)
+#if defined(WITH_THREADS)
 		_decodeMutex.Lock();
 		if (_decodeThreadShouldQuit) {
 			_decodeMutex.Unlock();
@@ -336,10 +338,10 @@ namespace nCine
 			_decodeThread.Join();
 			_decodeThreadCreated = false;
 		}
-#	endif
+#endif
 	}
 
-#	if defined(WITH_THREADS)
+#if defined(WITH_THREADS)
 	void AudioDeviceBase::DecodeThreadFunc(void* arg)
 	{
 		Thread::SetCurrentName("Audio decoding");
@@ -367,7 +369,7 @@ namespace nCine
 		}
 		device->_decodeMutex.Unlock();
 	}
-#	endif
+#endif
 #endif
 
 	const Vector3f& AudioDeviceBase::GetListenerPosition() const

@@ -17,17 +17,17 @@ namespace Jazz2::UI
 	*/
 	enum class MessageLevel
 	{
-		Unknown,		/**< Unspecified */
-		Echo,			/**< Echo of the input */
-		Debug,			/**< Debug */
-		Info,			/**< Info */
-		Chat,			/**< Chat */
-		Confirm,		/**< Confirmation */
-		Important,		/**< Important */
-		Warning,		/**< Warning */
-		Error,			/**< Error */
-		Assert,			/**< Assert */
-		Fatal			/**< Fatal */
+		Unknown, /**< Unspecified */
+		Echo, /**< Echo of the input */
+		Debug, /**< Debug */
+		Info, /**< Info */
+		Chat, /**< Chat */
+		Confirm, /**< Confirmation */
+		Important, /**< Important */
+		Warning, /**< Warning */
+		Error, /**< Error */
+		Assert, /**< Assert */
+		Fatal /**< Fatal */
 	};
 
 	/**

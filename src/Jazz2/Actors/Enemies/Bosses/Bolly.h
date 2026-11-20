@@ -33,7 +33,8 @@ namespace Jazz2::Actors::Bosses
 		static constexpr std::int32_t NormalChainLength = 5 * 3;
 
 		/** @brief Returns whether an entry of the chain is a ball, the others are the small pieces between them */
-		static constexpr bool IsChainBall(std::int32_t index) {
+		static constexpr bool IsChainBall(std::int32_t index)
+		{
 			return (index % 3) == 2;
 		}
 		/**
@@ -44,7 +45,8 @@ namespace Jazz2::Actors::Bosses
 		 */
 		static void GetChainOffsets(float chainPhase, std::int32_t chainLength, SmallVectorImpl<Vector2f>& offsets);
 
-		bool TakesSingleBlastDamage() const override {
+		bool TakesSingleBlastDamage() const override
+		{
 			return true;
 		}
 
@@ -148,7 +150,7 @@ namespace Jazz2::Actors::Bosses
 
 		private:
 			float _timeLeft;
-				bool _launched = false;
+			bool _launched = false;
 		};
 #endif
 

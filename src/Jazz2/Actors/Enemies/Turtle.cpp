@@ -148,11 +148,16 @@ namespace Jazz2::Actors::Enemies
 		EnemyBase::OnSerializeState(dest);
 
 		std::uint8_t flags = 0;
-		if (_isAttacking) flags |= 0x01;
-		if (_isTurning) flags |= 0x02;
-		if (_isWithdrawn) flags |= 0x04;
-		if (_isDodging) flags |= 0x08;
-		if (_currentTransition != nullptr) flags |= 0x10;
+		if (_isAttacking)
+			flags |= 0x01;
+		if (_isTurning)
+			flags |= 0x02;
+		if (_isWithdrawn)
+			flags |= 0x04;
+		if (_isDodging)
+			flags |= 0x08;
+		if (_currentTransition != nullptr)
+			flags |= 0x10;
 		dest.WriteValue<std::uint8_t>(flags);
 		dest.WriteValueAsLE<float>(_dodgeCooldown);
 	}
@@ -202,7 +207,7 @@ namespace Jazz2::Actors::Enemies
 				shouldDestroy = true;
 			}
 		} else if (runtime_cast<Weapons::ToasterShot>(collider) || runtime_cast<Weapons::ShieldFireShot>(collider) ||
-				   runtime_cast<Weapons::Thunderbolt>(collider) || runtime_cast<Solid::PushableBox>(collider)) {
+			runtime_cast<Weapons::Thunderbolt>(collider) || runtime_cast<Solid::PushableBox>(collider)) {
 			shouldDestroy = true;
 		}
 
@@ -226,8 +231,7 @@ namespace Jazz2::Actors::Enemies
 			ActorActivationDetails details(
 				_levelHandler,
 				Vector3i((std::int32_t)_pos.X, (std::int32_t)_pos.Y, _renderer.GetLayer()),
-				shellParams
-			);
+				shellParams);
 			// The shell is a regular event object, so it can be spawned again from a level state snapshot
 			details.Type = EventType::TurtleShell;
 			shell->OnActivated(details);
@@ -245,7 +249,7 @@ namespace Jazz2::Actors::Enemies
 			if (isFirstPhase) {
 				SetFacingLeft(!IsFacingLeft());
 				SetTransition(WithdrawEnd, false, [this]() {
-				   HandleTurn(false);
+					HandleTurn(false);
 				});
 				SetAnimationTicks(TurnEndTicks);
 				PlaySfx("WithdrawEnd"_s, 0.2f);

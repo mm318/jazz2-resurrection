@@ -184,8 +184,8 @@ namespace Jazz2::Multiplayer::GameModes
 			ctx.GetPlayerState(player).ModeCarryOverFlags |= FirstZombieFlag;
 			ctx.SyncPlayerModeState(player);
 			// The zombie that got the last roast, also when the last human was picked at random
-			Actors::Player* lastKiller = (infector != nullptr ? infector :
-				_lastZombieKillerIndex != UINT32_MAX ? ctx.FindPlayerByIndex(_lastZombieKillerIndex) : nullptr);
+			Actors::Player* lastKiller = (infector != nullptr ? infector : _lastZombieKillerIndex != UINT32_MAX ? ctx.FindPlayerByIndex(_lastZombieKillerIndex)
+																												: nullptr);
 			if (lastKiller != nullptr && lastKiller != player) {
 				AddPoints(ctx, lastKiller, 2);
 				ctx.SyncPlayerModeState(lastKiller);

@@ -19,20 +19,20 @@
 #include <imgui.h>
 
 #if defined(WITH_AUDIO)
-#	include "../Audio/IAudioPlayer.h"
+#include "../Audio/IAudioPlayer.h"
 #endif
 
 #include "RenderStatistics.h"
 #if defined(WITH_LUA)
-#	include "LuaStatistics.h"
+#include "LuaStatistics.h"
 #endif
 
 #if defined(WITH_RENDERDOC)
-#	include "RenderDocCapture.h"
+#include "RenderDocCapture.h"
 #endif
 
 #if defined(WITH_ALLOCATORS)
-#	include "allocators_config.h"
+#include "allocators_config.h"
 #endif
 
 using namespace Death::Containers::Literals;
@@ -75,13 +75,20 @@ namespace nCine
 		const char* nodeTypeToString(Object::ObjectType type)
 		{
 			switch (type) {
-				case Object::ObjectType::SceneNode: return "SceneNode";
-				case Object::ObjectType::Sprite: return "Sprite";
-				case Object::ObjectType::MeshSprite: return "MeshSprite";
-				case Object::ObjectType::AnimatedSprite: return "AnimatedSprite";
-				case Object::ObjectType::Particle: return "Particle";
-				case Object::ObjectType::ParticleSystem: return "ParticleSystem";
-				default: return "N/A";
+				case Object::ObjectType::SceneNode:
+					return "SceneNode";
+				case Object::ObjectType::Sprite:
+					return "Sprite";
+				case Object::ObjectType::MeshSprite:
+					return "MeshSprite";
+				case Object::ObjectType::AnimatedSprite:
+					return "AnimatedSprite";
+				case Object::ObjectType::Particle:
+					return "Particle";
+				case Object::ObjectType::ParticleSystem:
+					return "ParticleSystem";
+				default:
+					return "N/A";
 			}
 		}
 
@@ -94,11 +101,12 @@ namespace nCine
 
 	ImGuiDebugOverlay::ImGuiDebugOverlay(float profileTextUpdateTime)
 		: IDebugOverlay(profileTextUpdateTime), _lockOverlayPositions(false), _showTopLeftOverlay(true), _showTopRightOverlay(true),
-			_showBottomLeftOverlay(true), _showBottomRightOverlay(true), _numValues(80), _maxFrameTime(0.0f), _maxUpdateVisitDraw(0.0f),
-			_index(0), _plotAdditionalFrameValues(false), _plotOverlayValues(true)
+		  _showBottomLeftOverlay(true), _showBottomRightOverlay(true), _numValues(80), _maxFrameTime(0.0f), _maxUpdateVisitDraw(0.0f),
+		  _index(0), _plotAdditionalFrameValues(false), _plotOverlayValues(true)
 #if defined(WITH_RENDERDOC)
-			, _renderDocPathTemplate(MaxRenderDocPathLength), _renderDocFileComments(MaxRenderDocCommentsLength),
-				_renderDocCapturePath(MaxRenderDocPathLength), _renderDocLastNumCaptures(0)
+		  ,
+		  _renderDocPathTemplate(MaxRenderDocPathLength), _renderDocFileComments(MaxRenderDocCommentsLength),
+		  _renderDocCapturePath(MaxRenderDocPathLength), _renderDocLastNumCaptures(0)
 #endif
 	{
 		InitPlotValues();
@@ -224,7 +232,7 @@ namespace nCine
 #if defined(DEATH_TRACE)
 	void ImGuiDebugOverlay::Log(TraceLevel level, StringView time, StringView threadId, StringView functionName, StringView message)
 	{
-		_logBuffer.emplace_back(LogMessage{time, message, threadId, functionName, level});
+		_logBuffer.emplace_back(LogMessage { time, message, threadId, functionName, level });
 	}
 #endif
 
@@ -234,11 +242,16 @@ namespace nCine
 		const char* audioPlayerStateToString(IAudioPlayer::PlayerState state)
 		{
 			switch (state) {
-				case IAudioPlayer::PlayerState::Initial: return "Initial";
-				case IAudioPlayer::PlayerState::Playing: return "Playing";
-				case IAudioPlayer::PlayerState::Paused: return "Paused";
-				case IAudioPlayer::PlayerState::Stopped: return "Stopped";
-				default: return "Unknown";
+				case IAudioPlayer::PlayerState::Initial:
+					return "Initial";
+				case IAudioPlayer::PlayerState::Playing:
+					return "Playing";
+				case IAudioPlayer::PlayerState::Paused:
+					return "Paused";
+				case IAudioPlayer::PlayerState::Stopped:
+					return "Stopped";
+				default:
+					return "Unknown";
 			}
 		}
 #endif
@@ -246,52 +259,86 @@ namespace nCine
 		const char* mouseCursorModeToString(IInputManager::Cursor mode)
 		{
 			switch (mode) {
-				case IInputManager::Cursor::Arrow: return "Normal";
-				case IInputManager::Cursor::Hidden: return "Hidden";
-				case IInputManager::Cursor::HiddenLocked: return "HiddenLocked";
-				default: return "Unknown";
+				case IInputManager::Cursor::Arrow:
+					return "Normal";
+				case IInputManager::Cursor::Hidden:
+					return "Hidden";
+				case IInputManager::Cursor::HiddenLocked:
+					return "HiddenLocked";
+				default:
+					return "Unknown";
 			}
 		}
 
 		const char* mappedButtonNameToString(ButtonName name)
 		{
 			switch (name) {
-				case ButtonName::Unknown: return "Unknown";
-				case ButtonName::A: return "A";
-				case ButtonName::B: return "B";
-				case ButtonName::X: return "X";
-				case ButtonName::Y: return "Y";
-				case ButtonName::Back: return "Back";
-				case ButtonName::Guide: return "Guide";
-				case ButtonName::Start: return "Start";
-				case ButtonName::LeftStick: return "LStick";
-				case ButtonName::RightStick: return "RStick";
-				case ButtonName::LeftBumper: return "LBumper";
-				case ButtonName::RightBumper: return "RBumper";
-				case ButtonName::Up: return "DPad_Up";
-				case ButtonName::Down: return "DPad_Down";
-				case ButtonName::Left: return "DPad_Left";
-				case ButtonName::Right: return "DPad_Right";
-				case ButtonName::Misc1: return "Misc1";
-				case ButtonName::Paddle1: return "Paddle1";
-				case ButtonName::Paddle2: return "Paddle2";
-				case ButtonName::Paddle3: return "Paddle3";
-				case ButtonName::Paddle4: return "Paddle4";
-				default: return "Unknown";
+				case ButtonName::Unknown:
+					return "Unknown";
+				case ButtonName::A:
+					return "A";
+				case ButtonName::B:
+					return "B";
+				case ButtonName::X:
+					return "X";
+				case ButtonName::Y:
+					return "Y";
+				case ButtonName::Back:
+					return "Back";
+				case ButtonName::Guide:
+					return "Guide";
+				case ButtonName::Start:
+					return "Start";
+				case ButtonName::LeftStick:
+					return "LStick";
+				case ButtonName::RightStick:
+					return "RStick";
+				case ButtonName::LeftBumper:
+					return "LBumper";
+				case ButtonName::RightBumper:
+					return "RBumper";
+				case ButtonName::Up:
+					return "DPad_Up";
+				case ButtonName::Down:
+					return "DPad_Down";
+				case ButtonName::Left:
+					return "DPad_Left";
+				case ButtonName::Right:
+					return "DPad_Right";
+				case ButtonName::Misc1:
+					return "Misc1";
+				case ButtonName::Paddle1:
+					return "Paddle1";
+				case ButtonName::Paddle2:
+					return "Paddle2";
+				case ButtonName::Paddle3:
+					return "Paddle3";
+				case ButtonName::Paddle4:
+					return "Paddle4";
+				default:
+					return "Unknown";
 			}
 		}
 
 		const char* mappedAxisNameToString(AxisName name)
 		{
 			switch (name) {
-				case AxisName::Unknown: return "Unknown";
-				case AxisName::LeftX: return "LX";
-				case AxisName::LeftY: return "LY";
-				case AxisName::RightX: return "RX";
-				case AxisName::RightY: return "RY";
-				case AxisName::LeftTrigger: return "LTrigger";
-				case AxisName::RightTrigger: return "RTrigger";
-				default: return "Unknown";
+				case AxisName::Unknown:
+					return "Unknown";
+				case AxisName::LeftX:
+					return "LX";
+				case AxisName::LeftY:
+					return "LY";
+				case AxisName::RightX:
+					return "RX";
+				case AxisName::RightY:
+					return "RY";
+				case AxisName::LeftTrigger:
+					return "LTrigger";
+				case AxisName::RightTrigger:
+					return "RTrigger";
+				default:
+					return "Unknown";
 			}
 		}
 	}
@@ -396,9 +443,15 @@ namespace nCine
 					styleIndex = 2;
 
 				switch (styleIndex) {
-					case 0: ImGui::StyleColorsDark(); break;
-					case 1: ImGui::StyleColorsLight(); break;
-					case 2: ImGui::StyleColorsClassic(); break;
+					case 0:
+						ImGui::StyleColorsDark();
+						break;
+					case 1:
+						ImGui::StyleColorsLight();
+						break;
+					case 2:
+						ImGui::StyleColorsClassic();
+						break;
 				}
 
 				const float MinFrameRounding = 0.0f;
@@ -491,12 +544,24 @@ namespace nCine
 
 						std::uint32_t color;
 						switch (message.Level) {
-							case TraceLevel::Fatal:		color = 0xFF403EEC; break;
-							case TraceLevel::Assert:	color = 0xFFad00cc; break;
-							case TraceLevel::Error:		color = 0xFF5050D8; break;
-							case TraceLevel::Warning:	color = 0xFF7AC7EB; break;
-							case TraceLevel::Info:		color = 0xFFEEEEEE; break;
-							default:					color = 0xFF969696; break;
+							case TraceLevel::Fatal:
+								color = 0xFF403EEC;
+								break;
+							case TraceLevel::Assert:
+								color = 0xFFad00cc;
+								break;
+							case TraceLevel::Error:
+								color = 0xFF5050D8;
+								break;
+							case TraceLevel::Warning:
+								color = 0xFF7AC7EB;
+								break;
+							case TraceLevel::Info:
+								color = 0xFFEEEEEE;
+								break;
+							default:
+								color = 0xFF969696;
+								break;
 						}
 						ImGui::PushStyleColor(ImGuiCol_Text, color);
 
@@ -528,7 +593,9 @@ namespace nCine
 			const RHI::IRhiCapabilities& caps = theServiceLocator().GetRhiCapabilities();
 
 			const RHI::IRhiCapabilities::InfoStrings& glInfoStrings = caps.GetInfoStrings();
-			const auto hasInfoString = [](const char* value) { return (value != nullptr && value[0] != '\0'); };
+			const auto hasInfoString = [](const char* value) {
+				return (value != nullptr && value[0] != '\0');
+			};
 			if (hasInfoString(glInfoStrings.vendor)) {
 				ImGui::Text("%s Vendor: %s", openglApiName, glInfoStrings.vendor);
 			}
@@ -543,9 +610,9 @@ namespace nCine
 			}
 
 			ImGui::Text("%s parsed version: %d.%d.%d", openglApiName,
-						caps.GetApiVersion(RHI::IRhiCapabilities::ApiVersion::Major),
-						caps.GetApiVersion(RHI::IRhiCapabilities::ApiVersion::Minor),
-						caps.GetApiVersion(RHI::IRhiCapabilities::ApiVersion::Release));
+				caps.GetApiVersion(RHI::IRhiCapabilities::ApiVersion::Major),
+				caps.GetApiVersion(RHI::IRhiCapabilities::ApiVersion::Minor),
+				caps.GetApiVersion(RHI::IRhiCapabilities::ApiVersion::Release));
 
 			ImGui::Separator();
 			ImGui::Text("GL_MAX_TEXTURE_SIZE: %d", caps.GetValue(RHI::IRhiCapabilities::IntValues::MaxTextureSize));
@@ -969,14 +1036,14 @@ namespace nCine
 
 			_renderDocPathTemplate = RenderDocCapture::GetCaptureFilePathTemplate();
 			if (ImGui::InputText("File path template", _renderDocPathTemplate.data(), MaxRenderDocPathLength,
-				ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackResize,
-				inputTextCallback, &_renderDocPathTemplate)) {
+					ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackResize,
+					inputTextCallback, &_renderDocPathTemplate)) {
 				RenderDocCapture::SetCaptureFilePathTemplate(_renderDocPathTemplate.data());
 			}
 
 			ImGui::InputTextMultiline("File comments", _renderDocFileComments.data(), MaxRenderDocCommentsLength,
-									  ImVec2(0, 0), ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackResize,
-									  inputTextCallback, &_renderDocFileComments);
+				ImVec2(0, 0), ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackResize,
+				inputTextCallback, &_renderDocFileComments);
 
 			static bool overlayEnabled = RenderDocCapture::IsOverlayEnabled();
 			ImGui::Checkbox("Enable overlay", &overlayEnabled);
@@ -1018,12 +1085,11 @@ namespace nCine
 	void GuiAllocator(nctl::IAllocator& alloc)
 	{
 		ImGui::Text("Allocations - Recorded: %lu, Active: %lu, Used Memory: %lu",
-					alloc.numEntries(), alloc.numAllocations(), alloc.usedMemory());
+			alloc.numEntries(), alloc.numAllocations(), alloc.usedMemory());
 		ImGui::NewLine();
 
 		const std::int32_t tableNumRows = alloc.numEntries() > 32 ? 32 : alloc.numEntries();
-		if (ImGui::BeginTable("allocatorEntries", 6, ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders |
-			ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_ScrollY, ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * tableNumRows))) {
+		if (ImGui::BeginTable("allocatorEntries", 6, ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_ScrollY, ImVec2(0.0f, ImGui::GetTextLineHeightWithSpacing() * tableNumRows))) {
 			ImGui::TableSetupScrollFreeze(0, 1);
 			ImGui::TableSetupColumn("Entry", ImGuiTableColumnFlags_NoReorder | ImGuiTableColumnFlags_NoHide);
 			ImGui::TableSetupColumn("Time");
@@ -1066,7 +1132,7 @@ namespace nCine
 #if defined(WITH_ALLOCATORS)
 		if (ImGui::CollapsingHeader("Memory Allocators")) {
 			_widgetName.format("Default Allocator \"%s\" (%d allocations, %lu bytes)",
-							   nctl::theDefaultAllocator().name(), nctl::theDefaultAllocator().numAllocations(), nctl::theDefaultAllocator().usedMemory());
+				nctl::theDefaultAllocator().name(), nctl::theDefaultAllocator().numAllocations(), nctl::theDefaultAllocator().usedMemory());
 #if !defined(RECORD_ALLOCATIONS)
 			ImGui::BulletText("%s", _widgetName.data());
 #else
@@ -1079,7 +1145,7 @@ namespace nCine
 
 			if (&nctl::theStringAllocator() != &nctl::theDefaultAllocator()) {
 				_widgetName.format("String Allocator \"%s\" (%d allocations, %lu bytes)",
-								   nctl::theStringAllocator().name(), nctl::theStringAllocator().numAllocations(), nctl::theStringAllocator().usedMemory());
+					nctl::theStringAllocator().name(), nctl::theStringAllocator().numAllocations(), nctl::theStringAllocator().usedMemory());
 #if !defined(RECORD_ALLOCATIONS)
 				ImGui::BulletText("%s", _widgetName.data());
 #else
@@ -1094,7 +1160,7 @@ namespace nCine
 
 			if (&nctl::theImGuiAllocator() != &nctl::theDefaultAllocator()) {
 				_widgetName.format("ImGui Allocator \"%s\" (%d allocations, %lu bytes)",
-								   nctl::theImGuiAllocator().name(), nctl::theImGuiAllocator().numAllocations(), nctl::theImGuiAllocator().usedMemory());
+					nctl::theImGuiAllocator().name(), nctl::theImGuiAllocator().numAllocations(), nctl::theImGuiAllocator().usedMemory());
 #if !defined(RECORD_ALLOCATIONS)
 				ImGui::BulletText("%s", _widgetName.data());
 #else
@@ -1110,7 +1176,7 @@ namespace nCine
 #if defined(WITH_LUA)
 			if (&nctl::theLuaAllocator() != &nctl::theDefaultAllocator()) {
 				_widgetName.format("Lua Allocator \"%s\" (%d allocations, %lu bytes)",
-								   nctl::theLuaAllocator().name(), nctl::theLuaAllocator().numAllocations(), nctl::theLuaAllocator().usedMemory());
+					nctl::theLuaAllocator().name(), nctl::theLuaAllocator().numAllocations(), nctl::theLuaAllocator().usedMemory());
 #if !defined(RECORD_ALLOCATIONS)
 				ImGui::BulletText("%s", _widgetName.data());
 #else
@@ -1366,7 +1432,7 @@ namespace nCine
 		const ImVec2 windowPosPivot = ImVec2(0.0f, 0.0f);
 		ImGui::SetNextWindowPos(windowPos, ImGuiCond_FirstUseEver, windowPosPivot);
 		ImGui::SetNextWindowBgAlpha(Transparency);
-		ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;	
+		ImGuiWindowFlags windowFlags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoFocusOnAppearing | ImGuiWindowFlags_NoNav;
 #if defined(IMGUI_HAS_DOCK)
 		windowFlags |= ImGuiWindowFlags_NoDocking;
 #endif
@@ -1561,19 +1627,19 @@ namespace nCine
 			}
 
 			ImGui::Text("Textures: %u, Sprites: %u, Mesh sprites: %u",
-						LuaStatistics::numTypedUserDatas(LuaTypes::UserDataType::TEXTURE),
-						LuaStatistics::numTypedUserDatas(LuaTypes::UserDataType::SPRITE),
-						LuaStatistics::numTypedUserDatas(LuaTypes::UserDataType::MESH_SPRITE));
+				LuaStatistics::numTypedUserDatas(LuaTypes::UserDataType::TEXTURE),
+				LuaStatistics::numTypedUserDatas(LuaTypes::UserDataType::SPRITE),
+				LuaStatistics::numTypedUserDatas(LuaTypes::UserDataType::MESH_SPRITE));
 			ImGui::Text("Animated sprites: %u, Fonts: %u, Textnodes: %u",
-						LuaStatistics::numTypedUserDatas(LuaTypes::UserDataType::ANIMATED_SPRITE),
-						LuaStatistics::numTypedUserDatas(LuaTypes::UserDataType::FONT),
-						LuaStatistics::numTypedUserDatas(LuaTypes::UserDataType::TEXTNODE));
+				LuaStatistics::numTypedUserDatas(LuaTypes::UserDataType::ANIMATED_SPRITE),
+				LuaStatistics::numTypedUserDatas(LuaTypes::UserDataType::FONT),
+				LuaStatistics::numTypedUserDatas(LuaTypes::UserDataType::TEXTNODE));
 			ImGui::Text("Audio buffers: %u, Buffer players: %u\n",
-						LuaStatistics::numTypedUserDatas(LuaTypes::UserDataType::AUDIOBUFFER),
-						LuaStatistics::numTypedUserDatas(LuaTypes::UserDataType::AUDIOBUFFER_PLAYER));
+				LuaStatistics::numTypedUserDatas(LuaTypes::UserDataType::AUDIOBUFFER),
+				LuaStatistics::numTypedUserDatas(LuaTypes::UserDataType::AUDIOBUFFER_PLAYER));
 			ImGui::Text("Stream players: %u, Particle systems: %u",
-						LuaStatistics::numTypedUserDatas(LuaTypes::UserDataType::AUDIOSTREAM_PLAYER),
-						LuaStatistics::numTypedUserDatas(LuaTypes::UserDataType::PARTICLE_SYSTEM));
+				LuaStatistics::numTypedUserDatas(LuaTypes::UserDataType::AUDIOSTREAM_PLAYER),
+				LuaStatistics::numTypedUserDatas(LuaTypes::UserDataType::PARTICLE_SYSTEM));
 
 			ImGui::End();
 		}
@@ -1672,10 +1738,10 @@ namespace nCine
 		_plotValues[ValuesType::UnspecifiedVertices][_index] = static_cast<float>(unspecifiedCommands.vertices);
 		_plotValues[ValuesType::TotalVertices][_index] = static_cast<float>(allCommands.vertices);
 
-#	if defined(WITH_LUA)
+#if defined(WITH_LUA)
 		_plotValues[ValuesType::LuaUsed][_index] = LuaStatistics::usedMemory() / 1024.0f;
 		_plotValues[ValuesType::LuaOperations][_index] = static_cast<float>(LuaStatistics::operations());
-#	endif
+#endif
 	}
 #endif
 }

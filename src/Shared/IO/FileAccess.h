@@ -6,23 +6,27 @@
 
 #include "../Common.h"
 
-namespace Death { namespace IO {
-//###==##====#=====--==~--~=~- --- -- -  -  -   -
-
-	/**
-		@brief Defines constants for read, write, or read/write access to a file, supports a bitwise combination of its member values
-	*/
-	enum struct FileAccess {
-		None = 0,
-		
-		/** @brief Read access to the file */
-		Read = 0x01,
-		/** @brief Write access to the file */
-		Write = 0x02,
-		/** @brief Read and write access to the file */
-		ReadWrite = Read | Write,
+namespace Death
+{
+	namespace IO
+	{
+		//###==##====#=====--==~--~=~- --- -- -  -  -   -
 
 		/**
+		@brief Defines constants for read, write, or read/write access to a file, supports a bitwise combination of its member values
+	*/
+		enum struct FileAccess
+		{
+			None = 0,
+
+			/** @brief Read access to the file */
+			Read = 0x01,
+			/** @brief Write access to the file */
+			Write = 0x02,
+			/** @brief Read and write access to the file */
+			ReadWrite = Read | Write,
+
+			/**
 		 * @brief Access to the file should be exclusive (not shared)
 		 * 
 		 * On Windows, the file is opened with a share mode of 0, so no other process can open it while the handle
@@ -30,12 +34,12 @@ namespace Death { namespace IO {
 		 * that also request exclusive access. In both cases opening fails immediately if the file is already
 		 * opened exclusively elsewhere.
 		*/
-		Exclusive = 0x10,
-		/** @brief A child process can inherit this handle */
-		InheritHandle = 0x20,
-		/** @brief Indicates that the file is to be accessed sequentially from beginning to end */
-		Sequential = 0x40,
-		/**
+			Exclusive = 0x10,
+			/** @brief A child process can inherit this handle */
+			InheritHandle = 0x20,
+			/** @brief Indicates that the file is to be accessed sequentially from beginning to end */
+			Sequential = 0x40,
+			/**
 		 * @brief The handle does not pin the file's name: other processes may delete, rename or replace the
 		 *        file while it is open
 		 *
@@ -44,9 +48,10 @@ namespace Death { namespace IO {
 		 * Has no effect together with @ref Exclusive. On Unix, a name is never pinned by an open descriptor, so
 		 * the flag is accepted and ignored.
 		 */
-		Unpinned = 0x80
-	};
+			Unpinned = 0x80
+		};
 
-	DEATH_ENUM_FLAGS(FileAccess);
-	
-}}
+		DEATH_ENUM_FLAGS(FileAccess);
+
+	}
+}

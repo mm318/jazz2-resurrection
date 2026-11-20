@@ -15,8 +15,8 @@ namespace Jazz2::Actors::Weapons
 {
 	ShotBase::ShotBase()
 		: _lastRicochet(nullptr), _timeLeft(0), _carriedSpeedX(0.0f), _acceleration(0.0f), _accelerationDir(Vector2f::Zero),
-			_speedCap(0.0f), _timeRate(1.0f), _strength(0), _ricochetCount(0), _ricochetLimit(0), _upgrades(0), _carriedDecays(false),
-			_frozenDuration(0.0f)
+		  _speedCap(0.0f), _timeRate(1.0f), _strength(0), _ricochetCount(0), _ricochetLimit(0), _upgrades(0), _carriedDecays(false),
+		  _frozenDuration(0.0f)
 	{
 	}
 
@@ -202,7 +202,8 @@ namespace Jazz2::Actors::Weapons
 		// and a slow one paid the fast one's cost anyway (five sub-steps at `MaxTimeMult` where one is already
 		// tunnel-proof, times every shot on screen).
 		float distance = std::max(std::abs(_speed.X + _carriedSpeedX + _externalForce.X * timeMult),
-			std::abs(_speed.Y + _externalForce.Y * timeMult)) * timeMult;
+							 std::abs(_speed.Y + _externalForce.Y * timeMult)) *
+			timeMult;
 		if (distance <= MaxMovementStep) {
 			return 1;
 		}

@@ -193,10 +193,10 @@ namespace Jazz2::Tests
 		// spawned, or the level's pushable. Kept identical to the tables in the original game's probe.
 		static constexpr std::int32_t FreezeFirst = 548;
 		static constexpr std::int32_t FreezeCount = 62;
-		static constexpr std::int8_t FreezeTarget[FreezeCount] = { 0,0,0,0,0,0,0,0,0,0,0,0,0, 1,1,1,1,1,1,1,1,1, 1,1,0,1,1, 1,1, 1, 1,1,1, 1,1,1,1,1,1,1,1,1,1,1, 1,1,1, 0,0,0, 0,0,0,0, 1,1,1,1,1,1,1,1 };
-		static constexpr std::int16_t FreezeTick[FreezeCount] = { 20,45,45,60,60,60,60,52,80,16,10,50,50, 60,60,60,60,60,60,60,60,60, 100,0,100,60,60, -1,-1, 100, 60,60,-1, -1,60,-1,60,-1,60,-1,60,-1,60,-1, -1,-1,-1, 60,60,20, 20,20,20,20, 10,10,10,10,10,10,10,10 };
-		static constexpr std::int16_t FreezeLength[FreezeCount] = { 100,100,100,100,100,100,20,100,100,100,100,100,100, 100,100,100,100,100,100,100,0,100, 100,100,100,0,100, 0,0, 30, 100,15,0, 0,100,0,100,0,100,0,100,0,100,0, 0,0,0, 100,100,100, 100,100,100,100, 250,250,250,250,250,250,250,250 };
-		static constexpr std::int16_t FreezeLift[FreezeCount] = { 0,0,0,0,0,0,0,0,0,0,0,0,0, 0,0,0,0,0,0,0,96,96, 0,0,0,64,64, 0,0, 0, 0,0,0, 0,0,0,0,0,0,0,0,0,0,0, 0,0,0, 0,0,0, 0,0,0,0, 0,0,0,0,0,0,0,0 };
+		static constexpr std::int8_t FreezeTarget[FreezeCount] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1 };
+		static constexpr std::int16_t FreezeTick[FreezeCount] = { 20, 45, 45, 60, 60, 60, 60, 52, 80, 16, 10, 50, 50, 60, 60, 60, 60, 60, 60, 60, 60, 60, 100, 0, 100, 60, 60, -1, -1, 100, 60, 60, -1, -1, 60, -1, 60, -1, 60, -1, 60, -1, 60, -1, -1, -1, -1, 60, 60, 20, 20, 20, 20, 20, 10, 10, 10, 10, 10, 10, 10, 10 };
+		static constexpr std::int16_t FreezeLength[FreezeCount] = { 100, 100, 100, 100, 100, 100, 20, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 100, 0, 100, 100, 100, 100, 0, 100, 0, 0, 30, 100, 15, 0, 0, 100, 0, 100, 0, 100, 0, 100, 0, 100, 0, 0, 0, 0, 100, 100, 100, 100, 100, 100, 100, 250, 250, 250, 250, 250, 250, 250, 250 };
+		static constexpr std::int16_t FreezeLift[FreezeCount] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 96, 96, 0, 0, 0, 64, 64, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 		// How many px short of the turtle the `fz_r_*` ones (k = 54..61) start, kept identical to the original's probe
 		static constexpr std::int16_t FreezeRamRunUp[8] = { 96, 96, 160, 224, 288, 384, 128, 144 };
 		// Where the crate scenarios (k = 33..46) put their crate, in tiles east of the origin, and the player, three
@@ -277,7 +277,8 @@ namespace Jazz2::Tests
 		void ScanTileEvent(EventType wanted, StringView label);
 		// Length of a scenario, in the original game's ticks
 		static float GetScenarioTicks(std::int32_t s);
-		static bool IsFreezeScenario(std::int32_t s) {
+		static bool IsFreezeScenario(std::int32_t s)
+		{
 			return (s >= FreezeFirst && s < FreezeFirst + FreezeCount);
 		}
 		// The level's pushable, or null while it isn't an actor
@@ -292,21 +293,3 @@ namespace Jazz2::Tests
 }
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

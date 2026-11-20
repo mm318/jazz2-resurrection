@@ -17,7 +17,7 @@ namespace nCine::RHI::GL
 		// Atomic, nothing guarantees that every buffer object is created on the rendering thread. A 32-bit counter is
 		// lock-free everywhere (a 64-bit one would need libatomic on some 32-bit targets), and it would take billions
 		// of buffer objects to wrap around.
-		static std::atomic<std::uint32_t> lastUniqueId{0};
+		static std::atomic<std::uint32_t> lastUniqueId { 0 };
 		_uniqueId = std::uint64_t(lastUniqueId.fetch_add(1, std::memory_order_relaxed)) + 1;
 		glGenBuffers(1, &_glHandle);
 		GL_LOG_ERRORS();
@@ -132,8 +132,8 @@ namespace nCine::RHI::GL
 		if (index >= MaxIndexBufferRange) {
 			glBindBufferRange(_target, index, _glHandle, offset, ptrsize);
 		} else if (_boundBufferRange[index].glHandle != _glHandle ||
-				 _boundBufferRange[index].offset != offset ||
-				 _boundBufferRange[index].ptrsize != ptrsize) {
+			_boundBufferRange[index].offset != offset ||
+			_boundBufferRange[index].ptrsize != ptrsize) {
 			_boundIndexBase[index] = -1;
 			_boundBufferRange[index].glHandle = _glHandle;
 			_boundBufferRange[index].offset = offset;

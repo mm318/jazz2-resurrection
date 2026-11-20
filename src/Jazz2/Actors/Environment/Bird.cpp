@@ -184,22 +184,35 @@ namespace Jazz2::Actors::Environment
 								shot->OnActivated(ActorActivationDetails(
 									_levelHandler,
 									Vector3i((std::int32_t)_pos.X, (std::int32_t)_pos.Y, _renderer.GetLayer() - 2),
-									shotParams
-								));
+									shotParams));
 								shot->OnFire(sharedOwner, _pos, _speed, angle, IsFacingLeft());
 								_levelHandler->AddActor(shot);
 							};
 							for (float angle : { 0.0f, IsFacingLeft() ? -0.18f : 0.18f }) {
 								if (custom) {
 									fire(std::make_shared<Weapons::CustomShot>(), angle);
-								} else switch (weaponType) {
-									case WeaponType::Bouncer: fire(std::make_shared<Weapons::BouncerShot>(), angle); break;
-									case WeaponType::Freezer: fire(std::make_shared<Weapons::FreezerShot>(), angle); break;
-									case WeaponType::Seeker: fire(std::make_shared<Weapons::SeekerShot>(), angle); break;
-									case WeaponType::Electro: fire(std::make_shared<Weapons::ElectroShot>(), angle); break;
-									case WeaponType::Blaster: fire(std::make_shared<Weapons::BlasterShot>(), angle); break;
-									default: shotParams[0] = 0; fire(std::make_shared<Weapons::BlasterShot>(), angle); break;
-								}
+								} else
+									switch (weaponType) {
+										case WeaponType::Bouncer:
+											fire(std::make_shared<Weapons::BouncerShot>(), angle);
+											break;
+										case WeaponType::Freezer:
+											fire(std::make_shared<Weapons::FreezerShot>(), angle);
+											break;
+										case WeaponType::Seeker:
+											fire(std::make_shared<Weapons::SeekerShot>(), angle);
+											break;
+										case WeaponType::Electro:
+											fire(std::make_shared<Weapons::ElectroShot>(), angle);
+											break;
+										case WeaponType::Blaster:
+											fire(std::make_shared<Weapons::BlasterShot>(), angle);
+											break;
+										default:
+											shotParams[0] = 0;
+											fire(std::make_shared<Weapons::BlasterShot>(), angle);
+											break;
+									}
 							}
 
 							PlaySfx("Fire"_s, 0.5f);
@@ -233,6 +246,5 @@ namespace Jazz2::Actors::Environment
 			}
 			return true;
 		});
-
 	}
 }

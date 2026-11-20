@@ -143,7 +143,7 @@ namespace Jazz2::Editor
 		bool pendingNamespaceBrace = false;
 		bool abstractClass = false;
 
-		Tokenizer tokens{text};
+		Tokenizer tokens { text };
 		for (StringView token = tokens.Next(); !token.empty(); token = tokens.Next()) {
 			if (token == "namespace"_s) {
 				pendingNamespace = tokens.Next();
@@ -237,7 +237,7 @@ namespace Jazz2::Editor
 				if (size <= 0 || size > 16 * 1024 * 1024) {
 					continue;
 				}
-				String text{NoInit, std::size_t(size)};
+				String text { NoInit, std::size_t(size) };
 				if (s->Read(text.data(), size) == size) {
 					FindScriptWeapons(fileName, text, weapons);
 				}
@@ -411,17 +411,31 @@ namespace Jazz2::Editor
 	{
 		bool ParseParamType(StringView name, ScriptParamType& type)
 		{
-			static const struct { StringView Name; ScriptParamType Type; } Types[] = {
-				{ "bool"_s, ScriptParamType::Bool }, { "boolean"_s, ScriptParamType::Bool },
-				{ "int8"_s, ScriptParamType::Int8 }, { "sbyte"_s, ScriptParamType::Int8 },
-				{ "uint8"_s, ScriptParamType::UInt8 }, { "byte"_s, ScriptParamType::UInt8 },
-				{ "int16"_s, ScriptParamType::Int16 }, { "short"_s, ScriptParamType::Int16 },
-				{ "uint16"_s, ScriptParamType::UInt16 }, { "ushort"_s, ScriptParamType::UInt16 },
-				{ "int"_s, ScriptParamType::Int32 }, { "int32"_s, ScriptParamType::Int32 },
-				{ "uint"_s, ScriptParamType::UInt32 }, { "uint32"_s, ScriptParamType::UInt32 },
-				{ "int64"_s, ScriptParamType::Int64 }, { "long"_s, ScriptParamType::Int64 },
-				{ "uint64"_s, ScriptParamType::UInt64 }, { "ulong"_s, ScriptParamType::UInt64 },
-				{ "float"_s, ScriptParamType::Float }, { "double"_s, ScriptParamType::Double },
+			static const struct
+			{
+				StringView Name;
+				ScriptParamType Type;
+			} Types[] = {
+				{ "bool"_s, ScriptParamType::Bool },
+				{ "boolean"_s, ScriptParamType::Bool },
+				{ "int8"_s, ScriptParamType::Int8 },
+				{ "sbyte"_s, ScriptParamType::Int8 },
+				{ "uint8"_s, ScriptParamType::UInt8 },
+				{ "byte"_s, ScriptParamType::UInt8 },
+				{ "int16"_s, ScriptParamType::Int16 },
+				{ "short"_s, ScriptParamType::Int16 },
+				{ "uint16"_s, ScriptParamType::UInt16 },
+				{ "ushort"_s, ScriptParamType::UInt16 },
+				{ "int"_s, ScriptParamType::Int32 },
+				{ "int32"_s, ScriptParamType::Int32 },
+				{ "uint"_s, ScriptParamType::UInt32 },
+				{ "uint32"_s, ScriptParamType::UInt32 },
+				{ "int64"_s, ScriptParamType::Int64 },
+				{ "long"_s, ScriptParamType::Int64 },
+				{ "uint64"_s, ScriptParamType::UInt64 },
+				{ "ulong"_s, ScriptParamType::UInt64 },
+				{ "float"_s, ScriptParamType::Float },
+				{ "double"_s, ScriptParamType::Double },
 				{ "string"_s, ScriptParamType::String },
 			};
 			String lowercase = StringUtils::lowercase(name.trimmed());
@@ -437,16 +451,46 @@ namespace Jazz2::Editor
 		void GetTypeRange(ScriptParamType type, double& min, double& max)
 		{
 			switch (type) {
-				case ScriptParamType::Bool: min = 0.0; max = 1.0; break;
-				case ScriptParamType::Int8: min = -128.0; max = 127.0; break;
-				case ScriptParamType::UInt8: min = 0.0; max = 255.0; break;
-				case ScriptParamType::Int16: min = -32768.0; max = 32767.0; break;
-				case ScriptParamType::UInt16: min = 0.0; max = 65535.0; break;
-				case ScriptParamType::Int32: min = -2147483648.0; max = 2147483647.0; break;
-				case ScriptParamType::UInt32: min = 0.0; max = 4294967295.0; break;
-				case ScriptParamType::Int64: min = -9007199254740992.0; max = 9007199254740992.0; break;
-				case ScriptParamType::UInt64: min = 0.0; max = 9007199254740992.0; break;
-				default: min = -1.0e9; max = 1.0e9; break;
+				case ScriptParamType::Bool:
+					min = 0.0;
+					max = 1.0;
+					break;
+				case ScriptParamType::Int8:
+					min = -128.0;
+					max = 127.0;
+					break;
+				case ScriptParamType::UInt8:
+					min = 0.0;
+					max = 255.0;
+					break;
+				case ScriptParamType::Int16:
+					min = -32768.0;
+					max = 32767.0;
+					break;
+				case ScriptParamType::UInt16:
+					min = 0.0;
+					max = 65535.0;
+					break;
+				case ScriptParamType::Int32:
+					min = -2147483648.0;
+					max = 2147483647.0;
+					break;
+				case ScriptParamType::UInt32:
+					min = 0.0;
+					max = 4294967295.0;
+					break;
+				case ScriptParamType::Int64:
+					min = -9007199254740992.0;
+					max = 9007199254740992.0;
+					break;
+				case ScriptParamType::UInt64:
+					min = 0.0;
+					max = 9007199254740992.0;
+					break;
+				default:
+					min = -1.0e9;
+					max = 1.0e9;
+					break;
 			}
 		}
 
@@ -490,7 +534,7 @@ namespace Jazz2::Editor
 			if (size <= 0 || size > 4 * 1024 * 1024) {
 				return {};
 			}
-			String text{NoInit, std::size_t(size)};
+			String text { NoInit, std::size_t(size) };
 			return (s->Read(text.data(), size) == size ? text : String());
 		}
 
@@ -535,7 +579,7 @@ namespace Jazz2::Editor
 		// Tokens of a text with their positions in it
 		void Tokenize(StringView text, SmallVectorImpl<StringView>& tokens)
 		{
-			Tokenizer tokenizer{text};
+			Tokenizer tokenizer { text };
 			for (StringView token = tokenizer.Next(); !token.empty(); token = tokenizer.Next()) {
 				tokens.push_back(token);
 			}
@@ -830,7 +874,11 @@ namespace Jazz2::Editor
 		// The innermost namespace the class is in, where the functions of the weapon are
 		std::size_t regionStart = 0, regionEnd = tokens.size();
 		{
-			struct Scope { StringView Name; std::size_t Token; };
+			struct Scope
+			{
+				StringView Name;
+				std::size_t Token;
+			};
 			SmallVector<Scope, 8> scopes;
 			StringView pendingNamespace;
 			bool pending = false, found = false;
@@ -841,7 +889,7 @@ namespace Jazz2::Editor
 					pendingNamespace = tokens[++i];
 					pending = true;
 				} else if (token == "{"_s) {
-					scopes.push_back(Scope{pending ? pendingNamespace : StringView(), i});
+					scopes.push_back(Scope { pending ? pendingNamespace : StringView(), i });
 					pending = false;
 				} else if (token == "}"_s && !scopes.empty()) {
 					scopes.pop_back();
@@ -880,7 +928,11 @@ namespace Jazz2::Editor
 		ArrayView<const StringView> region = arrayView(tokens).slice(regionStart, regionEnd);
 
 		// The function that gets the parameters, by "jjSTREAM@ name" in what it takes, and what it pops of them
-		struct Pop { StringView Target; String Label; };
+		struct Pop
+		{
+			StringView Target;
+			String Label;
+		};
 		SmallVector<Pop, 8> pops;
 		for (std::size_t i = 0; i + 2 < region.size() && pops.empty(); i++) {
 			if (region[i] != "jjSTREAM"_s || region[i + 1] != "@"_s) {
@@ -935,7 +987,7 @@ namespace Jazz2::Editor
 				if (close + 4 < bodyEnd && region[close + 1] == ";"_s && region[close + 3] == "="_s && region[close + 4] == target) {
 					label = region[close + 2];
 				}
-				pops.push_back(Pop{target, Death::move(label)});
+				pops.push_back(Pop { target, Death::move(label) });
 				j = close;
 			}
 		}
@@ -979,16 +1031,21 @@ namespace Jazz2::Editor
 		switch (type) {
 			case ScriptParamType::Bool:
 			case ScriptParamType::Int8:
-			case ScriptParamType::UInt8: return 1;
+			case ScriptParamType::UInt8:
+				return 1;
 			case ScriptParamType::Int16:
-			case ScriptParamType::UInt16: return 2;
+			case ScriptParamType::UInt16:
+				return 2;
 			case ScriptParamType::Int32:
 			case ScriptParamType::UInt32:
-			case ScriptParamType::Float: return 4;
+			case ScriptParamType::Float:
+				return 4;
 			case ScriptParamType::Int64:
 			case ScriptParamType::UInt64:
-			case ScriptParamType::Double: return 8;
-			default: return 0;
+			case ScriptParamType::Double:
+				return 8;
+			default:
+				return 0;
 		}
 	}
 
@@ -1034,18 +1091,68 @@ namespace Jazz2::Editor
 			}
 			const std::uint8_t* p = &data[pos];
 			switch (param.Type) {
-				case ScriptParamType::Bool: value.Number = (p[0] != 0 ? 1.0 : 0.0); break;
-				case ScriptParamType::Int8: { std::int8_t v; std::memcpy(&v, p, 1); value.Number = v; break; }
-				case ScriptParamType::UInt8: value.Number = p[0]; break;
-				case ScriptParamType::Int16: { std::int16_t v; std::memcpy(&v, p, 2); value.Number = v; break; }
-				case ScriptParamType::UInt16: { std::uint16_t v; std::memcpy(&v, p, 2); value.Number = v; break; }
-				case ScriptParamType::Int32: { std::int32_t v; std::memcpy(&v, p, 4); value.Number = v; break; }
-				case ScriptParamType::UInt32: { std::uint32_t v; std::memcpy(&v, p, 4); value.Number = v; break; }
-				case ScriptParamType::Int64: { std::int64_t v; std::memcpy(&v, p, 8); value.Number = double(v); break; }
-				case ScriptParamType::UInt64: { std::uint64_t v; std::memcpy(&v, p, 8); value.Number = double(v); break; }
-				case ScriptParamType::Float: { float v; std::memcpy(&v, p, 4); value.Number = (std::isfinite(v) ? v : 0.0); break; }
-				case ScriptParamType::Double: { double v; std::memcpy(&v, p, 8); value.Number = (std::isfinite(v) ? v : 0.0); break; }
-				default: break;
+				case ScriptParamType::Bool:
+					value.Number = (p[0] != 0 ? 1.0 : 0.0);
+					break;
+				case ScriptParamType::Int8: {
+					std::int8_t v;
+					std::memcpy(&v, p, 1);
+					value.Number = v;
+					break;
+				}
+				case ScriptParamType::UInt8:
+					value.Number = p[0];
+					break;
+				case ScriptParamType::Int16: {
+					std::int16_t v;
+					std::memcpy(&v, p, 2);
+					value.Number = v;
+					break;
+				}
+				case ScriptParamType::UInt16: {
+					std::uint16_t v;
+					std::memcpy(&v, p, 2);
+					value.Number = v;
+					break;
+				}
+				case ScriptParamType::Int32: {
+					std::int32_t v;
+					std::memcpy(&v, p, 4);
+					value.Number = v;
+					break;
+				}
+				case ScriptParamType::UInt32: {
+					std::uint32_t v;
+					std::memcpy(&v, p, 4);
+					value.Number = v;
+					break;
+				}
+				case ScriptParamType::Int64: {
+					std::int64_t v;
+					std::memcpy(&v, p, 8);
+					value.Number = double(v);
+					break;
+				}
+				case ScriptParamType::UInt64: {
+					std::uint64_t v;
+					std::memcpy(&v, p, 8);
+					value.Number = double(v);
+					break;
+				}
+				case ScriptParamType::Float: {
+					float v;
+					std::memcpy(&v, p, 4);
+					value.Number = (std::isfinite(v) ? v : 0.0);
+					break;
+				}
+				case ScriptParamType::Double: {
+					double v;
+					std::memcpy(&v, p, 8);
+					value.Number = (std::isfinite(v) ? v : 0.0);
+					break;
+				}
+				default:
+					break;
 			}
 			pos += size;
 		}
@@ -1071,17 +1178,59 @@ namespace Jazz2::Editor
 			double n = std::clamp(value.Number, param.Min, param.Max);
 			double r = std::round(n);
 			switch (param.Type) {
-				case ScriptParamType::Bool: { std::uint8_t v = (n != 0.0 ? 1 : 0); append(&v, 1); break; }
-				case ScriptParamType::Int8: { std::int8_t v = std::int8_t(r); append(&v, 1); break; }
-				case ScriptParamType::UInt8: { std::uint8_t v = std::uint8_t(r); append(&v, 1); break; }
-				case ScriptParamType::Int16: { std::int16_t v = std::int16_t(r); append(&v, 2); break; }
-				case ScriptParamType::UInt16: { std::uint16_t v = std::uint16_t(r); append(&v, 2); break; }
-				case ScriptParamType::Int32: { std::int32_t v = std::int32_t(r); append(&v, 4); break; }
-				case ScriptParamType::UInt32: { std::uint32_t v = std::uint32_t(r); append(&v, 4); break; }
-				case ScriptParamType::Int64: { std::int64_t v = std::int64_t(r); append(&v, 8); break; }
-				case ScriptParamType::UInt64: { std::uint64_t v = std::uint64_t(r); append(&v, 8); break; }
-				case ScriptParamType::Float: { float v = float(n); append(&v, 4); break; }
-				case ScriptParamType::Double: append(&n, 8); break;
+				case ScriptParamType::Bool: {
+					std::uint8_t v = (n != 0.0 ? 1 : 0);
+					append(&v, 1);
+					break;
+				}
+				case ScriptParamType::Int8: {
+					std::int8_t v = std::int8_t(r);
+					append(&v, 1);
+					break;
+				}
+				case ScriptParamType::UInt8: {
+					std::uint8_t v = std::uint8_t(r);
+					append(&v, 1);
+					break;
+				}
+				case ScriptParamType::Int16: {
+					std::int16_t v = std::int16_t(r);
+					append(&v, 2);
+					break;
+				}
+				case ScriptParamType::UInt16: {
+					std::uint16_t v = std::uint16_t(r);
+					append(&v, 2);
+					break;
+				}
+				case ScriptParamType::Int32: {
+					std::int32_t v = std::int32_t(r);
+					append(&v, 4);
+					break;
+				}
+				case ScriptParamType::UInt32: {
+					std::uint32_t v = std::uint32_t(r);
+					append(&v, 4);
+					break;
+				}
+				case ScriptParamType::Int64: {
+					std::int64_t v = std::int64_t(r);
+					append(&v, 8);
+					break;
+				}
+				case ScriptParamType::UInt64: {
+					std::uint64_t v = std::uint64_t(r);
+					append(&v, 8);
+					break;
+				}
+				case ScriptParamType::Float: {
+					float v = float(n);
+					append(&v, 4);
+					break;
+				}
+				case ScriptParamType::Double:
+					append(&n, 8);
+					break;
 				case ScriptParamType::String: {
 					std::uint32_t length = std::uint32_t(value.Text.size());
 					append(&length, 4);
@@ -1104,7 +1253,11 @@ namespace Jazz2::Editor
 
 	StringView GetScriptWeaponHookCall(StringView callback)
 	{
-		static const struct { StringView Callback; StringView Call; } Calls[] = {
+		static const struct
+		{
+			StringView Callback;
+			StringView Call;
+		} Calls[] = {
 			{ "onMain"_s, "processMain("_s },
 			{ "onPlayer"_s, "processPlayer("_s },
 			{ "onPlayerInput"_s, "processPlayerInput("_s },

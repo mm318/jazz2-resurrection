@@ -73,13 +73,16 @@ namespace Jazz2::Actors::Enemies
 		EnemyBase::OnSerializeState(dest);
 
 		std::uint8_t flags = 0;
-		if (_isAttacking) flags |= 0x01;
-		if (_canAttack) flags |= 0x02;
-		if (_isWaiting) flags |= 0x08;
+		if (_isAttacking)
+			flags |= 0x01;
+		if (_canAttack)
+			flags |= 0x02;
+		if (_isWaiting)
+			flags |= 0x08;
 		dest.WriteValue<std::uint8_t>(flags);
-		dest.WriteValueAsLE<float>(0.0f);	// Unused
+		dest.WriteValueAsLE<float>(0.0f); // Unused
 		dest.WriteValueAsLE<float>(_attackTime);
-		dest.WriteValueAsLE<float>(0.0f);	// Unused
+		dest.WriteValueAsLE<float>(0.0f); // Unused
 	}
 
 	void LabRat::OnDeserializeState(Stream& src)
@@ -93,9 +96,9 @@ namespace Jazz2::Actors::Enemies
 		if (_isWaiting) {
 			SetAnimation(AnimState::Idle);
 		}
-		src.ReadValueAsLE<float>();	// Unused
+		src.ReadValueAsLE<float>(); // Unused
 		_attackTime = src.ReadValueAsLE<float>();
-		src.ReadValueAsLE<float>();	// Unused
+		src.ReadValueAsLE<float>(); // Unused
 
 		if ((flags & 0x04) != 0) {
 			// It no longer idles, an idling one from an older state walks on

@@ -43,7 +43,7 @@ namespace Jazz2::Editor
 	std::uint32_t MakeLayerId()
 	{
 		// Documents are loaded off the main thread too (by the smart tiles), 0 is never given
-		static std::atomic<std::uint32_t> nextId{0};
+		static std::atomic<std::uint32_t> nextId { 0 };
 		std::uint32_t id;
 		do {
 			id = nextId.fetch_add(1, std::memory_order_relaxed) + 1;
@@ -93,7 +93,8 @@ namespace Jazz2::Editor
 		Properties.DefaultTileSet = tileSet;
 		DefaultTileCount = tileCount;
 
-		struct LayerTemplate {
+		struct LayerTemplate
+		{
 			Formats::LayerKind Kind;
 			float Speed;
 			std::int16_t Depth;
@@ -123,7 +124,7 @@ namespace Jazz2::Editor
 			layer.Record.SpeedY = layerTemplate.Speed;
 			layer.Record.Depth = layerTemplate.Depth;
 			std::memset(layer.Record.Color, 255, sizeof(layer.Record.Color));
-			layer.Tiles.resize(std::size_t(layer.Record.Width) * std::size_t(layer.Record.Height), TileRef{});
+			layer.Tiles.resize(std::size_t(layer.Record.Width) * std::size_t(layer.Record.Height), TileRef {});
 		}
 	}
 
@@ -501,7 +502,7 @@ namespace Jazz2::Editor
 		for (DocumentLayer& layer : Layers) {
 			for (TileRef& tile : layer.Tiles) {
 				if (!tile.IsEmpty() && !apply(tile)) {
-					tile = TileRef{};
+					tile = TileRef {};
 					cleared++;
 				}
 			}
@@ -509,7 +510,7 @@ namespace Jazz2::Editor
 		for (DocumentAnimation& animation : Animations) {
 			for (TileRef& frame : animation.Frames) {
 				if (!frame.IsEmpty() && !apply(frame)) {
-					frame = TileRef{};
+					frame = TileRef {};
 				}
 			}
 		}
@@ -536,7 +537,9 @@ namespace Jazz2::Editor
 				kept++;
 			}
 			list.erase(list.begin() + kept, list.end());
-			std::sort(list.begin(), list.end(), [](const auto& a, const auto& b) { return a.TileId < b.TileId; });
+			std::sort(list.begin(), list.end(), [](const auto& a, const auto& b) {
+				return a.TileId < b.TileId;
+			});
 		};
 		remapOverrides(DiffuseOverrides, overrides.Diffuse);
 		remapOverrides(MaskOverrides, overrides.Mask);
@@ -584,11 +587,13 @@ namespace Jazz2::Editor
 					moved.Cell = std::uint32_t(y) * std::uint32_t(size.X) + std::uint32_t(x);
 				}
 			}
-			std::sort(events.begin(), events.end(), [](const DocumentEvent& a, const DocumentEvent& b) { return a.Cell < b.Cell; });
+			std::sort(events.begin(), events.end(), [](const DocumentEvent& a, const DocumentEvent& b) {
+				return a.Cell < b.Cell;
+			});
 			Events = Death::move(events);
 
 			constexpr std::int32_t TileSize = Formats::LevelFile::TileSize;
-			for (std::size_t i = 0; i < OffGridEvents.size(); ) {
+			for (std::size_t i = 0; i < OffGridEvents.size();) {
 				std::int32_t x = std::int32_t(OffGridEvents[i].X) + offset.X * TileSize;
 				std::int32_t y = std::int32_t(OffGridEvents[i].Y) + offset.Y * TileSize;
 				if (x < 0 || y < 0 || x >= size.X * TileSize || y >= size.Y * TileSize) {
@@ -988,15 +993,24 @@ namespace Jazz2::Editor
 	StringView LevelDocument::GetProblemDescription(DocumentProblem problem)
 	{
 		switch (problem) {
-			case DocumentProblem::LayerSize: return "A layer has a different number of tiles than its size"_s;
-			case DocumentProblem::SpriteLayerCount: return "The level has to have exactly one sprite layer"_s;
-			case DocumentProblem::TooManyLayers: return "The level has too many layers"_s;
-			case DocumentProblem::TooManyTexts: return "The level has too many texts"_s;
-			case DocumentProblem::TooManyExtraTileSets: return "The level has too many extra tile sets"_s;
-			case DocumentProblem::TooManyAnimations: return "The level has too many animated tiles"_s;
-			case DocumentProblem::TooManyFrames: return "An animated tile has too many frames"_s;
-			case DocumentProblem::UnaddressableTile: return "The level uses tiles past the tile IDs it can address"_s;
-			default: return {};
+			case DocumentProblem::LayerSize:
+				return "A layer has a different number of tiles than its size"_s;
+			case DocumentProblem::SpriteLayerCount:
+				return "The level has to have exactly one sprite layer"_s;
+			case DocumentProblem::TooManyLayers:
+				return "The level has too many layers"_s;
+			case DocumentProblem::TooManyTexts:
+				return "The level has too many texts"_s;
+			case DocumentProblem::TooManyExtraTileSets:
+				return "The level has too many extra tile sets"_s;
+			case DocumentProblem::TooManyAnimations:
+				return "The level has too many animated tiles"_s;
+			case DocumentProblem::TooManyFrames:
+				return "An animated tile has too many frames"_s;
+			case DocumentProblem::UnaddressableTile:
+				return "The level uses tiles past the tile IDs it can address"_s;
+			default:
+				return {};
 		}
 	}
 

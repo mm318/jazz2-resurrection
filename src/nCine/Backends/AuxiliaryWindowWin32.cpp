@@ -9,11 +9,11 @@ namespace nCine::Backends
 	namespace
 	{
 		// From <dwmapi.h>, loaded at run time, so older systems without the attributes run too
-		constexpr DWORD DwmNcRenderingPolicy = 2;			// DWMWA_NCRENDERING_POLICY
-		constexpr DWORD DwmNcRenderingEnabled = 2;			// DWMNCRP_ENABLED
-		constexpr DWORD DwmWindowCornerPreference = 33;		// DWMWA_WINDOW_CORNER_PREFERENCE, Windows 11
-		constexpr DWORD DwmCornerRound = 2;					// DWMWCP_ROUND
-		constexpr DWORD DwmCornerRoundSmall = 3;			// DWMWCP_ROUNDSMALL
+		constexpr DWORD DwmNcRenderingPolicy = 2; // DWMWA_NCRENDERING_POLICY
+		constexpr DWORD DwmNcRenderingEnabled = 2; // DWMNCRP_ENABLED
+		constexpr DWORD DwmWindowCornerPreference = 33; // DWMWA_WINDOW_CORNER_PREFERENCE, Windows 11
+		constexpr DWORD DwmCornerRound = 2; // DWMWCP_ROUND
+		constexpr DWORD DwmCornerRoundSmall = 3; // DWMWCP_ROUNDSMALL
 
 		struct DwmMargins
 		{

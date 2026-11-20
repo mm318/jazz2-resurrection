@@ -28,7 +28,7 @@ namespace nCine
 
 		@see http://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
 	*/
-	template<class K>
+	template <class K>
 	class FNV1aHashFunc
 	{
 	public:
@@ -53,7 +53,7 @@ namespace nCine
 	};
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
-	template<>
+	template <>
 	class FNV1aHashFunc<char*>
 	{
 	public:
@@ -77,7 +77,7 @@ namespace nCine
 		}
 	};
 
-	template<>
+	template <>
 	class FNV1aHashFunc<String>
 	{
 	public:
@@ -101,7 +101,7 @@ namespace nCine
 		}
 	};
 
-	template<class F, class S>
+	template <class F, class S>
 	class FNV1aHashFunc<Pair<F, S>>
 	{
 	public:
@@ -119,7 +119,7 @@ namespace nCine
 		Specializations are provided for C strings, @ref Death::Containers::String and
 		@ref Death::Containers::Pair.
 	*/
-	template<class K>
+	template <class K>
 	class xxHash32Func
 	{
 	public:
@@ -130,7 +130,7 @@ namespace nCine
 	};
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
-	template<>
+	template <>
 	class xxHash32Func<char*>
 	{
 	public:
@@ -141,7 +141,7 @@ namespace nCine
 		}
 	};
 
-	template<>
+	template <>
 	class xxHash32Func<String>
 	{
 	public:
@@ -151,7 +151,7 @@ namespace nCine
 		}
 	};
 
-	template<class F, class S>
+	template <class F, class S>
 	class xxHash32Func<Pair<F, S>>
 	{
 	public:
@@ -168,7 +168,7 @@ namespace nCine
 		Hashes the raw bytes of the key with xxHash3. Specializations are provided for C strings,
 		@ref Death::Containers::String and @ref Death::Containers::Pair.
 	*/
-	template<class K>
+	template <class K>
 	class xxHash64Func
 	{
 	public:
@@ -179,7 +179,7 @@ namespace nCine
 	};
 
 #ifndef DOXYGEN_GENERATING_OUTPUT
-	template<>
+	template <>
 	class xxHash64Func<char*>
 	{
 	public:
@@ -190,7 +190,7 @@ namespace nCine
 		}
 	};
 
-	template<>
+	template <>
 	class xxHash64Func<String>
 	{
 	public:
@@ -200,7 +200,7 @@ namespace nCine
 		}
 	};
 
-	template<class F, class S>
+	template <class F, class S>
 	class xxHash64Func<Pair<F, S>>
 	{
 	public:

@@ -32,7 +32,8 @@ namespace Jazz2::UI::Menu
 		MenuTransition();
 
 		/** @brief Returns `true` if a transition is currently playing */
-		bool IsActive() const {
+		bool IsActive() const
+		{
 			return (_state != State::Idle);
 		}
 
@@ -62,7 +63,8 @@ namespace Jazz2::UI::Menu
 		static nCine::Recti CombineClip(const nCine::Recti& a, const nCine::Recti& b, nCine::Vector2i viewSize);
 
 	private:
-		enum class State {
+		enum class State
+		{
 			Idle,
 			Forward,
 			Backward

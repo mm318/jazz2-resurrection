@@ -124,7 +124,7 @@ namespace Jazz2::AssetPacker
 				return false;
 			}
 
-			/*std::uint8_t flags =*/ s.ReadValue<std::uint8_t>();
+			/*std::uint8_t flags =*/s.ReadValue<std::uint8_t>();
 			cellWidth = s.ReadValueAsLE<std::uint16_t>();
 			cellHeight = s.ReadValueAsLE<std::uint16_t>();
 			columns = s.ReadValue<std::uint8_t>();
@@ -155,10 +155,7 @@ namespace Jazz2::AssetPacker
 				s.Read(encoded, 1);
 
 				const std::int32_t remainingBytes =
-					((encoded[0] & 240) == 240) ? 3 : (
-					((encoded[0] & 224) == 224) ? 2 : (
-					((encoded[0] & 192) == 192) ? 1 : 0
-				));
+					((encoded[0] & 240) == 240) ? 3 : (((encoded[0] & 224) == 224) ? 2 : (((encoded[0] & 192) == 192) ? 1 : 0));
 
 				Glyph& glyph = font.Glyphs.emplace_back();
 				if (remainingBytes > 0) {
@@ -187,7 +184,7 @@ namespace Jazz2::AssetPacker
 				return false;
 			}
 
-			s.WriteValue<std::uint8_t>(0x00);	// Flags
+			s.WriteValue<std::uint8_t>(0x00); // Flags
 			s.WriteValueAsLE<std::uint16_t>(std::uint16_t(cellWidth));
 			s.WriteValueAsLE<std::uint16_t>(std::uint16_t(cellHeight));
 			s.WriteValue<std::uint8_t>(std::uint8_t(columns));
@@ -222,7 +219,7 @@ namespace Jazz2::AssetPacker
 		void AppendNumber(Array<char>& target, std::int64_t value)
 		{
 			char buffer[24];
-			arrayAppend(target, StringView{buffer, formatInto(buffer, "{}", value)});
+			arrayAppend(target, StringView { buffer, formatInto(buffer, "{}", value) });
 		}
 
 		/**
@@ -235,8 +232,7 @@ namespace Jazz2::AssetPacker
 		*/
 		bool HasVisibleSpelling(char32_t codepoint)
 		{
-			return (codepoint >= 0x20 && codepoint != 0x7F && (codepoint < 0x80 || codepoint > 0x9F)
-				&& (codepoint < 0xD800 || codepoint > 0xDFFF) && codepoint <= 0x10FFFF);
+			return (codepoint >= 0x20 && codepoint != 0x7F && (codepoint < 0x80 || codepoint > 0x9F) && (codepoint < 0xD800 || codepoint > 0xDFFF) && codepoint <= 0x10FFFF);
 		}
 
 		/** @brief Appends a JSON string holding a single character */
@@ -373,12 +369,11 @@ namespace Jazz2::AssetPacker
 				LOGE("\"{}\" has a character at position {} whose \"Char\" is not a string", path, index);
 				return false;
 			}
-			StringView spelled{spelledRaw.data(), spelledRaw.size()};
+			StringView spelled { spelledRaw.data(), spelledRaw.size() };
 
 			std::int64_t codepoint = -1;
 			const Json::Value& codepointItem = item["Codepoint"];
-			if (!codepointItem.isNull() && (codepointItem.get(codepoint) != Json::SUCCESS
-					|| codepoint < 0 || codepoint > UINT32_MAX)) {
+			if (!codepointItem.isNull() && (codepointItem.get(codepoint) != Json::SUCCESS || codepoint < 0 || codepoint > UINT32_MAX)) {
 				LOGE("\"{}\" has a character at position {} whose \"Codepoint\" is not a codepoint", path, index);
 				return false;
 			}
@@ -388,7 +383,8 @@ namespace Jazz2::AssetPacker
 			} else if (!charItem.isNull()) {
 				if (spelled.empty()) {
 					LOGE("\"{}\" has a character at position {} whose \"Char\" is empty; the entry standing for "
-						"no character at all is written as \"Fallback\": true", path, index);
+						 "no character at all is written as \"Fallback\": true",
+						path, index);
 					return false;
 				}
 				auto next = Utf8::NextChar(spelled, 0);
@@ -448,7 +444,8 @@ namespace Jazz2::AssetPacker
 
 			Json::CharReaderBuilder builder;
 			auto reader = std::unique_ptr<Json::CharReader>(builder.newCharReader());
-			Json::Value doc; std::string errors;
+			Json::Value doc;
+			std::string errors;
 			if (!reader->parse(buffer.get(), buffer.get() + fileSize, &doc, &errors)) {
 				LOGE("\"{}\" cannot be parsed: {}", path, StringView(errors.data(), errors.size()).trimmed());
 				return false;
@@ -460,13 +457,7 @@ namespace Jazz2::AssetPacker
 
 			cellWidth = cellHeight = columns = 0;
 			std::int32_t lineHeight = 0, baseSpacing = 0, asciiFirst = -1, asciiCount = -1;
-			if (!TryReadNumber(path, doc, "CellWidth", 1, UINT16_MAX, cellWidth)
-					|| !TryReadNumber(path, doc, "CellHeight", 1, UINT16_MAX, cellHeight)
-					|| !TryReadNumber(path, doc, "Columns", 1, UINT8_MAX, columns)
-					|| !TryReadNumber(path, doc, "LineHeight", 1, UINT16_MAX, lineHeight)
-					|| !TryReadNumber(path, doc, "BaseSpacing", INT16_MIN, INT16_MAX, baseSpacing)
-					|| !TryReadNumber(path, doc, "AsciiFirst", 0, UINT8_MAX, asciiFirst)
-					|| !TryReadNumber(path, doc, "AsciiCount", 0, UINT8_MAX, asciiCount)) {
+			if (!TryReadNumber(path, doc, "CellWidth", 1, UINT16_MAX, cellWidth) || !TryReadNumber(path, doc, "CellHeight", 1, UINT16_MAX, cellHeight) || !TryReadNumber(path, doc, "Columns", 1, UINT8_MAX, columns) || !TryReadNumber(path, doc, "LineHeight", 1, UINT16_MAX, lineHeight) || !TryReadNumber(path, doc, "BaseSpacing", INT16_MIN, INT16_MAX, baseSpacing) || !TryReadNumber(path, doc, "AsciiFirst", 0, UINT8_MAX, asciiFirst) || !TryReadNumber(path, doc, "AsciiCount", 0, UINT8_MAX, asciiCount)) {
 				return false;
 			}
 
@@ -516,13 +507,15 @@ namespace Jazz2::AssetPacker
 			}
 			if (asciiFirst + asciiCount > 256) {
 				LOGE("\"{}\" has an ASCII range of {} characters starting at U+{:.4X}, reaching past the U+00FF "
-					"it has to end at", path, asciiCount, std::uint32_t(asciiFirst));
+					 "it has to end at",
+					path, asciiCount, std::uint32_t(asciiFirst));
 				return false;
 			}
 			for (std::int32_t i = 0; i < asciiCount; i++) {
 				if (font.Glyphs[i].Codepoint != char32_t(asciiFirst + i)) {
 					LOGE("\"{}\" has to list the ASCII range first, one character after another from U+{:.4X}, but "
-						"the character at position {} is U+{:.4X} where U+{:.4X} was expected", path,
+						 "the character at position {} is U+{:.4X} where U+{:.4X} was expected",
+						path,
 						std::uint32_t(asciiFirst), i, std::uint32_t(font.Glyphs[i].Codepoint), std::uint32_t(asciiFirst + i));
 					return false;
 				}
@@ -542,7 +535,8 @@ namespace Jazz2::AssetPacker
 				const char32_t codepoint = font.Glyphs[i].Codepoint;
 				if (codepoint != FontFormat::FallbackCodepoint && codepoint < 0x80) {
 					LOGW("\"{}\" lists U+{:.4X} outside its ASCII range, where the game will not look for it - "
-						"extend \"AsciiFirst\" and \"AsciiCount\" to cover it", path, std::uint32_t(codepoint));
+						 "extend \"AsciiFirst\" and \"AsciiCount\" to cover it",
+						path, std::uint32_t(codepoint));
 				}
 			}
 
@@ -592,10 +586,14 @@ namespace Jazz2::AssetPacker
 						if (pixel[3] == 0 || pixel[0] == 0) {
 							continue;
 						}
-						if (x < minX) minX = x;
-						if (y < minY) minY = y;
-						if (x > maxX) maxX = x;
-						if (y > maxY) maxY = y;
+						if (x < minX)
+							minX = x;
+						if (y < minY)
+							minY = y;
+						if (x > maxX)
+							maxX = x;
+						if (y > maxY)
+							maxY = y;
 					}
 				}
 
@@ -693,8 +691,8 @@ namespace Jazz2::AssetPacker
 		FontData font;
 		std::int32_t cellWidth, cellHeight, columns;
 		const bool descriptionRead = (isJsonDescription
-			? ReadCharacterListJson(descriptionPath, font, cellWidth, cellHeight, columns)
-			: ReadCharacterList(descriptionPath, font, cellWidth, cellHeight, columns));
+				? ReadCharacterListJson(descriptionPath, font, cellWidth, cellHeight, columns)
+				: ReadCharacterList(descriptionPath, font, cellWidth, cellHeight, columns));
 		if (!descriptionRead) {
 			return false;
 		}
@@ -827,7 +825,7 @@ namespace Jazz2::AssetPacker
 		so.WriteValueAsLE<std::uint64_t>(FontFormat::Signature);
 		so.WriteValue<std::uint8_t>(ContentFileType::Font);
 		so.WriteValue<std::uint8_t>(FontFormat::CurrentVersion);
-		so.WriteValue<std::uint8_t>(0x00);	// Flags
+		so.WriteValue<std::uint8_t>(0x00); // Flags
 		so.WriteValueAsLE<std::int32_t>(std::int32_t(ms.GetSize()));
 		so.Write(ms.GetBuffer(), ms.GetSize());
 
@@ -851,7 +849,7 @@ namespace Jazz2::AssetPacker
 		const std::uint64_t signature = s.ReadValueAsLE<std::uint64_t>();
 		const std::uint8_t fileType = s.ReadValue<std::uint8_t>();
 		const std::uint8_t version = s.ReadValue<std::uint8_t>();
-		/*std::uint8_t flags =*/ s.ReadValue<std::uint8_t>();
+		/*std::uint8_t flags =*/s.ReadValue<std::uint8_t>();
 		if (signature != FontFormat::Signature || fileType != ContentFileType::Font) {
 			LOGE("\"{}\" is not a packed font", sourcePath);
 			return false;
@@ -898,8 +896,7 @@ namespace Jazz2::AssetPacker
 		for (const Glyph& glyph : font.Glyphs) {
 			// Each glyph has to lie inside the atlas and sit inside its rebuilt cell, otherwise the copy
 			// below would run out of both buffers
-			if (glyph.X + glyph.Width > atlasWidth || glyph.Y + glyph.Height > atlasHeight
-					|| glyph.BearingX < 0 || glyph.BearingY < 0) {
+			if (glyph.X + glyph.Width > atlasWidth || glyph.Y + glyph.Height > atlasHeight || glyph.BearingX < 0 || glyph.BearingY < 0) {
 				LOGE("\"{}\" is corrupted", sourcePath);
 				return false;
 			}
@@ -943,8 +940,7 @@ namespace Jazz2::AssetPacker
 			for (std::int32_t y = 0; y < glyph.Height; y++) {
 				for (std::int32_t x = 0; x < glyph.Width; x++) {
 					const std::uint8_t* source = &atlas[(std::size_t(glyph.Y + y) * atlasWidth + (glyph.X + x)) * channelCount];
-					std::uint8_t* target = &image.Pixels[(std::size_t(cellY + glyph.BearingY + y) * image.Width
-						+ (cellX + glyph.BearingX + x)) * 4];
+					std::uint8_t* target = &image.Pixels[(std::size_t(cellY + glyph.BearingY + y) * image.Width + (cellX + glyph.BearingX + x)) * 4];
 					target[0] = target[1] = target[2] = source[0];
 					target[3] = (source[0] != 0 ? 255 : 0);
 				}

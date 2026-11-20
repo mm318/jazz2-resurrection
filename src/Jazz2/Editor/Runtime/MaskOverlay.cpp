@@ -30,11 +30,11 @@ namespace Jazz2::Editor
 		constexpr std::int32_t MaxBuildsPerFrame = 2;
 		constexpr float MaxBuildMilliseconds = 2.0f;
 #else
-#	if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_IOS) || defined(DEATH_TARGET_WINDOWS_RT)
+#if defined(DEATH_TARGET_ANDROID) || defined(DEATH_TARGET_IOS) || defined(DEATH_TARGET_WINDOWS_RT)
 		constexpr std::size_t MaxBytes = 8 * 1024 * 1024;
-#	else
+#else
 		constexpr std::size_t MaxBytes = 32 * 1024 * 1024;
-#	endif
+#endif
 		constexpr std::int32_t MaxBuildsPerFrame = 128;
 		constexpr float MaxBuildMilliseconds = 4.0f;
 #endif
@@ -53,7 +53,14 @@ namespace Jazz2::Editor
 		using ToolMath::PositiveModulo;
 
 		// Edges of a cell between the middles of four pixels, which the outline crosses
-		enum CellEdge : std::uint8_t { EdgeTop, EdgeRight, EdgeBottom, EdgeLeft, EdgeNone };
+		enum CellEdge : std::uint8_t
+		{
+			EdgeTop,
+			EdgeRight,
+			EdgeBottom,
+			EdgeLeft,
+			EdgeNone
+		};
 
 		// Lines across a cell by which of its corners are solid (top left 8, top right 4, bottom right 2, bottom left 1),
 		// diagonal solid corners are connected
@@ -118,7 +125,7 @@ namespace Jazz2::Editor
 			return;
 		}
 		// The outline of a chunk depends on the tiles next to it too
-		for (auto it = _chunks.begin(); it != _chunks.end(); ) {
+		for (auto it = _chunks.begin(); it != _chunks.end();) {
 			const Vector2i& start = it->second.Start;
 			if (start.X - 1 < area.X + area.W && start.X + ChunkTiles >= area.X && start.Y - 1 < area.Y + area.H && start.Y + ChunkTiles >= area.Y) {
 				_bytes -= it->second.Bytes;
@@ -167,7 +174,7 @@ namespace Jazz2::Editor
 		if (width <= 0 || height <= 0) {
 			return;
 		}
-		for (auto it = _chunks.begin(); it != _chunks.end(); ) {
+		for (auto it = _chunks.begin(); it != _chunks.end();) {
 			if (showsAny(it->second)) {
 				_bytes -= it->second.Bytes;
 				it = _chunks.erase(it);
@@ -402,10 +409,14 @@ namespace Jazz2::Editor
 		}
 		auto edgeId = [columns](std::int32_t x, std::int32_t y, CellEdge edge) {
 			switch (edge) {
-				case EdgeTop: return (y * columns + x) * 2;
-				case EdgeBottom: return ((y + 1) * columns + x) * 2;
-				case EdgeLeft: return (y * columns + x) * 2 + 1;
-				default: return (y * columns + x + 1) * 2 + 1;
+				case EdgeTop:
+					return (y * columns + x) * 2;
+				case EdgeBottom:
+					return ((y + 1) * columns + x) * 2;
+				case EdgeLeft:
+					return (y * columns + x) * 2 + 1;
+				default:
+					return (y * columns + x + 1) * 2 + 1;
 			}
 		};
 		auto edgePosition = [columns](std::int32_t id) {
