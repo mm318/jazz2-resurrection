@@ -39,3 +39,4 @@ jobs:
         with:
           name: jazz2-web-${{ matrix.optimize }}
           path: zig-out/web
+          include-hidden-files: true

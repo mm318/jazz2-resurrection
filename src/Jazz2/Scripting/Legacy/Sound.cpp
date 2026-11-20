@@ -78,7 +78,7 @@ namespace Jazz2::Scripting
 		}
 
 		// The sample mapping is the same one the content pipeline uses to convert the original sound bank, so the
-		// original sample index maps directly to the converted "Sounds/{Category}/{Name}.wav" asset
+		// original sample index maps to the logical sound name; the resolver selects its stored format
 		if (_sampleMapping == nullptr) {
 			Compatibility::JJ2Version version = (versionTSF ? Compatibility::JJ2Version::TSF : Compatibility::JJ2Version::BaseGame);
 			_sampleMapping = std::make_unique<Compatibility::AnimSetMapping>(Compatibility::AnimSetMapping::GetSampleMapping(version));
@@ -88,9 +88,10 @@ namespace Jazz2::Scripting
 		auto* entry = _sampleMapping->GetByOrdinal((std::uint32_t)sampleId);
 		if (entry != nullptr && entry->Category != Compatibility::AnimSetMapping::Discard && !entry->Name.empty()) {
 			String path = entry->Category + "/"_s + entry->Name + ".wav"_s;
-			auto stream = ContentResolver::Get().OpenSoundFile(path);
+			String resolvedPath;
+			auto stream = ContentResolver::Get().OpenSoundFile(path, resolvedPath);
 			if (stream->IsValid()) {
-				buffer = std::make_unique<AudioBuffer>(Death::move(stream), path);
+				buffer = std::make_unique<AudioBuffer>(Death::move(stream), resolvedPath);
 			}
 		}
 
@@ -112,7 +113,7 @@ namespace Jazz2::Scripting
 
 		// JJ2 volume is roughly 0-64 (0x40 = full); frequency 0 means the sample's natural rate
 		float gain = (volume <= 0 ? 0.0f : volume / 64.0f);
-		float pitch = (frequency <= 0 || buffer->GetFrequency() <= 0 ? 1.0f : (float)frequency / (float)buffer->GetFrequency());
+		float pitch = (frequency <= 0 || buffer->GetOriginalFrequency() <= 0 ? 1.0f : (float)frequency / (float)buffer->GetOriginalFrequency());
 
 		return _levelHandler->PlaySfx(nullptr, {}, buffer, Vector3f(pos.X, pos.Y, 0.0f), sourceRelative, gain, pitch, SfxFlags::None);
 #else

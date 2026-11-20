@@ -797,9 +797,20 @@ namespace Jazz2
 		return fs::Open(fs::CombinePath(GetContentPath(), path), FileAccess::Read, bufferSize);
 	}
 
-	std::unique_ptr<Stream> ContentResolver::OpenSoundFile(StringView path)
+	std::unique_ptr<Stream> ContentResolver::OpenSoundFile(StringView path, String& resolvedPath)
 	{
-		return OpenContentFile(fs::CombinePath(_hasLooseAssets ? "Sounds"_s : "Animations"_s, path));
+		// Metadata and cinematic cue lists use stable logical .wav names. The
+		// shared prepared tree stores Vorbis, while older packages retain PCM.
+		resolvedPath = path;
+		if (_hasLooseAssets && fs::GetExtension(path) == "wav"_s) {
+			resolvedPath = path.exceptSuffix(4) + ".ogg"_s;
+			auto sound = OpenContentFile(fs::CombinePath("Sounds"_s, resolvedPath));
+			if (sound->IsValid()) {
+				return sound;
+			}
+			resolvedPath = path;
+		}
+		return OpenContentFile(fs::CombinePath(_hasLooseAssets ? "Sounds"_s : "Animations"_s, resolvedPath));
 	}
 
 	void ContentResolver::BeginLoading()
@@ -1425,8 +1436,9 @@ namespace Jazz2
 				}
 				auto resource = std::make_unique<GenericSoundResource>(nativePath);
 #	else
-				auto s = OpenSoundFile(assetPath);
-				auto resource = std::make_unique<GenericSoundResource>(Death::move(s), assetPath);
+				String resolvedPath;
+				auto s = OpenSoundFile(assetPath, resolvedPath);
+				auto resource = std::make_unique<GenericSoundResource>(Death::move(s), resolvedPath);
 #	endif
 				if (resource->Buffer.GetSampleCount() <= 0) {
 					// The file was missing or could not be decoded (AudioBuffer already logged it).

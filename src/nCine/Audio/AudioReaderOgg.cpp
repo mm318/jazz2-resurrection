@@ -25,6 +25,7 @@ namespace nCine
 	AudioReaderOgg::ov_read_t* AudioReaderOgg::_ov_read = nullptr;
 	AudioReaderOgg::ov_raw_seek_t* AudioReaderOgg::_ov_raw_seek = nullptr;
 	AudioReaderOgg::ov_info_t* AudioReaderOgg::_ov_info = nullptr;
+	AudioReaderOgg::ov_comment_t* AudioReaderOgg::_ov_comment = nullptr;
 	AudioReaderOgg::ov_open_callbacks_t* AudioReaderOgg::_ov_open_callbacks = nullptr;
 	AudioReaderOgg::ov_pcm_total_t* AudioReaderOgg::_ov_pcm_total = nullptr;
 	AudioReaderOgg::ov_time_total_t* AudioReaderOgg::_ov_time_total = nullptr;
@@ -122,12 +123,13 @@ namespace nCine
 		_ov_read = (ov_read_t*)::GetProcAddress(_ovLib, "ov_read");
 		_ov_raw_seek = (ov_raw_seek_t*)::GetProcAddress(_ovLib, "ov_raw_seek");
 		_ov_info = (ov_info_t*)::GetProcAddress(_ovLib, "ov_info");
+		_ov_comment = (ov_comment_t*)::GetProcAddress(_ovLib, "ov_comment");
 		_ov_open_callbacks = (ov_open_callbacks_t*)::GetProcAddress(_ovLib, "ov_open_callbacks");
 		_ov_pcm_total = (ov_pcm_total_t*)::GetProcAddress(_ovLib, "ov_pcm_total");
 		_ov_time_total = (ov_time_total_t*)::GetProcAddress(_ovLib, "ov_time_total");
 
 		if (_ov_clear == nullptr || _ov_read == nullptr || _ov_raw_seek == nullptr || _ov_info == nullptr ||
-			_ov_open_callbacks == nullptr || _ov_pcm_total == nullptr || _ov_time_total == nullptr) {
+			_ov_comment == nullptr || _ov_open_callbacks == nullptr || _ov_pcm_total == nullptr || _ov_time_total == nullptr) {
 			::FreeLibrary(_ovLib);
 			_ovLib = nullptr;
 			return false;

@@ -1,6 +1,9 @@
 #include "AudioLoaderOgg.h"
 #include "AudioReaderOgg.h"
 
+#include <charconv>
+#include <cstring>
+
 #if defined(WITH_VORBIS)
 
 using namespace Death::IO;
@@ -67,6 +70,27 @@ namespace nCine
 		_bytesPerSample = 2; // Ogg is always 16 bits
 		_numChannels = info->channels;
 		_frequency = info->rate;
+
+#if defined(WITH_VORBIS_DYNAMIC)
+		const vorbis_comment* comments = AudioReaderOgg::_ov_comment(&_oggFile, -1);
+#else
+		const vorbis_comment* comments = ov_comment(&_oggFile, -1);
+#endif
+		// A legacy script's absolute playback frequency refers to the original
+		// sample, even when the prepared Ogg has a lower decoding frequency.
+		constexpr char rateTag[] = "ORIGINAL_SAMPLE_RATE=";
+		constexpr std::size_t rateTagLength = sizeof(rateTag) - 1;
+		for (int i = 0; comments != nullptr && i < comments->comments; i++) {
+			const char* comment = comments->user_comments[i];
+			const int length = comments->comment_lengths[i];
+			if (length > rateTagLength && std::memcmp(comment, rateTag, rateTagLength) == 0) {
+				std::int32_t rate = 0;
+				auto result = std::from_chars(comment + rateTagLength, comment + length, rate);
+				if (result.ec == std::errc{} && result.ptr == comment + length && rate > 0 && rate <= 384000) {
+					_originalFrequency = rate;
+				}
+			}
+		}
 
 #if defined(WITH_VORBIS_DYNAMIC)
 		_numSamples = static_cast<unsigned long int>(AudioReaderOgg::_ov_pcm_total(&_oggFile, -1));

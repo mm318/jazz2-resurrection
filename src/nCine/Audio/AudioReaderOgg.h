@@ -52,6 +52,7 @@ namespace nCine
 		using ov_read_t = decltype(ov_read);
 		using ov_raw_seek_t = decltype(ov_raw_seek);
 		using ov_info_t = decltype(ov_info);
+		using ov_comment_t = decltype(ov_comment);
 		using ov_open_callbacks_t = decltype(ov_open_callbacks);
 		using ov_pcm_total_t = decltype(ov_pcm_total);
 		using ov_time_total_t = decltype(ov_time_total);
@@ -62,6 +63,7 @@ namespace nCine
 		static ov_read_t* _ov_read;
 		static ov_raw_seek_t* _ov_raw_seek;
 		static ov_info_t* _ov_info;
+		static ov_comment_t* _ov_comment;
 		static ov_open_callbacks_t* _ov_open_callbacks;
 		static ov_pcm_total_t* _ov_pcm_total;
 		static ov_time_total_t* _ov_time_total;

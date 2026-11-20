@@ -1062,9 +1062,10 @@ namespace Jazz2::UI
 				_sfxSamples.emplace_back(); // Sample not found
 			}
 #	else
-			auto sample = resolver.OpenSoundFile(samplePathNormalized);
+			String resolvedPath;
+			auto sample = resolver.OpenSoundFile(samplePathNormalized, resolvedPath);
 			if (sample->IsValid()) {
-				_sfxSamples.emplace_back(Death::move(sample), samplePathNormalized);
+				_sfxSamples.emplace_back(Death::move(sample), resolvedPath);
 			} else {
 				_sfxSamples.emplace_back(); // Sample not found
 			}

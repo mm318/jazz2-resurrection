@@ -103,7 +103,7 @@ namespace nCine
 
 	AudioBuffer::AudioBuffer(AudioBuffer&& other) noexcept
 		: Object(Death::move(other)), _bufferId(other._bufferId), _bytesPerSample(other._bytesPerSample), _numChannels(other._numChannels),
-			_frequency(other._frequency), _numSamples(other._numSamples), _duration(other._duration)
+			_frequency(other._frequency), _originalFrequency(other._originalFrequency), _numSamples(other._numSamples), _duration(other._duration)
 	{
 		other._bufferId = 0;
 	}
@@ -116,6 +116,7 @@ namespace nCine
 		_bytesPerSample = other._bytesPerSample;
 		_numChannels = other._numChannels;
 		_frequency = other._frequency;
+		_originalFrequency = other._originalFrequency;
 		_numSamples = other._numSamples;
 		_duration = other._duration;
 
@@ -146,6 +147,7 @@ namespace nCine
 				break;
 		}
 		_frequency = frequency;
+		_originalFrequency = 0;
 
 		LoadFromSamples(nullptr, 0);
 #	endif
@@ -173,6 +175,7 @@ namespace nCine
 			_bytesPerSample = info.BytesPerSample;
 			_numChannels = info.NumChannels;
 			_frequency = info.Frequency;
+			_originalFrequency = 0;
 			_numSamples = info.NumSamples;
 			_duration = (_frequency > 0 && _numSamples > 0 ? float(_numSamples) / _frequency : 0.0f);
 			return true;
@@ -230,6 +233,7 @@ namespace nCine
 		_bytesPerSample = audioLoader.GetBytesPerSample();
 		_numChannels = audioLoader.GetChannelCount();
 		_frequency = audioLoader.GetFrequency();
+		_originalFrequency = audioLoader.GetOriginalFrequency();
 
 		// Buffer size calculated as samples * channels * bytes per samples
 		const std::int32_t bufferSize = std::int32_t(audioLoader.GetBufferSize());

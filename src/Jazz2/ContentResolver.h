@@ -219,8 +219,8 @@ namespace Jazz2
 		void RemountPaks();
 		/** @brief Tries to find and open a file specified by the path */
 		std::unique_ptr<Stream> OpenContentFile(StringView path, std::int32_t bufferSize = 8192);
-		/** @brief Opens a converted sound effect relative to Sounds/ (or a console package) */
-		std::unique_ptr<Stream> OpenSoundFile(StringView path);
+		/** @brief Resolves a logical sound name and returns its actual filename for decoder selection */
+		std::unique_ptr<Stream> OpenSoundFile(StringView path, String& resolvedPath);
 		/** @brief Marks beginning of the loading assets */
 		void BeginLoading();
 		/** @brief Marks end of the loading assets */

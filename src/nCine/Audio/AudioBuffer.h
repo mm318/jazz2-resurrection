@@ -68,6 +68,10 @@ namespace nCine
 		inline std::int32_t GetFrequency() const {
 			return _frequency;
 		}
+		/** @brief Returns the original frequency for legacy scripts specifying an absolute playback rate */
+		inline std::int32_t GetOriginalFrequency() const {
+			return _originalFrequency > 0 ? _originalFrequency : _frequency;
+		}
 
 		/** @brief Returns the total number of samples */
 		inline std::int32_t GetSampleCount() const {
@@ -98,6 +102,7 @@ namespace nCine
 		std::int32_t _numChannels;
 		/** @brief Sample frequency */
 		std::int32_t _frequency;
+		std::int32_t _originalFrequency = 0;
 
 		/** @brief Number of samples */
 		std::int32_t _numSamples;

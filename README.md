@@ -52,10 +52,33 @@ zig build -Dtarget=wasm32-emscripten -Doptimize=fast run
 ```
 
 Append `-- --no_browser` to serve without opening a browser. Deploy the complete
-`zig-out/web` directory, including the HTML, JavaScript, WebAssembly, data file,
-and `coi-serviceworker.js`. Serve over localhost or HTTPS; the service worker
+`zig-out/web` directory, including the HTML, JavaScript, WebAssembly,
+`index.data.br`, and `coi-serviceworker.js`. The asset bundle is compressed
+offline with Brotli quality 11 using the SDK's bundled Node; no separate
+Brotli installation is needed. Asset preparation, packaging, and installation
+use `assets/Assets.zig`, with `assets/CompressWeb.cjs` providing Brotli encoding.
+These tool sources are excluded from installed game data. The uncompressed
+`index.data` stays in the build cache and is not deployed. Incremental installs
+remove obsolete files.
+
+The server must send `Content-Encoding: br` and
+`Content-Type: application/octet-stream` for `index.data.br`. The local
+`zig build ... run` server handles this automatically. The output includes
+`_headers` for Netlify/Cloudflare Pages and `.htaccess` for Apache with
+`mod_mime` and overrides enabled. Adjust `_headers` if deploying under a
+subdirectory. For nginx, add this location inside the site's server block:
+
+```nginx
+location ~ \.data\.br$ {
+    default_type application/octet-stream;
+    add_header Content-Encoding br;
+}
+```
+
+Serve over localhost or HTTPS; the service worker
 supplies the cross-origin isolation needed by pthreads. The browser bundle
-preloads the same packaged game data as the desktop build.
+preloads the same packaged game data as the desktop build. A plain static
+server without the Brotli response header cannot serve this bundle correctly.
 
 Use `-Dcontent=/path/to/prepared-assets` to build with a different complete
 assets directory containing the converted runtime files under `Animations/`,
@@ -82,15 +105,29 @@ data without copying unused original files:
 
 ```sh
 zig build pack-assets -- convert /path/to/original-game /tmp/jazz2-content --target=desktop
+zig build prepare-assets -- /tmp/jazz2-content
 ```
 
-Copy the generated `Animations/`, `Sounds/`, `Cinematics/`, `Episodes/`,
+The second command requires FFmpeg with its `libvorbis` encoder. It replaces
+converted WAVs with Vorbis and original cinematics with half-resolution
+versions in the specified output directory. It can be repeated safely: existing
+Ogg files and prepared cinematics are left alone. Keep the original game data
+separately when regenerating assets; lossy files cannot restore their originals.
+This preparation is explicit and does not run during normal builds or startup.
+
+Copy the prepared `Animations/`, `Sounds/`, `Cinematics/`, `Episodes/`,
 `Tilesets/`, and `Music/` into `assets/` before rebuilding. `Anims.j2a` produces
-individual `.aura` sprite sheets and `.wav` sound effects; `Data.j2d` produces
+individual `.aura` sprite sheets and sound effects (prepared as `.ogg`); `Data.j2d` produces
 menu textures and `.j2sfx` cinematic cue lists. Desktop and browser builds load
 these files directly without `Prebaked.pak`. The converter selects tilesets
 and music used by the levels, includes menu music and the intro/ending videos,
 and leaves out installers, manuals, screenshots, and unrelated data.
+Logical `.wav` sound names in metadata and cinematic cue lists resolve to
+the prepared `.ogg` files. Ogg metadata preserves each sound's original sample
+rate so absolute playback frequencies in scripts retain their pitch.
+Translation `.po` sources remain editable in
+`assets/Translations/` but are excluded from both installed asset trees;
+runtime `.mo` translations are included.
 
 The build compiles separate Shared, nCine, and Jazz2 game libraries, with
 individual dependency builds under `deps/`. Generated shaders and compiler

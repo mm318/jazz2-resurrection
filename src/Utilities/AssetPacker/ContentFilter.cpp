@@ -18,6 +18,8 @@ namespace Jazz2::AssetPacker
 		// nothing loads one at run time - both the language list and the About section's translator credits require
 		// the ".mo" extension. They are larger than the ".mo" they produce, so a tree that is deployed as it is, onto
 		// a memory card or a disc that cannot be rewritten, is better off without them.
-		return (StringUtils::lowercase(fs::GetExtension(name)) == "po"_s);
+		// The asset preparation and packaging tools also live alongside the runtime assets.
+		String extension = StringUtils::lowercase(fs::GetExtension(name));
+		return (extension == "po"_s || extension == "zig"_s || extension == "cjs"_s);
 	}
 }

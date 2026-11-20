@@ -97,6 +97,7 @@
       var spinnerElement = document.getElementById('spinner');
 
       var Module = {
+        locateFile: (path, prefix) => prefix + (path.endsWith('.data') ? path + '.br' : path),
         print: (function() {
           var element = document.getElementById('output');
           if (element) element.value = ''; // clear browser cache
