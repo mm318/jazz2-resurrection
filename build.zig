@@ -210,6 +210,15 @@ pub fn build(b: *Build) void {
         package.addDirectoryArg2(emsdk.path("."), .{});
         const web_assets = b.addWriteFiles().addCopyDirectory(b.path("web_assets"), "web_assets", .{});
         package.addDirectoryArg2(web_assets, .{});
+        const decoder = b.addRunFile(emTool(b, emsdk, "emcc"));
+        decoder.addArgs(&.{ "-Oz", "-DNDEBUG", "-DBROTLI_BUILD_PORTABLE", "-Ideps/brotli/c/include", "-sSTANDALONE_WASM=1", "-sALLOW_MEMORY_GROWTH=1", "-sMALLOC=emmalloc", "-sABORTING_MALLOC=0", "-sFILESYSTEM=0", "-sASSERTIONS=0", "-sSTACK_SIZE=64KB", "-sEXPORTED_FUNCTIONS=_malloc,_free,_BrotliDecoderDecompress", "--no-entry" });
+        const decoder_sources = b.addWriteFiles().addCopyDirectory(b.path("deps/brotli"), "brotli", .{});
+        decoder.addArg("-I");
+        decoder.addDirectoryArg2(decoder_sources, .{ .suffix = "/c/include" });
+        for ([_][]const u8{ "common/constants.c", "common/context.c", "common/dictionary.c", "common/platform.c", "common/shared_dictionary.c", "common/transform.c", "dec/bit_reader.c", "dec/decode.c", "dec/huffman.c", "dec/prefix.c", "dec/state.c", "dec/static_init.c" }) |file| decoder.addFileArg(decoder_sources.path(b, b.fmt("c/{s}", .{file})));
+        decoder.addArg("-o");
+        const decoder_output = decoder.addOutputFileArg("brotli.wasm");
+        package.addFileArg(decoder_output);
 
         const install = b.addRunArtifact(asset_tools);
         install.addArg("install");

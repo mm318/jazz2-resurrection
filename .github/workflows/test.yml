@@ -35,6 +35,7 @@ jobs:
           version: 0.17.1
       - run: zig build install-emsdk
       - run: zig build -Dtarget=wasm32-emscripten -Doptimize=${{ matrix.optimize }}
+      - run: node tests/BrowserAssets.cjs zig-out/web/brotli.wasm zig-out/web/index.data.br
       - uses: actions/upload-artifact@v4
         with:
           name: jazz2-web-${{ matrix.optimize }}

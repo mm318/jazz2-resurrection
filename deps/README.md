@@ -5,6 +5,7 @@ The Zig build uses vendored sources for these libraries:
 | Directory | Version | Purpose |
 | --- | --- | --- |
 | `sdl` | 2.32.10 | Window, input, controllers, and queued audio |
+| `brotli` | 1.2.1 | Browser asset decompression (decoder only) |
 | `zlib` | 1.3.1 | Game data, PNG, and archive compression |
 | `ogg` | 1.3.5 | Ogg container |
 | `vorbis` | 1.3.7 | Vorbis music decoding |
@@ -16,7 +17,8 @@ The Zig build uses vendored sources for these libraries:
 | `enet` | Bundled single-header fork | Native UDP networking |
 | `parallel_hashmap`, `pdqsort`, `stb` | Bundled | Containers, sorting, and font rendering |
 
-Each compiled dependency has its own `build.zig` and `build.zig.zon`. SDL is
+The Brotli decoder is compiled directly with the pinned Emscripten SDK.
+Each other compiled dependency has its own `build.zig` and `build.zig.zon`. SDL is
 copied from the trimmed distribution in the sibling Destruct project, with its
 provenance and platform configuration described in `sdl/README.md`.
 The other existing bundled sources are retained from this repository.

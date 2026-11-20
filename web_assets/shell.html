@@ -97,7 +97,6 @@
       var spinnerElement = document.getElementById('spinner');
 
       var Module = {
-        locateFile: (path, prefix) => prefix + (path.endsWith('.data') ? path + '.br' : path),
         print: (function() {
           var element = document.getElementById('output');
           if (element) element.value = ''; // clear browser cache
@@ -163,16 +162,18 @@
       };
     </script>
 
+    <script src="asset-loader.js"></script>
     <template id="game-script">{{{ SCRIPT }}}</template>
     <script>
       // The isolation service worker reloads the first visit. Start pthreads
       // only on the isolated page, after SharedArrayBuffer is available.
       if (crossOriginIsolated) {
         const source = document.getElementById('game-script').content.querySelector('script');
-        const script = document.createElement('script');
-        script.src = source.src;
-        script.async = true;
-        document.body.appendChild(script);
+        JazzAssets.start(Module, source.src).catch(error => {
+          console.error(error);
+          Module.setStatus('Could not load game data. Reload to try again.');
+          spinnerElement.hidden = true;
+        });
       } else {
         Module.setStatus('Preparing browser...');
       }

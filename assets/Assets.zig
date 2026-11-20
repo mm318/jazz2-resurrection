@@ -11,13 +11,13 @@ pub fn main(init: std.process.Init) !void {
     const tool = Tool{ .gpa = gpa, .io = init.io };
     if (args.len == 5 and std.mem.eql(u8, args[1], "prepare") and std.mem.eql(u8, args[2], "--asset-packer")) {
         try tool.prepare(args[4], args[3]);
-    } else if (args.len == 6 and std.mem.eql(u8, args[1], "package-web")) {
-        try tool.packageWeb(args[2], args[3], args[4], args[5]);
+    } else if (args.len == 7 and std.mem.eql(u8, args[1], "package-web")) {
+        try tool.packageWeb(args[2], args[3], args[4], args[5], args[6]);
     } else if (args.len == 4 and std.mem.eql(u8, args[1], "install")) {
         try tool.install(args[2], args[3]);
     } else {
         std.debug.print("Usage: AssetTools prepare --asset-packer <executable> <directory>\n" ++
-            "       AssetTools package-web <source> <target> <emsdk> <web-assets>\n" ++
+            "       AssetTools package-web <source> <target> <emsdk> <web-assets> <decoder>\n" ++
             "       AssetTools install <source> <target>\n", .{});
         return error.InvalidArguments;
     }
@@ -137,7 +137,7 @@ const Tool = struct {
         }
     }
 
-    fn packageWeb(tool: Tool, source_path: []const u8, target_path: []const u8, sdk: []const u8, web_assets: []const u8) !void {
+    fn packageWeb(tool: Tool, source_path: []const u8, target_path: []const u8, sdk: []const u8, web_assets: []const u8, decoder: []const u8) !void {
         var source = try Dir.cwd().openDir(tool.io, source_path, .{ .iterate = true });
         defer source.close(tool.io);
         var target = try Dir.cwd().createDirPathOpen(tool.io, target_path, .{ .open_options = .{ .iterate = true } });
@@ -145,9 +145,11 @@ const Tool = struct {
         try tool.copyTree(source, target, false, true);
         var extra = try Dir.cwd().openDir(tool.io, web_assets, .{});
         defer extra.close(tool.io);
-        for ([_][]const u8{ "coi-serviceworker.js", "_headers", ".htaccess" }) |name| {
+        for ([_][]const u8{ "coi-serviceworker.js", "asset-loader.js", "asset-worker.js" }) |name| {
             _ = try extra.updateFile(tool.io, name, target, name, .{});
         }
+        _ = try Dir.cwd().updateFile(tool.io, decoder, target, "brotli.wasm", .{});
+        _ = try Dir.cwd().updateFile(tool.io, "deps/brotli/LICENSE", target, "brotli.LICENSE", .{});
         const config = try Dir.cwd().readFileAlloc(tool.io, try tool.join(&.{ sdk, ".emscripten" }), tool.gpa, .limited(1024 * 1024));
         const node = try nodeCommand(tool.gpa, config, sdk);
         var argv: std.ArrayList([]const u8) = .empty;

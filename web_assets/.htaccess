@@ -1,6 +1,0 @@
-<IfModule mod_mime.c>
-  AddEncoding br .br
-  <Files "index.data.br">
-    ForceType application/octet-stream
-  </Files>
-</IfModule>
