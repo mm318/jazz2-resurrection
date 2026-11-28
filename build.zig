@@ -161,8 +161,14 @@ pub fn build(b: *Build) void {
 
     if (web) {
         const lib = b.addLibrary(.{ .name = "Jazz2", .root_module = root });
-        const link = b.addRunFile(emTool(b, emsdk, "em++"));
+        // Link from inside the output directory so the generated loader names
+        // its data package "index.data" instead of a path into the build cache.
+        // Inputs are absolute because they are no longer relative to the child.
+        const link = b.addRunArtifact(asset_tools);
         link.setName("Emscripten link Jazz2");
+        link.addArg("run-in");
+        const output = link.addOutputDirectoryArg("web");
+        link.addFileArg2(emTool(b, emsdk, "em++"), .{ .make_absolute = true });
         link.addArgs(&.{
             if (optimize == .debug) "-Og" else if (optimize == .small) "-Oz" else "-O3",
             "-sMIN_WEBGL_VERSION=2",
@@ -191,21 +197,20 @@ pub fn build(b: *Build) void {
             link.addArgs(&.{ "-flto", "--closure", "1" });
         }
 
-        link.addPrefixedFileArg("--shell-file=", b.path("web_assets/shell.html"));
+        link.addFileArg2(b.path("web_assets/shell.html"), .{ .prefix = "--shell-file=", .make_absolute = true });
         link.addArg("--preload-file");
-        link.addDirectoryArg2(asset_inputs, .{ .suffix = "@/assets" });
-        link.addArtifactArg(lib);
+        link.addDirectoryArg2(asset_inputs, .{ .suffix = "@/assets", .make_absolute = true });
+        link.addArtifactArg2(lib, .{ .make_absolute = true });
 
         for (lib.getCompileDependencies(false)) |dependency| {
-            if (dependency != lib and dependency.kind == .lib) link.addArtifactArg(dependency);
+            if (dependency != lib and dependency.kind == .lib) link.addArtifactArg2(dependency, .{ .make_absolute = true });
         }
 
-        link.addArg("-o");
-        const output = link.addOutputFileArg("index.html");
+        link.addArgs(&.{ "-o", "index.html" });
 
         const package = b.addRunArtifact(asset_tools);
         package.addArg("package-web");
-        package.addDirectoryArg2(output.dirname(), .{});
+        package.addDirectoryArg2(output, .{});
         const web_output = package.addOutputDirectoryArg("web");
         package.addDirectoryArg2(emsdk.path("."), .{});
         const web_assets = b.addWriteFiles().addCopyDirectory(b.path("web_assets"), "web_assets", .{});

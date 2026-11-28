@@ -15,10 +15,15 @@ pub fn main(init: std.process.Init) !void {
         try tool.packageWeb(args[2], args[3], args[4], args[5], args[6]);
     } else if (args.len == 4 and std.mem.eql(u8, args[1], "install")) {
         try tool.install(args[2], args[3]);
+    } else if (args.len >= 4 and std.mem.eql(u8, args[1], "run-in")) {
+        const argv = try gpa.alloc([]const u8, args.len - 3);
+        for (argv, args[3..]) |*out, arg| out.* = arg;
+        try tool.runIn(args[2], argv);
     } else {
         std.debug.print("Usage: AssetTools prepare --asset-packer <executable> <directory>\n" ++
             "       AssetTools package-web <source> <target> <emsdk> <web-assets> <decoder>\n" ++
-            "       AssetTools install <source> <target>\n", .{});
+            "       AssetTools install <source> <target>\n" ++
+            "       AssetTools run-in <directory> <command> [arguments...]\n", .{});
         return error.InvalidArguments;
     }
 }
@@ -33,6 +38,19 @@ const Tool = struct {
 
     fn run(tool: Tool, argv: []const []const u8) !void {
         var child = try std.process.spawn(tool.io, .{ .argv = argv, .stdin = .ignore });
+        defer child.kill(tool.io);
+        if (!(try child.wait(tool.io)).success()) {
+            std.log.err("{s} failed", .{argv[0]});
+            return error.ChildProcessFailed;
+        }
+    }
+
+    /// Emscripten names the preloaded data package after the path given to
+    /// `-o` and writes that name into the generated JavaScript. Linking from
+    /// inside the output directory with `-o index.html` keeps build cache
+    /// paths such as `.zig-cache/o/<hash>/` out of the published files.
+    fn runIn(tool: Tool, directory: []const u8, argv: []const []const u8) !void {
+        var child = try std.process.spawn(tool.io, .{ .argv = argv, .cwd = .{ .path = directory }, .stdin = .ignore });
         defer child.kill(tool.io);
         if (!(try child.wait(tool.io)).success()) {
             std.log.err("{s} failed", .{argv[0]});
